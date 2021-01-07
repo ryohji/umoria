@@ -39,16 +39,12 @@ void dungeon() {
     // Note: There is a lot of preliminary magic going on here at first
 
     // init pointers.
-    struct flags *f_ptr = &py.flags;
-    struct misc *p_ptr = &py.misc;
+    struct flags *const f_ptr = &py.flags;
+    struct misc *const p_ptr = &py.misc;
 
     // Check light status for setup
     inven_type *i_ptr = &inventory[INVEN_LIGHT];
-    if (i_ptr->p1 > 0) {
-        player_light = true;
-    } else {
-        player_light = false;
-    }
+    player_light = i_ptr->p1 > 0;
 
     // Check for a maximum level
     if (dun_level > p_ptr->max_dlv) {
@@ -73,7 +69,7 @@ void dungeon() {
     // must do this after panel_row/col set to -1, because search_off() will
     // call check_view(), and so the panel_* variables must be valid before
     // search_off() is called
-    if (py.flags.status & PY_SEARCH) {
+    if (f_ptr->status & PY_SEARCH) {
         search_off();
     }
 
@@ -111,7 +107,7 @@ void dungeon() {
 
                     // unlight creatures
                     creatures(false);
-                } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && (py.flags.blind < 1)) {
+                } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && (f_ptr->blind < 1)) {
                     disturb(0, 0);
                     msg_print("Your light is growing faint.");
                 }
@@ -240,10 +236,10 @@ void dungeon() {
         if (f_ptr->regenerate) {
             regen_amount = regen_amount * 3 / 2;
         }
-        if ((py.flags.status & PY_SEARCH) || f_ptr->rest != 0) {
+        if ((f_ptr->status & PY_SEARCH) || f_ptr->rest != 0) {
             regen_amount = regen_amount * 2;
         }
-        if ((py.flags.poisoned < 1) && (p_ptr->chp < p_ptr->mhp)) {
+        if ((f_ptr->poisoned < 1) && (p_ptr->chp < p_ptr->mhp)) {
             regenhp(regen_amount);
         }
         if (p_ptr->cmana < p_ptr->mana) {
@@ -285,7 +281,7 @@ void dungeon() {
                 f_ptr->status &= ~PY_CONFUSED;
                 prt_confused();
                 msg_print("You feel less confused now.");
-                if (py.flags.rest != 0) {
+                if (f_ptr->rest != 0) {
                     rest_off();
                 }
             }
@@ -329,7 +325,8 @@ void dungeon() {
                 case -4:
                     i = 4;
                     break;
-                case -3: case -2:
+                case -3:
+                case -2:
                     i = 3;
                     break;
                 case -1:
@@ -338,10 +335,13 @@ void dungeon() {
                 case 0:
                     i = 1;
                     break;
-                case 1: case 2: case 3:
+                case 1:
+                case 2:
+                case 3:
                     i = ((turn % 2) == 0);
                     break;
-                case 4: case 5:
+                case 4:
+                case 5:
                     i = ((turn % 3) == 0);
                     break;
                 case 6:
@@ -560,59 +560,59 @@ void dungeon() {
         }
 
         // Random teleportation
-        if ((py.flags.teleport) && (randint(100) == 1)) {
+        if ((f_ptr->teleport) && (randint(100) == 1)) {
             disturb(0, 0);
             teleport(40);
         }
 
         // See if we are too weak to handle the weapon or pack. -CJS-
-        if (py.flags.status & PY_STR_WGT) {
+        if (f_ptr->status & PY_STR_WGT) {
             check_strength();
         }
 
-        if (py.flags.status & PY_STUDY) {
+        if (f_ptr->status & PY_STUDY) {
             prt_study();
         }
 
-        if (py.flags.status & PY_SPEED) {
-            py.flags.status &= ~PY_SPEED;
+        if (f_ptr->status & PY_SPEED) {
+            f_ptr->status &= ~PY_SPEED;
             prt_speed();
         }
 
-        if ((py.flags.status & PY_PARALYSED) && (py.flags.paralysis < 1)) {
+        if ((f_ptr->status & PY_PARALYSED) && (f_ptr->paralysis < 1)) {
             prt_state();
-            py.flags.status &= ~PY_PARALYSED;
-        } else if (py.flags.paralysis > 0) {
+            f_ptr->status &= ~PY_PARALYSED;
+        } else if (f_ptr->paralysis > 0) {
             prt_state();
-            py.flags.status |= PY_PARALYSED;
-        } else if (py.flags.rest != 0) {
+            f_ptr->status |= PY_PARALYSED;
+        } else if (f_ptr->rest != 0) {
             prt_state();
         }
 
-        if ((py.flags.status & PY_ARMOR) != 0) {
+        if ((f_ptr->status & PY_ARMOR) != 0) {
             prt_pac();
-            py.flags.status &= ~PY_ARMOR;
+            f_ptr->status &= ~PY_ARMOR;
         }
 
-        if ((py.flags.status & PY_STATS) != 0) {
+        if ((f_ptr->status & PY_STATS) != 0) {
             for (int n = 0; n < 6; n++) {
-                if ((PY_STR << n) & py.flags.status) {
+                if ((PY_STR << n) & f_ptr->status) {
                     prt_stat(n);
                 }
             }
 
-            py.flags.status &= ~PY_STATS;
+            f_ptr->status &= ~PY_STATS;
         }
 
-        if (py.flags.status & PY_HP) {
+        if (f_ptr->status & PY_HP) {
             prt_mhp();
             prt_chp();
-            py.flags.status &= ~PY_HP;
+            f_ptr->status &= ~PY_HP;
         }
 
-        if (py.flags.status & PY_MANA) {
+        if (f_ptr->status & PY_MANA) {
             prt_cmana();
-            py.flags.status &= ~PY_MANA;
+            f_ptr->status &= ~PY_MANA;
         }
 
         // Allow for a slim chance of detect enchantment -CJS-
@@ -652,12 +652,12 @@ void dungeon() {
         }
 
         // Accept a command?
-        if ((py.flags.paralysis < 1) && (py.flags.rest == 0) && (!death)) {
+        if ((f_ptr->paralysis < 1) && (f_ptr->rest == 0) && (!death)) {
             char command; // Last command
 
             // Accept a command and execute it
             do {
-                if (py.flags.status & PY_REPEAT) {
+                if (f_ptr->status & PY_REPEAT) {
                     prt_state();
                 }
 
@@ -1038,7 +1038,7 @@ static void do_command(char com_val) {
     bool do_pickup, do_diplay_scores;
     int y, x, i, j;
     vtype out_val, tmp_str;
-    struct flags *f_ptr;
+    struct flags *const f_ptr = &py.flags;
 
     // hack for move without pickup.  Map '-' to a movement command.
     if (com_val == '-') {
@@ -1295,7 +1295,7 @@ static void do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'W': // (W)here are we on the map  (L)ocate on map
-        if ((py.flags.blind > 0) || no_light()) {
+        if ((f_ptr->blind > 0) || no_light()) {
             msg_print("You can't see your map.");
         } else {
             int cy, cx, p_y, p_x;
@@ -1313,7 +1313,7 @@ static void do_command(char com_val) {
                 if (p_y == cy && p_x == cx) {
                     tmp_str[0] = '\0';
                 } else {
-                    (void)sprintf(tmp_str, "%s%s of", p_y < cy ? " North" : p_y > cy ? " South": "", p_x < cx ? " West" : p_x > cx ? " East" : "");
+                    (void)sprintf(tmp_str, "%s%s of", p_y < cy ? " North" : p_y > cy ? " South" : "", p_x < cx ? " West" : p_x > cx ? " East" : "");
                 }
                 (void)sprintf(out_val, "Map sector [%d,%d], which is%s your sector. Look which direction?", p_y, p_x, tmp_str);
                 if (!get_dir(out_val, &dir_val)) {
@@ -1351,7 +1351,7 @@ static void do_command(char com_val) {
         rest();
         break;
     case '#': // (#) search toggle  (S)earch toggle
-        if (py.flags.status & PY_SEARCH) {
+        if (f_ptr->status & PY_SEARCH) {
             search_off();
         } else {
             search_on();
@@ -1468,7 +1468,6 @@ static void do_command(char com_val) {
                 (void)res_stat(A_CON);
                 (void)res_stat(A_DEX);
                 (void)res_stat(A_CHR);
-                f_ptr = &py.flags;
                 if (f_ptr->slow > 1) {
                     f_ptr->slow = 1;
                 }
