@@ -1839,25 +1839,16 @@ static void go_up() {
 
 // Go down one level -RAK-
 static void go_down() {
-    bool no_stairs = false;
-    cave_type *c_ptr = &cave[char_row][char_col];
+    const uint8_t tptr = cave[char_row][char_col].tptr;
 
-    if (c_ptr->tptr != 0) {
-        if (t_list[c_ptr->tptr].tval == TV_DOWN_STAIR) {
-            dun_level++;
-            new_level_flag = true;
-            msg_print("You enter a maze of down staircases.");
-            msg_print("You pass through a one-way door.");
-        } else {
-            no_stairs = true;
-        }
+    if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
+        dun_level++;
+        new_level_flag = true;
+        msg_print("You enter a maze of down staircases.");
+        msg_print("You pass through a one-way door.");
     } else {
-        no_stairs = true;
-    }
-
-    if (no_stairs) {
-        msg_print("I see no down staircase here.");
         free_turn_flag = true;
+        msg_print("I see no down staircase here.");
     }
 }
 
