@@ -140,7 +140,8 @@ static void get_moves(int monptr, int *mm) {
             mm[4] = 7;
         }
         break;
-    case 1: case 9:
+    case 1:
+    case 9:
         mm[0] = 6;
         if (y < 0) {
             mm[1] = 3;
@@ -154,7 +155,8 @@ static void get_moves(int monptr, int *mm) {
             mm[4] = 2;
         }
         break;
-    case 2: case 6:
+    case 2:
+    case 6:
         mm[0] = 8;
         if (x < 0) {
             mm[1] = 9;
@@ -182,7 +184,8 @@ static void get_moves(int monptr, int *mm) {
             mm[4] = 9;
         }
         break;
-    case 5: case 13:
+    case 5:
+    case 13:
         mm[0] = 4;
         if (y < 0) {
             mm[1] = 1;
@@ -210,7 +213,8 @@ static void get_moves(int monptr, int *mm) {
             mm[4] = 1;
         }
         break;
-    case 10: case 14:
+    case 10:
+    case 14:
         mm[0] = 2;
         if (x < 0) {
             mm[1] = 3;
@@ -278,15 +282,18 @@ static void make_attack(int monptr) {
     vtype tmp_str;
 
     bool flag = false;
-    int attackn = 0;
-    uint8_t *attstr = r_ptr->damage;
+    const attack_handle *iter = r_ptr->attack;
 
-    while ((*attstr != 0) && !death) {
-        attype = monster_attacks[*attstr].attack_type;
-        adesc = monster_attacks[*attstr].attack_desc;
-        adice = monster_attacks[*attstr].attack_dice;
-        asides = monster_attacks[*attstr].attack_sides;
-        attstr++;
+    for (; iter != END_OF(r_ptr->attack) && !death; iter += 1) {
+        const struct m_attack_type *const attack = monster_attack(*iter);
+        const int attackn = iter - r_ptr->attack;
+        if (!attack) {
+            break;
+        }
+        attype = attack->attack_type;
+        adesc = attack->attack_desc;
+        adice = attack->attack_dice;
+        asides = attack->attack_sides;
         flag = false;
         if ((py.flags.protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
             ((py.misc.lev + 1) > r_ptr->level)) {
@@ -870,12 +877,6 @@ static void make_attack(int monptr) {
                 msg_print(strcat(tmp_str, "misses you."));
             }
         }
-
-        if (attackn < MAX_MON_NATTACK - 1) {
-            attackn++;
-        } else {
-            break;
-        }
     }
 }
 
@@ -1326,8 +1327,7 @@ bool multiply_monster(int y, int x, int cr_index, int monptr) {
                     // Some critters are cannibalistic!
                     if ((c_list[cr_index].cmove & CM_EATS_OTHER)
                         // Check the experience level -CJS-
-                        && c_list[cr_index].mexp >= c_list[m_list[c_ptr->cptr].mptr].mexp)
-                    {
+                        && c_list[cr_index].mexp >= c_list[m_list[c_ptr->cptr].mptr].mexp) {
                         // It ate an already processed monster.Handle * normally.
                         if (monptr < c_ptr->cptr) {
                             delete_monster((int)c_ptr->cptr);

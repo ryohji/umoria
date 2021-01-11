@@ -106,11 +106,20 @@ static char *desc_spell[] = {
 };
 
 static char *desc_breath[] = {
-    "lightning", "poison gases", "acid", "frost", "fire",
+    "lightning",
+    "poison gases",
+    "acid",
+    "frost",
+    "fire",
 };
 
 static char *desc_weakness[] = {
-    "frost", "fire", "poison", "acid", "bright light", "rock remover",
+    "frost",
+    "fire",
+    "poison",
+    "acid",
+    "bright light",
+    "rock remover",
 };
 
 static vtype roffbuf; // Line buffer.
@@ -150,7 +159,7 @@ bool bool_roff_recall(int mon_num) {
 int roff_recall(int mon_num) {
     bool known;
     char *p, *q;
-    uint8_t *pu;
+    const attack_handle *iter;
     uint32_t j;
     vtype temp;
 
@@ -179,13 +188,8 @@ int roff_recall(int mon_num) {
             mp->r_spells = cp->spells;
         }
 
-        j = 0;
-        pu = cp->damage;
-        while (*pu != 0 && j < 4) {
-            // Turbo C needs a 16 bit int for the array index.
-            mp->r_attacks[(int)j] = MAX_UCHAR;
-            j++;
-            pu++;
+        for (iter = cp->attack; monster_attack(*iter) && iter != END_OF(cp->attack); iter += 1) {
+            mp->r_attacks[iter - cp->attack] = MAX_UCHAR;
         }
 
         // A little hack to enable the display of info for Quylthulgs.
@@ -579,11 +583,11 @@ int roff_recall(int mon_num) {
         }
     }
 
-    pu = cp->damage;
-
     // j counts the attacks as printed, used for punctuation
     j = 0;
-    for (int i = 0; *pu != 0 && i < 4; pu++, i++) {
+    const struct m_attack_type *attack;
+    for (iter = cp->attack; (attack = monster_attack(*iter)) && iter != END_OF(cp->attack); iter += 1) {
+        const int i = iter - cp->attack;
         int att_type, att_how, d1, d2;
 
         // don't print out unknown attacks
@@ -591,10 +595,10 @@ int roff_recall(int mon_num) {
             continue;
         }
 
-        att_type = monster_attacks[*pu].attack_type;
-        att_how = monster_attacks[*pu].attack_desc;
-        d1 = monster_attacks[*pu].attack_dice;
-        d2 = monster_attacks[*pu].attack_sides;
+        att_type = attack->attack_type;
+        att_how = attack->attack_desc;
+        d1 = attack->attack_dice;
+        d2 = attack->attack_sides;
 
         j++;
         if (j == 1) {
