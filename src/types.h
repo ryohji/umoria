@@ -38,19 +38,19 @@ typedef struct attack_handle {
 } attack_handle;
 
 typedef struct creature_type {
-    char *name;                                  // Descrip of creature
-    uint32_t cmove;                              // Bit field
-    uint32_t spells;                             // Creature spells
-    uint16_t cdefense;                           // Bit field
-    uint16_t mexp;                               // Exp value for kill
-    uint8_t sleep;                               // Inactive counter/10
-    uint8_t aaf;                                 // Area affect radius
-    uint8_t ac;                                  // AC
-    uint8_t speed;                               // Movement speed+10 (NOTE: +10 so that it can be a uint8_t)
-    uint8_t cchar;                               // Character rep.
-    uint8_t hd[2];                               // Creatures hit die
+    const char *const name;                      // Descrip of creature
+    const uint32_t cmove;                        // Bit field
+    const uint32_t spells;                       // Creature spells
+    const uint16_t cdefense;                     // Bit field
+    const uint16_t mexp;                         // Exp value for kill
+    const uint8_t sleep;                         // Inactive counter/10
+    const uint8_t aaf;                           // Area affect radius
+    const uint8_t ac;                            // AC
+    const uint8_t speed;                         // Movement speed+10 (NOTE: +10 so that it can be a uint8_t)
+    const uint8_t cchar;                         // Character rep.
+    const uint8_t hd[2];                         // Creatures hit die
     const attack_handle attack[MAX_MON_NATTACK]; // Type attack and damage
-    uint8_t level;                               // Level of creature
+    const uint8_t level;                         // Level of creature
 } creature_type;
 
 // Monster attack and damage types

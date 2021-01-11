@@ -281,7 +281,7 @@ int damroll(int num, int sides) {
     return sum;
 }
 
-int pdamroll(uint8_t *array) {
+int pdamroll(const uint8_t *array) {
     return damroll((int)array[0], (int)array[1]);
 }
 
@@ -346,18 +346,18 @@ bool los(int fromY, int fromX, int toY, int toX) {
     // In the computations below, dy (or dx) and m are multiplied by a scale factor,
     // scale = abs(deltaX * deltaY * 2), so that we can use integer arithmetic.
     {
-        int px,        // x position
-            p_y,       // y position
-            scale2;    // above scale factor / 2
-        int scale,     // above scale factor
-            xSign,     // sign of deltaX
-            ySign,     // sign of deltaY
-            m;         // slope or 1/slope of LOS
+        int px,     // x position
+            p_y,    // y position
+            scale2; // above scale factor / 2
+        int scale,  // above scale factor
+            xSign,  // sign of deltaX
+            ySign,  // sign of deltaY
+            m;      // slope or 1/slope of LOS
 
         scale2 = abs(deltaX * deltaY);
-        scale  = scale2 << 1;
-        xSign  = (deltaX < 0) ? -1 : 1;
-        ySign  = (deltaY < 0) ? -1 : 1;
+        scale = scale2 << 1;
+        xSign = (deltaX < 0) ? -1 : 1;
+        ySign = (deltaY < 0) ? -1 : 1;
 
         // Travel from one end of the line to the other, oriented along the longer axis.
 
@@ -582,7 +582,7 @@ int popm() {
 }
 
 // Gives Max hit points -RAK-
-int max_hp(uint8_t *array) {
+int max_hp(const uint8_t *array) {
     return (array[0] * array[1]);
 }
 
