@@ -671,7 +671,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {24, 5, 0, 0},
 };
 
-const struct m_attack_type *monster_attack(const attack_handle h) {
+const struct m_attack_type *monster_attack(attack_handle h) {
     return h.place ? monster_attacks + h.place : NULL;
 }
 

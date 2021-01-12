@@ -395,7 +395,7 @@ void inscribe(inven_type *, char *);
 void check_view();
 
 // monsters.c
-const struct m_attack_type *monster_attack(const attack_handle h);
+const struct m_attack_type *monster_attack(attack_handle h);
 
 // moria1.c
 void change_speed(int);

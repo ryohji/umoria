@@ -34,7 +34,7 @@ typedef char stat_type[7];
 
 // handle to struct m_attack_type
 typedef struct attack_handle {
-    uint8_t place;
+    const uint8_t place;
 } attack_handle;
 
 typedef struct creature_type {
