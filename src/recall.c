@@ -188,7 +188,7 @@ int roff_recall(int mon_num) {
             mp->r_spells = cp->spells;
         }
 
-        for (iter = cp->attack; monster_attack(*iter) && iter != END_OF(cp->attack); iter += 1) {
+        for (iter = cp->attack; iter != END_OF(cp->attack) && !monster_attack_is_null(*iter); iter += 1) {
             mp->r_attacks[iter - cp->attack] = MAX_UCHAR;
         }
 
@@ -585,8 +585,7 @@ int roff_recall(int mon_num) {
 
     // j counts the attacks as printed, used for punctuation
     j = 0;
-    const struct m_attack_type *attack;
-    for (iter = cp->attack; (attack = monster_attack(*iter)) && iter != END_OF(cp->attack); iter += 1) {
+    for (iter = cp->attack; iter != END_OF(cp->attack) && !monster_attack_is_null(*iter); iter += 1) {
         const int i = iter - cp->attack;
         int att_type, att_how, d1, d2;
 
@@ -595,10 +594,10 @@ int roff_recall(int mon_num) {
             continue;
         }
 
-        att_type = attack->attack_type;
-        att_how = attack->attack_desc;
-        d1 = attack->attack_dice;
-        d2 = attack->attack_sides;
+        att_type = monster_attack_get_type(*iter);
+        att_how = monster_attack_get_desc(*iter);
+        d1 = monster_attack_get_dice(*iter);
+        d2 = monster_attack_get_sides(*iter);
 
         j++;
         if (j == 1) {

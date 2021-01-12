@@ -440,10 +440,15 @@ creature_type c_list[MAX_CREATURES] = {
     // Here is the only actual win creature.
     {"Balrog", 0xFF1F0002L, 0x0081C743L, 0x5004, 55000L, 0, 40, 125, 13, 'B', {75, 40}, {{104}, {78}, {214}, {0}}, 100},
 };
-// ERROR: attack #35 is no longer used
-static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
-    // 0
-    {0, 0, 0, 0},
+
+// Monster attack and damage types
+static struct {
+    const uint8_t type;
+    const uint8_t desc;
+    const uint8_t dice;
+    const uint8_t sides;
+} monster_attacks[N_MONS_ATTS] = {
+    {0, 0, 0, 0}, // 0
     {1, 1, 1, 2},
     {1, 1, 1, 3},
     {1, 1, 1, 4},
@@ -463,8 +468,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {1, 1, 3, 4},
     {1, 1, 3, 5},
     {1, 1, 3, 6},
-    // 20
-    {1, 1, 3, 8},
+    {1, 1, 3, 8}, // 20
     {1, 1, 4, 3},
     {1, 1, 4, 6},
     {1, 1, 5, 5},
@@ -479,13 +483,12 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {1, 2, 1, 10},
     {1, 2, 2, 3},
     {1, 2, 2, 4},
-    {1, 2, 2, 5},
+    {1, 2, 2, 5}, // #35 is no longer used
     {1, 2, 2, 6},
     {1, 2, 2, 8},
     {1, 2, 2, 10},
     {1, 2, 2, 12},
-    // 40
-    {1, 2, 2, 14},
+    {1, 2, 2, 14}, // 40
     {1, 2, 3, 4},
     {1, 2, 3, 12},
     {1, 2, 4, 4},
@@ -505,8 +508,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {1, 3, 1, 12},
     {1, 3, 3, 3},
     {1, 4, 1, 2},
-    // 60
-    {1, 4, 1, 3},
+    {1, 4, 1, 3}, // 60
     {1, 4, 1, 4},
     {1, 4, 2, 4},
     {1, 5, 1, 2},
@@ -526,8 +528,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {1, 16, 2, 8},
     {1, 17, 8, 12},
     {1, 18, 0, 0},
-    // 80
-    {2, 1, 3, 4},
+    {2, 1, 3, 4}, // 80
     {2, 1, 4, 6},
     {2, 2, 1, 4},
     {2, 2, 2, 4},
@@ -547,8 +548,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {4, 5, 0, 0},
     {4, 7, 0, 0},
     {4, 10, 0, 0},
-    // 100
-    {4, 13, 1, 6},
+    {4, 13, 1, 6}, // 100
     {5, 1, 2, 6},
     {5, 1, 3, 7},
     {5, 1, 4, 6},
@@ -568,8 +568,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {6, 8, 1, 5},
     {6, 9, 2, 6},
     {6, 9, 3, 6},
-    // 120
-    {7, 1, 3, 6},
+    {7, 1, 3, 6}, // 120
     {7, 2, 1, 3},
     {7, 2, 1, 6},
     {7, 2, 3, 6},
@@ -589,8 +588,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {9, 5, 2, 5},
     {9, 5, 2, 6},
     {9, 8, 2, 4},
-    // 140
-    {9, 12, 1, 3},
+    {9, 12, 1, 3}, // 140
     {10, 2, 1, 6},
     {10, 4, 1, 1},
     {10, 7, 2, 6},
@@ -610,8 +608,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {14, 2, 1, 10},
     {14, 2, 2, 4},
     {14, 2, 2, 5},
-    // 160
-    {14, 2, 2, 6},
+    {14, 2, 2, 6}, // 160
     {14, 2, 3, 4},
     {14, 2, 3, 9},
     {14, 2, 4, 4},
@@ -631,8 +628,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {15, 2, 3, 6},
     {15, 5, 1, 8},
     {15, 5, 2, 8},
-    // 180
-    {15, 5, 2, 10},
+    {15, 5, 2, 10}, // 180
     {15, 5, 2, 12},
     {15, 12, 1, 3},
     {16, 13, 1, 2},
@@ -652,8 +648,7 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {19, 5, 36, 8},
     {19, 5, 38, 8},
     {19, 5, 42, 8},
-    // 200
-    {19, 5, 44, 8},
+    {19, 5, 44, 8}, // 200
     {19, 5, 46, 8},
     {19, 5, 52, 8},
     {20, 10, 0, 0},
@@ -665,14 +660,29 @@ static struct m_attack_type monster_attacks[N_MONS_ATTS] = {
     {22, 5, 2, 3},
     {22, 12, 0, 0},
     {22, 15, 1, 1},
-    // 212
     {23, 1, 1, 1},
     {23, 5, 1, 3},
-    {24, 5, 0, 0},
+    {24, 5, 0, 0}, // 214
 };
 
-const struct m_attack_type *monster_attack(attack_handle h) {
-    return h.place ? monster_attacks + h.place : NULL;
+bool monster_attack_is_null(attack_handle h) {
+    return h.place == 0;
+}
+
+uint8_t monster_attack_get_type(attack_handle h) {
+    return monster_attacks[h.place].type;
+}
+
+uint8_t monster_attack_get_desc(attack_handle h) {
+    return monster_attacks[h.place].desc;
+}
+
+uint8_t monster_attack_get_dice(attack_handle h) {
+    return monster_attacks[h.place].dice;
+}
+
+uint8_t monster_attack_get_sides(attack_handle h) {
+    return monster_attacks[h.place].sides;
 }
 
 monster_type m_list[MAX_MALLOC];

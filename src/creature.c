@@ -274,37 +274,30 @@ static void make_attack(int monptr) {
     // End DIED_FROM
 
     int i, j, damage;
-    int attype, adesc, adice, asides;
     int32_t gold;
-    struct misc *p_ptr;
-    struct flags *f_ptr;
     inven_type *i_ptr;
     vtype tmp_str;
 
-    bool flag = false;
     const attack_handle *iter = r_ptr->attack;
-
-    for (; iter != END_OF(r_ptr->attack) && !death; iter += 1) {
-        const struct m_attack_type *const attack = monster_attack(*iter);
+    for (; iter != END_OF(r_ptr->attack) && !monster_attack_is_null(*iter) && !death; iter += 1) {
         const int attackn = iter - r_ptr->attack;
-        if (!attack) {
-            break;
-        }
-        attype = attack->attack_type;
-        adesc = attack->attack_desc;
-        adice = attack->attack_dice;
-        asides = attack->attack_sides;
-        flag = false;
-        if ((py.flags.protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
-            ((py.misc.lev + 1) > r_ptr->level)) {
+        int attype = monster_attack_get_type(*iter);
+        int adesc = monster_attack_get_desc(*iter);
+        const int adice = monster_attack_get_dice(*iter);
+        const int asides = monster_attack_get_sides(*iter);
+
+        struct misc *const p_ptr = &py.misc;
+        struct flags *const f_ptr = &py.flags;
+
+        bool flag = false;
+        if ((f_ptr->protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
+            ((p_ptr->lev + 1) > r_ptr->level)) {
             if (m_ptr->ml) {
                 c_recall[m_ptr->mptr].r_cdefense |= CD_EVIL;
             }
             attype = 99;
             adesc = 99;
         }
-
-        p_ptr = &py.misc;
 
         switch (attype) {
         case 1: // Normal attack
@@ -363,12 +356,12 @@ static void make_attack(int monptr) {
             }
             break;
         case 12: // Steal Money
-            if ((test_hit(5, (int)r_ptr->level, 0, (int)py.misc.lev, CLA_MISC_HIT)) && (py.misc.au > 0)) {
+            if ((test_hit(5, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (p_ptr->au > 0)) {
                 flag = true;
             }
             break;
         case 13: // Steal Object
-            if ((test_hit(2, (int)r_ptr->level, 0, (int)py.misc.lev, CLA_MISC_HIT)) && (inven_ctr > 0)) {
+            if ((test_hit(2, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (inven_ctr > 0)) {
                 flag = true;
             }
             break;
@@ -558,7 +551,7 @@ static void make_attack(int monptr) {
                 break;
             case 2: // Lose Strength
                 take_hit(damage, ddesc);
-                if (py.flags.sustain_str) {
+                if (f_ptr->sustain_str) {
                     msg_print("You feel weaker for a moment, but it passes.");
                 } else if (randint(2) == 1) {
                     msg_print("You feel weaker.");
@@ -568,7 +561,6 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 3: // Confusion attack
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 if (randint(2) == 1) {
                     if (f_ptr->confused < 1) {
@@ -583,7 +575,6 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 4: // Fear attack
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 if (player_saves()) {
                     msg_print("You resist the effects!");
@@ -617,7 +608,6 @@ static void make_attack(int monptr) {
                 take_hit(damage, ddesc);
                 break;
             case 10: // Blindness attack
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 if (f_ptr->blind < 1) {
                     f_ptr->blind += 10 + randint((int)r_ptr->level);
@@ -628,7 +618,6 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 11: // Paralysis attack
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 if (player_saves()) {
                     msg_print("You resist the effects!");
@@ -644,7 +633,7 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 12: // Steal Money
-                if ((py.flags.paralysis < 1) &&
+                if ((f_ptr->paralysis < 1) &&
                     (randint(124) < py.stats.use_stat[A_DEX])) {
                     msg_print("You quickly protect your money pouch!");
                 } else {
@@ -663,7 +652,7 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 13: // Steal Object
-                if ((py.flags.paralysis < 1) &&
+                if ((f_ptr->paralysis < 1) &&
                     (randint(124) < py.stats.use_stat[A_DEX])) {
                     msg_print("You grab hold of your backpack!");
                 } else {
@@ -677,13 +666,11 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 14: // Poison
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 msg_print("You feel very sick.");
                 f_ptr->poisoned += randint((int)r_ptr->level) + 5;
                 break;
             case 15: // Lose dexterity
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 if (f_ptr->sustain_dex) {
                     msg_print("You feel clumsy for a moment, but it passes.");
@@ -693,7 +680,6 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 16: // Lose constitution
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 if (f_ptr->sustain_con) {
                     msg_print("Your body resists the effects of the disease.");
@@ -703,7 +689,6 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 17: // Lose intelligence
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 msg_print("You have trouble thinking clearly.");
                 if (f_ptr->sustain_int) {
@@ -713,7 +698,6 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 18: // Lose wisdom
-                f_ptr = &py.flags;
                 take_hit(damage, ddesc);
                 if (f_ptr->sustain_wis) {
                     msg_print("Your wisdom is sustained.");
@@ -724,7 +708,7 @@ static void make_attack(int monptr) {
                 break;
             case 19: // Lose experience
                 msg_print("You feel your life draining away!");
-                lose_exp(damage + (py.misc.exp / 100) * MON_DRAIN_LIFE);
+                lose_exp(damage + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
                 break;
             case 20: // Aggravate monster
                 (void)aggravate_monster(20);
@@ -805,7 +789,7 @@ static void make_attack(int monptr) {
                     if (i_ptr->p1 < 1) {
                         i_ptr->p1 = 1;
                     }
-                    if (py.flags.blind < 1) {
+                    if (f_ptr->blind < 1) {
                         msg_print("Your light dims.");
                     } else {
                         notice = false;
@@ -841,9 +825,9 @@ static void make_attack(int monptr) {
             // Moved here from mon_move, so that monster only confused if it
             // actually hits. A monster that has been repelled has not hit
             // the player, so it should not be confused.
-            if (py.flags.confuse_monster && adesc != 99) {
+            if (f_ptr->confuse_monster && adesc != 99) {
                 msg_print("Your hands stop glowing.");
-                py.flags.confuse_monster = false;
+                f_ptr->confuse_monster = false;
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                     (void)sprintf(tmp_str, "%sis unaffected.", cdesc);
                 } else {

@@ -53,14 +53,6 @@ typedef struct creature_type {
     const uint8_t level;                         // Level of creature
 } creature_type;
 
-// Monster attack and damage types
-typedef struct m_attack_type {
-    uint8_t attack_type;
-    uint8_t attack_desc;
-    uint8_t attack_dice;
-    uint8_t attack_sides;
-} m_attack_type;
-
 // Monster memories. -CJS-
 typedef struct recall_type {
     uint32_t r_cmove;
