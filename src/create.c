@@ -359,14 +359,14 @@ static void get_class() {
                 set_use_stat(i);
             }
 
-            p_ptr->misc.ptodam  = todam_adj(); // Real values
-            p_ptr->misc.ptohit  = tohit_adj();
-            p_ptr->misc.ptoac   = toac_adj();
-            p_ptr->misc.pac     = 0;
-            p_ptr->misc.dis_td  = p_ptr->misc.ptodam; // Displayed values
-            p_ptr->misc.dis_th  = p_ptr->misc.ptohit;
+            p_ptr->misc.ptodam = todam_adj(); // Real values
+            p_ptr->misc.ptohit = tohit_adj();
+            p_ptr->misc.ptoac = toac_adj();
+            p_ptr->misc.pac = 0;
+            p_ptr->misc.dis_td = p_ptr->misc.ptodam; // Displayed values
+            p_ptr->misc.dis_th = p_ptr->misc.ptohit;
             p_ptr->misc.dis_tac = p_ptr->misc.ptoac;
-            p_ptr->misc.dis_ac  = p_ptr->misc.pac + p_ptr->misc.dis_tac;
+            p_ptr->misc.dis_ac = p_ptr->misc.pac + p_ptr->misc.dis_tac;
 
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints
             m_ptr = &py.misc;
@@ -414,10 +414,10 @@ static int monval(uint8_t i) {
 static void get_money() {
     uint8_t *a_ptr = py.stats.max_stat;
     int tmp = monval(a_ptr[A_STR]) +
-          monval(a_ptr[A_INT]) +
-          monval(a_ptr[A_WIS]) +
-          monval(a_ptr[A_CON]) +
-          monval(a_ptr[A_DEX]);
+              monval(a_ptr[A_INT]) +
+              monval(a_ptr[A_WIS]) +
+              monval(a_ptr[A_CON]) +
+              monval(a_ptr[A_DEX]);
 
     int gold = py.misc.sc * 6 + randint(25) + 325; // Social Class adj
     gold -= tmp;                                   // Stat adj
@@ -444,6 +444,7 @@ void create_character() {
     choose_race();
     get_sex();
 
+roll:
     // here we start a loop giving a player a choice of characters -RGM-
     get_all_stats();
     get_history();
@@ -455,24 +456,17 @@ void create_character() {
     clear_from(20);
     put_buffer("Hit space to reroll or ESC to accept characteristics: ", 20, 2);
 
-    char c;
-    bool exit_flag = true;
-    do {
-        move_cursor(20, 56);
-        c = inkey();
-        if (c == ESCAPE) {
-            exit_flag = false;
-        } else if (c == ' ') {
-            get_all_stats();
-            get_history();
-            get_ahw();
-            print_history();
-            put_misc1();
-            put_stats();
-        } else {
-            bell();
-        }
-    } while (exit_flag); // done with stats generation
+inkey:
+    move_cursor(20, 56);
+    switch (inkey()) {
+    default:
+        bell();
+        goto inkey;
+    case ' ':
+        goto roll; // reroll stats
+    case ESCAPE:
+        break; // done with stat generation
+    }
 
     get_class();
     get_money();
