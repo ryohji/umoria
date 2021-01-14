@@ -30,19 +30,19 @@ void update_mon(int monptr) {
         } else if (los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             // Normal sight.
             c_ptr = &cave[m_ptr->fy][m_ptr->fx];
-            r_ptr = &c_list[m_ptr->mptr];
+            r_ptr = monster_get_creature(m_ptr->creature);
             if (c_ptr->pl || c_ptr->tl || (find_flag && m_ptr->cdis < 2 && player_light)) {
                 if ((CM_INVISIBLE & r_ptr->cmove) == 0) {
                     flag = true;
                 } else if (py.flags.see_inv) {
                     flag = true;
-                    c_recall[m_ptr->mptr].r_cmove |= CM_INVISIBLE;
+                    c_recall[m_ptr->creature.place].r_cmove |= CM_INVISIBLE;
                 }
             } else if ((py.flags.see_infra > 0) && (m_ptr->cdis <= py.flags.see_infra) && (CD_INFRA & r_ptr->cdefense)) {
                 // Infra vision.
 
                 flag = true;
-                c_recall[m_ptr->mptr].r_cdefense |= CD_INFRA;
+                c_recall[m_ptr->creature.place].r_cdefense |= CD_INFRA;
             }
         }
     }
@@ -253,7 +253,7 @@ static void make_attack(int monptr) {
     }
 
     monster_type *m_ptr = &m_list[monptr];
-    creature_type *r_ptr = &c_list[m_ptr->mptr];
+    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     vtype cdesc;
     if (!m_ptr->ml) {
@@ -293,7 +293,7 @@ static void make_attack(int monptr) {
         if ((f_ptr->protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
             ((p_ptr->lev + 1) > r_ptr->level)) {
             if (m_ptr->ml) {
-                c_recall[m_ptr->mptr].r_cdefense |= CD_EVIL;
+                c_recall[m_ptr->creature.place].r_cdefense |= CD_EVIL;
             }
             attype = 99;
             adesc = 99;
@@ -840,7 +840,7 @@ static void make_attack(int monptr) {
                 }
                 msg_print(tmp_str);
                 if (visible && !death && randint(4) == 1) {
-                    c_recall[m_ptr->mptr].r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
+                    c_recall[m_ptr->creature.place].r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
                 }
             }
 
@@ -848,11 +848,11 @@ static void make_attack(int monptr) {
             // had previously noticed the attack (in which case all this does
             // is help player learn damage), note that in the second case do
             // not increase attacks if creature repelled (no damage done)
-            if ((notice || (visible && c_recall[m_ptr->mptr].r_attacks[attackn] != 0 && attype != 99)) && c_recall[m_ptr->mptr].r_attacks[attackn] < MAX_UCHAR) {
-                c_recall[m_ptr->mptr].r_attacks[attackn]++;
+            if ((notice || (visible && c_recall[m_ptr->creature.place].r_attacks[attackn] != 0 && attype != 99)) && c_recall[m_ptr->creature.place].r_attacks[attackn] < MAX_UCHAR) {
+                c_recall[m_ptr->creature.place].r_attacks[attackn]++;
             }
-            if (death && c_recall[m_ptr->mptr].r_deaths < MAX_SHORT) {
-                c_recall[m_ptr->mptr].r_deaths++;
+            if (death && c_recall[m_ptr->creature.place].r_deaths < MAX_SHORT) {
+                c_recall[m_ptr->creature.place].r_deaths++;
             }
         } else {
             if ((adesc >= 1 && adesc <= 3) || (adesc == 6)) {
@@ -874,7 +874,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
     bool do_turn = false;
     bool do_move = false;
     monster_type *m_ptr = &m_list[monptr];
-    uint32_t movebits = c_list[m_ptr->mptr].cmove;
+    uint32_t movebits = monster_get_creature(m_ptr->creature)->cmove;
 
     do {
         // Get new position
@@ -964,7 +964,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
             if (do_move && (c_ptr->tptr != 0) &&
                 (t_list[c_ptr->tptr].tval == TV_VIS_TRAP) &&
                 (t_list[c_ptr->tptr].subval == 99)) {
-                if (randint(OBJ_RUNE_PROT) < c_list[m_ptr->mptr].level) {
+                if (randint(OBJ_RUNE_PROT) < monster_get_creature(m_ptr->creature)->level) {
                     if ((newy == char_row) && (newx == char_col)) {
                         msg_print("The rune of protection is broken!");
                     }
@@ -997,7 +997,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                     // Creature is attempting to move on other creature?
 
                     // Creature eats other creatures?
-                    if ((movebits & CM_EATS_OTHER) && (c_list[m_ptr->mptr].mexp >= c_list[m_list[c_ptr->cptr].mptr].mexp)) {
+                    if ((movebits & CM_EATS_OTHER) && (monster_get_creature(m_ptr->creature)->mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp)) {
                         if (m_list[c_ptr->cptr].ml) {
                             *rcmove |= CM_EATS_OTHER;
                         }
@@ -1056,7 +1056,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
     }
 
     monster_type *m_ptr = &m_list[monptr];
-    creature_type *r_ptr = &c_list[m_ptr->mptr];
+    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
     int chance = (int)(r_ptr->spells & CS_FREQ);
 
     if (randint(chance) != 1) {
@@ -1279,12 +1279,12 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         // End of spells
 
         if (m_ptr->ml) {
-            c_recall[m_ptr->mptr].r_spells |= 1L << (thrown_spell - 1);
-            if ((c_recall[m_ptr->mptr].r_spells & CS_FREQ) != CS_FREQ) {
-                c_recall[m_ptr->mptr].r_spells++;
+            c_recall[m_ptr->creature.place].r_spells |= 1L << (thrown_spell - 1);
+            if ((c_recall[m_ptr->creature.place].r_spells & CS_FREQ) != CS_FREQ) {
+                c_recall[m_ptr->creature.place].r_spells++;
             }
-            if (death && c_recall[m_ptr->mptr].r_deaths < MAX_SHORT) {
-                c_recall[m_ptr->mptr].r_deaths++;
+            if (death && c_recall[m_ptr->creature.place].r_deaths < MAX_SHORT) {
+                c_recall[m_ptr->creature.place].r_deaths++;
             }
         }
     }
@@ -1311,7 +1311,7 @@ bool multiply_monster(int y, int x, int cr_index, int monptr) {
                     // Some critters are cannibalistic!
                     if ((c_list[cr_index].cmove & CM_EATS_OTHER)
                         // Check the experience level -CJS-
-                        && c_list[cr_index].mexp >= c_list[m_list[c_ptr->cptr].mptr].mexp) {
+                        && c_list[cr_index].mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp) {
                         // It ate an already processed monster.Handle * normally.
                         if (monptr < c_ptr->cptr) {
                             delete_monster((int)c_ptr->cptr);
@@ -1361,7 +1361,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
     int i, k;
 
     monster_type *m_ptr = &m_list[monptr];
-    creature_type *r_ptr = &c_list[m_ptr->mptr];
+    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     // Does the critter multiply?
     // rest could be negative, to be safe, only use mod with positive values.
@@ -1383,7 +1383,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
             k++;
         }
         if ((k < 4) && (randint(k * MON_MULT_ADJ) == 1)) {
-            if (multiply_monster((int)m_ptr->fy, (int)m_ptr->fx, (int)m_ptr->mptr, monptr)) {
+            if (multiply_monster((int)m_ptr->fy, (int)m_ptr->fx, (int)m_ptr->creature.place, monptr)) {
                 *rcmove |= CM_MULTIPLY;
             }
         }
@@ -1436,7 +1436,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
             hack_monptr = monptr;
             i = mon_take_hit(monptr, damroll(8, 8));
             hack_monptr = -1;
-            if (i >= 0) {
+            if (i) {
                 msg_print("You hear a scream muffled by rock!");
                 prt_experience();
             } else {
@@ -1530,14 +1530,14 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         } else if ((r_ptr->cmove & CM_ONLY_MAGIC) && (m_ptr->cdis < 2)) {
             // A little hack for Quylthulgs, so that one will eventually
             // notice that they have no physical attacks.
-            if (c_recall[m_ptr->mptr].r_attacks[0] < MAX_UCHAR) {
-                c_recall[m_ptr->mptr].r_attacks[0]++;
+            if (c_recall[m_ptr->creature.place].r_attacks[0] < MAX_UCHAR) {
+                c_recall[m_ptr->creature.place].r_attacks[0]++;
             }
 
             // Another little hack for Quylthulgs, so that one can
             // eventually learn their speed.
-            if (c_recall[m_ptr->mptr].r_attacks[0] > 20) {
-                c_recall[m_ptr->mptr].r_cmove |= CM_ONLY_MAGIC;
+            if (c_recall[m_ptr->creature.place].r_attacks[0] > 20) {
+                c_recall[m_ptr->creature.place].r_cmove |= CM_ONLY_MAGIC;
             }
         }
     }
@@ -1580,7 +1580,7 @@ void creatures(int attack) {
 
                     // Monsters trapped in rock must be given a turn also,
                     // so that they will die/dig out immediately.
-                    if (m_ptr->ml || (m_ptr->cdis <= c_list[m_ptr->mptr].aaf) || ((!(c_list[m_ptr->mptr].cmove & CM_PHASE)) && cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL)) {
+                    if (m_ptr->ml || (m_ptr->cdis <= monster_get_creature(m_ptr->creature)->aaf) || ((!(monster_get_creature(m_ptr->creature)->cmove & CM_PHASE)) && cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL)) {
                         if (m_ptr->csleep > 0) {
                             if (py.flags.aggravate) {
                                 m_ptr->csleep = 0;
@@ -1602,14 +1602,14 @@ void creatures(int attack) {
 
                         if (m_ptr->stunned != 0) {
                             // NOTE: Balrog = 100*100 = 10000, it always recovers instantly
-                            if (randint(5000) < c_list[m_ptr->mptr].level * c_list[m_ptr->mptr].level) {
+                            if (randint(5000) < monster_get_creature(m_ptr->creature)->level * monster_get_creature(m_ptr->creature)->level) {
                                 m_ptr->stunned = 0;
                             } else {
                                 m_ptr->stunned--;
                             }
                             if (m_ptr->stunned == 0) {
                                 if (m_ptr->ml) {
-                                    (void)sprintf(cdesc, "The %s ", c_list[m_ptr->mptr].name);
+                                    (void)sprintf(cdesc, "The %s ", monster_get_creature(m_ptr->creature)->name);
                                     msg_print(strcat(cdesc, "recovers and glares at you."));
                                 }
                             }
@@ -1621,7 +1621,7 @@ void creatures(int attack) {
 
                     update_mon(i);
                     if (m_ptr->ml) {
-                        r_ptr = &c_recall[m_ptr->mptr];
+                        r_ptr = &c_recall[m_ptr->creature.place];
                         if (wake) {
                             if (r_ptr->r_wake < MAX_UCHAR) {
                                 r_ptr->r_wake++;

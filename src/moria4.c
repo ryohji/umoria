@@ -57,7 +57,7 @@ void tunnel(int dir) {
 
         vtype out_val, m_name;
         if (m_ptr->ml) {
-            (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
+            (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
         } else {
             (void)strcpy(m_name, "Something");
         }
@@ -177,7 +177,7 @@ void disarm_trap() {
 
             vtype m_name, out_val;
             if (m_ptr->ml) {
-                (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
+                (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
             } else {
                 (void)strcpy(m_name, "Something");
             }
@@ -572,8 +572,8 @@ static bool look_see(int x, int y, bool *transparent) {
     out_val[0] = 0;
 
     if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
-        j = m_list[c_ptr->cptr].mptr;
-        (void)sprintf(out_val, "%s %s %s. [(r)ecall]", dstring, is_a_vowel(c_list[j].name[0]) ? "an" : "a", c_list[j].name);
+        const creature_type *const r_ptr = monster_get_creature(m_list[c_ptr->cptr].creature);
+        (void)sprintf(out_val, "%s %s %s. [(r)ecall]", dstring, is_a_vowel(r_ptr->name[0]) ? "an" : "a", r_ptr->name);
         dstring = "It is on";
         prt(out_val, 0, 0);
         move_cursor_relative(y, x);
@@ -832,6 +832,7 @@ void throw_object() {
                     if (c_ptr->cptr > 1) {
                         flag = true;
                         monster_type *m_ptr = &m_list[c_ptr->cptr];
+                        const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
                         tbth = tbth - cur_dis;
 
                         // if monster not lit, make it much more difficult to hit, subtract
@@ -840,9 +841,7 @@ void throw_object() {
                             tbth = (tbth / (cur_dis + 2)) - (py.misc.lev * class_level_adj[py.misc.pclass][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
                         }
 
-                        if (test_hit(tbth, (int)py.misc.lev, tpth, (int)c_list[m_ptr->mptr].ac, CLA_BTHB)) {
-                            int i = m_ptr->mptr;
-
+                        if (test_hit(tbth, (int)py.misc.lev, tpth, (int)r_ptr->ac, CLA_BTHB)) {
                             bigvtype tmp_str;
                             objdes(tmp_str, &throw_obj, false);
 
@@ -853,22 +852,21 @@ void throw_object() {
                                 (void)sprintf(out_val, "You hear a cry as the %s finds a mark.", tmp_str);
                                 visible = false;
                             } else {
-                                (void)sprintf(out_val, "The %s hits the %s.", tmp_str, c_list[i].name);
+                                (void)sprintf(out_val, "The %s hits the %s.", tmp_str, r_ptr->name);
                                 visible = true;
                             }
                             msg_print(out_val);
-                            tdam = tot_dam(&throw_obj, tdam, i);
+                            tdam = tot_dam(&throw_obj, tdam, m_ptr->creature.place);
                             tdam = critical_blow((int)throw_obj.weight, tpth, tdam, CLA_BTHB);
                             if (tdam < 0) {
                                 tdam = 0;
                             }
 
-                            i = mon_take_hit((int)c_ptr->cptr, tdam);
-                            if (i >= 0) {
+                            if (mon_take_hit((int)c_ptr->cptr, tdam)) {
                                 if (!visible) {
                                     msg_print("You have killed something!");
                                 } else {
-                                    (void)sprintf(out_val, "You have killed the %s.", c_list[i].name);
+                                    (void)sprintf(out_val, "You have killed the %s.", r_ptr->name);
                                     msg_print(out_val);
                                 }
                                 prt_experience();
@@ -901,7 +899,7 @@ static void py_bash(int y, int x) {
 
     int monster = cave[y][x].cptr;
     monster_type *m_ptr = &m_list[monster];
-    creature_type *c_ptr = &c_list[m_ptr->mptr];
+    creature_type *c_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
 
     // Does the player know what he's fighting?
@@ -931,7 +929,7 @@ static void py_bash(int y, int x) {
         }
 
         // See if we done it in.
-        if (mon_take_hit(monster, k) >= 0) {
+        if (mon_take_hit(monster, k)) {
             (void)sprintf(out_val, "You have slain %s.", m_name);
             msg_print(out_val);
             prt_experience();

@@ -685,11 +685,20 @@ uint8_t monster_attack_get_sides(attack_handle h) {
     return monster_attacks[h.place].sides;
 }
 
+creature_handle monster_make_creature_handle(uint16_t index) {
+    creature_handle h = {index};
+    return h;
+}
+
+creature_type *monster_get_creature(creature_handle h) {
+    return c_list + h.place;
+}
+
 monster_type m_list[MAX_MALLOC];
 int16_t m_level[MAX_MONS_LEVEL + 1];
 
 // Blank monster values
-monster_type blank_monster = {0, 0, 0, 0, 0, 0, 0, false, 0, false};
+monster_type blank_monster = {0, 0, 0, {0}, 0, 0, 0, false, 0, false};
 
 int16_t mfptr;        // Current free monster ptr
 int16_t mon_tot_mult; // # of repro's of creature

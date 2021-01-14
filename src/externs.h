@@ -401,6 +401,15 @@ uint8_t monster_attack_get_desc(attack_handle h);
 uint8_t monster_attack_get_dice(attack_handle h);
 uint8_t monster_attack_get_sides(attack_handle h);
 
+// TODO: eliminate `monster_make_creature_handle`
+// TODO: eliminate `m_ptr->creature.place` reference
+// TODO: prepare `monster_get_recall` to get reference to `c_recall`
+// TODO: tweak `place_monster` to accept `creature_handle`
+// TODO: tweak `tot_dam` to accept `creature_handle`
+// TODO: tweak `multiply_monster` to accept `creature_handle`
+creature_handle monster_make_creature_handle(uint16_t index);
+creature_type *monster_get_creature(creature_handle h);
+
 // moria1.c
 void change_speed(int);
 void py_bonuses(inven_type *, int);

@@ -372,7 +372,7 @@ void fix2_delete_monster(int j) {
 static int summon_object(int y, int x, int num, int typ) {
     int real_typ;
     if ((typ == 1) || (typ == 5)) {
-        real_typ = 1;   // typ == 1 -> objects
+        real_typ = 1; // typ == 1 -> objects
     } else {
         real_typ = 256; // typ == 2 -> gold
     }
@@ -523,34 +523,34 @@ uint32_t monster_death(int y, int x, uint32_t flags) {
 // (Picking on my babies.) -RAK-
 int mon_take_hit(int monptr, int dam) {
     monster_type *m_ptr = &m_list[monptr];
+    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->hp -= dam;
     m_ptr->csleep = 0;
 
     int m_take_hit;
 
     if (m_ptr->hp < 0) {
-        uint32_t i = monster_death((int)m_ptr->fy, (int)m_ptr->fx, c_list[m_ptr->mptr].cmove);
+        uint32_t i = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
 
-        if ((py.flags.blind < 1 && m_ptr->ml) || (c_list[m_ptr->mptr].cmove & CM_WIN)) {
-            uint32_t tmp = (c_recall[m_ptr->mptr].r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
+        if ((py.flags.blind < 1 && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
+            uint32_t tmp = (c_recall[m_ptr->creature.place].r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
 
             if (tmp > ((i & CM_TREASURE) >> CM_TR_SHIFT)) {
                 i = (i & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
             }
-            c_recall[m_ptr->mptr].r_cmove = (c_recall[m_ptr->mptr].r_cmove & ~CM_TREASURE) | i;
+            c_recall[m_ptr->creature.place].r_cmove = (c_recall[m_ptr->creature.place].r_cmove & ~CM_TREASURE) | i;
 
-            if (c_recall[m_ptr->mptr].r_kills < MAX_SHORT) {
-                c_recall[m_ptr->mptr].r_kills++;
+            if (c_recall[m_ptr->creature.place].r_kills < MAX_SHORT) {
+                c_recall[m_ptr->creature.place].r_kills++;
             }
         }
 
-        creature_type *c_ptr = &c_list[m_ptr->mptr];
         struct misc *p_ptr = &py.misc;
 
-        int32_t new_exp = ((int32_t)c_ptr->mexp * c_ptr->level) / p_ptr->lev;
-        int32_t new_exp_frac = ((((int32_t)c_ptr->mexp * c_ptr->level) % p_ptr->lev) *
-                        0x10000L / p_ptr->lev) +
-                       p_ptr->exp_frac;
+        int32_t new_exp = ((int32_t)r_ptr->mexp * r_ptr->level) / p_ptr->lev;
+        int32_t new_exp_frac = ((((int32_t)r_ptr->mexp * r_ptr->level) % p_ptr->lev) *
+                                0x10000L / p_ptr->lev) +
+                               p_ptr->exp_frac;
 
         if (new_exp_frac >= 0x10000L) {
             new_exp++;
@@ -563,7 +563,7 @@ int mon_take_hit(int monptr, int dam) {
 
         // can't call prt_experience() here, as that would result in "new level"
         // message appearing before "monster dies" message.
-        m_take_hit = m_ptr->mptr;
+        m_take_hit = true;
 
         // in case this is called from within creatures(), this is a horrible
         // hack, the m_list/creatures() code needs to be rewritten.
@@ -573,7 +573,7 @@ int mon_take_hit(int monptr, int dam) {
             fix1_delete_monster(monptr);
         }
     } else {
-        m_take_hit = -1;
+        m_take_hit = false;
     }
 
     return m_take_hit;
@@ -582,7 +582,8 @@ int mon_take_hit(int monptr, int dam) {
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {
     int crptr = cave[y][x].cptr;
-    int monptr = m_list[crptr].mptr;
+    const monster_type *const m_ptr = m_list + crptr;
+    const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
     m_list[crptr].csleep = 0;
     inven_type *i_ptr = &inventory[INVEN_WIELD];
 
@@ -591,7 +592,7 @@ void py_attack(int y, int x) {
     if (!m_list[crptr].ml) {
         (void)strcpy(m_name, "it");
     } else {
-        (void)sprintf(m_name, "the %s", c_list[monptr].name);
+        (void)sprintf(m_name, "the %s", r_ptr->name);
     }
 
     int blows, tot_tohit;
@@ -625,12 +626,12 @@ void py_attack(int y, int x) {
 
     // Loop for number of blows,  trying to hit the critter.
     do {
-        if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit, (int)c_list[monptr].ac, CLA_BTH)) {
+        if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit, (int)r_ptr->ac, CLA_BTH)) {
             (void)sprintf(out_val, "You hit %s.", m_name);
             msg_print(out_val);
             if (i_ptr->tval != TV_NOTHING) {
                 k = pdamroll(i_ptr->damage);
-                k = tot_dam(i_ptr, k, monptr);
+                k = tot_dam(i_ptr, k, m_ptr->creature.place);
                 k = critical_blow((int)i_ptr->weight, tot_tohit, k, CLA_BTH);
             } else {
                 // Bare hands!?
@@ -646,7 +647,7 @@ void py_attack(int y, int x) {
             if (py.flags.confuse_monster) {
                 py.flags.confuse_monster = false;
                 msg_print("Your hands stop glowing.");
-                if ((c_list[monptr].cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < c_list[monptr].level)) {
+                if ((r_ptr->cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < r_ptr->level)) {
                     (void)sprintf(out_val, "%s is unaffected.", m_name);
                 } else {
                     (void)sprintf(out_val, "%s appears confused.", m_name);
@@ -658,12 +659,12 @@ void py_attack(int y, int x) {
                 }
                 msg_print(out_val);
                 if (m_list[crptr].ml && randint(4) == 1) {
-                    c_recall[monptr].r_cdefense |= c_list[monptr].cdefense & CD_NO_SLEEP;
+                    c_recall[m_ptr->creature.place].r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
                 }
             }
 
             // See if we done it in.
-            if (mon_take_hit(crptr, k) >= 0) {
+            if (mon_take_hit(crptr, k)) {
                 (void)sprintf(out_val, "You have slain %s.", m_name);
                 msg_print(out_val);
                 prt_experience();
@@ -888,7 +889,7 @@ void openobject() {
 
             vtype m_name;
             if (m_ptr->ml) {
-                (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
+                (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
             } else {
                 (void)strcpy(m_name, "Something");
             }
@@ -1016,7 +1017,7 @@ void closeobject() {
 
                     vtype m_name;
                     if (m_ptr->ml) {
-                        (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
+                        (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
                     } else {
                         (void)strcpy(m_name, "Something");
                     }

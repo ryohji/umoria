@@ -455,7 +455,7 @@ uint8_t loc_symbol(int y, int x) {
     } else if ((f_ptr->image > 0) && (randint(12) == 1)) {
         return randint(95) + 31;
     } else if ((cave_ptr->cptr > 1) && (m_list[cave_ptr->cptr].ml)) {
-        return c_list[m_list[cave_ptr->cptr].mptr].cchar;
+        return monster_get_creature(m_list[cave_ptr->cptr].creature)->cchar;
     } else if (!cave_ptr->pl && !cave_ptr->tl && !cave_ptr->fm) {
         return ' ';
     } else if ((cave_ptr->tptr != 0) && (t_list[cave_ptr->tptr].tval != TV_INVIS_TRAP)) {
@@ -513,7 +513,7 @@ bool compact_monsters() {
             monster_type *mon_ptr = &m_list[i];
             if ((cur_dis < mon_ptr->cdis) && (randint(3) == 1)) {
                 // Never compact away the Balrog!!
-                if (c_list[mon_ptr->mptr].cmove & CM_WIN) {
+                if (monster_get_creature(mon_ptr->creature)->cmove & CM_WIN) {
                     ; // Do nothing
                 } else if (hack_monptr < i) {
                     // in case this is called from within creatures(), this is a horrible
@@ -596,7 +596,7 @@ bool place_monster(int y, int x, int z, int slp) {
     monster_type *mon_ptr = &m_list[cur_pos];
     mon_ptr->fy = y;
     mon_ptr->fx = x;
-    mon_ptr->mptr = z;
+    mon_ptr->creature = monster_make_creature_handle(z);
 
     if (c_list[z].cdefense & CD_MAX_HP) {
         mon_ptr->hp = max_hp(c_list[z].hd);
@@ -647,16 +647,16 @@ void place_win_monster() {
 
         mon_ptr->fy = y;
         mon_ptr->fx = x;
-        mon_ptr->mptr = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
+        mon_ptr->creature = monster_make_creature_handle(randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL]);
 
-        if (c_list[mon_ptr->mptr].cdefense & CD_MAX_HP) {
-            mon_ptr->hp = max_hp(c_list[mon_ptr->mptr].hd);
+        if (monster_get_creature(mon_ptr->creature)->cdefense & CD_MAX_HP) {
+            mon_ptr->hp = max_hp(monster_get_creature(mon_ptr->creature)->hd);
         } else {
-            mon_ptr->hp = pdamroll(c_list[mon_ptr->mptr].hd);
+            mon_ptr->hp = pdamroll(monster_get_creature(mon_ptr->creature)->hd);
         }
 
         // the c_list speed value is 10 greater, so that it can be a uint8_t
-        mon_ptr->cspeed = c_list[mon_ptr->mptr].speed - 10 + py.flags.speed;
+        mon_ptr->cspeed = monster_get_creature(mon_ptr->creature)->speed - 10 + py.flags.speed;
         mon_ptr->stunned = 0;
         mon_ptr->cdis = distance(char_row, char_col, y, x);
         cave[y][x].cptr = cur_pos;
