@@ -36,13 +36,13 @@ void update_mon(int monptr) {
                     flag = true;
                 } else if (py.flags.see_inv) {
                     flag = true;
-                    c_recall[m_ptr->creature.place].r_cmove |= CM_INVISIBLE;
+                    recall_get(m_ptr->creature)->r_cmove |= CM_INVISIBLE;
                 }
             } else if ((py.flags.see_infra > 0) && (m_ptr->cdis <= py.flags.see_infra) && (CD_INFRA & r_ptr->cdefense)) {
                 // Infra vision.
 
                 flag = true;
-                c_recall[m_ptr->creature.place].r_cdefense |= CD_INFRA;
+                recall_get(m_ptr->creature)->r_cdefense |= CD_INFRA;
             }
         }
     }
@@ -293,7 +293,7 @@ static void make_attack(int monptr) {
         if ((f_ptr->protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
             ((p_ptr->lev + 1) > r_ptr->level)) {
             if (m_ptr->ml) {
-                c_recall[m_ptr->creature.place].r_cdefense |= CD_EVIL;
+                recall_get(m_ptr->creature)->r_cdefense |= CD_EVIL;
             }
             attype = 99;
             adesc = 99;
@@ -840,7 +840,7 @@ static void make_attack(int monptr) {
                 }
                 msg_print(tmp_str);
                 if (visible && !death && randint(4) == 1) {
-                    c_recall[m_ptr->creature.place].r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
+                    recall_get(m_ptr->creature)->r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
                 }
             }
 
@@ -848,11 +848,11 @@ static void make_attack(int monptr) {
             // had previously noticed the attack (in which case all this does
             // is help player learn damage), note that in the second case do
             // not increase attacks if creature repelled (no damage done)
-            if ((notice || (visible && c_recall[m_ptr->creature.place].r_attacks[attackn] != 0 && attype != 99)) && c_recall[m_ptr->creature.place].r_attacks[attackn] < MAX_UCHAR) {
-                c_recall[m_ptr->creature.place].r_attacks[attackn]++;
+            if ((notice || (visible && recall_get(m_ptr->creature)->r_attacks[attackn] != 0 && attype != 99)) && recall_get(m_ptr->creature)->r_attacks[attackn] < MAX_UCHAR) {
+                recall_get(m_ptr->creature)->r_attacks[attackn]++;
             }
-            if (death && c_recall[m_ptr->creature.place].r_deaths < MAX_SHORT) {
-                c_recall[m_ptr->creature.place].r_deaths++;
+            if (death && recall_get(m_ptr->creature)->r_deaths < MAX_SHORT) {
+                recall_get(m_ptr->creature)->r_deaths++;
             }
         } else {
             if ((adesc >= 1 && adesc <= 3) || (adesc == 6)) {
@@ -1279,12 +1279,12 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         // End of spells
 
         if (m_ptr->ml) {
-            c_recall[m_ptr->creature.place].r_spells |= 1L << (thrown_spell - 1);
-            if ((c_recall[m_ptr->creature.place].r_spells & CS_FREQ) != CS_FREQ) {
-                c_recall[m_ptr->creature.place].r_spells++;
+            recall_get(m_ptr->creature)->r_spells |= 1L << (thrown_spell - 1);
+            if ((recall_get(m_ptr->creature)->r_spells & CS_FREQ) != CS_FREQ) {
+                recall_get(m_ptr->creature)->r_spells++;
             }
-            if (death && c_recall[m_ptr->creature.place].r_deaths < MAX_SHORT) {
-                c_recall[m_ptr->creature.place].r_deaths++;
+            if (death && recall_get(m_ptr->creature)->r_deaths < MAX_SHORT) {
+                recall_get(m_ptr->creature)->r_deaths++;
             }
         }
     }
@@ -1530,14 +1530,13 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         } else if ((r_ptr->cmove & CM_ONLY_MAGIC) && (m_ptr->cdis < 2)) {
             // A little hack for Quylthulgs, so that one will eventually
             // notice that they have no physical attacks.
-            if (c_recall[m_ptr->creature.place].r_attacks[0] < MAX_UCHAR) {
-                c_recall[m_ptr->creature.place].r_attacks[0]++;
-            }
-
-            // Another little hack for Quylthulgs, so that one can
-            // eventually learn their speed.
-            if (c_recall[m_ptr->creature.place].r_attacks[0] > 20) {
-                c_recall[m_ptr->creature.place].r_cmove |= CM_ONLY_MAGIC;
+            if (recall_get(m_ptr->creature)->r_attacks[0] < MAX_UCHAR) {
+                const uint8_t count = ++recall_get(m_ptr->creature)->r_attacks[0];
+                // Another little hack for Quylthulgs, so that one can
+                // eventually learn their speed.
+                if (count > 20) {
+                    recall_get(m_ptr->creature)->r_cmove |= CM_ONLY_MAGIC;
+                }
             }
         }
     }
@@ -1621,7 +1620,7 @@ void creatures(int attack) {
 
                     update_mon(i);
                     if (m_ptr->ml) {
-                        r_ptr = &c_recall[m_ptr->creature.place];
+                        r_ptr = recall_get(m_ptr->creature);
                         if (wake) {
                             if (r_ptr->r_wake < MAX_UCHAR) {
                                 r_ptr->r_wake++;

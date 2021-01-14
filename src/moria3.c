@@ -533,15 +533,15 @@ int mon_take_hit(int monptr, int dam) {
         uint32_t i = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
 
         if ((py.flags.blind < 1 && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
-            uint32_t tmp = (c_recall[m_ptr->creature.place].r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
+            uint32_t tmp = (recall_get(m_ptr->creature)->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
 
             if (tmp > ((i & CM_TREASURE) >> CM_TR_SHIFT)) {
                 i = (i & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
             }
-            c_recall[m_ptr->creature.place].r_cmove = (c_recall[m_ptr->creature.place].r_cmove & ~CM_TREASURE) | i;
+            recall_get(m_ptr->creature)->r_cmove = (recall_get(m_ptr->creature)->r_cmove & ~CM_TREASURE) | i;
 
-            if (c_recall[m_ptr->creature.place].r_kills < MAX_SHORT) {
-                c_recall[m_ptr->creature.place].r_kills++;
+            if (recall_get(m_ptr->creature)->r_kills < MAX_SHORT) {
+                recall_get(m_ptr->creature)->r_kills++;
             }
         }
 
@@ -659,7 +659,7 @@ void py_attack(int y, int x) {
                 }
                 msg_print(out_val);
                 if (m_list[crptr].ml && randint(4) == 1) {
-                    c_recall[m_ptr->creature.place].r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
+                    recall_get(m_ptr->creature)->r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
                 }
             }
 

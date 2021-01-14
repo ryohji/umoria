@@ -53,7 +53,7 @@ int sleep_monsters1(int y, int x) {
 
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                     if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                        c_recall[m_ptr->creature.place].r_cdefense |= CD_NO_SLEEP;
+                        recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
                     }
 
                     vtype out_val;
@@ -505,7 +505,7 @@ void light_line(int dir, int y, int x) {
 
                 if (CD_LIGHT & r_ptr->cdefense) {
                     if (m_ptr->ml) {
-                        c_recall[m_ptr->creature.place].r_cdefense |= CD_LIGHT;
+                        recall_get(m_ptr->creature)->r_cdefense |= CD_LIGHT;
                     }
 
                     vtype out_val;
@@ -674,12 +674,12 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                 if (harm_type & r_ptr->cdefense) {
                     dam = dam * 2;
                     if (m_ptr->ml) {
-                        c_recall[m_ptr->creature.place].r_cdefense |= harm_type;
+                        recall_get(m_ptr->creature)->r_cdefense |= harm_type;
                     }
                 } else if (weapon_type & r_ptr->spells) {
                     dam = dam / 4;
                     if (m_ptr->ml) {
-                        c_recall[m_ptr->creature.place].r_spells |= weapon_type;
+                        recall_get(m_ptr->creature)->r_spells |= weapon_type;
                     }
                 }
 
@@ -765,12 +765,12 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, char *descrip) {
                                     if (harm_type & r_ptr->cdefense) {
                                         dam = dam * 2;
                                         if (m_ptr->ml) {
-                                            c_recall[m_ptr->creature.place].r_cdefense |= harm_type;
+                                            recall_get(m_ptr->creature)->r_cdefense |= harm_type;
                                         }
                                     } else if (weapon_type & r_ptr->spells) {
                                         dam = dam / 4;
                                         if (m_ptr->ml) {
-                                            c_recall[m_ptr->creature.place].r_spells |= weapon_type;
+                                            recall_get(m_ptr->creature)->r_spells |= weapon_type;
                                         }
                                     }
 
@@ -885,11 +885,11 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                             uint32_t treas = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
 
                             if (m_ptr->ml) {
-                                uint32_t tmp = (c_recall[m_ptr->creature.place].r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
+                                uint32_t tmp = (recall_get(m_ptr->creature)->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
                                 if (tmp > ((treas & CM_TREASURE) >> CM_TR_SHIFT)) {
                                     treas = (treas & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
                                 }
-                                c_recall[m_ptr->creature.place].r_cmove = treas | (c_recall[m_ptr->creature.place].r_cmove & ~CM_TREASURE);
+                                recall_get(m_ptr->creature)->r_cmove = treas | (recall_get(m_ptr->creature)->r_cmove & ~CM_TREASURE);
                             }
 
                             // It ate an already processed monster.Handle normally.
@@ -1066,7 +1066,7 @@ int drain_life(int dir, int y, int x) {
                     msg_print(out_val);
                 }
             } else {
-                c_recall[m_ptr->creature.place].r_cdefense |= CD_UNDEAD;
+                recall_get(m_ptr->creature)->r_cdefense |= CD_UNDEAD;
             }
         }
     } while (!flag);
@@ -1146,7 +1146,7 @@ int confuse_monster(int dir, int y, int x) {
             flag = true;
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                    c_recall[m_ptr->creature.place].r_cdefense |= CD_NO_SLEEP;
+                    recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
                 }
 
                 // Monsters which resisted the attack should wake up.
@@ -1202,7 +1202,7 @@ int sleep_monster(int dir, int y, int x) {
 
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                    c_recall[m_ptr->creature.place].r_cdefense |= CD_NO_SLEEP;
+                    recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
                 }
 
                 vtype out_val;
@@ -1283,14 +1283,14 @@ int wall_to_mud(int dir, int y, int x) {
 
                 // Should get these messages even if the monster is not visible.
                 if (i) {
-                    c_recall[i].r_cdefense |= CD_STONE;
+                    recall_get(m_ptr->creature)->r_cdefense |= CD_STONE;
 
                     bigvtype out_val;
                     (void)sprintf(out_val, "%s dissolves!", m_name);
                     msg_print(out_val);
                     prt_experience(); // print msg before calling prt_exp
                 } else {
-                    c_recall[m_ptr->creature.place].r_cdefense |= CD_STONE;
+                    recall_get(m_ptr->creature)->r_cdefense |= CD_STONE;
 
                     bigvtype out_val;
                     (void)sprintf(out_val, "%s grunts in pain!", m_name);
@@ -1676,7 +1676,7 @@ int sleep_monsters2() {
         } else if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
             if (m_ptr->ml) {
                 if (r_ptr->cdefense & CD_NO_SLEEP) {
-                    c_recall[m_ptr->creature.place].r_cdefense |= CD_NO_SLEEP;
+                    recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
                 }
                 (void)sprintf(out_val, "%s is unaffected.", m_name);
                 msg_print(out_val);
@@ -1943,7 +1943,7 @@ int dispel_creature(int cflag, int damage) {
 
         if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
 
-            c_recall[m_ptr->creature.place].r_cdefense |= cflag;
+            recall_get(m_ptr->creature)->r_cdefense |= cflag;
 
             vtype out_val, m_name;
             monster_name(m_name, m_ptr, r_ptr);
@@ -1985,7 +1985,7 @@ int turn_undead() {
                     (void)sprintf(out_val, "%s runs frantically!", m_name);
                     msg_print(out_val);
                     turn_und = true;
-                    c_recall[m_ptr->creature.place].r_cdefense |= CD_UNDEAD;
+                    recall_get(m_ptr->creature)->r_cdefense |= CD_UNDEAD;
                 }
                 m_ptr->confused = (uint8_t)py.misc.lev;
             } else if (m_ptr->ml) {

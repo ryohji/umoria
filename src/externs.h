@@ -131,10 +131,9 @@ extern int16_t tcptr;        // Cur treasure heap ptr
 extern creature_type c_list[MAX_CREATURES];
 extern monster_type m_list[MAX_MALLOC];
 extern int16_t m_level[MAX_MONS_LEVEL + 1];
-extern recall_type c_recall[MAX_CREATURES]; // Monster memories. -CJS-
-extern monster_type blank_monster;          // Blank monster values
-extern int16_t mfptr;                       // Cur free monster ptr
-extern int16_t mon_tot_mult;                // # of repro's of creature
+extern monster_type blank_monster; // Blank monster values
+extern int16_t mfptr;              // Cur free monster ptr
+extern int16_t mon_tot_mult;       // # of repro's of creature
 
 // Following are arrays for descriptive pieces
 extern char *colors[MAX_COLORS];
@@ -403,7 +402,6 @@ uint8_t monster_attack_get_sides(attack_handle h);
 
 // TODO: eliminate `monster_make_creature_handle`
 // TODO: eliminate `m_ptr->creature.place` reference
-// TODO: prepare `monster_get_recall` to get reference to `c_recall`
 // TODO: tweak `place_monster` to accept `creature_handle`
 // TODO: tweak `tot_dam` to accept `creature_handle`
 // TODO: tweak `multiply_monster` to accept `creature_handle`
@@ -612,6 +610,7 @@ void enter_store(int);
 // treasur.c
 
 // variable.c
+recall_type *recall_get(creature_handle h);
 
 // wands.c
 void aim();

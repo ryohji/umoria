@@ -143,12 +143,12 @@ bool bool_roff_recall(int mon_num) {
         return true;
     }
 
-    recall_type *mp = &c_recall[mon_num];
-    if (mp->r_cmove || mp->r_cdefense || mp->r_kills || mp->r_spells || mp->r_deaths) {
+    recall_type *const recall = recall_get(monster_make_creature_handle(mon_num));
+    if (recall->r_cmove || recall->r_cdefense || recall->r_kills || recall->r_spells || recall->r_deaths) {
         return true;
     }
     for (int i = 0; i < 4; i++) {
-        if (mp->r_attacks[i]) {
+        if (recall->r_attacks[i]) {
             return true;
         }
     }
@@ -163,8 +163,9 @@ int roff_recall(int mon_num) {
     uint32_t j;
     vtype temp;
 
-    recall_type *mp = &c_recall[mon_num];
-    creature_type *cp = &c_list[mon_num];
+    creature_handle h = monster_make_creature_handle(mon_num);
+    recall_type *mp = recall_get(h);
+    creature_type *cp = monster_get_creature(h);
 
     recall_type save_mem;
 
