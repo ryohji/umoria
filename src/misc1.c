@@ -673,23 +673,22 @@ int get_mons_num(int level) {
 void alloc_monster(int num, int dis, int slp) {
     int y, x;
 
-    for (int i = 0; i < num; i++) {
+    while (num--) {
         do {
             y = randint(cur_height - 2);
             x = randint(cur_width - 2);
         } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, char_row, char_col) <= dis));
 
         int l = get_mons_num(dun_level);
+        creature_handle h = monster_make_creature_handle(l);
+        const uint8_t cchar = monster_get_creature(h)->cchar;
 
-        // Dragons are always created sleeping here,
+        // Dragons ('d' or 'D') are always created sleeping here,
         // so as to give the player a sporting chance.
-        if (c_list[l].cchar == 'd' || c_list[l].cchar == 'D') {
-            slp = true;
-        }
 
         // Place_monster() should always return true here.
         // It does not matter if it fails though.
-        (void)place_monster(y, x, l, slp);
+        (void)place_monster(y, x, l, slp || cchar == 'd' || cchar == 'D');
     }
 }
 
