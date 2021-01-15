@@ -613,18 +613,8 @@ bool place_monster(int y, int x, int z, int slp) {
 
 // Places a monster at given location -RAK-
 void place_win_monster() {
-    int y, x;
-
     if (!total_winner) {
-        int cur_pos = popm();
-
-        // Check for case where could not allocate space for
-        // the win monster, this should never happen.
-        if (cur_pos == -1) {
-            abort();
-        }
-
-        monster_type *mon_ptr = &m_list[cur_pos];
+        int x, y, z = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
 
         do {
             y = randint(cur_height - 2);
@@ -633,22 +623,11 @@ void place_win_monster() {
                  (cave[y][x].cptr != 0) || (cave[y][x].tptr != 0) ||
                  (distance(y, x, char_row, char_col) <= MAX_SIGHT));
 
-        mon_ptr->fy = y;
-        mon_ptr->fx = x;
-        mon_ptr->creature = monster_make_creature_handle(randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL]);
-
-        if (monster_get_creature(mon_ptr->creature)->cdefense & CD_MAX_HP) {
-            mon_ptr->hp = max_hp(monster_get_creature(mon_ptr->creature)->hd);
-        } else {
-            mon_ptr->hp = pdamroll(monster_get_creature(mon_ptr->creature)->hd);
+        // Check for case where could not allocate space for
+        // the win monster, this should never happen.
+        if (!place_monster(y, x, z, 0)) {
+            abort();
         }
-
-        // the c_list speed value is 10 greater, so that it can be a uint8_t
-        mon_ptr->cspeed = monster_get_creature(mon_ptr->creature)->speed - 10 + py.flags.speed;
-        mon_ptr->stunned = 0;
-        mon_ptr->cdis = distance(char_row, char_col, y, x);
-        cave[y][x].cptr = cur_pos;
-        mon_ptr->csleep = 0;
     }
 }
 
