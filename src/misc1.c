@@ -588,39 +588,27 @@ int max_hp(const uint8_t *array) {
 
 // Places a monster at given location -RAK-
 bool place_monster(int y, int x, int z, int slp) {
-    int cur_pos = popm();
+    const int cur_pos = popm();
     if (cur_pos == -1) {
         return false;
-    }
-
-    monster_type *mon_ptr = &m_list[cur_pos];
-    mon_ptr->fy = y;
-    mon_ptr->fx = x;
-    mon_ptr->creature = monster_make_creature_handle(z);
-
-    if (c_list[z].cdefense & CD_MAX_HP) {
-        mon_ptr->hp = max_hp(c_list[z].hd);
     } else {
-        mon_ptr->hp = pdamroll(c_list[z].hd);
+        creature_handle h = monster_make_creature_handle(z);
+        creature_type *const r_ptr = monster_get_creature(h);
+        int (*const calc_hp)(const uint8_t *) = r_ptr->cdefense & CD_MAX_HP ? max_hp : pdamroll;
+        monster_type *const mon_ptr = &m_list[cur_pos];
+        mon_ptr->fy = y;
+        mon_ptr->fx = x;
+        mon_ptr->creature = h;
+        mon_ptr->hp = calc_hp(r_ptr->hd);
+        // the creature speed value is 10 greater, so that it can be a uint8_t
+        mon_ptr->cspeed = r_ptr->speed - 10 + py.flags.speed;
+        mon_ptr->stunned = 0;
+        mon_ptr->cdis = distance(char_row, char_col, y, x);
+        mon_ptr->ml = false;
+        mon_ptr->csleep = (slp = slp ? r_ptr->sleep : 0) ? slp * 2 + randint(slp * 10) : 0;
+        cave[y][x].cptr = cur_pos;
+        return true;
     }
-
-    // the c_list speed value is 10 greater, so that it can be a uint8_t
-    mon_ptr->cspeed = c_list[z].speed - 10 + py.flags.speed;
-    mon_ptr->stunned = 0;
-    mon_ptr->cdis = distance(char_row, char_col, y, x);
-    mon_ptr->ml = false;
-    cave[y][x].cptr = cur_pos;
-    if (slp) {
-        if (c_list[z].sleep == 0) {
-            mon_ptr->csleep = 0;
-        } else {
-            mon_ptr->csleep =
-                (c_list[z].sleep * 2) + randint((int)c_list[z].sleep * 10);
-        }
-    } else {
-        mon_ptr->csleep = 0;
-    }
-    return true;
 }
 
 // Places a monster at given location -RAK-
