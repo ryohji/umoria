@@ -378,7 +378,7 @@ void insert_str(char *, char *, char *);
 void insert_lnum(char *, char *, int32_t, int);
 bool enter_wiz_mode();
 int attack_blows(int, int *);
-int tot_dam(inven_type *, int, int);
+int tot_dam(inven_type *, int, creature_handle);
 int critical_blow(int, int, int, int);
 int mmove(int, int *, int *);
 bool player_saves();

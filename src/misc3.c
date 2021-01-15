@@ -2020,9 +2020,8 @@ int attack_blows(int weight, int *wtohit) {
 }
 
 // Special damage due to magical abilities of object -RAK-
-int tot_dam(inven_type *i_ptr, int tdam, int monster) {
+int tot_dam(inven_type *i_ptr, int tdam, creature_handle h) {
     if ((i_ptr->flags & TR_EGO_WEAPON) && (((i_ptr->tval >= TV_SLING_AMMO) && (i_ptr->tval <= TV_ARROW)) || ((i_ptr->tval >= TV_HAFTED) && (i_ptr->tval <= TV_SWORD)) || (i_ptr->tval == TV_FLASK))) {
-        creature_handle h = monster_make_creature_handle(monster);
         creature_type *const creature = monster_get_creature(h);
         recall_type *const recall = recall_get(h);
 

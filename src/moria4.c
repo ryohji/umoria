@@ -856,7 +856,7 @@ void throw_object() {
                                 visible = true;
                             }
                             msg_print(out_val);
-                            tdam = tot_dam(&throw_obj, tdam, m_ptr->creature.place);
+                            tdam = tot_dam(&throw_obj, tdam, m_ptr->creature);
                             tdam = critical_blow((int)throw_obj.weight, tpth, tdam, CLA_BTHB);
                             if (tdam < 0) {
                                 tdam = 0;

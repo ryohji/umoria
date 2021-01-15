@@ -631,7 +631,7 @@ void py_attack(int y, int x) {
             msg_print(out_val);
             if (i_ptr->tval != TV_NOTHING) {
                 k = pdamroll(i_ptr->damage);
-                k = tot_dam(i_ptr, k, m_ptr->creature.place);
+                k = tot_dam(i_ptr, k, m_ptr->creature);
                 k = critical_blow((int)i_ptr->weight, tot_tohit, k, CLA_BTH);
             } else {
                 // Bare hands!?
