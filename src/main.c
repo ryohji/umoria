@@ -22,6 +22,8 @@ static void init_t_level();
 static void price_adjust();
 #endif
 
+static void check_file_permissions();
+
 // Initialize, restore, and get the ball rolling. -RAK-
 int main(int argc, char *argv[]) {
     bool new_game = false;
@@ -44,16 +46,19 @@ int main(int argc, char *argv[]) {
     // check for user interface option
     for (--argc, ++argv; argc > 0 && argv[0][0] == '-'; --argc, ++argv) {
         switch (argv[0][1]) {
-        case 'N': case 'n':
+        case 'N':
+        case 'n':
             new_game = true;
             break;
-        case 'O': case 'o':
+        case 'O':
+        case 'o':
             // rogue_like_commands may be set in get_char(),
             // so delay this until after read savefile if any.
             force_rogue_like = true;
             force_keys_to = false;
             break;
-        case 'R': case 'r':
+        case 'R':
+        case 'r':
             force_rogue_like = true;
             force_keys_to = true;
             break;
@@ -63,7 +68,8 @@ int main(int argc, char *argv[]) {
         case 's':
             display_scores(false);
             exit_game();
-        case 'W': case 'w':
+        case 'W':
+        case 'w':
             to_be_wizard = true;
 
             if (isdigit((int)argv[0][2])) {
@@ -82,9 +88,9 @@ int main(int argc, char *argv[]) {
     // Some necessary initializations
     // all made into constants or initialized in variables.c
 
-    #if (COST_ADJ != 100)
-        price_adjust();
-    #endif
+#if (COST_ADJ != 100)
+    price_adjust();
+#endif
 
     // Grab a random seed from the clock
     init_seeds(seed);
@@ -291,7 +297,7 @@ static void price_adjust() {
 
 // Check user permissions on Unix based systems,
 // or if on Windows just return. -MRC-
-void check_file_permissions() {
+static void check_file_permissions() {
 #ifndef _WIN32
     if (0 != setuid(getuid())) {
         perror("Can't set permissions correctly!  Setuid call failed.\n");

@@ -264,8 +264,6 @@ int topen(char *, int, int);
 void cast();
 
 // main.c
-void check_file_permissions();
-
 // misc1.c
 void init_seeds(uint32_t);
 void set_seed(uint32_t);
