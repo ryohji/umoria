@@ -1472,7 +1472,7 @@ bool clone_monster(int dir, int y, int x) {
             m_list[c_ptr->cptr].csleep = 0;
 
             // monptr of 0 is safe here, since can't reach here from creatures
-            return multiply_monster(y, x, (int)m_list[c_ptr->cptr].creature.place, 0);
+            return multiply_monster(y, x, m_list[c_ptr->cptr].creature, 0);
         }
     } while (!flag);
 

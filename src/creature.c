@@ -1292,7 +1292,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
 
 // Places creature adjacent to given location -RAK-
 // Rats and Flys are fun!
-bool multiply_monster(int y, int x, int cr_index, int monptr) {
+bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
     int j, k, result;
     cave_type *c_ptr;
 
@@ -1309,9 +1309,9 @@ bool multiply_monster(int y, int x, int cr_index, int monptr) {
                 // Creature there already?
                 if (c_ptr->cptr > 1) {
                     // Some critters are cannibalistic!
-                    if ((c_list[cr_index].cmove & CM_EATS_OTHER)
+                    if ((monster_get_creature(creature)->cmove & CM_EATS_OTHER)
                         // Check the experience level -CJS-
-                        && c_list[cr_index].mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp) {
+                        && monster_get_creature(creature)->mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp) {
                         // It ate an already processed monster.Handle * normally.
                         if (monptr < c_ptr->cptr) {
                             delete_monster((int)c_ptr->cptr);
@@ -1326,7 +1326,7 @@ bool multiply_monster(int y, int x, int cr_index, int monptr) {
                         hack_monptr = monptr;
 
                         // Place_monster() may fail if monster list full.
-                        result = place_monster(j, k, cr_index, false);
+                        result = place_monster(j, k, creature.place, false);
                         hack_monptr = -1;
                         if (!result) {
                             return false;
@@ -1341,7 +1341,7 @@ bool multiply_monster(int y, int x, int cr_index, int monptr) {
                     hack_monptr = monptr;
 
                     // Place_monster() may fail if monster list full.
-                    result = place_monster(j, k, cr_index, false);
+                    result = place_monster(j, k, creature.place, false);
                     hack_monptr = -1;
                     if (!result) {
                         return false;
@@ -1383,7 +1383,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
             k++;
         }
         if ((k < 4) && (randint(k * MON_MULT_ADJ) == 1)) {
-            if (multiply_monster((int)m_ptr->fy, (int)m_ptr->fx, (int)m_ptr->creature.place, monptr)) {
+            if (multiply_monster((int)m_ptr->fy, (int)m_ptr->fx, m_ptr->creature, monptr)) {
                 *rcmove |= CM_MULTIPLY;
             }
         }
