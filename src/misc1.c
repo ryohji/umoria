@@ -692,42 +692,37 @@ void alloc_monster(int num, int dis, int slp) {
     }
 }
 
-// Places creature adjacent to given location -RAK-
-bool summon_monster(int *y, int *x, int slp) {
+static bool summon(int *y, int *x, creature_handle h, int slp) {
     int i = 0;
-    int l = get_mons_num(dun_level + MON_SUMMON_ADJ);
-
-    bool summon = false;
 
     do {
-        int j = *y - 2 + randint(3);
-        int k = *x - 2 + randint(3);
-        if (in_bounds(j, k)) {
-            cave_type *cave_ptr = &cave[j][k];
-            if (cave_ptr->fval <= MAX_OPEN_SPACE && (cave_ptr->cptr == 0)) {
-                // Place_monster() should always return true here.
-                if (!place_monster(j, k, l, slp)) {
-                    return false;
-                }
-                summon = true;
-                i = 9;
+        const int j = *y - 2 + randint(3);
+        const int k = *x - 2 + randint(3);
+        const cave_type *const cave_ptr = &cave[j][k];
+        if (in_bounds(j, k) && cave_ptr->fval <= MAX_OPEN_SPACE && cave_ptr->cptr == 0) {
+            // Place_monster() should always return true here.
+            if (place_monster(j, k, h.place, slp)) {
                 *y = j;
                 *x = k;
+                return true;
             }
+            break;
         }
-        i++;
-    } while (i <= 9);
+    } while (++i <= 9);
 
-    return summon;
+    return false;
+}
+
+// Places creature adjacent to given location -RAK-
+bool summon_monster(int *y, int *x, int slp) {
+    const int l = get_mons_num(dun_level + MON_SUMMON_ADJ);
+    return summon(y, x, monster_make_creature_handle(l), slp);
 }
 
 // Places undead adjacent to given location -RAK-
 bool summon_undead(int *y, int *x) {
     int m;
-    int i = 0;
     int l = m_level[MAX_MONS_LEVEL];
-
-    bool summon = false;
 
     do {
         m = randint(l) - 1;
@@ -738,35 +733,12 @@ bool summon_undead(int *y, int *x) {
                 l = 0;
             } else {
                 m++;
-                if (m > l) {
-                    ctr = 20;
-                } else {
-                    ctr++;
-                }
+                ctr = m > l ? 20 : ctr + 1;
             }
-        } while (ctr <= 19);
+        } while (ctr != 20);
     } while (l != 0);
 
-    do {
-        int j = *y - 2 + randint(3);
-        int k = *x - 2 + randint(3);
-        if (in_bounds(j, k)) {
-            cave_type *cave_ptr = &cave[j][k];
-            if (cave_ptr->fval <= MAX_OPEN_SPACE && (cave_ptr->cptr == 0)) {
-                // Place_monster() should always return true here.
-                if (!place_monster(j, k, m, false)) {
-                    return false;
-                }
-                summon = true;
-                i = 9;
-                *y = j;
-                *x = k;
-            }
-        }
-        i++;
-    } while (i <= 9);
-
-    return summon;
+    return summon(y, x, monster_make_creature_handle(m), false);
 }
 
 // If too many objects on floor level, delete some of them-RAK-
