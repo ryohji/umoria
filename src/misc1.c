@@ -14,6 +14,9 @@
 
 #include "externs.h"
 
+static creature_handle get_mons_num(int level);
+static bool summon(int *y, int *x, creature_handle h, int slp);
+
 // gets a new random seed for the random number generator
 void init_seeds(uint32_t seed) {
     uint32_t clock_var;
@@ -633,7 +636,7 @@ void place_win_monster() {
 // Return a monster suitable to be placed at a given level. This
 // makes high level monsters (up to the given level) slightly more
 // common than low level monsters at any given level. -CJS-
-int get_mons_num(int level) {
+static creature_handle get_mons_num(int level) {
     int i;
 
     if (level == 0) {
@@ -665,7 +668,7 @@ int get_mons_num(int level) {
         i = randint(m_level[level] - m_level[level - 1]) - 1 + m_level[level - 1];
     }
 
-    return i;
+    return monster_make_creature_handle(i);
 }
 
 // Allocates a random monster -RAK-
@@ -678,8 +681,7 @@ void alloc_monster(int num, int dis, int slp) {
             x = randint(cur_width - 2);
         } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, char_row, char_col) <= dis));
 
-        int l = get_mons_num(dun_level);
-        creature_handle h = monster_make_creature_handle(l);
+        creature_handle h = get_mons_num(dun_level);
         const uint8_t cchar = monster_get_creature(h)->cchar;
 
         // Dragons ('d' or 'D') are always created sleeping here,
@@ -714,8 +716,8 @@ static bool summon(int *y, int *x, creature_handle h, int slp) {
 
 // Places creature adjacent to given location -RAK-
 bool summon_monster(int *y, int *x, int slp) {
-    const int l = get_mons_num(dun_level + MON_SUMMON_ADJ);
-    return summon(y, x, monster_make_creature_handle(l), slp);
+    creature_handle h = get_mons_num(dun_level + MON_SUMMON_ADJ);
+    return summon(y, x, h, slp);
 }
 
 // Places undead adjacent to given location -RAK-

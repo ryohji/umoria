@@ -291,7 +291,6 @@ int popm();
 int max_hp(const uint8_t *);
 bool place_monster(int, int, creature_handle, int);
 void place_win_monster();
-int get_mons_num(int);
 void alloc_monster(int, int, int);
 bool summon_monster(int *, int *, int);
 bool summon_undead(int *, int *);
