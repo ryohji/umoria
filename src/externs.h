@@ -289,7 +289,7 @@ bool compact_monsters();
 void add_food(int);
 int popm();
 int max_hp(const uint8_t *);
-bool place_monster(int, int, int, int);
+bool place_monster(int, int, creature_handle, int);
 void place_win_monster();
 int get_mons_num(int);
 void alloc_monster(int, int, int);
@@ -400,9 +400,6 @@ uint8_t monster_attack_get_sides(attack_handle h);
 
 // TODO: eliminate `monster_make_creature_handle`
 // TODO: eliminate `m_ptr->creature.place` reference
-// TODO: tweak `place_monster` to accept `creature_handle`
-// TODO: tweak `tot_dam` to accept `creature_handle`
-// TODO: tweak `multiply_monster` to accept `creature_handle`
 creature_handle monster_make_creature_handle(uint16_t index);
 creature_type *monster_get_creature(creature_handle h);
 

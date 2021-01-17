@@ -587,12 +587,11 @@ int max_hp(const uint8_t *array) {
 }
 
 // Places a monster at given location -RAK-
-bool place_monster(int y, int x, int z, int slp) {
+bool place_monster(int y, int x, creature_handle h, int slp) {
     const int cur_pos = popm();
     if (cur_pos == -1) {
         return false;
     } else {
-        creature_handle h = monster_make_creature_handle(z);
         creature_type *const r_ptr = monster_get_creature(h);
         int (*const calc_hp)(const uint8_t *) = r_ptr->cdefense & CD_MAX_HP ? max_hp : pdamroll;
         monster_type *const mon_ptr = &m_list[cur_pos];
@@ -625,7 +624,7 @@ void place_win_monster() {
 
         // Check for case where could not allocate space for
         // the win monster, this should never happen.
-        if (!place_monster(y, x, z, 0)) {
+        if (!place_monster(y, x, monster_make_creature_handle(z), 0)) {
             abort();
         }
     }
@@ -688,7 +687,7 @@ void alloc_monster(int num, int dis, int slp) {
 
         // Place_monster() should always return true here.
         // It does not matter if it fails though.
-        (void)place_monster(y, x, l, slp || cchar == 'd' || cchar == 'D');
+        (void)place_monster(y, x, h, slp || cchar == 'd' || cchar == 'D');
     }
 }
 
@@ -701,7 +700,7 @@ static bool summon(int *y, int *x, creature_handle h, int slp) {
         const cave_type *const cave_ptr = &cave[j][k];
         if (in_bounds(j, k) && cave_ptr->fval <= MAX_OPEN_SPACE && cave_ptr->cptr == 0) {
             // Place_monster() should always return true here.
-            if (place_monster(j, k, h.place, slp)) {
+            if (place_monster(j, k, h, slp)) {
                 *y = j;
                 *x = k;
                 return true;

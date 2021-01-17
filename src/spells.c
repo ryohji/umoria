@@ -1354,7 +1354,7 @@ int poly_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *const c_ptr = &cave[y][x];
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1367,7 +1367,8 @@ int poly_monster(int dir, int y, int x) {
                 delete_monster((int)c_ptr->cptr);
 
                 // Place_monster() should always return true here.
-                poly = place_monster(y, x, randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0], false);
+                const int16_t m = randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0];
+                poly = place_monster(y, x, monster_make_creature_handle(m), false);
 
                 // don't test c_ptr->fm here, only pl/tl
                 if (poly && panel_contains(y, x) && (c_ptr->tl || c_ptr->pl)) {
@@ -1710,7 +1711,8 @@ int mass_poly() {
                 delete_monster(i);
 
                 // Place_monster() should always return true here.
-                mass = place_monster(y, x, randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0], false);
+                const int16_t m = randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0];
+                mass = place_monster(y, x, monster_make_creature_handle(m), false);
             }
         }
     }

@@ -1326,7 +1326,7 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                         hack_monptr = monptr;
 
                         // Place_monster() may fail if monster list full.
-                        result = place_monster(j, k, creature.place, false);
+                        result = place_monster(j, k, creature, false);
                         hack_monptr = -1;
                         if (!result) {
                             return false;
@@ -1341,7 +1341,7 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                     hack_monptr = monptr;
 
                     // Place_monster() may fail if monster list full.
-                    result = place_monster(j, k, creature.place, false);
+                    result = place_monster(j, k, creature, false);
                     hack_monptr = -1;
                     if (!result) {
                         return false;
