@@ -296,8 +296,9 @@ void ident_char() {
     // Allow access to monster memory. -CJS-
     int n = 0;
     char query;
-    for (int i = MAX_CREATURES - 1; i >= 0; i--) {
-        if ((c_list[i].cchar == command) && bool_roff_recall(i)) {
+    creature_type *it, *const end = monster_creature_rend();
+    for (it = monster_creature_rbegin(); it != end; it = monster_creature_prev(it)) {
+        if (it->cchar == command && bool_roff_recall(it)) {
             if (n == 0) {
                 put_buffer("You recall those details? [y/n]", 0, 40);
                 query = inkey();
@@ -308,7 +309,7 @@ void ident_char() {
                 save_screen();
             }
             n++;
-            query = roff_recall(i);
+            query = roff_recall(it);
             restore_screen();
             if (query == ESCAPE) {
                 break;

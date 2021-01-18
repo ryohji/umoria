@@ -128,7 +128,6 @@ extern int16_t equip_ctr;    // Cur equipment ctr
 extern int16_t tcptr;        // Cur treasure heap ptr
 
 // Following are creature arrays and variables
-extern creature_type c_list[MAX_CREATURES];
 extern monster_type m_list[MAX_MALLOC];
 extern int16_t m_level[MAX_MONS_LEVEL + 1];
 extern monster_type blank_monster; // Blank monster values
@@ -400,7 +399,12 @@ uint8_t monster_attack_get_sides(attack_handle h);
 // TODO: eliminate `monster_make_creature_handle`
 // TODO: eliminate `m_ptr->creature.place` reference
 creature_handle monster_make_creature_handle(uint16_t index);
+creature_handle monster_get_creature_handle(creature_type *p);
 creature_type *monster_get_creature(creature_handle h);
+
+creature_type *monster_creature_rbegin();
+creature_type *monster_creature_rend();
+creature_type *monster_creature_prev(creature_type *p);
 
 // moria1.c
 void change_speed(int);
@@ -472,8 +476,8 @@ void quaff();
 void pray();
 
 // recall.c
-bool bool_roff_recall(int);
-int roff_recall(int);
+bool bool_roff_recall(creature_type *);
+int roff_recall(creature_type *);
 
 // rnd.c
 uint32_t get_rnd_seed();

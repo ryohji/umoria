@@ -150,7 +150,7 @@
 //  Area of affect (aaf) :  Max range that creature is able to
 //                          "notice" the player.
 
-creature_type c_list[MAX_CREATURES] = {
+static creature_type c_list[MAX_CREATURES] = {
     {"Filthy Street Urchin", 0x0012000AL, 0x00000000L, 0x2034, 0, 40, 4, 1, 11, 'p', {1, 4}, {{72}, {148}, {0}, {0}}, 0},
     {"Blubbering Idiot", 0x0012000AL, 0x00000000L, 0x2030, 0, 0, 6, 1, 11, 'p', {1, 2}, {{79}, {0}, {0}, {0}}, 0},
     {"Pitiful-Looking Beggar", 0x0012000AL, 0x00000000L, 0x2030, 0, 40, 10, 1, 11, 'p', {1, 4}, {{72}, {0}, {0}, {0}}, 0},
@@ -690,8 +690,25 @@ creature_handle monster_make_creature_handle(uint16_t index) {
     return h;
 }
 
+creature_handle monster_get_creature_handle(creature_type *p) {
+    creature_handle h = {p - c_list};
+    return h;
+}
+
 creature_type *monster_get_creature(creature_handle h) {
     return c_list + h.place;
+}
+
+creature_type *monster_creature_rbegin() {
+    return c_list - 1 + MAX_CREATURES;
+}
+
+creature_type *monster_creature_rend() {
+    return c_list - 1;
+}
+
+creature_type *monster_creature_prev(creature_type *p) {
+    return p - 1;
 }
 
 monster_type m_list[MAX_MALLOC];

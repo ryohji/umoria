@@ -245,9 +245,12 @@ static void init_m_level() {
         m_level[i] = 0;
     }
 
-    int k = MAX_CREATURES - WIN_MON_TOT;
-    for (int i = 0; i < k; i++) {
-        m_level[c_list[i].level]++;
+    creature_type *const end = monster_creature_rend(), *it;
+    for (it = monster_creature_rbegin(); it != end; it = monster_creature_prev(it)) {
+        const uint8_t level = it->level;
+        if (level <= MAX_MONS_LEVEL) {
+            m_level[level] += 1;
+        }
     }
 
     for (int i = 1; i <= MAX_MONS_LEVEL; i++) {

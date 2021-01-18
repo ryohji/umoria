@@ -138,12 +138,12 @@ static int roffpline; // Place to print line now being loaded.
 #define knowdamage(l, a, d) ((4 + (l)) * (a) > 80 * (d))
 
 // Do we know anything about this monster?
-bool bool_roff_recall(int mon_num) {
+bool bool_roff_recall(creature_type *type) {
     if (wizard) {
         return true;
     }
 
-    recall_type *const recall = recall_get(monster_make_creature_handle(mon_num));
+    recall_type *const recall = recall_get(monster_get_creature_handle(type));
     if (recall->r_cmove || recall->r_cdefense || recall->r_kills || recall->r_spells || recall->r_deaths) {
         return true;
     }
@@ -156,16 +156,15 @@ bool bool_roff_recall(int mon_num) {
 }
 
 // Print out what we have discovered about this monster.
-int roff_recall(int mon_num) {
+int roff_recall(creature_type *cp) {
     bool known;
     char *p, *q;
     const attack_handle *iter;
     uint32_t j;
     vtype temp;
 
-    creature_handle h = monster_make_creature_handle(mon_num);
+    creature_handle h = monster_get_creature_handle(cp);
     recall_type *mp = recall_get(h);
-    creature_type *cp = monster_get_creature(h);
 
     recall_type save_mem;
 

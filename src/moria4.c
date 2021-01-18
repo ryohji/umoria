@@ -572,7 +572,7 @@ static bool look_see(int x, int y, bool *transparent) {
     out_val[0] = 0;
 
     if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
-        const creature_type *const r_ptr = monster_get_creature(m_list[c_ptr->cptr].creature);
+        creature_type *const r_ptr = monster_get_creature(m_list[c_ptr->cptr].creature);
         (void)sprintf(out_val, "%s %s %s. [(r)ecall]", dstring, is_a_vowel(r_ptr->name[0]) ? "an" : "a", r_ptr->name);
         dstring = "It is on";
         prt(out_val, 0, 0);
@@ -580,7 +580,7 @@ static bool look_see(int x, int y, bool *transparent) {
         query = inkey();
         if (query == 'r' || query == 'R') {
             save_screen();
-            query = roff_recall(j);
+            query = roff_recall(r_ptr);
             restore_screen();
         }
     }

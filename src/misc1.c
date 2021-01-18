@@ -657,13 +657,11 @@ static creature_handle get_mons_num(int level) {
             // all monsters of level less than or equal to the dungeon level.
             // This distribution makes a level n monster occur approx 2/n% of the
             // time on level n, and 1/n*n% are 1st level.
-            int num = m_level[level] - m_level[0];
+            const int num = m_level[level] - m_level[0];
             i = randint(num) - 1;
-            int j = randint(num) - 1;
-            if (j > i) {
-                i = j;
-            }
-            level = c_list[i + m_level[0]].level;
+            const int j = randint(num) - 1;
+            const int k = MAX(i, j) + m_level[0];
+            level = monster_get_creature(monster_make_creature_handle(k))->level;
         }
         i = randint(m_level[level] - m_level[level - 1]) - 1 + m_level[level - 1];
     }
@@ -722,24 +720,25 @@ bool summon_monster(int *y, int *x, int slp) {
 
 // Places undead adjacent to given location -RAK-
 bool summon_undead(int *y, int *x) {
-    int m;
     int l = m_level[MAX_MONS_LEVEL];
+    creature_handle h;
 
     do {
-        m = randint(l) - 1;
+        int m = randint(l) - 1;
         int ctr = 0;
         do {
-            if (c_list[m].cdefense & CD_UNDEAD) {
-                ctr = 20;
+            h = monster_make_creature_handle(m);
+            if (monster_get_creature(h)->cdefense & CD_UNDEAD) {
                 l = 0;
+                ctr = 20;
             } else {
-                m++;
+                m += 1;
                 ctr = m > l ? 20 : ctr + 1;
             }
         } while (ctr != 20);
     } while (l != 0);
 
-    return summon(y, x, monster_make_creature_handle(m), false);
+    return summon(y, x, h, false);
 }
 
 // If too many objects on floor level, delete some of them-RAK-
