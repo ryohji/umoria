@@ -312,22 +312,23 @@ static void carry(int y, int x, bool pickup) {
 
 // Deletes a monster entry from the level -RAK-
 void delete_monster(int j) {
-    monster_type *m_ptr = &m_list[j];
+    monster_type *const m_ptr = m_list + j;
+    monster_type *const the_last = m_list + mfptr - 1;
 
     cave[m_ptr->fy][m_ptr->fx].cptr = 0;
     if (m_ptr->ml) {
-        lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
+        lite_spot(m_ptr->fy, m_ptr->fx);
     }
-    if (j != mfptr - 1) {
-        m_ptr = &m_list[mfptr - 1];
-        cave[m_ptr->fy][m_ptr->fx].cptr = j;
-        m_list[j] = m_list[mfptr - 1];
-    }
-    mfptr--;
-    m_list[mfptr] = blank_monster;
     if (mon_tot_mult > 0) {
-        mon_tot_mult--;
+        mon_tot_mult -= 1;
     }
+
+    if (m_ptr != the_last) {
+        cave[the_last->fy][the_last->fx].cptr = j;
+        *m_ptr = *the_last;
+    }
+    *the_last = blank_monster;
+    mfptr -= 1;
 }
 
 // The following two procedures implement the same function as delete monster.
@@ -340,7 +341,7 @@ void delete_monster(int j) {
 // the monster record and reduce mfptr, this is called in breathe, and
 // a couple of places in creatures.c
 void fix1_delete_monster(int j) {
-    monster_type *m_ptr = &m_list[j];
+    monster_type *const m_ptr = m_list + j;
 
     // force the hp negative to ensure that the monster is dead, for example,
     // if the monster was just eaten by another, it will still have positive
@@ -348,24 +349,25 @@ void fix1_delete_monster(int j) {
     m_ptr->hp = -1;
     cave[m_ptr->fy][m_ptr->fx].cptr = 0;
     if (m_ptr->ml) {
-        lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
+        lite_spot(m_ptr->fy, m_ptr->fx);
     }
     if (mon_tot_mult > 0) {
-        mon_tot_mult--;
+        mon_tot_mult -= 1;
     }
 }
 
 // fix2_delete_monster does everything in delete_monster that wasn't done
 // by fix1_monster_delete above, this is only called in creatures()
 void fix2_delete_monster(int j) {
+    monster_type *const m_ptr = m_list + j;
+    monster_type *const the_last = m_list + mfptr - 1;
 
-    if (j != mfptr - 1) {
-        monster_type *m_ptr = &m_list[mfptr - 1];
-        cave[m_ptr->fy][m_ptr->fx].cptr = j;
-        m_list[j] = m_list[mfptr - 1];
+    if (m_ptr != the_last) {
+        cave[the_last->fy][the_last->fx].cptr = j;
+        *m_ptr = *the_last;
     }
-    m_list[mfptr - 1] = blank_monster;
-    mfptr--;
+    *the_last = blank_monster;
+    mfptr -= 1;
 }
 
 // Creates objects nearby the coordinates given -RAK-
