@@ -312,23 +312,8 @@ static void carry(int y, int x, bool pickup) {
 
 // Deletes a monster entry from the level -RAK-
 void delete_monster(int j) {
-    monster_type *const m_ptr = m_list + j;
-    monster_type *const the_last = m_list + mfptr - 1;
-
-    cave[m_ptr->fy][m_ptr->fx].cptr = 0;
-    if (m_ptr->ml) {
-        lite_spot(m_ptr->fy, m_ptr->fx);
-    }
-    if (mon_tot_mult > 0) {
-        mon_tot_mult -= 1;
-    }
-
-    if (m_ptr != the_last) {
-        cave[the_last->fy][the_last->fx].cptr = j;
-        *m_ptr = *the_last;
-    }
-    *the_last = blank_monster;
-    mfptr -= 1;
+    fix1_delete_monster(j);
+    fix2_delete_monster(j);
 }
 
 // The following two procedures implement the same function as delete monster.
