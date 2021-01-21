@@ -28,7 +28,7 @@ int sleep_monsters1(int y, int x) {
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 vtype m_name;
-                monster_name(m_name, m_ptr, r_ptr);
+                monster_name(m_name, m_ptr);
 
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                     if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
@@ -480,7 +480,7 @@ void light_line(int dir, int y, int x) {
                 update_mon((int)c_ptr->cptr);
 
                 vtype m_name;
-                monster_name(m_name, m_ptr, r_ptr);
+                monster_name(m_name, m_ptr);
 
                 if (CD_LIGHT & r_ptr->cdefense) {
                     if (m_ptr->ml) {
@@ -646,7 +646,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
 
                 vtype out_val, m_name;
 
-                monster_name_lower(m_name, m_ptr, r_ptr);
+                monster_name_lower(m_name, m_ptr);
                 (void)sprintf(out_val, "The %s strikes %s.", bolt_typ, m_name);
                 msg_print(out_val);
 
@@ -662,7 +662,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                     }
                 }
 
-                monster_name(m_name, m_ptr, r_ptr);
+                monster_name(m_name, m_ptr);
                 i = mon_take_hit((int)c_ptr->cptr, dam);
 
                 if (i) {
@@ -984,10 +984,9 @@ int hp_monster(int dir, int y, int x, int dam) {
             flag = true;
 
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             vtype m_name;
-            monster_name(m_name, m_ptr, r_ptr);
+            monster_name(m_name, m_ptr);
             monster = true;
             int i = mon_take_hit((int)c_ptr->cptr, dam);
 
@@ -1031,7 +1030,7 @@ int drain_life(int dir, int y, int x) {
                 drain = true;
 
                 vtype m_name;
-                monster_name(m_name, m_ptr, r_ptr);
+                monster_name(m_name, m_ptr);
 
                 int i = mon_take_hit((int)c_ptr->cptr, 75);
                 if (i) {
@@ -1075,7 +1074,7 @@ int speed_monster(int dir, int y, int x, int spd) {
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             vtype m_name;
-            monster_name(m_name, m_ptr, r_ptr);
+            monster_name(m_name, m_ptr);
 
             if (spd > 0) {
                 vtype out_val;
@@ -1121,7 +1120,7 @@ int confuse_monster(int dir, int y, int x) {
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             vtype m_name;
-            monster_name(m_name, m_ptr, r_ptr);
+            monster_name(m_name, m_ptr);
             flag = true;
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
@@ -1177,7 +1176,7 @@ int sleep_monster(int dir, int y, int x) {
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             vtype m_name;
-            monster_name(m_name, m_ptr, r_ptr);
+            monster_name(m_name, m_ptr);
 
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
@@ -1257,7 +1256,7 @@ int wall_to_mud(int dir, int y, int x) {
             if (CD_STONE & r_ptr->cdefense) {
                 vtype m_name;
 
-                monster_name(m_name, m_ptr, r_ptr);
+                monster_name(m_name, m_ptr);
                 int i = mon_take_hit((int)c_ptr->cptr, 100);
 
                 // Should get these messages even if the monster is not visible.
@@ -1355,7 +1354,7 @@ int poly_monster(int dir, int y, int x) {
                 }
             } else {
                 vtype out_val, m_name;
-                monster_name(m_name, m_ptr, r_ptr);
+                monster_name(m_name, m_ptr);
                 (void)sprintf(out_val, "%s is unaffected.", m_name);
                 msg_print(out_val);
             }
@@ -1404,7 +1403,7 @@ int build_wall(int dir, int y, int x) {
                     }
 
                     vtype m_name, out_val;
-                    monster_name(m_name, m_ptr, r_ptr);
+                    monster_name(m_name, m_ptr);
                     (void)sprintf(out_val, "%s wails out in pain!", m_name);
                     msg_print(out_val);
                     i = mon_take_hit((int)c_ptr->cptr, damage);
@@ -1608,7 +1607,7 @@ int speed_monsters(int spd) {
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         vtype out_val, m_name;
-        monster_name(m_name, m_ptr, r_ptr);
+        monster_name(m_name, m_ptr);
 
         if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
@@ -1649,7 +1648,7 @@ int sleep_monsters2() {
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         vtype out_val, m_name;
-        monster_name(m_name, m_ptr, r_ptr);
+        monster_name(m_name, m_ptr);
 
         if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
@@ -1841,7 +1840,7 @@ void earthquake() {
                         }
 
                         vtype out_val, m_name;
-                        monster_name(m_name, m_ptr, r_ptr);
+                        monster_name(m_name, m_ptr);
                         (void)sprintf(out_val, "%s wails out in pain!", m_name);
                         msg_print(out_val);
                         i = mon_take_hit((int)c_ptr->cptr, damage);
@@ -1927,7 +1926,7 @@ int dispel_creature(int cflag, int damage) {
             recall_get(m_ptr->creature)->r_cdefense |= cflag;
 
             vtype out_val, m_name;
-            monster_name(m_name, m_ptr, r_ptr);
+            monster_name(m_name, m_ptr);
             int k = mon_take_hit(i, randint(damage));
 
             // Should get these messages even if the monster is not visible.
@@ -1959,7 +1958,7 @@ int turn_undead() {
 
         if ((m_ptr->cdis <= MAX_SIGHT) && (CD_UNDEAD & r_ptr->cdefense) && (los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx))) {
             vtype out_val, m_name;
-            monster_name(m_name, m_ptr, r_ptr);
+            monster_name(m_name, m_ptr);
 
             if (((py.misc.lev + 1) > r_ptr->level) || (randint(5) == 1)) {
                 if (m_ptr->ml) {

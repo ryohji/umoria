@@ -576,7 +576,7 @@ void py_attack(int y, int x) {
 
     // Does the player know what he's fighting?
     vtype m_name;
-    monster_name_lower(m_name, m_ptr, r_ptr);
+    monster_name_lower(m_name, m_ptr);
 
     int blows, tot_tohit;
     if (i_ptr->tval != TV_NOTHING) {

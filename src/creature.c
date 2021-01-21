@@ -256,7 +256,7 @@ static void make_attack(int monptr) {
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     vtype cdesc;
-    monster_name(cdesc, m_ptr, r_ptr);
+    monster_name(cdesc, m_ptr);
 
     // For "DIED_FROM" string
     vtype ddesc;
@@ -1070,7 +1070,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
 
         // Describe the attack
         vtype cdesc;
-        monster_name(cdesc, m_ptr, r_ptr);
+        monster_name(cdesc, m_ptr);
 
         // For "DIED_FROM" string
         vtype ddesc;

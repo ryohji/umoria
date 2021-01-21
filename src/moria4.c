@@ -896,7 +896,7 @@ static void py_bash(int y, int x) {
 
     // Does the player know what he's fighting?
     vtype m_name;
-    monster_name_lower(m_name, m_ptr, c_ptr);
+    monster_name_lower(m_name, m_ptr);
 
     int base_tohit = py.stats.use_stat[A_STR] + inventory[INVEN_ARM].weight / 2 + py.misc.wt / 10;
 

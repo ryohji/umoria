@@ -717,18 +717,20 @@ creature_type *monster_creature_prev(creature_type *p) {
 // staves routines, and are occasionally called from other areas.
 // Now included are creature spells also.           -RAK
 
-void monster_name(vtype m_name, const monster_type *m_ptr, const creature_type *r_ptr) {
+void monster_name(vtype m_name, const monster_type *m_ptr) {
     if (!m_ptr->ml) {
         (void)strcpy(m_name, "It");
     } else {
+        creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
         (void)sprintf(m_name, "The %s", r_ptr->name);
     }
 }
 
-void monster_name_lower(vtype m_name, const monster_type *m_ptr, const creature_type *r_ptr) {
+void monster_name_lower(vtype m_name, const monster_type *m_ptr) {
     if (!m_ptr->ml) {
         (void)strcpy(m_name, "it");
     } else {
+        creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
         (void)sprintf(m_name, "the %s", r_ptr->name);
     }
 }
