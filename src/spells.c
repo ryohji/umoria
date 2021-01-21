@@ -16,27 +16,6 @@
 
 static void replace_spot(int, int, int);
 
-// Following are spell procedure/functions -RAK-
-// These routines are commonly used in the scroll, potion, wands, and
-// staves routines, and are occasionally called from other areas.
-// Now included are creature spells also.           -RAK
-
-void monster_name(char *m_name, monster_type *m_ptr, creature_type *r_ptr) {
-    if (!m_ptr->ml) {
-        (void)strcpy(m_name, "It");
-    } else {
-        (void)sprintf(m_name, "The %s", r_ptr->name);
-    }
-}
-
-void lower_monster_name(char *m_name, monster_type *m_ptr, creature_type *r_ptr) {
-    if (!m_ptr->ml) {
-        (void)strcpy(m_name, "it");
-    } else {
-        (void)sprintf(m_name, "the %s", r_ptr->name);
-    }
-}
-
 // Sleep creatures adjacent to player -RAK-
 int sleep_monsters1(int y, int x) {
     bool sleep = false;
@@ -667,7 +646,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
 
                 vtype out_val, m_name;
 
-                lower_monster_name(m_name, m_ptr, r_ptr);
+                monster_name_lower(m_name, m_ptr, r_ptr);
                 (void)sprintf(out_val, "The %s strikes %s.", bolt_typ, m_name);
                 msg_print(out_val);
 

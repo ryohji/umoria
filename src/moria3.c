@@ -576,11 +576,7 @@ void py_attack(int y, int x) {
 
     // Does the player know what he's fighting?
     vtype m_name;
-    if (!m_list[crptr].ml) {
-        (void)strcpy(m_name, "it");
-    } else {
-        (void)sprintf(m_name, "the %s", r_ptr->name);
-    }
+    monster_name_lower(m_name, m_ptr, r_ptr);
 
     int blows, tot_tohit;
     if (i_ptr->tval != TV_NOTHING) {
@@ -875,11 +871,7 @@ void openobject() {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
 
             vtype m_name;
-            if (m_ptr->ml) {
-                (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
-            } else {
-                (void)strcpy(m_name, "Something");
-            }
+            monster_name_or_something(m_name, m_ptr);
 
             vtype out_val;
             (void)sprintf(out_val, "%s is in your way!", m_name);
@@ -1003,11 +995,7 @@ void closeobject() {
                     monster_type *m_ptr = &m_list[c_ptr->cptr];
 
                     vtype m_name;
-                    if (m_ptr->ml) {
-                        (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
-                    } else {
-                        (void)strcpy(m_name, "Something");
-                    }
+                    monster_name_or_something(m_name, m_ptr);
 
                     vtype out_val;
                     (void)sprintf(out_val, "%s is in your way!", m_name);

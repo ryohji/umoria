@@ -256,22 +256,11 @@ static void make_attack(int monptr) {
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     vtype cdesc;
-    if (!m_ptr->ml) {
-        (void)strcpy(cdesc, "It ");
-    } else {
-        (void)sprintf(cdesc, "The %s ", r_ptr->name);
-    }
+    monster_name(cdesc, m_ptr, r_ptr);
 
     // For "DIED_FROM" string
     vtype ddesc;
-    if (CM_WIN & r_ptr->cmove) {
-        (void)sprintf(ddesc, "The %s", r_ptr->name);
-    } else if (is_a_vowel(r_ptr->name[0])) {
-        (void)sprintf(ddesc, "an %s", r_ptr->name);
-    } else {
-        (void)sprintf(ddesc, "a %s", r_ptr->name);
-    }
-    // End DIED_FROM
+    monster_name_indefinite(ddesc, r_ptr);
 
     int i, j, damage;
     int32_t gold;
@@ -1081,22 +1070,11 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
 
         // Describe the attack
         vtype cdesc;
-        if (m_ptr->ml) {
-            (void)sprintf(cdesc, "The %s ", r_ptr->name);
-        } else {
-            (void)strcpy(cdesc, "It ");
-        }
+        monster_name(cdesc, m_ptr, r_ptr);
 
         // For "DIED_FROM" string
         vtype ddesc;
-        if (CM_WIN & r_ptr->cmove) {
-            (void)sprintf(ddesc, "The %s", r_ptr->name);
-        } else if (is_a_vowel(r_ptr->name[0])) {
-            (void)sprintf(ddesc, "an %s", r_ptr->name);
-        } else {
-            (void)sprintf(ddesc, "a %s", r_ptr->name);
-        }
-        // End DIED_FROM
+        monster_name_indefinite(ddesc, r_ptr);
 
         // Extract all possible spells into spell_choice
         int spell_choice[30];

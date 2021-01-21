@@ -12,6 +12,8 @@
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 // Following are creature arrays and variables
 
 // Creatures must be defined here
@@ -709,6 +711,45 @@ creature_type *monster_creature_rend() {
 
 creature_type *monster_creature_prev(creature_type *p) {
     return p - 1;
+}
+
+// Following routines are commonly used in the scroll, potion, wands, and
+// staves routines, and are occasionally called from other areas.
+// Now included are creature spells also.           -RAK
+
+void monster_name(vtype m_name, const monster_type *m_ptr, const creature_type *r_ptr) {
+    if (!m_ptr->ml) {
+        (void)strcpy(m_name, "It");
+    } else {
+        (void)sprintf(m_name, "The %s", r_ptr->name);
+    }
+}
+
+void monster_name_lower(vtype m_name, const monster_type *m_ptr, const creature_type *r_ptr) {
+    if (!m_ptr->ml) {
+        (void)strcpy(m_name, "it");
+    } else {
+        (void)sprintf(m_name, "the %s", r_ptr->name);
+    }
+}
+
+void monster_name_or_something(vtype m_name, const monster_type *m_ptr) {
+    if (!m_ptr->ml) {
+        (void)strcpy(m_name, "Something");
+    } else {
+        creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
+        (void)sprintf(m_name, "The %s", r_ptr->name);
+    }
+}
+
+void monster_name_indefinite(vtype ddesc, const creature_type *r_ptr) {
+    if (CM_WIN & r_ptr->cmove) {
+        (void)sprintf(ddesc, "The %s", r_ptr->name);
+    } else if (is_a_vowel(r_ptr->name[0])) {
+        (void)sprintf(ddesc, "an %s", r_ptr->name);
+    } else {
+        (void)sprintf(ddesc, "a %s", r_ptr->name);
+    }
 }
 
 monster_type m_list[MAX_MALLOC];

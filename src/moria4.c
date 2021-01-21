@@ -56,11 +56,7 @@ void tunnel(int dir) {
         monster_type *m_ptr = &m_list[c_ptr->cptr];
 
         vtype out_val, m_name;
-        if (m_ptr->ml) {
-            (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
-        } else {
-            (void)strcpy(m_name, "Something");
-        }
+        monster_name_or_something(m_name, m_ptr);
         (void)sprintf(out_val, "%s is in your way!", m_name);
         msg_print(out_val);
 
@@ -176,11 +172,7 @@ void disarm_trap() {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
 
             vtype m_name, out_val;
-            if (m_ptr->ml) {
-                (void)sprintf(m_name, "The %s", monster_get_creature(m_ptr->creature)->name);
-            } else {
-                (void)strcpy(m_name, "Something");
-            }
+            monster_name_or_something(m_name, m_ptr);
             (void)sprintf(out_val, "%s is in your way!", m_name);
             msg_print(out_val);
         } else if (c_ptr->tptr != 0) {
@@ -904,11 +896,7 @@ static void py_bash(int y, int x) {
 
     // Does the player know what he's fighting?
     vtype m_name;
-    if (!m_ptr->ml) {
-        (void)strcpy(m_name, "it");
-    } else {
-        (void)sprintf(m_name, "the %s", c_ptr->name);
-    }
+    monster_name_lower(m_name, m_ptr, c_ptr);
 
     int base_tohit = py.stats.use_stat[A_STR] + inventory[INVEN_ARM].weight / 2 + py.misc.wt / 10;
 

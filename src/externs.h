@@ -406,6 +406,11 @@ creature_type *monster_creature_rbegin();
 creature_type *monster_creature_rend();
 creature_type *monster_creature_prev(creature_type *p);
 
+void monster_name(vtype, const monster_type *, const creature_type *);
+void monster_name_lower(vtype, const monster_type *, const creature_type *);
+void monster_name_or_something(vtype, const monster_type *);
+void monster_name_indefinite(vtype, const creature_type *);
+
 // moria1.c
 void change_speed(int);
 void py_bonuses(inven_type *, int);
@@ -516,8 +521,6 @@ bool alchemist(int);
 bool magic_shop(int);
 
 // spells.c
-void monster_name(char *, monster_type *, creature_type *);
-void lower_monster_name(char *, monster_type *, creature_type *);
 int sleep_monsters1(int, int);
 int detect_treasure();
 int detect_object();
