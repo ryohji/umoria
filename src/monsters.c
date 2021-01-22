@@ -717,41 +717,30 @@ creature_type *monster_creature_prev(creature_type *p) {
 // staves routines, and are occasionally called from other areas.
 // Now included are creature spells also.           -RAK
 
-void monster_name(vtype m_name, const monster_type *m_ptr) {
-    if (!m_ptr->ml) {
-        (void)strcpy(m_name, "It");
+static inline const char *name(vtype name, const monster_type *monster, const char *article, const char *invisible) {
+    if (!monster->ml) {
+        return strcpy(name, invisible);
     } else {
-        creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
-        (void)sprintf(m_name, "The %s", r_ptr->name);
+        creature_type *const creature = monster_get_creature(monster->creature);
+        return strcat(strcpy(name, article), creature->name);
     }
 }
 
-void monster_name_lower(vtype m_name, const monster_type *m_ptr) {
-    if (!m_ptr->ml) {
-        (void)strcpy(m_name, "it");
-    } else {
-        creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
-        (void)sprintf(m_name, "the %s", r_ptr->name);
-    }
+const char *monster_name(vtype m_name, const monster_type *m_ptr) {
+    return name(m_name, m_ptr, "The ", "It"); // "The <name>" or "It"
 }
 
-void monster_name_or_something(vtype m_name, const monster_type *m_ptr) {
-    if (!m_ptr->ml) {
-        (void)strcpy(m_name, "Something");
-    } else {
-        creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
-        (void)sprintf(m_name, "The %s", r_ptr->name);
-    }
+const char *monster_name_lower(vtype m_name, const monster_type *m_ptr) {
+    return name(m_name, m_ptr, "the ", "it"); // "the <name>" or "it"
 }
 
-void monster_name_indefinite(vtype ddesc, const creature_type *r_ptr) {
-    if (CM_WIN & r_ptr->cmove) {
-        (void)sprintf(ddesc, "The %s", r_ptr->name);
-    } else if (is_a_vowel(r_ptr->name[0])) {
-        (void)sprintf(ddesc, "an %s", r_ptr->name);
-    } else {
-        (void)sprintf(ddesc, "a %s", r_ptr->name);
-    }
+const char *monster_name_or_something(vtype m_name, const monster_type *m_ptr) {
+    return name(m_name, m_ptr, "The ", "Something"); // "The <name>" or "Something"
+}
+
+const char *monster_name_indefinite(vtype m_name, const creature_type *r_ptr) {
+    const char *article = CM_WIN & r_ptr->cmove ? "The " : is_a_vowel(r_ptr->name[0]) ? "an " : "a ";
+    return strcat(strcpy(m_name, article), r_ptr->name); // "The %s" | "an %s" | "a %s", r_ptr->name
 }
 
 monster_type m_list[MAX_MALLOC];

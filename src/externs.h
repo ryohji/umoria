@@ -406,10 +406,10 @@ creature_type *monster_creature_rbegin();
 creature_type *monster_creature_rend();
 creature_type *monster_creature_prev(creature_type *p);
 
-void monster_name(vtype, const monster_type *);
-void monster_name_lower(vtype, const monster_type *);
-void monster_name_or_something(vtype, const monster_type *);
-void monster_name_indefinite(vtype, const creature_type *);
+const char *monster_name(vtype, const monster_type *);
+const char *monster_name_lower(vtype, const monster_type *);
+const char *monster_name_or_something(vtype, const monster_type *);
+const char *monster_name_indefinite(vtype, const creature_type *);
 
 // moria1.c
 void change_speed(int);
