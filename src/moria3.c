@@ -862,13 +862,7 @@ void openobject() {
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR || t_list[c_ptr->tptr].tval == TV_CHEST)) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-            vtype m_name;
-            monster_name_or_something(m_name, m_ptr);
-
-            vtype out_val;
-            (void)sprintf(out_val, "%s is in your way!", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             // Closed door
             if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
@@ -986,13 +980,7 @@ void closeobject() {
                     }
                 } else {
                     monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-                    vtype m_name;
-                    monster_name_or_something(m_name, m_ptr);
-
-                    vtype out_val;
-                    (void)sprintf(out_val, "%s is in your way!", m_name);
-                    msg_print(out_val);
+                    msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
                 }
             } else {
                 no_object = true;

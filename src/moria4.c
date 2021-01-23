@@ -54,11 +54,7 @@ void tunnel(int dir) {
 
     if (c_ptr->cptr > 1) {
         monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-        vtype out_val, m_name;
-        monster_name_or_something(m_name, m_ptr);
-        (void)sprintf(out_val, "%s is in your way!", m_name);
-        msg_print(out_val);
+        msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
 
         // let the player attack the creature
         if (py.flags.afraid < 1) {
@@ -170,11 +166,7 @@ void disarm_trap() {
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_VIS_TRAP || t_list[c_ptr->tptr].tval == TV_CHEST)) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-            vtype m_name, out_val;
-            monster_name_or_something(m_name, m_ptr);
-            (void)sprintf(out_val, "%s is in your way!", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * py.misc.lev / 3);
 
