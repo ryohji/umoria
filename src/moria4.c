@@ -895,8 +895,7 @@ static void py_bash(int y, int x) {
     m_ptr->csleep = 0;
 
     // Does the player know what he's fighting?
-    vtype m_name;
-    monster_name_lower(m_name, m_ptr);
+    const char *cdesc = monster_name_lower((vtype){}, m_ptr);
 
     int base_tohit = py.stats.use_stat[A_STR] + inventory[INVEN_ARM].weight / 2 + py.misc.wt / 10;
 
@@ -905,10 +904,7 @@ static void py_bash(int y, int x) {
     }
 
     if (test_hit(base_tohit, (int)py.misc.lev, (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {
-        vtype out_val;
-
-        (void)sprintf(out_val, "You hit %s.", m_name);
-        msg_print(out_val);
+        msg_print(CONCAT("You hit ", cdesc, "."));
         int k = pdamroll(inventory[INVEN_ARM].damage);
         k = critical_blow((inventory[INVEN_ARM].weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
         k += py.misc.wt / 60 + 3;
@@ -918,11 +914,10 @@ static void py_bash(int y, int x) {
 
         // See if we done it in.
         if (mon_take_hit(monster, k)) {
-            (void)sprintf(out_val, "You have slain %s.", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT("You have slain ", cdesc, "."));
             prt_experience();
         } else {
-            m_name[0] = toupper((int)m_name[0]); // Capitalize
+            char *out_val;
 
             // Can not stun Balrog
             int avg_max_hp = (c_ptr->cdefense & CD_MAX_HP ? c_ptr->hd[0] * c_ptr->hd[1] : (c_ptr->hd[0] * (c_ptr->hd[1] + 1)) >> 1);
@@ -931,17 +926,15 @@ static void py_bash(int y, int x) {
                 if (m_ptr->stunned > 24) {
                     m_ptr->stunned = 24;
                 }
-
-                (void)sprintf(out_val, "%s appears stunned!", m_name);
+                out_val = CONCAT(cdesc, " appears stunned!");
             } else {
-                (void)sprintf(out_val, "%s ignores your bash!", m_name);
+                out_val = CONCAT(cdesc, " ignores your bash!");
             }
+            out_val[0] = toupper(out_val[0]); // Capitalize
             msg_print(out_val);
         }
     } else {
-        vtype out_val;
-        (void)sprintf(out_val, "You miss %s.", m_name);
-        msg_print(out_val);
+        msg_print(CONCAT("You miss ", cdesc, "."));
     }
     if (randint(150) > py.stats.use_stat[A_DEX]) {
         msg_print("You are off balance.");

@@ -571,8 +571,7 @@ void py_attack(int y, int x) {
     inven_type *i_ptr = &inventory[INVEN_WIELD];
 
     // Does the player know what he's fighting?
-    vtype m_name;
-    monster_name_lower(m_name, m_ptr);
+    const char *cdesc = monster_name_lower((vtype){}, m_ptr);
 
     int blows, tot_tohit;
     if (i_ptr->tval != TV_NOTHING) {
@@ -600,14 +599,12 @@ void py_attack(int y, int x) {
         base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
     }
 
-    vtype out_val;
     int k;
 
     // Loop for number of blows,  trying to hit the critter.
     do {
         if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit, (int)r_ptr->ac, CLA_BTH)) {
-            (void)sprintf(out_val, "You hit %s.", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT("You hit ", cdesc, "."));
             if (i_ptr->tval != TV_NOTHING) {
                 k = pdamroll(i_ptr->damage);
                 k = tot_dam(i_ptr, k, m_ptr->creature);
@@ -626,16 +623,18 @@ void py_attack(int y, int x) {
             if (py.flags.confuse_monster) {
                 py.flags.confuse_monster = false;
                 msg_print("Your hands stop glowing.");
+                char *out_val;
                 if ((r_ptr->cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < r_ptr->level)) {
-                    (void)sprintf(out_val, "%s is unaffected.", m_name);
+                    out_val = CONCAT(cdesc, " is unaffected.");
                 } else {
-                    (void)sprintf(out_val, "%s appears confused.", m_name);
+                    out_val = CONCAT(cdesc, " appears confused.");
                     if (m_list[crptr].confused) {
                         m_list[crptr].confused += 3;
                     } else {
                         m_list[crptr].confused = 2 + randint(16);
                     }
                 }
+                out_val[0] = toupper(out_val[0]); // Capitalize
                 msg_print(out_val);
                 if (m_list[crptr].ml && randint(4) == 1) {
                     recall_get(m_ptr->creature)->r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
@@ -644,8 +643,7 @@ void py_attack(int y, int x) {
 
             // See if we done it in.
             if (mon_take_hit(crptr, k)) {
-                (void)sprintf(out_val, "You have slain %s.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT("You have slain ", cdesc, "."));
                 prt_experience();
                 blows = 0;
             }
@@ -665,8 +663,7 @@ void py_attack(int y, int x) {
                 }
             }
         } else {
-            (void)sprintf(out_val, "You miss %s.", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT("You miss ", cdesc, "."));
         }
         blows--;
     } while (blows >= 1);

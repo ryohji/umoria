@@ -633,12 +633,8 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                 // draw monster and clear previous bolt
                 put_qio();
 
-                vtype out_val, m_name;
-
-                monster_name_lower(m_name, m_ptr);
-                (void)sprintf(out_val, "The %s strikes %s.", bolt_typ, m_name);
-                msg_print(out_val);
-
+                const char *cdesc = monster_name_lower((vtype){}, m_ptr);
+                msg_print(CONCAT("The ", bolt_typ, " strikes ", cdesc, "."));
                 if (harm_type & r_ptr->cdefense) {
                     dam = dam * 2;
                     if (m_ptr->ml) {
@@ -651,13 +647,15 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                     }
                 }
 
-                const char *cdesc = monster_name((vtype){}, m_ptr);
-
                 if (mon_take_hit(c_ptr->cptr, dam)) {
-                    msg_print(CONCAT(cdesc, " dies in a fit of agony."));
+                    char *const out_val = CONCAT(cdesc, " dies in a fit of agony.");
+                    out_val[0] = toupper(out_val[0]); // Capitalize
+                    msg_print(out_val);
                     prt_experience();
                 } else if (dam > 0) {
-                    msg_print(CONCAT(cdesc, " screams in agony."));
+                    char *const out_val = CONCAT(cdesc, " screams in agony.");
+                    out_val[0] = toupper(out_val[0]); // Capitalize
+                    msg_print(out_val);
                 }
             } else if (panel_contains(y, x) && (py.flags.blind < 1)) {
                 print('*', y, x);
