@@ -27,24 +27,19 @@ int sleep_monsters1(int y, int x) {
                 monster_type *m_ptr = &m_list[c_ptr->cptr];
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-                vtype m_name;
-                monster_name(m_name, m_ptr);
+                const char *cdesc = monster_name((vtype){}, m_ptr);
 
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                     if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
                         recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
                     }
 
-                    vtype out_val;
-                    (void)sprintf(out_val, "%s is unaffected.", m_name);
-                    msg_print(out_val);
+                    msg_print(CONCAT(cdesc, " is unaffected."));
                 } else {
                     sleep = true;
                     m_ptr->csleep = 500;
 
-                    vtype out_val;
-                    (void)sprintf(out_val, "%s falls asleep.", m_name);
-                    msg_print(out_val);
+                    msg_print(CONCAT(cdesc, " falls asleep."));
                 }
             }
         }
@@ -479,24 +474,18 @@ void light_line(int dir, int y, int x) {
                 // light up and draw monster
                 update_mon((int)c_ptr->cptr);
 
-                vtype m_name;
-                monster_name(m_name, m_ptr);
+                const char *cdesc = monster_name((vtype){}, m_ptr);
 
                 if (CD_LIGHT & r_ptr->cdefense) {
                     if (m_ptr->ml) {
                         recall_get(m_ptr->creature)->r_cdefense |= CD_LIGHT;
                     }
 
-                    vtype out_val;
-
-                    int i = mon_take_hit((int)c_ptr->cptr, damroll(2, 8));
-                    if (i) {
-                        (void)sprintf(out_val, "%s shrivels away in the light!", m_name);
-                        msg_print(out_val);
+                    if (mon_take_hit(c_ptr->cptr, damroll(2, 8))) {
+                        msg_print(CONCAT(cdesc, " shrivels away in the light!"));
                         prt_experience();
                     } else {
-                        (void)sprintf(out_val, "%s cringes from the light!", m_name);
-                        msg_print(out_val);
+                        msg_print(CONCAT(cdesc, " cringes from the light!"));
                     }
                 }
             }
@@ -662,16 +651,13 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                     }
                 }
 
-                monster_name(m_name, m_ptr);
-                i = mon_take_hit((int)c_ptr->cptr, dam);
+                const char *cdesc = monster_name((vtype){}, m_ptr);
 
-                if (i) {
-                    (void)sprintf(out_val, "%s dies in a fit of agony.", m_name);
-                    msg_print(out_val);
+                if (mon_take_hit(c_ptr->cptr, dam)) {
+                    msg_print(CONCAT(cdesc, " dies in a fit of agony."));
                     prt_experience();
                 } else if (dam > 0) {
-                    (void)sprintf(out_val, "%s screams in agony.", m_name);
-                    msg_print(out_val);
+                    msg_print(CONCAT(cdesc, " screams in agony."));
                 }
             } else if (panel_contains(y, x) && (py.flags.blind < 1)) {
                 print('*', y, x);
@@ -985,20 +971,13 @@ int hp_monster(int dir, int y, int x, int dam) {
 
             monster_type *m_ptr = &m_list[c_ptr->cptr];
 
-            vtype m_name;
-            monster_name(m_name, m_ptr);
+            const char *cdesc = monster_name((vtype){}, m_ptr);
             monster = true;
-            int i = mon_take_hit((int)c_ptr->cptr, dam);
-
-            if (i) {
-                vtype out_val;
-                (void)sprintf(out_val, "%s dies in a fit of agony.", m_name);
-                msg_print(out_val);
+            if (mon_take_hit(c_ptr->cptr, dam)) {
+                msg_print(CONCAT(cdesc, " dies in a fit of agony."));
                 prt_experience();
             } else if (dam > 0) {
-                vtype out_val;
-                (void)sprintf(out_val, "%s screams in agony.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " screams in agony."));
             }
         }
     } while (!flag);
@@ -1029,19 +1008,12 @@ int drain_life(int dir, int y, int x) {
             if ((r_ptr->cdefense & CD_UNDEAD) == 0) {
                 drain = true;
 
-                vtype m_name;
-                monster_name(m_name, m_ptr);
-
-                int i = mon_take_hit((int)c_ptr->cptr, 75);
-                if (i) {
-                    vtype out_val;
-                    (void)sprintf(out_val, "%s dies in a fit of agony.", m_name);
-                    msg_print(out_val);
+                const char *cdesc = monster_name((vtype){}, m_ptr);
+                if (mon_take_hit(c_ptr->cptr, 75)) {
+                    msg_print(CONCAT(cdesc, " dies in a fit of agony."));
                     prt_experience();
                 } else {
-                    vtype out_val;
-                    (void)sprintf(out_val, "%s screams in agony.", m_name);
-                    msg_print(out_val);
+                    msg_print(CONCAT(cdesc, " screams in agony."));
                 }
             } else {
                 recall_get(m_ptr->creature)->r_cdefense |= CD_UNDEAD;
@@ -1073,28 +1045,20 @@ int speed_monster(int dir, int y, int x, int spd) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-            vtype m_name;
-            monster_name(m_name, m_ptr);
-
+            const char *cdesc = monster_name((vtype){}, m_ptr);
             if (spd > 0) {
-                vtype out_val;
                 m_ptr->cspeed += spd;
                 m_ptr->csleep = 0;
-                (void)sprintf(out_val, "%s starts moving faster.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " starts moving faster."));
                 speed = true;
             } else if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
-                vtype out_val;
                 m_ptr->cspeed += spd;
                 m_ptr->csleep = 0;
-                (void)sprintf(out_val, "%s starts moving slower.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " starts moving slower."));
                 speed = true;
             } else {
-                vtype out_val;
                 m_ptr->csleep = 0;
-                (void)sprintf(out_val, "%s is unaffected.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " is unaffected."));
             }
         }
     } while (!flag);
@@ -1119,8 +1083,7 @@ int confuse_monster(int dir, int y, int x) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-            vtype m_name;
-            monster_name(m_name, m_ptr);
+            const char *cdesc = monster_name((vtype){}, m_ptr);
             flag = true;
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
@@ -1133,9 +1096,7 @@ int confuse_monster(int dir, int y, int x) {
                     m_ptr->csleep = 0;
                 }
 
-                vtype out_val;
-                (void)sprintf(out_val, "%s is unaffected.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " is unaffected."));
             } else {
                 if (m_ptr->confused) {
                     m_ptr->confused += 3;
@@ -1145,9 +1106,7 @@ int confuse_monster(int dir, int y, int x) {
                 confuse = true;
                 m_ptr->csleep = 0;
 
-                vtype out_val;
-                (void)sprintf(out_val, "%s appears confused.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " appears confused."));
             }
         }
     } while (!flag);
@@ -1175,24 +1134,19 @@ int sleep_monster(int dir, int y, int x) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-            vtype m_name;
-            monster_name(m_name, m_ptr);
+            const char *cdesc = monster_name((vtype){}, m_ptr);
 
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
                     recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
                 }
 
-                vtype out_val;
-                (void)sprintf(out_val, "%s is unaffected.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " is unaffected."));
             } else {
                 m_ptr->csleep = 500;
                 sleep = true;
 
-                vtype out_val;
-                (void)sprintf(out_val, "%s falls asleep.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " falls asleep."));
             }
         }
     } while (!flag);
@@ -1254,26 +1208,15 @@ int wall_to_mud(int dir, int y, int x) {
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if (CD_STONE & r_ptr->cdefense) {
-                vtype m_name;
-
-                monster_name(m_name, m_ptr);
-                int i = mon_take_hit((int)c_ptr->cptr, 100);
-
+                const char *cdesc = monster_name((vtype){}, m_ptr);
                 // Should get these messages even if the monster is not visible.
-                if (i) {
-                    recall_get(m_ptr->creature)->r_cdefense |= CD_STONE;
-
-                    bigvtype out_val;
-                    (void)sprintf(out_val, "%s dissolves!", m_name);
-                    msg_print(out_val);
+                if (mon_take_hit(c_ptr->cptr, 100)) {
+                    msg_print(CONCAT(cdesc, " dissolves!"));
                     prt_experience(); // print msg before calling prt_exp
                 } else {
-                    recall_get(m_ptr->creature)->r_cdefense |= CD_STONE;
-
-                    bigvtype out_val;
-                    (void)sprintf(out_val, "%s grunts in pain!", m_name);
-                    msg_print(out_val);
+                    msg_print(CONCAT(cdesc, " grunts in pain!"));
                 }
+                recall_get(m_ptr->creature)->r_cdefense |= CD_STONE;
                 flag = true;
             }
         }
@@ -1353,10 +1296,8 @@ int poly_monster(int dir, int y, int x) {
                     poly = true;
                 }
             } else {
-                vtype out_val, m_name;
-                monster_name(m_name, m_ptr);
-                (void)sprintf(out_val, "%s is unaffected.", m_name);
-                msg_print(out_val);
+                const char *cdesc = monster_name((vtype){}, m_ptr);
+                msg_print(CONCAT(cdesc, " is unaffected."));
             }
         }
     } while (!flag);
@@ -1402,15 +1343,10 @@ int build_wall(int dir, int y, int x) {
                         damage = damroll(4, 8);
                     }
 
-                    vtype m_name, out_val;
-                    monster_name(m_name, m_ptr);
-                    (void)sprintf(out_val, "%s wails out in pain!", m_name);
-                    msg_print(out_val);
-                    i = mon_take_hit((int)c_ptr->cptr, damage);
-
-                    if (i) {
-                        (void)sprintf(out_val, "%s is embedded in the rock.", m_name);
-                        msg_print(out_val);
+                    const char *cdesc = monster_name((vtype){}, m_ptr);
+                    msg_print(CONCAT(cdesc, " wails out in pain!"));
+                    if (mon_take_hit(c_ptr->cptr, damage)) {
+                        msg_print(CONCAT(cdesc, " is embedded in the rock."));
                         prt_experience();
                     }
                 } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
@@ -1606,9 +1542,7 @@ int speed_monsters(int spd) {
         monster_type *m_ptr = &m_list[i];
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        vtype out_val, m_name;
-        monster_name(m_name, m_ptr);
-
+        const char *cdesc = monster_name((vtype){}, m_ptr);
         if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
         } else if (spd > 0) {
@@ -1617,22 +1551,19 @@ int speed_monsters(int spd) {
 
             if (m_ptr->ml) {
                 speed = true;
-                (void)sprintf(out_val, "%s starts moving faster.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " starts moving faster."));
             }
         } else if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
             m_ptr->cspeed += spd;
             m_ptr->csleep = 0;
 
             if (m_ptr->ml) {
-                (void)sprintf(out_val, "%s starts moving slower.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " starts moving slower."));
                 speed = true;
             }
         } else if (m_ptr->ml) {
             m_ptr->csleep = 0;
-            (void)sprintf(out_val, "%s is unaffected.", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT(cdesc, " is unaffected."));
         }
     }
 
@@ -1647,9 +1578,7 @@ int sleep_monsters2() {
         monster_type *m_ptr = &m_list[i];
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        vtype out_val, m_name;
-        monster_name(m_name, m_ptr);
-
+        const char *cdesc = monster_name((vtype){}, m_ptr);
         if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
         } else if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
@@ -1657,14 +1586,12 @@ int sleep_monsters2() {
                 if (r_ptr->cdefense & CD_NO_SLEEP) {
                     recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
                 }
-                (void)sprintf(out_val, "%s is unaffected.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " is unaffected."));
             }
         } else {
             m_ptr->csleep = 500;
             if (m_ptr->ml) {
-                (void)sprintf(out_val, "%s falls asleep.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " falls asleep."));
                 sleep = true;
             }
         }
@@ -1839,15 +1766,10 @@ void earthquake() {
                             damage = damroll(4, 8);
                         }
 
-                        vtype out_val, m_name;
-                        monster_name(m_name, m_ptr);
-                        (void)sprintf(out_val, "%s wails out in pain!", m_name);
-                        msg_print(out_val);
-                        i = mon_take_hit((int)c_ptr->cptr, damage);
-
-                        if (i) {
-                            (void)sprintf(out_val, "%s is embedded in the rock.", m_name);
-                            msg_print(out_val);
+                        const char *cdesc = monster_name((vtype){}, m_ptr);
+                        msg_print(CONCAT(cdesc, " wails out in pain!"));
+                        if (mon_take_hit(c_ptr->cptr, damage)) {
+                            msg_print(CONCAT(cdesc, " is embedded in the rock."));
                             prt_experience();
                         }
                     } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
@@ -1922,26 +1844,18 @@ int dispel_creature(int cflag, int damage) {
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
-
             recall_get(m_ptr->creature)->r_cdefense |= cflag;
 
-            vtype out_val, m_name;
-            monster_name(m_name, m_ptr);
-            int k = mon_take_hit(i, randint(damage));
-
+            const char *cdesc = monster_name((vtype){}, m_ptr);
             // Should get these messages even if the monster is not visible.
-            if (k) {
-                (void)sprintf(out_val, "%s dissolves!", m_name);
+            if (mon_take_hit(i, randint(damage))) {
+                msg_print(CONCAT(cdesc, " dissolves!"));
+                prt_experience();
             } else {
-                (void)sprintf(out_val, "%s shudders.", m_name);
+                msg_print(CONCAT(cdesc, " shudders."));
             }
-            msg_print(out_val);
 
             dispel = true;
-
-            if (k) {
-                prt_experience();
-            }
         }
     }
 
@@ -1956,21 +1870,15 @@ int turn_undead() {
         monster_type *m_ptr = &m_list[i];
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        if ((m_ptr->cdis <= MAX_SIGHT) && (CD_UNDEAD & r_ptr->cdefense) && (los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx))) {
-            vtype out_val, m_name;
-            monster_name(m_name, m_ptr);
-
+        if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(char_row, char_col, m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
+            const char *cdesc = monster_name((vtype){}, m_ptr);
             if (((py.misc.lev + 1) > r_ptr->level) || (randint(5) == 1)) {
-                if (m_ptr->ml) {
-                    (void)sprintf(out_val, "%s runs frantically!", m_name);
-                    msg_print(out_val);
-                    turn_und = true;
-                    recall_get(m_ptr->creature)->r_cdefense |= CD_UNDEAD;
-                }
-                m_ptr->confused = (uint8_t)py.misc.lev;
-            } else if (m_ptr->ml) {
-                (void)sprintf(out_val, "%s is unaffected.", m_name);
-                msg_print(out_val);
+                msg_print(CONCAT(cdesc, " runs frantically!"));
+                turn_und = true;
+                recall_get(m_ptr->creature)->r_cdefense |= CD_UNDEAD;
+                m_ptr->confused = py.misc.lev;
+            } else {
+                msg_print(CONCAT(cdesc, " is unaffected."));
             }
         }
     }

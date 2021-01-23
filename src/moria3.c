@@ -514,9 +514,9 @@ int mon_take_hit(int monptr, int dam) {
     m_ptr->hp -= dam;
     m_ptr->csleep = 0;
 
-    int m_take_hit;
+    const int m_dead = m_ptr->hp < 0;
 
-    if (m_ptr->hp < 0) {
+    if (m_dead) {
         uint32_t i = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
 
         if ((py.flags.blind < 1 && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
@@ -546,11 +546,9 @@ int mon_take_hit(int monptr, int dam) {
             p_ptr->exp_frac = new_exp_frac;
         }
 
-        p_ptr->exp += new_exp;
-
         // can't call prt_experience() here, as that would result in "new level"
         // message appearing before "monster dies" message.
-        m_take_hit = true;
+        p_ptr->exp += new_exp;
 
         // in case this is called from within creatures(), this is a horrible
         // hack, the m_list/creatures() code needs to be rewritten.
@@ -559,11 +557,9 @@ int mon_take_hit(int monptr, int dam) {
         } else {
             fix1_delete_monster(monptr);
         }
-    } else {
-        m_take_hit = false;
     }
 
-    return m_take_hit;
+    return m_dead;
 }
 
 // Player attacks a (poor, defenseless) creature -RAK-

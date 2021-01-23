@@ -165,6 +165,8 @@ extern bool light_flag;
 
 #define END_OF(a) ((a) + LENGTH_OF(a))
 
+#define CONCAT(...) concat((vtype){}, __VA_ARGS__, NULL)
+
 // create.c
 void create_character();
 
@@ -388,6 +390,7 @@ void scribe_object();
 void add_inscribe(inven_type *, uint8_t);
 void inscribe(inven_type *, char *);
 void check_view();
+char *concat(char *buffer, ...);
 
 // monsters.c
 bool monster_attack_is_null(attack_handle h);

@@ -255,8 +255,7 @@ static void make_attack(int monptr) {
     monster_type *m_ptr = &m_list[monptr];
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-    vtype cdesc;
-    monster_name(cdesc, m_ptr);
+    const char *cdesc = monster_name((vtype){}, m_ptr);
 
     // For "DIED_FROM" string
     vtype ddesc;
@@ -265,7 +264,6 @@ static void make_attack(int monptr) {
     int i, j, damage;
     int32_t gold;
     inven_type *i_ptr;
-    vtype tmp_str;
 
     const attack_handle *iter = r_ptr->attack;
     for (; iter != END_OF(r_ptr->attack) && !monster_attack_is_null(*iter) && !death; iter += 1) {
@@ -419,99 +417,98 @@ static void make_attack(int monptr) {
         if (flag) {
             // can not strcat to cdesc because the creature may have multiple attacks.
             disturb(1, 0);
-            (void)strcpy(tmp_str, cdesc);
             switch (adesc) {
             case 1:
-                msg_print(strcat(tmp_str, "hits you."));
+                msg_print(CONCAT(cdesc, " hits you."));
                 break;
             case 2:
-                msg_print(strcat(tmp_str, "bites you."));
+                msg_print(CONCAT(cdesc, " bites you."));
                 break;
             case 3:
-                msg_print(strcat(tmp_str, "claws you."));
+                msg_print(CONCAT(cdesc, " claws you."));
                 break;
             case 4:
-                msg_print(strcat(tmp_str, "stings you."));
+                msg_print(CONCAT(cdesc, " stings you."));
                 break;
             case 5:
-                msg_print(strcat(tmp_str, "touches you."));
+                msg_print(CONCAT(cdesc, " touches you."));
                 break;
 #if 0
             case 6:
-                msg_print(strcat(tmp_str, "kicks you."));
+                msg_print(CONCAT(cdesc, " kicks you."));
                 break;
 #endif
             case 7:
-                msg_print(strcat(tmp_str, "gazes at you."));
+                msg_print(CONCAT(cdesc, " gazes at you."));
                 break;
             case 8:
-                msg_print(strcat(tmp_str, "breathes on you."));
+                msg_print(CONCAT(cdesc, " breathes on you."));
                 break;
             case 9:
-                msg_print(strcat(tmp_str, "spits on you."));
+                msg_print(CONCAT(cdesc, " spits on you."));
                 break;
             case 10:
-                msg_print(strcat(tmp_str, "makes a horrible wail."));
+                msg_print(CONCAT(cdesc, " makes a horrible wail."));
                 break;
 #if 0
             case 11:
-                msg_print(strcat(tmp_str, "embraces you."));
+                msg_print(CONCAT(cdesc, " embraces you."));
                 break;
 #endif
             case 12:
-                msg_print(strcat(tmp_str, "crawls on you."));
+                msg_print(CONCAT(cdesc, " crawls on you."));
                 break;
             case 13:
-                msg_print(strcat(tmp_str, "releases a cloud of spores."));
+                msg_print(CONCAT(cdesc, " releases a cloud of spores."));
                 break;
             case 14:
-                msg_print(strcat(tmp_str, "begs you for money."));
+                msg_print(CONCAT(cdesc, " begs you for money."));
                 break;
             case 15:
                 msg_print("You've been slimed!");
                 break;
             case 16:
-                msg_print(strcat(tmp_str, "crushes you."));
+                msg_print(CONCAT(cdesc, " crushes you."));
                 break;
             case 17:
-                msg_print(strcat(tmp_str, "tramples you."));
+                msg_print(CONCAT(cdesc, " tramples you."));
                 break;
             case 18:
-                msg_print(strcat(tmp_str, "drools on you."));
+                msg_print(CONCAT(cdesc, " drools on you."));
                 break;
             case 19:
                 switch (randint(9)) {
                 case 1:
-                    msg_print(strcat(tmp_str, "insults you!"));
+                    msg_print(CONCAT(cdesc, " insults you!"));
                     break;
                 case 2:
-                    msg_print(strcat(tmp_str, "insults your mother!"));
+                    msg_print(CONCAT(cdesc, " insults your mother!"));
                     break;
                 case 3:
-                    msg_print(strcat(tmp_str, "gives you the finger!"));
+                    msg_print(CONCAT(cdesc, " gives you the finger!"));
                     break;
                 case 4:
-                    msg_print(strcat(tmp_str, "humiliates you!"));
+                    msg_print(CONCAT(cdesc, " humiliates you!"));
                     break;
                 case 5:
-                    msg_print(strcat(tmp_str, "wets on your leg!"));
+                    msg_print(CONCAT(cdesc, " wets on your leg!"));
                     break;
                 case 6:
-                    msg_print(strcat(tmp_str, "defiles you!"));
+                    msg_print(CONCAT(cdesc, " defiles you!"));
                     break;
                 case 7:
-                    msg_print(strcat(tmp_str, "dances around you!"));
+                    msg_print(CONCAT(cdesc, " dances around you!"));
                     break;
                 case 8:
-                    msg_print(strcat(tmp_str, "makes obscene gestures!"));
+                    msg_print(CONCAT(cdesc, " makes obscene gestures!"));
                     break;
                 case 9:
-                    msg_print(strcat(tmp_str, "moons you!!!"));
+                    msg_print(CONCAT(cdesc, " moons you!!!"));
                     break;
                 }
                 break;
             case 99:
-                msg_print(strcat(tmp_str, "is repelled."));
+                msg_print(CONCAT(cdesc, " is repelled."));
                 break;
             default:
                 break;
@@ -817,17 +814,18 @@ static void make_attack(int monptr) {
             if (f_ptr->confuse_monster && adesc != 99) {
                 msg_print("Your hands stop glowing.");
                 f_ptr->confuse_monster = false;
+                const char *verb;
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
-                    (void)sprintf(tmp_str, "%sis unaffected.", cdesc);
+                    verb = "is unaffected.";
                 } else {
-                    (void)sprintf(tmp_str, "%sappears confused.", cdesc);
                     if (m_ptr->confused) {
                         m_ptr->confused += 3;
                     } else {
                         m_ptr->confused = 2 + randint(16);
                     }
+                    verb = " appears confused.";
                 }
-                msg_print(tmp_str);
+                msg_print(CONCAT(cdesc, verb));
                 if (visible && !death && randint(4) == 1) {
                     recall_get(m_ptr->creature)->r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
                 }
@@ -846,8 +844,7 @@ static void make_attack(int monptr) {
         } else {
             if ((adesc >= 1 && adesc <= 3) || (adesc == 6)) {
                 disturb(1, 0);
-                (void)strcpy(tmp_str, cdesc);
-                msg_print(strcat(tmp_str, "misses you."));
+                msg_print(CONCAT(cdesc, " misses you."));
             }
         }
     }
@@ -1069,8 +1066,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         update_mon(monptr);
 
         // Describe the attack
-        vtype cdesc;
-        monster_name(cdesc, m_ptr);
+        const char *cdesc = monster_name((vtype){}, m_ptr);
 
         // For "DIED_FROM" string
         vtype ddesc;
@@ -1097,8 +1093,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
 
         // save some code/data space here, with a small time penalty
         if ((thrown_spell < 14 && thrown_spell > 6) || (thrown_spell == 16)) {
-            (void)strcat(cdesc, "casts a spell.");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " casts a spell."));
         }
 
         int y, x;
@@ -1167,8 +1162,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             }
             break;
         case 14: // Summon Monster
-            (void)strcat(cdesc, "magically summons a monster!");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " magically summons a monster!"));
             y = char_row;
             x = char_col;
 
@@ -1179,8 +1173,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             update_mon((int)cave[y][x].cptr);
             break;
         case 15: // Summon Undead
-            (void)strcat(cdesc, "magically summons an undead!");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " magically summons an undead!"));
             y = char_row;
             x = char_col;
 
@@ -1203,14 +1196,10 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             break;
         case 17: // Drain Mana
             if (py.misc.cmana > 0) {
-                vtype outval;
-
                 disturb(1, 0);
-                (void)sprintf(outval, "%sdraws psychic energy from you!", cdesc);
-                msg_print(outval);
+                msg_print(CONCAT(cdesc, " draws psychic energy from you!"));
                 if (m_ptr->ml) {
-                    (void)sprintf(outval, "%sappears healthier.", cdesc);
-                    msg_print(outval);
+                    msg_print(CONCAT(cdesc, " appears healthier."));
                 }
 
                 int r1 = (randint((int)r_ptr->level) >> 1) + 1;
@@ -1226,33 +1215,27 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             }
             break;
         case 20: // Breath Light
-            (void)strcat(cdesc, "breathes lightning.");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " breathes lightning."));
             breath(GF_LIGHTNING, char_row, char_col, (m_ptr->hp / 4), ddesc, monptr);
             break;
         case 21: // Breath Gas
-            (void)strcat(cdesc, "breathes gas.");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " breathes gas."));
             breath(GF_POISON_GAS, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
             break;
         case 22: // Breath Acid
-            (void)strcat(cdesc, "breathes acid.");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " breathes acid."));
             breath(GF_ACID, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
             break;
         case 23: // Breath Frost
-            (void)strcat(cdesc, "breathes frost.");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " breathes frost."));
             breath(GF_FROST, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
             break;
         case 24: // Breath Fire
-            (void)strcat(cdesc, "breathes fire.");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " breathes fire."));
             breath(GF_FIRE, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
             break;
         default:
-            (void)strcat(cdesc, "cast unknown spell.");
-            msg_print(cdesc);
+            msg_print(CONCAT(cdesc, " cast unknown spell."));
         }
         // End of spells
 

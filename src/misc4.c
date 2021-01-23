@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include <stdarg.h>
+
 // Add a comment to an object description. -CJS-
 void scribe_object() {
     if (inven_ctr > 0 || equip_ctr > 0) {
@@ -85,4 +87,21 @@ void check_view() {
             }
         }
     }
+}
+
+// concatenate var length string arguments (last should be NULL) into buffer.
+// returns buffer.
+char *concat(char *const buffer, ...) {
+    char *p = buffer;
+    const char *s;
+    va_list list;
+
+    va_start(list, buffer);
+    buffer[0] = '\0';
+    while ((s = va_arg(list, const char *))) {
+        p = strcpy(p, s) + strlen(s);
+    }
+    va_end(list);
+
+    return buffer;
 }
