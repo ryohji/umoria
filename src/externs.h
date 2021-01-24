@@ -221,6 +221,9 @@ void generate_cave();
 void ident_char();
 
 // io.c
+#ifdef SIGTSTP
+void suspend(int);
+#endif
 void init_curses();
 void moriaterm();
 void put_buffer(char *, int, int);
@@ -522,6 +525,14 @@ bool weaponsmith(int);
 bool temple(int);
 bool alchemist(int);
 bool magic_shop(int);
+
+// signals.c
+void nosignals();
+void signals();
+void init_signals();
+void ignore_signals();
+void default_signals();
+void restore_signals();
 
 // spells.c
 int sleep_monsters1(int, int);

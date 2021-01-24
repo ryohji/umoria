@@ -15,17 +15,63 @@
 
 #include "externs.h"
 
+#include <sgtty.h>
+#include <signal.h>
+#include <termios.h>
+
 #define use_value2
 
 static bool curses_on = false;
+
+static struct ltchars save_special_chars;
+static struct sgttyb save_ttyb;
+static struct tchars save_tchars;
+static int save_local_chars;
 
 // Spare window for saving the screen. -CJS-
 static WINDOW *savescr;
 
 static void error_abort(const char *funcname, int row, int col);
 
+#ifdef SIGTSTP
+// suspend()                 -CJS-
+// Handle the stop and start signals. This ensures that the log
+// is up to date, and that the terminal is fully reset and
+// restored.
+void suspend(int signum) {
+    struct sgttyb tbuf;
+    struct ltchars lcbuf;
+    struct tchars cbuf;
+    int lbuf;
+
+    py.misc.male |= 2;
+
+    (void)ioctl(0, TIOCGETP, (char *)&tbuf);
+    (void)ioctl(0, TIOCGETC, (char *)&cbuf);
+    (void)ioctl(0, TIOCGLTC, (char *)&lcbuf);
+    (void)ioctl(0, TIOCLGET, (char *)&lbuf);
+
+    restore_term();
+    (void)kill(0, SIGSTOP);
+
+    curses_on = TRUE;
+
+    (void)ioctl(0, TIOCSETP, (char *)&tbuf);
+    (void)ioctl(0, TIOCSETC, (char *)&cbuf);
+    (void)ioctl(0, TIOCSLTC, (char *)&lcbuf);
+    (void)ioctl(0, TIOCLSET, (char *)&lbuf);
+    (void)wrefresh(curscr);
+    py.misc.male &= ~2;
+}
+#endif
+
 // initializes curses routines
 void init_curses() {
+    ioctl(0, TIOCGLTC, (char *)&save_special_chars);
+    ioctl(0, TIOCGETP, (char *)&save_ttyb);
+    ioctl(0, TIOCGETC, (char *)&save_tchars);
+    ioctl(0, TIOCLGET, (char *)&save_local_chars);
+
     initscr();
 
     // Check we have enough screen. -CJS-
@@ -33,6 +79,10 @@ void init_curses() {
         (void)printf("Screen too small for moria.\n");
         exit(1);
     }
+
+#ifdef SIGTSTP
+    signal(SIGTSTP, suspend);
+#endif
 
     savescr = newwin(0, 0, 0, 0);
     if (savescr == NULL) {
@@ -48,6 +98,9 @@ void init_curses() {
 
 // Set up the terminal into a suitable state -MRC-
 void moriaterm() {
+    struct ltchars lbuf;
+    struct tchars buf;
+
     cbreak();
     noecho();
 
@@ -61,6 +114,29 @@ void moriaterm() {
 #endif
 
     curses_on = true;
+
+    // disable all of the special characters except the suspend char,
+    // interrupt char, and the control flow start/stop characters
+    (void)ioctl(0, TIOCGLTC, (char *)&lbuf);
+
+    lbuf.t_suspc = (char)26; /* control-Z */
+    lbuf.t_dsuspc = (char)-1;
+    lbuf.t_rprntc = (char)-1;
+    lbuf.t_flushc = (char)-1;
+    lbuf.t_werasc = (char)-1;
+    lbuf.t_lnextc = (char)-1;
+
+    (void)ioctl(0, TIOCSLTC, (char *)&lbuf);
+    (void)ioctl(0, TIOCGETC, (char *)&buf);
+
+    buf.t_intrc = (char)3; /* control-C */
+    buf.t_quitc = (char)-1;
+    buf.t_startc = (char)17; /* control-Q */
+    buf.t_stopc = (char)19;  /* control-S */
+    buf.t_eofc = (char)-1;
+    buf.t_brkc = (char)-1;
+
+    (void)ioctl(0, TIOCSETC, (char *)&buf);
 }
 
 // Dump IO to buffer -RAK-
@@ -104,7 +180,13 @@ void restore_term() {
 
     // exit curses
     endwin();
-    (void)fflush(stdout);
+    fflush(stdout);
+
+    // restore the saved values of the special chars
+    ioctl(0, TIOCSLTC, (char *)&save_special_chars);
+    ioctl(0, TIOCSETP, (char *)&save_ttyb);
+    ioctl(0, TIOCSETC, (char *)&save_tchars);
+    ioctl(0, TIOCLSET, (char *)&save_local_chars);
 
     curses_on = false;
 }

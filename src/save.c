@@ -403,6 +403,7 @@ bool _save_char(char *fnam) {
         return true; // Nothing to save.
     }
 
+    nosignals();
     put_qio();
     disturb(1, 0);             // Turn off resting and searching.
     change_speed(-pack_heavy); // Fix the speed
@@ -452,7 +453,7 @@ bool _save_char(char *fnam) {
         if (fd >= 0) {
             (void)unlink(fnam);
         }
-
+        signals();
         vtype temp;
         if (fd >= 0) {
             (void)sprintf(temp, "Error writing to file %s", fnam);
@@ -467,6 +468,7 @@ bool _save_char(char *fnam) {
     }
 
     turn = -1;
+    signals();
 
     return true;
 }
@@ -475,12 +477,14 @@ bool _save_char(char *fnam) {
 bool get_char(bool *generate) {
     uint32_t time_saved;
 
+    nosignals();
     *generate = true;
     int fd = -1;
 
     // Not required for Mac, because the file name is obtained through a dialog.
     // There is no way for a non existnat file to be specified. -BS-
     if (access(savefile, 0) != 0) {
+        signals();
         msg_print("Savefile does not exist.");
         return false; // Don't bother with messages here. File absent.
     }
@@ -987,6 +991,8 @@ bool get_char(bool *generate) {
             // let the user overwrite the old savefile when save/quit
             from_savefile = 1;
 
+            signals();
+
             if (panic_save == true) {
                 (void)sprintf(temp, "This game is from a panic save.  Score "
                                     "will not be added to scoreboard.");
@@ -1049,6 +1055,7 @@ bool get_char(bool *generate) {
     }
     turn = -1;
     prt("Please try again without that savefile.", 1, 0);
+    signals();
 
     exit_game();
 
