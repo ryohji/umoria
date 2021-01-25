@@ -34,49 +34,20 @@
 
 #include <signal.h>
 
-/* Since libc6, linux (Debian, at least) defaults to BSD signal().  This */
-/* expects SYSV.  Thus, DEBIAN_LINUX uses the sysv_signal call, everyone */
-/* else uses just signal.  RJW 00_0528 */
-#ifdef DEBIAN_LINUX
-#define MSIGNAL sysv_signal
-#else
-#define MSIGNAL signal
-#endif
-
-#ifdef USG
-void exit();
-unsigned sleep();
-#endif
-
 static int error_sig = -1;
 static int signal_count = 0;
+static int mask;
 
-/*ARGSUSED*/
-#ifndef USG
-#ifdef __386BSD__
-static void signal_handler(sig, code, scp)
-#else
-static int signal_handler(sig, code, scp)
-#endif
-    int sig,
-    code;
-struct sigcontext *scp;
-{
-    int smask;
-
-    smask = sigsetmask(0) | (1 << sig);
-#else
-static int signal_handler(sig) int sig;
-{
-#endif
+static void signal_handler(int sig) {
+    int smask = sigsetmask(0) | (1 << sig);
 
     /* Ignore all second signals. */
     if (error_sig >= 0) {
         /* Be safe. We will die if persistent enough. */
         if (++signal_count > 10) {
-            (void)MSIGNAL(sig, SIG_DFL);
+            (void)signal(sig, SIG_DFL);
         }
-        return 0;
+        return;
     }
     error_sig = sig;
 
@@ -84,7 +55,7 @@ static int signal_handler(sig) int sig;
     if (sig == SIGINT || sig == SIGQUIT) {
         if (death) {
             /* Can't quit after death. */
-            (void)MSIGNAL(sig, SIG_IGN);
+            (void)signal(sig, SIG_IGN);
         } else if (!character_saved && character_generated) {
             if (!get_check("Really commit *Suicide*?")) {
                 if (turn > 0) {
@@ -93,12 +64,8 @@ static int signal_handler(sig) int sig;
                 erase_line(0, 0);
                 put_qio();
                 error_sig = -1;
-#ifdef USG
-                /* Have to restore handler. */
-                (void)MSIGNAL(sig, signal_handler);
-#else
                 (void)sigsetmask(smask);
-#endif
+
                 /* in case control-c typed during msg_print */
                 if (wait_for_more) {
                     put_buffer(" -more-", MSG_LINE, 0);
@@ -106,7 +73,7 @@ static int signal_handler(sig) int sig;
                 put_qio();
 
                 /* OK. We don't quit. */
-                return 0;
+                return;
             }
             (void)strcpy(died_from, "Interrupting");
         } else {
@@ -139,94 +106,62 @@ static int signal_handler(sig) int sig;
     restore_term();
 
     /* always generate a core dump */
-    (void)MSIGNAL(sig, SIG_DFL);
+    (void)signal(sig, SIG_DFL);
     (void)kill(getpid(), sig);
     (void)sleep(5);
     exit(1);
 }
 
-#ifndef USG
-static int mask;
-#endif
-
 void nosignals() {
-#ifdef SIGTSTP
-    (void)MSIGNAL(SIGTSTP, SIG_IGN);
-#ifndef USG
+    (void)signal(SIGTSTP, SIG_IGN);
     mask = sigsetmask(0);
-#endif
-#endif
+
     if (error_sig < 0) {
         error_sig = 0;
     }
 }
 
 void signals() {
-#ifdef SIGTSTP
-#ifdef __386BSD__
-    (void)MSIGNAL(SIGTSTP, (sig_t)suspend);
-#else
-    (void)MSIGNAL(SIGTSTP, suspend);
-#endif
-#ifndef USG
+    (void)signal(SIGTSTP, suspend);
     (void)sigsetmask(mask);
-#endif
-#endif
+
     if (error_sig == 0) {
         error_sig = -1;
     }
 }
 
 void init_signals() {
-    (void)MSIGNAL(SIGINT, signal_handler);
-    (void)MSIGNAL(SIGINT, signal_handler);
-    (void)MSIGNAL(SIGFPE, signal_handler);
+    (void)signal(SIGINT, signal_handler);
+    (void)signal(SIGINT, signal_handler);
+    (void)signal(SIGFPE, signal_handler);
 
     /* Ignore HANGUP, and let the EOF code take care of this case. */
-    (void)MSIGNAL(SIGHUP, SIG_IGN);
-    (void)MSIGNAL(SIGQUIT, signal_handler);
-    (void)MSIGNAL(SIGILL, signal_handler);
-    (void)MSIGNAL(SIGTRAP, signal_handler);
-    (void)MSIGNAL(SIGIOT, signal_handler);
-#ifdef SIGEMT /* in BSD systems */
-    (void)MSIGNAL(SIGEMT, signal_handler);
-#endif
-#ifdef SIGDANGER /* in SYSV systems */
-    (void)MSIGNAL(SIGDANGER, signal_handler);
-#endif
-    (void)MSIGNAL(SIGKILL, signal_handler);
-    (void)MSIGNAL(SIGBUS, signal_handler);
-    (void)MSIGNAL(SIGSEGV, signal_handler);
-#ifdef SIGSYS
-    (void)MSIGNAL(SIGSYS, signal_handler);
-#endif
-    (void)MSIGNAL(SIGTERM, signal_handler);
-    (void)MSIGNAL(SIGPIPE, signal_handler);
-#ifdef SIGXCPU /* BSD */
-    (void)MSIGNAL(SIGXCPU, signal_handler);
-#endif
-#ifdef SIGPWR /* SYSV */
-    (void)MSIGNAL(SIGPWR, signal_handler);
-#endif
+    (void)signal(SIGHUP, SIG_IGN);
+    (void)signal(SIGQUIT, signal_handler);
+    (void)signal(SIGILL, signal_handler);
+    (void)signal(SIGTRAP, signal_handler);
+    (void)signal(SIGIOT, signal_handler);
+    (void)signal(SIGEMT, signal_handler);
+    (void)signal(SIGKILL, signal_handler);
+    (void)signal(SIGBUS, signal_handler);
+    (void)signal(SIGSEGV, signal_handler);
+    (void)signal(SIGSYS, signal_handler);
+    (void)signal(SIGTERM, signal_handler);
+    (void)signal(SIGPIPE, signal_handler);
+    (void)signal(SIGXCPU, signal_handler);
 }
 
 void ignore_signals() {
-    (void)MSIGNAL(SIGINT, SIG_IGN);
-#ifdef SIGQUIT
-    (void)MSIGNAL(SIGQUIT, SIG_IGN);
-#endif
+    (void)signal(SIGINT, SIG_IGN);
+    (void)signal(SIGQUIT, SIG_IGN);
 }
 
 void default_signals() {
-    (void)MSIGNAL(SIGINT, SIG_DFL);
-#ifdef SIGQUIT
-    (void)MSIGNAL(SIGQUIT, SIG_DFL);
-#endif
+    (void)signal(SIGINT, SIG_DFL);
+    (void)signal(SIGQUIT, SIG_DFL);
 }
 
 void restore_signals() {
-    (void)MSIGNAL(SIGINT, signal_handler);
-#ifdef SIGQUIT
-    (void)MSIGNAL(SIGQUIT, signal_handler);
-#endif
+    (void)signal(SIGINT, signal_handler);
+    (void)signal(SIGQUIT, signal_handler);
 }
