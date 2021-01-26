@@ -322,26 +322,19 @@ void move_cursor(int row, int col) {
 // Outputs message to top line of screen
 // These messages are kept for later reference.
 void msg_print(char *str_buff) {
-    int new_len = 0;
-    int old_len = 0;
+    int old_len;
     bool combine_messages = false;
 
     if (msg_flag) {
-        old_len = strlen(old_msg[last_msg]) + 1;
+        old_len = strlen(old_msg[last_msg]);
 
         // If the new message and the old message are short enough,
         // we want display them together on the same line.  So we
         // don't flush the old message in this case.
-
-        new_len = str_buff ? strlen(str_buff) : 0;
-
-        if (!str_buff || (new_len + old_len + 2 >= 73)) {
+        combine_messages = str_buff && old_len + 2 + strlen(str_buff) < 73;
+        if (!combine_messages) {
             // ensure that the complete -more- message is visible.
-            if (old_len > 73) {
-                old_len = 73;
-            }
-
-            put_buffer(" -more-", MSG_LINE, old_len);
+            put_buffer("-more-", MSG_LINE, MIN(73, old_len + 2));
 
             // let sigint handler know that we are waiting for a space
             wait_for_more = true;
@@ -352,8 +345,6 @@ void msg_print(char *str_buff) {
             } while ((in_char != ' ') && (in_char != ESCAPE) && (in_char != '\n') && (in_char != '\r'));
 
             wait_for_more = false;
-        } else {
-            combine_messages = true;
         }
     }
 
@@ -363,30 +354,21 @@ void msg_print(char *str_buff) {
     }
 
     // Make the null string a special case. -CJS-
-    if (str_buff) {
+    msg_flag = str_buff != CNIL;
+    if (msg_flag) {
         command_count = 0;
-        msg_flag = true;
 
         // If the new message and the old message are short enough,
         // display them on the same line.
-
         if (combine_messages) {
             put_buffer(str_buff, MSG_LINE, old_len + 2);
-            strcat(old_msg[last_msg], "  ");
-            strcat(old_msg[last_msg], str_buff);
+            sprintf(old_msg[last_msg] + old_len, "  %s", str_buff);
         } else {
             put_buffer(str_buff, MSG_LINE, 0);
-            last_msg++;
-
-            if (last_msg >= MAX_SAVE_MSG) {
-                last_msg = 0;
-            }
-
-            (void)strncpy(old_msg[last_msg], str_buff, VTYPESIZ);
+            last_msg = last_msg + 1 == MAX_SAVE_MSG ? 0 : last_msg + 1;
+            strncpy(old_msg[last_msg], str_buff, VTYPESIZ);
             old_msg[last_msg][VTYPESIZ - 1] = '\0';
         }
-    } else {
-        msg_flag = false;
     }
 }
 
