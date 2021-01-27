@@ -32,6 +32,7 @@ static int save_local_chars;
 static WINDOW *savescr;
 
 static void error_abort(const char *funcname, int row, int col);
+static void wait_for_more_confirmation();
 
 #ifdef SIGTSTP
 // suspend()                 -CJS-
@@ -322,54 +323,61 @@ void move_cursor(int row, int col) {
 // Outputs message to top line of screen
 // These messages are kept for later reference.
 void msg_print(char *str_buff) {
-    int old_len;
-    bool combine_messages = false;
+    const int old_len = msg_flag ? strlen(old_msg[last_msg]) : 0;
+    const bool prev_msg_exists = msg_flag;
+    const bool combine_messages = prev_msg_exists && str_buff && old_len + 2 + strlen(str_buff) < 73;
 
-    if (msg_flag) {
-        old_len = strlen(old_msg[last_msg]);
+    msg_flag = str_buff != CNIL;
 
-        // If the new message and the old message are short enough,
-        // we want display them together on the same line.  So we
-        // don't flush the old message in this case.
-        combine_messages = str_buff && old_len + 2 + strlen(str_buff) < 73;
-        if (!combine_messages) {
+    if (!combine_messages) {
+        // Make the null string a special case. -CJS-
+
+        if (prev_msg_exists) {
             // ensure that the complete -more- message is visible.
             put_buffer("-more-", MSG_LINE, MIN(73, old_len + 2));
 
-            // let sigint handler know that we are waiting for a space
-            wait_for_more = true;
-
-            char in_char;
-            do {
-                in_char = inkey();
-            } while ((in_char != ' ') && (in_char != ESCAPE) && (in_char != '\n') && (in_char != '\r'));
-
-            wait_for_more = false;
+            wait_for_more_confirmation();
         }
-    }
 
-    if (!combine_messages) {
         (void)move(MSG_LINE, 0);
         clrtoeol();
-    }
 
-    // Make the null string a special case. -CJS-
-    msg_flag = str_buff != CNIL;
-    if (msg_flag) {
-        command_count = 0;
+        if (msg_flag) {
+            command_count = 0;
 
-        // If the new message and the old message are short enough,
-        // display them on the same line.
-        if (combine_messages) {
-            put_buffer(str_buff, MSG_LINE, old_len + 2);
-            sprintf(old_msg[last_msg] + old_len, "  %s", str_buff);
-        } else {
             put_buffer(str_buff, MSG_LINE, 0);
             last_msg = last_msg + 1 == MAX_SAVE_MSG ? 0 : last_msg + 1;
             strncpy(old_msg[last_msg], str_buff, VTYPESIZ);
             old_msg[last_msg][VTYPESIZ - 1] = '\0';
         }
+    } else {
+        command_count = 0;
+
+        // If the new message and the old message are short enough,
+        // display them together on the same line.
+        // So we don't flush the old message in this case.
+
+        put_buffer(str_buff, MSG_LINE, old_len + 2);
+        sprintf(old_msg[last_msg] + old_len, "  %s", str_buff);
     }
+}
+
+static inline void wait_for_more_confirmation() {
+    // let sigint handler know that we are waiting for a space
+    wait_for_more = true;
+
+inkey:
+    switch (inkey()) {
+    default:
+        goto inkey;
+    case ' ':
+    case ESCAPE:
+    case '\n':
+    case '\r':
+        break;
+    }
+
+    wait_for_more = false;
 }
 
 // Used to verify a choice - user gets the chance to abort choice. -CJS-
