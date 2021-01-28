@@ -520,15 +520,16 @@ int mon_take_hit(int monptr, int dam) {
         uint32_t i = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
 
         if ((py.flags.blind < 1 && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
-            uint32_t tmp = (recall_get(m_ptr->creature)->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
+            recall_type *const recall = recall_get(m_ptr->creature);
+            uint32_t tmp = (recall->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
 
             if (tmp > ((i & CM_TREASURE) >> CM_TR_SHIFT)) {
                 i = (i & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
             }
-            recall_get(m_ptr->creature)->r_cmove = (recall_get(m_ptr->creature)->r_cmove & ~CM_TREASURE) | i;
+            recall->r_cmove = (recall->r_cmove & ~CM_TREASURE) | i;
 
-            if (recall_get(m_ptr->creature)->r_kills < MAX_SHORT) {
-                recall_get(m_ptr->creature)->r_kills++;
+            if (recall->r_kills < MAX_SHORT) {
+                recall->r_kills++;
             }
         }
 
@@ -564,10 +565,10 @@ int mon_take_hit(int monptr, int dam) {
 
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {
-    int crptr = cave[y][x].cptr;
-    const monster_type *const m_ptr = m_list + crptr;
+    const int crptr = cave[y][x].cptr;
+    monster_type *const m_ptr = m_list + crptr;
     const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
-    m_list[crptr].csleep = 0;
+    m_ptr->csleep = 0;
     inven_type *i_ptr = &inventory[INVEN_WIELD];
 
     // Does the player know what he's fighting?
@@ -593,7 +594,7 @@ void py_attack(int y, int x) {
 
     // if creature not lit, make it more difficult to hit
     int base_tohit;
-    if (m_list[crptr].ml) {
+    if (m_ptr->ml) {
         base_tohit = p_ptr->bth;
     } else {
         base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
@@ -628,16 +629,16 @@ void py_attack(int y, int x) {
                     out_val = CONCAT(cdesc, " is unaffected.");
                 } else {
                     out_val = CONCAT(cdesc, " appears confused.");
-                    if (m_list[crptr].confused) {
-                        m_list[crptr].confused += 3;
+                    if (m_ptr->confused) {
+                        m_ptr->confused += 3;
                     } else {
-                        m_list[crptr].confused = 2 + randint(16);
+                        m_ptr->confused = 2 + randint(16);
                     }
                 }
                 out_val[0] = toupper(out_val[0]); // Capitalize
                 msg_print(out_val);
-                if (m_list[crptr].ml && randint(4) == 1) {
-                    recall_get(m_ptr->creature)->r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
+                if (m_ptr->ml && randint(4) == 1) {
+                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                 }
             }
 

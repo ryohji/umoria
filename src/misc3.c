@@ -2023,32 +2023,31 @@ int attack_blows(int weight, int *wtohit) {
 int tot_dam(inven_type *i_ptr, int tdam, creature_handle h) {
     if ((i_ptr->flags & TR_EGO_WEAPON) && (((i_ptr->tval >= TV_SLING_AMMO) && (i_ptr->tval <= TV_ARROW)) || ((i_ptr->tval >= TV_HAFTED) && (i_ptr->tval <= TV_SWORD)) || (i_ptr->tval == TV_FLASK))) {
         creature_type *const creature = monster_get_creature(h);
-        recall_type *const recall = recall_get(h);
 
         if ((creature->cdefense & CD_DRAGON) && (i_ptr->flags & TR_SLAY_DRAGON)) {
             // Slay Dragon
             tdam = tdam * 4;
-            recall->r_cdefense |= CD_DRAGON;
+            recall_update_characteristics(h, CD_DRAGON);
         } else if ((creature->cdefense & CD_UNDEAD) && (i_ptr->flags & TR_SLAY_UNDEAD)) {
             // Slay Undead
             tdam = tdam * 3;
-            recall->r_cdefense |= CD_UNDEAD;
+            recall_update_characteristics(h, CD_UNDEAD);
         } else if ((creature->cdefense & CD_ANIMAL) && (i_ptr->flags & TR_SLAY_ANIMAL)) {
             // Slay Animal
             tdam = tdam * 2;
-            recall->r_cdefense |= CD_ANIMAL;
+            recall_update_characteristics(h, CD_ANIMAL);
         } else if ((creature->cdefense & CD_EVIL) && (i_ptr->flags & TR_SLAY_EVIL)) {
             // Slay Evil
             tdam = tdam * 2;
-            recall->r_cdefense |= CD_EVIL;
+            recall_update_characteristics(h, CD_EVIL);
         } else if ((creature->cdefense & CD_FROST) && (i_ptr->flags & TR_FROST_BRAND)) {
             // Frost
             tdam = tdam * 3 / 2;
-            recall->r_cdefense |= CD_FROST;
+            recall_update_characteristics(h, CD_FROST);
         } else if ((creature->cdefense & CD_FIRE) && (i_ptr->flags & TR_FLAME_TONGUE)) {
             // Fire
             tdam = tdam * 3 / 2;
-            recall->r_cdefense |= CD_FIRE;
+            recall_update_characteristics(h, CD_FIRE);
         }
     }
     return tdam;

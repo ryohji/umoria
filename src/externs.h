@@ -626,6 +626,7 @@ void enter_store(int);
 
 // variable.c
 recall_type *recall_get(creature_handle h);
+void recall_update_characteristics(creature_handle h, int defence);
 
 // wands.c
 void aim();

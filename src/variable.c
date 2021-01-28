@@ -116,3 +116,7 @@ static recall_type c_recall[MAX_CREATURES]; // Monster memories
 recall_type *recall_get(creature_handle h) {
     return c_recall + h.place;
 }
+
+void recall_update_characteristics(creature_handle h, int defence) {
+    recall_get(h)->r_cdefense |= defence;
+}

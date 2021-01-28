@@ -31,7 +31,7 @@ int sleep_monsters1(int y, int x) {
 
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                     if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                        recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
+                        recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                     }
 
                     msg_print(CONCAT(cdesc, " is unaffected."));
@@ -478,7 +478,7 @@ void light_line(int dir, int y, int x) {
 
                 if (CD_LIGHT & r_ptr->cdefense) {
                     if (m_ptr->ml) {
-                        recall_get(m_ptr->creature)->r_cdefense |= CD_LIGHT;
+                        recall_update_characteristics(m_ptr->creature, CD_LIGHT);
                     }
 
                     if (mon_take_hit(c_ptr->cptr, damroll(2, 8))) {
@@ -638,7 +638,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                 if (harm_type & r_ptr->cdefense) {
                     dam = dam * 2;
                     if (m_ptr->ml) {
-                        recall_get(m_ptr->creature)->r_cdefense |= harm_type;
+                        recall_update_characteristics(m_ptr->creature, harm_type);
                     }
                 } else if (weapon_type & r_ptr->spells) {
                     dam = dam / 4;
@@ -728,7 +728,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, char *descrip) {
                                     if (harm_type & r_ptr->cdefense) {
                                         dam = dam * 2;
                                         if (m_ptr->ml) {
-                                            recall_get(m_ptr->creature)->r_cdefense |= harm_type;
+                                            recall_update_characteristics(m_ptr->creature, harm_type);
                                         }
                                     } else if (weapon_type & r_ptr->spells) {
                                         dam = dam / 4;
@@ -848,11 +848,12 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                             uint32_t treas = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
 
                             if (m_ptr->ml) {
-                                uint32_t tmp = (recall_get(m_ptr->creature)->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
+                                recall_type *const recall = recall_get(m_ptr->creature);
+                                uint32_t tmp = (recall->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
                                 if (tmp > ((treas & CM_TREASURE) >> CM_TR_SHIFT)) {
                                     treas = (treas & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
                                 }
-                                recall_get(m_ptr->creature)->r_cmove = treas | (recall_get(m_ptr->creature)->r_cmove & ~CM_TREASURE);
+                                recall->r_cmove = treas | (recall->r_cmove & ~CM_TREASURE);
                             }
 
                             // It ate an already processed monster.Handle normally.
@@ -1014,7 +1015,7 @@ int drain_life(int dir, int y, int x) {
                     msg_print(CONCAT(cdesc, " screams in agony."));
                 }
             } else {
-                recall_get(m_ptr->creature)->r_cdefense |= CD_UNDEAD;
+                recall_update_characteristics(m_ptr->creature, CD_UNDEAD);
             }
         }
     } while (!flag);
@@ -1085,7 +1086,7 @@ int confuse_monster(int dir, int y, int x) {
             flag = true;
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                    recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
+                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                 }
 
                 // Monsters which resisted the attack should wake up.
@@ -1136,7 +1137,7 @@ int sleep_monster(int dir, int y, int x) {
 
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                    recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
+                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                 }
 
                 msg_print(CONCAT(cdesc, " is unaffected."));
@@ -1214,7 +1215,7 @@ int wall_to_mud(int dir, int y, int x) {
                 } else {
                     msg_print(CONCAT(cdesc, " grunts in pain!"));
                 }
-                recall_get(m_ptr->creature)->r_cdefense |= CD_STONE;
+                recall_update_characteristics(m_ptr->creature, CD_STONE);
                 flag = true;
             }
         }
@@ -1582,7 +1583,7 @@ int sleep_monsters2() {
         } else if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
             if (m_ptr->ml) {
                 if (r_ptr->cdefense & CD_NO_SLEEP) {
-                    recall_get(m_ptr->creature)->r_cdefense |= CD_NO_SLEEP;
+                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                 }
                 msg_print(CONCAT(cdesc, " is unaffected."));
             }
@@ -1842,7 +1843,7 @@ int dispel_creature(int cflag, int damage) {
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
-            recall_get(m_ptr->creature)->r_cdefense |= cflag;
+            recall_update_characteristics(m_ptr->creature, cflag);
 
             const char *cdesc = monster_name((vtype){}, m_ptr);
             // Should get these messages even if the monster is not visible.
@@ -1873,7 +1874,7 @@ int turn_undead() {
             if (((py.misc.lev + 1) > r_ptr->level) || (randint(5) == 1)) {
                 msg_print(CONCAT(cdesc, " runs frantically!"));
                 turn_und = true;
-                recall_get(m_ptr->creature)->r_cdefense |= CD_UNDEAD;
+                recall_update_characteristics(m_ptr->creature, CD_UNDEAD);
                 m_ptr->confused = py.misc.lev;
             } else {
                 msg_print(CONCAT(cdesc, " is unaffected."));

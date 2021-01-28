@@ -42,7 +42,7 @@ void update_mon(int monptr) {
                 // Infra vision.
 
                 flag = true;
-                recall_get(m_ptr->creature)->r_cdefense |= CD_INFRA;
+                recall_update_characteristics(m_ptr->creature, CD_INFRA);
             }
         }
     }
@@ -280,7 +280,7 @@ static void make_attack(int monptr) {
         if ((f_ptr->protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
             ((p_ptr->lev + 1) > r_ptr->level)) {
             if (m_ptr->ml) {
-                recall_get(m_ptr->creature)->r_cdefense |= CD_EVIL;
+                recall_update_characteristics(m_ptr->creature, CD_EVIL);
             }
             attype = 99;
             adesc = 99;
@@ -827,7 +827,7 @@ static void make_attack(int monptr) {
                 }
                 msg_print(CONCAT(cdesc, verb));
                 if (visible && !death && randint(4) == 1) {
-                    recall_get(m_ptr->creature)->r_cdefense |= r_ptr->cdefense & CD_NO_SLEEP;
+                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                 }
             }
 
