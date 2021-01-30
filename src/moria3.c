@@ -517,16 +517,12 @@ int mon_take_hit(int monptr, int dam) {
     const int m_dead = m_ptr->hp < 0;
 
     if (m_dead) {
-        uint32_t i = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
+        uint32_t i = monster_death(m_ptr->fy, m_ptr->fx, r_ptr->cmove);
 
         if ((py.flags.blind < 1 && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
             recall_type *const recall = recall_get(m_ptr->creature);
-            uint32_t tmp = (recall->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
-
-            if (tmp > ((i & CM_TREASURE) >> CM_TR_SHIFT)) {
-                i = (i & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
-            }
-            recall->r_cmove = (recall->r_cmove & ~CM_TREASURE) | i;
+            recall_update_move(m_ptr->creature, i & ~CM_TREASURE);
+            recall_update_carry(m_ptr->creature, (i & CM_TREASURE) >> CM_TR_SHIFT);
 
             if (recall->r_kills < MAX_SHORT) {
                 recall->r_kills++;

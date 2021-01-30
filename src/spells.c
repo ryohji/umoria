@@ -845,18 +845,14 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                         m_ptr->csleep = 0;
 
                         if (m_ptr->hp < 0) {
-                            uint32_t treas = monster_death((int)m_ptr->fy, (int)m_ptr->fx, r_ptr->cmove);
+                            const uint32_t treas = monster_death(m_ptr->fy, m_ptr->fx, r_ptr->cmove);
 
                             if (m_ptr->ml) {
-                                recall_type *const recall = recall_get(m_ptr->creature);
-                                uint32_t tmp = (recall->r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
-                                if (tmp > ((treas & CM_TREASURE) >> CM_TR_SHIFT)) {
-                                    treas = (treas & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
-                                }
-                                recall->r_cmove = treas | (recall->r_cmove & ~CM_TREASURE);
+                                recall_update_move(m_ptr->creature, treas & ~CM_TREASURE);
+                                recall_update_carry(m_ptr->creature, (treas & CM_TREASURE) >> CM_TR_SHIFT);
                             }
 
-                            // It ate an already processed monster.Handle normally.
+                            // It ate an already processed monster. Handle normally.
                             if (monptr < c_ptr->cptr) {
                                 delete_monster((int)c_ptr->cptr);
                             } else {

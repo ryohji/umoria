@@ -120,3 +120,18 @@ recall_type *recall_get(creature_handle h) {
 void recall_update_characteristics(creature_handle h, int defence) {
     recall_get(h)->r_cdefense |= defence;
 }
+
+void recall_update_move(creature_handle h, int move) {
+    recall_get(h)->r_cmove |= move;
+}
+
+static inline uint8_t get_carry(uint32_t cmove) {
+    return (cmove & CM_TREASURE) >> CM_TR_SHIFT;
+}
+
+void recall_update_carry(creature_handle h, uint8_t number) {
+    recall_type *const recall = recall_get(h);
+    uint32_t current = get_carry(recall->r_cmove);
+    recall->r_cmove &= ~CM_TREASURE;
+    recall->r_cmove |= MAX(current, number) << CM_TR_SHIFT;
+}

@@ -36,7 +36,7 @@ void update_mon(int monptr) {
                     flag = true;
                 } else if (py.flags.see_inv) {
                     flag = true;
-                    recall_get(m_ptr->creature)->r_cmove |= CM_INVISIBLE;
+                    recall_update_move(m_ptr->creature, CM_INVISIBLE);
                 }
             } else if ((py.flags.see_infra > 0) && (m_ptr->cdis <= py.flags.see_infra) && (CD_INFRA & r_ptr->cdefense)) {
                 // Infra vision.
@@ -1496,7 +1496,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
                 // Another little hack for Quylthulgs, so that one can
                 // eventually learn their speed.
                 if (count > 20) {
-                    recall_get(m_ptr->creature)->r_cmove |= CM_ONLY_MAGIC;
+                    recall_update_move(m_ptr->creature, CM_ONLY_MAGIC);
                 }
             }
         }
@@ -1591,7 +1591,7 @@ void creatures(int attack) {
                                 r_ptr->r_ignore++;
                             }
                         }
-                        r_ptr->r_cmove |= rcmove;
+                        recall_update_move(m_ptr->creature, rcmove);
                     }
                 }
             }
