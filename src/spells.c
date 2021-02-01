@@ -643,7 +643,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                 } else if (weapon_type & r_ptr->spells) {
                     dam = dam / 4;
                     if (m_ptr->ml) {
-                        recall_get(m_ptr->creature)->r_spells |= weapon_type;
+                        recall_update_spell(m_ptr->creature, weapon_type);
                     }
                 }
 
@@ -733,7 +733,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, char *descrip) {
                                     } else if (weapon_type & r_ptr->spells) {
                                         dam = dam / 4;
                                         if (m_ptr->ml) {
-                                            recall_get(m_ptr->creature)->r_spells |= weapon_type;
+                                            recall_update_spell(m_ptr->creature, weapon_type);
                                         }
                                     }
 

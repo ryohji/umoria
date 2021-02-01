@@ -135,3 +135,15 @@ void recall_update_carry(creature_handle h, uint8_t number) {
     recall->r_cmove &= ~CM_TREASURE;
     recall->r_cmove |= MAX(current, number) << CM_TR_SHIFT;
 }
+
+void recall_update_spell(creature_handle h, uint32_t type) {
+    recall_type *const recall = recall_get(h);
+    recall->r_spells |= type;
+}
+
+void recall_increment_spell_chance(creature_handle h) {
+    recall_type *const recall = recall_get(h);
+    if ((recall->r_spells & CS_FREQ) != CS_FREQ) {
+        recall->r_spells += 1;
+    }
+}

@@ -180,11 +180,7 @@ int roff_recall(creature_type *cp) {
         mp->r_cmove = (cp->cmove & ~CM_TREASURE) | (j << CM_TR_SHIFT);
         mp->r_cdefense = cp->cdefense;
 
-        if (cp->spells & CS_FREQ) {
-            mp->r_spells = cp->spells | CS_FREQ;
-        } else {
-            mp->r_spells = cp->spells;
-        }
+        mp->r_spells = cp->spells | (cp->spells & CS_FREQ ? CS_FREQ : 0);
 
         for (iter = cp->attack; iter != END_OF(cp->attack) && !monster_attack_is_null(*iter); iter += 1) {
             mp->r_attacks[iter - cp->attack] = MAX_UCHAR;

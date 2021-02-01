@@ -1240,10 +1240,8 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         // End of spells
 
         if (m_ptr->ml) {
-            recall_get(m_ptr->creature)->r_spells |= 1L << (thrown_spell - 1);
-            if ((recall_get(m_ptr->creature)->r_spells & CS_FREQ) != CS_FREQ) {
-                recall_get(m_ptr->creature)->r_spells++;
-            }
+            recall_update_spell(m_ptr->creature, 1U << (thrown_spell - 1));
+            recall_increment_spell_chance(m_ptr->creature);
             if (death && recall_get(m_ptr->creature)->r_deaths < MAX_SHORT) {
                 recall_get(m_ptr->creature)->r_deaths++;
             }
