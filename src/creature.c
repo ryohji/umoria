@@ -838,8 +838,8 @@ static void make_attack(int monptr) {
             if ((notice || (visible && recall_get(m_ptr->creature)->r_attacks[attackn] != 0 && attype != 99)) && recall_get(m_ptr->creature)->r_attacks[attackn] < MAX_UCHAR) {
                 recall_get(m_ptr->creature)->r_attacks[attackn]++;
             }
-            if (death && recall_get(m_ptr->creature)->r_deaths < MAX_SHORT) {
-                recall_get(m_ptr->creature)->r_deaths++;
+            if (death) {
+                recall_increment_death(m_ptr->creature);
             }
         } else {
             if ((adesc >= 1 && adesc <= 3) || (adesc == 6)) {
@@ -1242,8 +1242,8 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         if (m_ptr->ml) {
             recall_update_spell(m_ptr->creature, 1U << (thrown_spell - 1));
             recall_increment_spell_chance(m_ptr->creature);
-            if (death && recall_get(m_ptr->creature)->r_deaths < MAX_SHORT) {
-                recall_get(m_ptr->creature)->r_deaths++;
+            if (death) {
+                recall_increment_death(m_ptr->creature);
             }
         }
     }

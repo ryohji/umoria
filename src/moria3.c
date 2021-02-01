@@ -523,10 +523,7 @@ int mon_take_hit(int monptr, int dam) {
             recall_type *const recall = recall_get(m_ptr->creature);
             recall_update_move(m_ptr->creature, i & ~CM_TREASURE);
             recall_update_carry(m_ptr->creature, (i & CM_TREASURE) >> CM_TR_SHIFT);
-
-            if (recall->r_kills < MAX_SHORT) {
-                recall->r_kills++;
-            }
+            recall_increment_kill(m_ptr->creature);
         }
 
         struct misc *p_ptr = &py.misc;

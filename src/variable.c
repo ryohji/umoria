@@ -147,3 +147,17 @@ void recall_increment_spell_chance(creature_handle h) {
         recall->r_spells += 1;
     }
 }
+
+void recall_increment_kill(creature_handle h) {
+    recall_type *const recall = recall_get(h);
+    if (recall->r_kills < MAX_SHORT) {
+        recall->r_kills += 1;
+    }
+}
+
+void recall_increment_death(creature_handle h) {
+    recall_type *const recall = recall_get(h);
+    if (recall->r_deaths < MAX_SHORT) {
+        recall->r_deaths += 1;
+    }
+}

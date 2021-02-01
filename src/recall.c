@@ -230,10 +230,7 @@ int roff_recall(creature_type *cp) {
         known = true;
     } else if (mp->r_kills) {
         // The Balrog is a level 100 monster, but appears at 50 feet.
-        int i = cp->level;
-        if (i > WIN_MON_APPEAR) {
-            i = WIN_MON_APPEAR;
-        }
+        const int i = MIN(cp->level, WIN_MON_APPEAR);
         (void)sprintf(temp, " It is normally found at depths of %d feet", i * 50);
         roff(temp);
         known = true;
