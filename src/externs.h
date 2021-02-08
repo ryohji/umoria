@@ -128,13 +128,11 @@ extern int16_t equip_ctr;    // Cur equipment ctr
 extern int16_t tcptr;        // Cur treasure heap ptr
 
 // Following are creature arrays and variables
-extern creature_type c_list[MAX_CREATURES];
 extern monster_type m_list[MAX_MALLOC];
 extern int16_t m_level[MAX_MONS_LEVEL + 1];
-extern recall_type c_recall[MAX_CREATURES]; // Monster memories. -CJS-
-extern monster_type blank_monster;          // Blank monster values
-extern int16_t mfptr;                       // Cur free monster ptr
-extern int16_t mon_tot_mult;                // # of repro's of creature
+extern monster_type blank_monster; // Blank monster values
+extern int16_t mfptr;              // Cur free monster ptr
+extern int16_t mon_tot_mult;       // # of repro's of creature
 
 // Following are arrays for descriptive pieces
 extern char *colors[MAX_COLORS];
@@ -167,12 +165,14 @@ extern bool light_flag;
 
 #define END_OF(a) ((a) + LENGTH_OF(a))
 
+#define CONCAT(...) concat((vtype){}, __VA_ARGS__, NULL)
+
 // create.c
 void create_character();
 
 // creature.c
 void update_mon(int);
-bool multiply_monster(int, int, int, int);
+bool multiply_monster(int, int, creature_handle, int);
 void creatures(int);
 
 // death.c
@@ -221,6 +221,9 @@ void generate_cave();
 void ident_char();
 
 // io.c
+#ifdef SIGTSTP
+void suspend(int);
+#endif
 void init_curses();
 void moriaterm();
 void put_buffer(char *, int, int);
@@ -265,8 +268,6 @@ int topen(char *, int, int);
 void cast();
 
 // main.c
-void check_file_permissions();
-
 // misc1.c
 void init_seeds(uint32_t);
 void set_seed(uint32_t);
@@ -292,9 +293,8 @@ bool compact_monsters();
 void add_food(int);
 int popm();
 int max_hp(const uint8_t *);
-bool place_monster(int, int, int, int);
+bool place_monster(int, int, creature_handle, int);
 void place_win_monster();
-int get_mons_num(int);
 void alloc_monster(int, int, int);
 bool summon_monster(int *, int *, int);
 bool summon_undead(int *, int *);
@@ -381,7 +381,7 @@ void insert_str(char *, char *, char *);
 void insert_lnum(char *, char *, int32_t, int);
 bool enter_wiz_mode();
 int attack_blows(int, int *);
-int tot_dam(inven_type *, int, int);
+int tot_dam(inven_type *, int, creature_handle);
 int critical_blow(int, int, int, int);
 int mmove(int, int *, int *);
 bool player_saves();
@@ -393,6 +393,7 @@ void scribe_object();
 void add_inscribe(inven_type *, uint8_t);
 void inscribe(inven_type *, char *);
 void check_view();
+char *concat(char *buffer, ...);
 
 // monsters.c
 bool monster_attack_is_null(attack_handle h);
@@ -400,6 +401,21 @@ uint8_t monster_attack_get_type(attack_handle h);
 uint8_t monster_attack_get_desc(attack_handle h);
 uint8_t monster_attack_get_dice(attack_handle h);
 uint8_t monster_attack_get_sides(attack_handle h);
+
+// TODO: eliminate `monster_make_creature_handle`
+// TODO: eliminate `m_ptr->creature.place` reference
+creature_handle monster_make_creature_handle(uint16_t index);
+creature_handle monster_get_creature_handle(creature_type *p);
+creature_type *monster_get_creature(creature_handle h);
+
+creature_type *monster_creature_rbegin();
+creature_type *monster_creature_rend();
+creature_type *monster_creature_prev(creature_type *p);
+
+const char *monster_name(vtype, const monster_type *);
+const char *monster_name_lower(vtype, const monster_type *);
+const char *monster_name_or_something(vtype, const monster_type *);
+const char *monster_name_indefinite(vtype, const creature_type *);
 
 // moria1.c
 void change_speed(int);
@@ -471,8 +487,8 @@ void quaff();
 void pray();
 
 // recall.c
-bool bool_roff_recall(int);
-int roff_recall(int);
+bool bool_roff_recall(creature_type *);
+int roff_recall(creature_type *);
 
 // rnd.c
 uint32_t get_rnd_seed();
@@ -510,9 +526,15 @@ bool temple(int);
 bool alchemist(int);
 bool magic_shop(int);
 
+// signals.c
+void nosignals();
+void signals();
+void init_signals();
+void ignore_signals();
+void default_signals();
+void restore_signals();
+
 // spells.c
-void monster_name(char *, monster_type *, creature_type *);
-void lower_monster_name(char *, monster_type *, creature_type *);
 int sleep_monsters1(int, int);
 int detect_treasure();
 int detect_object();
@@ -603,6 +625,14 @@ void enter_store(int);
 // treasur.c
 
 // variable.c
+recall_type *recall_get(creature_handle h);
+void recall_update_characteristics(creature_handle h, int defence);
+void recall_update_move(creature_handle h, int move);
+void recall_update_carry(creature_handle h, uint8_t number);
+void recall_update_spell(creature_handle h, uint32_t type);
+void recall_increment_spell_chance(creature_handle h);
+void recall_increment_kill(creature_handle h);
+void recall_increment_death(creature_handle h);
 
 // wands.c
 void aim();

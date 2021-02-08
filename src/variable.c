@@ -37,70 +37,70 @@ int16_t last_store_inc;
 
 // a horrible hack: needed because compact_monster() can be called from
 // creatures() via summon_monster() and place_monster()
-int hack_monptr                 = -1;
+int hack_monptr = -1;
 
-bool weapon_heavy               = false;
-int pack_heavy                  = 0;
+bool weapon_heavy = false;
+int pack_heavy = 0;
 vtype died_from;
 int32_t birth_date;
 
 vtype savefile; // The savefile to use.
 
-bool total_winner               = false;
-int32_t max_score               = 0;
-bool character_generated        = false;    // don't save score until char gen finished
-bool character_saved            = false;    // prevents save on kill after save_char()
-FILE *highscore_fp;                         // File pointer to high score file
-uint32_t randes_seed;                       // for restarting randes_state
-uint32_t town_seed;                         // for restarting town_seed
-int16_t cur_height, cur_width;              // Cur dungeon size
-int16_t dun_level               = 0;        // Cur dungeon level
-int16_t missile_ctr             = 0;        // Counter for missiles
-bool msg_flag;                              // Set with first msg
-vtype old_msg[MAX_SAVE_MSG];                // Last message
-int16_t last_msg                = 0;        // Where last is held
-bool death                      = false;    // True if died
+bool total_winner = false;
+int32_t max_score = 0;
+bool character_generated = false; // don't save score until char gen finished
+bool character_saved = false;     // prevents save on kill after save_char()
+FILE *highscore_fp;               // File pointer to high score file
+uint32_t randes_seed;             // for restarting randes_state
+uint32_t town_seed;               // for restarting town_seed
+int16_t cur_height, cur_width;    // Cur dungeon size
+int16_t dun_level = 0;            // Cur dungeon level
+int16_t missile_ctr = 0;          // Counter for missiles
+bool msg_flag;                    // Set with first msg
+vtype old_msg[MAX_SAVE_MSG];      // Last message
+int16_t last_msg = 0;             // Where last is held
+bool death = false;               // True if died
 
-int find_flag;                              // Used in MORIA for .(dir)
+int find_flag; // Used in MORIA for .(dir)
 
-bool free_turn_flag;                        // Used in MORIA, do not move creatures
-int command_count;                          // Gives repetition of commands. -CJS-
-bool default_dir                = false;    // Use last direction for repeated command
-int32_t turn                    = -1;       // Cur turn of game
-bool wizard                     = false;    // Wizard flag
-bool to_be_wizard               = false;    // used during startup, when -w option used
-bool panic_save                 = false;    // this is true if playing from a panic save
-int16_t noscore                 = 0;        // Don't log the game. -CJS-
+bool free_turn_flag;       // Used in MORIA, do not move creatures
+int command_count;         // Gives repetition of commands. -CJS-
+bool default_dir = false;  // Use last direction for repeated command
+int32_t turn = -1;         // Cur turn of game
+bool wizard = false;       // Wizard flag
+bool to_be_wizard = false; // used during startup, when -w option used
+bool panic_save = false;   // this is true if playing from a panic save
+int16_t noscore = 0;       // Don't log the game. -CJS-
 
-bool rogue_like_commands;                   // set in config.h/main.c
+bool rogue_like_commands; // set in config.h/main.c
 
 // options set via the '=' command
-bool find_cut                   = true;
-bool find_examine               = true;
-bool find_bound                 = false;
-bool find_prself                = false;
-bool prompt_carry_flag          = false;
-bool show_weight_flag           = false;
-bool highlight_seams            = false;
-bool find_ignore_doors          = false;
-bool sound_beep_flag            = true;
-bool display_counts             = true;
+bool find_cut = true;
+bool find_examine = true;
+bool find_bound = false;
+bool find_prself = false;
+bool prompt_carry_flag = false;
+bool show_weight_flag = false;
+bool highlight_seams = false;
+bool find_ignore_doors = false;
+bool sound_beep_flag = true;
+bool display_counts = true;
 
 // FIXME: was a `bool`, but also holds an ASCII character. Is this the best solution?
-char doing_inven                = 0;      // Track inventory commands. -CJS-
+char doing_inven = 0; // Track inventory commands. -CJS-
 
-bool screen_change              = false;  // Track screen updates for inven_commands.
-char last_command               = ' ';    // Memory of previous command.
+bool screen_change = false; // Track screen updates for inven_commands.
+char last_command = ' ';    // Memory of previous command.
 
 // these used to be in dungeon.c
-bool new_level_flag;                      // Next level when true
-bool teleport_flag;                       // Handle teleport traps
-bool player_light;                        // Player carrying light
-int eof_flag                    = 0;      // Used to signal EOF/HANGUP condition
-bool light_flag                 = false;  // Track if temporary light about player.
+bool new_level_flag;     // Next level when true
+bool teleport_flag;      // Handle teleport traps
+bool player_light;       // Player carrying light
+int eof_flag = 0;        // Used to signal EOF/HANGUP condition
+bool light_flag = false; // Track if temporary light about player.
 
-bool wait_for_more              = false;  // used when ^C hit during -more- prompt
-int closing_flag                = 0;      // Used for closing
+bool wait_for_more = false; // used when ^C hit during -more- prompt
+int closing_flag = 0;       // Used for closing
 
 // Following are calculated from max dungeon sizes
 int16_t max_panel_rows, max_panel_cols;
@@ -111,4 +111,53 @@ int panel_col_prt, panel_row_prt;
 
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 
-recall_type c_recall[MAX_CREATURES]; // Monster memories
+static recall_type c_recall[MAX_CREATURES]; // Monster memories
+
+recall_type *recall_get(creature_handle h) {
+    return c_recall + h.place;
+}
+
+void recall_update_characteristics(creature_handle h, int defence) {
+    recall_get(h)->r_cdefense |= defence;
+}
+
+void recall_update_move(creature_handle h, int move) {
+    recall_get(h)->r_cmove |= move;
+}
+
+static inline uint8_t get_carry(uint32_t cmove) {
+    return (cmove & CM_TREASURE) >> CM_TR_SHIFT;
+}
+
+void recall_update_carry(creature_handle h, uint8_t number) {
+    recall_type *const recall = recall_get(h);
+    uint32_t current = get_carry(recall->r_cmove);
+    recall->r_cmove &= ~CM_TREASURE;
+    recall->r_cmove |= MAX(current, number) << CM_TR_SHIFT;
+}
+
+void recall_update_spell(creature_handle h, uint32_t type) {
+    recall_type *const recall = recall_get(h);
+    recall->r_spells |= type;
+}
+
+void recall_increment_spell_chance(creature_handle h) {
+    recall_type *const recall = recall_get(h);
+    if ((recall->r_spells & CS_FREQ) != CS_FREQ) {
+        recall->r_spells += 1;
+    }
+}
+
+void recall_increment_kill(creature_handle h) {
+    recall_type *const recall = recall_get(h);
+    if (recall->r_kills < MAX_SHORT) {
+        recall->r_kills += 1;
+    }
+}
+
+void recall_increment_death(creature_handle h) {
+    recall_type *const recall = recall_get(h);
+    if (recall->r_deaths < MAX_SHORT) {
+        recall->r_deaths += 1;
+    }
+}

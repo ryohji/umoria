@@ -14,6 +14,9 @@
 
 #include "externs.h"
 
+static creature_handle get_mons_num(int level);
+static bool summon(int *y, int *x, creature_handle h, int slp);
+
 // gets a new random seed for the random number generator
 void init_seeds(uint32_t seed) {
     uint32_t clock_var;
@@ -455,7 +458,7 @@ uint8_t loc_symbol(int y, int x) {
     } else if ((f_ptr->image > 0) && (randint(12) == 1)) {
         return randint(95) + 31;
     } else if ((cave_ptr->cptr > 1) && (m_list[cave_ptr->cptr].ml)) {
-        return c_list[m_list[cave_ptr->cptr].mptr].cchar;
+        return monster_get_creature(m_list[cave_ptr->cptr].creature)->cchar;
     } else if (!cave_ptr->pl && !cave_ptr->tl && !cave_ptr->fm) {
         return ' ';
     } else if ((cave_ptr->tptr != 0) && (t_list[cave_ptr->tptr].tval != TV_INVIS_TRAP)) {
@@ -513,7 +516,7 @@ bool compact_monsters() {
             monster_type *mon_ptr = &m_list[i];
             if ((cur_dis < mon_ptr->cdis) && (randint(3) == 1)) {
                 // Never compact away the Balrog!!
-                if (c_list[mon_ptr->mptr].cmove & CM_WIN) {
+                if (monster_get_creature(mon_ptr->creature)->cmove & CM_WIN) {
                     ; // Do nothing
                 } else if (hack_monptr < i) {
                     // in case this is called from within creatures(), this is a horrible
@@ -587,56 +590,33 @@ int max_hp(const uint8_t *array) {
 }
 
 // Places a monster at given location -RAK-
-bool place_monster(int y, int x, int z, int slp) {
-    int cur_pos = popm();
+bool place_monster(int y, int x, creature_handle h, int slp) {
+    const int cur_pos = popm();
     if (cur_pos == -1) {
         return false;
-    }
-
-    monster_type *mon_ptr = &m_list[cur_pos];
-    mon_ptr->fy = y;
-    mon_ptr->fx = x;
-    mon_ptr->mptr = z;
-
-    if (c_list[z].cdefense & CD_MAX_HP) {
-        mon_ptr->hp = max_hp(c_list[z].hd);
     } else {
-        mon_ptr->hp = pdamroll(c_list[z].hd);
+        creature_type *const r_ptr = monster_get_creature(h);
+        int (*const calc_hp)(const uint8_t *) = r_ptr->cdefense & CD_MAX_HP ? max_hp : pdamroll;
+        monster_type *const mon_ptr = &m_list[cur_pos];
+        mon_ptr->fy = y;
+        mon_ptr->fx = x;
+        mon_ptr->creature = h;
+        mon_ptr->hp = calc_hp(r_ptr->hd);
+        // the creature speed value is 10 greater, so that it can be a uint8_t
+        mon_ptr->cspeed = r_ptr->speed - 10 + py.flags.speed;
+        mon_ptr->stunned = 0;
+        mon_ptr->cdis = distance(char_row, char_col, y, x);
+        mon_ptr->ml = false;
+        mon_ptr->csleep = (slp = slp ? r_ptr->sleep : 0) ? slp * 2 + randint(slp * 10) : 0;
+        cave[y][x].cptr = cur_pos;
+        return true;
     }
-
-    // the c_list speed value is 10 greater, so that it can be a uint8_t
-    mon_ptr->cspeed = c_list[z].speed - 10 + py.flags.speed;
-    mon_ptr->stunned = 0;
-    mon_ptr->cdis = distance(char_row, char_col, y, x);
-    mon_ptr->ml = false;
-    cave[y][x].cptr = cur_pos;
-    if (slp) {
-        if (c_list[z].sleep == 0) {
-            mon_ptr->csleep = 0;
-        } else {
-            mon_ptr->csleep =
-                (c_list[z].sleep * 2) + randint((int)c_list[z].sleep * 10);
-        }
-    } else {
-        mon_ptr->csleep = 0;
-    }
-    return true;
 }
 
 // Places a monster at given location -RAK-
 void place_win_monster() {
-    int y, x;
-
     if (!total_winner) {
-        int cur_pos = popm();
-
-        // Check for case where could not allocate space for
-        // the win monster, this should never happen.
-        if (cur_pos == -1) {
-            abort();
-        }
-
-        monster_type *mon_ptr = &m_list[cur_pos];
+        int x, y, z = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
 
         do {
             y = randint(cur_height - 2);
@@ -645,29 +625,18 @@ void place_win_monster() {
                  (cave[y][x].cptr != 0) || (cave[y][x].tptr != 0) ||
                  (distance(y, x, char_row, char_col) <= MAX_SIGHT));
 
-        mon_ptr->fy = y;
-        mon_ptr->fx = x;
-        mon_ptr->mptr = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
-
-        if (c_list[mon_ptr->mptr].cdefense & CD_MAX_HP) {
-            mon_ptr->hp = max_hp(c_list[mon_ptr->mptr].hd);
-        } else {
-            mon_ptr->hp = pdamroll(c_list[mon_ptr->mptr].hd);
+        // Check for case where could not allocate space for
+        // the win monster, this should never happen.
+        if (!place_monster(y, x, monster_make_creature_handle(z), 0)) {
+            abort();
         }
-
-        // the c_list speed value is 10 greater, so that it can be a uint8_t
-        mon_ptr->cspeed = c_list[mon_ptr->mptr].speed - 10 + py.flags.speed;
-        mon_ptr->stunned = 0;
-        mon_ptr->cdis = distance(char_row, char_col, y, x);
-        cave[y][x].cptr = cur_pos;
-        mon_ptr->csleep = 0;
     }
 }
 
 // Return a monster suitable to be placed at a given level. This
 // makes high level monsters (up to the given level) slightly more
 // common than low level monsters at any given level. -CJS-
-int get_mons_num(int level) {
+static creature_handle get_mons_num(int level) {
     int i;
 
     if (level == 0) {
@@ -688,119 +657,88 @@ int get_mons_num(int level) {
             // all monsters of level less than or equal to the dungeon level.
             // This distribution makes a level n monster occur approx 2/n% of the
             // time on level n, and 1/n*n% are 1st level.
-            int num = m_level[level] - m_level[0];
+            const int num = m_level[level] - m_level[0];
             i = randint(num) - 1;
-            int j = randint(num) - 1;
-            if (j > i) {
-                i = j;
-            }
-            level = c_list[i + m_level[0]].level;
+            const int j = randint(num) - 1;
+            const int k = MAX(i, j) + m_level[0];
+            level = monster_get_creature(monster_make_creature_handle(k))->level;
         }
         i = randint(m_level[level] - m_level[level - 1]) - 1 + m_level[level - 1];
     }
 
-    return i;
+    return monster_make_creature_handle(i);
 }
 
 // Allocates a random monster -RAK-
 void alloc_monster(int num, int dis, int slp) {
     int y, x;
 
-    for (int i = 0; i < num; i++) {
+    while (num--) {
         do {
             y = randint(cur_height - 2);
             x = randint(cur_width - 2);
         } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, char_row, char_col) <= dis));
 
-        int l = get_mons_num(dun_level);
+        creature_handle h = get_mons_num(dun_level);
+        const uint8_t cchar = monster_get_creature(h)->cchar;
 
-        // Dragons are always created sleeping here,
+        // Dragons ('d' or 'D') are always created sleeping here,
         // so as to give the player a sporting chance.
-        if (c_list[l].cchar == 'd' || c_list[l].cchar == 'D') {
-            slp = true;
-        }
 
         // Place_monster() should always return true here.
         // It does not matter if it fails though.
-        (void)place_monster(y, x, l, slp);
+        (void)place_monster(y, x, h, slp || cchar == 'd' || cchar == 'D');
     }
+}
+
+static bool summon(int *y, int *x, creature_handle h, int slp) {
+    int i = 0;
+
+    do {
+        const int j = *y - 2 + randint(3);
+        const int k = *x - 2 + randint(3);
+        const cave_type *const cave_ptr = &cave[j][k];
+        if (in_bounds(j, k) && cave_ptr->fval <= MAX_OPEN_SPACE && cave_ptr->cptr == 0) {
+            // Place_monster() should always return true here.
+            if (place_monster(j, k, h, slp)) {
+                *y = j;
+                *x = k;
+                return true;
+            }
+            break;
+        }
+    } while (++i <= 9);
+
+    return false;
 }
 
 // Places creature adjacent to given location -RAK-
 bool summon_monster(int *y, int *x, int slp) {
-    int i = 0;
-    int l = get_mons_num(dun_level + MON_SUMMON_ADJ);
-
-    bool summon = false;
-
-    do {
-        int j = *y - 2 + randint(3);
-        int k = *x - 2 + randint(3);
-        if (in_bounds(j, k)) {
-            cave_type *cave_ptr = &cave[j][k];
-            if (cave_ptr->fval <= MAX_OPEN_SPACE && (cave_ptr->cptr == 0)) {
-                // Place_monster() should always return true here.
-                if (!place_monster(j, k, l, slp)) {
-                    return false;
-                }
-                summon = true;
-                i = 9;
-                *y = j;
-                *x = k;
-            }
-        }
-        i++;
-    } while (i <= 9);
-
-    return summon;
+    creature_handle h = get_mons_num(dun_level + MON_SUMMON_ADJ);
+    return summon(y, x, h, slp);
 }
 
 // Places undead adjacent to given location -RAK-
 bool summon_undead(int *y, int *x) {
-    int m;
-    int i = 0;
     int l = m_level[MAX_MONS_LEVEL];
-
-    bool summon = false;
+    creature_handle h;
 
     do {
-        m = randint(l) - 1;
+        int m = randint(l) - 1;
         int ctr = 0;
         do {
-            if (c_list[m].cdefense & CD_UNDEAD) {
-                ctr = 20;
+            h = monster_make_creature_handle(m);
+            if (monster_get_creature(h)->cdefense & CD_UNDEAD) {
                 l = 0;
+                ctr = 20;
             } else {
-                m++;
-                if (m > l) {
-                    ctr = 20;
-                } else {
-                    ctr++;
-                }
+                m += 1;
+                ctr = m > l ? 20 : ctr + 1;
             }
-        } while (ctr <= 19);
+        } while (ctr != 20);
     } while (l != 0);
 
-    do {
-        int j = *y - 2 + randint(3);
-        int k = *x - 2 + randint(3);
-        if (in_bounds(j, k)) {
-            cave_type *cave_ptr = &cave[j][k];
-            if (cave_ptr->fval <= MAX_OPEN_SPACE && (cave_ptr->cptr == 0)) {
-                // Place_monster() should always return true here.
-                if (!place_monster(j, k, m, false)) {
-                    return false;
-                }
-                summon = true;
-                i = 9;
-                *y = j;
-                *x = k;
-            }
-        }
-        i++;
-    } while (i <= 9);
-
-    return summon;
+    return summon(y, x, h, false);
 }
 
 // If too many objects on floor level, delete some of them-RAK-

@@ -12,6 +12,8 @@
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 // Following are creature arrays and variables
 
 // Creatures must be defined here
@@ -150,7 +152,7 @@
 //  Area of affect (aaf) :  Max range that creature is able to
 //                          "notice" the player.
 
-creature_type c_list[MAX_CREATURES] = {
+static creature_type c_list[MAX_CREATURES] = {
     {"Filthy Street Urchin", 0x0012000AL, 0x00000000L, 0x2034, 0, 40, 4, 1, 11, 'p', {1, 4}, {{72}, {148}, {0}, {0}}, 0},
     {"Blubbering Idiot", 0x0012000AL, 0x00000000L, 0x2030, 0, 0, 6, 1, 11, 'p', {1, 2}, {{79}, {0}, {0}, {0}}, 0},
     {"Pitiful-Looking Beggar", 0x0012000AL, 0x00000000L, 0x2030, 0, 40, 10, 1, 11, 'p', {1, 4}, {{72}, {0}, {0}, {0}}, 0},
@@ -685,11 +687,67 @@ uint8_t monster_attack_get_sides(attack_handle h) {
     return monster_attacks[h.place].sides;
 }
 
+creature_handle monster_make_creature_handle(uint16_t index) {
+    creature_handle h = {index};
+    return h;
+}
+
+creature_handle monster_get_creature_handle(creature_type *p) {
+    creature_handle h = {p - c_list};
+    return h;
+}
+
+creature_type *monster_get_creature(creature_handle h) {
+    return c_list + h.place;
+}
+
+creature_type *monster_creature_rbegin() {
+    return c_list - 1 + MAX_CREATURES;
+}
+
+creature_type *monster_creature_rend() {
+    return c_list - 1;
+}
+
+creature_type *monster_creature_prev(creature_type *p) {
+    return p - 1;
+}
+
+// Following routines are commonly used in the scroll, potion, wands, and
+// staves routines, and are occasionally called from other areas.
+// Now included are creature spells also.           -RAK
+
+static inline const char *name(vtype name, const monster_type *monster, const char *article, const char *invisible) {
+    if (!monster->ml) {
+        return strcpy(name, invisible);
+    } else {
+        creature_type *const creature = monster_get_creature(monster->creature);
+        return strcat(strcpy(name, article), creature->name);
+    }
+}
+
+const char *monster_name(vtype m_name, const monster_type *m_ptr) {
+    return name(m_name, m_ptr, "The ", "It"); // "The <name>" or "It"
+}
+
+const char *monster_name_lower(vtype m_name, const monster_type *m_ptr) {
+    return name(m_name, m_ptr, "the ", "it"); // "the <name>" or "it"
+}
+
+const char *monster_name_or_something(vtype m_name, const monster_type *m_ptr) {
+    return name(m_name, m_ptr, "The ", "Something"); // "The <name>" or "Something"
+}
+
+const char *monster_name_indefinite(vtype m_name, const creature_type *r_ptr) {
+    const char *article = CM_WIN & r_ptr->cmove ? "The " : is_a_vowel(r_ptr->name[0]) ? "an " : "a ";
+    return strcat(strcpy(m_name, article), r_ptr->name); // "The %s" | "an %s" | "a %s", r_ptr->name
+}
+
 monster_type m_list[MAX_MALLOC];
 int16_t m_level[MAX_MONS_LEVEL + 1];
 
 // Blank monster values
-monster_type blank_monster = {0, 0, 0, 0, 0, 0, 0, false, 0, false};
+monster_type blank_monster = {0, 0, 0, {0}, 0, 0, 0, false, 0, false};
 
 int16_t mfptr;        // Current free monster ptr
 int16_t mon_tot_mult; // # of repro's of creature

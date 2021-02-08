@@ -54,15 +54,7 @@ void tunnel(int dir) {
 
     if (c_ptr->cptr > 1) {
         monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-        vtype out_val, m_name;
-        if (m_ptr->ml) {
-            (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
-        } else {
-            (void)strcpy(m_name, "Something");
-        }
-        (void)sprintf(out_val, "%s is in your way!", m_name);
-        msg_print(out_val);
+        msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
 
         // let the player attack the creature
         if (py.flags.afraid < 1) {
@@ -174,15 +166,7 @@ void disarm_trap() {
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_VIS_TRAP || t_list[c_ptr->tptr].tval == TV_CHEST)) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-            vtype m_name, out_val;
-            if (m_ptr->ml) {
-                (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
-            } else {
-                (void)strcpy(m_name, "Something");
-            }
-            (void)sprintf(out_val, "%s is in your way!", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * py.misc.lev / 3);
 
@@ -572,15 +556,15 @@ static bool look_see(int x, int y, bool *transparent) {
     out_val[0] = 0;
 
     if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
-        j = m_list[c_ptr->cptr].mptr;
-        (void)sprintf(out_val, "%s %s %s. [(r)ecall]", dstring, is_a_vowel(c_list[j].name[0]) ? "an" : "a", c_list[j].name);
+        creature_type *const r_ptr = monster_get_creature(m_list[c_ptr->cptr].creature);
+        (void)sprintf(out_val, "%s %s %s. [(r)ecall]", dstring, is_a_vowel(r_ptr->name[0]) ? "an" : "a", r_ptr->name);
         dstring = "It is on";
         prt(out_val, 0, 0);
         move_cursor_relative(y, x);
         query = inkey();
         if (query == 'r' || query == 'R') {
             save_screen();
-            query = roff_recall(j);
+            query = roff_recall(r_ptr);
             restore_screen();
         }
     }
@@ -832,6 +816,7 @@ void throw_object() {
                     if (c_ptr->cptr > 1) {
                         flag = true;
                         monster_type *m_ptr = &m_list[c_ptr->cptr];
+                        const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
                         tbth = tbth - cur_dis;
 
                         // if monster not lit, make it much more difficult to hit, subtract
@@ -840,9 +825,7 @@ void throw_object() {
                             tbth = (tbth / (cur_dis + 2)) - (py.misc.lev * class_level_adj[py.misc.pclass][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
                         }
 
-                        if (test_hit(tbth, (int)py.misc.lev, tpth, (int)c_list[m_ptr->mptr].ac, CLA_BTHB)) {
-                            int i = m_ptr->mptr;
-
+                        if (test_hit(tbth, (int)py.misc.lev, tpth, (int)r_ptr->ac, CLA_BTHB)) {
                             bigvtype tmp_str;
                             objdes(tmp_str, &throw_obj, false);
 
@@ -853,22 +836,21 @@ void throw_object() {
                                 (void)sprintf(out_val, "You hear a cry as the %s finds a mark.", tmp_str);
                                 visible = false;
                             } else {
-                                (void)sprintf(out_val, "The %s hits the %s.", tmp_str, c_list[i].name);
+                                (void)sprintf(out_val, "The %s hits the %s.", tmp_str, r_ptr->name);
                                 visible = true;
                             }
                             msg_print(out_val);
-                            tdam = tot_dam(&throw_obj, tdam, i);
+                            tdam = tot_dam(&throw_obj, tdam, m_ptr->creature);
                             tdam = critical_blow((int)throw_obj.weight, tpth, tdam, CLA_BTHB);
                             if (tdam < 0) {
                                 tdam = 0;
                             }
 
-                            i = mon_take_hit((int)c_ptr->cptr, tdam);
-                            if (i >= 0) {
+                            if (mon_take_hit((int)c_ptr->cptr, tdam)) {
                                 if (!visible) {
                                     msg_print("You have killed something!");
                                 } else {
-                                    (void)sprintf(out_val, "You have killed the %s.", c_list[i].name);
+                                    (void)sprintf(out_val, "You have killed the %s.", r_ptr->name);
                                     msg_print(out_val);
                                 }
                                 prt_experience();
@@ -901,16 +883,11 @@ static void py_bash(int y, int x) {
 
     int monster = cave[y][x].cptr;
     monster_type *m_ptr = &m_list[monster];
-    creature_type *c_ptr = &c_list[m_ptr->mptr];
+    creature_type *c_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
 
     // Does the player know what he's fighting?
-    vtype m_name;
-    if (!m_ptr->ml) {
-        (void)strcpy(m_name, "it");
-    } else {
-        (void)sprintf(m_name, "the %s", c_ptr->name);
-    }
+    const char *cdesc = monster_name_lower((vtype){}, m_ptr);
 
     int base_tohit = py.stats.use_stat[A_STR] + inventory[INVEN_ARM].weight / 2 + py.misc.wt / 10;
 
@@ -919,10 +896,7 @@ static void py_bash(int y, int x) {
     }
 
     if (test_hit(base_tohit, (int)py.misc.lev, (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {
-        vtype out_val;
-
-        (void)sprintf(out_val, "You hit %s.", m_name);
-        msg_print(out_val);
+        msg_print(CONCAT("You hit ", cdesc, "."));
         int k = pdamroll(inventory[INVEN_ARM].damage);
         k = critical_blow((inventory[INVEN_ARM].weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
         k += py.misc.wt / 60 + 3;
@@ -931,12 +905,11 @@ static void py_bash(int y, int x) {
         }
 
         // See if we done it in.
-        if (mon_take_hit(monster, k) >= 0) {
-            (void)sprintf(out_val, "You have slain %s.", m_name);
-            msg_print(out_val);
+        if (mon_take_hit(monster, k)) {
+            msg_print(CONCAT("You have slain ", cdesc, "."));
             prt_experience();
         } else {
-            m_name[0] = toupper((int)m_name[0]); // Capitalize
+            char *out_val;
 
             // Can not stun Balrog
             int avg_max_hp = (c_ptr->cdefense & CD_MAX_HP ? c_ptr->hd[0] * c_ptr->hd[1] : (c_ptr->hd[0] * (c_ptr->hd[1] + 1)) >> 1);
@@ -945,17 +918,15 @@ static void py_bash(int y, int x) {
                 if (m_ptr->stunned > 24) {
                     m_ptr->stunned = 24;
                 }
-
-                (void)sprintf(out_val, "%s appears stunned!", m_name);
+                out_val = CONCAT(cdesc, " appears stunned!");
             } else {
-                (void)sprintf(out_val, "%s ignores your bash!", m_name);
+                out_val = CONCAT(cdesc, " ignores your bash!");
             }
+            out_val[0] = toupper(out_val[0]); // Capitalize
             msg_print(out_val);
         }
     } else {
-        vtype out_val;
-        (void)sprintf(out_val, "You miss %s.", m_name);
-        msg_print(out_val);
+        msg_print(CONCAT("You miss ", cdesc, "."));
     }
     if (randint(150) > py.stats.use_stat[A_DEX]) {
         msg_print("You are off balance.");

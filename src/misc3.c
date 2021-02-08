@@ -15,8 +15,12 @@
 #include "externs.h"
 
 static char *stat_names[] = {
-    "STR : ", "INT : ", "WIS : ",
-    "DEX : ", "CON : ", "CHR : ",
+    "STR : ",
+    "INT : ",
+    "WIS : ",
+    "DEX : ",
+    "CON : ",
+    "CHR : ",
 };
 #define BLANK_LENGTH 24
 static char blank_string[] = "                        ";
@@ -903,19 +907,24 @@ void put_stats() {
 // Returns a rating of x depending on y -JWT-
 char *likert(int x, int y) {
     switch ((x / y)) {
-    case -3: case -2: case -1:
+    case -3:
+    case -2:
+    case -1:
         return "Very Bad";
-    case 0: case 1:
+    case 0:
+    case 1:
         return "Bad";
     case 2:
         return "Poor";
-    case 3: case 4:
+    case 3:
+    case 4:
         return "Fair";
     case 5:
         return "Good";
     case 6:
         return "Very Good";
-    case 7: case 8:
+    case 7:
+    case 8:
         return "Excellent";
     default:
         return "Superb";
@@ -1048,7 +1057,9 @@ void change_name() {
             }
             break;
         case ESCAPE:
-        case ' ': case '\n': case '\r':
+        case ' ':
+        case '\n':
+        case '\r':
             flag = true;
             break;
         default:
@@ -1161,8 +1172,7 @@ bool inven_check_num(inven_type *t_ptr) {
                 ((t_ptr->subval < ITEM_GROUP_MIN) ||
                  (inventory[i].p1 == t_ptr->p1))
                 // only stack if both or neither are identified
-                && (known1_p(&inventory[i]) == known1_p(t_ptr)))
-            {
+                && (known1_p(&inventory[i]) == known1_p(t_ptr))) {
                 return true;
             }
         }
@@ -1246,8 +1256,7 @@ int inven_carry(inven_type *i_ptr) {
             ((int)t_ptr->number + (int)i_ptr->number < 256) &&
             ((subt < ITEM_GROUP_MIN) || (t_ptr->p1 == i_ptr->p1)) &&
             // only stack if both or neither are identified
-            (known1p == known1_p(t_ptr)))
-        {
+            (known1p == known1_p(t_ptr))) {
             t_ptr->number += i_ptr->number;
             break;
         } else if ((typ == t_ptr->tval && subt < t_ptr->subval && always_known1p) || (typ > t_ptr->tval)) {
@@ -1475,10 +1484,13 @@ void calc_spells(int stat) {
     case 0:
         num_allowed = 0;
         break;
-    case 1: case 2: case 3:
+    case 1:
+    case 2:
+    case 3:
         num_allowed = 1 * levels;
         break;
-    case 4: case 5:
+    case 4:
+    case 5:
         num_allowed = 3 * levels / 2;
         break;
     case 6:
@@ -2008,41 +2020,34 @@ int attack_blows(int weight, int *wtohit) {
 }
 
 // Special damage due to magical abilities of object -RAK-
-int tot_dam(inven_type *i_ptr, int tdam, int monster) {
+int tot_dam(inven_type *i_ptr, int tdam, creature_handle h) {
     if ((i_ptr->flags & TR_EGO_WEAPON) && (((i_ptr->tval >= TV_SLING_AMMO) && (i_ptr->tval <= TV_ARROW)) || ((i_ptr->tval >= TV_HAFTED) && (i_ptr->tval <= TV_SWORD)) || (i_ptr->tval == TV_FLASK))) {
-        creature_type *m_ptr = &c_list[monster];
-        recall_type *r_ptr = &c_recall[monster];
+        creature_type *const creature = monster_get_creature(h);
 
-        if ((m_ptr->cdefense & CD_DRAGON) && (i_ptr->flags & TR_SLAY_DRAGON)) {
+        if ((creature->cdefense & CD_DRAGON) && (i_ptr->flags & TR_SLAY_DRAGON)) {
             // Slay Dragon
-
             tdam = tdam * 4;
-            r_ptr->r_cdefense |= CD_DRAGON;
-        } else if ((m_ptr->cdefense & CD_UNDEAD) && (i_ptr->flags & TR_SLAY_UNDEAD)) {
+            recall_update_characteristics(h, CD_DRAGON);
+        } else if ((creature->cdefense & CD_UNDEAD) && (i_ptr->flags & TR_SLAY_UNDEAD)) {
             // Slay Undead
-
             tdam = tdam * 3;
-            r_ptr->r_cdefense |= CD_UNDEAD;
-        } else if ((m_ptr->cdefense & CD_ANIMAL) && (i_ptr->flags & TR_SLAY_ANIMAL)) {
-           // Slay Animal
-
+            recall_update_characteristics(h, CD_UNDEAD);
+        } else if ((creature->cdefense & CD_ANIMAL) && (i_ptr->flags & TR_SLAY_ANIMAL)) {
+            // Slay Animal
             tdam = tdam * 2;
-            r_ptr->r_cdefense |= CD_ANIMAL;
-        } else if ((m_ptr->cdefense & CD_EVIL) && (i_ptr->flags & TR_SLAY_EVIL)) {
+            recall_update_characteristics(h, CD_ANIMAL);
+        } else if ((creature->cdefense & CD_EVIL) && (i_ptr->flags & TR_SLAY_EVIL)) {
             // Slay Evil
-
             tdam = tdam * 2;
-            r_ptr->r_cdefense |= CD_EVIL;
-        } else if ((m_ptr->cdefense & CD_FROST) && (i_ptr->flags & TR_FROST_BRAND)) {
+            recall_update_characteristics(h, CD_EVIL);
+        } else if ((creature->cdefense & CD_FROST) && (i_ptr->flags & TR_FROST_BRAND)) {
             // Frost
-
             tdam = tdam * 3 / 2;
-            r_ptr->r_cdefense |= CD_FROST;
-        } else if ((m_ptr->cdefense & CD_FIRE) && (i_ptr->flags & TR_FLAME_TONGUE)) {
+            recall_update_characteristics(h, CD_FROST);
+        } else if ((creature->cdefense & CD_FIRE) && (i_ptr->flags & TR_FLAME_TONGUE)) {
             // Fire
-
             tdam = tdam * 3 / 2;
-            r_ptr->r_cdefense |= CD_FIRE;
+            recall_update_characteristics(h, CD_FIRE);
         }
     }
     return tdam;

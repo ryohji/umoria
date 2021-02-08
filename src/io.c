@@ -7,23 +7,72 @@
 // Terminal I/O code, uses the curses package
 
 #include "headers.h"
-#include "curses.h"
 
 #include "config.h"
 #include "constant.h"
+#include "curses.h"
 #include "types.h"
 
 #include "externs.h"
+
+#include <sgtty.h>
+#include <signal.h>
+#include <termios.h>
 
 #define use_value2
 
 static bool curses_on = false;
 
+static struct ltchars save_special_chars;
+static struct sgttyb save_ttyb;
+static struct tchars save_tchars;
+static int save_local_chars;
+
 // Spare window for saving the screen. -CJS-
 static WINDOW *savescr;
 
+static void error_abort(const char *funcname, int row, int col);
+static void wait_for_more_confirmation();
+
+#ifdef SIGTSTP
+// suspend()                 -CJS-
+// Handle the stop and start signals. This ensures that the log
+// is up to date, and that the terminal is fully reset and
+// restored.
+void suspend(int signum) {
+    struct sgttyb tbuf;
+    struct ltchars lcbuf;
+    struct tchars cbuf;
+    int lbuf;
+
+    py.misc.male |= 2;
+
+    (void)ioctl(0, TIOCGETP, (char *)&tbuf);
+    (void)ioctl(0, TIOCGETC, (char *)&cbuf);
+    (void)ioctl(0, TIOCGLTC, (char *)&lcbuf);
+    (void)ioctl(0, TIOCLGET, (char *)&lbuf);
+
+    restore_term();
+    (void)kill(0, SIGSTOP);
+
+    curses_on = TRUE;
+
+    (void)ioctl(0, TIOCSETP, (char *)&tbuf);
+    (void)ioctl(0, TIOCSETC, (char *)&cbuf);
+    (void)ioctl(0, TIOCSLTC, (char *)&lcbuf);
+    (void)ioctl(0, TIOCLSET, (char *)&lbuf);
+    (void)wrefresh(curscr);
+    py.misc.male &= ~2;
+}
+#endif
+
 // initializes curses routines
 void init_curses() {
+    ioctl(0, TIOCGLTC, (char *)&save_special_chars);
+    ioctl(0, TIOCGETP, (char *)&save_ttyb);
+    ioctl(0, TIOCGETC, (char *)&save_tchars);
+    ioctl(0, TIOCLGET, (char *)&save_local_chars);
+
     initscr();
 
     // Check we have enough screen. -CJS-
@@ -31,6 +80,10 @@ void init_curses() {
         (void)printf("Screen too small for moria.\n");
         exit(1);
     }
+
+#ifdef SIGTSTP
+    signal(SIGTSTP, suspend);
+#endif
 
     savescr = newwin(0, 0, 0, 0);
     if (savescr == NULL) {
@@ -46,6 +99,9 @@ void init_curses() {
 
 // Set up the terminal into a suitable state -MRC-
 void moriaterm() {
+    struct ltchars lbuf;
+    struct tchars buf;
+
     cbreak();
     noecho();
 
@@ -59,6 +115,29 @@ void moriaterm() {
 #endif
 
     curses_on = true;
+
+    // disable all of the special characters except the suspend char,
+    // interrupt char, and the control flow start/stop characters
+    (void)ioctl(0, TIOCGLTC, (char *)&lbuf);
+
+    lbuf.t_suspc = (char)26; /* control-Z */
+    lbuf.t_dsuspc = (char)-1;
+    lbuf.t_rprntc = (char)-1;
+    lbuf.t_flushc = (char)-1;
+    lbuf.t_werasc = (char)-1;
+    lbuf.t_lnextc = (char)-1;
+
+    (void)ioctl(0, TIOCSLTC, (char *)&lbuf);
+    (void)ioctl(0, TIOCGETC, (char *)&buf);
+
+    buf.t_intrc = (char)3; /* control-C */
+    buf.t_quitc = (char)-1;
+    buf.t_startc = (char)17; /* control-Q */
+    buf.t_stopc = (char)19;  /* control-S */
+    buf.t_eofc = (char)-1;
+    buf.t_brkc = (char)-1;
+
+    (void)ioctl(0, TIOCSETC, (char *)&buf);
 }
 
 // Dump IO to buffer -RAK-
@@ -73,15 +152,7 @@ void put_buffer(char *out_str, int row, int col) {
     tmp_str[79 - col] = '\0';
 
     if (mvaddstr(row, col, tmp_str) == ERR) {
-        abort();
-        // clear msg_flag to avoid problems with unflushed messages.
-        msg_flag = false;
-        (void)sprintf(tmp_str, "error in put_buffer, row = %d col = %d\n", row, col);
-        prt(tmp_str, 0, 0);
-        bell();
-
-        // wait so user can see error
-        sleep_in_seconds(2);
+        error_abort(__FUNCTION__, row, col);
     }
 }
 
@@ -110,7 +181,13 @@ void restore_term() {
 
     // exit curses
     endwin();
-    (void)fflush(stdout);
+    fflush(stdout);
+
+    // restore the saved values of the special chars
+    ioctl(0, TIOCSLTC, (char *)&save_special_chars);
+    ioctl(0, TIOCSETP, (char *)&save_ttyb);
+    ioctl(0, TIOCSETC, (char *)&save_tchars);
+    ioctl(0, TIOCLSET, (char *)&save_local_chars);
 
     curses_on = false;
 }
@@ -210,18 +287,7 @@ void print(char ch, int row, int col) {
     col -= panel_col_prt;
 
     if (mvaddch(row, col, ch) == ERR) {
-        abort();
-
-        // clear msg_flag to avoid problems with unflushed messages
-        msg_flag = false;
-
-        vtype tmp_str;
-        (void)sprintf(tmp_str, "error in print, row = %d col = %d\n", row, col);
-        prt(tmp_str, 0, 0);
-        bell();
-
-        // wait so user can see error
-        sleep_in_seconds(2);
+        error_abort(__FUNCTION__, row, col);
     }
 }
 
@@ -232,17 +298,7 @@ void move_cursor_relative(int row, int col) {
     col -= panel_col_prt;
 
     if (move(row, col) == ERR) {
-        abort();
-        // clear msg_flag to avoid problems with unflushed messages
-        msg_flag = false;
-
-        vtype tmp_str;
-        (void)sprintf(tmp_str, "error in move_cursor_relative, row = %d col = %d\n", row, col);
-        prt(tmp_str, 0, 0);
-        bell();
-
-        // wait so user can see error
-        sleep_in_seconds(2);
+        error_abort(__FUNCTION__, row, col);
     }
 }
 
@@ -255,12 +311,7 @@ void count_msg_print(char *p) {
 
 // Outputs a line to a given y, x position -RAK-
 void prt(char *str_buff, int row, int col) {
-    if (row == MSG_LINE && msg_flag) {
-        msg_print(CNIL);
-    }
-
-    (void)move(row, col);
-    clrtoeol();
+    erase_line(row, col);
     put_buffer(str_buff, row, col);
 }
 
@@ -272,76 +323,61 @@ void move_cursor(int row, int col) {
 // Outputs message to top line of screen
 // These messages are kept for later reference.
 void msg_print(char *str_buff) {
-    int new_len = 0;
-    int old_len = 0;
-    bool combine_messages = false;
+    const int old_len = msg_flag ? strlen(old_msg[last_msg]) : 0;
+    const bool prev_msg_exists = msg_flag;
+    const bool combine_messages = prev_msg_exists && str_buff && old_len + 2 + strlen(str_buff) < 73;
 
-    if (msg_flag) {
-        old_len = (int)strlen(old_msg[last_msg]) + 1;
-
-        // If the new message and the old message are short enough,
-        // we want display them together on the same line.  So we
-        // don't flush the old message in this case.
-
-        if (str_buff) {
-            new_len = (int)strlen(str_buff);
-        } else {
-            new_len = 0;
-        }
-
-        if (!str_buff || (new_len + old_len + 2 >= 73)) {
-            // ensure that the complete -more- message is visible.
-            if (old_len > 73) {
-                old_len = 73;
-            }
-
-            put_buffer(" -more-", MSG_LINE, old_len);
-
-            // let sigint handler know that we are waiting for a space
-            wait_for_more = true;
-
-            char in_char;
-            do {
-                in_char = inkey();
-            } while ((in_char != ' ') && (in_char != ESCAPE) && (in_char != '\n') && (in_char != '\r'));
-
-            wait_for_more = false;
-        } else {
-            combine_messages = true;
-        }
-    }
+    msg_flag = str_buff != CNIL;
 
     if (!combine_messages) {
+        // Make the null string a special case. -CJS-
+
+        if (prev_msg_exists) {
+            // ensure that the complete -more- message is visible.
+            put_buffer("-more-", MSG_LINE, MIN(73, old_len + 2));
+
+            wait_for_more_confirmation();
+        }
+
         (void)move(MSG_LINE, 0);
         clrtoeol();
-    }
 
-    // Make the null string a special case. -CJS-
-    if (str_buff) {
-        command_count = 0;
-        msg_flag = true;
+        if (msg_flag) {
+            command_count = 0;
 
-        // If the new message and the old message are short enough,
-        // display them on the same line.
-
-        if (combine_messages) {
-            put_buffer(str_buff, MSG_LINE, old_len + 2);
-            strcat(old_msg[last_msg], "  ");
-            strcat(old_msg[last_msg], str_buff);
-        } else {
             put_buffer(str_buff, MSG_LINE, 0);
-            last_msg++;
-
-            if (last_msg >= MAX_SAVE_MSG) {
-                last_msg = 0;
-            }
-
-            (void)strncpy(old_msg[last_msg], str_buff, VTYPESIZ);
+            last_msg = last_msg + 1 == MAX_SAVE_MSG ? 0 : last_msg + 1;
+            strncpy(old_msg[last_msg], str_buff, VTYPESIZ);
             old_msg[last_msg][VTYPESIZ - 1] = '\0';
         }
     } else {
-        msg_flag = false;
+        command_count = 0;
+
+        // If the new message and the old message are short enough,
+        // display them together on the same line.
+        // So we don't flush the old message in this case.
+
+        put_buffer(str_buff, MSG_LINE, old_len + 2);
+        sprintf(old_msg[last_msg] + old_len, "  %s", str_buff);
     }
+}
+
+static inline void wait_for_more_confirmation() {
+    // let sigint handler know that we are waiting for a space
+    wait_for_more = true;
+
+inkey:
+    switch (inkey()) {
+    default:
+        goto inkey;
+    case ' ':
+    case ESCAPE:
+    case '\n':
+    case '\r':
+        break;
+    }
+
+    wait_for_more = false;
 }
 
 // Used to verify a choice - user gets the chance to abort choice. -CJS-
@@ -425,10 +461,12 @@ bool get_string(char *in_str, int row, int column, int slen) {
         case ESCAPE:
             aborted = true;
             break;
-        case CTRL_KEY('J'): case CTRL_KEY('M'):
+        case CTRL_KEY('J'):
+        case CTRL_KEY('M'):
             flag = true;
             break;
-        case DELETE: case CTRL_KEY('H'):
+        case DELETE:
+        case CTRL_KEY('H'):
             if (column > start_col) {
                 column--;
                 put_buffer(" ", row, column);
@@ -767,3 +805,18 @@ int tilde(char *file, char *exp) {
     return 0;
 }
 #endif
+
+static void error_abort(const char *funcname, int row, int col) {
+    // clear msg_flag to avoid problems with unflushed messages
+    msg_flag = false;
+
+    vtype out_val;
+    sprintf(out_val, "error in %s, row = %d, col %d\n", funcname, row, col);
+    prt(out_val, 0, 0);
+    bell();
+
+    // wait so user can see error
+    sleep_in_seconds(2);
+
+    abort();
+}

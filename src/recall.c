@@ -15,6 +15,7 @@
 #include "externs.h"
 
 static void roff(char *);
+static uint8_t count_previous_non_blank_chars(const char *from);
 
 static char *desc_atype[] = {
     "do something undefined",
@@ -138,17 +139,17 @@ static int roffpline; // Place to print line now being loaded.
 #define knowdamage(l, a, d) ((4 + (l)) * (a) > 80 * (d))
 
 // Do we know anything about this monster?
-bool bool_roff_recall(int mon_num) {
+bool bool_roff_recall(creature_type *type) {
     if (wizard) {
         return true;
     }
 
-    recall_type *mp = &c_recall[mon_num];
-    if (mp->r_cmove || mp->r_cdefense || mp->r_kills || mp->r_spells || mp->r_deaths) {
+    recall_type *const recall = recall_get(monster_get_creature_handle(type));
+    if (recall->r_cmove || recall->r_cdefense || recall->r_kills || recall->r_spells || recall->r_deaths) {
         return true;
     }
     for (int i = 0; i < 4; i++) {
-        if (mp->r_attacks[i]) {
+        if (recall->r_attacks[i]) {
             return true;
         }
     }
@@ -156,15 +157,15 @@ bool bool_roff_recall(int mon_num) {
 }
 
 // Print out what we have discovered about this monster.
-int roff_recall(int mon_num) {
+int roff_recall(creature_type *cp) {
     bool known;
     char *p, *q;
     const attack_handle *iter;
     uint32_t j;
     vtype temp;
 
-    recall_type *mp = &c_recall[mon_num];
-    creature_type *cp = &c_list[mon_num];
+    creature_handle h = monster_get_creature_handle(cp);
+    recall_type *mp = recall_get(h);
 
     recall_type save_mem;
 
@@ -173,20 +174,14 @@ int roff_recall(int mon_num) {
         mp->r_kills = MAX_SHORT;
         mp->r_wake = mp->r_ignore = MAX_UCHAR;
 
-        j = (((cp->cmove & CM_4D2_OBJ) != 0) * 8) +
-            (((cp->cmove & CM_2D2_OBJ) != 0) * 4) +
-            (((cp->cmove & CM_1D2_OBJ) != 0) * 2) +
-            ((cp->cmove & CM_90_RANDOM) != 0) +
-            ((cp->cmove & CM_60_RANDOM) != 0);
+        j = (cp->cmove & (CM_4D2_OBJ | CM_2D2_OBJ | CM_1D2_OBJ) ? 4 : 0) +
+            (cp->cmove & CM_90_RANDOM ? 2 : 0) +
+            (cp->cmove & CM_60_RANDOM ? 1 : 0);
 
         mp->r_cmove = (cp->cmove & ~CM_TREASURE) | (j << CM_TR_SHIFT);
         mp->r_cdefense = cp->cdefense;
 
-        if (cp->spells & CS_FREQ) {
-            mp->r_spells = cp->spells | CS_FREQ;
-        } else {
-            mp->r_spells = cp->spells;
-        }
+        mp->r_spells = cp->spells | (cp->spells & CS_FREQ ? CS_FREQ : 0);
 
         for (iter = cp->attack; iter != END_OF(cp->attack) && !monster_attack_is_null(*iter); iter += 1) {
             mp->r_attacks[iter - cp->attack] = MAX_UCHAR;
@@ -236,10 +231,7 @@ int roff_recall(int mon_num) {
         known = true;
     } else if (mp->r_kills) {
         // The Balrog is a level 100 monster, but appears at 50 feet.
-        int i = cp->level;
-        if (i > WIN_MON_APPEAR) {
-            i = WIN_MON_APPEAR;
-        }
+        const int i = MIN(cp->level, WIN_MON_APPEAR);
         (void)sprintf(temp, " It is normally found at depths of %d feet", i * 50);
         roff(temp);
         known = true;
@@ -661,27 +653,26 @@ int roff_recall(int mon_num) {
 static void roff(char *p) {
     while (*p) {
         *roffp = *p;
-        if (*p == '\n' || roffp >= roffbuf + sizeof(roffbuf) - 1) {
-            char *q = roffp;
-            if (*p != '\n') {
-                while (*q != ' ') {
-                    q--;
-                }
-            }
-            *q = 0;
-            prt(roffbuf, roffpline, 0);
-            roffpline++;
+        if (*p == '\n' || roffp + 1 == END_OF(roffbuf)) {
+            const uint8_t count = *p == '\n' ? 0 : count_previous_non_blank_chars(roffp);
 
-            char *r = roffbuf;
-            while (q < roffp) {
-                q++;
-                *r = *q;
-                r++;
-            }
-            roffp = r;
+            roffp[-count] = '\0';
+            prt(roffbuf, roffpline, 0);
+            roffpline += 1;
+
+            memcpy(roffbuf, roffp - count + 1, count);
+            roffp = roffbuf + count;
         } else {
-            roffp++;
+            roffp += 1;
         }
-        p++;
+        p += 1;
     }
+}
+
+inline static uint8_t count_previous_non_blank_chars(const char *from) {
+    uint8_t offset = 0;
+    while (from[-offset] != ' ') {
+        offset += 1;
+    }
+    return offset;
 }

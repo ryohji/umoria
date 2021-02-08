@@ -312,22 +312,8 @@ static void carry(int y, int x, bool pickup) {
 
 // Deletes a monster entry from the level -RAK-
 void delete_monster(int j) {
-    monster_type *m_ptr = &m_list[j];
-
-    cave[m_ptr->fy][m_ptr->fx].cptr = 0;
-    if (m_ptr->ml) {
-        lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
-    }
-    if (j != mfptr - 1) {
-        m_ptr = &m_list[mfptr - 1];
-        cave[m_ptr->fy][m_ptr->fx].cptr = j;
-        m_list[j] = m_list[mfptr - 1];
-    }
-    mfptr--;
-    m_list[mfptr] = blank_monster;
-    if (mon_tot_mult > 0) {
-        mon_tot_mult--;
-    }
+    fix1_delete_monster(j);
+    fix2_delete_monster(j);
 }
 
 // The following two procedures implement the same function as delete monster.
@@ -340,7 +326,7 @@ void delete_monster(int j) {
 // the monster record and reduce mfptr, this is called in breathe, and
 // a couple of places in creatures.c
 void fix1_delete_monster(int j) {
-    monster_type *m_ptr = &m_list[j];
+    monster_type *const m_ptr = m_list + j;
 
     // force the hp negative to ensure that the monster is dead, for example,
     // if the monster was just eaten by another, it will still have positive
@@ -348,31 +334,32 @@ void fix1_delete_monster(int j) {
     m_ptr->hp = -1;
     cave[m_ptr->fy][m_ptr->fx].cptr = 0;
     if (m_ptr->ml) {
-        lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
+        lite_spot(m_ptr->fy, m_ptr->fx);
     }
     if (mon_tot_mult > 0) {
-        mon_tot_mult--;
+        mon_tot_mult -= 1;
     }
 }
 
 // fix2_delete_monster does everything in delete_monster that wasn't done
 // by fix1_monster_delete above, this is only called in creatures()
 void fix2_delete_monster(int j) {
+    monster_type *const m_ptr = m_list + j;
+    monster_type *const the_last = m_list + mfptr - 1;
 
-    if (j != mfptr - 1) {
-        monster_type *m_ptr = &m_list[mfptr - 1];
-        cave[m_ptr->fy][m_ptr->fx].cptr = j;
-        m_list[j] = m_list[mfptr - 1];
+    if (m_ptr != the_last) {
+        cave[the_last->fy][the_last->fx].cptr = j;
+        *m_ptr = *the_last;
     }
-    m_list[mfptr - 1] = blank_monster;
-    mfptr--;
+    *the_last = blank_monster;
+    mfptr -= 1;
 }
 
 // Creates objects nearby the coordinates given -RAK-
 static int summon_object(int y, int x, int num, int typ) {
     int real_typ;
     if ((typ == 1) || (typ == 5)) {
-        real_typ = 1;   // typ == 1 -> objects
+        real_typ = 1; // typ == 1 -> objects
     } else {
         real_typ = 256; // typ == 2 -> gold
     }
@@ -523,34 +510,28 @@ uint32_t monster_death(int y, int x, uint32_t flags) {
 // (Picking on my babies.) -RAK-
 int mon_take_hit(int monptr, int dam) {
     monster_type *m_ptr = &m_list[monptr];
+    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->hp -= dam;
     m_ptr->csleep = 0;
 
-    int m_take_hit;
+    const int m_dead = m_ptr->hp < 0;
 
-    if (m_ptr->hp < 0) {
-        uint32_t i = monster_death((int)m_ptr->fy, (int)m_ptr->fx, c_list[m_ptr->mptr].cmove);
+    if (m_dead) {
+        uint32_t i = monster_death(m_ptr->fy, m_ptr->fx, r_ptr->cmove);
 
-        if ((py.flags.blind < 1 && m_ptr->ml) || (c_list[m_ptr->mptr].cmove & CM_WIN)) {
-            uint32_t tmp = (c_recall[m_ptr->mptr].r_cmove & CM_TREASURE) >> CM_TR_SHIFT;
-
-            if (tmp > ((i & CM_TREASURE) >> CM_TR_SHIFT)) {
-                i = (i & ~CM_TREASURE) | (tmp << CM_TR_SHIFT);
-            }
-            c_recall[m_ptr->mptr].r_cmove = (c_recall[m_ptr->mptr].r_cmove & ~CM_TREASURE) | i;
-
-            if (c_recall[m_ptr->mptr].r_kills < MAX_SHORT) {
-                c_recall[m_ptr->mptr].r_kills++;
-            }
+        if ((py.flags.blind < 1 && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
+            recall_type *const recall = recall_get(m_ptr->creature);
+            recall_update_move(m_ptr->creature, i & ~CM_TREASURE);
+            recall_update_carry(m_ptr->creature, (i & CM_TREASURE) >> CM_TR_SHIFT);
+            recall_increment_kill(m_ptr->creature);
         }
 
-        creature_type *c_ptr = &c_list[m_ptr->mptr];
         struct misc *p_ptr = &py.misc;
 
-        int32_t new_exp = ((int32_t)c_ptr->mexp * c_ptr->level) / p_ptr->lev;
-        int32_t new_exp_frac = ((((int32_t)c_ptr->mexp * c_ptr->level) % p_ptr->lev) *
-                        0x10000L / p_ptr->lev) +
-                       p_ptr->exp_frac;
+        int32_t new_exp = ((int32_t)r_ptr->mexp * r_ptr->level) / p_ptr->lev;
+        int32_t new_exp_frac = ((((int32_t)r_ptr->mexp * r_ptr->level) % p_ptr->lev) *
+                                0x10000L / p_ptr->lev) +
+                               p_ptr->exp_frac;
 
         if (new_exp_frac >= 0x10000L) {
             new_exp++;
@@ -559,11 +540,9 @@ int mon_take_hit(int monptr, int dam) {
             p_ptr->exp_frac = new_exp_frac;
         }
 
-        p_ptr->exp += new_exp;
-
         // can't call prt_experience() here, as that would result in "new level"
         // message appearing before "monster dies" message.
-        m_take_hit = m_ptr->mptr;
+        p_ptr->exp += new_exp;
 
         // in case this is called from within creatures(), this is a horrible
         // hack, the m_list/creatures() code needs to be rewritten.
@@ -572,27 +551,21 @@ int mon_take_hit(int monptr, int dam) {
         } else {
             fix1_delete_monster(monptr);
         }
-    } else {
-        m_take_hit = -1;
     }
 
-    return m_take_hit;
+    return m_dead;
 }
 
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {
-    int crptr = cave[y][x].cptr;
-    int monptr = m_list[crptr].mptr;
-    m_list[crptr].csleep = 0;
+    const int crptr = cave[y][x].cptr;
+    monster_type *const m_ptr = m_list + crptr;
+    const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
+    m_ptr->csleep = 0;
     inven_type *i_ptr = &inventory[INVEN_WIELD];
 
     // Does the player know what he's fighting?
-    vtype m_name;
-    if (!m_list[crptr].ml) {
-        (void)strcpy(m_name, "it");
-    } else {
-        (void)sprintf(m_name, "the %s", c_list[monptr].name);
-    }
+    const char *cdesc = monster_name_lower((vtype){}, m_ptr);
 
     int blows, tot_tohit;
     if (i_ptr->tval != TV_NOTHING) {
@@ -614,23 +587,21 @@ void py_attack(int y, int x) {
 
     // if creature not lit, make it more difficult to hit
     int base_tohit;
-    if (m_list[crptr].ml) {
+    if (m_ptr->ml) {
         base_tohit = p_ptr->bth;
     } else {
         base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
     }
 
-    vtype out_val;
     int k;
 
     // Loop for number of blows,  trying to hit the critter.
     do {
-        if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit, (int)c_list[monptr].ac, CLA_BTH)) {
-            (void)sprintf(out_val, "You hit %s.", m_name);
-            msg_print(out_val);
+        if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit, (int)r_ptr->ac, CLA_BTH)) {
+            msg_print(CONCAT("You hit ", cdesc, "."));
             if (i_ptr->tval != TV_NOTHING) {
                 k = pdamroll(i_ptr->damage);
-                k = tot_dam(i_ptr, k, monptr);
+                k = tot_dam(i_ptr, k, m_ptr->creature);
                 k = critical_blow((int)i_ptr->weight, tot_tohit, k, CLA_BTH);
             } else {
                 // Bare hands!?
@@ -646,26 +617,27 @@ void py_attack(int y, int x) {
             if (py.flags.confuse_monster) {
                 py.flags.confuse_monster = false;
                 msg_print("Your hands stop glowing.");
-                if ((c_list[monptr].cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < c_list[monptr].level)) {
-                    (void)sprintf(out_val, "%s is unaffected.", m_name);
+                char *out_val;
+                if ((r_ptr->cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < r_ptr->level)) {
+                    out_val = CONCAT(cdesc, " is unaffected.");
                 } else {
-                    (void)sprintf(out_val, "%s appears confused.", m_name);
-                    if (m_list[crptr].confused) {
-                        m_list[crptr].confused += 3;
+                    out_val = CONCAT(cdesc, " appears confused.");
+                    if (m_ptr->confused) {
+                        m_ptr->confused += 3;
                     } else {
-                        m_list[crptr].confused = 2 + randint(16);
+                        m_ptr->confused = 2 + randint(16);
                     }
                 }
+                out_val[0] = toupper(out_val[0]); // Capitalize
                 msg_print(out_val);
-                if (m_list[crptr].ml && randint(4) == 1) {
-                    c_recall[monptr].r_cdefense |= c_list[monptr].cdefense & CD_NO_SLEEP;
+                if (m_ptr->ml && randint(4) == 1) {
+                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                 }
             }
 
             // See if we done it in.
-            if (mon_take_hit(crptr, k) >= 0) {
-                (void)sprintf(out_val, "You have slain %s.", m_name);
-                msg_print(out_val);
+            if (mon_take_hit(crptr, k)) {
+                msg_print(CONCAT("You have slain ", cdesc, "."));
                 prt_experience();
                 blows = 0;
             }
@@ -685,8 +657,7 @@ void py_attack(int y, int x) {
                 }
             }
         } else {
-            (void)sprintf(out_val, "You miss %s.", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT("You miss ", cdesc, "."));
         }
         blows--;
     } while (blows >= 1);
@@ -885,17 +856,7 @@ void openobject() {
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR || t_list[c_ptr->tptr].tval == TV_CHEST)) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-            vtype m_name;
-            if (m_ptr->ml) {
-                (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
-            } else {
-                (void)strcpy(m_name, "Something");
-            }
-
-            vtype out_val;
-            (void)sprintf(out_val, "%s is in your way!", m_name);
-            msg_print(out_val);
+            msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             // Closed door
             if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
@@ -1013,17 +974,7 @@ void closeobject() {
                     }
                 } else {
                     monster_type *m_ptr = &m_list[c_ptr->cptr];
-
-                    vtype m_name;
-                    if (m_ptr->ml) {
-                        (void)sprintf(m_name, "The %s", c_list[m_ptr->mptr].name);
-                    } else {
-                        (void)strcpy(m_name, "Something");
-                    }
-
-                    vtype out_val;
-                    (void)sprintf(out_val, "%s is in your way!", m_name);
-                    msg_print(out_val);
+                    msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
                 }
             } else {
                 no_object = true;
