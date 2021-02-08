@@ -15,6 +15,7 @@
 #include "externs.h"
 
 static void roff(char *);
+static uint8_t count_previous_non_blank_chars(const char *from);
 
 static char *desc_atype[] = {
     "do something undefined",
@@ -652,27 +653,26 @@ int roff_recall(creature_type *cp) {
 static void roff(char *p) {
     while (*p) {
         *roffp = *p;
-        if (*p == '\n' || roffp >= roffbuf + sizeof(roffbuf) - 1) {
-            char *q = roffp;
-            if (*p != '\n') {
-                while (*q != ' ') {
-                    q--;
-                }
-            }
-            *q = 0;
-            prt(roffbuf, roffpline, 0);
-            roffpline++;
+        if (*p == '\n' || roffp + 1 == END_OF(roffbuf)) {
+            const uint8_t count = *p == '\n' ? 0 : count_previous_non_blank_chars(roffp);
 
-            char *r = roffbuf;
-            while (q < roffp) {
-                q++;
-                *r = *q;
-                r++;
-            }
-            roffp = r;
+            roffp[-count] = '\0';
+            prt(roffbuf, roffpline, 0);
+            roffpline += 1;
+
+            memcpy(roffbuf, roffp - count + 1, count);
+            roffp = roffbuf + count;
         } else {
-            roffp++;
+            roffp += 1;
         }
-        p++;
+        p += 1;
     }
+}
+
+inline static uint8_t count_previous_non_blank_chars(const char *from) {
+    uint8_t offset = 0;
+    while (from[-offset] != ' ') {
+        offset += 1;
+    }
+    return offset;
 }
