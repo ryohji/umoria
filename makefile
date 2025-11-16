@@ -105,6 +105,7 @@ save.o: constant.h types.h externs.h config.h
 scrolls.o: constant.h types.h externs.h config.h
 sets.o: constant.h config.h
 signal_flags.o: signal_flags.h
+signals.o: constant.h types.h externs.h config.h signal_flags.h
 spells.o: constant.h types.h externs.h config.h
 staffs.o: constant.h types.h externs.h config.h
 store1.o: constant.h types.h externs.h config.h
