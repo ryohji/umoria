@@ -25,16 +25,16 @@ CC = gcc
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	create.c desc.c generate.c sets.c dungeon.c creature.c death.c \
 	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c \
-	scrolls.c spells.c wizard.c store2.c signals.c moria1.c moria2.c \
-	moria3.c moria4.c monsters.c treasure.c variable.c rnd.c recall.c \
-	player.c tables.c
+	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
+	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
+	rnd.c recall.c player.c tables.c
 
 OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	create.o desc.o generate.o sets.o dungeon.o creature.o death.o \
 	eat.o help.o magic.o potions.o prayer.o save.o staffs.o wands.o \
-	scrolls.o spells.o wizard.o store2.o signals.o moria1.o moria2.o \
-	moria3.o moria4.o monsters.o treasure.o variable.o rnd.o recall.o \
-	player.o tables.o
+	scrolls.o spells.o wizard.o store2.o signals.o signal_flags.o \
+	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
+	rnd.o recall.o player.o tables.o
 
 LIBFILES = splash.hlp origcmds.hlp owizcmds.hlp roglcmds.hlp rwizcmds.hlp \
 	version.hlp welcome.hlp
@@ -104,6 +104,8 @@ rnd.o: constant.h types.h
 save.o: constant.h types.h externs.h config.h
 scrolls.o: constant.h types.h externs.h config.h
 sets.o: constant.h config.h
+signal_flags.o: signal_flags.h
+signals.o: constant.h types.h externs.h config.h signal_flags.h
 spells.o: constant.h types.h externs.h config.h
 staffs.o: constant.h types.h externs.h config.h
 store1.o: constant.h types.h externs.h config.h

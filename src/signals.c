@@ -21,6 +21,7 @@
 
 /* This signal package was brought to you by  -JEW- */
 /* Completely rewritten by                    -CJS- */
+/* Made async-signal-safe                     -2025- */
 
 /* To find out what system we're on. */
 
@@ -31,6 +32,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "signal_flags.h"
 
 #include <signal.h>
 
@@ -39,11 +41,23 @@ static int signal_count = 0;
 static int mask;
 
 static void signal_handler(int sig) {
-    int smask = sigsetmask(0) | (1 << sig);
+    /* ASYNC-SIGNAL-SAFE HANDLER
+     *
+     * This handler ONLY sets atomic flags. All I/O operations (ncurses,
+     * file I/O, printf, etc.) are deferred to the main loop where they
+     * can be executed safely.
+     *
+     * According to POSIX, the only safe operations in signal handlers are:
+     * - Setting sig_atomic_t variables
+     * - Calling async-signal-safe functions (very limited list)
+     *
+     * We must NOT call: get_check(), prt(), msg_print(), save_char(),
+     * or any ncurses functions from here.
+     */
 
-    /* Ignore all second signals. */
+    /* Ignore repeated signals to prevent signal storms */
     if (error_sig >= 0) {
-        /* Be safe. We will die if persistent enough. */
+        /* After many signals, restore default handler to allow termination */
         if (++signal_count > 10) {
             (void)signal(sig, SIG_DFL);
         }
@@ -51,65 +65,22 @@ static void signal_handler(int sig) {
     }
     error_sig = sig;
 
-    /* Allow player to think twice. Wizard may force a core dump. */
+    /* Classify signal type and set flags for main loop to handle */
+    SignalType type;
     if (sig == SIGINT || sig == SIGQUIT) {
-        if (death) {
-            /* Can't quit after death. */
-            (void)signal(sig, SIG_IGN);
-        } else if (!character_saved && character_generated) {
-            if (!get_check("Really commit *Suicide*?")) {
-                if (turn > 0) {
-                    disturb(1, 0);
-                }
-                erase_line(0, 0);
-                put_qio();
-                error_sig = -1;
-                (void)sigsetmask(smask);
-
-                /* in case control-c typed during msg_print */
-                if (wait_for_more) {
-                    put_buffer(" -more-", MSG_LINE, 0);
-                }
-                put_qio();
-
-                /* OK. We don't quit. */
-                return;
-            }
-            (void)strcpy(died_from, "Interrupting");
-        } else {
-            (void)strcpy(died_from, "Abortion");
-        }
-        prt("Interrupt!", 0, 0);
-        death = true;
-        exit_game();
-    }
-
-    /* Die. */
-    prt("OH NO!!!!!!  A gruesome software bug LEAPS out at you. There is NO "
-        "defense!",
-        23, 0);
-    if (!death && !character_saved && character_generated) {
-        panic_save = 1;
-        prt("Your guardian angel is trying to save you.", 0, 0);
-        (void)sprintf(died_from, "(panic save %d)", sig);
-        if (!save_char()) {
-            (void)strcpy(died_from, "software bug");
-            death = true;
-            turn = -1;
-        }
+        type = SIGNAL_INTERRUPT;
     } else {
-        death = true;
-
-        /* Quietly save the memory anyway. */
-        (void)_save_char(savefile);
+        type = SIGNAL_ERROR;
     }
-    restore_term();
 
-    /* always generate a core dump */
-    (void)signal(sig, SIG_DFL);
-    (void)kill(getpid(), sig);
-    (void)sleep(5);
-    exit(1);
+    /* This is the ONLY communication with main code - set atomic flags */
+    signal_flags_set(type, sig);
+
+    /* For fatal errors (SIGSEGV, etc.), restore default handler
+     * so if we can't handle it gracefully, we still crash properly */
+    if (type == SIGNAL_ERROR) {
+        (void)signal(sig, SIG_DFL);
+    }
 }
 
 void nosignals() {
@@ -131,7 +102,10 @@ void signals() {
 }
 
 void init_signals() {
-    (void)signal(SIGINT, signal_handler);
+    /* Initialize signal flags */
+    signal_flags_init();
+
+    /* Install signal handlers */
     (void)signal(SIGINT, signal_handler);
     (void)signal(SIGFPE, signal_handler);
 
@@ -140,15 +114,23 @@ void init_signals() {
     (void)signal(SIGQUIT, signal_handler);
     (void)signal(SIGILL, signal_handler);
     (void)signal(SIGTRAP, signal_handler);
+#ifdef SIGIOT
     (void)signal(SIGIOT, signal_handler);
+#endif
+#ifdef SIGEMT
     (void)signal(SIGEMT, signal_handler);
-    (void)signal(SIGKILL, signal_handler);
+#endif
+    /* SIGKILL cannot be caught */
     (void)signal(SIGBUS, signal_handler);
     (void)signal(SIGSEGV, signal_handler);
+#ifdef SIGSYS
     (void)signal(SIGSYS, signal_handler);
+#endif
     (void)signal(SIGTERM, signal_handler);
     (void)signal(SIGPIPE, signal_handler);
+#ifdef SIGXCPU
     (void)signal(SIGXCPU, signal_handler);
+#endif
 }
 
 void ignore_signals() {
@@ -164,4 +146,91 @@ void default_signals() {
 void restore_signals() {
     (void)signal(SIGINT, signal_handler);
     (void)signal(SIGQUIT, signal_handler);
+}
+
+// Handle pending signals in a safe context (called from main loop)
+// This performs all the I/O operations that were deferred from the signal handler
+void handle_pending_signals() {
+    SignalType type;
+    int signum;
+
+    // Check if a signal is pending
+    if (!signal_flags_check(&type, &signum)) {
+        return; // No pending signals
+    }
+
+    // Clear the flag immediately to prevent reprocessing
+    signal_flags_clear();
+
+    // Reset error state
+    error_sig = -1;
+    signal_count = 0;
+
+    // Handle based on signal type
+    if (type == SIGNAL_INTERRUPT) {
+        // User interrupt (SIGINT or SIGQUIT)
+        if (death) {
+            // Can't quit after death - ignore
+            (void)signal(signum, SIG_IGN);
+            return;
+        }
+
+        if (!character_saved && character_generated) {
+            // Ask user for confirmation
+            if (!get_check("Really commit *Suicide*?")) {
+                // User canceled - restore state and continue
+                if (turn > 0) {
+                    disturb(1, 0);
+                }
+                erase_line(0, 0);
+                put_qio();
+
+                // Restore -more- prompt if needed
+                if (wait_for_more) {
+                    put_buffer(" -more-", MSG_LINE, 0);
+                }
+                put_qio();
+                return;
+            }
+
+            // User confirmed suicide
+            (void)strcpy(died_from, "Interrupting");
+        } else {
+            (void)strcpy(died_from, "Abortion");
+        }
+
+        prt("Interrupt!", 0, 0);
+        death = true;
+        exit_game();
+    } else if (type == SIGNAL_ERROR) {
+        // Fatal error signal (SIGSEGV, SIGBUS, etc.)
+        prt("OH NO!!!!!!  A gruesome software bug LEAPS out at you. There is NO "
+            "defense!",
+            23, 0);
+
+        if (!death && !character_saved && character_generated) {
+            // Try panic save
+            panic_save = 1;
+            prt("Your guardian angel is trying to save you.", 0, 0);
+            (void)sprintf(died_from, "(panic save %d)", signum);
+
+            if (!save_char()) {
+                (void)strcpy(died_from, "software bug");
+                death = true;
+                turn = -1;
+            }
+        } else {
+            death = true;
+            // Quietly save anyway
+            (void)_save_char(savefile);
+        }
+
+        restore_term();
+
+        // Generate core dump for debugging
+        (void)signal(signum, SIG_DFL);
+        (void)kill(getpid(), signum);
+        (void)sleep(5);
+        exit(1);
+    }
 }
