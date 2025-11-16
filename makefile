@@ -9,18 +9,37 @@ LIBDIR = ~/umoria/data
 # Game binary name. e.g `moria` or `umoria`.
 TARGET = umoria
 
-# For testing and debugging the program, it is best to use this line.
-CFLAGS = -g -Wall -std=gnu11
+# Compiler and standard
+CC = gcc
+# Use C17 standard (latest widely-supported C standard)
+STD = -std=c17
 
-# NOTE: the -O flag currently crashes the game when running! -- MRC (2016-09-30)
-# For playing the game, you may want to use this line
-# CFLAGS = -O
+# Warning flags for better code quality
+WARNINGS = -Wall -Wextra -Wpedantic -Wformat=2 -Wno-unused-parameter \
+           -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
+           -Wnested-externs -Wmissing-prototypes -Wno-deprecated-declarations
 
+# Debug flags
+DEBUG_FLAGS = -g -DDEBUG
+
+# Optimization flags
+# Note: -O2 enables most optimizations without aggressive inlining
+# If issues arise, fall back to -O1 or -Og (optimize for debugging)
+OPT_FLAGS = -O2
+
+# Include path for headers in src directory
+INCLUDES = -I$(SRCDIR)
+
+# Combine all compiler flags
+CFLAGS = $(STD) $(WARNINGS) $(DEBUG_FLAGS) $(OPT_FLAGS) $(INCLUDES)
+
+# Linker flags
+LDFLAGS =
 CURSES = -lncurses
 
-LFLAGS =
-
-CC = gcc
+# Source directory
+SRCDIR = src
+VPATH = $(SRCDIR)
 
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	create.c desc.c generate.c sets.c dungeon.c creature.c death.c \
@@ -41,17 +60,33 @@ LIBFILES = splash.hlp origcmds.hlp owizcmds.hlp roglcmds.hlp rwizcmds.hlp \
 
 DOCS = manual.md
 
-moria : $(OBJS)
-	$(CC) -o $(TARGET) $(CFLAGS) $(OBJS) $(CURSES) $(LFLAGS)
+# Phony targets (not actual files)
+.PHONY: all clean install TAGS help
 
+# Default target
+all: $(TARGET)
+
+# Link the final executable
+$(TARGET): $(OBJS)
+	@echo "Linking $(TARGET)..."
+	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS) $(CURSES)
+	@echo "Build complete: $(TARGET)"
+
+# Pattern rule for compiling C source files
+%.o: %.c
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Legacy lint targets (kept for compatibility)
 lintout : $(SRCS)
-	lint $(SRCS) $(CURSES) > lintout
+	lint $(addprefix $(SRCDIR)/,$(SRCS)) $(CURSES) > lintout
 
 lintout2 : $(SRCS)
-	lint -bach $(SRCS) $(CURSES) > lintout
+	lint -bach $(addprefix $(SRCDIR)/,$(SRCS)) $(CURSES) > lintout
 
+# Generate tags file
 TAGS : $(SRCS)
-	ctags -x $(SRCS) > TAGS
+	ctags -x $(addprefix $(SRCDIR)/,$(SRCS)) > TAGS
 
 # you must define BINDIR and LIBDIR before installing
 # assumes that BINDIR and LIBDIR exist
@@ -70,48 +105,75 @@ install:
 # If you are short on disk space, or aren't interested in debugging moria.
 #	strip $(BINDIR)/moria
 
+# Clean build artifacts
 clean:
-	@rm -r $(OBJS)
+	@echo "Cleaning build artifacts..."
+	@rm -f $(OBJS)
 	@rm -f $(TARGET)
-	@echo "Compilation files removed!"
+	@rm -f lintout
+	@echo "Clean complete!"
 
-create.o: constant.h types.h externs.h config.h
-creature.o: constant.h types.h externs.h config.h
-death.o: constant.h types.h externs.h config.h
-desc.o: constant.h types.h externs.h config.h
-dungeon.o: constant.h types.h externs.h config.h
-eat.o: constant.h types.h externs.h config.h
-files.o: constant.h types.h externs.h config.h
-generate.o: constant.h types.h externs.h config.h
-help.o: constant.h types.h externs.h config.h
-io.o: constant.h types.h externs.h config.h
-magic.o: constant.h types.h externs.h config.h
-main.o: constant.h types.h externs.h config.h
-misc1.o: constant.h types.h externs.h config.h
-misc2.o: constant.h types.h externs.h config.h
-misc3.o: constant.h types.h externs.h config.h
-misc4.o: constant.h types.h externs.h config.h
-monsters.o: constant.h types.h config.h
-moria1.o: constant.h types.h externs.h config.h
-moria2.o: constant.h types.h externs.h config.h
-moria3.o: constant.h types.h externs.h config.h
-moria4.o: constant.h types.h externs.h config.h
-player.o: constant.h types.h config.h
-potions.o: constant.h types.h externs.h config.h
-prayer.o: constant.h types.h externs.h config.h
-recall.o: constant.h config.h types.h externs.h
-rnd.o: constant.h types.h
-save.o: constant.h types.h externs.h config.h
-scrolls.o: constant.h types.h externs.h config.h
-sets.o: constant.h config.h
-signal_flags.o: signal_flags.h
-signals.o: constant.h types.h externs.h config.h signal_flags.h
-spells.o: constant.h types.h externs.h config.h
-staffs.o: constant.h types.h externs.h config.h
-store1.o: constant.h types.h externs.h config.h
-store2.o: constant.h types.h externs.h config.h
-tables.o: constant.h types.h config.h
-treasure.o: constant.h types.h config.h
-variable.o: constant.h types.h config.h
-wands.o: constant.h types.h externs.h config.h
-wizard.o: constant.h types.h externs.h config.h
+# Help target
+help:
+	@echo "Umoria Build System"
+	@echo "==================="
+	@echo ""
+	@echo "Available targets:"
+	@echo "  all (default) - Build the game executable"
+	@echo "  clean         - Remove all build artifacts"
+	@echo "  install       - Install the game to BINDIR and LIBDIR"
+	@echo "  TAGS          - Generate ctags file"
+	@echo "  help          - Show this help message"
+	@echo ""
+	@echo "Build configuration:"
+	@echo "  CC       = $(CC)"
+	@echo "  CFLAGS   = $(CFLAGS)"
+	@echo "  TARGET   = $(TARGET)"
+	@echo "  BINDIR   = $(BINDIR)"
+	@echo "  LIBDIR   = $(LIBDIR)"
+
+# Header dependencies
+# These ensure that object files are rebuilt when headers change
+HEADERS_COMMON = $(SRCDIR)/constant.h $(SRCDIR)/types.h $(SRCDIR)/config.h
+HEADERS_FULL = $(HEADERS_COMMON) $(SRCDIR)/externs.h
+
+create.o: $(HEADERS_FULL)
+creature.o: $(HEADERS_FULL)
+death.o: $(HEADERS_FULL)
+desc.o: $(HEADERS_FULL)
+dungeon.o: $(HEADERS_FULL)
+eat.o: $(HEADERS_FULL)
+files.o: $(HEADERS_FULL)
+generate.o: $(HEADERS_FULL)
+help.o: $(HEADERS_FULL)
+io.o: $(HEADERS_FULL)
+magic.o: $(HEADERS_FULL)
+main.o: $(HEADERS_FULL)
+misc1.o: $(HEADERS_FULL)
+misc2.o: $(HEADERS_FULL)
+misc3.o: $(HEADERS_FULL)
+misc4.o: $(HEADERS_FULL)
+monsters.o: $(HEADERS_COMMON)
+moria1.o: $(HEADERS_FULL)
+moria2.o: $(HEADERS_FULL)
+moria3.o: $(HEADERS_FULL)
+moria4.o: $(HEADERS_FULL)
+player.o: $(HEADERS_COMMON)
+potions.o: $(HEADERS_FULL)
+prayer.o: $(HEADERS_FULL)
+recall.o: $(HEADERS_FULL)
+rnd.o: $(HEADERS_COMMON)
+save.o: $(HEADERS_FULL)
+scrolls.o: $(HEADERS_FULL)
+sets.o: $(SRCDIR)/constant.h $(SRCDIR)/config.h
+signal_flags.o: $(SRCDIR)/signal_flags.h
+signals.o: $(HEADERS_FULL) $(SRCDIR)/signal_flags.h
+spells.o: $(HEADERS_FULL)
+staffs.o: $(HEADERS_FULL)
+store1.o: $(HEADERS_FULL)
+store2.o: $(HEADERS_FULL)
+tables.o: $(HEADERS_COMMON)
+treasure.o: $(HEADERS_COMMON)
+variable.o: $(HEADERS_COMMON)
+wands.o: $(HEADERS_FULL)
+wizard.o: $(HEADERS_FULL)
