@@ -533,6 +533,7 @@ void init_signals();
 void ignore_signals();
 void default_signals();
 void restore_signals();
+void handle_pending_signals();
 
 // spells.c
 int sleep_monsters1(int, int);

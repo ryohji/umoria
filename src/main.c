@@ -189,6 +189,9 @@ int main(int argc, char *argv[]) {
 
     // Loop till dead, or exit
     while (!death) {
+        // Check for pending signals at the top level
+        handle_pending_signals();
+
         dungeon(); // Dungeon logic
 
         // check for eof here, see inkey() in io.c
