@@ -13,6 +13,8 @@
 #include "types.h"
 
 #include "externs.h"
+#include "render.h"
+#include "render_ncurses.h"
 
 static void char_inven_init();
 static void init_m_level();
@@ -40,10 +42,14 @@ int main(int argc, char *argv[]) {
     // Make sure we have access to all files -MRC-
     check_file_permissions();
 
-    init_curses();
+    // Initialize rendering system with ncurses backend
+    if (!render_init(render_ncurses_backend())) {
+        fprintf(stderr, "Failed to initialize rendering system\n");
+        exit(1);
+    }
 
     // catch those nasty signals
-    // must come after init_curses as some of the signal handlers use curses
+    // must come after render init as some of the signal handlers use rendering
     init_signals();
 
     uint32_t seed = 0; // let wizard specify rng seed
