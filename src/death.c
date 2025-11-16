@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "render.h"
 
 static void date(char *day) {
     char *tmp;
@@ -467,7 +468,7 @@ void exit_game() {
         display_scores(true);
     }
     erase_line(23, 0);
-    restore_term();
+    render_shutdown();
 
     exit(0);
 }
