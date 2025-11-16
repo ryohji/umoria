@@ -16,26 +16,78 @@
 // Forward declarations
 typedef struct ViewObserver ViewObserver;
 
+// Type-safe data structures for state changes
+// These provide clear semantics and allow future extension
+
+// Player hit points
+typedef struct {
+    int current;
+    int maximum;
+} HitPoints;
+
+// Player mana points
+typedef struct {
+    int current;
+    int maximum;
+} ManaPoints;
+
+// Player gold
+typedef struct {
+    int32_t amount;
+} Gold;
+
+// Player experience
+typedef struct {
+    int32_t amount;
+} Experience;
+
+// Player level
+typedef struct {
+    int level;
+} PlayerLevel;
+
+// Dungeon depth
+typedef struct {
+    int depth;
+} DungeonDepth;
+
+// Map cell position and display
+typedef struct {
+    int row;
+    int col;
+    char character;
+} MapCell;
+
+// Game message
+typedef struct {
+    const char *text;
+} GameMessage;
+
+// Game mode identifier
+typedef struct {
+    int mode;
+} GameMode;
+
 // Observer callback function types
 // These are called when specific game state changes occur
 
 // Player state changes
-typedef void (*OnPlayerHpChangedFn)(void *context, int current_hp, int max_hp);
-typedef void (*OnPlayerManaChangedFn)(void *context, int current_mana, int max_mana);
-typedef void (*OnPlayerGoldChangedFn)(void *context, int32_t gold);
-typedef void (*OnPlayerExpChangedFn)(void *context, int32_t exp);
-typedef void (*OnPlayerLevelChangedFn)(void *context, int level);
-typedef void (*OnPlayerDepthChangedFn)(void *context, int depth);
+typedef void (*OnPlayerHpChangedFn)(void *context, HitPoints hp);
+typedef void (*OnPlayerManaChangedFn)(void *context, ManaPoints mana);
+typedef void (*OnPlayerGoldChangedFn)(void *context, Gold gold);
+typedef void (*OnPlayerExpChangedFn)(void *context, Experience exp);
+typedef void (*OnPlayerLevelChangedFn)(void *context, PlayerLevel level);
+typedef void (*OnPlayerDepthChangedFn)(void *context, DungeonDepth depth);
 
 // Message system
-typedef void (*OnMessageAddedFn)(void *context, const char *message);
+typedef void (*OnMessageAddedFn)(void *context, GameMessage message);
 
 // Map changes
-typedef void (*OnMapCellChangedFn)(void *context, int row, int col, char character);
+typedef void (*OnMapCellChangedFn)(void *context, MapCell cell);
 typedef void (*OnMapRefreshFn)(void *context);
 
 // Game mode changes
-typedef void (*OnModeChangedFn)(void *context, int mode);
+typedef void (*OnModeChangedFn)(void *context, GameMode mode);
 
 // Observer interface
 // Views implement these callbacks to receive state change notifications
@@ -74,21 +126,21 @@ void view_observer_unregister(ViewObserver *observer);
 // Game logic calls these when state changes occur
 
 // Player state notifications
-void view_notify_player_hp_changed(int current_hp, int max_hp);
-void view_notify_player_mana_changed(int current_mana, int max_mana);
-void view_notify_player_gold_changed(int32_t gold);
-void view_notify_player_exp_changed(int32_t exp);
-void view_notify_player_level_changed(int level);
-void view_notify_player_depth_changed(int depth);
+void view_notify_player_hp_changed(HitPoints hp);
+void view_notify_player_mana_changed(ManaPoints mana);
+void view_notify_player_gold_changed(Gold gold);
+void view_notify_player_exp_changed(Experience exp);
+void view_notify_player_level_changed(PlayerLevel level);
+void view_notify_player_depth_changed(DungeonDepth depth);
 
 // Message notifications
-void view_notify_message_added(const char *message);
+void view_notify_message_added(GameMessage message);
 
 // Map notifications
-void view_notify_map_cell_changed(int row, int col, char character);
+void view_notify_map_cell_changed(MapCell cell);
 void view_notify_map_refresh(void);
 
 // Game mode notifications
-void view_notify_mode_changed(int mode);
+void view_notify_mode_changed(GameMode mode);
 
 #endif // VIEW_OBSERVER_H

@@ -59,25 +59,25 @@ void view_observer_unregister(ViewObserver *observer) {
 // Notification implementations
 // Each function notifies all registered observers
 
-void view_notify_player_hp_changed(int current_hp, int max_hp) {
+void view_notify_player_hp_changed(HitPoints hp) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_player_hp_changed) {
-            obs->on_player_hp_changed(obs->context, current_hp, max_hp);
+            obs->on_player_hp_changed(obs->context, hp);
         }
     }
 }
 
-void view_notify_player_mana_changed(int current_mana, int max_mana) {
+void view_notify_player_mana_changed(ManaPoints mana) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_player_mana_changed) {
-            obs->on_player_mana_changed(obs->context, current_mana, max_mana);
+            obs->on_player_mana_changed(obs->context, mana);
         }
     }
 }
 
-void view_notify_player_gold_changed(int32_t gold) {
+void view_notify_player_gold_changed(Gold gold) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_player_gold_changed) {
@@ -86,7 +86,7 @@ void view_notify_player_gold_changed(int32_t gold) {
     }
 }
 
-void view_notify_player_exp_changed(int32_t exp) {
+void view_notify_player_exp_changed(Experience exp) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_player_exp_changed) {
@@ -95,7 +95,7 @@ void view_notify_player_exp_changed(int32_t exp) {
     }
 }
 
-void view_notify_player_level_changed(int level) {
+void view_notify_player_level_changed(PlayerLevel level) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_player_level_changed) {
@@ -104,7 +104,7 @@ void view_notify_player_level_changed(int level) {
     }
 }
 
-void view_notify_player_depth_changed(int depth) {
+void view_notify_player_depth_changed(DungeonDepth depth) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_player_depth_changed) {
@@ -113,7 +113,7 @@ void view_notify_player_depth_changed(int depth) {
     }
 }
 
-void view_notify_message_added(const char *message) {
+void view_notify_message_added(GameMessage message) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_message_added) {
@@ -122,11 +122,11 @@ void view_notify_message_added(const char *message) {
     }
 }
 
-void view_notify_map_cell_changed(int row, int col, char character) {
+void view_notify_map_cell_changed(MapCell cell) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_map_cell_changed) {
-            obs->on_map_cell_changed(obs->context, row, col, character);
+            obs->on_map_cell_changed(obs->context, cell);
         }
     }
 }
@@ -140,7 +140,7 @@ void view_notify_map_refresh(void) {
     }
 }
 
-void view_notify_mode_changed(int mode) {
+void view_notify_mode_changed(GameMode mode) {
     for (int i = 0; i < observer_count; i++) {
         ViewObserver *obs = observers[i];
         if (obs->on_mode_changed) {
