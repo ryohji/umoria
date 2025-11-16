@@ -9,6 +9,8 @@
 
 #include "signal_flags.h"
 
+#include <stddef.h>
+
 // These flags are modified by signal handlers
 // volatile sig_atomic_t is the ONLY safe type for signal handler communication
 volatile sig_atomic_t signal_pending = 0;
