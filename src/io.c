@@ -15,18 +15,16 @@
 
 #include "externs.h"
 
-#include <sgtty.h>
 #include <signal.h>
+#include <sys/select.h>
 #include <termios.h>
 
 #define use_value2
 
 static bool curses_on = false;
 
-static struct ltchars save_special_chars;
-static struct sgttyb save_ttyb;
-static struct tchars save_tchars;
-static int save_local_chars;
+// Terminal state saved for suspend/resume
+static struct termios save_termios;
 
 // Spare window for saving the screen. -CJS-
 static WINDOW *savescr;
@@ -40,27 +38,21 @@ static void wait_for_more_confirmation();
 // is up to date, and that the terminal is fully reset and
 // restored.
 void suspend(int signum) {
-    struct sgttyb tbuf;
-    struct ltchars lcbuf;
-    struct tchars cbuf;
-    int lbuf;
+    struct termios tbuf;
 
     py.misc.male |= 2;
 
-    (void)ioctl(0, TIOCGETP, (char *)&tbuf);
-    (void)ioctl(0, TIOCGETC, (char *)&cbuf);
-    (void)ioctl(0, TIOCGLTC, (char *)&lcbuf);
-    (void)ioctl(0, TIOCLGET, (char *)&lbuf);
+    // Save current terminal state using POSIX termios
+    tcgetattr(0, &tbuf);
 
     restore_term();
     (void)kill(0, SIGSTOP);
 
-    curses_on = TRUE;
+    // After resume, restore curses mode
+    curses_on = true;
 
-    (void)ioctl(0, TIOCSETP, (char *)&tbuf);
-    (void)ioctl(0, TIOCSETC, (char *)&cbuf);
-    (void)ioctl(0, TIOCSLTC, (char *)&lcbuf);
-    (void)ioctl(0, TIOCLSET, (char *)&lbuf);
+    // Restore terminal state
+    tcsetattr(0, TCSANOW, &tbuf);
     (void)wrefresh(curscr);
     py.misc.male &= ~2;
 }
@@ -68,10 +60,8 @@ void suspend(int signum) {
 
 // initializes curses routines
 void init_curses() {
-    ioctl(0, TIOCGLTC, (char *)&save_special_chars);
-    ioctl(0, TIOCGETP, (char *)&save_ttyb);
-    ioctl(0, TIOCGETC, (char *)&save_tchars);
-    ioctl(0, TIOCLGET, (char *)&save_local_chars);
+    // Save original terminal state using POSIX termios
+    tcgetattr(0, &save_termios);
 
     initscr();
 
@@ -99,9 +89,6 @@ void init_curses() {
 
 // Set up the terminal into a suitable state -MRC-
 void moriaterm() {
-    struct ltchars lbuf;
-    struct tchars buf;
-
     cbreak();
     noecho();
 
@@ -116,28 +103,9 @@ void moriaterm() {
 
     curses_on = true;
 
-    // disable all of the special characters except the suspend char,
-    // interrupt char, and the control flow start/stop characters
-    (void)ioctl(0, TIOCGLTC, (char *)&lbuf);
-
-    lbuf.t_suspc = (char)26; /* control-Z */
-    lbuf.t_dsuspc = (char)-1;
-    lbuf.t_rprntc = (char)-1;
-    lbuf.t_flushc = (char)-1;
-    lbuf.t_werasc = (char)-1;
-    lbuf.t_lnextc = (char)-1;
-
-    (void)ioctl(0, TIOCSLTC, (char *)&lbuf);
-    (void)ioctl(0, TIOCGETC, (char *)&buf);
-
-    buf.t_intrc = (char)3; /* control-C */
-    buf.t_quitc = (char)-1;
-    buf.t_startc = (char)17; /* control-Q */
-    buf.t_stopc = (char)19;  /* control-S */
-    buf.t_eofc = (char)-1;
-    buf.t_brkc = (char)-1;
-
-    (void)ioctl(0, TIOCSETC, (char *)&buf);
+    // Note: ncurses handles terminal special characters internally.
+    // The old BSD ioctl calls for setting t_suspc, t_intrc, etc. are
+    // no longer needed with modern ncurses and POSIX termios.
 }
 
 // Dump IO to buffer -RAK-
@@ -183,11 +151,8 @@ void restore_term() {
     endwin();
     fflush(stdout);
 
-    // restore the saved values of the special chars
-    ioctl(0, TIOCSLTC, (char *)&save_special_chars);
-    ioctl(0, TIOCSETP, (char *)&save_ttyb);
-    ioctl(0, TIOCSETC, (char *)&save_tchars);
-    ioctl(0, TIOCLSET, (char *)&save_local_chars);
+    // Restore original terminal state using POSIX termios
+    tcsetattr(0, TCSANOW, &save_termios);
 
     curses_on = false;
 }
