@@ -85,6 +85,10 @@ void dungeon() {
     do {
         turn++; // Increment turn counter
 
+        // Check for pending signals (SIGINT, SIGSEGV, etc.)
+        // This must be done in the main loop, not in signal handlers
+        handle_pending_signals();
+
         // turn over the store contents every, say, 1000 turns
         if ((dun_level != 0) && ((turn % 1000) == 0)) {
             store_maint();

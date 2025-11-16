@@ -147,3 +147,90 @@ void restore_signals() {
     (void)signal(SIGINT, signal_handler);
     (void)signal(SIGQUIT, signal_handler);
 }
+
+// Handle pending signals in a safe context (called from main loop)
+// This performs all the I/O operations that were deferred from the signal handler
+void handle_pending_signals() {
+    SignalType type;
+    int signum;
+
+    // Check if a signal is pending
+    if (!signal_flags_check(&type, &signum)) {
+        return; // No pending signals
+    }
+
+    // Clear the flag immediately to prevent reprocessing
+    signal_flags_clear();
+
+    // Reset error state
+    error_sig = -1;
+    signal_count = 0;
+
+    // Handle based on signal type
+    if (type == SIGNAL_INTERRUPT) {
+        // User interrupt (SIGINT or SIGQUIT)
+        if (death) {
+            // Can't quit after death - ignore
+            (void)signal(signum, SIG_IGN);
+            return;
+        }
+
+        if (!character_saved && character_generated) {
+            // Ask user for confirmation
+            if (!get_check("Really commit *Suicide*?")) {
+                // User canceled - restore state and continue
+                if (turn > 0) {
+                    disturb(1, 0);
+                }
+                erase_line(0, 0);
+                put_qio();
+
+                // Restore -more- prompt if needed
+                if (wait_for_more) {
+                    put_buffer(" -more-", MSG_LINE, 0);
+                }
+                put_qio();
+                return;
+            }
+
+            // User confirmed suicide
+            (void)strcpy(died_from, "Interrupting");
+        } else {
+            (void)strcpy(died_from, "Abortion");
+        }
+
+        prt("Interrupt!", 0, 0);
+        death = true;
+        exit_game();
+    } else if (type == SIGNAL_ERROR) {
+        // Fatal error signal (SIGSEGV, SIGBUS, etc.)
+        prt("OH NO!!!!!!  A gruesome software bug LEAPS out at you. There is NO "
+            "defense!",
+            23, 0);
+
+        if (!death && !character_saved && character_generated) {
+            // Try panic save
+            panic_save = 1;
+            prt("Your guardian angel is trying to save you.", 0, 0);
+            (void)sprintf(died_from, "(panic save %d)", signum);
+
+            if (!save_char()) {
+                (void)strcpy(died_from, "software bug");
+                death = true;
+                turn = -1;
+            }
+        } else {
+            death = true;
+            // Quietly save anyway
+            (void)_save_char(savefile);
+        }
+
+        restore_term();
+
+        // Generate core dump for debugging
+        (void)signal(signum, SIG_DFL);
+        (void)kill(getpid(), signum);
+        (void)sleep(5);
+        exit(1);
+    }
+}
