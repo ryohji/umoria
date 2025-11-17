@@ -54,12 +54,9 @@ static int ncurses_get_key(void) {
     // Map ncurses key codes to our normalized key codes
     // ncurses uses different values for special keys
     // Note: ncurses KEY_* macros are different from our INPUT_KEY_* enum
-    if (ch == ERR) {
-        return INPUT_KEY_NONE;
-    }
-
-    // Map ncurses special keys to our key codes
     switch (ch) {
+        case ERR:       return INPUT_KEY_NONE;
+
         case KEY_UP:    return INPUT_KEY_UP;
         case KEY_DOWN:  return INPUT_KEY_DOWN;
         case KEY_LEFT:  return INPUT_KEY_LEFT;
