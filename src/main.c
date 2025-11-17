@@ -15,6 +15,8 @@
 #include "externs.h"
 #include "render.h"
 #include "render_ncurses.h"
+#include "input.h"
+#include "input_ncurses.h"
 
 static void char_inven_init();
 static void init_m_level();
@@ -45,6 +47,13 @@ int main(int argc, char *argv[]) {
     // Initialize rendering system with ncurses backend
     if (!render_init(render_ncurses_backend())) {
         fprintf(stderr, "Failed to initialize rendering system\n");
+        exit(1);
+    }
+
+    // Initialize input system with ncurses backend
+    if (!input_init(input_ncurses_backend())) {
+        fprintf(stderr, "Failed to initialize input system\n");
+        render_shutdown();
         exit(1);
     }
 

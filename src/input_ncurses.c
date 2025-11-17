@@ -53,14 +53,39 @@ static int ncurses_get_key(void) {
 
     // Map ncurses key codes to our normalized key codes
     // ncurses uses different values for special keys
+    // Note: ncurses KEY_* macros are different from our INPUT_KEY_* enum
+    if (ch == ERR) {
+        return INPUT_KEY_NONE;
+    }
+
+    // Map ncurses special keys to our key codes
     switch (ch) {
-        case ERR:
-            return KEY_NONE;
+        case KEY_UP:    return INPUT_KEY_UP;
+        case KEY_DOWN:  return INPUT_KEY_DOWN;
+        case KEY_LEFT:  return INPUT_KEY_LEFT;
+        case KEY_RIGHT: return INPUT_KEY_RIGHT;
         case KEY_BACKSPACE:
-        case 127:  // DEL character
-            return KEY_BACKSPACE;
+        case 127:       return INPUT_KEY_BACKSPACE;
+        case KEY_DC:    return INPUT_KEY_DELETE;
+        case KEY_IC:    return INPUT_KEY_INSERT;
+        case KEY_HOME:  return INPUT_KEY_HOME;
+        case KEY_END:   return INPUT_KEY_END;
+        case KEY_PPAGE: return INPUT_KEY_PAGE_UP;
+        case KEY_NPAGE: return INPUT_KEY_PAGE_DOWN;
+        case KEY_F(1):  return INPUT_KEY_F1;
+        case KEY_F(2):  return INPUT_KEY_F2;
+        case KEY_F(3):  return INPUT_KEY_F3;
+        case KEY_F(4):  return INPUT_KEY_F4;
+        case KEY_F(5):  return INPUT_KEY_F5;
+        case KEY_F(6):  return INPUT_KEY_F6;
+        case KEY_F(7):  return INPUT_KEY_F7;
+        case KEY_F(8):  return INPUT_KEY_F8;
+        case KEY_F(9):  return INPUT_KEY_F9;
+        case KEY_F(10): return INPUT_KEY_F10;
+        case KEY_F(11): return INPUT_KEY_F11;
+        case KEY_F(12): return INPUT_KEY_F12;
         default:
-            // For most keys, ncurses code matches ASCII or our codes
+            // For regular ASCII keys, pass through as-is
             return ch;
     }
 }
