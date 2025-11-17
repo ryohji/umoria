@@ -14,16 +14,17 @@
 
 // Color definitions
 // These can be mapped to different color schemes by backends
+// Note: Prefixed with RENDER_ to avoid conflicts with ncurses COLOR_* macros
 typedef enum {
-    COLOR_DEFAULT = 0,
-    COLOR_BLACK = 1,
-    COLOR_RED = 2,
-    COLOR_GREEN = 3,
-    COLOR_YELLOW = 4,
-    COLOR_BLUE = 5,
-    COLOR_MAGENTA = 6,
-    COLOR_CYAN = 7,
-    COLOR_WHITE = 8,
+    RENDER_COLOR_DEFAULT = 0,
+    RENDER_COLOR_BLACK = 1,
+    RENDER_COLOR_RED = 2,
+    RENDER_COLOR_GREEN = 3,
+    RENDER_COLOR_YELLOW = 4,
+    RENDER_COLOR_BLUE = 5,
+    RENDER_COLOR_MAGENTA = 6,
+    RENDER_COLOR_CYAN = 7,
+    RENDER_COLOR_WHITE = 8,
 } RenderColor;
 
 // Rendering backend interface

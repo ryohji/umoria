@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "input.h"
+#include "render.h"
 
 #include <signal.h>
 #include <sys/select.h>
@@ -22,92 +23,8 @@
 
 #define use_value2
 
-static bool curses_on = false;
-
-// Terminal state saved for suspend/resume
-static struct termios save_termios;
-
-// Spare window for saving the screen. -CJS-
-static WINDOW *savescr;
-
 static void error_abort(const char *funcname, int row, int col);
 static void wait_for_more_confirmation();
-
-#ifdef SIGTSTP
-// suspend()                 -CJS-
-// Handle the stop and start signals. This ensures that the log
-// is up to date, and that the terminal is fully reset and
-// restored.
-void suspend(int signum) {
-    struct termios tbuf;
-
-    py.misc.male |= 2;
-
-    // Save current terminal state using POSIX termios
-    tcgetattr(0, &tbuf);
-
-    restore_term();
-    (void)kill(0, SIGSTOP);
-
-    // After resume, restore curses mode
-    curses_on = true;
-
-    // Restore terminal state
-    tcsetattr(0, TCSANOW, &tbuf);
-    (void)wrefresh(curscr);
-    py.misc.male &= ~2;
-}
-#endif
-
-// initializes curses routines
-void init_curses() {
-    // Save original terminal state using POSIX termios
-    tcgetattr(0, &save_termios);
-
-    initscr();
-
-    // Check we have enough screen. -CJS-
-    if (LINES < 24 || COLS < 80) {
-        (void)printf("Screen too small for moria.\n");
-        exit(1);
-    }
-
-#ifdef SIGTSTP
-    signal(SIGTSTP, suspend);
-#endif
-
-    savescr = newwin(0, 0, 0, 0);
-    if (savescr == NULL) {
-        (void)printf("Out of memory in starting up curses.\n");
-        exit_game();
-    }
-
-    moriaterm();
-
-    (void)clear();
-    (void)refresh();
-}
-
-// Set up the terminal into a suitable state -MRC-
-void moriaterm() {
-    cbreak();
-    noecho();
-
-    nonl();
-    intrflush(stdscr, false);
-    keypad(stdscr, false);
-
-#ifdef __APPLE__
-    // Default delay on macOS is 1 second, let's do something about that!
-    set_escdelay(50);
-#endif
-
-    curses_on = true;
-
-    // Note: ncurses handles terminal special characters internally.
-    // The old BSD ioctl calls for setting t_suspc, t_intrc, etc. are
-    // no longer needed with modern ncurses and POSIX termios.
-}
 
 // Dump IO to buffer -RAK-
 void put_buffer(char *out_str, int row, int col) {
@@ -131,31 +48,6 @@ void put_qio() {
     screen_change = true;
 
     (void)refresh();
-}
-
-// Put the terminal in the original mode. -CJS-
-void restore_term() {
-    if (!curses_on) {
-        return;
-    }
-
-    // Dump any remaining buffer
-    put_qio();
-
-    // this moves curses to bottom right corner
-    int y = 0;
-    int x = 0;
-    getyx(stdscr, y, x);
-    mvcur(y, x, LINES - 1, 0);
-
-    // exit curses
-    endwin();
-    fflush(stdout);
-
-    // Restore original terminal state using POSIX termios
-    tcsetattr(0, TCSANOW, &save_termios);
-
-    curses_on = false;
 }
 
 void shell_out() {
@@ -207,8 +99,9 @@ char inkey() {
             return (char)i;
         }
 
-        (void)wrefresh(curscr);
-        moriaterm();
+        // TODO: Implement screen refresh through rendering abstraction
+        // (void)wrefresh(curscr);
+        // moriaterm();
     }
 }
 
@@ -490,12 +383,11 @@ void pause_exit(int prt_line, int delay) {
 }
 
 void save_screen() {
-    overwrite(stdscr, savescr);
+    render_save_screen();
 }
 
 void restore_screen() {
-    overwrite(savescr, stdscr);
-    touchwin(stdscr);
+    render_restore_screen();
 }
 
 void bell() {
