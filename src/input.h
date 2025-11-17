@@ -14,51 +14,52 @@
 
 // Input key codes
 // These provide a normalized representation of input across different devices
+// Note: Prefixed with INPUT_ to avoid conflicts with ncurses KEY_* macros
 typedef enum {
     // Special keys
-    KEY_NONE = 0,
-    KEY_ESCAPE = 27,
+    INPUT_KEY_NONE = 0,
+    INPUT_KEY_ESCAPE = 27,
 
     // Movement keys (for devices that provide directional input)
-    KEY_UP = 256,
-    KEY_DOWN,
-    KEY_LEFT,
-    KEY_RIGHT,
+    INPUT_KEY_UP = 256,
+    INPUT_KEY_DOWN,
+    INPUT_KEY_LEFT,
+    INPUT_KEY_RIGHT,
 
     // Function keys
-    KEY_F1,
-    KEY_F2,
-    KEY_F3,
-    KEY_F4,
-    KEY_F5,
-    KEY_F6,
-    KEY_F7,
-    KEY_F8,
-    KEY_F9,
-    KEY_F10,
-    KEY_F11,
-    KEY_F12,
+    INPUT_KEY_F1,
+    INPUT_KEY_F2,
+    INPUT_KEY_F3,
+    INPUT_KEY_F4,
+    INPUT_KEY_F5,
+    INPUT_KEY_F6,
+    INPUT_KEY_F7,
+    INPUT_KEY_F8,
+    INPUT_KEY_F9,
+    INPUT_KEY_F10,
+    INPUT_KEY_F11,
+    INPUT_KEY_F12,
 
     // Control keys
-    KEY_ENTER = 13,
-    KEY_BACKSPACE = 8,
-    KEY_TAB = 9,
-    KEY_DELETE,
-    KEY_INSERT,
-    KEY_HOME,
-    KEY_END,
-    KEY_PAGE_UP,
-    KEY_PAGE_DOWN,
+    INPUT_KEY_ENTER = 13,
+    INPUT_KEY_BACKSPACE = 8,
+    INPUT_KEY_TAB = 9,
+    INPUT_KEY_DELETE,
+    INPUT_KEY_INSERT,
+    INPUT_KEY_HOME,
+    INPUT_KEY_END,
+    INPUT_KEY_PAGE_UP,
+    INPUT_KEY_PAGE_DOWN,
 
     // Gamepad buttons (for future gamepad support)
-    KEY_GAMEPAD_A,
-    KEY_GAMEPAD_B,
-    KEY_GAMEPAD_X,
-    KEY_GAMEPAD_Y,
-    KEY_GAMEPAD_START,
-    KEY_GAMEPAD_SELECT,
-    KEY_GAMEPAD_L1,
-    KEY_GAMEPAD_R1,
+    INPUT_KEY_GAMEPAD_A,
+    INPUT_KEY_GAMEPAD_B,
+    INPUT_KEY_GAMEPAD_X,
+    INPUT_KEY_GAMEPAD_Y,
+    INPUT_KEY_GAMEPAD_START,
+    INPUT_KEY_GAMEPAD_SELECT,
+    INPUT_KEY_GAMEPAD_L1,
+    INPUT_KEY_GAMEPAD_R1,
 
 } InputKeyCode;
 
