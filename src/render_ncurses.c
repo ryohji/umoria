@@ -31,10 +31,14 @@ static void ncurses_begin_frame(void);
 static void ncurses_end_frame(void);
 static void ncurses_clear(void);
 static void ncurses_get_size(int *rows, int *cols);
+static void ncurses_erase_line(int row, int col);
+static void ncurses_clear_from(int row);
+static void ncurses_refresh(void);
 static void ncurses_draw_char(int row, int col, char ch, RenderColor color);
 static void ncurses_draw_string(int row, int col, const char *str, RenderColor color);
 static void ncurses_move_cursor(int row, int col);
 static void ncurses_show_cursor(bool show);
+static void ncurses_bell(void);
 static int ncurses_get_char(void);
 static bool ncurses_check_input(int microsec);
 static void ncurses_save_screen(void);
@@ -54,10 +58,14 @@ static RenderBackend ncurses_backend_instance = {
     .end_frame = ncurses_end_frame,
     .clear = ncurses_clear,
     .get_size = ncurses_get_size,
+    .erase_line = ncurses_erase_line,
+    .clear_from = ncurses_clear_from,
+    .refresh = ncurses_refresh,
     .draw_char = ncurses_draw_char,
     .draw_string = ncurses_draw_string,
     .move_cursor = ncurses_move_cursor,
     .show_cursor = ncurses_show_cursor,
+    .bell = ncurses_bell,
     .get_char = ncurses_get_char,
     .check_input = ncurses_check_input,
     .save_screen = ncurses_save_screen,
@@ -151,6 +159,23 @@ static void ncurses_get_size(int *rows, int *cols) {
     if (cols) *cols = COLS;
 }
 
+// Erase from specified position to end of line
+static void ncurses_erase_line(int row, int col) {
+    move(row, col);
+    clrtoeol();
+}
+
+// Clear from specified row to bottom of screen
+static void ncurses_clear_from(int row) {
+    move(row, 0);
+    clrtobot();
+}
+
+// Force immediate screen refresh
+static void ncurses_refresh(void) {
+    refresh();
+}
+
 // Draw a single character
 static void ncurses_draw_char(int row, int col, char ch, RenderColor color) {
     // For now, ignore color (will add later)
@@ -183,6 +208,12 @@ static void ncurses_move_cursor(int row, int col) {
 // Show/hide cursor
 static void ncurses_show_cursor(bool show) {
     curs_set(show ? 1 : 0);
+}
+
+// Audio or visual bell
+static void ncurses_bell(void) {
+    // Use ncurses beep() if available, otherwise write bell character
+    beep();
 }
 
 // Get a character from input

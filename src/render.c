@@ -56,6 +56,24 @@ void render_clear(void) {
     }
 }
 
+void render_erase_line(int row, int col) {
+    if (current_backend && current_backend->erase_line) {
+        current_backend->erase_line(row, col);
+    }
+}
+
+void render_clear_from(int row) {
+    if (current_backend && current_backend->clear_from) {
+        current_backend->clear_from(row);
+    }
+}
+
+void render_refresh(void) {
+    if (current_backend && current_backend->refresh) {
+        current_backend->refresh();
+    }
+}
+
 void render_char(int row, int col, char ch, RenderColor color) {
     if (current_backend && current_backend->draw_char) {
         current_backend->draw_char(row, col, ch, color);
@@ -77,6 +95,12 @@ void render_move_cursor(int row, int col) {
 void render_present(void) {
     if (current_backend && current_backend->end_frame) {
         current_backend->end_frame();
+    }
+}
+
+void render_bell(void) {
+    if (current_backend && current_backend->bell) {
+        current_backend->bell();
     }
 }
 
