@@ -43,6 +43,9 @@ typedef struct RenderBackend {
     // Screen management
     void (*clear)(void);
     void (*get_size)(int *rows, int *cols);
+    void (*erase_line)(int row, int col);  // Erase from col to end of line
+    void (*clear_from)(int row);  // Clear from row to bottom of screen
+    void (*refresh)(void);  // Force immediate screen update
 
     // Drawing primitives
     void (*draw_char)(int row, int col, char ch, RenderColor color);
@@ -51,6 +54,9 @@ typedef struct RenderBackend {
     // Cursor management
     void (*move_cursor)(int row, int col);
     void (*show_cursor)(bool show);
+
+    // Audio feedback
+    void (*bell)(void);  // Audio or visual bell
 
     // Input (may be moved to separate input abstraction later)
     int (*get_char)(void);
@@ -75,10 +81,14 @@ void render_shutdown(void);
 // These queue rendering commands to be executed at end_frame
 
 void render_clear(void);
+void render_erase_line(int row, int col);
+void render_clear_from(int row);
+void render_refresh(void);  // Force immediate screen update
 void render_char(int row, int col, char ch, RenderColor color);
 void render_string(int row, int col, const char *str, RenderColor color);
 void render_move_cursor(int row, int col);
 void render_present(void);  // Flush all queued commands and present frame
+void render_bell(void);  // Audio or visual bell
 
 // Screen save/restore
 void render_save_screen(void);

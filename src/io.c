@@ -37,9 +37,7 @@ void put_buffer(char *out_str, int row, int col) {
     (void)strncpy(tmp_str, out_str, 79 - col);
     tmp_str[79 - col] = '\0';
 
-    if (mvaddstr(row, col, tmp_str) == ERR) {
-        error_abort(__FUNCTION__, row, col);
-    }
+    render_string(row, col, tmp_str, RENDER_COLOR_DEFAULT);
 }
 
 // Dump the IO buffer to terminal -RAK-
@@ -47,7 +45,7 @@ void put_qio() {
     // Let inven_command know something has changed.
     screen_change = true;
 
-    (void)refresh();
+    render_refresh();
 }
 
 void shell_out() {
@@ -73,7 +71,7 @@ char inkey() {
 
             eof_flag++;
 
-            (void)refresh();
+            render_refresh();
 
             if (!character_generated || character_saved) {
                 exit_game();
@@ -118,8 +116,7 @@ void erase_line(int row, int col) {
         msg_print(CNIL);
     }
 
-    (void)move(row, col);
-    clrtoeol();
+    render_erase_line(row, col);
 }
 
 // Clears screen
@@ -127,12 +124,11 @@ void clear_screen() {
     if (msg_flag) {
         msg_print(CNIL);
     }
-    (void)clear();
+    render_clear();
 }
 
 void clear_from(int row) {
-    (void)move(row, 0);
-    clrtobot();
+    render_clear_from(row);
 }
 
 // Outputs a char to a given interpolated y, x position -RAK-
@@ -143,9 +139,7 @@ void print(char ch, int row, int col) {
     row -= panel_row_prt;
     col -= panel_col_prt;
 
-    if (mvaddch(row, col, ch) == ERR) {
-        error_abort(__FUNCTION__, row, col);
-    }
+    render_char(row, col, ch, RENDER_COLOR_DEFAULT);
 }
 
 // Moves the cursor to a given interpolated y, x position -RAK-
@@ -154,9 +148,7 @@ void move_cursor_relative(int row, int col) {
     row -= panel_row_prt;
     col -= panel_col_prt;
 
-    if (move(row, col) == ERR) {
-        error_abort(__FUNCTION__, row, col);
-    }
+    render_move_cursor(row, col);
 }
 
 // Print a message so as not to interrupt a counted command. -CJS-
@@ -174,7 +166,7 @@ void prt(char *str_buff, int row, int col) {
 
 // move cursor to a given y, x position
 void move_cursor(int row, int col) {
-    (void)move(row, col);
+    render_move_cursor(row, col);
 }
 
 // Outputs message to top line of screen
@@ -196,8 +188,7 @@ void msg_print(char *str_buff) {
             wait_for_more_confirmation();
         }
 
-        (void)move(MSG_LINE, 0);
-        clrtoeol();
+        render_erase_line(MSG_LINE, 0);
 
         if (msg_flag) {
             command_count = 0;
@@ -239,18 +230,13 @@ inkey:
 
 // Used to verify a choice - user gets the chance to abort choice. -CJS-
 bool get_check(char *prompt) {
-    int y, x;
-
     prt(prompt, 0, 0);
 
-    getyx(stdscr, y, x);
-    if (x > 73) {
-        (void)move(0, 73);
-    } else if (y) {
-        // use `y` to prevent compiler warning.
-    }
+    // Calculate cursor position after printing prompt
+    int x = strlen(prompt);
+    int col = (x > 73) ? 73 : x;
 
-    (void)addstr(" [y/n]");
+    render_string(0, col, " [y/n]", RENDER_COLOR_DEFAULT);
 
     int res;
     do {
@@ -293,13 +279,12 @@ bool get_string(char *in_str, int row, int column, int slen) {
     bool aborted = false;
     bool flag = false;
 
-    (void)move(row, column);
-
-    for (int i = slen; i > 0; i--) {
-        (void)addch(' ');
+    // Clear the input area
+    for (int i = 0; i < slen; i++) {
+        render_char(row, column + i, ' ', RENDER_COLOR_DEFAULT);
     }
 
-    (void)move(row, column);
+    render_move_cursor(row, column);
     int start_col = column;
     int end_col = column + slen - 1;
 
@@ -335,7 +320,7 @@ bool get_string(char *in_str, int row, int column, int slen) {
             if (!isprint(i) || column > end_col) {
                 bell();
             } else {
-                use_value2 mvaddch(row, column, (char)i);
+                render_char(row, column, (char)i, RENDER_COLOR_DEFAULT);
                 *p++ = i;
                 column++;
             }
@@ -398,7 +383,7 @@ void bell() {
         return;
     }
 
-    (void)write(1, "\007", 1);
+    render_bell();
 }
 
 // definitions used by screen_map()
@@ -441,13 +426,13 @@ void screen_map() {
 
     save_screen();
     clear_screen();
-    use_value2 mvaddch(0, 0, CH(TL));
+    render_char(0, 0, CH(TL), RENDER_COLOR_DEFAULT);
 
     for (int i = 0; i < MAX_WIDTH / RATIO; i++) {
-        (void)addch(CH(HE));
+        render_char(0, i + 1, CH(HE), RENDER_COLOR_DEFAULT);
     }
 
-    (void)addch(CH(TR));
+    render_char(0, MAX_WIDTH / RATIO + 1, CH(TR), RENDER_COLOR_DEFAULT);
     map[MAX_WIDTH / RATIO] = '\0';
 
     int myrow = 0;
@@ -462,7 +447,7 @@ void screen_map() {
                 // written, and mvprintw() causes the fp emulation library to be
                 // linked with PC-Moria, makes the program 10K bigger
                 (void)sprintf(prntscrnbuf, "%c%s%c", CH(VE), map, CH(VE));
-                use_value2 mvaddstr(orow + 1, 0, prntscrnbuf);
+                render_string(orow + 1, 0, prntscrnbuf, RENDER_COLOR_DEFAULT);
             }
 
             for (int j = 0; j < MAX_WIDTH / RATIO; j++) {
@@ -489,21 +474,21 @@ void screen_map() {
 
     if (orow >= 0) {
         (void)sprintf(prntscrnbuf, "%c%s%c", CH(VE), map, CH(VE));
-        use_value2 mvaddstr(orow + 1, 0, prntscrnbuf);
+        render_string(orow + 1, 0, prntscrnbuf, RENDER_COLOR_DEFAULT);
     }
 
-    use_value2 mvaddch(orow + 2, 0, CH(BL));
+    render_char(orow + 2, 0, CH(BL), RENDER_COLOR_DEFAULT);
 
     for (int i = 0; i < MAX_WIDTH / RATIO; i++) {
-        (void)addch(CH(HE));
+        render_char(orow + 2, i + 1, CH(HE), RENDER_COLOR_DEFAULT);
     }
 
-    (void)addch(CH(BR));
+    render_char(orow + 2, MAX_WIDTH / RATIO + 1, CH(BR), RENDER_COLOR_DEFAULT);
 
-    use_value2 mvaddstr(23, 23, "Hit any key to continue");
+    render_string(23, 23, "Hit any key to continue", RENDER_COLOR_DEFAULT);
 
     if (mycol > 0) {
-        (void)move(myrow, mycol);
+        render_move_cursor(myrow, mycol);
     }
 
     (void)inkey();
