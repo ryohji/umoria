@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "render.h"
+#include "input.h"
 
 static void date(char *day) {
     char *tmp;
@@ -468,6 +469,7 @@ void exit_game() {
         display_scores(true);
     }
     erase_line(23, 0);
+    input_shutdown();
     render_shutdown();
 
     exit(0);
