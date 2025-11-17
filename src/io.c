@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "input.h"
 
 #include <signal.h>
 #include <sys/select.h>
@@ -171,7 +172,7 @@ char inkey() {
     command_count = 0; // Just to be safe -CJS-
 
     while (true) {
-        int i = getch();
+        int i = input_get_key();
 
         // some machines may not sign extend.
         if (i == EOF) {
@@ -214,9 +215,7 @@ char inkey() {
 // Flush the buffer -RAK-
 void flush() {
     if (!eof_flag) {
-        while (check_input(0)) {
-            ;
-        }
+        input_flush();
     }
 }
 
@@ -629,42 +628,10 @@ void sleep_in_seconds(int seconds) {
 
 // Provides for a timeout on input. Does a non-blocking read, consuming the data if
 // any, and then returns 1 if data was read, zero otherwise.
-//
-// Porting:
-//
-// In systems without the select call, but with a sleep for fractional numbers of
-// seconds, one could sleep for the time and then check for input.
-//
-// In systems which can only sleep for whole number of seconds, you might sleep by
-// writing a lot of nulls to the terminal, and waiting for them to drain, or you
-// might hack a static accumulation of times to wait. When the accumulation reaches
-// a certain point, sleep for a second. There would need to be a way of resetting
-// the count, with a call made for commands like run or rest.
 bool check_input(int microsec) {
-#ifdef _WIN32
-    // Ugly non-blocking read...Ugh! -MRC-
-    timeout(8);
-    int result = getch();
-    timeout(-1);
-
-    if (result > 0) {
-        return true;
-    } else {
-        return false;
-    }
-#else
-    struct timeval tbuf;
-    int ch;
-    int smask;
-
-    // Return true if a read on descriptor 1 will not block.
-    tbuf.tv_sec = 0;
-    tbuf.tv_usec = microsec;
-
-    smask = 1; // i.e. (1 << 0)
-    if (select(1, (fd_set *)&smask, (fd_set *)0, (fd_set *)0, &tbuf) == 1) {
-        ch = getch();
-        // check for EOF errors here, select sometimes works even when EOF
+    if (input_check_available(microsec)) {
+        int ch = input_get_key();
+        // check for EOF errors here
         if (ch == -1) {
             eof_flag++;
             return false;
@@ -673,7 +640,6 @@ bool check_input(int microsec) {
     } else {
         return false;
     }
-#endif
 }
 
 // Find a default user name from the system.

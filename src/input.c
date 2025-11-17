@@ -51,7 +51,7 @@ int input_get_key(void) {
     if (current_input_backend && current_input_backend->get_key) {
         return current_input_backend->get_key();
     }
-    return KEY_NONE;
+    return INPUT_KEY_NONE;
 }
 
 // Check if input is available
