@@ -221,14 +221,8 @@ void generate_cave();
 void ident_char();
 
 // io.c
-#ifdef SIGTSTP
-void suspend(int);
-#endif
-void init_curses();
-void moriaterm();
 void put_buffer(char *, int, int);
 void put_qio();
-void restore_term();
 void shell_out();
 char inkey();
 void flush();

@@ -33,8 +33,10 @@
 
 #include "externs.h"
 #include "signal_flags.h"
+#include "platform.h"
 
 #include <signal.h>
+#include <unistd.h>
 
 static int error_sig = -1;
 static int signal_count = 0;
@@ -93,7 +95,7 @@ void nosignals() {
 }
 
 void signals() {
-    (void)signal(SIGTSTP, suspend);
+    // SIGTSTP is handled by the rendering system
     (void)sigsetmask(mask);
 
     if (error_sig == 0) {
@@ -225,7 +227,7 @@ void handle_pending_signals() {
             (void)_save_char(savefile);
         }
 
-        restore_term();
+        platform_shutdown();
 
         // Generate core dump for debugging
         (void)signal(signum, SIG_DFL);

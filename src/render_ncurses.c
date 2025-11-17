@@ -16,6 +16,7 @@
 #include <string.h>
 #include <sys/select.h>
 #include <termios.h>
+#include <unistd.h>
 
 // Terminal state saved for suspend/resume
 static struct termios save_termios;
@@ -40,8 +41,8 @@ static void ncurses_save_screen(void);
 static void ncurses_restore_screen(void);
 
 #ifdef SIGTSTP
-// Suspend handler (referenced by init)
-extern void suspend(int signum);
+// Suspend/resume handler
+static void suspend(int signum);
 #endif
 
 // Backend instance
@@ -235,3 +236,32 @@ static void ncurses_restore_screen(void) {
         touchwin(stdscr);
     }
 }
+
+#ifdef SIGTSTP
+// Handle suspend/resume signals (SIGTSTP)
+// This ensures terminal is properly reset and restored
+static void suspend(int signum) {
+    struct termios tbuf;
+
+    // Save current terminal state
+    tcgetattr(0, &tbuf);
+
+    // Clean up ncurses
+    ncurses_shutdown();
+
+    // Stop the process
+    (void)kill(0, SIGSTOP);
+
+    // After resume, reinitialize ncurses
+    initscr();
+    cbreak();
+    noecho();
+    nonl();
+    intrflush(stdscr, false);
+    keypad(stdscr, false);
+
+    // Restore terminal state
+    tcsetattr(0, TCSANOW, &tbuf);
+    (void)wrefresh(curscr);
+}
+#endif
