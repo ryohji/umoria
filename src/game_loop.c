@@ -36,6 +36,39 @@ bool game_loop_should_continue(const GameLoop *loop) {
     return !loop->state->death && !loop->state->new_level_flag;
 }
 
+// Update game state (no rendering)
+void game_loop_update(GameLoop *loop, int input_key) {
+    if (loop == NULL) {
+        return;
+    }
+
+    // Handle message queue updates first (process -more- prompts)
+    if (message_queue_is_waiting(&loop->message_queue)) {
+        message_queue_update(&loop->message_queue, input_key);
+        return;
+    }
+
+    // If awaiting player input and we have input, process it
+    if (loop->awaiting_player_input && input_key != 0) {
+        loop->last_command = input_key;
+        loop->awaiting_player_input = false;
+        // TODO: Execute player command (will call existing do_command)
+        // This will generate events in event_queue
+    }
+
+    // Process queued events into messages
+    // TODO: Convert events to messages
+
+    // Update turn counter
+    // TODO: Increment turn and update game state
+
+    // Process creature AI and actions
+    // TODO: Call creatures() which will generate events
+
+    // Set awaiting input flag for next turn
+    loop->awaiting_player_input = true;
+}
+
 // Draw game state (no logic updates)
 void game_loop_draw(const GameLoop *loop) {
     if (loop == NULL) {
