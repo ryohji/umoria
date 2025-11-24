@@ -10,6 +10,7 @@
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 
+#include "constant.h"
 #include "types.h"
 #include <stdbool.h>
 
