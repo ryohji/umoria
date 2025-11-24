@@ -35,3 +35,28 @@ bool game_loop_should_continue(const GameLoop *loop) {
     // Continue if not dead and no new level requested
     return !loop->state->death && !loop->state->new_level_flag;
 }
+
+// Draw game state (no logic updates)
+void game_loop_draw(const GameLoop *loop) {
+    if (loop == NULL) {
+        return;
+    }
+
+    // Begin frame
+    render_begin_frame();
+
+    // Draw dungeon map (uses existing draw_cave from misc1.c)
+    draw_cave();
+
+    // Draw player stats (uses existing put_stats from misc1.c)
+    put_stats();
+
+    // Draw message queue current message
+    if (message_queue_has_pending(&loop->message_queue)) {
+        // TODO: Implement message rendering
+    }
+
+    // End frame and present
+    render_end_frame();
+}
+
