@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "game_state.h"
 #include "render.h"
 #include "render_ncurses.h"
 #include "input.h"
