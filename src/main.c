@@ -194,6 +194,14 @@ int main(int argc, char *argv[]) {
         rogue_like_commands = force_keys_to;
     }
 
+    // Initialize game state
+    if (game_state_init() == NULL) {
+        fprintf(stderr, "Failed to initialize game state\n");
+        input_shutdown();
+        render_shutdown();
+        exit(1);
+    }
+
     magic_init();
 
     // Begin the game
