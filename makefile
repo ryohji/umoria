@@ -46,7 +46,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c \
 	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
 	render.c render_ncurses.c game_state.c message_queue.c event_queue.c \
-	input.c input_ncurses.c \
+	game_loop.c input.c input_ncurses.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -55,7 +55,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	eat.o help.o magic.o potions.o prayer.o save.o staffs.o wands.o \
 	scrolls.o spells.o wizard.o store2.o signals.o signal_flags.o \
 	render.o render_ncurses.o game_state.o message_queue.o event_queue.o \
-	input.o input_ncurses.o \
+	game_loop.o input.o input_ncurses.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -172,6 +172,7 @@ render_ncurses.o: $(SRCDIR)/render.h $(SRCDIR)/render_ncurses.h
 rnd.o: $(HEADERS_COMMON)
 message_queue.o: $(SRCDIR)/message_queue.h $(SRCDIR)/types.h
 event_queue.o: $(SRCDIR)/event_queue.h $(SRCDIR)/types.h
+game_loop.o: $(SRCDIR)/game_loop.h $(SRCDIR)/game_state.h $(SRCDIR)/message_queue.h $(SRCDIR)/event_queue.h
 input.o: $(SRCDIR)/input.h
 input_ncurses.o: $(SRCDIR)/input.h $(SRCDIR)/input_ncurses.h
 save.o: $(HEADERS_FULL)
