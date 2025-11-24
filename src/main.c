@@ -236,6 +236,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Cleanup game state
+    game_state_free(g_game_state);
+
     exit_game(); // Character gets buried.
 
     // should never reach here, but just in case
