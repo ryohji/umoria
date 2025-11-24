@@ -6,6 +6,9 @@
 
 // Global type declarations
 
+#ifndef TYPES_H
+#define TYPES_H
+
 #include "headers.h"
 
 // some machines will not accept 'signed char' as a type, and some accept it
@@ -353,3 +356,5 @@ typedef struct high_scores {
     char name[PLAYER_NAME_SIZE];
     char died_from[25];
 } high_scores;
+
+#endif  // TYPES_H
