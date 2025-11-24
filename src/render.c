@@ -50,6 +50,18 @@ void render_shutdown(void) {
 // For now, these directly call backend functions
 // Later, we'll add a rendering queue here
 
+void render_begin_frame(void) {
+    if (current_backend && current_backend->begin_frame) {
+        current_backend->begin_frame();
+    }
+}
+
+void render_end_frame(void) {
+    if (current_backend && current_backend->end_frame) {
+        current_backend->end_frame();
+    }
+}
+
 void render_clear(void) {
     if (current_backend && current_backend->clear) {
         current_backend->clear();

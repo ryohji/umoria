@@ -73,6 +73,8 @@ void render_shutdown(void);
 // High-level rendering functions (used by game code)
 // These queue rendering commands to be executed at end_frame
 
+void render_begin_frame(void);  // Begin new frame
+void render_end_frame(void);    // End frame and present
 void render_clear(void);
 void render_char(int row, int col, char ch, RenderColor color);
 void render_string(int row, int col, const char *str, RenderColor color);
