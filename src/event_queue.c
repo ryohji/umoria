@@ -72,3 +72,42 @@ int event_queue_count(const EventQueue *queue) {
 
     return queue->count;
 }
+
+// Get next event from queue (remove it)
+bool event_queue_pop(EventQueue *queue, GameEvent *out_event) {
+    if (queue == NULL || out_event == NULL) {
+        return false;
+    }
+
+    // Check if queue is empty
+    if (queue->count == 0) {
+        return false;
+    }
+
+    // Copy event from head position
+    *out_event = queue->events[queue->head];
+
+    // Advance head (circular buffer)
+    queue->head = (queue->head + 1) % EVENT_QUEUE_SIZE;
+    queue->count--;
+
+    return true;
+}
+
+// Peek at next event without removing it
+bool event_queue_peek(const EventQueue *queue, GameEvent *out_event) {
+    if (queue == NULL || out_event == NULL) {
+        return false;
+    }
+
+    // Check if queue is empty
+    if (queue->count == 0) {
+        return false;
+    }
+
+    // Copy event from head position without removing
+    *out_event = queue->events[queue->head];
+
+    return true;
+}
+
