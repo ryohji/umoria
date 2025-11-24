@@ -61,3 +61,43 @@ void message_queue_clear(MessageQueue *queue) {
     queue->display_index = 0;
     queue->waiting_for_more = false;
 }
+
+// Check if queue has messages to display
+bool message_queue_has_pending(const MessageQueue *queue) {
+    if (queue == NULL) {
+        return false;
+    }
+
+    return queue->display_index < queue->count;
+}
+
+// Check if waiting for user input
+bool message_queue_is_waiting(const MessageQueue *queue) {
+    if (queue == NULL) {
+        return false;
+    }
+
+    return queue->waiting_for_more;
+}
+
+// Update queue state based on input (handle -more- prompt)
+void message_queue_update(MessageQueue *queue, int key) {
+    if (queue == NULL) {
+        return;
+    }
+
+    // If waiting for more, check if user pressed space/enter
+    if (queue->waiting_for_more) {
+        if (key == ' ' || key == '\n' || key == '\r') {
+            queue->waiting_for_more = false;
+            queue->display_index++;
+        }
+        return;
+    }
+
+    // If there are more messages to display, set waiting flag
+    if (queue->display_index < queue->count) {
+        queue->waiting_for_more = true;
+    }
+}
+
