@@ -61,13 +61,13 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 
 | # | 状態 | 分類 | 場所 | 内容 | 手法 | 影響度 | コスト |
 |---|---|---|---|---|---|---|---|
-| 0 | 未着手 | （足場） | tests/, makefile.test | テスト実行の makefile ターゲットを整備 | — | High | Low |
-| 1 | 未着手 | 理解しづらいロジック | misc1.c:217 `distance` | 依存ゼロの純関数。テスト第一号の足場 | テスト追加のみ | High | Low |
-| 2 | 未着手 | 強すぎる依存関係 | io.c:13,20-22 | 不要な `curses.h`/`signal.h`/`sys/select.h`/`termios.h` include。該当API使用0件（`wrefresh` はコメントアウト済） | include 削除 | High | Low |
-| 3 | 未着手 | 不要なコード | view_observer.c/.h 全体 | Observer基盤296行。全10関数の参照が宣言+定義のみ。登録する View 実装が存在しない | デッドコード削除 | High | Low |
-| 4 | 未着手 | 不要なコード | game_state.c/.h 全体 | GameState 構造体277行。`game_state_init` 呼び出し0件。グローバルと二重定義 | デッドコード削除 | High | Low |
-| 5 | 未着手 | 不要なコード | render.h:61-63, render_ncurses.c:225-254 | `get_char`/`check_input` が InputBackend と役割重複。`->get_char` 参照0件 | デッドコード削除 | High | Low |
-| 6 | 未着手 | 不要なコード | io.c:26,617-630 / signals.c:138-151 / misc1.c:58-62 | `error_abort`, `ignore_signals`/`default_signals`/`restore_signals`, `check_time` が参照0件 | デッドコード削除 | Medium | Low |
+| 0 | **検証済み** | （足場） | tests/, makefile.test | テスト実行の makefile ターゲットを整備 | — | High | Low |
+| 1 | **検証済み** | 理解しづらいロジック | misc1.c:217 `distance` | 依存ゼロの純関数。テスト第一号の足場 | テスト追加のみ | High | Low |
+| 2 | **検証済み** | 強すぎる依存関係 | io.c:13,20-22 | 不要な `curses.h`/`signal.h`/`sys/select.h`/`termios.h` include。該当API使用0件（`wrefresh` はコメントアウト済） | include 削除 | High | Low |
+| 3 | **棚上げ** | ~~不要なコード~~ → 未接続の基盤 | view_observer.c/.h 全体 | 下記「棚上げ」#34 に移動 | — | — | — |
+| 4 | **棚上げ** | ~~不要なコード~~ → 未接続の基盤 | game_state.c/.h 全体 | 下記「棚上げ」#35 に移動 | — | — | — |
+| 5 | **棚上げ** | ~~不要なコード~~ → 未接続の基盤 | render.h:61-63 | 下記「棚上げ」#36 に移動 | — | — | — |
+| 6 | **検証済み** | 不要なコード | io.c:26,617-630 / signals.c:138-151 / misc1.c:58-62 | `error_abort`, `ignore_signals`/`default_signals`/`restore_signals`, `check_time` が参照0件。git 履歴で「基盤」ではないことを確認済み | デッドコード削除 | Medium | Low |
 | 7 | 未着手 | 重複コード | staffs.c:35-46, wands.c:42-56 | 魔法道具の成功判定が2箇所で丸ごと同一。差異は staffs の `-5` のみ | Extract Method → `device_chance()` | High | Low |
 | 8 | 未着手 | 重複コード | potions.c:323, eat.c:195, scrolls.c:470 | 効果判明後の後処理（経験値加算→identify→inven_destroy）が3ファイルで逐語コピー。加算式は完全一致 | Extract Method | High | Low |
 | 9 | 未着手 | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行を `ncurses_init` からコピペ | Extract Method | High | Low |
@@ -129,6 +129,9 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 | 31 | データの散在 | 9ファイル約80関数の `(int y, int x)` | 座標が4形式（独立グローバル、fy/fx、バラの引数、oldy/oldx）で表現。Coord 型が無い | 置きかえ箇所が9ファイル80関数に及ぶ。テスト0件の状態で着手すべき規模ではない。将来 Coord 型を入れるなら、まず P1 でテストを充実させてから |
 | 32 | 強すぎる依存関係 | player.c 全体 | 関数0個、530行が全部グローバルデータ。`py.` は全src で500回以上参照 | 500箇所の参照を持つグローバルの構造化は、このリファクタリングの範囲を超える。設計変更として別途扱うべき |
 | 33 | 肥大化クラス | misc3.c 全体 | 2212行に6責務が同居（描画/能力値計算/持ち物/呪文/戦闘/移動） | ファイル分割自体は #23 の描画分離から段階的に進めるのが筋。一括分割はしない |
+| 34 | **未接続の基盤**（旧 #3） | view_observer.c/.h 全体（296行） | Observer 基盤。全10関数の参照が宣言+定義のみで、登録する View 実装が存在しない | **参照ゼロだが削除しない。** 導入コミットが `Add Observer pattern foundation for Model-View separation`、直近も `Wrap Observer callback arguments in type-safe structures` で変更されている。これは残骸ではなく、Model-View 分離のために**先行して用意された基盤**。参照がないのは未完成だからで、消すと進行中の UI 抽象化作業を壊す。接続の予定がなくなった時点で再評価する |
+| 35 | **未接続の基盤**（旧 #4） | game_state.c/.h 全体（277行） | GameState 構造体。`game_state_init` の呼び出し0件。externs.h の裸グローバル約90個と二重定義 | **参照ゼロだが削除しない。** 導入コミットが `Add GameState structure to encapsulate global state`。グローバル状態のカプセル化を意図した基盤。ただし「コピーした瞬間に元と乖離する」設計上の問題があるため、接続時に設計を見直す必要がある（→ バグ候補 B3） |
+| 36 | **未接続の基盤**（旧 #5） | render.h:61-63, render_ncurses.c:225-254 | `get_char`/`check_input` が InputBackend の `get_key`/`check_available` と役割重複。`->get_char` 参照0件 | **参照ゼロだが削除しない。** 導入コミットが `Add rendering abstraction layer foundation`。ただしこの 2 関数は input 側に同等機能が既にあり、**3 項目のうち唯一「重複」の性質が強い**。input 側への統合が完了したと確認できれば削除候補に戻せる。作業者に意図を確認するのが最短 |
 
 ## バグ候補（このリファクタリングでは直さない）
 
@@ -146,4 +149,11 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 | 2026-08-26 | — | フェーズ0：`tests/minunit.h` 作成、疎通確認（グリーン/レッド両方を確認して失敗テスト削除） | 0 | OK |
 | 2026-08-26 | — | フェーズ1：4区画で臭いを検出。デッドコード判定を grep で裏取り | 0 | OK |
 | 2026-08-26 | — | `monster_name_indefinite` でテスト可能性を実証（レッド報告 `actual "an orc"` を確認） | 0 | OK |
+| 2026-08-26 | #0,#1 | `makefile.test` 整備、`distance()` を10ケースで保護（`7b90f06`） | **0 → 10** | GREEN |
+| 2026-08-26 | #2 | io.c から `curses.h` を削除（`758fcaf`） | 10 | GREEN |
+| 2026-08-26 | #2 | io.c から `signal.h`/`sys/select.h`/`termios.h` を削除。io.c が ncurses 非依存でコンパイル可能になったことを確認 | 10 | GREEN |
+| 2026-08-26 | #3,#4,#5 | git 履歴で導入意図を確認し、削除を中止。**未接続の基盤**として棚上げ（#34-36）に移動 | 10 | 差し戻し |
+| 2026-08-26 | #6 | `check_time()` を削除（`8907a28`）。最初期からの残骸で本体は `return true;` のみ | 10 | GREEN |
+| 2026-08-26 | #6 | `error_abort()` を削除（`d47a68a`）。UI 抽象化で呼び出し元が消えていた | 10 | GREEN |
+| 2026-08-26 | #6 | `ignore_signals`/`default_signals`/`restore_signals` を削除（`798bf1b`）。ユーザー判断により削除。`shell_out()` 無効化にともなう残骸 | 10 | GREEN |
 
