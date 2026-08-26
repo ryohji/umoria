@@ -10,7 +10,6 @@
 
 #include "config.h"
 #include "constant.h"
-#include "curses.h"
 #include "types.h"
 
 #include "externs.h"
