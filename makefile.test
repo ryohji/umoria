@@ -50,11 +50,11 @@ $(BUILDDIR):
 $(BUILDDIR)/distance_test: $(TESTDIR)/distance_test.c $(TESTDIR)/minunit.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/distance_test.c
 
-# 魔法道具の chance 計算は staffs.c / wands.c の関数の途中にあり、
-# そのままリンクすると msg_print・inventory・py への依存が芋づるで付く。
-# distance_test と同じく、対象ロジックをテスト側に写して固定する。
-$(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c $(TESTDIR)/minunit.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/device_chance_test.c
+# 魔法道具の chance 計算は src/device.c に抽出されている。依存は randint()
+# だけなので、misc1.c をリンクせずテスト側で randint() を定義して差しかえる
+# （リンクシーム）。写しではなく実体を検証している。
+$(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src/device.h $(TESTDIR)/minunit.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/device_chance_test.c src/device.c
 
 clean:
 	rm -rf $(BUILDDIR)
