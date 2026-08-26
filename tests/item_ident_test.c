@@ -128,9 +128,11 @@ TEST(experience_gain_truncates_division_at_even_player_level)
     ASSERT_EQ_INT(py.misc.exp, 5);
 }
 
-/* 三角測量：レベルが奇数だと lev>>1 が切り捨てられ、
- * コメントの「round half-way case up」が正確には成りたたない。
- * (10 + (3>>1)) / 3 = 11/3 = 3。真の 10/3 = 3.33 の四捨五入も 3。 */
+/* 三角測量：レベルが奇数の場合。lev>>1 は切り捨てられるが、
+ * 分母が奇数だと真の商が x.5 になりえないので、結果は四捨五入と一致する。
+ * (10 + (3>>1)) / 3 = 11/3 = 3。真の 10/3 = 3.33 の四捨五入も 3。
+ * （lev が 3, 5 の全ケースで四捨五入と一致することを確認済み。
+ *   実装コメントの「round half-way case up」は正確） */
 TEST(experience_gain_shifts_odd_player_level_down_before_dividing)
 {
     given_unknown_item(10, 3);
