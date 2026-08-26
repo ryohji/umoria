@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "abilities.h"
+
 static char *stat_names[] = {
     "STR : ",
     "INT : ",
@@ -966,48 +968,29 @@ void put_misc2() {
 void put_misc3() {
     clear_from(14);
 
-    struct misc *p_ptr = &py.misc;
-    int xbth = p_ptr->bth + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * p_ptr->lev);
-    int xbthb = p_ptr->bthb + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * p_ptr->lev);
-
-    // 0 when fos >= 40; exceeds 29 when fos < 11 (search gear lowers fos, moria1.c:48)
-    int xfos = 40 - p_ptr->fos;
-    if (xfos < 0) {
-        xfos = 0;
-    }
-
-    int xsrh = p_ptr->srh;
-
-    // stl + 1, so the minimum is 1 (not 0)
-    int xstl = p_ptr->stl + 1;
-    int xdis = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
-    int xsave = p_ptr->save + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * p_ptr->lev / 3);
-    int xdev = p_ptr->save + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * p_ptr->lev / 3);
-
-    vtype xinfra;
-    (void)sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
+    struct player_abilities a = calc_player_abilities();
 
     put_buffer("(Miscellaneous Abilities)", 15, 25);
     put_buffer("Fighting    :", 16, 1);
-    put_buffer(likert(xbth, 12), 16, 15);
+    put_buffer(likert(a.bth, 12), 16, 15);
     put_buffer("Bows/Throw  :", 17, 1);
-    put_buffer(likert(xbthb, 12), 17, 15);
+    put_buffer(likert(a.bthb, 12), 17, 15);
     put_buffer("Saving Throw:", 18, 1);
-    put_buffer(likert(xsave, 6), 18, 15);
+    put_buffer(likert(a.save, 6), 18, 15);
 
     put_buffer("Stealth     :", 16, 28);
-    put_buffer(likert(xstl, 1), 16, 42);
+    put_buffer(likert(a.stl, 1), 16, 42);
     put_buffer("Disarming   :", 17, 28);
-    put_buffer(likert(xdis, 8), 17, 42);
+    put_buffer(likert(a.dis, 8), 17, 42);
     put_buffer("Magic Device:", 18, 28);
-    put_buffer(likert(xdev, 6), 18, 42);
+    put_buffer(likert(a.dev, 6), 18, 42);
 
     put_buffer("Perception  :", 16, 55);
-    put_buffer(likert(xfos, 3), 16, 69);
+    put_buffer(likert(a.fos, 3), 16, 69);
     put_buffer("Searching   :", 17, 55);
-    put_buffer(likert(xsrh, 6), 17, 69);
+    put_buffer(likert(a.srh, 6), 17, 69);
     put_buffer("Infra-Vision:", 18, 55);
-    put_buffer(xinfra, 18, 69);
+    put_buffer(a.infra, 18, 69);
 }
 
 // Used to display the character on the screen. -RAK-
