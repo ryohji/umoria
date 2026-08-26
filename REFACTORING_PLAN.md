@@ -130,6 +130,22 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 `platform.c`, `render_ncurses.c`, `input_ncurses.c`）以外は
 ncurses 非依存で検証できる。制約はこの 3 ファイルに閉じている。
 
+### 同じ理由で保留した項目（2026-08-27）
+
+| # | 場所 | 内容 |
+|---|---|---|
+| 9 | `render_ncurses.c:274-297` vs `:96-101` | 端末モード設定 5 行の重複 |
+| 13 | `render_ncurses.c:47-50,107-110,271-298` | SIGTSTP の責務が `signals.c` と分裂 |
+| 15 | `render_ncurses.h`, `input_ncurses.h`, `backend_ncurses.h` | 同じ 2 関数宣言を持つヘッダが 3 つ |
+
+**この 3 項目は `render_ncurses.c` / `input_ncurses.c` を触るため、
+ncurses なしでは変更後の検証ができない。** 重複や責務の分裂は明白で、
+修正方法も単純だが、「テストで保護してから変更する」原則の前提
+（変更後にビルドが通ることを確認できる）が満たせない。
+
+`libncurses-dev` を導入すれば 3 項目まとめて着手できる。
+環境の変更なのでユーザーの判断を待つ。
+
 ## 作業台帳（P2：P1 のあと、時間・合意しだい）
 
 | # | 分類 | 場所 | 内容 | 手法 | 影響度 | コスト |
@@ -137,9 +153,9 @@ ncurses 非依存で検証できる。制約はこの 3 ファイルに閉じて
 | 10 | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 | Extract Method | High | Medium |
 | 11 | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
 | 12 | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
-| 13 | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録。signals.c:98 はコメントで済ませており責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
+| 13 | **保留** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
 | 14 | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら bool を返す。単位が2種類混在で名前と乖離 | Rename + 戻り値の整理 | Medium | Low |
-| 15 | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
+| 15 | **保留** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | 理解しづらいロジック | io.c:213-229 | `wait_for_more_confirmation` が `goto inkey` + switch。`default: goto inkey` で「それ以外は無視」を表現し意図が読めない | ループへの書きかえ | Medium | Low |
 | 17 | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
 | 18 | データの散在 | misc3.c:369-540, dungeon.c:580-780, view_observer.h | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 / observer 型に4重分散 | #3 の削除後に再評価 | High | Medium |
