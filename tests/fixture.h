@@ -1,0 +1,22 @@
+/* fixture.h -- テスト用のグローバル状態を操作する関数
+ *
+ * umoria は状態をグローバル変数で持つので、テストごとに条件を揃えないと
+ * 先行テストの影響を受けて実行順で結果が変わる。ここで宣言する関数は
+ * fixture.c にあり、本体（src/）には存在しない。
+ *
+ * 使い方: MU_SETUP から fixture_reset() を呼ぶ。
+ *   #define MU_SETUP() fixture_reset()
+ *   #include "minunit.h"
+ */
+#ifndef FIXTURE_H
+#define FIXTURE_H
+
+/* グローバル状態をまっさらに戻す。各テストの前に呼ぶ。 */
+void fixture_reset(void);
+
+/* randint() が返す値を固定する。乱数に依存するコードを
+ * 再現可能にするため。fixture_reset() では変更しないので、
+ * 値を変えたテストは自分で戻すか、次のテストで再設定する。 */
+void fixture_set_randint(int value);
+
+#endif /* FIXTURE_H */
