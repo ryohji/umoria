@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "item_ident.h"
+
 // Scrolls for the reading -RAK-
 void read_scroll() {
     bool flag;
@@ -460,24 +462,10 @@ void read_scroll() {
             // End of Scrolls.
         }
 
-        i_ptr = &inventory[item_val];
+        // NOTE: the returned pointer is not used here, the scroll is not read
+        // again after this. -MRC-
+        (void)learn_item_effect(ident, &item_val);
 
-        if (ident) {
-            if (!known1_p(i_ptr)) {
-                struct misc *m_ptr = &py.misc;
-
-                // round half-way case up
-                m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
-                prt_experience();
-
-                identify(&item_val);
-
-                // NOTE: this is never read after this, so commenting out. -MRC-
-                // i_ptr = &inventory[item_val];
-            }
-        } else if (!known1_p(i_ptr)) {
-            sample(i_ptr);
-        }
         if (used_up) {
             desc_remain(item_val);
             inven_destroy(item_val);
