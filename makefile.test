@@ -18,7 +18,7 @@ BUILDDIR = $(TESTDIR)/build
 
 # テストは 1 実行形式につき 1 対象モジュール。
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
-TESTS = distance_test device_chance_test item_ident_test
+TESTS = distance_test device_chance_test item_ident_test inven_stack_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -73,6 +73,31 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              src/desc.c src/tables.c src/treasure.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/item_ident_test.c \
 	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c
+
+# アイテムのスタック可否判定は misc3.c の inven_check_num() と inven_carry() に
+# 二重に書かれている（本体のコメントが「must be identical」と明記している）。
+# 写しではなく実体を検証したいので misc3.c をそのままリンクする。
+#
+# misc3.c は 2212 行・6 責務（画面描画・能力値計算・持ち物管理・呪文・戦闘・
+# 移動）が同居しているため、リンクすると 57 個の未解決シンボルが芋づるで
+# 付いてくる。内訳はリンカに列挙させ、3 つに分けた。
+#   本物をリンクできるもの: 定数表（tables.c）、インベントリと object_ident
+#     （treasure.c）、py と各種テーブル（player.c）、known1_p（desc.c）
+#   代役で足りるもの: 画面描画・入力・ダンジョン・モンスター（misc3_stubs.c）
+# fixture.c は使わない。py・msg_print・insert_str・prt_experience を
+# player.c / misc3.c が本物として持っているので multiple definition になる。
+# 代わりに misc3_stubs.c が fixture.h の窓口を提供する。
+#
+# desc.c / misc3.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
+# 既存の事情なのでテストのために本体を変えない。この 1 つだけ警告を落とす。
+$(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
+                              $(TESTDIR)/misc3_stubs.c \
+                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                              src/misc3.c src/desc.c src/tables.c \
+                              src/treasure.c src/player.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/inven_stack_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    src/treasure.c src/player.c
 
 clean:
 	rm -rf $(BUILDDIR)
