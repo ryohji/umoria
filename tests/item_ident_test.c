@@ -1,17 +1,14 @@
 /* アイテムの効果が判明したときの処理のテスト -- 現在の実装を保護する
  *
- * potions.c:319-331 / eat.c:190-203 / scrolls.c:465-480 に実質同一の
- * ident ブロックが重複している。差異は scrolls.c が i_ptr の再代入を
- * 省くだけ（その後読まないため）。このテストはその 3 箇所を保護する。
+ * potions.c / eat.c / scrolls.c に重複していた ident ブロックは
+ * src/item_ident.c の learn_item_effect() に抽出された。このテストは
+ * その実体をリンクして検証する（写しではない）。
  *
  * potions.c / eat.c / scrolls.c 自体はリンクできない。効果処理の巨大な
  * switch が画面表示・ダンジョン・モンスターへ芋づるで依存するため。
- * そこで ident ブロックだけをこのファイルに写し（下の apply_ident()）、
- * 依存する known1_p() / identify() / sample() は src/desc.c の本物を
- * リンクして検証する。判定と鑑定は実体、順序と計算式が写しの部分。
- *
- * ステップ B で 3 箇所が 1 つの関数に抽出されたら、写しを捨てて
- * その関数につなぎかえる（device_chance_test.c がたどった経路と同じ）。
+ * item_ident.c は known1_p() / identify() / sample() / prt_experience() と
+ * グローバルな py / inventory にしか依存しないので、desc.c の本物と
+ * fixture.c の代役だけでリンクできる。
  *
  * グローバル状態（inventory, object_ident, py）に依存するので
  * MU_SETUP で fixture_reset() を呼ぶ。これがないと実行順で結果が変わる。
@@ -22,6 +19,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+
+#include "item_ident.h"
 
 #include "fixture.h"
 
@@ -44,28 +43,13 @@ void prt_experience(void);
 
 #include "minunit.h"
 
-/* --- potions.c:319-331 の ident ブロックをそのまま写したもの ---
- * 元は関数の途中に埋まっているので、テストから呼べるように囲っただけ。
- * 中身は一行も変えていない。i_ptr / item_val は元の局所変数に対応する。 */
+/* 実体（src/item_ident.c）への呼びだし。抽出前の呼びだし側は item_val を
+ * 局所変数として持っていたので、ここでも同じく変数に受けて渡す。
+ * 戻り値（更新後の i_ptr）はこのテストでは見ない。 */
 static void apply_ident(bool ident, int item_val)
 {
-    inven_type *i_ptr = &inventory[item_val];
-
-    if (ident) {
-        if (!known1_p(i_ptr)) {
-            struct misc *m_ptr = &py.misc;
-            // round half-way case up
-            m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
-            prt_experience();
-
-            identify(&item_val);
-            i_ptr = &inventory[item_val];
-        }
-    } else if (!known1_p(i_ptr)) {
-        sample(i_ptr);
-    }
+    (void)learn_item_effect(ident, &item_val);
 }
-/* --- ここまで --- */
 
 /* テストの条件づくり。分岐やループをテスト本体に持ちこまないため、
  * 「未鑑定の巻物を持ったプレイヤー」をここで組みたてる。

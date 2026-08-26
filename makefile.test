@@ -56,20 +56,23 @@ $(BUILDDIR)/distance_test: $(TESTDIR)/distance_test.c $(TESTDIR)/minunit.h | $(B
 $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src/device.h $(TESTDIR)/minunit.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/device_chance_test.c src/device.c
 
-# アイテム鑑定時の処理は potions.c / eat.c / scrolls.c に重複しているが、
-# どれも巨大な switch が画面表示・ダンジョンに依存するのでリンクできない。
-# 判定に使う known1_p() / identify() / sample() は src/desc.c の本物を
-# リンクする。desc.c が参照する定数テーブル（tables.c）とグローバルな
+# アイテム鑑定時の処理は src/item_ident.c に抽出されている。元の
+# potions.c / eat.c / scrolls.c は巨大な switch が画面表示・ダンジョンに
+# 依存するのでリンクできないが、item_ident.c は known1_p() / identify() /
+# sample() / prt_experience() とグローバルな py / inventory にしか
+# 依存しない。判定に使う known1_p() / identify() / sample() は src/desc.c の
+# 本物をリンクする。desc.c が参照する定数テーブル（tables.c）とグローバルな
 # インベントリ（treasure.c）も本物を使い、py と画面出力だけを
-# tests/fixture.c で補う（リンクシーム）。
+# tests/fixture.c で補う（リンクシーム）。写しではなく実体を検証している。
 #
 # desc.c の sprintf に -Wformat-overflow の警告が出るが、本体側の既存の
 # 事情なのでテストのために本体を変えない。この 1 つだけ警告を落とす。
 $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                             src/item_ident.c src/item_ident.h \
                              src/desc.c src/tables.c src/treasure.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/item_ident_test.c \
-	    $(TESTDIR)/fixture.c src/desc.c src/tables.c src/treasure.c
+	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c
 
 clean:
 	rm -rf $(BUILDDIR)
