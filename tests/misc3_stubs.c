@@ -51,7 +51,38 @@ bool wizard;
 void msg_print(char *str) { (void)str; }
 void prt(char *s, int r, int c) { (void)s; (void)r; (void)c; }
 void prt_map(void) {}
-void put_buffer(char *s, int r, int c) { (void)s; (void)r; (void)c; }
+
+/* put_buffer は捨てるだけでなく、書かれた内容を記録する。
+ * put_misc3() のように「計算結果を画面に書くだけ」の関数は、書いた文字を
+ * 読みとらなければふるまいを観測できない。実装は変えずに済ませるため、
+ * 代役側で画面を模した二次元配列に写しとる（リンクシーム）。
+ * 記録は fixture_reset() で消えるので、テスト間で漏れない。 */
+#define FIXTURE_SCREEN_ROWS 24
+#define FIXTURE_SCREEN_COLS 80
+static char fixture_screen[FIXTURE_SCREEN_ROWS][FIXTURE_SCREEN_COLS + 1];
+
+void put_buffer(char *s, int r, int c)
+{
+    if (s == NULL || r < 0 || r >= FIXTURE_SCREEN_ROWS || c < 0 ||
+        c >= FIXTURE_SCREEN_COLS) {
+        return;
+    }
+    for (int i = 0; s[i] != '\0' && c + i < FIXTURE_SCREEN_COLS; i++) {
+        fixture_screen[r][c + i] = s[i];
+    }
+}
+
+/* 指定位置から始まる記録済みの文字列を返す。空白で終端されている扱いに
+ * するのではなく、put_buffer が書いた分だけを返したいので、記録用の
+ * 配列は fixture_reset() で '\0' 埋めしてある。 */
+const char *fixture_screen_text(int row, int col)
+{
+    if (row < 0 || row >= FIXTURE_SCREEN_ROWS || col < 0 ||
+        col >= FIXTURE_SCREEN_COLS) {
+        return "";
+    }
+    return &fixture_screen[row][col];
+}
 void clear_screen(void) {}
 void clear_from(int row) { (void)row; }
 void erase_line(int row, int col) { (void)row; (void)col; }
@@ -138,4 +169,5 @@ void fixture_reset(void)
     memset(&py, 0, sizeof py);
     inven_ctr = 0;
     inven_weight = 0;
+    memset(fixture_screen, 0, sizeof fixture_screen);
 }

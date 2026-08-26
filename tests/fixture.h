@@ -19,4 +19,9 @@ void fixture_reset(void);
  * 値を変えたテストは自分で戻すか、次のテストで再設定する。 */
 void fixture_set_randint(int value);
 
+/* put_buffer() が書いた文字を読みとる。misc3_stubs.c だけが提供する
+ * （fixture.c にはない）。画面に書くだけの関数のふるまいを、本体を
+ * 変えずに観測するための窓口。fixture_reset() で記録は消える。 */
+const char *fixture_screen_text(int row, int col);
+
 #endif /* FIXTURE_H */
