@@ -69,7 +69,7 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 | 5 | **棚上げ** | ~~不要なコード~~ → 未接続の基盤 | render.h:61-63 | 下記「棚上げ」#36 に移動 | — | — | — |
 | 6 | **検証済み** | 不要なコード | io.c:26,617-630 / signals.c:138-151 / misc1.c:58-62 | `error_abort`, `ignore_signals`/`default_signals`/`restore_signals`, `check_time` が参照0件。git 履歴で「基盤」ではないことを確認済み | デッドコード削除 | Medium | Low |
 | 7 | 未着手 | 重複コード | staffs.c:35-46, wands.c:42-56 | 魔法道具の成功判定が2箇所で丸ごと同一。差異は staffs の `-5` のみ | Extract Method → `device_chance()` | High | Low |
-| 8 | 未着手 | 重複コード | potions.c:323, eat.c:195, scrolls.c:470 | 効果判明後の後処理（経験値加算→identify→inven_destroy）が3ファイルで逐語コピー。加算式は完全一致 | Extract Method | High | Low |
+| 8 | 未着手 | 重複コード | potions.c:319-331, eat.c:190-203, scrolls.c:465-480 | 「効果が判明したら経験値加算 → identify、判明しなければ sample」の `ident` ブロックが3ファイルで実質完全一致（差異は `scrolls.c` が `i_ptr` 再代入を省くのみ）。経験値の加算式 `m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;` は3箇所で同一 | Extract Method | High | Medium |
 | 9 | **保留** | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行（`cbreak`/`noecho`/`nonl`/`intrflush`/`keypad`）を `ncurses_init` からコピペ | Extract Method | High | Low |
 
 **すべて「保護」欄は無（テスト0件）。** #1 でテストの足場を作り、以後は各項目の対象に
@@ -88,6 +88,29 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
   以後の調査が速くなるうえ、削除は最も安全な操作（参照0件を確認済み）。
 - **#7〜#9 は重複の中でも差異が 1 つ以下のもの。** 抽出しても引数が増えすぎず、
   素直に関数化できる。
+
+### #8 の抽出範囲（2026-08-27 に精査）
+
+**`ident` ブロックだけを抽出する。その後の処理は含めない。**
+
+検出時は「効果判明後の後処理」全体が重複していると報告されたが、実際に 3 ファイルを
+突きあわせると、共通なのは `ident` ブロック（経験値加算 → identify、あるいは sample）
+までで、その後は各ファイルで異なる。
+
+| ファイル | `ident` ブロックの後 |
+|---|---|
+| potions.c | `add_food` → `desc_remain` → `inven_destroy` |
+| eat.c | `add_food` → **`PY_WEAK\|PY_HUNGRY` クリア** → **`prt_hunger`** → `desc_remain` → `inven_destroy` |
+| scrolls.c | **`if (used_up)` で囲んで** `desc_remain` → `inven_destroy` |
+
+差異が 3 つあるので、後処理まで含めて共通化すると引数だらけの関数になる
+（`patterns.md`「差異が 3 つ以上になったら抽出をやめる」）。`ident` ブロックに
+限定すれば差異は 1 つ（`i_ptr` 再代入の有無）なので素直に抽出できる。
+
+テスト保護の難所: `identify()` がグローバル `inventory` を直接操作し、
+`prt_experience()` が画面描画を行う。純粋関数として切りだせるのは経験値の
+加算式のみ。#7 と同じ「テスト側に写す」方式か、`identify`/`prt_experience` を
+差しかえ可能にするかの判断が必要。
 
 ### #9 を保留した理由（2026-08-27）
 
