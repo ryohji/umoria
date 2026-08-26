@@ -12,6 +12,9 @@ player_type py;          /* 本体では player.c（530行の巨大データと�
 
 /* テスト専用。オリジナルには存在しない。
  * setUp から呼ぶことで、先行テストの影響を受けない条件を作る。 */
+/* 記録変数はこの下で定義するので、先に宣言だけしておく。 */
+static void fixture_clear_randint_record(void);
+
 void fixture_reset(void)
 {
     extern uint8_t object_ident[];
@@ -20,6 +23,7 @@ void fixture_reset(void)
     memset(inventory, 0, sizeof(inven_type) * INVEN_ARRAY_SIZE);
     memset(&py, 0, sizeof py);
     { extern int16_t inven_ctr; inven_ctr = 0; }
+    fixture_clear_randint_record();
 }
 
 /* --- スタブ ---
@@ -39,8 +43,29 @@ void prt_experience(void) {}
 /* 乱数。テストから制御できるように固定値を返す。
  * 値を変えたいテストは fixture_set_randint() で差しかえる。 */
 static int fixture_randint_value = 1;
-int randint(int maxval) { (void)maxval; return fixture_randint_value; }
+/* 戻り値を固定するだけでは、呼びだし側が渡した上限が正しいかを検証できない。
+ * 配列の要素数を取りちがえても返る値が同じで気づけないので、上限と
+ * 呼びだし回数も記録する。misc3_stubs.c と同じ窓口を提供する。 */
+static int fixture_randint_last_max = 0;
+static int fixture_randint_calls = 0;
+
+int randint(int maxval)
+{
+    fixture_randint_last_max = maxval;
+    fixture_randint_calls++;
+    return fixture_randint_value;
+}
+
 void fixture_set_randint(int value) { fixture_randint_value = value; }
+
+int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
+int fixture_randint_call_count(void) { return fixture_randint_calls; }
+
+static void fixture_clear_randint_record(void)
+{
+    fixture_randint_last_max = 0;
+    fixture_randint_calls = 0;
+}
 
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
