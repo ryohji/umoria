@@ -146,13 +146,38 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 `libncurses-dev` を導入すれば 3 項目まとめて着手できる。
 環境の変更なのでユーザーの判断を待つ。
 
+### #12 の精査（2026-08-27）
+
+**差異は 3 つある。** 検出時の報告（「配列名以外まったく同一」）より多い。
+
+| # | 差異 | 内容 |
+|---|---|---|
+| 1 | 配列名 | `comment2a`/`comment2b` vs `comment3a`/`comment3b` |
+| 2 | 要素数 | `comment2b[16]` vs `comment3b[15]`（`a` 側はどちらも 3） |
+| 3 | **呼びだし側の引数順** | `prt_comment2(last_offer, cur_ask, ...)` vs `prt_comment3(cur_ask, last_offer, ...)` |
+
+3 番目が要注意。両関数のパラメータ名はどちらも `(offer, asking)` だが、
+**呼びだし側が渡す順序が逆**になっている。
+
+- 購入時（`store2.c:571`）：`prt_comment2(last_offer, cur_ask, ...)` — 自分の提示額、店の要求額
+- 売却時（`store2.c:773`）：`prt_comment3(cur_ask, last_offer, ...)` — 店の提示額、自分の要求額
+
+売買で役割が入れかわるので、`offer`/`asking` という名前は購入視点で付けられており、
+売却では実質的に意味が逆になっている。**メッセージ内の `%A1`/`%A2` の埋めこみ順序が
+入れかわると表示が壊れる**ので、統合時にここを取りちがえないことが最重要。
+
+差異 3 つは `patterns.md` の「差異が 3 つ以上になったら抽出をやめる」の境界だが、
+差異 1・2 は「配列とその要素数」で 1 つの組として扱えるうえ、差異 3 は呼びだし側に
+残る（統合する関数の中には入らない）ので、実質的な引数は
+「配列, 要素数, offer, asking, final」の 5 つに収まる。抽出は妥当と判断する。
+
 ## 作業台帳（P2：P1 のあと、時間・合意しだい）
 
 | # | 分類 | 場所 | 内容 | 手法 | 影響度 | コスト |
 |---|---|---|---|---|---|---|
 | 10 | **検証済み** | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定（6条件）が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 → `items_can_stack(existing, incoming)` に抽出。**副産物として実バグ B8/B9 を発見** | Extract Method | High | Medium |
 | 11 | **検証済み** | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
-| 12 | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
+| 12 | **精査済み** | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
 | 13 | **保留** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
 | 14 | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら bool を返す。単位が2種類混在で名前と乖離 | Rename + 戻り値の整理 | Medium | Low |
 | 15 | **保留** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
