@@ -135,8 +135,8 @@ ncurses 非依存で検証できる。制約はこの 3 ファイルに閉じて
 | # | 分類 | 場所 | 内容 | 手法 | 影響度 | コスト |
 |---|---|---|---|---|---|---|
 | 10 | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 | Extract Method | High | Medium |
-| 11 | 重複コード | misc3.c:970-1010, files.c:230-268 | 能力値算出の9式が画面版とファイル版で二重化。差異は出力先のみ | Extract Method → `calc_abilities()` | Medium | Low |
-| 12 | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が配列名以外まったく同一 | 引数化して統合 | Medium | Low |
+| 11 | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
+| 12 | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
 | 13 | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録。signals.c:98 はコメントで済ませており責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
 | 14 | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら bool を返す。単位が2種類混在で名前と乖離 | Rename + 戻り値の整理 | Medium | Low |
 | 15 | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
