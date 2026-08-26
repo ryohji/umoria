@@ -135,21 +135,6 @@ void init_signals() {
 #endif
 }
 
-void ignore_signals() {
-    (void)signal(SIGINT, SIG_IGN);
-    (void)signal(SIGQUIT, SIG_IGN);
-}
-
-void default_signals() {
-    (void)signal(SIGINT, SIG_DFL);
-    (void)signal(SIGQUIT, SIG_DFL);
-}
-
-void restore_signals() {
-    (void)signal(SIGINT, signal_handler);
-    (void)signal(SIGQUIT, signal_handler);
-}
-
 // Handle pending signals in a safe context (called from main loop)
 // This performs all the I/O operations that were deferred from the signal handler
 void handle_pending_signals() {

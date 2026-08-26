@@ -523,9 +523,6 @@ bool magic_shop(int);
 void nosignals();
 void signals();
 void init_signals();
-void ignore_signals();
-void default_signals();
-void restore_signals();
 void handle_pending_signals();
 
 // spells.c
