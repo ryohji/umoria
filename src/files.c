@@ -16,6 +16,8 @@
 // systems.  Otherwise, the `open' prototype conflicts with the `topen' declaration.
 #include "externs.h"
 
+#include "abilities.h"
+
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later
 //  when the score is being written out, you must be sure to flock the file
@@ -229,37 +231,18 @@ bool file_character(char *filename1) {
         (void)fprintf(file1, "    Cur Mana%8s %6d\n", colon, py.misc.cmana);
         (void)fprintf(file1, "%28sGold%8s %7d\n\n", blank, colon, py.misc.au);
 
-        struct misc *p_ptr = &py.misc;
-
-        int xbth = p_ptr->bth + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * p_ptr->lev);
-        int xbthb = p_ptr->bthb + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * p_ptr->lev);
-
-        // 0 when fos >= 40; exceeds 29 when fos < 11 (search gear lowers fos, moria1.c:48)
-        int xfos = 40 - p_ptr->fos;
-        if (xfos < 0) {
-            xfos = 0;
-        }
-        int xsrh = p_ptr->srh;
-
-        // stl + 1, so the minimum is 1 (not 0)
-        int xstl = p_ptr->stl + 1;
-        int xdis = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
-        int xsave = p_ptr->save + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * p_ptr->lev / 3);
-        int xdev = p_ptr->save + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * p_ptr->lev / 3);
-
-        vtype xinfra;
-        (void)sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
+        struct player_abilities a = calc_player_abilities();
 
         (void)fprintf(file1, "(Miscellaneous Abilities)\n\n");
-        (void)fprintf(file1, " Fighting    : %-10s", likert(xbth, 12));
-        (void)fprintf(file1, "   Stealth     : %-10s", likert(xstl, 1));
-        (void)fprintf(file1, "   Perception  : %s\n", likert(xfos, 3));
-        (void)fprintf(file1, " Bows/Throw  : %-10s", likert(xbthb, 12));
-        (void)fprintf(file1, "   Disarming   : %-10s", likert(xdis, 8));
-        (void)fprintf(file1, "   Searching   : %s\n", likert(xsrh, 6));
-        (void)fprintf(file1, " Saving Throw: %-10s", likert(xsave, 6));
-        (void)fprintf(file1, "   Magic Device: %-10s", likert(xdev, 6));
-        (void)fprintf(file1, "   Infra-Vision: %s\n\n", xinfra);
+        (void)fprintf(file1, " Fighting    : %-10s", likert(a.bth, 12));
+        (void)fprintf(file1, "   Stealth     : %-10s", likert(a.stl, 1));
+        (void)fprintf(file1, "   Perception  : %s\n", likert(a.fos, 3));
+        (void)fprintf(file1, " Bows/Throw  : %-10s", likert(a.bthb, 12));
+        (void)fprintf(file1, "   Disarming   : %-10s", likert(a.dis, 8));
+        (void)fprintf(file1, "   Searching   : %s\n", likert(a.srh, 6));
+        (void)fprintf(file1, " Saving Throw: %-10s", likert(a.save, 6));
+        (void)fprintf(file1, "   Magic Device: %-10s", likert(a.dev, 6));
+        (void)fprintf(file1, "   Infra-Vision: %s\n\n", a.infra);
 
         // Write out the character's history
         (void)fprintf(file1, "Character Background\n");
