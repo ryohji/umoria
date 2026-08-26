@@ -1244,11 +1244,10 @@ void check_strength() {
 
 // Add an item to players inventory.  Return the
 // item position for a description if needed. -RAK-
-// this code must be identical to the inven_check_num() code above
+// the stacking condition is shared with inven_check_num() via items_can_stack()
 int inven_carry(inven_type *i_ptr) {
     int typ = i_ptr->tval;
     int subt = i_ptr->subval;
-    int known1p = known1_p(i_ptr);
     int always_known1p = (object_offset(i_ptr) == -1);
 
     int locn;
@@ -1257,12 +1256,7 @@ int inven_carry(inven_type *i_ptr) {
     for (locn = 0;; locn++) {
         inven_type *t_ptr = &inventory[locn];
 
-        if ((typ == t_ptr->tval) && (subt == t_ptr->subval) &&
-            (subt >= ITEM_SINGLE_STACK_MIN) &&
-            ((int)t_ptr->number + (int)i_ptr->number < 256) &&
-            ((subt < ITEM_GROUP_MIN) || (t_ptr->p1 == i_ptr->p1)) &&
-            // only stack if both or neither are identified
-            (known1p == known1_p(t_ptr))) {
+        if (items_can_stack(t_ptr, i_ptr)) {
             t_ptr->number += i_ptr->number;
             break;
         } else if ((typ == t_ptr->tval && subt < t_ptr->subval && always_known1p) || (typ > t_ptr->tval)) {
