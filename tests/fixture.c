@@ -30,6 +30,12 @@ void fixture_reset(void)
 /* 画面出力。テストでは捨てる */
 void msg_print(char *str) { (void)str; }
 
+/* 経験値の表示。本物（misc3.c:1838）は表示のついでに上限の打ち切りと
+ * レベルアップ判定（gain_level）も行うので、リンクすると画面・呪文・
+ * HP 計算まで芋づるで付いてくる。経験値の加算式を見たいテストには
+ * 不要なので捨てる。 */
+void prt_experience(void) {}
+
 /* 乱数。テストから制御できるように固定値を返す。
  * 値を変えたいテストは fixture_set_randint() で差しかえる。 */
 static int fixture_randint_value = 1;

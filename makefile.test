@@ -18,7 +18,7 @@ BUILDDIR = $(TESTDIR)/build
 
 # テストは 1 実行形式につき 1 対象モジュール。
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
-TESTS = distance_test device_chance_test
+TESTS = distance_test device_chance_test item_ident_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -55,6 +55,21 @@ $(BUILDDIR)/distance_test: $(TESTDIR)/distance_test.c $(TESTDIR)/minunit.h | $(B
 # （リンクシーム）。写しではなく実体を検証している。
 $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src/device.h $(TESTDIR)/minunit.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/device_chance_test.c src/device.c
+
+# アイテム鑑定時の処理は potions.c / eat.c / scrolls.c に重複しているが、
+# どれも巨大な switch が画面表示・ダンジョンに依存するのでリンクできない。
+# 判定に使う known1_p() / identify() / sample() は src/desc.c の本物を
+# リンクする。desc.c が参照する定数テーブル（tables.c）とグローバルな
+# インベントリ（treasure.c）も本物を使い、py と画面出力だけを
+# tests/fixture.c で補う（リンクシーム）。
+#
+# desc.c の sprintf に -Wformat-overflow の警告が出るが、本体側の既存の
+# 事情なのでテストのために本体を変えない。この 1 つだけ警告を落とす。
+$(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
+                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                             src/desc.c src/tables.c src/treasure.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/item_ident_test.c \
+	    $(TESTDIR)/fixture.c src/desc.c src/tables.c src/treasure.c
 
 clean:
 	rm -rf $(BUILDDIR)
