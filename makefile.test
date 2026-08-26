@@ -18,7 +18,7 @@ BUILDDIR = $(TESTDIR)/build
 
 # テストは 1 実行形式につき 1 対象モジュール。
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
-TESTS = distance_test
+TESTS = distance_test device_chance_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -49,6 +49,12 @@ $(BUILDDIR):
 # テスト側で対象関数の宣言だけを使い、実装は misc1.c から取りだす。
 $(BUILDDIR)/distance_test: $(TESTDIR)/distance_test.c $(TESTDIR)/minunit.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/distance_test.c
+
+# 魔法道具の chance 計算は staffs.c / wands.c の関数の途中にあり、
+# そのままリンクすると msg_print・inventory・py への依存が芋づるで付く。
+# distance_test と同じく、対象ロジックをテスト側に写して固定する。
+$(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c $(TESTDIR)/minunit.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/device_chance_test.c
 
 clean:
 	rm -rf $(BUILDDIR)
