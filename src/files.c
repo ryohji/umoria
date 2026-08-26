@@ -234,14 +234,14 @@ bool file_character(char *filename1) {
         int xbth = p_ptr->bth + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * p_ptr->lev);
         int xbthb = p_ptr->bthb + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * p_ptr->lev);
 
-        // this results in a range from 0 to 29
+        // 0 when fos >= 40; exceeds 29 when fos < 11 (search gear lowers fos, moria1.c:48)
         int xfos = 40 - p_ptr->fos;
         if (xfos < 0) {
             xfos = 0;
         }
         int xsrh = p_ptr->srh;
 
-        // this results in a range from 0 to 9
+        // stl + 1, so the minimum is 1 (not 0)
         int xstl = p_ptr->stl + 1;
         int xdis = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
         int xsave = p_ptr->save + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * p_ptr->lev / 3);
