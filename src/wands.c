@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "device.h"
+
 // Wands for the aiming.
 void aim() {
     free_turn_flag = true;
@@ -39,19 +41,9 @@ void aim() {
 
             struct misc *m_ptr = &py.misc;
 
-            int chance = m_ptr->save + stat_adj(A_INT) - (int)i_ptr->level + (class_level_adj[m_ptr->pclass][CLA_DEVICE] * m_ptr->lev / 3);
+            int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[m_ptr->pclass][CLA_DEVICE], m_ptr->lev, py.flags.confused);
 
-            if (py.flags.confused > 0) {
-                chance = chance / 2;
-            }
-            if ((chance < USE_DEVICE) &&
-                (randint(USE_DEVICE - chance + 1) == 1)) {
-                chance = USE_DEVICE; // Give everyone a slight chance
-            }
-            if (chance <= 0) {
-                chance = 1;
-            }
-            if (randint(chance) < USE_DEVICE) {
+            if (!device_use_succeeds(chance)) {
                 msg_print("You failed to use the wand properly.");
             } else if (i_ptr->p1 > 0) {
                 uint32_t i = i_ptr->flags;
