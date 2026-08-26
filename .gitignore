@@ -71,3 +71,4 @@ dkms.conf
 
 umoria.xcodeproj
 .idea
+tests/build/

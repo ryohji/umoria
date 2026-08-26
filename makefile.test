@@ -1,0 +1,54 @@
+# makefile.test -- 単体テストのビルドと実行
+#
+# 本体の makefile とは独立している。理由は 2 つ。
+#   1. 本体は ncurses を必要とするが、テスト対象のロジック層は必要としない。
+#      テストだけを ncurses なしで動かせるようにしておく。
+#   2. テストの追加が本体のビルドに影響しないようにする。
+#
+# 使い方:
+#   make -f makefile.test          # 全テストをビルドして実行
+#   make -f makefile.test clean
+
+CC = gcc
+STD = -std=c17
+WARNINGS = -Wall -Wextra -Wno-unused-parameter
+CFLAGS = $(STD) $(WARNINGS) -g -Isrc -Itests
+TESTDIR = tests
+BUILDDIR = $(TESTDIR)/build
+
+# テストは 1 実行形式につき 1 対象モジュール。
+# 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
+TESTS = distance_test
+
+BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
+
+.PHONY: all clean run
+all: run
+
+# 全テストを実行し、1 つでも失敗したら全体を失敗にする。
+# グリーン／レッドがひと目でわかることが目的。
+run: $(BINS)
+	@echo "== running unit tests =="
+	@fail=0; for t in $(BINS); do \
+		echo "--- $$t ---"; \
+		$$t || fail=1; \
+	done; \
+	echo; \
+	if [ $$fail -eq 0 ]; then \
+		echo "RESULT: GREEN"; \
+	else \
+		echo "RESULT: RED"; \
+	fi; \
+	exit $$fail
+
+$(BUILDDIR):
+	@mkdir -p $(BUILDDIR)
+
+# distance() は misc1.c にあるが、misc1.c 全体をリンクすると
+# ダンジョン生成や画面表示への依存が芋づるで付いてくる。
+# テスト側で対象関数の宣言だけを使い、実装は misc1.c から取りだす。
+$(BUILDDIR)/distance_test: $(TESTDIR)/distance_test.c $(TESTDIR)/minunit.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/distance_test.c
+
+clean:
+	rm -rf $(BUILDDIR)
