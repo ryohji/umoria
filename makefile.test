@@ -18,7 +18,8 @@ BUILDDIR = $(TESTDIR)/build
 
 # テストは 1 実行形式につき 1 対象モジュール。
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
-TESTS = distance_test device_chance_test item_ident_test inven_stack_test
+TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
+        put_misc3_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -96,6 +97,24 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               src/misc3.c src/desc.c src/tables.c \
                               src/treasure.c src/player.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/inven_stack_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    src/treasure.c src/player.c
+
+# キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
+# files.c:232 の file_character() に二重に書かれている。写しではなく実体を
+# 検証したいので misc3.c をそのままリンクする。リンク構成は
+# inven_stack_test と同じ（misc3.c の 57 個の未解決シンボルを
+# misc3_stubs.c の代役で埋め、定数表・インベントリ・py は本物を使う）。
+#
+# 9 式はローカル変数なので直接は見えないが、put_misc3() は結果を
+# put_buffer() で画面に書く。代役の put_buffer が記録した内容を
+# fixture_screen_text() で読みとって観測する。本体は変更していない。
+$(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
+                            $(TESTDIR)/misc3_stubs.c \
+                            $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                            src/misc3.c src/desc.c src/tables.c \
+                            src/treasure.c src/player.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c
 
