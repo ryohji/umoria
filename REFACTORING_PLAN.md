@@ -70,7 +70,7 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 | 6 | **検証済み** | 不要なコード | io.c:26,617-630 / signals.c:138-151 / misc1.c:58-62 | `error_abort`, `ignore_signals`/`default_signals`/`restore_signals`, `check_time` が参照0件。git 履歴で「基盤」ではないことを確認済み | デッドコード削除 | Medium | Low |
 | 7 | 未着手 | 重複コード | staffs.c:35-46, wands.c:42-56 | 魔法道具の成功判定が2箇所で丸ごと同一。差異は staffs の `-5` のみ | Extract Method → `device_chance()` | High | Low |
 | 8 | 未着手 | 重複コード | potions.c:323, eat.c:195, scrolls.c:470 | 効果判明後の後処理（経験値加算→identify→inven_destroy）が3ファイルで逐語コピー。加算式は完全一致 | Extract Method | High | Low |
-| 9 | 未着手 | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行を `ncurses_init` からコピペ | Extract Method | High | Low |
+| 9 | **保留** | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行（`cbreak`/`noecho`/`nonl`/`intrflush`/`keypad`）を `ncurses_init` からコピペ | Extract Method | High | Low |
 
 **すべて「保護」欄は無（テスト0件）。** #1 でテストの足場を作り、以後は各項目の対象に
 テストを足してから着手する。#2〜#6 のデッドコード削除は参照0件を grep で裏取り済みなので、
@@ -88,6 +88,23 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
   以後の調査が速くなるうえ、削除は最も安全な操作（参照0件を確認済み）。
 - **#7〜#9 は重複の中でも差異が 1 つ以下のもの。** 抽出しても引数が増えすぎず、
   素直に関数化できる。
+
+### #9 を保留した理由（2026-08-27）
+
+`render_ncurses.c` は **ncurses 不在の環境ではコンパイルできない**。
+
+重複自体は明白（端末モード設定 5 行が `ncurses_init` と `suspend` に完全一致）で、
+抽出も単純だが、**変更後にコンパイルが通ることを確認できない**。
+「テストで保護してから変更する」原則の前提が満たせないので着手しない。
+
+着手できる条件は次のいずれか。
+
+- `libncurses-dev` を導入して本体のビルドを通せるようにする（環境の変更なのでユーザーの判断）
+- ncurses を持つ別の環境で作業する
+
+なお #2 の成果により、この 4 ファイル（`io.c` は除外済みなので
+`platform.c`, `render_ncurses.c`, `input_ncurses.c`）以外は
+ncurses 非依存で検証できる。制約はこの 3 ファイルに閉じている。
 
 ## 作業台帳（P2：P1 のあと、時間・合意しだい）
 
