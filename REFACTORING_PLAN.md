@@ -68,7 +68,7 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 | 4 | **棚上げ** | ~~不要なコード~~ → 未接続の基盤 | game_state.c/.h 全体 | 下記「棚上げ」#35 に移動 | — | — | — |
 | 5 | **棚上げ** | ~~不要なコード~~ → 未接続の基盤 | render.h:61-63 | 下記「棚上げ」#36 に移動 | — | — | — |
 | 6 | **検証済み** | 不要なコード | io.c:26,617-630 / signals.c:138-151 / misc1.c:58-62 | `error_abort`, `ignore_signals`/`default_signals`/`restore_signals`, `check_time` が参照0件。git 履歴で「基盤」ではないことを確認済み | デッドコード削除 | Medium | Low |
-| 7 | 未着手 | 重複コード | staffs.c:35-46, wands.c:42-56 | 魔法道具の成功判定が2箇所で丸ごと同一。差異は staffs の `-5` のみ | Extract Method → `device_chance()` | High | Low |
+| 7 | **検証済み** | 重複コード | staffs.c:35-46, wands.c:42-56 | 魔法道具の成功判定が2箇所で丸ごと同一。差異は staffs の `-5` のみ → `src/device.c` に抽出。penalty を引数化（STAFF=5 / WAND=0） | Extract Method → `device_use_chance()` | High | Low |
 | 8 | 未着手 | 重複コード | potions.c:319-331, eat.c:190-203, scrolls.c:465-480 | 「効果が判明したら経験値加算 → identify、判明しなければ sample」の `ident` ブロックが3ファイルで実質完全一致（差異は `scrolls.c` が `i_ptr` 再代入を省くのみ）。経験値の加算式 `m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;` は3箇所で同一 | Extract Method | High | Medium |
 | 9 | **保留** | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行（`cbreak`/`noecho`/`nonl`/`intrflush`/`keypad`）を `ncurses_init` からコピペ | Extract Method | High | Low |
 
@@ -198,4 +198,7 @@ ncurses 非依存で検証できる。制約はこの 3 ファイルに閉じて
 | 2026-08-26 | #6 | `check_time()` を削除（`8907a28`）。最初期からの残骸で本体は `return true;` のみ | 10 | GREEN |
 | 2026-08-26 | #6 | `error_abort()` を削除（`d47a68a`）。UI 抽象化で呼び出し元が消えていた | 10 | GREEN |
 | 2026-08-26 | #6 | `ignore_signals`/`default_signals`/`restore_signals` を削除（`798bf1b`）。ユーザー判断により削除。`shell_out()` 無効化にともなう残骸 | 10 | GREEN |
+| 2026-08-27 | #7-A | **ステップ A（保護）**：`tests/device_chance_test.c` に24件追加（`1cfc0a5`）。`randint` を関数ポインタで受ける方式で乱数を切りはなし。**本体は無変更**。バグ候補 B5/B6 を発見 | **10 → 34** | GREEN |
+| 2026-08-27 | #7-B | **ステップ B（変更）**：`src/device.c`/`device.h` に抽出（`836beca` 杖側 → `0aeca58` 棒側 → `ae09312` テストを実体に接続）。3コミットすべてグリーン、戻し 0 回 | 34 | GREEN |
+| 2026-08-27 | #7-C | **ステップ C（検証）**：独立した担当が7項目を検証し **PASS**。計算式の同一性、assertion 不変（24件の期待値が完全一致）、`randint` 呼び出し回数・順序の保存、既知バグ2件の保存、makefile 統合をすべて確認 | 34 | **PASS** |
 
