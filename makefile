@@ -43,7 +43,7 @@ VPATH = $(SRCDIR)
 
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	create.c desc.c generate.c sets.c dungeon.c creature.c death.c \
-	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c \
+	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c device.c \
 	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
 	render.c render_ncurses.c view_observer.c game_state.c \
 	input.c input_ncurses.c platform.c \
@@ -52,7 +52,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 
 OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	create.o desc.o generate.o sets.o dungeon.o creature.o death.o \
-	eat.o help.o magic.o potions.o prayer.o save.o staffs.o wands.o \
+	eat.o help.o magic.o potions.o prayer.o save.o staffs.o wands.o device.o \
 	scrolls.o spells.o wizard.o store2.o signals.o signal_flags.o \
 	render.o render_ncurses.o view_observer.o game_state.o \
 	input.o input_ncurses.o platform.o \
@@ -145,6 +145,7 @@ create.o: $(HEADERS_FULL)
 creature.o: $(HEADERS_FULL)
 death.o: $(HEADERS_FULL)
 desc.o: $(HEADERS_FULL)
+device.o: $(SRCDIR)/device.h $(HEADERS_FULL)
 dungeon.o: $(HEADERS_FULL)
 eat.o: $(HEADERS_FULL)
 files.o: $(HEADERS_FULL)
@@ -180,7 +181,7 @@ sets.o: $(SRCDIR)/constant.h $(SRCDIR)/config.h
 signal_flags.o: $(SRCDIR)/signal_flags.h
 signals.o: $(HEADERS_FULL) $(SRCDIR)/signal_flags.h
 spells.o: $(HEADERS_FULL)
-staffs.o: $(HEADERS_FULL)
+staffs.o: $(SRCDIR)/device.h $(HEADERS_FULL)
 store1.o: $(HEADERS_FULL)
 store2.o: $(HEADERS_FULL)
 tables.o: $(HEADERS_COMMON)
