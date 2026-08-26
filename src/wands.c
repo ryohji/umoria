@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "device.h"
+#include "item_ident.h"
 
 // Wands for the aiming.
 void aim() {
@@ -149,22 +150,10 @@ void aim() {
                     }
                     // End of Wands.
                 }
-                if (ident) {
-                    if (!known1_p(i_ptr)) {
-                        m_ptr = &py.misc;
-                        // round half-way case up
-                        m_ptr->exp +=
-                            (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
-                        prt_experience();
+                // NOTE: the returned i_ptr is never read after this, so it is
+                // discarded. -MRC-
+                (void)learn_item_effect(ident, &item_val);
 
-                        identify(&item_val);
-
-                        // NOTE: this is never read after this, so commenting out. -MRC-
-                        // i_ptr = &inventory[item_val];
-                    }
-                } else if (!known1_p(i_ptr)) {
-                    sample(i_ptr);
-                }
                 desc_charges(item_val);
             } else {
                 msg_print("The wand has no charges left.");
