@@ -1158,23 +1158,29 @@ int weight_limit() {
     return weight_cap;
 }
 
-// this code must be identical to the inven_carry() code below
+// Can the incoming item be merged into the existing inventory item?
+// Shared by inven_check_num() and inven_carry(), which must agree:
+// if only one of them accepted a stack, items would be lost.
+static bool items_can_stack(inven_type *existing, inven_type *incoming) {
+    return (existing->tval == incoming->tval) &&
+           (existing->subval == incoming->subval) &&
+           (incoming->subval >= ITEM_SINGLE_STACK_MIN) &&
+           // make sure the number field doesn't overflow
+           ((int)existing->number + (int)incoming->number < 256) &&
+           // they always stack (subval < 192), or else they have same p1
+           ((incoming->subval < ITEM_GROUP_MIN) ||
+            (existing->p1 == incoming->p1)) &&
+           // only stack if both or neither are identified
+           (known1_p(existing) == known1_p(incoming));
+}
+
 bool inven_check_num(inven_type *t_ptr) {
     if (inven_ctr < INVEN_WIELD) {
         return true;
-    } else if (t_ptr->subval >= ITEM_SINGLE_STACK_MIN) {
-        for (int i = 0; i < inven_ctr; i++) {
-            if (inventory[i].tval == t_ptr->tval &&
-                inventory[i].subval == t_ptr->subval &&
-                // make sure the number field doesn't overflow
-                ((int)inventory[i].number + (int)t_ptr->number < 256) &&
-                // they always stack (subval < 192), or else they have same p1
-                ((t_ptr->subval < ITEM_GROUP_MIN) ||
-                 (inventory[i].p1 == t_ptr->p1))
-                // only stack if both or neither are identified
-                && (known1_p(&inventory[i]) == known1_p(t_ptr))) {
-                return true;
-            }
+    }
+    for (int i = 0; i < inven_ctr; i++) {
+        if (items_can_stack(&inventory[i], t_ptr)) {
+            return true;
         }
     }
     return false;
