@@ -200,9 +200,23 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 | B4 | creature.c:75-86 `movement_rate` | 速度>0 で移動回数、速度<=0 で bool(0/1) を返す。単位が2種類混在しており、呼び出し側の解釈が正しいか未確認 | #14 の調査中 |
 | B5 | staffs.c:39, wands.c:47 | **混乱すると魔法道具の成功率が上がる場合がある。** `chance` が負のとき `chance/2` が 0 方向に丸められて絶対値が縮み、救済抽選 `randint(USE_DEVICE - chance + 1)` の幅が狭くなる。幅が狭いほど 1 を引きやすく `USE_DEVICE` に引きあげられやすい。実測：`chance=-10` で非混乱 `randint(14)`（1/14）に対し混乱 `randint(9)`（1/9）。混乱がペナルティになっていない | #7 のステップ A（テスト保護）中。`device_chance_test.c` の `confusion_narrows_lucky_roll_range_when_chance_is_negative` に TODO で記録済み |
 | B6 | staffs.c:45, wands.c:53 | **`chance == 1` では成功が原理的にありえない。** `randint(1)` は常に 1 を返し、判定は `randint(chance) < USE_DEVICE`(=3) が失敗条件なので必ず失敗する。直前の `if (chance <= 0) chance = 1;` は「わずかな成功機会を与える」意図に見えるが、実際の成功率は 0 | 同上。`device_use_always_fails_when_chance_is_one` で固定済み |
+| **B10** | misc3.c:973, files.c:236 | **コメント `// this results in a range from 0 to 29` が誤り。** `xfos = 40 - fos`（負なら0クランプ）なので、`fos` が 11 未満だと 29 を超える。作成時の `fos` は 11..43 に収まるが、探索つき装備が `py.misc.fos -= amount`（`moria1.c:48`）で下げるため実プレイ中に 11 を下まわる。実測：`fos=10` → `xfos=30`、`fos=0` → `xfos=40`。**コードは正しく、コメントだけが誤り**（読み手を誤解させる） | #11 のステップ A 中。独立に検算済み。`xfos_exceeds_twenty_nine_when_fos_falls_below_eleven` で固定 |
+| **B11** | misc3.c:977, files.c:243 | **コメント `// this results in a range from 0 to 9` が誤り。** `xstl = stl + 1` なので最小値は 1（`stl` が 0 のとき）。範囲は 1..10 が正しい。**コードは正しく、コメントだけが誤り** | 同上。`xstl_is_one_when_stl_is_zero` で固定 |
 | **B8** | misc3.c:1251-1272 `inven_carry` | **配列外読み（global-buffer-overflow）。** ループ `for (locn = 0;; locn++)` に**終了条件がない**。スタックも割りこみもできないアイテムを渡すと `inventory[]`（34 枠）を走りぬけて配列外を読む。**AddressSanitizer で実証済み**（全 34 枠を `tval=90` で埋め、`tval=10` を渡すと `misc3.c:1254` で `READ of size 1` の global-buffer-overflow）。`inven_check_num()` を先に呼ぶ約束に依存しており、破られたときの防御がない。**このリファクタリングの範囲を超える（ふるまいの変更）ので直さない** | #10 のステップ A 中。独立に ASan で再現を確認済み |
 | **B9** | misc3.c:1251 vs 1164 | **`inven_carry` と `inven_check_num` の満杯判断が食いちがう。** `inven_check_num` は `inven_ctr < INVEN_WIELD`(=22) で満杯を判定して false を返すが、`inven_carry` は満杯でも挿入し `inven_ctr` を 23 にする。配列（34 枠）の範囲内なので即座には壊れないが、持ち物枠が装備欄（`INVEN_WIELD` 以降）を侵食する | 同上 |
 | B7 | potions.c:323, eat.c:195, scrolls.c:470 | **`py.misc.lev == 0` でゼロ除算。** 経験値加算 `(i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev` に防御がない。通常プレイでは到達しない（`create.c:86` が 1 で初期化、`lose_exp` は下限 1 を保つ）が、`save.c:655` の `rd_short(&m_ptr->lev)` はセーブファイルの値をそのまま読み、範囲検証をしていない。壊れた／改変されたセーブファイルでクラッシュする | #8 のステップ A 中。テストではゼロを渡していない（クラッシュするため）。`tests/item_ident_test.c` に TODO を記録 |
+
+### バグ候補の 3 分類（2026-08-27 に整理）
+
+作業を進めるうち、「バグ候補」に性質の違うものが混ざることがわかった。扱いが変わるので分けて記録する。
+
+| 種類 | 例 | このリファクタリングでの扱い |
+|---|---|---|
+| **コードが誤っている** | B8（配列外読み）、B9（判断の食いちがい）、B7（ゼロ除算） | **直さない。** ふるまいの変更になる。報告して別作業にする |
+| **コードは正しく、コメントが誤っている** | B10（`xfos` の range）、B11（`xstl` の range） | **直せる。** コメントの修正はふるまいを変えない。ただし 1 コミット 1 変更を守り、コード変更とは分ける |
+| **設計上の疑問（正誤ではない）** | `xdev` が `disarm` ではなく `save` を基にしている | **直さない。** 意図が不明なものは記録して報告する。判断はユーザーの領分 |
+
+2 番目は見落としやすい。**コメントを直すのはリファクタリングの範囲内**（外から見たふるまいが変わらない）なので、見つけたら直してよい。ただしコード変更と同じコミットに混ぜないこと。
 
 **検証して却下したバグ候補**（記録しておくと再調査の手間が省ける）
 
