@@ -24,4 +24,12 @@ void fixture_set_randint(int value);
  * 変えずに観測するための窓口。fixture_reset() で記録は消える。 */
 const char *fixture_screen_text(int row, int col);
 
+/* msg_print() に渡された文字列を読みとる。misc3_stubs.c だけが提供する
+ * （fixture.c にはない）。メッセージを表示するだけの関数のふるまいを、
+ * 本体を変えずに観測するための窓口。fixture_reset() で記録は消える。 */
+const char *fixture_message_text(int index);
+
+/* msg_print() が呼ばれた回数。fixture_reset() で 0 に戻る。 */
+int fixture_message_count(void);
+
 #endif /* FIXTURE_H */

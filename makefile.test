@@ -19,7 +19,7 @@ BUILDDIR = $(TESTDIR)/build
 # テストは 1 実行形式につき 1 対象モジュール。
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
-        put_misc3_test
+        put_misc3_test haggle_comment_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -120,6 +120,35 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/put_misc3_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    src/treasure.c src/player.c src/abilities.c
+
+# 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
+# store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
+# 呼びだし側の引数順だけ（store2.c:571 / store2.c:773 で offer と asking が
+# 逆に渡される）。
+#
+# どちらも static なので外から呼べない。写しでは統合後の実体を検証できず
+# 保護にならないので、テスト側が src/store2.c を #include して実体ごと
+# 取りこみ、static 関数を直接呼ぶ。ゆえに store2.c は依存に書くが
+# コンパイル対象には並べない（二重定義になる）。
+#
+# 出力は msg_print() で画面に出るだけなので、misc3_stubs.c の代役が記録した
+# 内容を fixture_message_text() で読みとる。リンク構成は inven_stack_test と
+# 同じ（misc3.c の未解決シンボルを代役で埋め、定数表・インベントリ・py は
+# 本物を使う）。store2.c だけが要求する 14 個のシンボルは
+# haggle_comment_test.c の中に置いた（misc3.c 系の他のテストには不要）。
+#
+# store2.c / desc.c / misc3.c の sprintf に -Wformat-overflow の警告が出るが、
+# 本体側の既存の事情なのでテストのために本体を変えない。この 1 つだけ
+# 警告を落とす。
+$(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
+                                 $(TESTDIR)/misc3_stubs.c \
+                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                                 src/store2.c src/misc3.c src/desc.c \
+                                 src/tables.c src/treasure.c src/player.c \
+                                 src/abilities.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 

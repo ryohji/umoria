@@ -48,7 +48,39 @@ bool weapon_heavy;
 bool wizard;
 
 /* --- 画面描画（misc3.c の表示系 4 割がこれを呼ぶ） --- */
-void msg_print(char *str) { (void)str; }
+
+/* msg_print も put_buffer と同じ理由で内容を記録する。値切り交渉の
+ * コメント表示（store2.c の prt_comment2 / prt_comment3）は組み立てた
+ * 文字列を msg_print に渡すだけなので、渡された文字列を読みとらなければ
+ * ふるまいを観測できない。実装は変えずに代役側で写しとる（リンクシーム）。
+ * 記録は fixture_reset() で消えるので、テスト間で漏れない。 */
+#define FIXTURE_MSG_MAX 16
+#define FIXTURE_MSG_LEN 160
+static char fixture_messages[FIXTURE_MSG_MAX][FIXTURE_MSG_LEN + 1];
+static int fixture_msg_count;
+
+void msg_print(char *str)
+{
+    if (str == NULL || fixture_msg_count >= FIXTURE_MSG_MAX) {
+        return;
+    }
+    strncpy(fixture_messages[fixture_msg_count], str, FIXTURE_MSG_LEN);
+    fixture_messages[fixture_msg_count][FIXTURE_MSG_LEN] = '\0';
+    fixture_msg_count++;
+}
+
+/* index 番目に msg_print へ渡された文字列を返す。まだ無ければ空文字列。 */
+const char *fixture_message_text(int index)
+{
+    if (index < 0 || index >= fixture_msg_count) {
+        return "";
+    }
+    return fixture_messages[index];
+}
+
+/* msg_print が呼ばれた回数。表示の有無そのものを固定したいときに使う。 */
+int fixture_message_count(void) { return fixture_msg_count; }
+
 void prt(char *s, int r, int c) { (void)s; (void)r; (void)c; }
 void prt_map(void) {}
 
@@ -170,4 +202,6 @@ void fixture_reset(void)
     inven_ctr = 0;
     inven_weight = 0;
     memset(fixture_screen, 0, sizeof fixture_screen);
+    memset(fixture_messages, 0, sizeof fixture_messages);
+    fixture_msg_count = 0;
 }
