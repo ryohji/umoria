@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "item_ident.h"
+
 // Eat some food. -RAK-
 void eat() {
     int j, k, item_val;
@@ -28,7 +30,6 @@ void eat() {
         free_turn_flag = false;
 
         struct flags *f_ptr;
-        struct misc *m_ptr;
 
         inven_type *i_ptr = &inventory[item_val];
         bool ident = false;
@@ -187,20 +188,8 @@ void eat() {
             }
             // End of food actions.
         }
-        if (ident) {
-            if (!known1_p(i_ptr)) {
-                // use identified it, gain experience
-                m_ptr = &py.misc;
-                // round half-way case up
-                m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
-                prt_experience();
+        i_ptr = learn_item_effect(ident, &item_val);
 
-                identify(&item_val);
-                i_ptr = &inventory[item_val];
-            }
-        } else if (!known1_p(i_ptr)) {
-            sample(i_ptr);
-        }
         add_food(i_ptr->p1);
         py.flags.status &= ~(PY_WEAK | PY_HUNGRY);
         prt_hunger();
