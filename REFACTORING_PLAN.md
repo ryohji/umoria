@@ -150,7 +150,7 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 
 | # | 分類 | 場所 | 内容 | 手法 | 影響度 | コスト |
 |---|---|---|---|---|---|---|
-| 10 | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 | Extract Method | High | Medium |
+| 10 | **検証済み** | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定（6条件）が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 → `items_can_stack(existing, incoming)` に抽出。**副産物として実バグ B8/B9 を発見** | Extract Method | High | Medium |
 | 11 | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
 | 12 | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
 | 13 | **保留** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
@@ -235,4 +235,8 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 | 2026-08-27 | — | 追加重複 **#8b** を発見・裏取り（`staffs.c:154`, `wands.c:152`）。同じ `ident` ブロックがさらに2箇所。`item_ident.c` が既にあるため着手コスト Low | 55 | — |
 | 2026-08-27 | #8b | `staffs.c`（`a35cb7f`）と `wands.c`（`ae6d046`）を `learn_item_effect()` の呼びだしに置きかえ。**既存の21件で保護されているため新規テストは不要**。検証担当が警告した「直後の else 枝で `i_ptr` を読む」問題は、`if (i_ptr->p1 > 0)` の反対側で**排他**のため影響なしと確認（元コードの「never read after this」判断は正しかった）。`m_ptr` は `device_use_chance()` の引数で使い続けるため削除せず | 55 | GREEN |
 | 2026-08-27 | — | **重複の完全解消を確認。** 経験値加算式 `m_ptr->exp += (i_ptr->level + ...)` の出現箇所は `item_ident.c` の1箇所のみ（着手前は5箇所） | 55 | GREEN |
+| 2026-08-27 | #10-A | **ステップ A（保護）**：`tests/inven_stack_test.c` に40件追加（`b845644`）。**`misc3.c`（2212行・6責務同居）の実体をリンクできた** — 未解決シンボル57個を分類し、本物（`tables.c`/`treasure.c`/`player.c`/`desc.c`）＋代役（`tests/misc3_stubs.c`）で解決。本体は無変更。**実バグ B8（ASan で配列外読みを実証）と B9（2関数の判断が食いちがう）を発見** | **55 → 95** | GREEN |
+| 2026-08-27 | — | 保護の実効性を確認。条件4を `<= 256` に壊すとレッド（`items_do_not_stack_when_number_total_reaches_two_hundred_fifty_six`）。`must be identical` が守りたかった不整合をテストが捕まえられる状態に。確認後は復元 | 95 | GREEN |
+| 2026-08-27 | #10-B | **ステップ B（変更）**：`items_can_stack(existing, incoming)` に抽出（`7f2c2d5` check_num側 → `b555e6c` carry側）。引数名で「既存/新規」を明示。**条件3を「外側 else if」から「ループ内 AND」へ寄せる論理変換を含む**。`must be identical` コメントは実態に合わせて書きかえ。戻し0回 | 95 | GREEN |
+| 2026-08-27 | #10-C | **ステップ C（検証）**：独立した担当が8項目を検証し **PASS**。6条件の保存（`(int)` キャスト含む）、**引数の既存/新規が取りちがえられていないこと**（呼びだし2箇所を変更前と個別に突きあわせ）、条件3の移動の等価性（`inven_ctr==0` と 条件3が偽 の2ケース）、B8/B9 の保存を確認。意図的な破壊でレッド（条件4→2件、条件6→3件）も確認 | 95 | **PASS** |
 
