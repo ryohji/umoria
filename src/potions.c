@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "item_ident.h"
+
 // Potions for the quaffing -RAK-
 void quaff() {
     free_turn_flag = true;
@@ -316,19 +318,7 @@ void quaff() {
             }
         }
 
-        if (ident) {
-            if (!known1_p(i_ptr)) {
-                struct misc *m_ptr = &py.misc;
-                // round half-way case up
-                m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
-                prt_experience();
-
-                identify(&item_val);
-                i_ptr = &inventory[item_val];
-            }
-        } else if (!known1_p(i_ptr)) {
-            sample(i_ptr);
-        }
+        i_ptr = learn_item_effect(ident, &item_val);
 
         add_food(i_ptr->p1);
         desc_remain(item_val);
