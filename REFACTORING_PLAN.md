@@ -177,7 +177,7 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 |---|---|---|---|---|---|---|
 | 10 | **検証済み** | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定（6条件）が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 → `items_can_stack(existing, incoming)` に抽出。**副産物として実バグ B8/B9 を発見** | Extract Method | High | Medium |
 | 11 | **検証済み** | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
-| 12 | **精査済み** | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
+| 12 | **検証済み** | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
 | 13 | **保留** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
 | 14 | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら bool を返す。単位が2種類混在で名前と乖離 | Rename + 戻り値の整理 | Medium | Low |
 | 15 | **保留** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
@@ -311,4 +311,10 @@ comment3a（売却・最終）: "I'll pay no more than %A1; take it or leave it.
 | 2026-08-27 | — | 誤ったコメントを修正（`09fbec7`）。`xfos` の `range 0 to 29`（`fos<11` で超える。探索装備が `fos` を下げる）と `xstl` の `range 0 to 9`（`+1` なので最小1）。**コードは正しくコメントだけが誤り → ふるまいを変えないのでリファクタリングの範囲内。**コード変更とは別コミットにした | 119 | GREEN |
 | 2026-08-27 | #11-B | **ステップ B（変更）**：`src/abilities.c`/`abilities.h` の `calc_player_abilities()` に抽出（`e3afe41` 関数追加 → `76b474d` misc3.c側 → `86c62a0` files.c側）。9値を返すため構造体を導入。`xinfra` は書式化まで含めた（両呼びだし側の書式が完全一致だったため）。戻し0回 | 119 | GREEN |
 | 2026-08-27 | #11-C | **ステップ C（検証）**：独立した担当が9項目を検証し **PASS**。8式の字面一致（`stat_adj` の `A_INT`/`A_WIS` の使い分け、`class_level_adj` の列、`/ 3` の有無をすべて個別確認）、**`xinfra` のバッファ縮小（`char[80]`→`char[24]`）の安全性**（`int16_t` の全範囲で最長13バイト、呼びだし側に幅指定なし）、`likert()` の除数8個が取りちがえられていないこと、`xdev` の設計上の疑問の保存を確認。意図的な破壊でもレッド（`A_INT`→`A_WIS` で2件、`/3` 追加で1件） | 119 | **PASS** |
+| 2026-08-27 | #12-A | **ステップ A（保護）**：`tests/haggle_comment_test.c` に21件追加（`c21d7a7`）。`src/store2.c` を `#include` して `static` 関数を直接呼ぶ方式。`msg_print` の出力を記録する窓口も代役に追加。本体は無変更 | **119 → 140** | GREEN |
+| 2026-08-27 | — | 報告された「a 系で片方の引数が捨てられる」を調査し**設計と判定**。`comment2a` は購入で `%A2`（店の要求額）、`comment3a` は売却で `%A1`（店の提示額）を使う。最終提示は店の額だけ表示すればよく、呼びだし側の引数順の逆転と整合する | 140 | — |
+| 2026-08-27 | #12-B | **ステップ B（変更）**：`prt_haggle_comment()` に統合（`4a07ef1` 購入側 → `be868d1` 売却側）。`prt_comment2`/`prt_comment3` は薄いラッパーとして残しテストを無変更に。要素数は `sizeof` 自動計算にして二重管理を解消。戻し0回 | 140 | GREEN |
+| 2026-08-27 | — | **担当が「意図的に壊してもレッドにならない」と正直に報告 → 保護の穴を発見。** 代役の `randint` が `maxval` を無視していたため、要素数の取りちがえが観測できなかった。代役に上限と呼びだし回数の記録を追加し、検証テスト4件を追加（`57b8813`）。**実証：要素数を 16→15 に取りちがえると即座にレッド** | **140 → 144** | GREEN |
+| 2026-08-27 | #12-C | **ステップ C（検証）**：独立した担当が14項目を検証し **PASS**。統合の正しさ（`randint` 1回、`final > 0`、`insert_lnum` の順序、配列の対応、要素数）、呼びだし側の引数順の保存を確認。**穴埋めが機能することを独立に実証**（要素数の変異→1件レッド、`randint` 2回呼び→1件レッド）。`fixture.h` の宣言と `fixture.c` の実装の非対称を指摘 | 144 | **PASS** |
+| 2026-08-27 | — | ステップ C の指摘に対応。`fixture.c` にも記録窓口を実装（`eb1bfca`）。宣言と実装の非対称を解消 | 144 | GREEN |
 
