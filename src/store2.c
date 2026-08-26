@@ -152,17 +152,9 @@ static void prt_comment2(int32_t offer, int32_t asking, int final) {
 }
 
 static void prt_comment3(int32_t offer, int32_t asking, int final) {
-    vtype comment;
-
-    if (final > 0) {
-        (void)strcpy(comment, comment3a[randint(3) - 1]);
-    } else {
-        (void)strcpy(comment, comment3b[randint(15) - 1]);
-    }
-
-    insert_lnum(comment, "%A1", offer, false);
-    insert_lnum(comment, "%A2", asking, false);
-    msg_print(comment);
+    prt_haggle_comment(comment3a, comment_count(comment3a),
+                       comment3b, comment_count(comment3b),
+                       offer, asking, final);
 }
 
 // Kick 'da bum out. -RAK-
