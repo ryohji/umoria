@@ -69,7 +69,7 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 | 5 | **棚上げ** | ~~不要なコード~~ → 未接続の基盤 | render.h:61-63 | 下記「棚上げ」#36 に移動 | — | — | — |
 | 6 | **検証済み** | 不要なコード | io.c:26,617-630 / signals.c:138-151 / misc1.c:58-62 | `error_abort`, `ignore_signals`/`default_signals`/`restore_signals`, `check_time` が参照0件。git 履歴で「基盤」ではないことを確認済み | デッドコード削除 | Medium | Low |
 | 7 | **検証済み** | 重複コード | staffs.c:35-46, wands.c:42-56 | 魔法道具の成功判定が2箇所で丸ごと同一。差異は staffs の `-5` のみ → `src/device.c` に抽出。penalty を引数化（STAFF=5 / WAND=0） | Extract Method → `device_use_chance()` | High | Low |
-| 8b | 未着手 | 重複コード | staffs.c:154-167, wands.c:152-165 | **#8 と同じ `ident` ブロックがさらに 2 箇所**（2026-08-27 に判明）。どちらも `i_ptr` 再代入がコメントアウト済み（`// NOTE: this is never read after this`）なので、`scrolls.c` と同型。`learn_item_effect()` の呼びだしに置きかえるだけで済む。**すでに `item_ident.c` が存在し、テスト 21 件で保護されているので着手コストは Low** | 抽出済み関数の呼びだしに置きかえ | High | Low |
+| 8b | **検証済み** | 重複コード | staffs.c:154-167, wands.c:152-165 | **#8 と同じ `ident` ブロックがさらに 2 箇所**（2026-08-27 に判明）。どちらも `i_ptr` 再代入がコメントアウト済み（`// NOTE: this is never read after this`）なので、`scrolls.c` と同型。`learn_item_effect()` の呼びだしに置きかえるだけで済む。**すでに `item_ident.c` が存在し、テスト 21 件で保護されているので着手コストは Low** | 抽出済み関数の呼びだしに置きかえ | High | Low |
 | 8 | **検証済み** | 重複コード | potions.c:319-331, eat.c:190-203, scrolls.c:465-480 | 「効果が判明したら経験値加算 → identify、判明しなければ sample」の `ident` ブロックが3ファイルで実質完全一致（差異は `scrolls.c` が `i_ptr` 再代入を省くのみ）。経験値の加算式 `m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;` は3箇所で同一 | Extract Method | High | Medium |
 | 9 | **保留** | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行（`cbreak`/`noecho`/`nonl`/`intrflush`/`keypad`）を `ncurses_init` からコピペ | Extract Method | High | Low |
 
@@ -215,4 +215,6 @@ ncurses 非依存で検証できる。制約はこの 3 ファイルに閉じて
 | 2026-08-27 | #8-B | **ステップ B（変更）**：`src/item_ident.c`/`item_ident.h` に `learn_item_effect()` を抽出（`c66dc2f` potions → `1c58840` eat → `a8e1ffa` scrolls → `94ca85b` テストを実体に接続）。4コミットすべてグリーン、戻し 0 回 | 55 | GREEN |
 | 2026-08-27 | #8-C | **ステップ C（検証）**：独立した担当が8項目を検証し **PASS**。とくに `i_ptr` の等価性を3ファイル個別に確認（`potions`/`eat` は戻り値を代入、`scrolls` は以降未使用）。`scrolls.c:463` の削除は「同一式だが同一値ではない」（`:161` のループが巻きもどす）ものの、到達時点では必ず同期しているため冗長と判定 | 55 | **PASS** |
 | 2026-08-27 | — | 追加重複 **#8b** を発見・裏取り（`staffs.c:154`, `wands.c:152`）。同じ `ident` ブロックがさらに2箇所。`item_ident.c` が既にあるため着手コスト Low | 55 | — |
+| 2026-08-27 | #8b | `staffs.c`（`a35cb7f`）と `wands.c`（`ae6d046`）を `learn_item_effect()` の呼びだしに置きかえ。**既存の21件で保護されているため新規テストは不要**。検証担当が警告した「直後の else 枝で `i_ptr` を読む」問題は、`if (i_ptr->p1 > 0)` の反対側で**排他**のため影響なしと確認（元コードの「never read after this」判断は正しかった）。`m_ptr` は `device_use_chance()` の引数で使い続けるため削除せず | 55 | GREEN |
+| 2026-08-27 | — | **重複の完全解消を確認。** 経験値加算式 `m_ptr->exp += (i_ptr->level + ...)` の出現箇所は `item_ident.c` の1箇所のみ（着手前は5箇所） | 55 | GREEN |
 
