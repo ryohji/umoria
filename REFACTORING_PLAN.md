@@ -158,6 +158,8 @@ ncurses 非依存で検証できる。制約はこの 3 ファイルに閉じて
 | B2 | spells.c:555-593 `get_flags` | 失敗時に `msg_print("ERROR in get_flags()\n")` でデバッグ文字列を画面に出力する | #8 の調査中 |
 | B3 | game_state.c:22-112 | `game_state_init` が既存グローバル約50個をコピーする設計で、「コピーした瞬間に元と乖離する」。呼ばれていないので現状は無害だが、将来 externs.h を変えると同期漏れが起きる | #4 の調査中 |
 | B4 | creature.c:75-86 `movement_rate` | 速度>0 で移動回数、速度<=0 で bool(0/1) を返す。単位が2種類混在しており、呼び出し側の解釈が正しいか未確認 | #14 の調査中 |
+| B5 | staffs.c:39, wands.c:47 | **混乱すると魔法道具の成功率が上がる場合がある。** `chance` が負のとき `chance/2` が 0 方向に丸められて絶対値が縮み、救済抽選 `randint(USE_DEVICE - chance + 1)` の幅が狭くなる。幅が狭いほど 1 を引きやすく `USE_DEVICE` に引きあげられやすい。実測：`chance=-10` で非混乱 `randint(14)`（1/14）に対し混乱 `randint(9)`（1/9）。混乱がペナルティになっていない | #7 のステップ A（テスト保護）中。`device_chance_test.c` の `confusion_narrows_lucky_roll_range_when_chance_is_negative` に TODO で記録済み |
+| B6 | staffs.c:45, wands.c:53 | **`chance == 1` では成功が原理的にありえない。** `randint(1)` は常に 1 を返し、判定は `randint(chance) < USE_DEVICE`(=3) が失敗条件なので必ず失敗する。直前の `if (chance <= 0) chance = 1;` は「わずかな成功機会を与える」意図に見えるが、実際の成功率は 0 | 同上。`device_use_always_fails_when_chance_is_one` で固定済み |
 
 ## 作業ログ
 
