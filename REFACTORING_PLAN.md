@@ -151,7 +151,7 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 | # | 分類 | 場所 | 内容 | 手法 | 影響度 | コスト |
 |---|---|---|---|---|---|---|
 | 10 | **検証済み** | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定（6条件）が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 → `items_can_stack(existing, incoming)` に抽出。**副産物として実バグ B8/B9 を発見** | Extract Method | High | Medium |
-| 11 | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
+| 11 | **検証済み** | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
 | 12 | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
 | 13 | **保留** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
 | 14 | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら bool を返す。単位が2種類混在で名前と乖離 | Rename + 戻り値の整理 | Medium | Low |
@@ -254,4 +254,9 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 | 2026-08-27 | — | 保護の実効性を確認。条件4を `<= 256` に壊すとレッド（`items_do_not_stack_when_number_total_reaches_two_hundred_fifty_six`）。`must be identical` が守りたかった不整合をテストが捕まえられる状態に。確認後は復元 | 95 | GREEN |
 | 2026-08-27 | #10-B | **ステップ B（変更）**：`items_can_stack(existing, incoming)` に抽出（`7f2c2d5` check_num側 → `b555e6c` carry側）。引数名で「既存/新規」を明示。**条件3を「外側 else if」から「ループ内 AND」へ寄せる論理変換を含む**。`must be identical` コメントは実態に合わせて書きかえ。戻し0回 | 95 | GREEN |
 | 2026-08-27 | #10-C | **ステップ C（検証）**：独立した担当が8項目を検証し **PASS**。6条件の保存（`(int)` キャスト含む）、**引数の既存/新規が取りちがえられていないこと**（呼びだし2箇所を変更前と個別に突きあわせ）、条件3の移動の等価性（`inven_ctr==0` と 条件3が偽 の2ケース）、B8/B9 の保存を確認。意図的な破壊でレッド（条件4→2件、条件6→3件）も確認 | 95 | **PASS** |
+| 2026-08-27 | #11-A' | **担当が出力トークン上限（4096）を超えて中断。** 中途の成果に価値があったため救出してコミット（`baddf84`）：代役側で `put_buffer()` の出力を記録し `fixture_screen_text(row, col)` で読みとる仕組み。**計算結果を画面に書くだけの関数を、本体無変更で観測できるようになった** | 95 | GREEN |
+| 2026-08-27 | #11-A | **ステップ A（保護）**：`tests/put_misc3_test.c` に24件追加（`8d73f05`）。分割指示（1回の書きこみで5件まで）により上限超過なく完了。`put_misc3()` を呼び画面出力を読みとって9式を観測。本体は無変更。**実装コメントの誤り B10/B11 を発見** | **95 → 119** | GREEN |
+| 2026-08-27 | — | 誤ったコメントを修正（`09fbec7`）。`xfos` の `range 0 to 29`（`fos<11` で超える。探索装備が `fos` を下げる）と `xstl` の `range 0 to 9`（`+1` なので最小1）。**コードは正しくコメントだけが誤り → ふるまいを変えないのでリファクタリングの範囲内。**コード変更とは別コミットにした | 119 | GREEN |
+| 2026-08-27 | #11-B | **ステップ B（変更）**：`src/abilities.c`/`abilities.h` の `calc_player_abilities()` に抽出（`e3afe41` 関数追加 → `76b474d` misc3.c側 → `86c62a0` files.c側）。9値を返すため構造体を導入。`xinfra` は書式化まで含めた（両呼びだし側の書式が完全一致だったため）。戻し0回 | 119 | GREEN |
+| 2026-08-27 | #11-C | **ステップ C（検証）**：独立した担当が9項目を検証し **PASS**。8式の字面一致（`stat_adj` の `A_INT`/`A_WIS` の使い分け、`class_level_adj` の列、`/ 3` の有無をすべて個別確認）、**`xinfra` のバッファ縮小（`char[80]`→`char[24]`）の安全性**（`int16_t` の全範囲で最長13バイト、呼びだし側に幅指定なし）、`likert()` の除数8個が取りちがえられていないこと、`xdev` の設計上の疑問の保存を確認。意図的な破壊でもレッド（`A_INT`→`A_WIS` で2件、`/3` 追加で1件） | 119 | **PASS** |
 
