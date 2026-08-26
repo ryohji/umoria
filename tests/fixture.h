@@ -19,6 +19,16 @@ void fixture_reset(void);
  * 値を変えたテストは自分で戻すか、次のテストで再設定する。 */
 void fixture_set_randint(int value);
 
+/* 直前の randint() に渡された上限を読みとる。misc3_stubs.c だけが提供する。
+ * 戻り値を固定するだけでは、呼びだし側が渡した上限が正しいかを検証できない。
+ * 配列の要素数を取りちがえても、返る値が同じなら気づけないので、
+ * 上限そのものを観測できるようにしてある。 */
+int fixture_randint_last_maxval(void);
+
+/* randint() が呼ばれた回数。リファクタリングの前後で変わってはいけない
+ * （回数が変わると乱数列がずれ、ゲーム全体のふるまいが変わる）。 */
+int fixture_randint_call_count(void);
+
 /* put_buffer() が書いた文字を読みとる。misc3_stubs.c だけが提供する
  * （fixture.c にはない）。画面に書くだけの関数のふるまいを、本体を
  * 変えずに観測するための窓口。fixture_reset() で記録は消える。 */

@@ -298,6 +298,44 @@ TEST(prt_comment2_fits_int32_max_on_both_placeholders_within_vtype)
                   "Try 2147483647 in gold.");
 }
 
+/* ------------------------------------------------------------------
+ * randint に渡す上限が配列の要素数と一致しているか
+ *
+ * 添字だけを固定するテストでは、上限の取りちがえを検出できない。
+ * 代役の randint は maxval を無視して固定値を返すので、
+ * comment2b（16 要素）に 15 を渡しても返る値は同じだからだ。
+ * 上限がずれると配列外を読むので、上限そのものを観測して固定する。
+ * ------------------------------------------------------------------ */
+
+/* 購入・通常時は comment2b（16 要素）から選ぶ。 */
+TEST(prt_comment2_asks_randint_for_sixteen_when_not_final)
+{
+    prt_comment2(111, 222, 0);
+    ASSERT_EQ_INT(fixture_randint_last_maxval(), 16);
+}
+
+/* 売却・通常時は comment3b（15 要素）から選ぶ。購入と 1 つ違う。 */
+TEST(prt_comment3_asks_randint_for_fifteen_when_not_final)
+{
+    prt_comment3(111, 222, 0);
+    ASSERT_EQ_INT(fixture_randint_last_maxval(), 15);
+}
+
+/* 最終提示時は a 系（どちらも 3 要素）から選ぶ。 */
+TEST(prt_comment2_asks_randint_for_three_when_final)
+{
+    prt_comment2(111, 222, 1);
+    ASSERT_EQ_INT(fixture_randint_last_maxval(), 3);
+}
+
+/* randint の呼びだしは 1 回だけ。回数が変わると乱数列がずれ、
+ * ゲーム全体のふるまいが変わる。 */
+TEST(prt_comment2_calls_randint_exactly_once)
+{
+    prt_comment2(111, 222, 0);
+    ASSERT_EQ_INT(fixture_randint_call_count(), 1);
+}
+
 int main(void)
 {
     RUN_TEST(prt_comment2_puts_first_argument_into_A1_and_second_into_A2);
@@ -321,5 +359,9 @@ int main(void)
     RUN_TEST(prt_comment2_calls_msg_print_exactly_once);
     RUN_TEST(prt_comment3_calls_msg_print_exactly_once);
     RUN_TEST(prt_comment2_fits_int32_max_on_both_placeholders_within_vtype);
+    RUN_TEST(prt_comment2_asks_randint_for_sixteen_when_not_final);
+    RUN_TEST(prt_comment3_asks_randint_for_fifteen_when_not_final);
+    RUN_TEST(prt_comment2_asks_randint_for_three_when_final);
+    RUN_TEST(prt_comment2_calls_randint_exactly_once);
     return TEST_SUMMARY();
 }

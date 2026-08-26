@@ -164,10 +164,31 @@ void user_name(char *b) { (void)b; }
 /* --- モンスターの行動。misc3.c の移動処理が呼ぶ --- */
 void creatures(int attack) { (void)attack; }
 
-/* --- 乱数。テストから制御できるように固定値を返す --- */
+/* --- 乱数。テストから制御できるように固定値を返す ---
+ *
+ * 戻り値を固定するだけでは、呼びだし側が渡した上限（maxval）が正しいかを
+ * 検証できない。配列の要素数を取りちがえても、返る値が同じなら気づけない。
+ * だから maxval を記録して読みとれるようにする。
+ * 記録は fixture_reset() で消える。 */
 static int fixture_randint_value = 1;
-int randint(int maxval) { (void)maxval; return fixture_randint_value; }
+static int fixture_randint_last_max = 0;
+static int fixture_randint_calls = 0;
+
+int randint(int maxval)
+{
+    fixture_randint_last_max = maxval;
+    fixture_randint_calls++;
+    return fixture_randint_value;
+}
+
 void fixture_set_randint(int value) { fixture_randint_value = value; }
+
+/* 直前の randint() に渡された上限。配列の要素数と一致すべき。 */
+int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
+
+/* randint() が呼ばれた回数。抽出の前後で変わってはいけない
+ * （回数が変わると乱数列がずれ、ゲーム全体のふるまいが変わる）。 */
+int fixture_randint_call_count(void) { return fixture_randint_calls; }
 
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
@@ -202,6 +223,8 @@ void fixture_reset(void)
     inven_ctr = 0;
     inven_weight = 0;
     memset(fixture_screen, 0, sizeof fixture_screen);
+    fixture_randint_last_max = 0;
+    fixture_randint_calls = 0;
     memset(fixture_messages, 0, sizeof fixture_messages);
     fixture_msg_count = 0;
 }
