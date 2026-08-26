@@ -119,19 +119,36 @@ static void prt_comment1() {
     msg_print(comment1[randint(14) - 1]);
 }
 
-// %A1 is offer, %A2 is asking.
-static void prt_comment2(int32_t offer, int32_t asking, int final) {
+// Number of elements of a comment table. Keeps the count next to the
+// array it belongs to, so the size is no longer written out twice.
+#define comment_count(table) ((int)(sizeof(table) / sizeof((table)[0])))
+
+// Pick one haggling comment and show it with the two numbers filled in.
+// final > 0 selects the "final offer" table, otherwise the ordinary one.
+// The meaning of the two numbers depends on the caller: the buyer and the
+// seller swap their roles, so they are named after the placeholder they
+// land in rather than after offer / asking.
+static void prt_haggle_comment(char **final_table, int final_count,
+                               char **normal_table, int normal_count,
+                               int32_t a1, int32_t a2, int final) {
     vtype comment;
 
     if (final > 0) {
-        (void)strcpy(comment, comment2a[randint(3) - 1]);
+        (void)strcpy(comment, final_table[randint(final_count) - 1]);
     } else {
-        (void)strcpy(comment, comment2b[randint(16) - 1]);
+        (void)strcpy(comment, normal_table[randint(normal_count) - 1]);
     }
 
-    insert_lnum(comment, "%A1", offer, false);
-    insert_lnum(comment, "%A2", asking, false);
+    insert_lnum(comment, "%A1", a1, false);
+    insert_lnum(comment, "%A2", a2, false);
     msg_print(comment);
+}
+
+// %A1 is offer, %A2 is asking.
+static void prt_comment2(int32_t offer, int32_t asking, int final) {
+    prt_haggle_comment(comment2a, comment_count(comment2a),
+                       comment2b, comment_count(comment2b),
+                       offer, asking, final);
 }
 
 static void prt_comment3(int32_t offer, int32_t asking, int final) {
