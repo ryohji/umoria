@@ -55,12 +55,6 @@ void reset_seed() {
     set_rnd_seed(old_seed);
 }
 
-// Check the day-time strings to see if open -RAK-
-bool check_time() {
-    // Play the game any time of day you like!
-    return true;
-}
-
 // Generates a random integer x where 1<=X<=MAXVAL -RAK-
 int randint(int maxval) {
     int32_t randval = rnd();

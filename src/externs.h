@@ -266,7 +266,6 @@ void cast();
 void init_seeds(uint32_t);
 void set_seed(uint32_t);
 void reset_seed();
-bool check_time();
 int randint(int);
 int randnor(int, int);
 int bit_pos(uint32_t *);
