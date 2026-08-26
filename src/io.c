@@ -18,7 +18,6 @@
 
 #define use_value2
 
-static void error_abort(const char *funcname, int row, int col);
 static void wait_for_more_confirmation();
 
 // Dump IO to buffer -RAK-
@@ -609,17 +608,3 @@ int tilde(char *file, char *exp) {
 }
 #endif
 
-static void error_abort(const char *funcname, int row, int col) {
-    // clear msg_flag to avoid problems with unflushed messages
-    msg_flag = false;
-
-    vtype out_val;
-    sprintf(out_val, "error in %s, row = %d, col %d\n", funcname, row, col);
-    prt(out_val, 0, 0);
-    bell();
-
-    // wait so user can see error
-    sleep_in_seconds(2);
-
-    abort();
-}
