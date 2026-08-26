@@ -16,10 +16,6 @@
 #include "input.h"
 #include "render.h"
 
-#include <signal.h>
-#include <sys/select.h>
-#include <termios.h>
-
 #define use_value2
 
 static void error_abort(const char *funcname, int row, int col);
