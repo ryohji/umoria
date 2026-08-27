@@ -807,27 +807,11 @@ int todis_adj() {
 
 // Returns a character's adjustment to damage -JWT-
 int todam_adj() {
-    int stat = py.stats.use_stat[A_STR];
+    static const stat_bonus_step by_strength[] = {
+        {0, -2}, {4, -1}, {5, 0}, {16, 1}, {17, 2}, {18, 3}, {94, 4}, {109, 5}, {117, 6},
+    };
 
-    if (stat < 4) {
-        return -2;
-    } else if (stat < 5) {
-        return -1;
-    } else if (stat < 16) {
-        return 0;
-    } else if (stat < 17) {
-        return 1;
-    } else if (stat < 18) {
-        return 2;
-    } else if (stat < 94) {
-        return 3;
-    } else if (stat < 109) {
-        return 4;
-    } else if (stat < 117) {
-        return 5;
-    } else {
-        return 6;
-    }
+    return lookup_stat_bonus(py.stats.use_stat[A_STR], by_strength, STAT_BONUS_STEPS(by_strength));
 }
 
 // Prints character-screen info -RAK-
