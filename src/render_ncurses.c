@@ -6,7 +6,7 @@
 
 // ncurses rendering backend implementation
 
-#include "render_ncurses.h"
+#include "backend_ncurses.h"
 
 #include "curses.h"
 

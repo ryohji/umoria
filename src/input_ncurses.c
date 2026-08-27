@@ -6,7 +6,7 @@
 
 // ncurses input backend implementation
 
-#include "input_ncurses.h"
+#include "backend_ncurses.h"
 
 #include "curses.h"
 
