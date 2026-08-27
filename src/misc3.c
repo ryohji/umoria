@@ -749,29 +749,11 @@ int tohit_adj() {
 
 // Returns a character's adjustment to armor class -JWT-
 int toac_adj() {
-    int stat = py.stats.use_stat[A_DEX];
+    static const stat_bonus_step by_dexterity[] = {
+        {0, -4}, {4, -3}, {5, -2}, {6, -1}, {7, 0}, {15, 1}, {18, 2}, {59, 3}, {94, 4}, {117, 5},
+    };
 
-    if (stat < 4) {
-        return -4;
-    } else if (stat == 4) {
-        return -3;
-    } else if (stat == 5) {
-        return -2;
-    } else if (stat == 6) {
-        return -1;
-    } else if (stat < 15) {
-        return 0;
-    } else if (stat < 18) {
-        return 1;
-    } else if (stat < 59) {
-        return 2;
-    } else if (stat < 94) {
-        return 3;
-    } else if (stat < 117) {
-        return 4;
-    } else {
-        return 5;
-    }
+    return lookup_stat_bonus(py.stats.use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity));
 }
 
 // Returns a character's adjustment to disarm -RAK-
