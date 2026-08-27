@@ -293,56 +293,18 @@ int stat_adj(int stat) {
 // Adjustment for charisma -RAK-
 // Percent decrease or increase in price of goods
 int chr_adj() {
-    int charisma = py.stats.use_stat[A_CHR];
+    // Percent of the base price. Below 3 the switch fell through to its
+    // default of 100, which is why the table starts there. Steps are wide
+    // at the low end (130 -> 125 -> 122) and narrow to one point around
+    // 15..18, then widen again above 19.
+    static const stat_bonus_step by_charisma[] = {
+        {0, 100},  {3, 130},  {4, 125},  {5, 122},  {6, 120},  {7, 118},
+        {8, 116},  {9, 114},  {10, 112}, {11, 110}, {12, 108}, {13, 106},
+        {14, 104}, {15, 103}, {16, 102}, {17, 101}, {18, 100}, {19, 98},
+        {68, 96},  {88, 94},  {108, 92}, {118, 90},
+    };
 
-    if (charisma > 117) {
-        return 90;
-    } else if (charisma > 107) {
-        return 92;
-    } else if (charisma > 87) {
-        return 94;
-    } else if (charisma > 67) {
-        return 96;
-    } else if (charisma > 18) {
-        return 98;
-    } else {
-        switch (charisma) {
-        case 18:
-            return 100;
-        case 17:
-            return 101;
-        case 16:
-            return 102;
-        case 15:
-            return 103;
-        case 14:
-            return 104;
-        case 13:
-            return 106;
-        case 12:
-            return 108;
-        case 11:
-            return 110;
-        case 10:
-            return 112;
-        case 9:
-            return 114;
-        case 8:
-            return 116;
-        case 7:
-            return 118;
-        case 6:
-            return 120;
-        case 5:
-            return 122;
-        case 4:
-            return 125;
-        case 3:
-            return 130;
-        default:
-            return 100;
-        }
-    }
+    return lookup_stat_bonus(py.stats.use_stat[A_CHR], by_charisma, STAT_BONUS_STEPS(by_charisma));
 }
 
 // Returns a character's adjustment to hit points -JWT-
