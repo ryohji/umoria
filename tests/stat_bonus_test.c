@@ -35,6 +35,7 @@ int tohit_adj(void);
 int toac_adj(void);
 int todis_adj(void);
 int todam_adj(void);
+int chr_adj(void);
 
 #define MU_SETUP() fixture_reset()
 

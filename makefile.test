@@ -11,8 +11,25 @@
 
 CC = gcc
 STD = -std=c17
-WARNINGS = -Wall -Wextra -Wno-unused-parameter
-CFLAGS = $(STD) $(WARNINGS) -g -Isrc -Itests
+# 本体（makefile:18-20）に近づけているが、同一ではない。
+# 本体にあってここに無いもの:
+#   -Wpedantic            本体ヘッダ（externs.h）由来の警告が数百件出て、
+#                         テスト自身の問題が埋もれる
+#   -Wmissing-prototypes  代役ファイルは本体の宣言（externs.h）を include
+#                         しない設計なので、原理的に全代役が警告になる
+#   -Wnested-externs      fixture_reset() が関数内 extern でグローバルを
+#                         参照する形なので、意図的にこの形を使っている
+# これらを外した状態で、テストコード由来の警告は 0 件を保つ。
+WARNINGS = -Wall -Wextra -Wno-unused-parameter \
+           -Wshadow -Wstrict-prototypes -Wold-style-definition \
+           -Wformat=2 -Wwrite-strings
+# 本体のソース／ヘッダ由来の既存警告（externs.h の非プロトタイプ宣言、
+# tables.c の文字列リテラル等で数千件）は抑制する。これを残すと
+# テストコード自身の警告が埋もれて見えなくなる。本体側の警告は
+# make（本体ビルド）で見るべきもので、ここでの関心事ではない。
+SUPPRESS_UPSTREAM = -Wno-strict-prototypes -Wno-discarded-qualifiers \
+                    -Wno-write-strings -Wno-old-style-definition
+CFLAGS = $(STD) $(WARNINGS) $(SUPPRESS_UPSTREAM) -g -Isrc -Itests
 TESTDIR = tests
 BUILDDIR = $(TESTDIR)/build
 

@@ -128,15 +128,15 @@ static void prt_comment1() {
 // The meaning of the two numbers depends on the caller: the buyer and the
 // seller swap their roles, so they are named after the placeholder they
 // land in rather than after offer / asking.
-static void prt_haggle_comment(char **final_table, int final_count,
-                               char **normal_table, int normal_count,
+static void prt_haggle_comment(char **final_comments, int final_comment_count,
+                               char **normal_comments, int normal_comment_count,
                                int32_t a1, int32_t a2, int final) {
     vtype comment;
 
     if (final > 0) {
-        (void)strcpy(comment, final_table[randint(final_count) - 1]);
+        (void)strcpy(comment, final_comments[randint(final_comment_count) - 1]);
     } else {
-        (void)strcpy(comment, normal_table[randint(normal_count) - 1]);
+        (void)strcpy(comment, normal_comments[randint(normal_comment_count) - 1]);
     }
 
     insert_lnum(comment, "%A1", a1, false);
