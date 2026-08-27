@@ -208,15 +208,16 @@ static inline void wait_for_more_confirmation() {
     // let sigint handler know that we are waiting for a space
     wait_for_more = true;
 
-inkey:
+retry:
     switch (inkey()) {
-    default:
-        goto inkey;
     case ' ':
     case ESCAPE:
     case '\n':
     case '\r':
         break;
+    default:
+        // Anything else dismisses nothing; keep waiting.
+        goto retry;
     }
 
     wait_for_more = false;
