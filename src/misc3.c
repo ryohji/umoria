@@ -254,6 +254,29 @@ static void prt_int(int num, int row, int column) {
     put_buffer(out_val, row, column);
 }
 
+// A step in a stat-to-bonus table: `bonus` applies from `min_stat` upward,
+// until the next entry's `min_stat`. Entries must be in ascending order of
+// `min_stat`, and the first entry must be 0 so that every stat value matches.
+typedef struct {
+    uint8_t min_stat;
+    int bonus;
+} stat_bonus_step;
+
+// Look up the bonus for `stat` in an ascending table.
+// Callers pass `count` via STAT_BONUS_STEPS() so it always matches the table.
+static int lookup_stat_bonus(uint8_t stat, const stat_bonus_step *table, size_t count) {
+    int bonus = table[0].bonus;
+
+    for (size_t i = 1; i < count && stat >= table[i].min_stat; i++) {
+        bonus = table[i].bonus;
+    }
+
+    return bonus;
+}
+
+// Derive the element count from the table itself, so the two can not drift.
+#define STAT_BONUS_STEPS(table) ((sizeof(table)) / (sizeof((table)[0])))
+
 // Adjustment for wisdom/intelligence -JWT-
 int stat_adj(int stat) {
     int value = py.stats.use_stat[stat];
