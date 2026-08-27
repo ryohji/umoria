@@ -24,6 +24,19 @@ static struct termios save_termios;
 // Saved screen for save/restore operations
 static WINDOW *savescr = NULL;
 
+// Put the terminal into the mode the game needs: keys delivered one at a
+// time without echo, no newline translation, no flush on interrupt, and
+// no keypad escape decoding. Both startup and resume-from-suspend need
+// exactly this, so the two paths share it.
+static void set_terminal_mode(void)
+{
+    cbreak();
+    noecho();
+    nonl();
+    intrflush(stdscr, false);
+    keypad(stdscr, false);
+}
+
 // Forward declarations
 static bool ncurses_init(void);
 static void ncurses_shutdown(void);
@@ -92,12 +105,7 @@ static bool ncurses_init(void) {
         return false;
     }
 
-    // Set up terminal mode
-    cbreak();
-    noecho();
-    nonl();
-    intrflush(stdscr, false);
-    keypad(stdscr, false);
+    set_terminal_mode();
 
 #ifdef __APPLE__
     // Reduce escape delay on macOS
@@ -285,11 +293,7 @@ static void suspend(int signum) {
 
     // After resume, reinitialize ncurses
     initscr();
-    cbreak();
-    noecho();
-    nonl();
-    intrflush(stdscr, false);
-    keypad(stdscr, false);
+    set_terminal_mode();
 
     // Restore terminal state
     tcsetattr(0, TCSANOW, &tbuf);
