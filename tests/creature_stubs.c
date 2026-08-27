@@ -80,7 +80,24 @@ int damroll(int num, int sides) { (void)num; (void)sides; return 0; }
 bool in_bounds(int y, int x) { (void)y; (void)x; return true; }
 bool panel_contains(int y, int x) { (void)y; (void)x; return true; }
 bool los(int a, int b, int c, int d) { (void)a; (void)b; (void)c; (void)d; return false; }
-int distance(int a, int b, int c, int d) { (void)a; (void)b; (void)c; (void)d; return 0; }
+/* distance は代役にしない。creature.c:1033,1532 が `m_ptr->cdis` に
+ * 代入しており、常に 0 を返すと「全モンスターが隣接している」状態に
+ * なる。純粋関数なので misc1.c:210 の実装を写す（misc1.c 全体を
+ * リンクすると依存が芋づるで付くため）。tests/distance_test.c が
+ * 本物のふるまいを固定しているので、乖離すればそちらで気づける。 */
+int distance(int y1, int x1, int y2, int x2) {
+    int dy = y1 - y2;
+    if (dy < 0) {
+        dy = -dy;
+    }
+
+    int dx = x1 - x2;
+    if (dx < 0) {
+        dx = -dx;
+    }
+
+    return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
+}
 int mmove(int dir, int *y, int *x) { (void)dir; (void)y; (void)x; return 0; }
 void move_rec(int y1, int x1, int y2, int x2) { (void)y1; (void)x1; (void)y2; (void)x2; }
 int twall(int y, int x, int t, int d) { (void)y; (void)x; (void)t; (void)d; return 0; }

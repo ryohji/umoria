@@ -141,9 +141,27 @@ bool set_large(treasure_type *t) { (void)t; return false; }
 void move_rec(int y1, int x1, int y2, int x2) {
     (void)y1; (void)x1; (void)y2; (void)x2;
 }
+/* distance は代役にしてはいけない。misc3.c:2103 の teleport() が
+ * `while (distance(...) > dis)` でループするので、常に 0 を返す代役では
+ * ループの意味が変わる（テスト対象外の経路だが、将来テストが及んだときに
+ * 誤った結果を「正しい」と固定してしまう）。
+ *
+ * 純粋関数なので misc1.c:210 の実装をそのまま写す。misc1.c 全体を
+ * リンクするとダンジョン生成への依存が芋づるで付くため写しにしている。
+ * tests/distance_test.c が本物のふるまいを 10 件で固定しているので、
+ * 写しと本物が乖離すればそちらで気づける。 */
 int distance(int y1, int x1, int y2, int x2) {
-    (void)y1; (void)x1; (void)y2; (void)x2;
-    return 0;
+    int dy = y1 - y2;
+    if (dy < 0) {
+        dy = -dy;
+    }
+
+    int dx = x1 - x2;
+    if (dx < 0) {
+        dx = -dx;
+    }
+
+    return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
 }
 creature_type *monster_get_creature(creature_handle h) { (void)h; return NULL; }
 void recall_update_characteristics(creature_handle h, int defence) {
