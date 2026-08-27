@@ -179,7 +179,7 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 | 11 | **検証済み** | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
 | 12 | **検証済み** | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
 | 13 | **保留** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
-| 14 | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら bool を返す。単位が2種類混在で名前と乖離 | Rename + 戻り値の整理 | Medium | Low |
+| 14 | **検証済み** | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら比較の結果を返す。単位が2種類混在で名前と乖離 → `moves_this_turn` に改名し、`? 1 : 0` で「回数を返す」ことを明示。`if/else` の対称性は保持。**ふるまいは不変**（等価性を1,081万通りで実証） | Rename + 戻り値の明示 | Medium | Low |
 | 15 | **保留** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | 理解しづらいロジック | io.c:213-229 | `wait_for_more_confirmation` が `goto inkey` + switch。`default: goto inkey` で「それ以外は無視」を表現し意図が読めない | ループへの書きかえ | Medium | Low |
 | 17 | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
@@ -319,4 +319,8 @@ comment3a（売却・最終）: "I'll pay no more than %A1; take it or leave it.
 | 2026-08-27 | — | **担当が「意図的に壊してもレッドにならない」と正直に報告 → 保護の穴を発見。** 代役の `randint` が `maxval` を無視していたため、要素数の取りちがえが観測できなかった。代役に上限と呼びだし回数の記録を追加し、検証テスト4件を追加（`57b8813`）。**実証：要素数を 16→15 に取りちがえると即座にレッド** | **140 → 144** | GREEN |
 | 2026-08-27 | #12-C | **ステップ C（検証）**：独立した担当が14項目を検証し **PASS**。統合の正しさ（`randint` 1回、`final > 0`、`insert_lnum` の順序、配列の対応、要素数）、呼びだし側の引数順の保存を確認。**穴埋めが機能することを独立に実証**（要素数の変異→1件レッド、`randint` 2回呼び→1件レッド）。`fixture.h` の宣言と `fixture.c` の実装の非対称を指摘 | 144 | **PASS** |
 | 2026-08-27 | — | ステップ C の指摘に対応。`fixture.c` にも記録窓口を実装（`eb1bfca`）。宣言と実装の非対称を解消 | 144 | GREEN |
+| 2026-08-28 | #14-A | **ステップ A（保護）**：`tests/movement_rate_test.c` に24件追加（`d580a07`）。`src/creature.c` を `#include` して `static` 関数を直接呼ぶ方式。**担当はトークン期限切れで中断したが、テストのコミットは完了していた**。周期性（`speed=0`→2、`-1`→3、`-2`→4）、負の `turn`、`rest` の影響範囲を固定。バグ候補 B13/B14 を発見 | **144 → 168** | GREEN |
+| 2026-08-28 | #14-B | **ステップ B（変更）**：中断した担当から引き継ぎ、オーケストレーターが実施。`87cb4a9` 改名（`movement_rate` → `moves_this_turn`）→ `883b7f7` `? 1 : 0` で回数を返すことを明示 + B13 のコメント誤りを修正。**`if/else` の対称性は保持**（値を返す分岐は早期リターンにしない方針） | 168 | GREEN |
+| 2026-08-28 | #14-C | **ステップ C（検証）**：独立した担当が8項目を検証し **PASS**。**`? 1 : 0` の等価性を実測で確認（`speed` × `turn` の 1,081万通りを網羅比較、不一致0件）**。演算子の優先順位（`(a==b) ? 1 : 0` と解釈されるか）も確認。意図的な破壊でレッド（`? 0 : 1` に反転 → 19件、`rest` の条件反転 → 4件）。コメントの重複を指摘 | 168 | **PASS** |
+| 2026-08-28 | — | ステップ C の指摘に対応。コメントの重複を整理（`fb4ccb5`）。設計背景の NOTE は残した | 168 | GREEN |
 
