@@ -758,33 +758,14 @@ int toac_adj() {
 
 // Returns a character's adjustment to disarm -RAK-
 int todis_adj() {
-    int stat = py.stats.use_stat[A_DEX];
+    // Note the gaps: 2 is followed by 4, and 6 by 8. Unlike the other
+    // adjustments this one does not step by 1, so 3 and 7 never occur.
+    static const stat_bonus_step by_dexterity[] = {
+        {0, -8}, {4, -6}, {5, -4}, {6, -2}, {7, -1}, {8, 0},
+        {13, 1}, {16, 2}, {18, 4}, {59, 5}, {94, 6}, {117, 8},
+    };
 
-    if (stat < 4) {
-        return -8;
-    } else if (stat == 4) {
-        return -6;
-    } else if (stat == 5) {
-        return -4;
-    } else if (stat == 6) {
-        return -2;
-    } else if (stat == 7) {
-        return -1;
-    } else if (stat < 13) {
-        return 0;
-    } else if (stat < 16) {
-        return 1;
-    } else if (stat < 18) {
-        return 2;
-    } else if (stat < 59) {
-        return 4;
-    } else if (stat < 94) {
-        return 5;
-    } else if (stat < 117) {
-        return 6;
-    } else {
-        return 8;
-    }
+    return lookup_stat_bonus(py.stats.use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity));
 }
 
 // Returns a character's adjustment to damage -JWT-
