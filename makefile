@@ -172,11 +172,11 @@ potions.o: $(HEADERS_FULL)
 prayer.o: $(HEADERS_FULL)
 recall.o: $(HEADERS_FULL)
 render.o: $(SRCDIR)/render.h
-render_ncurses.o: $(SRCDIR)/render.h $(SRCDIR)/render_ncurses.h
+render_ncurses.o: $(SRCDIR)/render.h $(SRCDIR)/backend_ncurses.h
 rnd.o: $(HEADERS_COMMON)
 view_observer.o: $(SRCDIR)/view_observer.h
 input.o: $(SRCDIR)/input.h
-input_ncurses.o: $(SRCDIR)/input.h $(SRCDIR)/input_ncurses.h
+input_ncurses.o: $(SRCDIR)/input.h $(SRCDIR)/backend_ncurses.h
 platform.o: $(SRCDIR)/platform.h $(SRCDIR)/backend_ncurses.h $(SRCDIR)/render.h $(SRCDIR)/input.h
 save.o: $(HEADERS_FULL)
 scrolls.o: $(HEADERS_FULL)
