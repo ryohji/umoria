@@ -803,6 +803,130 @@ TEST(tohit_adj_returns_minus_six_when_both_stats_are_zero)
     ASSERT_EQ_INT(tohit_adj(), -6);
 }
 
+/* ------------------------------------------------------------------
+ * chr_adj -- 魅力による店の価格調整（百分率）
+ *
+ * 他の 5 関数と違い、if 連鎖 5 段と switch 17 ケースが混在している。
+ * 3..18 は 1 刻みで個別に決まり、19 以上は 5 段の範囲で決まる。
+ * switch の default（100）は charisma < 3 の場合。
+ *
+ * 値が大きいほど安く買える（90 が最良、130 が最悪）。
+ * ------------------------------------------------------------------ */
+
+static void given_charisma(int value)
+{
+    py.stats.use_stat[A_CHR] = (uint8_t)value;
+}
+
+/* switch の default。3 未満はすべて 100（等倍） */
+TEST(chr_adj_returns_one_hundred_below_charisma_three)
+{
+    given_charisma(2);
+    ASSERT_EQ_INT(chr_adj(), 100);
+}
+
+/* 最低の魅力 3 で最も高くつく（130%） */
+TEST(chr_adj_returns_one_hundred_thirty_at_charisma_three)
+{
+    given_charisma(3);
+    ASSERT_EQ_INT(chr_adj(), 130);
+}
+
+/* 3 → 4 で 5 下がる。ここだけ刻みが大きい（130 → 125） */
+TEST(chr_adj_drops_five_points_from_charisma_three_to_four)
+{
+    given_charisma(4);
+    ASSERT_EQ_INT(chr_adj(), 125);
+}
+
+/* 4 → 5 は 3 刻み（125 → 122） */
+TEST(chr_adj_returns_one_hundred_twenty_two_at_charisma_five)
+{
+    given_charisma(5);
+    ASSERT_EQ_INT(chr_adj(), 122);
+}
+
+/* 5 以降はおおむね 2 刻み */
+TEST(chr_adj_returns_one_hundred_twenty_at_charisma_six)
+{
+    given_charisma(6);
+    ASSERT_EQ_INT(chr_adj(), 120);
+}
+
+/* 14 → 15 で刻みが 2 から 1 に変わる（104 → 103） */
+TEST(chr_adj_returns_one_hundred_four_at_charisma_fourteen)
+{
+    given_charisma(14);
+    ASSERT_EQ_INT(chr_adj(), 104);
+}
+
+TEST(chr_adj_narrows_to_one_point_steps_at_charisma_fifteen)
+{
+    given_charisma(15);
+    ASSERT_EQ_INT(chr_adj(), 103);
+}
+
+/* 18 で等倍（100）。switch の最上位ケース */
+TEST(chr_adj_returns_one_hundred_at_charisma_eighteen)
+{
+    given_charisma(18);
+    ASSERT_EQ_INT(chr_adj(), 100);
+}
+
+/* 19 で switch を抜けて if 連鎖の範囲に入る（100 → 98） */
+TEST(chr_adj_returns_ninety_eight_at_charisma_nineteen)
+{
+    given_charisma(19);
+    ASSERT_EQ_INT(chr_adj(), 98);
+}
+
+/* 19..67 は同じ 98。範囲の上端 */
+TEST(chr_adj_still_returns_ninety_eight_at_charisma_sixty_seven)
+{
+    given_charisma(67);
+    ASSERT_EQ_INT(chr_adj(), 98);
+}
+
+/* 68 で次の段（98 → 96） */
+TEST(chr_adj_returns_ninety_six_at_charisma_sixty_eight)
+{
+    given_charisma(68);
+    ASSERT_EQ_INT(chr_adj(), 96);
+}
+
+TEST(chr_adj_returns_ninety_four_at_charisma_eighty_eight)
+{
+    given_charisma(88);
+    ASSERT_EQ_INT(chr_adj(), 94);
+}
+
+TEST(chr_adj_returns_ninety_two_at_charisma_one_hundred_eight)
+{
+    given_charisma(108);
+    ASSERT_EQ_INT(chr_adj(), 92);
+}
+
+/* 117 はまだ 92。最上段の境界の下側 */
+TEST(chr_adj_still_returns_ninety_two_at_charisma_one_hundred_seventeen)
+{
+    given_charisma(117);
+    ASSERT_EQ_INT(chr_adj(), 92);
+}
+
+/* 118 で最上段（92 → 90）。最も安く買える */
+TEST(chr_adj_returns_ninety_at_charisma_one_hundred_eighteen)
+{
+    given_charisma(118);
+    ASSERT_EQ_INT(chr_adj(), 90);
+}
+
+/* uint8_t の上限でも最上段のまま */
+TEST(chr_adj_returns_ninety_at_maximum_charisma)
+{
+    given_charisma(255);
+    ASSERT_EQ_INT(chr_adj(), 90);
+}
+
 int main(void)
 {
     /* --- stat_adj: 8 段の境界を両側から押さえる --- */
@@ -929,6 +1053,23 @@ int main(void)
     RUN_TEST(tohit_adj_changes_when_only_strength_changes);
     RUN_TEST(tohit_adj_sums_both_tables_when_both_stats_are_one_hundred_seventeen);
     RUN_TEST(tohit_adj_returns_minus_six_when_both_stats_are_zero);
+
+    RUN_TEST(chr_adj_returns_one_hundred_below_charisma_three);
+    RUN_TEST(chr_adj_returns_one_hundred_thirty_at_charisma_three);
+    RUN_TEST(chr_adj_drops_five_points_from_charisma_three_to_four);
+    RUN_TEST(chr_adj_returns_one_hundred_twenty_two_at_charisma_five);
+    RUN_TEST(chr_adj_returns_one_hundred_twenty_at_charisma_six);
+    RUN_TEST(chr_adj_returns_one_hundred_four_at_charisma_fourteen);
+    RUN_TEST(chr_adj_narrows_to_one_point_steps_at_charisma_fifteen);
+    RUN_TEST(chr_adj_returns_one_hundred_at_charisma_eighteen);
+    RUN_TEST(chr_adj_returns_ninety_eight_at_charisma_nineteen);
+    RUN_TEST(chr_adj_still_returns_ninety_eight_at_charisma_sixty_seven);
+    RUN_TEST(chr_adj_returns_ninety_six_at_charisma_sixty_eight);
+    RUN_TEST(chr_adj_returns_ninety_four_at_charisma_eighty_eight);
+    RUN_TEST(chr_adj_returns_ninety_two_at_charisma_one_hundred_eight);
+    RUN_TEST(chr_adj_still_returns_ninety_two_at_charisma_one_hundred_seventeen);
+    RUN_TEST(chr_adj_returns_ninety_at_charisma_one_hundred_eighteen);
+    RUN_TEST(chr_adj_returns_ninety_at_maximum_charisma);
 
     return TEST_SUMMARY();
 }
