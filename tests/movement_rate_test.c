@@ -1,12 +1,12 @@
 /* モンスターの行動回数計算のテスト -- 現在の実装を保護する
  *
- * src/creature.c:75-86 の movement_rate() は、名前と戻り値の意味が
+ * src/creature.c:75-86 の moves_this_turn() は、名前と戻り値の意味が
  * 乖離している。
  *
  *   speed > 0  のとき: 行動回数（speed 回。ただし休憩中は 1 回に抑える）
  *   speed <= 0 のとき: 条件式 (turn % (2 - speed)) == 0 の結果（0 か 1）
  *
- * 呼びだし元（src/creature.c:1529）は k = movement_rate(...) の結果を
+ * 呼びだし元（src/creature.c:1529）は k = moves_this_turn(...) の結果を
  * while (k > 0) { k--; ... } で「回数」として消費するので、0/1 は
  * 「0 回 / 1 回」として機能している。つまり呼びだし側の解釈は一貫して
  * 「回数」であり、後者の枝は「周期的に 1 回動く」を意味している。
@@ -53,14 +53,14 @@
 TEST(returns_one_move_when_speed_is_one)
 {
     turn = 0;
-    ASSERT_EQ_INT(movement_rate(1), 1);
+    ASSERT_EQ_INT(moves_this_turn(1), 1);
 }
 
 /* 三角測量。1 だけでは「つねに 1 を返す」実装と区別できない。 */
 TEST(returns_five_moves_when_speed_is_five)
 {
     turn = 0;
-    ASSERT_EQ_INT(movement_rate(5), 5);
+    ASSERT_EQ_INT(moves_this_turn(5), 5);
 }
 
 /* 休憩中は speed が大きくても 1 回に抑えられる。 */
@@ -68,7 +68,7 @@ TEST(returns_one_move_when_speed_is_five_and_player_is_resting)
 {
     turn = 0;
     py.flags.rest = 1;
-    ASSERT_EQ_INT(movement_rate(5), 1);
+    ASSERT_EQ_INT(moves_this_turn(5), 1);
 }
 
 /* 上との対比。rest を 0 に戻せば speed 回に戻る。
@@ -77,7 +77,7 @@ TEST(returns_five_moves_again_when_resting_is_cleared)
 {
     turn = 0;
     py.flags.rest = 0;
-    ASSERT_EQ_INT(movement_rate(5), 5);
+    ASSERT_EQ_INT(moves_this_turn(5), 5);
 }
 
 /* rest は int16_t で負も入る。判定が != 0 なので負でも抑制される。
@@ -86,7 +86,7 @@ TEST(returns_one_move_when_resting_count_is_negative)
 {
     turn = 0;
     py.flags.rest = -1;
-    ASSERT_EQ_INT(movement_rate(5), 1);
+    ASSERT_EQ_INT(moves_this_turn(5), 1);
 }
 
 /* ------------------------------------------------------------------
@@ -105,20 +105,20 @@ TEST(returns_one_move_when_resting_count_is_negative)
 TEST(moves_once_at_the_start_of_the_cycle_when_speed_is_zero)
 {
     turn = 0;
-    ASSERT_EQ_INT(movement_rate(0), 1);
+    ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
 TEST(does_not_move_on_the_odd_turn_when_speed_is_zero)
 {
     turn = 1;
-    ASSERT_EQ_INT(movement_rate(0), 0);
+    ASSERT_EQ_INT(moves_this_turn(0), 0);
 }
 
 /* 周期 2 なので turn = 2 でまた動く。周期性が固定される。 */
 TEST(moves_again_two_turns_later_when_speed_is_zero)
 {
     turn = 2;
-    ASSERT_EQ_INT(movement_rate(0), 1);
+    ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
 /* SUSPICIOUS: turn は variable.c:69 で -1 に初期化されている。C の % は
@@ -129,7 +129,7 @@ TEST(moves_again_two_turns_later_when_speed_is_zero)
 TEST(does_not_move_when_turn_is_the_initial_minus_one_and_speed_is_zero)
 {
     turn = -1;
-    ASSERT_EQ_INT(movement_rate(0), 0);
+    ASSERT_EQ_INT(moves_this_turn(0), 0);
 }
 
 /* 一方で -2 % 2 は 0 なので、負の turn でも周期の頭にあたれば動く。
@@ -137,7 +137,7 @@ TEST(does_not_move_when_turn_is_the_initial_minus_one_and_speed_is_zero)
 TEST(moves_once_when_turn_is_minus_two_and_speed_is_zero)
 {
     turn = -2;
-    ASSERT_EQ_INT(movement_rate(0), 1);
+    ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
 /* ------------------------------------------------------------------
@@ -151,13 +151,13 @@ TEST(moves_once_when_turn_is_minus_two_and_speed_is_zero)
 TEST(moves_once_every_three_turns_at_turn_zero_when_speed_is_minus_one)
 {
     turn = 0;
-    ASSERT_EQ_INT(movement_rate(-1), 1);
+    ASSERT_EQ_INT(moves_this_turn(-1), 1);
 }
 
 TEST(does_not_move_at_turn_one_when_speed_is_minus_one)
 {
     turn = 1;
-    ASSERT_EQ_INT(movement_rate(-1), 0);
+    ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
 /* 周期 2 との違いはここに出る。speed = 0 なら turn = 2 で動くが、
@@ -165,13 +165,13 @@ TEST(does_not_move_at_turn_one_when_speed_is_minus_one)
 TEST(does_not_move_at_turn_two_when_speed_is_minus_one)
 {
     turn = 2;
-    ASSERT_EQ_INT(movement_rate(-1), 0);
+    ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
 TEST(moves_again_at_turn_three_when_speed_is_minus_one)
 {
     turn = 3;
-    ASSERT_EQ_INT(movement_rate(-1), 1);
+    ASSERT_EQ_INT(moves_this_turn(-1), 1);
 }
 
 /* 三角測量。speed = -2 なら周期 4。turn = 3 は speed = -1 では動く
@@ -179,13 +179,13 @@ TEST(moves_again_at_turn_three_when_speed_is_minus_one)
 TEST(does_not_move_at_turn_three_when_speed_is_minus_two)
 {
     turn = 3;
-    ASSERT_EQ_INT(movement_rate(-2), 0);
+    ASSERT_EQ_INT(moves_this_turn(-2), 0);
 }
 
 TEST(moves_once_at_turn_four_when_speed_is_minus_two)
 {
     turn = 4;
-    ASSERT_EQ_INT(movement_rate(-2), 1);
+    ASSERT_EQ_INT(moves_this_turn(-2), 1);
 }
 
 /* ------------------------------------------------------------------
@@ -204,19 +204,19 @@ TEST(moves_once_at_turn_four_when_speed_is_minus_two)
 TEST(returns_exactly_one_at_phase_zero_of_the_three_turn_cycle)
 {
     turn = 9;
-    ASSERT_EQ_INT(movement_rate(-1), 1);
+    ASSERT_EQ_INT(moves_this_turn(-1), 1);
 }
 
 TEST(returns_exactly_zero_at_phase_one_of_the_three_turn_cycle)
 {
     turn = 10;
-    ASSERT_EQ_INT(movement_rate(-1), 0);
+    ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
 TEST(returns_exactly_zero_at_phase_two_of_the_three_turn_cycle)
 {
     turn = 11;
-    ASSERT_EQ_INT(movement_rate(-1), 0);
+    ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
 /* 大きい turn でも 1 を超えない。回数として消費されるので、2 以上が
@@ -224,14 +224,14 @@ TEST(returns_exactly_zero_at_phase_two_of_the_three_turn_cycle)
 TEST(returns_exactly_one_at_a_large_turn_on_the_cycle)
 {
     turn = 1000000;
-    ASSERT_EQ_INT(movement_rate(-2), 1);
+    ASSERT_EQ_INT(moves_this_turn(-2), 1);
 }
 
 /* 速度が大きく負でも上限は 1。周期 12 の頭を外したところ。 */
 TEST(returns_exactly_zero_for_a_deeply_negative_speed_off_the_cycle)
 {
     turn = 5;
-    ASSERT_EQ_INT(movement_rate(-10), 0);
+    ASSERT_EQ_INT(moves_this_turn(-10), 0);
 }
 
 /* ------------------------------------------------------------------
@@ -246,7 +246,7 @@ TEST(ignores_resting_when_speed_is_zero_and_the_turn_is_on_the_cycle)
 {
     turn = 0;
     py.flags.rest = 1;
-    ASSERT_EQ_INT(movement_rate(0), 1);
+    ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
 /* ここが本質。rest != 0 でも「1 回」に持ちあげられず、0 のまま。
@@ -255,14 +255,14 @@ TEST(ignores_resting_when_speed_is_zero_and_the_turn_is_off_the_cycle)
 {
     turn = 1;
     py.flags.rest = 1;
-    ASSERT_EQ_INT(movement_rate(0), 0);
+    ASSERT_EQ_INT(moves_this_turn(0), 0);
 }
 
 TEST(ignores_resting_when_speed_is_negative_and_the_turn_is_off_the_cycle)
 {
     turn = 1;
     py.flags.rest = 100;
-    ASSERT_EQ_INT(movement_rate(-1), 0);
+    ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
 int main(void)

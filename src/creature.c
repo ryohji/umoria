@@ -72,7 +72,7 @@ void update_mon(int monptr) {
 // Given speed, returns number of moves this turn. -RAK-
 // NOTE: Player must always move at least once per iteration,
 // a slowed player is handled by moving monsters faster
-static int movement_rate(int16_t speed) {
+static int moves_this_turn(int16_t speed) {
     if (speed > 0) {
         if (py.flags.rest != 0) {
             return 1;
@@ -1526,7 +1526,7 @@ void creatures(int attack) {
 
         // Attack is argument passed to CREATURE
         if (attack) {
-            k = movement_rate(m_ptr->cspeed);
+            k = moves_this_turn(m_ptr->cspeed);
             if (k <= 0) {
                 update_mon(i);
             } else {
