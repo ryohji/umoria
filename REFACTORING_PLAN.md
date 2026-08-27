@@ -215,7 +215,7 @@ $ cd data && TERM=xterm ../umoria
 | 12 | **検証済み** | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
 | 13 | **棚上げ** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
 | 14 | **検証済み** | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら比較の結果を返す。単位が2種類混在で名前と乖離 → `moves_this_turn` に改名し、`? 1 : 0` で「回数を返す」ことを明示。`if/else` の対称性は保持。**ふるまいは不変**（等価性を1,081万通りで実証） | Rename + 戻り値の明示 | Medium | Low |
-| 15 | **着手可** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
+| 15 | **完了** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | **完了** | 理解しづらいロジック | io.c:207-224 | `wait_for_more_confirmation` が `goto inkey` + switch。**読みにくさの原因は `case` の列挙ではなく、ラベル名（関数 `inkey()` と同名）と `default` の位置だった。** ラベルを `retry` に改め、`default` を後置してコメントを補った。`case` で受理文字を並べる形は「集合の宣言」として読めるので残した | ラベル改名 + 分岐の並べ替え | Medium | Low |
 | 17 | **検証済み** | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
 | 18 | データの散在 | misc3.c:369-540, dungeon.c:580-780, view_observer.h | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 / observer 型に4重分散 | #3 の削除後に再評価 | High | Medium |
@@ -360,6 +360,35 @@ int distance(int y1, int x1, int y2, int x2) { return 0; }
 **教訓：リンカが列挙した未解決シンボルを機械的に埋めると、危険な代役が混ざる。**
 リンカは「足りない」ことしか教えてくれず、何を返すべきかは判断が必要。
 純粋な計算関数や、判定・分岐に使う値を返す関数は代役にしてはいけない。
+
+### #17b：`chr_adj` / `con_adj`（2026-08-28 に追加）
+
+全体の再評価で、**#17 と同型の関数が台帳から漏れていた**ことが判明した。
+
+| 関数 | 場所 | 構造 | テーブル化 |
+|---|---|---|---|
+| `chr_adj` | `misc3.c:295-346` | `if` 連鎖 5 段 + **`switch` 17 ケース** | **できる**（22 段。全域で等価を実証済み） |
+| `con_adj` | `misc3.c:349-364` | `if` 連鎖 6 段 | **できない** |
+
+**`con_adj` を対象外とした理由。**
+
+```c
+if (con < 7) {
+    return (con - 7);   /* ← 定数ではなく計算値 */
+}
+```
+
+`con < 7` の枝が **`con` の値から計算した結果**を返す（-7..-1 の範囲で連続的に変わる）。
+テーブルは「境界値 → 定数」の写像なので、この形は表せない。
+6 段に個別のエントリを並べれば表せるが（`{0,-7},{1,-6},...,{6,-1}`）、
+**計算式を定数の列に展開するのは意味の劣化**にあたる。読み手は
+「なぜ -7 から始まって 1 ずつ増えるのか」を表から読み取れない。
+`con - 7` のままが正確に意図を伝えている。
+
+**`chr_adj` はテーブル化できる。** `if` 連鎖と `switch` の混在という
+最も読みにくい形で、22 段の昇順テーブルに置きかえられることを
+0..255 の全域で確認した（不一致 0 件）。`switch` の `default: return 100` は
+`charisma < 3` の場合で、テーブルでは先頭 `{0, 100}` に対応する。
 
 ## P3：記録のみ（今回は着手しない）
 
