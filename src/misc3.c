@@ -279,25 +279,15 @@ static int lookup_stat_bonus(uint8_t stat, const stat_bonus_step *table, size_t 
 
 // Adjustment for wisdom/intelligence -JWT-
 int stat_adj(int stat) {
-    int value = py.stats.use_stat[stat];
+    // The original chain tested `value > N` in descending order, so each
+    // bonus started at N + 1: `> 117` becomes a lower bound of 118, and
+    // so on. Note this is the only adjustment that never returns a
+    // penalty -- its floor is 0, not a negative value.
+    static const stat_bonus_step by_stat[] = {
+        {0, 0}, {8, 1}, {15, 2}, {18, 3}, {68, 4}, {88, 5}, {108, 6}, {118, 7},
+    };
 
-    if (value > 117) {
-        return 7;
-    } else if (value > 107) {
-        return 6;
-    } else if (value > 87) {
-        return 5;
-    } else if (value > 67) {
-        return 4;
-    } else if (value > 17) {
-        return 3;
-    } else if (value > 14) {
-        return 2;
-    } else if (value > 7) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return lookup_stat_bonus(py.stats.use_stat[stat], by_stat, STAT_BONUS_STEPS(by_stat));
 }
 
 // Adjustment for charisma -RAK-
