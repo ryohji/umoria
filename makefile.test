@@ -19,7 +19,7 @@ BUILDDIR = $(TESTDIR)/build
 # テストは 1 実行形式につき 1 対象モジュール。
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
-        put_misc3_test haggle_comment_test
+        put_misc3_test haggle_comment_test movement_rate_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -151,6 +151,28 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
+
+# モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
+# static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
+# ならないので、テスト側が src/creature.c を #include して実体ごと取りこみ、
+# static 関数を直接呼ぶ。ゆえに creature.c は依存に書くがコンパイル対象には
+# 並べない（二重定義になる）。
+#
+# creature.c は 1609 行（モンスターの移動・攻撃・呪文）なので、取りこむと
+# 76 個の未解決シンボルが芋づるで付いてくる。movement_rate() の依存は
+# グローバル turn と py.flags.rest の 2 つだけなので、本物のソースを 1 つも
+# リンクせず、すべて tests/creature_stubs.c の代役で埋めるのが最小構成に
+# なる（misc3_stubs.c だと py・msg_print・randint が重複する）。
+# 一覧はリンカに列挙させたもので、手で数えあげたわけではない。
+#
+# turn は代役側で定義しており（本体では variable.c:69）、extern int32_t
+# なのでテストから直接代入して制御できる。
+$(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
+                                $(TESTDIR)/creature_stubs.c \
+                                $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                                src/creature.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
+	    $(TESTDIR)/creature_stubs.c
 
 clean:
 	rm -rf $(BUILDDIR)
