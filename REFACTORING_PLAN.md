@@ -71,7 +71,7 @@ FAIL: monster_name_indefinite(out, &c) == "XXX": actual "an orc", expected "XXX"
 | 7 | **検証済み** | 重複コード | staffs.c:35-46, wands.c:42-56 | 魔法道具の成功判定が2箇所で丸ごと同一。差異は staffs の `-5` のみ → `src/device.c` に抽出。penalty を引数化（STAFF=5 / WAND=0） | Extract Method → `device_use_chance()` | High | Low |
 | 8b | **検証済み** | 重複コード | staffs.c:154-167, wands.c:152-165 | **#8 と同じ `ident` ブロックがさらに 2 箇所**（2026-08-27 に判明）。どちらも `i_ptr` 再代入がコメントアウト済み（`// NOTE: this is never read after this`）なので、`scrolls.c` と同型。`learn_item_effect()` の呼びだしに置きかえるだけで済む。**すでに `item_ident.c` が存在し、テスト 21 件で保護されているので着手コストは Low** | 抽出済み関数の呼びだしに置きかえ | High | Low |
 | 8 | **検証済み** | 重複コード | potions.c:319-331, eat.c:190-203, scrolls.c:465-480 | 「効果が判明したら経験値加算 → identify、判明しなければ sample」の `ident` ブロックが3ファイルで実質完全一致（差異は `scrolls.c` が `i_ptr` 再代入を省くのみ）。経験値の加算式 `m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;` は3箇所で同一 | Extract Method | High | Medium |
-| 9 | **保留** | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行（`cbreak`/`noecho`/`nonl`/`intrflush`/`keypad`）を `ncurses_init` からコピペ | Extract Method | High | Low |
+| 9 | **着手可** | 重複コード | render_ncurses.c:274-297 vs :96-101 | `suspend()` が端末モード設定5行（`cbreak`/`noecho`/`nonl`/`intrflush`/`keypad`）を `ncurses_init` からコピペ | Extract Method | High | Low |
 
 **すべて「保護」欄は無（テスト0件）。** #1 でテストの足場を作り、以後は各項目の対象に
 テストを足してから着手する。#2〜#6 のデッドコード削除は参照0件を grep で裏取り済みなので、
@@ -143,8 +143,25 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 修正方法も単純だが、「テストで保護してから変更する」原則の前提
 （変更後にビルドが通ることを確認できる）が満たせない。
 
-`libncurses-dev` を導入すれば 3 項目まとめて着手できる。
-環境の変更なのでユーザーの判断を待つ。
+### 保留の解除（2026-08-28）：ncurses 導入により再評価
+
+`libncurses-dev` が導入され、**`make` が成功するようになった**。3 ファイルすべて
+`gcc -fsyntax-only` が通り、`umoria` の実行ファイルが生成される
+（私たちが追加した `device.o` / `item_ident.o` / `abilities.o` も正しくリンクされた）。
+
+**テスト可能性も実証した。** `ncurses.h` は関数をマクロ化せず実関数として宣言している
+ため、**リンクシームが効く**。`cbreak` / `noecho` / `nonl` / `intrflush` / `keypad` /
+`initscr` / `endwin` / `stdscr` / `LINES` / `COLS` などの代役を書き、`-lncurses` を
+付けずにリンクできることを確認済み（必要な代役は 75 個。既存の
+`tests/misc3_stubs.c` が 57 個なので同程度の作業量）。
+
+再評価の結果、3 項目の判定が分かれた。
+
+| # | 判定 | 理由 |
+|---|---|---|
+| **15** | **着手可（最優先）** | 宣言は文字単位で同一（差異 0）。ヘッダの移動だけなので**コンパイラ自身が保護**になる。リスクほぼゼロ |
+| **9** | **着手可** | 端末モード設定 5 行が完全一致（差異 0）。代役に呼びだし回数カウンタを持たせれば `ncurses_init` と `suspend` の等価性を検証できる |
+| **13** | **棚上げに変更** | テストは書けるが、**ふるまいの正解が未定**。`nosignals()` の `SIG_IGN` と `suspend` 登録が競合する設計上の不整合（→ **B15**）を含み、責務を `signals.c` に寄せる前にその不整合をどう扱うかの仕様判断が必要。リファクタリングではなく設計変更 |
 
 ### #12 の精査（2026-08-27）
 
@@ -178,9 +195,9 @@ ncurses なしでは変更後の検証ができない。** 重複や責務の分
 | 10 | **検証済み** | 重複コード | misc3.c:1162-1181 と 1242-1281 | `inven_check_num` と `inven_carry` のスタック可否判定（6条件）が同一。コメントで "must be identical" と自認しており、不一致はアイテム消失バグ直結 → `items_can_stack(existing, incoming)` に抽出。**副産物として実バグ B8/B9 を発見** | Extract Method | High | Medium |
 | 11 | **検証済み** | 重複コード | misc3.c:970-988, files.c:232-249 | 能力値算出の9式（`xbth`, `xbthb`, `xfos`, `xsrh`, `xstl`, `xdis`, `xsave`, `xdev`, `xinfra`）が画面版とファイル版で二重化。**2026-08-27 に diff で照合し、9式の本体が完全一致（コメントまで同一）と確認済み。** 差異は出力先（`put_buffer` か `fprintf`）のみ | Extract Method → `calc_abilities()` | Medium | Low |
 | 12 | **検証済み** | 重複コード | store2.c:123-135 vs 137-150 | `prt_comment2`/`prt_comment3` が同型。**2026-08-27 精査：差異は配列名だけでなく「要素数」も違う**（`comment2b[16]` vs `comment3b[15]`、`comment2a`/`comment3a` はどちらも 3）。配列ポインタと要素数を引数にとれば統合できる（差異 2 つ） | 引数化して統合 | Medium | Low |
-| 13 | **保留** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
+| 13 | **棚上げ** | 不適切な責務配置 | render_ncurses.c:47-50,107-110,271-298 | Render backend が SIGTSTP を直接 `signal()` 登録（`:109`）。`signals.c:98` は `// SIGTSTP is handled by the rendering system` とコメントで済ませており、シグナル責務が2ファイルに分裂 | Move（signals.c へ寄せる） | High | Medium |
 | 14 | **検証済み** | 名前が意図を表さない | creature.c:75-86 `movement_rate` | 速度>0 なら移動回数、速度<=0 なら比較の結果を返す。単位が2種類混在で名前と乖離 → `moves_this_turn` に改名し、`? 1 : 0` で「回数を返す」ことを明示。`if/else` の対称性は保持。**ふるまいは不変**（等価性を1,081万通りで実証） | Rename + 戻り値の明示 | Medium | Low |
-| 15 | **保留** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
+| 15 | **着手可** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | **完了** | 理解しづらいロジック | io.c:207-224 | `wait_for_more_confirmation` が `goto inkey` + switch。**読みにくさの原因は `case` の列挙ではなく、ラベル名（関数 `inkey()` と同名）と `default` の位置だった。** ラベルを `retry` に改め、`default` を後置してコメントを補った。`case` で受理文字を並べる形は「集合の宣言」として読めるので残した | ラベル改名 + 分岐の並べ替え | Medium | Low |
 | 17 | **検証済み** | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
 | 18 | データの散在 | misc3.c:369-540, dungeon.c:580-780, view_observer.h | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 / observer 型に4重分散 | #3 の削除後に再評価 | High | Medium |
