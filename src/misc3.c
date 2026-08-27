@@ -692,49 +692,18 @@ void bst_stat(int stat, int amount) {
 
 // Returns a character's adjustment to hit. -JWT-
 int tohit_adj() {
-    int total;
+    // Dexterity and strength contribute independently; the two are summed.
+    // Note the top steps do not agree: dexterity's runs from 118, strength's
+    // from 117.
+    static const stat_bonus_step by_dexterity[] = {
+        {0, -3}, {4, -2}, {6, -1}, {8, 0}, {16, 1}, {17, 2}, {18, 3}, {69, 4}, {118, 5},
+    };
+    static const stat_bonus_step by_strength[] = {
+        {0, -3}, {4, -2}, {5, -1}, {7, 0}, {18, 1}, {94, 2}, {109, 3}, {117, 4},
+    };
 
-    int stat = py.stats.use_stat[A_DEX];
-    if (stat < 4) {
-        total = -3;
-    } else if (stat < 6) {
-        total = -2;
-    } else if (stat < 8) {
-        total = -1;
-    } else if (stat < 16) {
-        total = 0;
-    } else if (stat < 17) {
-        total = 1;
-    } else if (stat < 18) {
-        total = 2;
-    } else if (stat < 69) {
-        total = 3;
-    } else if (stat < 118) {
-        total = 4;
-    } else {
-        total = 5;
-    }
-
-    stat = py.stats.use_stat[A_STR];
-    if (stat < 4) {
-        total -= 3;
-    } else if (stat < 5) {
-        total -= 2;
-    } else if (stat < 7) {
-        total -= 1;
-    } else if (stat < 18) {
-        total -= 0;
-    } else if (stat < 94) {
-        total += 1;
-    } else if (stat < 109) {
-        total += 2;
-    } else if (stat < 117) {
-        total += 3;
-    } else {
-        total += 4;
-    }
-
-    return total;
+    return lookup_stat_bonus(py.stats.use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity)) +
+           lookup_stat_bonus(py.stats.use_stat[A_STR], by_strength, STAT_BONUS_STEPS(by_strength));
 }
 
 // Returns a character's adjustment to armor class -JWT-
