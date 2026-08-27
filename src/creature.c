@@ -72,6 +72,11 @@ void update_mon(int monptr) {
 // Given speed, returns number of moves this turn. -RAK-
 // NOTE: Player must always move at least once per iteration,
 // a slowed player is handled by moving monsters faster
+// How many times this creature acts on this turn. 0 means it does not act.
+//
+// Fast creatures (speed > 0) act `speed` times, but only once while the
+// player is resting. Slow creatures (speed <= 0, including exactly 0) act
+// once every (2 - speed) turns: the longer the cycle, the slower they are.
 static int moves_this_turn(int16_t speed) {
     if (speed > 0) {
         if (py.flags.rest != 0) {
@@ -80,8 +85,10 @@ static int moves_this_turn(int16_t speed) {
             return speed;
         }
     } else {
-        // speed must be negative here
-        return ((turn % (2 - speed)) == 0);
+        // On the first turn of the cycle it acts once, otherwise not at all.
+        // Returning 1 or 0 explicitly, rather than the comparison itself,
+        // says that this is a count of moves and not a truth value.
+        return ((turn % (2 - speed)) == 0) ? 1 : 0;
     }
 }
 
