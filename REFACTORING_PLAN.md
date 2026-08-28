@@ -390,6 +390,55 @@ if (con < 7) {
 0..255 の全域で確認した（不一致 0 件）。`switch` の `default: return 100` は
 `charisma < 3` の場合で、テーブルでは先頭 `{0, 100}` に対応する。
 
+## コンパイル警告の解消（2026-08-28 に追加）
+
+**警告は「コンパイラが機械的に検出した臭い」。** 人間の目による検出より確実で、
+見落としがない。`make` で 8,338 件出るが、種類ごとに分けると実体は少ない。
+
+| 件数 | 種類 | 実体 | 危険度 |
+|---|---|---|---|
+| 5,530 | `-Wstrict-prototypes` | **`externs.h` の 141 関数が `()` で宣言**（K&R 形式）。50 ファイルから include されるので膨れている | 中 |
+| 2,433 | `-Wdiscarded-qualifiers` | `char *` を受ける関数に文字列リテラルを渡している。`tables.c` の定数表と `msg_print`/`prt` の引数型 | 中 |
+| 177 | `-Wold-style-definition` | 定義側も `()` になっている | 低 |
+| 111 | `-Wpedantic` | 主に `externs.h` | 低 |
+| 36 | `-Wformat-overflow=` | `sprintf` のバッファ長 | **高** |
+| 27 | `-Wmissing-prototypes` | 宣言のない外部関数 | 低 |
+| **12** | **下記の個別警告** | **実際の不具合を示す** | **最高** |
+
+### 危険度が最高の警告（12 件）— これを先に扱う
+
+| 場所 | 警告 | 内容 |
+|---|---|---|
+| `monsters.c:705,709,713` | `-Warray-bounds` | **`c_list - 1` は配列の直前を指すポインタで、C 標準では未定義動作**（終端の 1 つ先は合法だが先頭の 1 つ前は違法）。`monster_creature_rend()` などが返す |
+| `save.c:903` | `-Warray-bounds` | `&cave[MAX_HEIGHT][0]` との比較。**これは意図的な境界チェック**で、終端の 1 つ先なので C 標準では合法。GCC が配列添字として誤検出している。**修正不要**（コメントで意図を明記する価値はある） |
+| `save.c:1186` | `-Warray-bounds` | `bool` を `uint16_t*` として読み書きしている。**型の不一致で実害がありうる** |
+| `signals.c:90` | `-Wimplicit-function-declaration` | **`sigsetmask` の宣言がない**（POSIX で廃止された関数）。暗黙宣言は C99 以降エラー相当 |
+| `signals.c:219`, `render_ncurses.c:292` | 同上 | **`kill` の宣言がない**。`<signal.h>` の include が漏れている |
+| `game_state.c:66,67` | `-Wstringop-truncation` | `strncpy` で 79 バイトを 79 バイトにコピー。**終端の NUL が入らない** |
+| `main.c:76,79` | `-Wimplicit-fallthrough` | `switch` の fall through。意図的かどうか不明 |
+| `moria3.c:523` | `-Wunused-variable` | 未使用変数 `recall` |
+
+### 着手の方針
+
+**危険度順に扱う。件数の多さは優先度ではない。**
+
+| 段 | 対象 | 理由 |
+|---|---|---|
+| **1** | 上記 12 件の個別警告 | 実際の不具合を示す。件数が少なく個別に判断できる |
+| **2** | `-Wimplicit-function-declaration`（3 件） | **暗黙宣言は引数と戻り値の型検査が効かない**。`<signal.h>` の include で解決 |
+| **3** | `-Wformat-overflow=`（36 件） | バッファあふれの危険。`sprintf` を `snprintf` にする作業だが、**ふるまいが変わる**（切り詰めが起きる）ので慎重に |
+| **4** | `-Wstrict-prototypes`（実体 141 箇所） | `externs.h` の `()` を `(void)` にする。**機械的だが、引数を取る関数を誤って `(void)` にすると壊れる**のでテスト保護が必要 |
+| **5** | `-Wdiscarded-qualifiers`（2,433 件） | `char *` → `const char *` の伝播。**影響範囲が広く、最後に回す** |
+
+### なぜこれを臭いとして扱うか
+
+- `-Wstrict-prototypes` は「引数の型検査が効いていない」ことを意味する。
+  `()` 宣言の関数は**どんな引数で呼んでも警告が出ない**。型安全性が失われている
+- `-Wdiscarded-qualifiers` は「変更しないデータを変更可能として扱っている」。
+  **`const` の意図が伝わらない**ので、読み手は「この関数は引数を書きかえるのか」を
+  実装を読まないと判断できない
+- `-Warray-bounds` と `-Wstringop-truncation` は**実際の不具合**。臭いではなくバグ
+
 ## P3：記録のみ（今回は着手しない）
 
 将来その場所を触るときの手掛かりとして残す。
