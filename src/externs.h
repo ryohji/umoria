@@ -179,7 +179,10 @@ void creatures(int);
 void display_scores(int);
 bool duplicate_character();
 int32_t total_points();
-void exit_game();
+// 末尾で exit(0) するので、呼びだしの後ろへは戻らない。それを型で表明して
+// おくと「この後は到達しない」ことをコンパイラが判断できる（main.c の
+// switch で case を貫通しているという誤検出が消える）。
+_Noreturn void exit_game();
 
 // desc.c
 bool is_a_vowel(char);

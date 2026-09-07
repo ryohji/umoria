@@ -438,7 +438,7 @@ static void kingly() {
 
 // Handles the gravestone end top-twenty routines -RAK-
 // What happens upon dying. -RAK-
-void exit_game() {
+_Noreturn void exit_game() {
     msg_print(CNIL);
 
     flush();     // flush all input
