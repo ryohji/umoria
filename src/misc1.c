@@ -125,7 +125,10 @@ int randnor(int mean, int stand) {
 int bit_pos(uint32_t *test) {
     uint32_t mask = 0x1;
 
-    for (int i = 0; i < sizeof(*test) * 8; i++) {
+    // i は int、sizeof(*test) * 8 は size_t（符号なし）。そのまま比べると
+    // i が符号なしに変換される。ここは i >= 0 しか通らないので値は変わらない
+    // が、変換が起きていることを明示しておく。
+    for (int i = 0; i < (int)(sizeof(*test) * 8); i++) {
         if (*test & mask) {
             *test &= ~mask;
             return i;

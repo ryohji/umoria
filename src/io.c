@@ -584,7 +584,13 @@ int tilde(char *file, char *exp) {
 
             user[0] = '\0';
             file++;
-            while (*file != '/' && i < sizeof(user)) {
+            // 上限は sizeof(user) ではなく sizeof(user) - 1。ループを抜けた
+            // 直後に user[i] へ終端を書くので、その 1 バイトを残しておく
+            // 必要がある。元の条件だと i が 128 まで進みうるので
+            // user[128] への書きこみ（配列外）が起きていた。
+            // 符号も揃える。i は int、sizeof は size_t（符号なし）なので、
+            // そのまま比べると i が符号なしに変換される。
+            while (*file != '/' && i < (int)sizeof(user) - 1) {
                 user[i++] = *file++;
             }
             user[i] = '\0';

@@ -566,7 +566,9 @@ int roff_recall(creature_type *cp) {
 
     // We know about attacks it has used on us, and maybe the damage they do.
     // known_attacks is the total number of known attacks, used for punctuation
-    int known_attacks = 0;
+    // 0 から始めて増やすだけの個数で、下の j（uint32_t）と比べるので
+    // 符号を揃えておく。
+    uint32_t known_attacks = 0;
 
     // Turbo C needs a 16 bit int for the array index.
     for (j = 0; j < 4; j++) {
