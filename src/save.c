@@ -898,12 +898,18 @@ bool get_char(bool *generate) {
 
         // read in the rest of the cave info
         cave_type *c_ptr = &cave[0][0];
+
+        // 番地としては &cave[MAX_HEIGHT][0] と同じだが、そう書くと存在しない
+        // 行 MAX_HEIGHT の添字を書くことになる（-Warray-bounds）。cave は
+        // 行の配列なので、末尾のひとつ先は行の側で数える。
+        const cave_type *const cave_end = (const cave_type *)END_OF(cave);
+
         int total_count = 0;
         while (total_count != MAX_HEIGHT * MAX_WIDTH) {
             rd_byte(&count);
             rd_byte(&char_tmp);
             for (int i = count; i > 0; i--) {
-                if (c_ptr >= &cave[MAX_HEIGHT][0]) {
+                if (c_ptr >= cave_end) {
                     goto error;
                 }
                 c_ptr->fval = char_tmp & 0xF;
