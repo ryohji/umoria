@@ -163,9 +163,11 @@ static void print_tomb(void) {
     // 直接書きかえて表示し、そのあと元に戻していた。表示のために
     // 状態を触る必要はないので、写しをつくって足す。
     // もとの書きかたは died_from が 78 文字以上だと died_from[79] と
-    // died_from[80] に書いていた（配列外）。snprintf なら溢れる代わりに
-    // 切り詰められる。
-    vtype killed_by;
+    // died_from[80] に書いていた（配列外）。
+    //
+    // 写しは died_from（vtype）の中身と '.' と終端で 1 バイト分だけ大きく
+    // とる。ちょうど足りるので切り詰めは起こらない。
+    char killed_by[sizeof(vtype) + 1];
     (void)snprintf(killed_by, sizeof(killed_by), "%s.", died_from);
     (void)sprintf(str, "| %s |", center_string(tmp_str, killed_by));
     put_buffer(str, 16, 9);
