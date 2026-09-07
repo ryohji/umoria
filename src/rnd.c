@@ -12,6 +12,8 @@
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 // Define this to compile as a standalone test
 // #define TEST_RNG
 

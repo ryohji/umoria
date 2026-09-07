@@ -6,7 +6,10 @@
 
 // Declarations for global variables and initialized data
 
-extern char *copyright[5];
+// 実体は variable.c:17 で 17 要素。長らく 5 と書かれていたが、変数を
+// 定義している variable.c がこのヘッダを include していなかったので
+// 誰も気づけなかった。include を入れて食いちがいを見つけた。
+extern char *copyright[17];
 
 // horrible hack: needed because compact_monster() can be called from
 // deep within creatures() via place_monster() and summon_monster().
