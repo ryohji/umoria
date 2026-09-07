@@ -357,15 +357,18 @@ void wizard_create(void) {
         return;
     }
 
-    // can't be constant string, this causes problems with
-    // the GCC compiler and some scanf routines.
-    char pattern[4];
-
-    (void)strcpy(pattern, "%lx");
+    // もとは書式を配列に写してから渡していた（「定数文字列だと GCC と
+    // 一部の scanf で問題が出る」という註が付いていた）。書式が変数だと
+    // 書式と引数の対応をコンパイラが検査できず（-Wformat-nonliteral）、
+    // 実際そこに不具合があった。"%lx" は unsigned long * を要求するが
+    // 渡していたのは int32_t * なので、long が 8 バイトの環境では 4 バイトの
+    // 変数に 8 バイト書きこんでいた。書式をリテラルに戻し、受け手の型に
+    // 合う指定子を使う。
+    uint32_t item_flags = 0;
+    (void)sscanf(tmp_str, "%" SCNx32, &item_flags);
+    i_ptr->flags = item_flags;
 
     int32_t tmp_lval;
-    (void)sscanf(tmp_str, pattern, &tmp_lval);
-    i_ptr->flags = tmp_lval;
 
     prt("Cost : ", 0, 0);
     if (!get_string(tmp_str, 0, 9, 8)) {
