@@ -346,7 +346,7 @@ static bool haggle_insults(int store_num) {
     return haggle;
 }
 
-static bool get_haggle(char *comment, int32_t *new_offer, int num_offer) {
+static bool get_haggle(const char *comment, int32_t *new_offer, int num_offer) {
     bool flag = true;
     bool increment = false;
 
@@ -482,7 +482,7 @@ static int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
     int32_t last_offer = min_offer;
     int32_t new_offer = 0;
     int num_offer = 0; // this prevents incremental haggling on first try
-    char *comment = "Asking";
+    const char *comment = "Asking";
 
     // go right to final price if player has bargained well
     if (noneedtobargain(store_num, final_ask)) {
@@ -647,7 +647,7 @@ static int sell_haggle(int store_num, int32_t *price, inven_type *item) {
 
     int32_t cur_ask;
     int32_t final_ask = 0;
-    char *comment;
+    const char *comment;
 
     if (!flag) {
         haggle_commands(-1);

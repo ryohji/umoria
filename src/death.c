@@ -24,7 +24,7 @@ static void date(char *day) {
 }
 
 // Centers a string within a 31 character string -JWT-
-static char *center_string(char *centered_str, char *in_str) {
+static char *center_string(char *centered_str, const char *in_str) {
     int i = (int)strlen(in_str);
     int j = 15 - i / 2;
     (void)sprintf(centered_str, "%*s%s%*s", j, "", in_str, 31 - i - j, "");
@@ -112,7 +112,7 @@ bool duplicate_character(void) {
 
 // Prints the gravestone of the character -RAK-
 static void print_tomb(void) {
-    char *p;
+    const char *p;
     vtype str, tmp_str;
 
     clear_screen();
@@ -158,14 +158,17 @@ static void print_tomb(void) {
     (void)sprintf(str, "| %s |         _;,,,,;_", center_string(tmp_str, str));
     put_buffer(str, 14, 9);
     put_buffer("|            killed by            |", 15, 9);
-    p = died_from;
 
-    int len = (int)strlen(p);
-    p[len] = '.'; // add a trailing period
-    p[len + 1] = '\0';
-    (void)sprintf(str, "| %s |", center_string(tmp_str, p));
+    // 死因の行だけ末尾に句点を足す。もとはグローバルの died_from を
+    // 直接書きかえて表示し、そのあと元に戻していた。表示のために
+    // 状態を触る必要はないので、写しをつくって足す。
+    // もとの書きかたは died_from が 78 文字以上だと died_from[79] と
+    // died_from[80] に書いていた（配列外）。snprintf なら溢れる代わりに
+    // 切り詰められる。
+    vtype killed_by;
+    (void)snprintf(killed_by, sizeof(killed_by), "%s.", died_from);
+    (void)sprintf(str, "| %s |", center_string(tmp_str, killed_by));
     put_buffer(str, 16, 9);
-    p[len] = '\0'; // strip off the period
 
     char day[11];
     date(day);
@@ -395,7 +398,7 @@ static void highscores(void) {
 
 // Change the player into a King! -RAK-
 static void kingly(void) {
-    char *p;
+    const char *p;
 
     // Change the character attributes.
     dun_level = 0;

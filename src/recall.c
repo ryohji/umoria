@@ -159,7 +159,7 @@ bool bool_roff_recall(creature_type *type) {
 // Print out what we have discovered about this monster.
 int roff_recall(creature_type *cp) {
     bool known;
-    char *p, *q;
+    const char *p, *q;
     const attack_handle *iter;
     uint32_t j;
     vtype temp;

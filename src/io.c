@@ -574,7 +574,7 @@ int topen(char *file, int flags, int mode) {
 }
 
 // expands a tilde at the beginning of a file name to a users home directory
-int tilde(char *file, char *exp) {
+int tilde(const char *file, char *exp) {
     *exp = '\0';
     if (file) {
         if (*file == '~') {

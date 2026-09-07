@@ -16,7 +16,7 @@
 
 #include "abilities.h"
 
-static char *stat_names[] = {
+static const char *stat_names[] = {
     "STR : ",
     "INT : ",
     "WIS : ",
@@ -214,7 +214,7 @@ void prt_stat(int stat) {
 
 // Print character info in given row, column -RAK-
 // The longest title is 13 characters, so only pad to 13
-void prt_field(char *info, int row, int column) {
+void prt_field(const char *info, int row, int column) {
     put_buffer(&blank_string[BLANK_LENGTH - 13], row, column);
     put_buffer(info, row, column);
 }
@@ -326,8 +326,8 @@ int con_adj(void) {
     }
 }
 
-char *title_string(void) {
-    char *p;
+const char *title_string(void) {
+    const char *p;
 
     if (py.misc.lev < 1) {
         p = "Babe in arms";
@@ -798,7 +798,7 @@ void put_stats(void) {
 }
 
 // Returns a rating of x depending on y -JWT-
-char *likert(int x, int y) {
+const char *likert(int x, int y) {
     switch ((x / y)) {
     case -3:
     case -2:
@@ -1205,7 +1205,7 @@ void print_spells(int *spell, int num, int comment, int nonconsec) {
         int j = spell[i];
         spell_type *s_ptr = &magic_spell[py.misc.pclass - 1][j];
 
-        char *p;
+        const char *p;
         if (comment == false) {
             p = "";
         } else if ((spell_forgotten & (1L << j)) != 0) {
@@ -1234,7 +1234,7 @@ void print_spells(int *spell, int num, int comment, int nonconsec) {
 }
 
 // Returns spell pointer -RAK-
-int get_spell(int *spell, int num, int *sn, int *sc, char *prompt, int first_spell) {
+int get_spell(int *spell, int num, int *sn, int *sc, const char *prompt, int first_spell) {
     *sn = -1;
 
     vtype out_str;
@@ -1323,7 +1323,7 @@ void calc_spells(int stat) {
     struct misc *p_ptr = &py.misc;
     spell_type *msp_ptr = &magic_spell[p_ptr->pclass - 1][0];
 
-    char *p;
+    const char *p;
     int offset;
     if (stat == A_INT) {
         p = "spell";
@@ -1768,7 +1768,7 @@ void insert_str(char *object_str, const char *mtc_str, const char *insert) {
     char *pc;
     for (pc = object_str; pc <= bound; pc++) {
         char *temp_obj = pc;
-        char *temp_mtc = mtc_str;
+        const char *temp_mtc = mtc_str;
 
         int i;
         for (i = 0; i < mtc_len; i++) {

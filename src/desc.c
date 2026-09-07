@@ -33,7 +33,7 @@ bool is_a_vowel(char ch) {
 // Initialize all Potions, wands, staves, scrolls, etc.
 void magic_init(void) {
     int j;
-    char *tmp;
+    const char *tmp;
 
     set_seed(randes_seed);
 
@@ -278,8 +278,8 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
     int indexx = i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1);
 
     // base name, modifier string
-    char *basenm = object_list[i_ptr->index].name;
-    char *modstr = CNIL;
+    const char *basenm = object_list[i_ptr->index].name;
+    const char *modstr = CNIL;
 
     vtype damstr;
     damstr[0] = '\0';

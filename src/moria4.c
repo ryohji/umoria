@@ -526,7 +526,7 @@ static bool look_see(int x, int y, bool *transparent) {
         msg_print(tmp_str);
     }
 
-    char *dstring;
+    const char *dstring;
     if (x == 0 && y == 0) {
         dstring = "You are on";
     } else {
@@ -586,7 +586,7 @@ static bool look_see(int x, int y, bool *transparent) {
         }
 
         if ((gl_rock || out_val[0]) && c_ptr->fval >= MIN_CLOSED_SPACE) {
-            char *string;
+            const char *string;
 
             switch (c_ptr->fval) {
             case BOUNDARY_WALL:

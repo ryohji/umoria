@@ -242,7 +242,7 @@ void calc_bonuses(void) {
 // does not fit, it may be moved left.  The return value is the left edge
 // used. If mask is non-zero, then only display those items which have a
 // non-zero entry in the mask array.
-int show_inven(int r1, int r2, bool weight, int col, char *mask) {
+int show_inven(int r1, int r2, bool weight, int col, const char *mask) {
     bigvtype tmp_val;
     vtype out_val[23];
 
@@ -301,8 +301,8 @@ int show_inven(int r1, int r2, bool weight, int col, char *mask) {
 }
 
 // Return a string describing how a given equipment item is carried. -CJS-
-char *describe_use(int i) {
-    char *p;
+const char *describe_use(int i) {
+    const char *p;
     switch (i) {
     case INVEN_WIELD:
         p = "wielding";
@@ -369,7 +369,7 @@ int show_equip(bool weight, int col) {
     for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
         i_ptr = &inventory[i];
         if (i_ptr->tval != TV_NOTHING) {
-            char *prt1;
+            const char *prt1;
 
             // Get position
             switch (i) {
@@ -472,7 +472,7 @@ void takeoff(int item_val, int posn) {
     inven_weight -= t_ptr->weight * t_ptr->number;
     py.flags.status |= PY_STR_WGT;
 
-    char *p;
+    const char *p;
     if (item_val == INVEN_WIELD || item_val == INVEN_AUX) {
         p = "Was wielding ";
     } else if (item_val == INVEN_LIGHT) {
@@ -762,8 +762,8 @@ void inven_command(char command) {
         char which = 'z';
         while (selecting && free_turn_flag) {
             int from, to;
-            char *prompt;
-            char *swap = "";
+            const char *prompt;
+            const char *swap = "";
 
             if (command == 'w') {
                 from = wear_low;
@@ -792,7 +792,7 @@ void inven_command(char command) {
             if (from > to) {
                 selecting = false;
             } else {
-                char *disp;
+                const char *disp;
                 if (scr_state == BLANK_SCR) {
                     disp = ", * to list";
                 } else {
@@ -1038,7 +1038,7 @@ void inven_command(char command) {
                                 equip_ctr++;
                                 py_bonuses(i_ptr, 1);
 
-                                char *string;
+                                const char *string;
                                 if (slot == INVEN_WIELD) {
                                     string = "You are wielding";
                                 } else if (slot == INVEN_LIGHT) {
@@ -1390,7 +1390,7 @@ static char map_roguedir(char comval) {
 
 // Prompts for a direction -RAK-
 // Direction memory added, for repeated commands.  -CJS
-bool get_dir(char *prompt, int *dir) {
+bool get_dir(const char *prompt, int *dir) {
     static char prev_dir; // Direction memory. -CJS-
 
     // used in counted commands. -CJS-

@@ -183,8 +183,8 @@ bool file_character(char *filename1) {
         prt("Writing character sheet...", 0, 0);
         put_qio();
 
-        char *colon = ":";
-        char *blank = " ";
+        const char *colon = ":";
+        const char *blank = " ";
 
         (void)fprintf(file1, "%c\n\n", CTRL_KEY('L'));
 
@@ -258,7 +258,7 @@ bool file_character(char *filename1) {
         if (equip_ctr == 0) {
             (void)fprintf(file1, "  Character has no equipment in use.\n");
         } else {
-            char *p;
+            const char *p;
             inven_type *i_ptr;
 
             for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {

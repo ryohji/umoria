@@ -595,7 +595,7 @@ void get_flags(int typ, uint32_t *weapon_type, int *harm_type, bool (**destroy)(
 }
 
 // Shoot a bolt in a given direction -RAK-
-void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
+void fire_bolt(int typ, int dir, int y, int x, int dam, const char *bolt_typ) {
     bool flag = false;
 
     bool (*dummy)(inven_type *);
