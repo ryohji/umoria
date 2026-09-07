@@ -999,9 +999,10 @@ void inven_drop(int item_val, int drop_all) {
             i_ptr->number--;
         }
 
-        bigvtype prt1, prt2;
+        bigvtype prt1;
+        msgtype prt2;
         objdes(prt1, &t_list[i], true);
-        (void)sprintf(prt2, "Dropped %s", prt1);
+        (void)snprintf(prt2, sizeof(prt2), "Dropped %s", prt1);
         msg_print(prt2);
     }
     py.flags.status |= PY_STR_WGT;

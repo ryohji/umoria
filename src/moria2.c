@@ -59,10 +59,11 @@ void search(int y, int x, int chance) {
 
                     // Trap on floor?
                     if (t_ptr->tval == TV_INVIS_TRAP) {
-                        bigvtype tmp_str, tmp_str2;
+                        msgtype tmp_str;
+                        bigvtype tmp_str2;
 
                         objdes(tmp_str2, t_ptr, true);
-                        (void)sprintf(tmp_str, "You have found %s", tmp_str2);
+                        (void)snprintf(tmp_str, sizeof(tmp_str), "You have found %s", tmp_str2);
                         msg_print(tmp_str);
                         change_trap(i, j);
                         end_find();
@@ -504,15 +505,16 @@ int minus_ac(uint32_t typ_dam) {
 
         inven_type *i_ptr = &inventory[j];
 
-        bigvtype out_val, tmp_str;
+        msgtype out_val;
+        bigvtype tmp_str;
         if (i_ptr->flags & typ_dam) {
             objdes(tmp_str, &inventory[j], false);
-            (void)sprintf(out_val, "Your %s resists damage!", tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "Your %s resists damage!", tmp_str);
             msg_print(out_val);
             minus = true;
         } else if ((i_ptr->ac + i_ptr->toac) > 0) {
             objdes(tmp_str, &inventory[j], false);
-            (void)sprintf(out_val, "Your %s is damaged!", tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "Your %s is damaged!", tmp_str);
             msg_print(out_val);
             i_ptr->toac--;
             calc_bonuses();

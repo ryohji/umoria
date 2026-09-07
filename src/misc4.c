@@ -22,10 +22,11 @@ void scribe_object(void) {
         int item_val;
 
         if (get_item(&item_val, "Which one? ", 0, INVEN_ARRAY_SIZE, CNIL, CNIL)) {
-            bigvtype out_val, tmp_str;
+            msgtype out_val;
+            bigvtype tmp_str;
 
             objdes(tmp_str, &inventory[item_val], true);
-            (void)sprintf(out_val, "Inscribing %s", tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "Inscribing %s", tmp_str);
             msg_print(out_val);
             if (inventory[item_val].inscrip[0] != '\0') {
                 (void)sprintf(out_val, "Replace %s New inscription:",

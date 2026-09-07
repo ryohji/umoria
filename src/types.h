@@ -18,6 +18,18 @@ typedef char vtype[VTYPESIZ];
 // note that since its output can easily exceed 80 characters, objdes must
 // always be called with a bigvtype as the first paramter
 typedef char bigvtype[BIGVTYPESIZ];
+
+// 文字列を「Your %s glows faintly!」のような文に埋めこんだ結果を入れる。
+// 埋めこみ先を埋めこむ文字列と同じ大きさ（bigvtype や vtype）にすると、
+// 中身が長いときに配列の外へ書く。-Wformat-overflow が指していたのはこれ。
+// 前後に付く語の分だけ余分にとってあるので、切り詰めも溢れも起こらない。
+//
+// 埋めこむ文字列でもっとも長いのは objdes() が返すアイテム説明（bigvtype）
+// なので、それに 1 行分（vtype 1 つ分 = 画面 1 行）を足した大きさにする。
+// この種の文で前後に付く語はどれも 1 行に収まる。
+#define MSGTYPESIZ (BIGVTYPESIZ + VTYPESIZ)
+typedef char msgtype[MSGTYPESIZ];
+
 typedef char stat_type[7];
 
 // Many of the character fields used to be fixed length, which greatly

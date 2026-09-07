@@ -210,11 +210,12 @@ static void display_inventory(int store_num, int start) {
             i_ptr->number = 1;
         }
 
-        bigvtype out_val1, out_val2;
+        bigvtype out_val1;
+        msgtype out_val2;
 
         objdes(out_val1, i_ptr, true);
         i_ptr->number = x;
-        (void)sprintf(out_val2, "%c) %s", 'a' + i, out_val1);
+        (void)snprintf(out_val2, sizeof(out_val2), "%c) %s", 'a' + i, out_val1);
         prt(out_val2, i + 5, 0);
         x = s_ptr->store_inven[start].scost;
         if (x <= 0) {

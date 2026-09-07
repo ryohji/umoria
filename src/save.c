@@ -373,9 +373,9 @@ static bool sv_write(void) {
 // Set up prior to actual save, do the save, then clean up
 bool save_char(void) {
     while (!_save_char(savefile)) {
-        vtype temp;
+        msgtype temp;
 
-        (void)sprintf(temp, "Savefile '%s' fails.", savefile);
+        (void)snprintf(temp, sizeof(temp), "Savefile '%s' fails.", savefile);
         msg_print(temp);
 
         int i = 0;
@@ -383,7 +383,7 @@ bool save_char(void) {
             get_check("File exists. Delete old savefile?") == 0 ||
             (i = unlink(savefile)) < 0) {
             if (i < 0) {
-                (void)sprintf(temp, "Can't delete '%s'", savefile);
+                (void)snprintf(temp, sizeof(temp), "Can't delete '%s'", savefile);
                 msg_print(temp);
             }
             prt("New Savefile [ESC to give up]:", 0, 0);
@@ -394,7 +394,7 @@ bool save_char(void) {
                 (void)strcpy(savefile, temp);
             }
         }
-        (void)sprintf(temp, "Saving with %s...", savefile);
+        (void)snprintf(temp, sizeof(temp), "Saving with %s...", savefile);
         prt(temp, 0, 0);
     }
 
@@ -494,8 +494,8 @@ bool get_char(bool *generate) {
 
     clear_screen();
 
-    vtype temp;
-    (void)sprintf(temp, "Savefile %s present. Attempting restore.", savefile);
+    msgtype temp;
+    (void)snprintf(temp, sizeof(temp), "Savefile %s present. Attempting restore.", savefile);
     put_buffer(temp, 23, 0);
 
     // FIXME: check this if/else logic! -- MRC
