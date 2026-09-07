@@ -63,8 +63,12 @@ GameState *game_state_init(void) {
     state->town_seed = town_seed;
 
     // File paths
-    strncpy(state->save_file_path, savefile, sizeof(vtype) - 1);
-    strncpy(state->died_from, died_from, sizeof(vtype) - 1);
+    // strncpy は上限まで詰まったとき終端の '\0' を書かない。ここでやりたい
+    // のは「収まらなければ切り詰め、必ず終端する」なので、それをそのまま
+    // 表す snprintf を使う。戻り値は切り詰めが起きたかを示すが、状態の
+    // 写しとりに失敗の扱いはないので捨てる。
+    (void)snprintf(state->save_file_path, sizeof(vtype), "%s", savefile);
+    (void)snprintf(state->died_from, sizeof(vtype), "%s", died_from);
     state->birth_date = birth_date;
     state->highscore_fp = highscore_fp;
 
