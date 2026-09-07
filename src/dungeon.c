@@ -635,8 +635,6 @@ void dungeon() {
                 // if in equipment list, success 1 out of 10 times
                 if ((i_ptr->tval != TV_NOTHING) && enchanted(i_ptr) &&
                     (randint(i < 22 ? 50 : 10) == 1)) {
-                    extern char *describe_use(int);
-
                     vtype tmp_str;
                     (void)sprintf(tmp_str, "There's something about what you are %s...", describe_use(i));
                     disturb(0, 0);

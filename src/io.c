@@ -523,8 +523,8 @@ void user_name(char *buf) {
         (void)strcpy(buf, "X"); // Gotta have some name
     }
 #else
-    extern char *getlogin();
-
+    // getlogin() は <unistd.h>（headers.h 経由）が宣言する。関数内 extern で
+    // 上書きすると引数の型検査が効かなくなるので、システムの宣言を使う。
     char *p = getlogin();
 
     if (p && p[0]) {
