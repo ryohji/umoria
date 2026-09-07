@@ -11,6 +11,8 @@
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 store_type store[MAX_STORES];
 
 // Store owners have different characteristics for pricing and haggling
@@ -83,11 +85,12 @@ uint16_t store_choice[MAX_STORES][STORE_CHOICES] = {
     },
 };
 
-// functions defined in sets.c
-extern bool general_store(), armory(), weaponsmith(), temple(), alchemist(), magic_shop(void);
+// 6 つの買いとり判定関数はここで再宣言していた（sets.c 定義）。
+// externs.h:518-523 に同じ宣言があるので、そちらに任せる。
+// 二重に書くと片方だけ直したときに食いちがうが、誰も気づけない。
 
 // Each store will buy only certain items, based on TVAL
-bool (*store_buy[MAX_STORES])() = {
+bool (*store_buy[MAX_STORES])(int) = {
     general_store,
     armory,
     weaponsmith,

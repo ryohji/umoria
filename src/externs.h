@@ -111,7 +111,9 @@ extern int32_t max_score;
 extern owner_type owners[MAX_OWNERS];
 extern store_type store[MAX_STORES];
 extern uint16_t store_choice[MAX_STORES][STORE_CHOICES];
-extern int (*store_buy[MAX_STORES])();
+// 実体は tables.c:90。店ごとの買いとり判定で、引数は品物の tval。
+// 戻り値は長らく int と書かれていたが、実体は bool を返す。
+extern bool (*store_buy[MAX_STORES])(int);
 
 // FIXME: why is this extern here, it's only used in store2.c. -MRC-
 // Save the store's last increment value.
@@ -312,7 +314,9 @@ void place_rubble(int, int);
 void place_gold(int, int);
 int get_obj_num(int, bool);
 void place_object(int, int, bool);
-void alloc_object(bool (*)(), int, int);
+// 引数の関数は sets.c の set_room / set_corr / set_floor。いずれも
+// cave[][].fval（床の種類）を受けとる bool f(int) 型。
+void alloc_object(bool (*)(int), int, int);
 void random_object(int, int, int);
 void cnv_stat(uint8_t, char *);
 void prt_stat(int);
@@ -362,7 +366,10 @@ void change_name(void);
 void inven_destroy(int);
 void take_one_item(inven_type *, inven_type *);
 void inven_drop(int, int);
-int inven_damage(bool (*)(), int);
+// 引数の関数は sets.c の set_corrodes / set_flammable /
+// set_frost_destroy / set_lightning_destroy / set_acid_affect。
+// いずれも持ち物 1 つを受けとる bool f(inven_type *) 型。
+int inven_damage(bool (*)(inven_type *), int);
 int weight_limit(void);
 bool inven_check_num(inven_type *);
 bool inven_check_weight(inven_type *);
@@ -550,7 +557,8 @@ int detect_monsters(void);
 void light_line(int, int, int);
 void starlite(int, int);
 int disarm_all(int, int, int);
-void get_flags(int, uint32_t *, int *, bool (**)());
+// 第 4 引数は inven_damage() に渡す判定関数の受けとり先。
+void get_flags(int, uint32_t *, int *, bool (**)(inven_type *));
 void fire_bolt(int, int, int, int, int, char *);
 void fire_ball(int, int, int, int, int, char *);
 void breath(int, int, int, int, char *, int);
