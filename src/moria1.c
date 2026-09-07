@@ -481,12 +481,13 @@ void takeoff(int item_val, int posn) {
         p = "Was wearing ";
     }
 
-    bigvtype out_val, prt2;
+    msgtype out_val;
+    bigvtype prt2;
     objdes(prt2, t_ptr, true);
     if (posn >= 0) {
-        (void)sprintf(out_val, "%s%s (%c)", p, prt2, 'a' + posn);
+        (void)snprintf(out_val, sizeof(out_val), "%s%s (%c)", p, prt2, 'a' + posn);
     } else {
-        (void)sprintf(out_val, "%s%s", p, prt2);
+        (void)snprintf(out_val, sizeof(out_val), "%s%s", p, prt2);
     }
     msg_print(out_val);
 
@@ -599,7 +600,8 @@ static void inven_screen(int new_scr) {
 
 // This does all the work.
 void inven_command(char command) {
-    bigvtype prt1, prt2;
+    msgtype prt1;
+    bigvtype prt2;
     int item, tmp;
     inven_type tmp_obj;
     int slot = 0;
@@ -1056,7 +1058,7 @@ void inven_command(char command) {
                                     }
                                 }
 
-                                (void)sprintf(prt1, "%s %s (%c)", string, prt2, 'a' + item);
+                                (void)snprintf(prt1, sizeof(prt1), "%s %s (%c)", string, prt2, 'a' + item);
                                 msg_print(prt1);
                                 // this is a new weapon, so clear heavy flag
                                 if (slot == INVEN_WIELD) {

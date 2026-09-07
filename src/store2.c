@@ -849,9 +849,10 @@ static bool store_purchase(int store_num, int *cur_top) {
                     i = s_ptr->store_ctr;
                     store_destroy(store_num, item_val, true);
 
-                    bigvtype out_val, tmp_str;
+                    msgtype out_val;
+                    bigvtype tmp_str;
                     objdes(tmp_str, &inventory[item_new], true);
-                    (void)sprintf(out_val, "You have %s (%c)", tmp_str, item_new + 'a');
+                    (void)snprintf(out_val, sizeof(out_val), "You have %s (%c)", tmp_str, item_new + 'a');
                     prt(out_val, 0, 0);
 
                     check_strength();
@@ -923,12 +924,13 @@ static bool store_sell(int store_num, int *cur_top) {
         msg_print("You have nothing to sell to this store!");
     } else if (get_item(&item_val, "Which one? ", first_item, last_item, mask, "I do not buy such items.")) {
         inven_type sold_obj;
-        bigvtype out_val, tmp_str;
+        msgtype out_val;
+        bigvtype tmp_str;
 
         take_one_item(&sold_obj, &inventory[item_val]);
         objdes(tmp_str, &sold_obj, true);
 
-        (void)sprintf(out_val, "Selling %s (%c)", tmp_str, item_val + 'a');
+        (void)snprintf(out_val, sizeof(out_val), "Selling %s (%c)", tmp_str, item_val + 'a');
         msg_print(out_val);
 
         if (store_check_num(&sold_obj, store_num)) {
@@ -950,7 +952,7 @@ static bool store_sell(int store_num, int *cur_top) {
                 known2(&sold_obj);
                 inven_destroy(item_val);
                 objdes(tmp_str, &sold_obj, true);
-                (void)sprintf(out_val, "You've sold %s", tmp_str);
+                (void)snprintf(out_val, sizeof(out_val), "You've sold %s", tmp_str);
                 msg_print(out_val);
 
                 int item_pos;

@@ -552,7 +552,7 @@ static bool look_see(int x, int y, bool *transparent) {
     // a warning. Perhaps we can set it to `ESCAPE` here as default. -MRC-
     char query = ESCAPE;
 
-    bigvtype out_val;
+    msgtype out_val;
     out_val[0] = 0;
 
     if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
@@ -577,7 +577,7 @@ static bool look_see(int x, int y, bool *transparent) {
             if (gl_rock == 0 && t_list[c_ptr->tptr].tval != TV_INVIS_TRAP) {
                 bigvtype obj_string;
                 objdes(obj_string, &t_list[c_ptr->tptr], true);
-                (void)sprintf(out_val, "%s %s ---pause---", dstring, obj_string);
+                (void)snprintf(out_val, sizeof(out_val), "%s %s ---pause---", dstring, obj_string);
                 dstring = "It is in";
                 prt(out_val, 0, 0);
                 move_cursor_relative(y, x);
@@ -760,9 +760,10 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
         t_list[cur_pos] = *t_ptr;
         lite_spot(i, j);
     } else {
-        bigvtype out_val, tmp_str;
+        msgtype out_val;
+        bigvtype tmp_str;
         objdes(tmp_str, t_ptr, false);
-        (void)sprintf(out_val, "The %s disappears.", tmp_str);
+        (void)snprintf(out_val, sizeof(out_val), "The %s disappears.", tmp_str);
         msg_print(out_val);
     }
 }
@@ -829,14 +830,14 @@ void throw_object(void) {
                             bigvtype tmp_str;
                             objdes(tmp_str, &throw_obj, false);
 
-                            bigvtype out_val;
+                            msgtype out_val;
 
                             // Does the player know what he's fighting?
                             if (!m_ptr->ml) {
-                                (void)sprintf(out_val, "You hear a cry as the %s finds a mark.", tmp_str);
+                                (void)snprintf(out_val, sizeof(out_val), "You hear a cry as the %s finds a mark.", tmp_str);
                                 visible = false;
                             } else {
-                                (void)sprintf(out_val, "The %s hits the %s.", tmp_str, r_ptr->name);
+                                (void)snprintf(out_val, sizeof(out_val), "The %s hits the %s.", tmp_str, r_ptr->name);
                                 visible = true;
                             }
                             msg_print(out_val);

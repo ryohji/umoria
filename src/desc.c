@@ -646,13 +646,14 @@ void desc_charges(int item_val) {
 
 // Describe amount of item remaining. -RAK-
 void desc_remain(int item_val) {
-    bigvtype out_val, tmp_str;
+    msgtype out_val;
+    bigvtype tmp_str;
 
     inven_type *i_ptr = &inventory[item_val];
     i_ptr->number--;
     objdes(tmp_str, i_ptr, true);
     i_ptr->number++;
     // the string already has a dot at the end.
-    (void)sprintf(out_val, "You have %s", tmp_str);
+    (void)snprintf(out_val, sizeof(out_val), "You have %s", tmp_str);
     msg_print(out_val);
 }

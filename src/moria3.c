@@ -247,7 +247,8 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
 // on the TVAL of the object. Traps are set off, money and most objects
 // are picked up. Some objects, such as open doors, just sit there.
 static void carry(int y, int x, bool pickup) {
-    bigvtype out_val, tmp_str;
+    msgtype out_val;
+    bigvtype tmp_str;
 
     cave_type *c_ptr = &cave[y][x];
     inven_type *i_ptr = &t_list[c_ptr->tptr];
@@ -299,7 +300,7 @@ static void carry(int y, int x, bool pickup) {
                 }
             } else {
                 objdes(tmp_str, i_ptr, true);
-                (void)sprintf(out_val, "You can't carry %s", tmp_str);
+                (void)snprintf(out_val, sizeof(out_val), "You can't carry %s", tmp_str);
                 msg_print(out_val);
             }
         }

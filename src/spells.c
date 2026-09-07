@@ -283,12 +283,12 @@ int ident_spell(void) {
         bigvtype tmp_str;
         objdes(tmp_str, i_ptr, true);
 
-        bigvtype out_val;
+        msgtype out_val;
         if (item_val >= INVEN_WIELD) {
             calc_bonuses();
-            (void)sprintf(out_val, "%s: %s", describe_use(item_val), tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "%s: %s", describe_use(item_val), tmp_str);
         } else {
-            (void)sprintf(out_val, "%c %s", item_val + 97, tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "%c %s", item_val + 97, tmp_str);
         }
         msg_print(out_val);
     }
@@ -1177,9 +1177,10 @@ int wall_to_mud(int dir, int y, int x) {
         } else if ((c_ptr->tptr != 0) && (c_ptr->fval >= MIN_CLOSED_SPACE)) {
             flag = true;
             if (panel_contains(y, x) && test_light(y, x)) {
-                bigvtype out_val, tmp_str;
+                msgtype out_val;
+                bigvtype tmp_str;
                 objdes(tmp_str, &t_list[c_ptr->tptr], false);
-                (void)sprintf(out_val, "The %s turns into mud.", tmp_str);
+                (void)snprintf(out_val, sizeof(out_val), "The %s turns into mud.", tmp_str);
                 msg_print(out_val);
                 wall = true;
             }
