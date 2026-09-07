@@ -35,7 +35,7 @@ BUILDDIR = $(TESTDIR)/build
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
-        stat_bonus_test objdes_test
+        stat_bonus_test objdes_test creature_iterator_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -212,6 +212,18 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
+
+# モンスター表の逆順走査は src/monsters.c の rbegin / rend / prev にある。
+# 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
+# monsters.c をリンクする。
+#
+# monsters.c が外に求めるのは is_a_vowel（src/desc.c）だけ。desc.c をリンクすると
+# 定数表とインベントリまで芋づるで付いてくるので、代役をテスト側に置く。
+# 検証したいのは走査の順序で、名前に冠詞を付ける処理は関係しない。
+$(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
+                                    $(TESTDIR)/minunit.h \
+                                    src/monsters.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/creature_iterator_test.c src/monsters.c
 
 clean:
 	rm -rf $(BUILDDIR)
