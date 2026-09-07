@@ -257,9 +257,9 @@ static void init_m_level(void) {
         m_level[i] = 0;
     }
 
-    creature_type *const end = monster_creature_rend(), *it;
-    for (it = monster_creature_rbegin(); it != end; it = monster_creature_prev(it)) {
-        const uint8_t level = it->level;
+    const creature_rev_iterator end = monster_creature_rend();
+    for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
+        const uint8_t level = monster_creature_rget(it)->level;
         if (level <= MAX_MONS_LEVEL) {
             m_level[level] += 1;
         }

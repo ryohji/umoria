@@ -701,16 +701,33 @@ creature_type *monster_get_creature(creature_handle h) {
     return c_list + h.place;
 }
 
-creature_type *monster_creature_rbegin(void) {
-    return c_list - 1 + MAX_CREATURES;
+// 逆順走査。反復子が持つのは指したい要素の 1 つ先（types.h の
+// creature_rev_iterator）なので、先頭を指す状態でも base は c_list に留まり、
+// 配列の直前を指すポインタはどこにも現れない。
+//
+// base - 1 を作るのは rget() と rnext() だけで、どちらも終端ではない反復子に
+// しか呼ばれない（終端の base は c_list なので、そこで引くと配列の外になる）。
+creature_rev_iterator monster_creature_rbegin(void) {
+    creature_rev_iterator it = {c_list + MAX_CREATURES};
+    return it;
 }
 
-creature_type *monster_creature_rend(void) {
-    return c_list - 1;
+creature_rev_iterator monster_creature_rend(void) {
+    creature_rev_iterator it = {c_list};
+    return it;
 }
 
-creature_type *monster_creature_prev(creature_type *p) {
-    return p - 1;
+bool monster_creature_rsame(creature_rev_iterator a, creature_rev_iterator b) {
+    return a.base == b.base;
+}
+
+creature_rev_iterator monster_creature_rnext(creature_rev_iterator it) {
+    creature_rev_iterator next = {it.base - 1};
+    return next;
+}
+
+creature_type *monster_creature_rget(creature_rev_iterator it) {
+    return it.base - 1;
 }
 
 // Following routines are commonly used in the scroll, potion, wands, and

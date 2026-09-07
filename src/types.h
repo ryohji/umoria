@@ -79,6 +79,22 @@ typedef struct {
     uint16_t place;
 } creature_handle;
 
+// モンスター定義表を末尾から先頭へたどる反復子。
+//
+// 持つのは「指したい要素そのもの」ではなく「その 1 つ先」（base）。
+// std::reverse_iterator と同じ持ちかたで、先頭を指す状態でも base は先頭に
+// 留まるので、配列の直前を指すポインタが現れない。C17 6.5.6p8 が認めるのは
+// 「同じ配列の要素、または末尾の 1 つ先」までで、それより手前は参照しなくても
+// 値を作った時点で未定義動作になる。以前の実装は終端に c_list - 1 を使って
+// いた（-Warray-bounds が指していたのはこれ）。
+//
+// creature_type * を裸で持ちまわらず構造体に包んでいるのは、1 つずれた値を
+// うっかり -> で読めないようにするため。要素を得るには
+// monster_creature_rget() を通す必要がある。
+typedef struct {
+    creature_type *base;
+} creature_rev_iterator;
+
 typedef struct monster_type {
     int16_t hp;               // Hit points
     int16_t csleep;           // Inactive counter

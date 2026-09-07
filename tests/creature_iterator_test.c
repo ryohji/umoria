@@ -1,19 +1,20 @@
 /* モンスター表の逆順走査のテスト -- 現在のふるまいを保護する
  *
- * monsters.c の monster_creature_rbegin() / rend() / prev() は、
- * c_list（モンスター定義表）を末尾から先頭へたどるための三つ組。
+ * monsters.c の monster_creature_rbegin() / rend() / rnext() / rget() は、
+ * c_list（モンスター定義表）を末尾から先頭へたどるための組。
  * 呼びだしは help.c（モンスター図鑑）と main.c（レベル別の頭数を数える）の
  * 2 箇所で、どちらも順序が結果に出る。
  *
- * rend() が返す c_list - 1 は配列の直前を指すポインタで、C17 6.5.6p8 が
- * 定義しているのは「同じ配列の要素、または末尾の 1 つ先」だけなので、
- * 参照しなくても値を作った時点で未定義動作。これを直すので、その前に
- * 「どの要素をどの順にたどるか」を押さえる。
+ * 以前の rend() は c_list - 1、つまり配列の直前を指すポインタを返していた。
+ * C17 6.5.6p8 が定義しているのは「同じ配列の要素、または末尾の 1 つ先」だけ
+ * なので、参照しなくても値を作った時点で未定義動作（-Warray-bounds が指して
+ * いたのはこれ）。これを直すのに先だって、このテストで「どの要素をどの順に
+ * たどるか」を押さえた。
  *
  * 走査そのものを collect_reverse_walk() の 1 箇所に閉じこめてある。
- * 三つ組の形が変わってもここだけを書きかえれば済み、期待値は動かない。
+ * API の形が変わってもここだけを書きかえれば済み、期待値は動かない。
  * 期待値の側は creature_handle 経由（monster_make_creature_handle /
- * monster_get_creature）で書いてあり、こちらは今回変えない API。
+ * monster_get_creature）で書いてあり、こちらは変えていない API。
  */
 #include "config.h"
 #include "constant.h"
@@ -23,9 +24,11 @@
  * 引きこむので、必要なものだけをここに書く。 */
 creature_handle monster_make_creature_handle(uint16_t index);
 creature_type *monster_get_creature(creature_handle h);
-creature_type *monster_creature_rbegin(void);
-creature_type *monster_creature_rend(void);
-creature_type *monster_creature_prev(creature_type *p);
+creature_rev_iterator monster_creature_rbegin(void);
+creature_rev_iterator monster_creature_rend(void);
+bool monster_creature_rsame(creature_rev_iterator a, creature_rev_iterator b);
+creature_rev_iterator monster_creature_rnext(creature_rev_iterator it);
+creature_type *monster_creature_rget(creature_rev_iterator it);
 
 #include "minunit.h"
 
@@ -38,10 +41,10 @@ static int collect_reverse_walk(void)
 {
     int n = 0;
 
-    creature_type *it, *const end = monster_creature_rend();
-    for (it = monster_creature_rbegin(); it != end; it = monster_creature_prev(it)) {
+    const creature_rev_iterator end = monster_creature_rend();
+    for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
         if (n < WALK_LIMIT) {
-            walk[n] = it;
+            walk[n] = monster_creature_rget(it);
         }
         n++;
     }

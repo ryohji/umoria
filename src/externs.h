@@ -414,9 +414,16 @@ creature_handle monster_make_creature_handle(uint16_t index);
 creature_handle monster_get_creature_handle(creature_type *p);
 creature_type *monster_get_creature(creature_handle h);
 
-creature_type *monster_creature_rbegin(void);
-creature_type *monster_creature_rend(void);
-creature_type *monster_creature_prev(creature_type *p);
+// モンスター定義表の逆順走査。使いかたは
+//   const creature_rev_iterator end = monster_creature_rend();
+//   for (creature_rev_iterator it = monster_creature_rbegin();
+//        !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
+//       creature_type *const creature = monster_creature_rget(it);
+creature_rev_iterator monster_creature_rbegin(void);
+creature_rev_iterator monster_creature_rend(void);
+bool monster_creature_rsame(creature_rev_iterator a, creature_rev_iterator b);
+creature_rev_iterator monster_creature_rnext(creature_rev_iterator it);
+creature_type *monster_creature_rget(creature_rev_iterator it);
 
 const char *monster_name(vtype, const monster_type *);
 const char *monster_name_lower(vtype, const monster_type *);
