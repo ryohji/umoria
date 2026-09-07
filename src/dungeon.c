@@ -690,7 +690,11 @@ void dungeon(void) {
 
                         // Get a count for a command.
                         if ((rogue_like_commands && command >= '0' && command <= '9') || (!rogue_like_commands && command == '#')) {
-                            char tmp[8];
+                            // int の 10 進表記（符号つきで最大 11 字）と終端が
+                            // 収まる大きさ。この下のループで i は 999 までしか
+                            // 増えないが、それは分岐を追わないとわからない。
+                            // 値の範囲ではなく型で大きさを決めておく。
+                            char tmp[12];
 
                             prt("Repeat count:", 0, 0);
                             if (command == '#') {

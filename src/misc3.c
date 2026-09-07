@@ -457,7 +457,10 @@ void prt_state(void) {
         }
         put_buffer(tmp, 23, 38);
     } else if (command_count > 0) {
-        char tmp[16];
+        // "Repeat " のあとに int の 10 進表記（符号つきで最大 11 字）と終端が
+        // 収まる大きさ。command_count は int なので、値の範囲ではなく型で
+        // 大きさを決める。16 字では足りなかった。
+        char tmp[sizeof("Repeat ") + 11];
 
         if (display_counts) {
             (void)sprintf(tmp, "Repeat %-3d", command_count);
