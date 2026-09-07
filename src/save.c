@@ -34,6 +34,7 @@ static void wr_item(inven_type *);
 static void wr_monster(monster_type *);
 static void rd_byte(uint8_t *);
 static void rd_short(uint16_t *);
+static void rd_bool(bool *);
 static void rd_long(uint32_t *);
 static void rd_bytes(uint8_t *, int);
 static void rd_string(char *);
@@ -765,8 +766,8 @@ bool get_char(bool *generate) {
                 rd_string(old_msg[i]);
             }
 
-            rd_short((uint16_t *)&panic_save);
-            rd_short((uint16_t *)&total_winner);
+            rd_bool(&panic_save);
+            rd_bool(&total_winner);
             rd_short((uint16_t *)&noscore);
             rd_shorts(player_hp, MAX_PLAYER_LEVEL);
 
@@ -1194,6 +1195,12 @@ static void rd_short(uint16_t *ptr) {
     s |= (uint16_t)(c ^ xor_byte) << 8;
     *ptr = s;
     SAVE_LOG(fprintf(logfile, "SHORT: %02X %02X = %d\n", (int)c, (int)xor_byte, (int)s));
+}
+
+// 真偽値は wr_short() で 2 バイトとして書かれている（save.c:247）ので、
+// 読むほうも 2 バイト消費する。
+static void rd_bool(bool *ptr) {
+    rd_short((uint16_t *)ptr);
 }
 
 static void rd_long(uint32_t *ptr) {

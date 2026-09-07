@@ -35,7 +35,7 @@ BUILDDIR = $(TESTDIR)/build
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
-        stat_bonus_test objdes_test creature_iterator_test
+        stat_bonus_test objdes_test creature_iterator_test save_bool_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -224,6 +224,28 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
                                     $(TESTDIR)/minunit.h \
                                     src/monsters.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/creature_iterator_test.c src/monsters.c
+
+# セーブデータ中の真偽値の読み書きは src/save.c の wr_short / rd_bool にある。
+# どちらも static なので外から呼べない。写しでは書きかえ後の実体を検証できず
+# 保護にならないので、テスト側が src/save.c を #include して実体ごと取りこみ、
+# static 関数を直接呼ぶ。ゆえに save.c は依存に書くがコンパイル対象には
+# 並べない（二重定義になる）。
+#
+# save.c は 1300 行（セーブ／ロード全体）なので、取りこむと 77 個の未解決
+# シンボルが芋づるで付いてくる。データ側（variable.c のグローバル、tables.c の
+# 定数表、treasure.c のインベントリ、player.c の py、monsters.c の m_list）は
+# 本物をリンクし、画面表示・入力・シグナル・店・乱数は save_stubs.c の代役で
+# 埋める。一覧はリンカに列挙させたもので、手で数えあげたわけではない。
+#
+# 読み書きの相手は tmpfile()。fileptr / xor_byte も save.c の static なので
+# テストから直接設定でき、実ファイルもセーブデータの雛形も要らない。
+$(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
+                            $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
+                            src/save.c src/variable.c src/tables.c \
+                            src/treasure.c src/player.c src/monsters.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
+	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
+	    src/treasure.c src/player.c src/monsters.c
 
 clean:
 	rm -rf $(BUILDDIR)
