@@ -21,7 +21,7 @@
 static void wait_for_more_confirmation(void);
 
 // Dump IO to buffer -RAK-
-void put_buffer(char *out_str, int row, int col) {
+void put_buffer(const char *out_str, int row, int col) {
     vtype tmp_str;
 
     // truncate the string, to make sure that it won't go past right edge of screen.
@@ -146,14 +146,14 @@ void move_cursor_relative(int row, int col) {
 }
 
 // Print a message so as not to interrupt a counted command. -CJS-
-void count_msg_print(char *p) {
+void count_msg_print(const char *p) {
     int i = command_count;
     msg_print(p);
     command_count = i;
 }
 
 // Outputs a line to a given y, x position -RAK-
-void prt(char *str_buff, int row, int col) {
+void prt(const char *str_buff, int row, int col) {
     erase_line(row, col);
     put_buffer(str_buff, row, col);
 }
@@ -165,7 +165,7 @@ void move_cursor(int row, int col) {
 
 // Outputs message to top line of screen
 // These messages are kept for later reference.
-void msg_print(char *str_buff) {
+void msg_print(const char *str_buff) {
     const int old_len = msg_flag ? strlen(old_msg[last_msg]) : 0;
     const bool prev_msg_exists = msg_flag;
     const bool combine_messages = prev_msg_exists && str_buff && old_len + 2 + strlen(str_buff) < 73;
@@ -224,7 +224,7 @@ retry:
 }
 
 // Used to verify a choice - user gets the chance to abort choice. -CJS-
-bool get_check(char *prompt) {
+bool get_check(const char *prompt) {
     prt(prompt, 0, 0);
 
     // Calculate cursor position after printing prompt
@@ -249,7 +249,7 @@ bool get_check(char *prompt) {
 
 // Prompts (optional) and returns ord value of input char
 // Function returns false if <ESCAPE> is input
-int get_com(char *prompt, char *command) {
+int get_com(const char *prompt, char *command) {
     if (prompt) {
         prt(prompt, 0, 0);
     }
@@ -550,7 +550,7 @@ void user_name(char *buf) {
 #undef open
 
 // open a file just as does fopen, but allow a leading ~ to specify a home directory
-FILE *tfopen(char *file, char *mode) {
+FILE *tfopen(const char *file, const char *mode) {
     // extern int errno;
 
     char buf[1024];

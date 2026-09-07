@@ -51,7 +51,7 @@ void read_times(void) {
 
 // File perusal. -CJS-
 // primitive, but portable
-void helpfile(char *filename) {
+void helpfile(const char *filename) {
     bigvtype tmp_str;
 
     FILE *file = fopen(filename, "r");

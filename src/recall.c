@@ -14,7 +14,7 @@
 
 #include "externs.h"
 
-static void roff(char *);
+static void roff(const char *);
 static uint8_t count_previous_non_blank_chars(const char *from);
 
 static char *desc_atype[] = {
@@ -652,7 +652,7 @@ int roff_recall(creature_type *cp) {
 }
 
 // Print out strings, filling up lines as we go.
-static void roff(char *p) {
+static void roff(const char *p) {
     while (*p) {
         *roffp = *p;
         if (*p == '\n' || roffp + 1 == END_OF(roffbuf)) {

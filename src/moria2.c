@@ -523,7 +523,7 @@ int minus_ac(uint32_t typ_dam) {
 }
 
 // Corrode the unsuspecting person's armor -RAK-
-void corrode_gas(char *kb_str) {
+void corrode_gas(const char *kb_str) {
     if (!minus_ac((uint32_t)TR_RES_ACID)) {
         take_hit(randint(8), kb_str);
     }
@@ -534,13 +534,13 @@ void corrode_gas(char *kb_str) {
 }
 
 // Poison gas the idiot. -RAK-
-void poison_gas(int dam, char *kb_str) {
+void poison_gas(int dam, const char *kb_str) {
     take_hit(dam, kb_str);
     py.flags.poisoned += 12 + randint(dam);
 }
 
 // Burn the fool up. -RAK-
-void fire_dam(int dam, char *kb_str) {
+void fire_dam(int dam, const char *kb_str) {
     if (py.flags.fire_resist) {
         dam = dam / 3;
     }
@@ -580,7 +580,7 @@ void light_dam(int dam, char *kb_str) {
 }
 
 // Throw acid on the hapless victim -RAK-
-void acid_dam(int dam, char *kb_str) {
+void acid_dam(int dam, const char *kb_str) {
     int flag = 0;
     if (minus_ac((uint32_t)TR_RES_ACID)) {
         flag = 1;

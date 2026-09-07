@@ -282,7 +282,7 @@ static void display_store(int store_num, int cur_top) {
 }
 
 // Get the ID of a store item and return it's value -RAK-
-static bool get_store_item(int *com_val, char *pmt, int i, int j) {
+static bool get_store_item(int *com_val, const char *pmt, int i, int j) {
     bool flag = false;
 
     *com_val = -1;
@@ -415,7 +415,7 @@ static bool get_haggle(char *comment, int32_t *new_offer, int num_offer) {
     return flag;
 }
 
-static int receive_offer(int store_num, char *comment, int32_t *new_offer, int32_t last_offer, int num_offer, int factor) {
+static int receive_offer(int store_num, const char *comment, int32_t *new_offer, int32_t last_offer, int num_offer, int factor) {
     int receive = 0;
 
     bool flag = false;

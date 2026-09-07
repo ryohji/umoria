@@ -218,7 +218,7 @@ void eat(void);
 // files.c
 void init_scorefile(void);
 void read_times(void);
-void helpfile(char *);
+void helpfile(const char *);
 void print_objects(void);
 bool file_character(char *);
 
@@ -229,7 +229,7 @@ void generate_cave(void);
 void ident_char(void);
 
 // io.c
-void put_buffer(char *, int, int);
+void put_buffer(const char *, int, int);
 void put_qio(void);
 void shell_out(void);
 char inkey(void);
@@ -239,12 +239,12 @@ void clear_screen(void);
 void clear_from(int);
 void print(char, int, int);
 void move_cursor_relative(int, int);
-void count_msg_print(char *);
-void prt(char *, int, int);
+void count_msg_print(const char *);
+void prt(const char *, int, int);
 void move_cursor(int, int);
-void msg_print(char *);
-bool get_check(char *);
-int get_com(char *, char *);
+void msg_print(const char *);
+bool get_check(const char *);
+int get_com(const char *, char *);
 bool get_string(char *, int, int, int);
 void pause_line(int);
 void pause_exit(int, int);
@@ -262,7 +262,7 @@ void user_name(char *);
 #define fopen tfopen
 
 int tilde(char *, char *);
-FILE *tfopen(char *, char *);
+FILE *tfopen(const char *, const char *);
 int topen(char *, int, int);
 #endif
 
@@ -383,8 +383,8 @@ void gain_spells(void);
 void calc_mana(int);
 void prt_experience(void);
 void calc_hitpoints(void);
-void insert_str(char *, char *, char *);
-void insert_lnum(char *, char *, int32_t, int);
+void insert_str(char *, const char *, const char *);
+void insert_lnum(char *, const char *, int32_t, int);
 bool enter_wiz_mode(void);
 int attack_blows(int, int *);
 int tot_dam(inven_type *, int, creature_handle);
@@ -397,7 +397,7 @@ void teleport(int);
 // misc4.c
 void scribe_object(void);
 void add_inscribe(inven_type *, uint8_t);
-void inscribe(inven_type *, char *);
+void inscribe(inven_type *, const char *);
 void check_view(void);
 char *concat(char *buffer, ...);
 
@@ -431,12 +431,12 @@ int show_inven(int, int, bool, int, char *);
 char *describe_use(int);
 int show_equip(bool, int);
 void takeoff(int, int);
-int verify(char *, int);
+int verify(const char *, int);
 void inven_command(char);
-int get_item(int *, char *, int, int, char *, char *);
+int get_item(int *, const char *, int, int, const char *, const char *);
 bool no_light(void);
 bool get_dir(char *, int *);
-bool get_alldir(char *, int *);
+bool get_alldir(const char *, int *);
 void move_rec(int, int, int, int);
 void light_room(int, int);
 void lite_spot(int, int);
@@ -447,7 +447,7 @@ void search_off(void);
 void rest(void);
 void rest_off(void);
 bool test_hit(int, int, int, int, int);
-void take_hit(int, char *);
+void take_hit(int, const char *);
 
 // moria2.c
 void change_trap(int, int);
@@ -457,15 +457,15 @@ void find_run(void);
 void end_find(void);
 void area_affect(int, int, int);
 int minus_ac(uint32_t);
-void corrode_gas(char *);
-void poison_gas(int, char *);
-void fire_dam(int, char *);
+void corrode_gas(const char *);
+void poison_gas(int, const char *);
+void fire_dam(int, const char *);
 void cold_dam(int, char *);
 void light_dam(int, char *);
-void acid_dam(int, char *);
+void acid_dam(int, const char *);
 
 // moria3.c
-int cast_spell(char *, int, int *, int *);
+int cast_spell(const char *, int, int *, int *);
 void delete_monster(int);
 void fix1_delete_monster(int);
 void fix2_delete_monster(int);
@@ -560,7 +560,7 @@ int disarm_all(int, int, int);
 // 第 4 引数は inven_damage() に渡す判定関数の受けとり先。
 void get_flags(int, uint32_t *, int *, bool (**)(inven_type *));
 void fire_bolt(int, int, int, int, int, char *);
-void fire_ball(int, int, int, int, int, char *);
+void fire_ball(int, int, int, int, int, const char *);
 void breath(int, int, int, int, char *, int);
 int recharge(int);
 int hp_monster(int, int, int, int);

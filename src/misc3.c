@@ -220,21 +220,21 @@ void prt_field(char *info, int row, int column) {
 }
 
 // Print long number with header at given row, column
-static void prt_lnum(char *header, int32_t num, int row, int column) {
+static void prt_lnum(const char *header, int32_t num, int row, int column) {
     vtype out_val;
     (void)sprintf(out_val, "%s: %6d", header, num);
     put_buffer(out_val, row, column);
 }
 
 // Print long number (7 digits of space) with header at given row, column
-static void prt_7lnum(char *header, int32_t num, int row, int column) {
+static void prt_7lnum(const char *header, int32_t num, int row, int column) {
     vtype out_val;
     (void)sprintf(out_val, "%s: %7d", header, num);
     put_buffer(out_val, row, column);
 }
 
 // Print number with header at given row, column -RAK-
-static void prt_num(char *header, int num, int row, int column) {
+static void prt_num(const char *header, int num, int row, int column) {
     vtype out_val;
     (void)sprintf(out_val, "%s: %6d", header, num);
     put_buffer(out_val, row, column);
@@ -1760,7 +1760,7 @@ void calc_hitpoints(void) {
 }
 
 // Inserts a string into a string
-void insert_str(char *object_str, char *mtc_str, char *insert) {
+void insert_str(char *object_str, const char *mtc_str, const char *insert) {
     int mtc_len = (int)strlen(mtc_str);
     int obj_len = (int)strlen(object_str);
     char *bound = object_str + obj_len - mtc_len;
@@ -1795,7 +1795,7 @@ void insert_str(char *object_str, char *mtc_str, char *insert) {
     }
 }
 
-void insert_lnum(char *object_str, char *mtc_str, int32_t number, int show_sign) {
+void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show_sign) {
     size_t mlen = strlen(mtc_str);
     char *tmp_str = object_str;
 

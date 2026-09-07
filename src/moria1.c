@@ -499,7 +499,7 @@ void takeoff(int item_val, int posn) {
 
 // Used to verify if this really is the item we wish to -CJS-
 // wear or read.
-int verify(char *prompt, int item) {
+int verify(const char *prompt, int item) {
     bigvtype out_str, object;
 
     objdes(object, &inventory[item], true);
@@ -1175,7 +1175,7 @@ void inven_command(char command) {
 }
 
 // Get the ID of an item and return the CTR value of it -RAK-
-int get_item(int *com_val, char *pmt, int i, int j, char *mask, char *message) {
+int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, const char *message) {
     bool test_flag;
     bool full;
     bool item = false;
@@ -1431,7 +1431,7 @@ bool get_dir(char *prompt, int *dir) {
 
 // Similar to get_dir, except that no memory exists, and it is -CJS-
 // allowed to enter the null direction.
-bool get_alldir(char *prompt, int *dir) {
+bool get_alldir(const char *prompt, int *dir) {
     char command;
 
     for (;;) {
@@ -1701,7 +1701,7 @@ bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
 }
 
 // Decreases players hit points and sets death flag if necessary -RAK-
-void take_hit(int damage, char *hit_from) {
+void take_hit(int damage, const char *hit_from) {
     if (py.flags.invuln > 0) {
         damage = 0;
     }

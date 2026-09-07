@@ -51,7 +51,7 @@ bool screen_change;
 bool wizard;
 
 /* --- 画面出力・メッセージ --- */
-void msg_print(char *str) { (void)str; }
+void msg_print(const char *str) { (void)str; }
 void lite_spot(int y, int x) { (void)y; (void)x; }
 void disturb(int a, int b) { (void)a; (void)b; }
 void prt_cmana(void) {}
@@ -135,12 +135,12 @@ void recall_increment_spell_chance(creature_handle h) { (void)h; }
 void recall_increment_death(creature_handle h) { (void)h; }
 
 /* --- プレイヤーへの被害・状態 --- */
-void take_hit(int dam, char *from) { (void)dam; (void)from; }
-void acid_dam(int dam, char *from) { (void)dam; (void)from; }
+void take_hit(int dam, const char *from) { (void)dam; (void)from; }
+void acid_dam(int dam, const char *from) { (void)dam; (void)from; }
 void cold_dam(int dam, char *from) { (void)dam; (void)from; }
-void fire_dam(int dam, char *from) { (void)dam; (void)from; }
+void fire_dam(int dam, const char *from) { (void)dam; (void)from; }
 void light_dam(int dam, char *from) { (void)dam; (void)from; }
-void corrode_gas(char *from) { (void)from; }
+void corrode_gas(const char *from) { (void)from; }
 void breath(int t, int y, int x, int dam, char *dsc, int m) {
     (void)t; (void)y; (void)x; (void)dam; (void)dsc; (void)m;
 }
