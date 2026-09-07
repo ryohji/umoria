@@ -9,7 +9,7 @@
 // 実体は variable.c:17 で 17 要素。長らく 5 と書かれていたが、変数を
 // 定義している variable.c がこのヘッダを include していなかったので
 // 誰も気づけなかった。include を入れて食いちがいを見つけた。
-extern char *copyright[17];
+extern const char *copyright[17];
 
 // horrible hack: needed because compact_monster() can be called from
 // deep within creatures() via place_monster() and summon_monster().
@@ -83,7 +83,7 @@ extern cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 
 // Following are player variables
 extern player_type py;
-extern char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL];
+extern const char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL];
 extern race_type race[MAX_RACES];
 extern background_type background[MAX_BACKGROUND];
 extern uint32_t player_exp[MAX_PLAYER_LEVEL];
@@ -98,7 +98,7 @@ extern int16_t class_level_adj[MAX_CLASS][MAX_LEV_ADJ];
 
 // Warriors don't have spells, so there is no entry for them.
 extern spell_type magic_spell[MAX_CLASS - 1][31];
-extern char *spell_names[62];
+extern const char *spell_names[62];
 extern uint32_t spell_learned;   // Bit field for spells learnt -CJS-
 extern uint32_t spell_worked;    // Bit field for spells tried -CJS-
 extern uint32_t spell_forgotten; // Bit field for spells forgotten -JEW-
@@ -125,7 +125,7 @@ extern uint8_t object_ident[OBJECT_IDENT_SIZE];
 extern int16_t t_level[MAX_OBJ_LEVEL + 1];
 extern inven_type t_list[MAX_TALLOC];
 extern inven_type inventory[INVEN_ARRAY_SIZE];
-extern char *special_names[SN_ARRAY_SIZE];
+extern const char *special_names[SN_ARRAY_SIZE];
 extern int16_t sorted_objects[MAX_DUNGEON_OBJ];
 extern int16_t inven_ctr;    // Total different obj's
 extern int16_t inven_weight; // Cur carried weight
@@ -140,13 +140,13 @@ extern int16_t mfptr;              // Cur free monster ptr
 extern int16_t mon_tot_mult;       // # of repro's of creature
 
 // Following are arrays for descriptive pieces
-extern char *colors[MAX_COLORS];
-extern char *mushrooms[MAX_MUSH];
-extern char *woods[MAX_WOODS];
-extern char *metals[MAX_METALS];
-extern char *rocks[MAX_ROCKS];
-extern char *amulets[MAX_AMULETS];
-extern char *syllables[MAX_SYLLABLES];
+extern const char *colors[MAX_COLORS];
+extern const char *mushrooms[MAX_MUSH];
+extern const char *woods[MAX_WOODS];
+extern const char *metals[MAX_METALS];
+extern const char *rocks[MAX_ROCKS];
+extern const char *amulets[MAX_AMULETS];
+extern const char *syllables[MAX_SYLLABLES];
 
 extern uint8_t blows_table[7][6];
 

@@ -17,7 +17,7 @@
 static void roff(const char *);
 static uint8_t count_previous_non_blank_chars(const char *from);
 
-static char *desc_atype[] = {
+static const char *desc_atype[] = {
     "do something undefined",
     "attack",
     "weaken",
@@ -45,7 +45,7 @@ static char *desc_atype[] = {
     "absorb charges",
 };
 
-static char *desc_amethod[] = {
+static const char *desc_amethod[] = {
     "make an undefined advance",
     "hit",
     "bite",
@@ -68,7 +68,7 @@ static char *desc_amethod[] = {
     "insult",
 };
 
-static char *desc_howmuch[] = {
+static const char *desc_howmuch[] = {
     " not at all",
     " a bit",
     "",
@@ -79,7 +79,7 @@ static char *desc_howmuch[] = {
     " extremely",
 };
 
-static char *desc_move[] = {
+static const char *desc_move[] = {
     "move invisibly",
     "open doors",
     "pass through walls",
@@ -88,7 +88,7 @@ static char *desc_move[] = {
     "breed explosively",
 };
 
-static char *desc_spell[] = {
+static const char *desc_spell[] = {
     "teleport short distances",
     "teleport long distances",
     "teleport its prey",
@@ -106,7 +106,7 @@ static char *desc_spell[] = {
     "unknown 2",
 };
 
-static char *desc_breath[] = {
+static const char *desc_breath[] = {
     "lightning",
     "poison gases",
     "acid",
@@ -114,7 +114,7 @@ static char *desc_breath[] = {
     "fire",
 };
 
-static char *desc_weakness[] = {
+static const char *desc_weakness[] = {
     "frost",
     "fire",
     "poison",

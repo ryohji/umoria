@@ -853,7 +853,7 @@ void magic_treasure(int x, int level) {
     }
 }
 
-static struct opt_desc { char *o_prompt; bool *o_var; } options[] = {
+static struct opt_desc { const char *o_prompt; bool *o_var; } options[] = {
     {"Running: cut known corners", &find_cut},
     {"Running: examine potential corners", &find_examine},
     {"Running: print self during run", &find_prself},

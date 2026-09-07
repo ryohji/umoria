@@ -84,7 +84,7 @@ typedef struct monster_type {
 } monster_type;
 
 typedef struct treasure_type {
-    char *name;        // Object name
+    const char *name;  // Object name
     uint32_t flags;    // Special flags
     uint8_t tval;      // Category number
     uint8_t tchar;     // Character representation
@@ -240,7 +240,7 @@ typedef struct spell_type {
 } spell_type;
 
 typedef struct race_type {
-    char *trace;     // Type of race
+    const char *trace; // Type of race
     int16_t str_adj; // adjustments
     int16_t int_adj;
     int16_t wis_adj;
@@ -271,7 +271,7 @@ typedef struct race_type {
 } race_type;
 
 typedef struct class_type {
-    char *title;             // type of class
+    const char *title;       // type of class
     uint8_t adj_hd;          // Adjust hit points
     uint8_t mdis;            // mod disarming traps
     uint8_t msrh;            // modifier to searching
@@ -292,7 +292,7 @@ typedef struct class_type {
 } class_type;
 
 typedef struct background_type {
-    char *info;    // History information
+    const char *info; // History information
     uint8_t roll;  // Die roll needed for history
     uint8_t chart; // Table number
     uint8_t next;  // Pointer to next table
@@ -313,7 +313,7 @@ typedef struct cave_type {
 } cave_type;
 
 typedef struct owner_type {
-    char *owner_name;
+    const char *owner_name;
     int16_t max_cost;
     uint8_t max_inflate;
     uint8_t min_inflate;

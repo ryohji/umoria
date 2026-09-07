@@ -14,7 +14,7 @@
 
 #include "externs.h"
 
-static char *comment1[14] = {
+static const char *comment1[14] = {
     "Done!",
     "Accepted!",
     "Fine.",
@@ -31,13 +31,13 @@ static char *comment1[14] = {
     "My spouse will skin me, but accepted.",
 };
 
-static char *comment2a[3] = {
+static const char *comment2a[3] = {
     "%A2 is my final offer; take it or leave it.",
     "I'll give you no more than %A2.",
     "My patience grows thin.  %A2 is final.",
 };
 
-static char *comment2b[16] = {
+static const char *comment2b[16] = {
     "%A1 for such a fine item?  HA!  No less than %A2.",
     "%A1 is an insult!  Try %A2 gold pieces.",
     "%A1?!?  You would rob my poor starving children?",
@@ -56,13 +56,13 @@ static char *comment2b[16] = {
     "Your mother was a Troll!  %A2 or I'll tell.",
 };
 
-static char *comment3a[3] = {
+static const char *comment3a[3] = {
     "I'll pay no more than %A1; take it or leave it.",
     "You'll get no more than %A1 from me.",
     "%A1 and that's final.",
 };
 
-static char *comment3b[15] = {
+static const char *comment3b[15] = {
     "%A2 for that piece of junk?  No more than %A1.",
     "For %A2 I could own ten of those.  Try %A1.",
     "%A2?  NEVER!  %A1 is more like it.",
@@ -80,7 +80,7 @@ static char *comment3b[15] = {
     "%A2 is too much, let us say %A1 gold.",
 };
 
-static char *comment4a[5] = {
+static const char *comment4a[5] = {
     "ENOUGH!  You have abused me once too often!",
     "THAT DOES IT!  You shall waste my time no more!",
     "This is getting nowhere.  I'm going home!",
@@ -88,13 +88,13 @@ static char *comment4a[5] = {
     "Begone!  I have had enough abuse for one day.",
 };
 
-static char *comment4b[5] = {
+static const char *comment4b[5] = {
     "Out of my place!", "out... Out... OUT!!!",
     "Come back tomorrow.", "Leave my place.  Begone!",
     "Come back when thou art richer.",
 };
 
-static char *comment5[10] = {
+static const char *comment5[10] = {
     "You will have to do better than that!",
     "That's an insult!",
     "Do you wish to do business or not?",
@@ -107,7 +107,7 @@ static char *comment5[10] = {
     "Hmmm, nice weather we're having.",
 };
 
-static char *comment6[5] = {
+static const char *comment6[5] = {
     "I must have heard you wrong.", "What was that?",
     "I'm sorry, say that again.", "What did you say?",
     "Sorry, what was that again?",
@@ -128,8 +128,8 @@ static void prt_comment1(void) {
 // The meaning of the two numbers depends on the caller: the buyer and the
 // seller swap their roles, so they are named after the placeholder they
 // land in rather than after offer / asking.
-static void prt_haggle_comment(char **final_comments, int final_comment_count,
-                               char **normal_comments, int normal_comment_count,
+static void prt_haggle_comment(const char **final_comments, int final_comment_count,
+                               const char **normal_comments, int normal_comment_count,
                                int32_t a1, int32_t a2, int final) {
     vtype comment;
 
