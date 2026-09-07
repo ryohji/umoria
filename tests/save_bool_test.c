@@ -90,10 +90,26 @@ TEST(a_saved_bool_occupies_exactly_two_bytes)
     ASSERT_EQ_INT(next, 0x1234);
 }
 
+TEST(any_nonzero_value_reads_back_as_true)
+{
+    /* 本体が書くのは 0 か 1 だけなので、それ以外はこのプログラムが作った
+     * ファイルには現れない。それでも下位バイトだけを見ると 0x0100 が false に
+     * なるので、2 バイト全体を見て判定していることを固定しておく。 */
+    begin_recording();
+    wr_short(0x0100);
+
+    bool flag = false;
+    begin_playback();
+    rd_bool(&flag);
+
+    ASSERT_TRUE(flag);
+}
+
 int main(void)
 {
     RUN_TEST(saved_false_reads_back_as_false);
     RUN_TEST(saved_true_reads_back_as_true);
     RUN_TEST(a_saved_bool_occupies_exactly_two_bytes);
+    RUN_TEST(any_nonzero_value_reads_back_as_true);
     return TEST_SUMMARY();
 }

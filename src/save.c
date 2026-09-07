@@ -1198,9 +1198,12 @@ static void rd_short(uint16_t *ptr) {
 }
 
 // 真偽値は wr_short() で 2 バイトとして書かれている（save.c:247）ので、
-// 読むほうも 2 バイト消費する。
+// 読むほうも 2 バイト消費する。ただし bool は 1 バイトなので、そこへ直接
+// 読ませると隣まで書きつぶす。いったん uint16_t で受けてから詰める。
 static void rd_bool(bool *ptr) {
-    rd_short((uint16_t *)ptr);
+    uint16_t value;
+    rd_short(&value);
+    *ptr = (value != 0);
 }
 
 static void rd_long(uint32_t *ptr) {
