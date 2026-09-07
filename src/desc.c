@@ -268,6 +268,27 @@ void unmagic_name(inven_type *i_ptr) {
 #define FLAGS     4
 #define Z_PLUSSES 5
 
+// 未鑑定の品物の名前は、雛形（basenm）の "%s" の位置へ材質や色（modstr）を
+// 差しこんで作る。もとは sprintf(out, basenm, modstr) と書いていたが、書式が
+// 変数なので書式と引数の対応をコンパイラが検査できない
+// （-Wformat-nonliteral）。必要なのは "%s" 1 つの置きかえだけなので、
+// printf に頼らず自分で書く。
+//
+// "%s" が無ければ雛形をそのまま写す。sprintf に渡したときと同じふるまい。
+static void fill_in_modstr(char *out_val, const char *basenm, const char *modstr) {
+    const char *hole = strstr(basenm, "%s");
+
+    if (hole == NULL) {
+        (void)strcpy(out_val, basenm);
+        return;
+    }
+
+    size_t prefix_len = (size_t)(hole - basenm);
+    (void)memcpy(out_val, basenm, prefix_len);
+    (void)strcpy(out_val + prefix_len, modstr);
+    (void)strcat(out_val + prefix_len, hole + 2);
+}
+
 // Returns a description of item for inventory
 // pref indicates that there should be an article added (prefix).
 // Note that since out_val can easily exceed 80 characters, objdes
@@ -430,7 +451,7 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
     bigvtype tmp_val;
 
     if (modstr != CNIL) {
-        (void)sprintf(tmp_val, basenm, modstr);
+        fill_in_modstr(tmp_val, basenm, modstr);
     } else {
         (void)strcpy(tmp_val, basenm);
     }
