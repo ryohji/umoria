@@ -564,7 +564,7 @@ void py_attack(int y, int x) {
     inven_type *i_ptr = &inventory[INVEN_WIELD];
 
     // Does the player know what he's fighting?
-    const char *cdesc = monster_name_lower((vtype){}, m_ptr);
+    const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
 
     int blows, tot_tohit;
     if (i_ptr->tval != TV_NOTHING) {
@@ -855,7 +855,7 @@ void openobject() {
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR || t_list[c_ptr->tptr].tval == TV_CHEST)) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-            msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
+            msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             // Closed door
             if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
@@ -973,7 +973,7 @@ void closeobject() {
                     }
                 } else {
                     monster_type *m_ptr = &m_list[c_ptr->cptr];
-                    msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
+                    msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
                 }
             } else {
                 no_object = true;

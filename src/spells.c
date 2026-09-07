@@ -27,7 +27,7 @@ int sleep_monsters1(int y, int x) {
                 monster_type *m_ptr = &m_list[c_ptr->cptr];
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-                const char *cdesc = monster_name((vtype){}, m_ptr);
+                const char *cdesc = monster_name((vtype){0}, m_ptr);
 
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                     if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
@@ -474,7 +474,7 @@ void light_line(int dir, int y, int x) {
                 // light up and draw monster
                 update_mon((int)c_ptr->cptr);
 
-                const char *cdesc = monster_name((vtype){}, m_ptr);
+                const char *cdesc = monster_name((vtype){0}, m_ptr);
 
                 if (CD_LIGHT & r_ptr->cdefense) {
                     if (m_ptr->ml) {
@@ -633,7 +633,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, char *bolt_typ) {
                 // draw monster and clear previous bolt
                 put_qio();
 
-                const char *cdesc = monster_name_lower((vtype){}, m_ptr);
+                const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
                 msg_print(CONCAT("The ", bolt_typ, " strikes ", cdesc, "."));
                 if (harm_type & r_ptr->cdefense) {
                     dam = dam * 2;
@@ -966,7 +966,7 @@ int hp_monster(int dir, int y, int x, int dam) {
 
             monster_type *m_ptr = &m_list[c_ptr->cptr];
 
-            const char *cdesc = monster_name((vtype){}, m_ptr);
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
             monster = true;
             if (mon_take_hit(c_ptr->cptr, dam)) {
                 msg_print(CONCAT(cdesc, " dies in a fit of agony."));
@@ -1003,7 +1003,7 @@ int drain_life(int dir, int y, int x) {
             if ((r_ptr->cdefense & CD_UNDEAD) == 0) {
                 drain = true;
 
-                const char *cdesc = monster_name((vtype){}, m_ptr);
+                const char *cdesc = monster_name((vtype){0}, m_ptr);
                 if (mon_take_hit(c_ptr->cptr, 75)) {
                     msg_print(CONCAT(cdesc, " dies in a fit of agony."));
                     prt_experience();
@@ -1040,7 +1040,7 @@ int speed_monster(int dir, int y, int x, int spd) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-            const char *cdesc = monster_name((vtype){}, m_ptr);
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
             if (spd > 0) {
                 m_ptr->cspeed += spd;
                 m_ptr->csleep = 0;
@@ -1078,7 +1078,7 @@ int confuse_monster(int dir, int y, int x) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-            const char *cdesc = monster_name((vtype){}, m_ptr);
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
             flag = true;
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
@@ -1129,7 +1129,7 @@ int sleep_monster(int dir, int y, int x) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-            const char *cdesc = monster_name((vtype){}, m_ptr);
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
 
             if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                 if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
@@ -1203,7 +1203,7 @@ int wall_to_mud(int dir, int y, int x) {
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if (CD_STONE & r_ptr->cdefense) {
-                const char *cdesc = monster_name((vtype){}, m_ptr);
+                const char *cdesc = monster_name((vtype){0}, m_ptr);
                 // Should get these messages even if the monster is not visible.
                 if (mon_take_hit(c_ptr->cptr, 100)) {
                     msg_print(CONCAT(cdesc, " dissolves!"));
@@ -1291,7 +1291,7 @@ int poly_monster(int dir, int y, int x) {
                     poly = true;
                 }
             } else {
-                const char *cdesc = monster_name((vtype){}, m_ptr);
+                const char *cdesc = monster_name((vtype){0}, m_ptr);
                 msg_print(CONCAT(cdesc, " is unaffected."));
             }
         }
@@ -1338,7 +1338,7 @@ int build_wall(int dir, int y, int x) {
                         damage = damroll(4, 8);
                     }
 
-                    const char *cdesc = monster_name((vtype){}, m_ptr);
+                    const char *cdesc = monster_name((vtype){0}, m_ptr);
                     msg_print(CONCAT(cdesc, " wails out in pain!"));
                     if (mon_take_hit(c_ptr->cptr, damage)) {
                         msg_print(CONCAT(cdesc, " is embedded in the rock."));
@@ -1537,7 +1537,7 @@ int speed_monsters(int spd) {
         monster_type *m_ptr = &m_list[i];
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        const char *cdesc = monster_name((vtype){}, m_ptr);
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
         if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
         } else if (spd > 0) {
@@ -1573,7 +1573,7 @@ int sleep_monsters2() {
         monster_type *m_ptr = &m_list[i];
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        const char *cdesc = monster_name((vtype){}, m_ptr);
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
         if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
         } else if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
@@ -1761,7 +1761,7 @@ void earthquake() {
                             damage = damroll(4, 8);
                         }
 
-                        const char *cdesc = monster_name((vtype){}, m_ptr);
+                        const char *cdesc = monster_name((vtype){0}, m_ptr);
                         msg_print(CONCAT(cdesc, " wails out in pain!"));
                         if (mon_take_hit(c_ptr->cptr, damage)) {
                             msg_print(CONCAT(cdesc, " is embedded in the rock."));
@@ -1841,7 +1841,7 @@ int dispel_creature(int cflag, int damage) {
         if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
             recall_update_characteristics(m_ptr->creature, cflag);
 
-            const char *cdesc = monster_name((vtype){}, m_ptr);
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
             // Should get these messages even if the monster is not visible.
             if (mon_take_hit(i, randint(damage))) {
                 msg_print(CONCAT(cdesc, " dissolves!"));
@@ -1866,7 +1866,7 @@ int turn_undead() {
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(char_row, char_col, m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
-            const char *cdesc = monster_name((vtype){}, m_ptr);
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
             if (((py.misc.lev + 1) > r_ptr->level) || (randint(5) == 1)) {
                 msg_print(CONCAT(cdesc, " runs frantically!"));
                 turn_und = true;

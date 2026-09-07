@@ -165,7 +165,7 @@ extern bool light_flag;
 
 #define END_OF(a) ((a) + LENGTH_OF(a))
 
-#define CONCAT(...) concat((vtype){}, __VA_ARGS__, NULL)
+#define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
 
 // create.c
 void create_character();

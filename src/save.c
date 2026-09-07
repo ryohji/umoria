@@ -18,7 +18,10 @@
 // For debugging the savefile code on systems with broken compilers.
 #define DEBUG(x)
 
-DEBUG(static FILE *logfile);
+// セミコロンをマクロ引数の内側に置く。DEBUG(x) は空に展開されるので、
+// 外側に書くとファイル直下に裸の ';' が残り、ISO C では認められない
+// （関数の中なら空文になるので、下の DEBUG(...) 群はそのままでよい）。
+DEBUG(static FILE *logfile;)
 
 static bool sv_write();
 static void wr_byte(uint8_t);
