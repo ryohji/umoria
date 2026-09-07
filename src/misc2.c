@@ -869,7 +869,7 @@ static struct opt_desc { char *o_prompt; bool *o_var; } options[] = {
 };
 
 // Set or unset various boolean options. -CJS-
-void set_options() {
+void set_options(void) {
     prt("  ESC when finished, y/n to set options, <return> or - to move cursor", 0, 0);
 
     int max;

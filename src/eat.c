@@ -17,7 +17,7 @@
 #include "item_ident.h"
 
 // Eat some food. -RAK-
-void eat() {
+void eat(void) {
     int j, k, item_val;
 
     free_turn_flag = true;

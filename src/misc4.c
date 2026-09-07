@@ -17,7 +17,7 @@
 #include <stdarg.h>
 
 // Add a comment to an object description. -CJS-
-void scribe_object() {
+void scribe_object(void) {
     if (inven_ctr > 0 || equip_ctr > 0) {
         int item_val;
 
@@ -58,7 +58,7 @@ void inscribe(inven_type *i_ptr, char *str) {
 }
 
 // We need to reset the view of things. -CJS-
-void check_view() {
+void check_view(void) {
     cave_type *c_ptr = &cave[char_row][char_col];
 
     // Check for new panel

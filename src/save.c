@@ -23,7 +23,7 @@
 // （関数の中なら空文になるので、下の SAVE_LOG(...) 群はそのままでよい）。
 SAVE_LOG(static FILE *logfile;)
 
-static bool sv_write();
+static bool sv_write(void);
 static void wr_byte(uint8_t);
 static void wr_short(uint16_t);
 static void wr_long(uint32_t);
@@ -53,7 +53,7 @@ static uint32_t start_time; // time that play started
 // and has been completely rewritten again by         -CJS-
 // and completely rewritten again! for portability by -JEW-
 
-static bool sv_write() {
+static bool sv_write(void) {
     // clear the death flag when creating a HANGUP save file,
     // so that player can see tombstone when restart
     if (eof_flag) {
@@ -371,7 +371,7 @@ static bool sv_write() {
 }
 
 // Set up prior to actual save, do the save, then clean up
-bool save_char() {
+bool save_char(void) {
     while (!_save_char(savefile)) {
         vtype temp;
 

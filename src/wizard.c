@@ -15,7 +15,7 @@
 #include "externs.h"
 
 // Light up the dungeon -RAK-
-void wizard_light() {
+void wizard_light(void) {
     bool flag;
 
     if (cave[char_row][char_col].pl) {
@@ -44,7 +44,7 @@ void wizard_light() {
 }
 
 // Wizard routine for gaining on stats -RAK-
-void change_character() {
+void change_character(void) {
     int tmp_val;
     vtype tmp_str;
 
@@ -255,7 +255,7 @@ void change_character() {
 }
 
 // Wizard routine for creating objects -RAK-
-void wizard_create() {
+void wizard_create(void) {
     int tmp_val;
     vtype tmp_str;
 

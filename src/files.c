@@ -23,7 +23,7 @@
 //  when the score is being written out, you must be sure to flock the file
 //  so we don't have multiple people trying to write to it at the same time.
 //  Craig Norborg (doc)    Mon Aug 10 16:41:59 EST 1987
-void init_scorefile() {
+void init_scorefile(void) {
     highscore_fp = fopen(MORIA_TOP, "rb+");
 
     if (highscore_fp == NULL) {
@@ -33,7 +33,7 @@ void init_scorefile() {
 }
 
 // Attempt to open the intro file -RAK-
-void read_times() {
+void read_times(void) {
     vtype in_line;
 
     // Print the introduction message, news, etc.
@@ -85,7 +85,7 @@ void helpfile(char *filename) {
 // Prints a list of random objects to a file. -RAK-
 // Note that the objects produced is a sampling of objects
 // which be expected to appear on that level.
-void print_objects() {
+void print_objects(void) {
     bigvtype tmp_str;
 
     prt("Produce objects on what level?: ", 0, 0);

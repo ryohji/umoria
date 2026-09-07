@@ -152,7 +152,7 @@ void tunnel(int dir) {
 }
 
 // Disarms a trap -RAK-
-void disarm_trap() {
+void disarm_trap(void) {
     int y = char_row;
     int x = char_col;
 
@@ -326,7 +326,7 @@ static int map_diag2[] = {2, 1, 0, 4, 3};
 // Looks first at real objects and monsters, and looks at rock types only after all
 // other things have been seen.  Only looks at rock types if the highlight_seams
 // option is set.
-void look() {
+void look(void) {
     int dir;
 
     if (py.flags.blind > 0) {
@@ -771,7 +771,7 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
 // Note: Flasks of oil do fire damage
 // Note: Extra damage and chance of hitting when missiles are used
 // with correct weapon.  I.E.  wield bow and throw arrow.
-void throw_object() {
+void throw_object(void) {
     int item_val;
 
     if (inven_ctr == 0) {
@@ -953,7 +953,7 @@ static void py_bash(int y, int x) {
 // in the line of sight or not, such a creature may unlock or unstick a door.
 //
 // A creature with no such ability will attempt to bash a non-secret door.
-void bash() {
+void bash(void) {
     int y = char_row;
     int x = char_col;
 

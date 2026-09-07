@@ -85,7 +85,7 @@ static void signal_handler(int sig) {
     }
 }
 
-void nosignals() {
+void nosignals(void) {
     (void)signal(SIGTSTP, SIG_IGN);
     mask = sigsetmask(0);
 
@@ -94,7 +94,7 @@ void nosignals() {
     }
 }
 
-void signals() {
+void signals(void) {
     // SIGTSTP is handled by the rendering system
     (void)sigsetmask(mask);
 
@@ -103,7 +103,7 @@ void signals() {
     }
 }
 
-void init_signals() {
+void init_signals(void) {
     /* Initialize signal flags */
     signal_flags_init();
 
@@ -137,7 +137,7 @@ void init_signals() {
 
 // Handle pending signals in a safe context (called from main loop)
 // This performs all the I/O operations that were deferred from the signal handler
-void handle_pending_signals() {
+void handle_pending_signals(void) {
     SignalType type;
     int signum;
 

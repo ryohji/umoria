@@ -276,7 +276,7 @@ void find_init(int dir) {
     }
 }
 
-void find_run() {
+void find_run(void) {
     // prevent infinite loops in find mode, will stop after moving 100 times
     if (find_flag++ > 100) {
         msg_print("You stop running to catch your breath.");
@@ -287,7 +287,7 @@ void find_run() {
 }
 
 // Switch off the run flag - and get the light correct. -CJS-
-void end_find() {
+void end_find(void) {
     if (find_flag) {
         find_flag = 0;
         move_light(char_row, char_col, char_row, char_col);

@@ -115,7 +115,7 @@ static char *comment6[5] = {
 
 // Comments vary. -RAK-
 // Comment one : Finished haggling
-static void prt_comment1() {
+static void prt_comment1(void) {
     msg_print(comment1[randint(14) - 1]);
 }
 
@@ -158,22 +158,22 @@ static void prt_comment3(int32_t offer, int32_t asking, int final) {
 }
 
 // Kick 'da bum out. -RAK-
-static void prt_comment4() {
+static void prt_comment4(void) {
     int tmp = randint(5) - 1;
     msg_print(comment4a[tmp]);
     msg_print(comment4b[tmp]);
 }
 
-static void prt_comment5() {
+static void prt_comment5(void) {
     msg_print(comment5[randint(10) - 1]);
 }
 
-static void prt_comment6() {
+static void prt_comment6(void) {
     msg_print(comment6[randint(5) - 1]);
 }
 
 // Displays the set of commands -RAK-
-static void display_commands() {
+static void display_commands(void) {
     prt("You may:", 20, 0);
     prt(" p) Purchase an item.           b) Browse store's inventory.", 21, 0);
     prt(" s) Sell an item.               i/e/t/w/x) Inventory/Equipment Lists.", 22, 0);
@@ -262,7 +262,7 @@ static void display_cost(int store_num, int pos) {
 }
 
 // Displays players gold -RAK-
-static void store_prt_gold() {
+static void store_prt_gold(void) {
     vtype out_val;
     (void)sprintf(out_val, "Gold Remaining : %d", py.misc.au);
     prt(out_val, 18, 17);

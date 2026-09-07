@@ -842,7 +842,7 @@ void chest_trap(int y, int x) {
 }
 
 // Opens a closed door or closed chest. -RAK-
-void openobject() {
+void openobject(void) {
     int y = char_row;
     int x = char_col;
 
@@ -949,7 +949,7 @@ void openobject() {
 }
 
 // Closes an open door. -RAK-
-void closeobject() {
+void closeobject(void) {
     int y = char_row;
     int x = char_col;
 

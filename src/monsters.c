@@ -701,11 +701,11 @@ creature_type *monster_get_creature(creature_handle h) {
     return c_list + h.place;
 }
 
-creature_type *monster_creature_rbegin() {
+creature_type *monster_creature_rbegin(void) {
     return c_list - 1 + MAX_CREATURES;
 }
 
-creature_type *monster_creature_rend() {
+creature_type *monster_creature_rend(void) {
     return c_list - 1;
 }
 

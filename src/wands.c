@@ -18,7 +18,7 @@
 #include "item_ident.h"
 
 // Wands for the aiming.
-void aim() {
+void aim(void) {
     free_turn_flag = true;
 
     int j, k, item_val;

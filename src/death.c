@@ -105,13 +105,13 @@ void display_scores(int show_player) {
     (void)fclose(highscore_fp);
 }
 
-bool duplicate_character() {
+bool duplicate_character(void) {
     // Only check for duplicate characters under unix.
     return false;
 }
 
 // Prints the gravestone of the character -RAK-
-static void print_tomb() {
+static void print_tomb(void) {
     char *p;
     vtype str, tmp_str;
 
@@ -212,7 +212,7 @@ retry:
 }
 
 // Calculates the total number of points earned -JWT-
-int32_t total_points() {
+int32_t total_points(void) {
     int32_t total = py.misc.max_exp + (100 * py.misc.max_dlv);
     total += py.misc.au / 100;
 
@@ -231,7 +231,7 @@ int32_t total_points() {
 }
 
 // Enters a players name on the top twenty list -JWT-
-static void highscores() {
+static void highscores(void) {
     clear_screen();
 
     if (noscore) {
@@ -394,7 +394,7 @@ static void highscores() {
 }
 
 // Change the player into a King! -RAK-
-static void kingly() {
+static void kingly(void) {
     char *p;
 
     // Change the character attributes.
@@ -438,7 +438,7 @@ static void kingly() {
 
 // Handles the gravestone end top-twenty routines -RAK-
 // What happens upon dying. -RAK-
-_Noreturn void exit_game() {
+_Noreturn void exit_game(void) {
     msg_print(CNIL);
 
     flush();     // flush all input

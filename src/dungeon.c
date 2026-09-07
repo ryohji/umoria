@@ -20,11 +20,11 @@ static bool valid_countcommand(char);
 static void regenhp(int);
 static void regenmana(int);
 static bool enchanted(inven_type *);
-static void examine_book();
-static void go_up();
-static void go_down();
-static void jamdoor();
-static void refill_lamp();
+static void examine_book(void);
+static void go_up(void);
+static void go_down(void);
+static void jamdoor(void);
+static void refill_lamp(void);
 
 // Moria game module -RAK-
 // The code in this section has gone through many revisions, and
@@ -32,7 +32,7 @@ static void refill_lamp();
 
 // It has had a bit more hard work. -CJS-
 
-void dungeon() {
+void dungeon(void) {
     int i;
 
     // Main procedure for dungeon. -RAK-
@@ -1762,7 +1762,7 @@ static bool enchanted(inven_type *t_ptr) {
 }
 
 // Examine a Book -RAK-
-static void examine_book() {
+static void examine_book(void) {
     int i, k, item_val;
 
     if (!find_range(TV_MAGIC_BOOK, TV_PRAYER_BOOK, &i, &k)) {
@@ -1816,7 +1816,7 @@ static void examine_book() {
 }
 
 // Go up one level -RAK-
-static void go_up() {
+static void go_up(void) {
     bool no_stairs = false;
     cave_type *c_ptr = &cave[char_row][char_col];
 
@@ -1840,7 +1840,7 @@ static void go_up() {
 }
 
 // Go down one level -RAK-
-static void go_down() {
+static void go_down(void) {
     const uint8_t tptr = cave[char_row][char_col].tptr;
 
     if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
@@ -1855,7 +1855,7 @@ static void go_down() {
 }
 
 // Jam a closed door -RAK-
-static void jamdoor() {
+static void jamdoor(void) {
     free_turn_flag = true;
 
     int y = char_row;
@@ -1914,7 +1914,7 @@ static void jamdoor() {
 }
 
 // Refill the players lamp -RAK-
-static void refill_lamp() {
+static void refill_lamp(void) {
     int i, j;
 
     free_turn_flag = true;

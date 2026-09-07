@@ -31,7 +31,7 @@ bool is_a_vowel(char ch) {
 }
 
 // Initialize all Potions, wands, staves, scrolls, etc.
-void magic_init() {
+void magic_init(void) {
     int j;
     char *tmp;
 

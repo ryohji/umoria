@@ -171,7 +171,7 @@ extern bool light_flag;
 #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
 
 // create.c
-void create_character();
+void create_character(void);
 
 // creature.c
 void update_mon(int);
@@ -180,16 +180,16 @@ void creatures(int);
 
 // death.c
 void display_scores(int);
-bool duplicate_character();
-int32_t total_points();
+bool duplicate_character(void);
+int32_t total_points(void);
 // 末尾で exit(0) するので、呼びだしの後ろへは戻らない。それを型で表明して
 // おくと「この後は到達しない」ことをコンパイラが判断できる（main.c の
 // switch で case を貫通しているという誤検出が消える）。
-_Noreturn void exit_game();
+_Noreturn void exit_game(void);
 
 // desc.c
 bool is_a_vowel(char);
-void magic_init();
+void magic_init(void);
 int16_t object_offset(inven_type *);
 void known1(inven_type *);
 int known1_p(inven_type *);
@@ -208,32 +208,32 @@ void desc_charges(int);
 void desc_remain(int);
 
 // dungeon.c
-void dungeon();
+void dungeon(void);
 
 // eat.c
-void eat();
+void eat(void);
 
 // files.c
-void init_scorefile();
-void read_times();
+void init_scorefile(void);
+void read_times(void);
 void helpfile(char *);
-void print_objects();
+void print_objects(void);
 bool file_character(char *);
 
 // generate.c
-void generate_cave();
+void generate_cave(void);
 
 // help.c
-void ident_char();
+void ident_char(void);
 
 // io.c
 void put_buffer(char *, int, int);
-void put_qio();
-void shell_out();
-char inkey();
-void flush();
+void put_qio(void);
+void shell_out(void);
+char inkey(void);
+void flush(void);
 void erase_line(int, int);
-void clear_screen();
+void clear_screen(void);
 void clear_from(int);
 void print(char, int, int);
 void move_cursor_relative(int, int);
@@ -246,10 +246,10 @@ int get_com(char *, char *);
 bool get_string(char *, int, int, int);
 void pause_line(int);
 void pause_exit(int, int);
-void save_screen();
-void restore_screen();
-void bell();
-void screen_map();
+void save_screen(void);
+void restore_screen(void);
+void bell(void);
+void screen_map(void);
 void sleep_in_seconds(int);
 bool check_input(int);
 void user_name(char *);
@@ -265,18 +265,18 @@ int topen(char *, int, int);
 #endif
 
 // magic.c
-void cast();
+void cast(void);
 
 // main.c
 // misc1.c
 void init_seeds(uint32_t);
 void set_seed(uint32_t);
-void reset_seed();
+void reset_seed(void);
 int randint(int);
 int randnor(int, int);
 int bit_pos(uint32_t *);
 bool in_bounds(int, int);
-void panel_bounds();
+void panel_bounds(void);
 int get_panel(int, int, int);
 bool panel_contains(int, int);
 int distance(int, int, int, int);
@@ -287,24 +287,24 @@ int pdamroll(const uint8_t *);
 bool los(int, int, int, int);
 uint8_t loc_symbol(int, int);
 bool test_light(int, int);
-void prt_map();
-bool compact_monsters();
+void prt_map(void);
+bool compact_monsters(void);
 void add_food(int);
-int popm();
+int popm(void);
 int max_hp(const uint8_t *);
 bool place_monster(int, int, creature_handle, int);
-void place_win_monster();
+void place_win_monster(void);
 void alloc_monster(int, int, int);
 bool summon_monster(int *, int *, int);
 bool summon_undead(int *, int *);
-int popt();
+int popt(void);
 void pusht(uint8_t);
 bool magik(int);
 int m_bonus(int, int, int);
 
 // misc2.c
 void magic_treasure(int, int);
-void set_options();
+void set_options(void);
 
 // misc3.c
 void place_trap(int, int, int);
@@ -318,80 +318,80 @@ void cnv_stat(uint8_t, char *);
 void prt_stat(int);
 void prt_field(char *, int, int);
 int stat_adj(int);
-int chr_adj();
-int con_adj();
-char *title_string();
-void prt_title();
-void prt_level();
-void prt_cmana();
-void prt_mhp();
-void prt_chp();
-void prt_pac();
-void prt_gold();
-void prt_depth();
-void prt_hunger();
-void prt_blind();
-void prt_confused();
-void prt_afraid();
-void prt_poisoned();
-void prt_state();
-void prt_speed();
-void prt_study();
-void prt_winner();
+int chr_adj(void);
+int con_adj(void);
+char *title_string(void);
+void prt_title(void);
+void prt_level(void);
+void prt_cmana(void);
+void prt_mhp(void);
+void prt_chp(void);
+void prt_pac(void);
+void prt_gold(void);
+void prt_depth(void);
+void prt_hunger(void);
+void prt_blind(void);
+void prt_confused(void);
+void prt_afraid(void);
+void prt_poisoned(void);
+void prt_state(void);
+void prt_speed(void);
+void prt_study(void);
+void prt_winner(void);
 uint8_t modify_stat(int, int16_t);
 void set_use_stat(int);
 bool inc_stat(int);
 bool dec_stat(int);
 bool res_stat(int);
 void bst_stat(int, int);
-int tohit_adj();
-int toac_adj();
-int todis_adj();
-int todam_adj();
-void prt_stat_block();
-void draw_cave();
-void put_character();
-void put_stats();
+int tohit_adj(void);
+int toac_adj(void);
+int todis_adj(void);
+int todam_adj(void);
+void prt_stat_block(void);
+void draw_cave(void);
+void put_character(void);
+void put_stats(void);
 char *likert(int, int);
-void put_misc1();
-void put_misc2();
-void put_misc3();
-void display_char();
-void get_name();
-void change_name();
+void put_misc1(void);
+void put_misc2(void);
+void put_misc3(void);
+void display_char(void);
+void get_name(void);
+void change_name(void);
 void inven_destroy(int);
 void take_one_item(inven_type *, inven_type *);
 void inven_drop(int, int);
 int inven_damage(bool (*)(), int);
-int weight_limit();
+int weight_limit(void);
 bool inven_check_num(inven_type *);
 bool inven_check_weight(inven_type *);
-void check_strength();
+void check_strength(void);
 int inven_carry(inven_type *);
 int spell_chance(int);
 void print_spells(int *, int, int, int);
 int get_spell(int *, int, int *, int *, char *, int);
 void calc_spells(int);
-void gain_spells();
+void gain_spells(void);
 void calc_mana(int);
-void prt_experience();
-void calc_hitpoints();
+void prt_experience(void);
+void calc_hitpoints(void);
 void insert_str(char *, char *, char *);
 void insert_lnum(char *, char *, int32_t, int);
-bool enter_wiz_mode();
+bool enter_wiz_mode(void);
 int attack_blows(int, int *);
 int tot_dam(inven_type *, int, creature_handle);
 int critical_blow(int, int, int, int);
 int mmove(int, int *, int *);
-bool player_saves();
+bool player_saves(void);
 int find_range(int, int, int *, int *);
 void teleport(int);
 
 // misc4.c
-void scribe_object();
+void scribe_object(void);
 void add_inscribe(inven_type *, uint8_t);
 void inscribe(inven_type *, char *);
-void check_view();
+void check_view(void);
 char *concat(char *buffer, ...);
 
 // monsters.c
@@ -407,8 +407,8 @@ creature_handle monster_make_creature_handle(uint16_t index);
 creature_handle monster_get_creature_handle(creature_type *p);
 creature_type *monster_get_creature(creature_handle h);
 
-creature_type *monster_creature_rbegin();
-creature_type *monster_creature_rend();
+creature_type *monster_creature_rbegin(void);
+creature_type *monster_creature_rend(void);
 creature_type *monster_creature_prev(creature_type *p);
 
 const char *monster_name(vtype, const monster_type *);
@@ -419,7 +419,7 @@ const char *monster_name_indefinite(vtype, const creature_type *);
 // moria1.c
 void change_speed(int);
 void py_bonuses(inven_type *, int);
-void calc_bonuses();
+void calc_bonuses(void);
 int show_inven(int, int, bool, int, char *);
 char *describe_use(int);
 int show_equip(bool, int);
@@ -427,7 +427,7 @@ void takeoff(int, int);
 int verify(char *, int);
 void inven_command(char);
 int get_item(int *, char *, int, int, char *, char *);
-bool no_light();
+bool no_light(void);
 bool get_dir(char *, int *);
 bool get_alldir(char *, int *);
 void move_rec(int, int, int, int);
@@ -435,10 +435,10 @@ void light_room(int, int);
 void lite_spot(int, int);
 void move_light(int, int, int, int);
 void disturb(int, int);
-void search_on();
-void search_off();
-void rest();
-void rest_off();
+void search_on(void);
+void search_off(void);
+void rest(void);
+void rest_off(void);
 bool test_hit(int, int, int, int, int);
 void take_hit(int, char *);
 
@@ -446,8 +446,8 @@ void take_hit(int, char *);
 void change_trap(int, int);
 void search(int, int, int);
 void find_init(int);
-void find_run();
-void end_find();
+void find_run(void);
+void end_find(void);
 void area_affect(int, int, int);
 int minus_ac(uint32_t);
 void corrode_gas(char *);
@@ -468,34 +468,34 @@ int mon_take_hit(int, int);
 void py_attack(int, int);
 void move_char(int, bool);
 void chest_trap(int, int);
-void openobject();
-void closeobject();
+void openobject(void);
+void closeobject(void);
 int twall(int, int, int, int);
 
 // moria4.c
 void tunnel(int);
-void disarm_trap();
-void look();
-void throw_object();
-void bash();
+void disarm_trap(void);
+void look(void);
+void throw_object(void);
+void bash(void);
 
 // potions.c
-void quaff();
+void quaff(void);
 
 // prayer.c
-void pray();
+void pray(void);
 
 // recall.c
 bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
 // rnd.c
-uint32_t get_rnd_seed();
+uint32_t get_rnd_seed(void);
 void set_rnd_seed(uint32_t);
-int32_t rnd();
+int32_t rnd(void);
 
 // save.c
-bool save_char();
+bool save_char(void);
 bool _save_char(char *);
 bool get_char(bool *);
 void set_fileptr(FILE *);
@@ -503,7 +503,7 @@ void wr_highscore(high_scores *);
 void rd_highscore(high_scores *);
 
 // scrolls.c
-void read_scroll();
+void read_scroll(void);
 
 // sets.c
 bool set_room(int);
@@ -526,27 +526,27 @@ bool alchemist(int);
 bool magic_shop(int);
 
 // signals.c
-void nosignals();
-void signals();
-void init_signals();
-void handle_pending_signals();
+void nosignals(void);
+void signals(void);
+void init_signals(void);
+void handle_pending_signals(void);
 
 // spells.c
 int sleep_monsters1(int, int);
-int detect_treasure();
-int detect_object();
-int detect_trap();
-int detect_sdoor();
-int detect_invisible();
+int detect_treasure(void);
+int detect_object(void);
+int detect_trap(void);
+int detect_sdoor(void);
+int detect_invisible(void);
 int light_area(int, int);
 int unlight_area(int, int);
-void map_area();
-int ident_spell();
+void map_area(void);
+int ident_spell(void);
 int aggravate_monster(int);
-int trap_creation();
-int door_creation();
-int td_destroy();
-int detect_monsters();
+int trap_creation(void);
+int door_creation(void);
+int td_destroy(void);
+int detect_monsters(void);
 void light_line(int, int, int);
 void starlite(int, int);
 int disarm_all(int, int, int);
@@ -568,40 +568,40 @@ bool clone_monster(int, int, int);
 void teleport_away(int, int);
 void teleport_to(int, int);
 int teleport_monster(int, int, int);
-int mass_genocide();
-int genocide();
+int mass_genocide(void);
+int genocide(void);
 int speed_monsters(int);
-int sleep_monsters2();
-int mass_poly();
-int detect_evil();
+int sleep_monsters2(void);
+int mass_poly(void);
+int detect_evil(void);
 int hp_player(int);
-int cure_confusion();
-int cure_blindness();
-int cure_poison();
-int remove_fear();
-void earthquake();
-int protect_evil();
-void create_food();
+int cure_confusion(void);
+int cure_blindness(void);
+int cure_poison(void);
+int remove_fear(void);
+void earthquake(void);
+int protect_evil(void);
+void create_food(void);
 int dispel_creature(int, int);
-int turn_undead();
-void warding_glyph();
-void lose_str();
-void lose_int();
-void lose_wis();
-void lose_dex();
-void lose_con();
-void lose_chr();
+int turn_undead(void);
+void warding_glyph(void);
+void lose_str(void);
+void lose_int(void);
+void lose_wis(void);
+void lose_dex(void);
+void lose_con(void);
+void lose_chr(void);
 void lose_exp(int32_t);
-int slow_poison();
+int slow_poison(void);
 void bless(int);
 void detect_inv2(int);
 void destroy_area(int, int);
 bool enchant(int16_t *, int16_t);
-int remove_curse();
-int restore_level();
+int remove_curse(void);
+int restore_level(void);
 
 // staffs.c
-void use();
+void use(void);
 
 // store1.c
 int32_t item_value(inven_type *);
@@ -609,8 +609,8 @@ int32_t sell_price(int, int32_t *, int32_t *, inven_type *);
 bool store_check_num(inven_type *, int);
 void store_carry(int, int *, inven_type *);
 void store_destroy(int, int, int);
-void store_init();
-void store_maint();
+void store_init(void);
+void store_maint(void);
 bool noneedtobargain(int, int32_t);
 void updatebargain(int, int32_t, int32_t);
 
@@ -632,9 +632,9 @@ void recall_increment_kill(creature_handle h);
 void recall_increment_death(creature_handle h);
 
 // wands.c
-void aim();
+void aim(void);
 
 // wizard.c
-void wizard_light();
-void change_character();
-void wizard_create();
+void wizard_light(void);
+void change_character(void);
+void wizard_create(void);

@@ -59,7 +59,7 @@ static void rand_dir(int *rdir, int *cdir) {
 }
 
 // Blanks out entire cave -RAK-
-static void blank_cave() {
+static void blank_cave(void) {
     memset((char *)&cave[0][0], 0, sizeof(cave));
 }
 
@@ -84,7 +84,7 @@ static void fill_cave(int fval) {
 #endif
 
 // Places indestructible rock around edges of dungeon -RAK-
-static void place_boundary() {
+static void place_boundary(void) {
     cave_type(*left_ptr)[MAX_WIDTH];
     cave_type(*right_ptr)[MAX_WIDTH];
 
@@ -1036,7 +1036,7 @@ static void new_spot(int16_t *y, int16_t *x) {
 }
 
 // Cave logic flow for generation of new dungeon
-static void cave_gen() {
+static void cave_gen(void) {
     struct spot_type {
         int endx;
         int endy;
@@ -1185,7 +1185,7 @@ static void build_store(int store_num, int y, int x) {
 }
 
 // Link all free space in treasure list together
-static void tlink() {
+static void tlink(void) {
     for (int i = 0; i < MAX_TALLOC; i++) {
         invcopy(&t_list[i], OBJ_NOTHING);
     }
@@ -1193,7 +1193,7 @@ static void tlink() {
 }
 
 // Link all free space in monster list together
-static void mlink() {
+static void mlink(void) {
     for (int i = 0; i < MAX_MALLOC; i++) {
         m_list[i] = blank_monster;
     }
@@ -1201,7 +1201,7 @@ static void mlink() {
 }
 
 // Town logic flow for generation of new town
-static void town_gen() {
+static void town_gen(void) {
     set_seed(town_seed);
 
     int rooms[6];
@@ -1256,7 +1256,7 @@ static void town_gen() {
 }
 
 // Generates a random dungeon level -RAK-
-void generate_cave() {
+void generate_cave(void) {
     panel_row_min = 0;
     panel_row_max = 0;
     panel_col_min = 0;

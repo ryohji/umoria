@@ -14,18 +14,27 @@
 set -e
 cd "$(dirname "$0")/.."
 
-LOG=$(mktemp)
-trap 'rm -f "$LOG"' EXIT
+BUILD=$(mktemp)
+WARN=$(mktemp)
+trap 'rm -f "$BUILD" "$WARN"' EXIT
 
+# ビルドが途中で失敗すると、それ以降のファイルはコンパイルされないので
+# 警告の数だけ見ていると「減った」と読みちがえる。まず成否を判定する。
 make clean >/dev/null 2>&1 || true
-make 2>&1 | grep 'warning:' > "$LOG" || true
+if ! make > "$BUILD" 2>&1; then
+    printf '%s\n' "== ビルド失敗（警告の集計は当てにならない）=="
+    grep -B3 'error:' "$BUILD" || tail -20 "$BUILD"
+    exit 1
+fi
+
+grep 'warning:' "$BUILD" > "$WARN" || true
 
 if [ $# -eq 0 ]; then
     printf '%s\n' "== 箇所数（file:line:col の重複を除いた数）=="
-    sed -E 's/^([^ ]+:[0-9]+:[0-9]+): warning: .*(\[-W[a-z0-9=-]+\])$/\2 \1/' "$LOG" \
+    sed -E 's/^([^ ]+:[0-9]+:[0-9]+): warning: .*(\[-W[a-z0-9=-]+\])$/\2 \1/' "$WARN" \
         | grep '^\[' | sort -u | awk '{print $1}' | uniq -c | sort -rn
-    printf '%s\n' "-- フラグの付かない警告 --"
-    grep -c -v '\[-W' "$LOG" || true
+    printf '%s\n' "-- フラグの付かない警告（箇所数）--"
+    grep -v '\[-W' "$WARN" | sort -u | wc -l
 else
-    grep -- "$1\]" "$LOG" | sort -u
+    grep -- "$1\]" "$WARN" | sort -u
 fi

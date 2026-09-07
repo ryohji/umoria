@@ -17,7 +17,7 @@
 #include "item_ident.h"
 
 // Scrolls for the reading -RAK-
-void read_scroll() {
+void read_scroll(void) {
     bool flag;
     int j, k, l, y, x;
     int item_val;

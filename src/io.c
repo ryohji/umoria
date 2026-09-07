@@ -18,7 +18,7 @@
 
 #define use_value2
 
-static void wait_for_more_confirmation();
+static void wait_for_more_confirmation(void);
 
 // Dump IO to buffer -RAK-
 void put_buffer(char *out_str, int row, int col) {
@@ -35,14 +35,14 @@ void put_buffer(char *out_str, int row, int col) {
 }
 
 // Dump the IO buffer to terminal -RAK-
-void put_qio() {
+void put_qio(void) {
     // Let inven_command know something has changed.
     screen_change = true;
 
     render_refresh();
 }
 
-void shell_out() {
+void shell_out(void) {
     put_buffer("[Opening new shells is not currently supported]\n", 0, 0);
 }
 
@@ -51,7 +51,7 @@ void shell_out() {
 // This silently consumes ^R to redraw the screen and reset the
 // terminal, so that this operation can always be performed at
 // any input prompt. inkey() never returns ^R.
-char inkey() {
+char inkey(void) {
     put_qio();         // Dump IO buffer
     command_count = 0; // Just to be safe -CJS-
 
@@ -98,7 +98,7 @@ char inkey() {
 }
 
 // Flush the buffer -RAK-
-void flush() {
+void flush(void) {
     if (!eof_flag) {
         input_flush();
     }
@@ -114,7 +114,7 @@ void erase_line(int row, int col) {
 }
 
 // Clears screen
-void clear_screen() {
+void clear_screen(void) {
     if (msg_flag) {
         msg_print(CNIL);
     }
@@ -204,7 +204,7 @@ void msg_print(char *str_buff) {
     }
 }
 
-static inline void wait_for_more_confirmation() {
+static inline void wait_for_more_confirmation(void) {
     // let sigint handler know that we are waiting for a space
     wait_for_more = true;
 
@@ -362,15 +362,15 @@ void pause_exit(int prt_line, int delay) {
     erase_line(prt_line, 0);
 }
 
-void save_screen() {
+void save_screen(void) {
     render_save_screen();
 }
 
-void restore_screen() {
+void restore_screen(void) {
     render_restore_screen();
 }
 
-void bell() {
+void bell(void) {
     put_qio();
 
     // The player can turn off beeps if he/she finds them annoying.
@@ -396,7 +396,7 @@ void bell() {
 // Display highest priority object in the RATIO by RATIO area
 #define RATIO 3
 
-void screen_map() {
+void screen_map(void) {
     static uint8_t screen_border[2][6] = {
         {'+', '+', '+', '+', '-', '|'}, // normal chars
         {201, 187, 200, 188, 205, 186}, // graphics chars

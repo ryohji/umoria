@@ -17,7 +17,7 @@
 #include "item_ident.h"
 
 // Potions for the quaffing -RAK-
-void quaff() {
+void quaff(void) {
     free_turn_flag = true;
 
     int j, k, item_val;

@@ -65,7 +65,7 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 }
 
 // Recalculate the effect of all the stuff we use. -CJS-
-void calc_bonuses() {
+void calc_bonuses(void) {
     struct flags *p_ptr = &py.flags;
     struct misc *m_ptr = &py.misc;
 
@@ -1345,7 +1345,7 @@ int get_item(int *com_val, char *pmt, int i, int j, char *mask, char *message) {
 // hooks which I have not had time to re-think. -RAK-
 
 // Returns true if player has no light -RAK-
-bool no_light() {
+bool no_light(void) {
     cave_type *c_ptr = &cave[char_row][char_col];
 
     if (!c_ptr->tl && !c_ptr->pl) {
@@ -1610,7 +1610,7 @@ void disturb(int s, int l) {
 }
 
 // Search Mode enhancement -RAK-
-void search_on() {
+void search_on(void) {
     change_speed(1);
     py.flags.status |= PY_SEARCH;
     prt_state();
@@ -1618,7 +1618,7 @@ void search_on() {
     py.flags.food_digested++;
 }
 
-void search_off() {
+void search_off(void) {
     check_view();
     change_speed(-1);
 
@@ -1630,7 +1630,7 @@ void search_off() {
 }
 
 // Resting allows a player to safely restore his hp -RAK-
-void rest() {
+void rest(void) {
     int rest_num;
 
     if (command_count > 0) {
@@ -1670,7 +1670,7 @@ void rest() {
     }
 }
 
-void rest_off() {
+void rest_off(void) {
     py.flags.rest = 0;
     py.flags.status &= ~PY_REST;
 
