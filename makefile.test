@@ -37,7 +37,7 @@ BUILDDIR = $(TESTDIR)/build
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
-        stat_bonus_test
+        stat_bonus_test objdes_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -208,6 +208,26 @@ $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
                              src/treasure.c src/player.c \
                              src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/stat_bonus_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    src/treasure.c src/player.c src/abilities.c
+
+# 未鑑定アイテムの名前組み立ては src/desc.c の objdes() にある。外部
+# リンケージなのでそのまま呼べる。写しではなく実体を検証したいので desc.c を
+# リンクする。
+#
+# objdes() は名前の複数形化に misc3.c の insert_str() を使う。fixture.c は
+# これを空の代役にしているので、fixture.c ではなく misc3_stubs.c 側の構成
+# （misc3.c の本物をリンクする）を使う。リンク構成は stat_bonus_test と同じ。
+#
+# desc.c / misc3.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
+# 既存の事情なのでテストのために本体を変えない。この 1 つだけ警告を落とす。
+$(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
+                         $(TESTDIR)/misc3_stubs.c \
+                         $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                         src/misc3.c src/desc.c src/tables.c \
+                         src/treasure.c src/player.c \
+                         src/abilities.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
