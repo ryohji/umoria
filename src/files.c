@@ -23,7 +23,7 @@
 //  when the score is being written out, you must be sure to flock the file
 //  so we don't have multiple people trying to write to it at the same time.
 //  Craig Norborg (doc)    Mon Aug 10 16:41:59 EST 1987
-void init_scorefile() {
+void init_scorefile(void) {
     highscore_fp = fopen(MORIA_TOP, "rb+");
 
     if (highscore_fp == NULL) {
@@ -33,7 +33,7 @@ void init_scorefile() {
 }
 
 // Attempt to open the intro file -RAK-
-void read_times() {
+void read_times(void) {
     vtype in_line;
 
     // Print the introduction message, news, etc.
@@ -51,7 +51,7 @@ void read_times() {
 
 // File perusal. -CJS-
 // primitive, but portable
-void helpfile(char *filename) {
+void helpfile(const char *filename) {
     bigvtype tmp_str;
 
     FILE *file = fopen(filename, "r");
@@ -85,7 +85,7 @@ void helpfile(char *filename) {
 // Prints a list of random objects to a file. -RAK-
 // Note that the objects produced is a sampling of objects
 // which be expected to appear on that level.
-void print_objects() {
+void print_objects(void) {
     bigvtype tmp_str;
 
     prt("Produce objects on what level?: ", 0, 0);
@@ -183,8 +183,8 @@ bool file_character(char *filename1) {
         prt("Writing character sheet...", 0, 0);
         put_qio();
 
-        char *colon = ":";
-        char *blank = " ";
+        const char *colon = ":";
+        const char *blank = " ";
 
         (void)fprintf(file1, "%c\n\n", CTRL_KEY('L'));
 
@@ -258,7 +258,7 @@ bool file_character(char *filename1) {
         if (equip_ctr == 0) {
             (void)fprintf(file1, "  Character has no equipment in use.\n");
         } else {
-            char *p;
+            const char *p;
             inven_type *i_ptr;
 
             for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {

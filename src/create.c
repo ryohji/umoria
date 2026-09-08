@@ -15,7 +15,7 @@
 #include "externs.h"
 
 // Generates character's stats -JWT-
-static void get_stats() {
+static void get_stats(void) {
     int tot;
     int dice[18];
 
@@ -71,7 +71,7 @@ static void change_stat(int stat, int16_t amount) {
 
 // generate all stats and modify for race. needed in a separate
 // module so looping of character selection would be allowed -RGM-
-static void get_all_stats() {
+static void get_all_stats(void) {
     player_type *p_ptr = &py;
     race_type *r_ptr = &race[p_ptr->misc.prace];
 
@@ -106,7 +106,7 @@ static void get_all_stats() {
 }
 
 // Allows player to select a race -JWT-
-static void choose_race() {
+static void choose_race(void) {
     int j = 0;
     int k = 0;
     int l = 2;
@@ -151,7 +151,7 @@ static void choose_race() {
 }
 
 // Will print the history of a character -JWT-
-static void print_history() {
+static void print_history(void) {
     put_buffer("Character Background", 14, 27);
 
     for (int i = 0; i < 4; i++) {
@@ -164,7 +164,7 @@ static void print_history() {
 // Assumptions:
 //   - Each race has init history beginning at (race-1)*3+1
 //   - All history parts are in ascending order
-static void get_history() {
+static void get_history(void) {
     char history_block[240];
     background_type *b_ptr;
     int test_roll;
@@ -251,7 +251,7 @@ static void get_history() {
 }
 
 // Gets the character's sex -JWT-
-static void get_sex() {
+static void get_sex(void) {
     char c;
     bool exit_flag = false;
 
@@ -279,7 +279,7 @@ static void get_sex() {
 }
 
 // Computes character's age, height, and weight -JWT-
-static void get_ahw() {
+static void get_ahw(void) {
     int i = py.misc.prace;
     py.misc.age = race[i].b_age + randint((int)race[i].m_age);
     if (py.misc.male) {
@@ -293,7 +293,7 @@ static void get_ahw() {
 }
 
 // Gets a character class -JWT-
-static void get_class() {
+static void get_class(void) {
     char tmp_str[80];
 
     int cl[MAX_CLASS];
@@ -411,7 +411,7 @@ static int monval(uint8_t i) {
     return 5 * ((int)i - 10);
 }
 
-static void get_money() {
+static void get_money(void) {
     uint8_t *a_ptr = py.stats.max_stat;
     int tmp = monval(a_ptr[A_STR]) +
               monval(a_ptr[A_INT]) +
@@ -439,7 +439,7 @@ static void get_money() {
 // -----------------------------------------------------
 //     M A I N  for Character Creation Routine -JWT-
 // -----------------------------------------------------
-void create_character() {
+void create_character(void) {
     put_character();
     choose_race();
     get_sex();

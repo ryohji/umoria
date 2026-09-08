@@ -31,9 +31,9 @@ bool is_a_vowel(char ch) {
 }
 
 // Initialize all Potions, wands, staves, scrolls, etc.
-void magic_init() {
+void magic_init(void) {
     int j;
-    char *tmp;
+    const char *tmp;
 
     set_seed(randes_seed);
 
@@ -268,6 +268,27 @@ void unmagic_name(inven_type *i_ptr) {
 #define FLAGS     4
 #define Z_PLUSSES 5
 
+// 未鑑定の品物の名前は、雛形（basenm）の "%s" の位置へ材質や色（modstr）を
+// 差しこんで作る。もとは sprintf(out, basenm, modstr) と書いていたが、書式が
+// 変数なので書式と引数の対応をコンパイラが検査できない
+// （-Wformat-nonliteral）。必要なのは "%s" 1 つの置きかえだけなので、
+// printf に頼らず自分で書く。
+//
+// "%s" が無ければ雛形をそのまま写す。sprintf に渡したときと同じふるまい。
+static void fill_in_modstr(char *out_val, const char *basenm, const char *modstr) {
+    const char *hole = strstr(basenm, "%s");
+
+    if (hole == NULL) {
+        (void)strcpy(out_val, basenm);
+        return;
+    }
+
+    size_t prefix_len = (size_t)(hole - basenm);
+    (void)memcpy(out_val, basenm, prefix_len);
+    (void)strcpy(out_val + prefix_len, modstr);
+    (void)strcat(out_val + prefix_len, hole + 2);
+}
+
 // Returns a description of item for inventory
 // pref indicates that there should be an article added (prefix).
 // Note that since out_val can easily exceed 80 characters, objdes
@@ -278,8 +299,8 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
     int indexx = i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1);
 
     // base name, modifier string
-    char *basenm = object_list[i_ptr->index].name;
-    char *modstr = CNIL;
+    const char *basenm = object_list[i_ptr->index].name;
+    const char *modstr = CNIL;
 
     vtype damstr;
     damstr[0] = '\0';
@@ -430,7 +451,7 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
     bigvtype tmp_val;
 
     if (modstr != CNIL) {
-        (void)sprintf(tmp_val, basenm, modstr);
+        fill_in_modstr(tmp_val, basenm, modstr);
     } else {
         (void)strcpy(tmp_val, basenm);
     }
@@ -625,13 +646,14 @@ void desc_charges(int item_val) {
 
 // Describe amount of item remaining. -RAK-
 void desc_remain(int item_val) {
-    bigvtype out_val, tmp_str;
+    msgtype out_val;
+    bigvtype tmp_str;
 
     inven_type *i_ptr = &inventory[item_val];
     i_ptr->number--;
     objdes(tmp_str, i_ptr, true);
     i_ptr->number++;
     // the string already has a dot at the end.
-    (void)sprintf(out_val, "You have %s", tmp_str);
+    (void)snprintf(out_val, sizeof(out_val), "You have %s", tmp_str);
     msg_print(out_val);
 }

@@ -16,11 +16,14 @@
 #include "externs.h"
 
 // For debugging the savefile code on systems with broken compilers.
-#define DEBUG(x)
+#define SAVE_LOG(x)
 
-DEBUG(static FILE *logfile);
+// セミコロンをマクロ引数の内側に置く。SAVE_LOG(x) は空に展開されるので、
+// 外側に書くとファイル直下に裸の ';' が残り、ISO C では認められない
+// （関数の中なら空文になるので、下の SAVE_LOG(...) 群はそのままでよい）。
+SAVE_LOG(static FILE *logfile;)
 
-static bool sv_write();
+static bool sv_write(void);
 static void wr_byte(uint8_t);
 static void wr_short(uint16_t);
 static void wr_long(uint32_t);
@@ -31,6 +34,7 @@ static void wr_item(inven_type *);
 static void wr_monster(monster_type *);
 static void rd_byte(uint8_t *);
 static void rd_short(uint16_t *);
+static void rd_bool(bool *);
 static void rd_long(uint32_t *);
 static void rd_bytes(uint8_t *, int);
 static void rd_string(char *);
@@ -50,7 +54,7 @@ static uint32_t start_time; // time that play started
 // and has been completely rewritten again by         -CJS-
 // and completely rewritten again! for portability by -JEW-
 
-static bool sv_write() {
+static bool sv_write(void) {
     // clear the death flag when creating a HANGUP save file,
     // so that player can see tombstone when restart
     if (eof_flag) {
@@ -368,11 +372,11 @@ static bool sv_write() {
 }
 
 // Set up prior to actual save, do the save, then clean up
-bool save_char() {
+bool save_char(void) {
     while (!_save_char(savefile)) {
-        vtype temp;
+        msgtype temp;
 
-        (void)sprintf(temp, "Savefile '%s' fails.", savefile);
+        (void)snprintf(temp, sizeof(temp), "Savefile '%s' fails.", savefile);
         msg_print(temp);
 
         int i = 0;
@@ -380,7 +384,7 @@ bool save_char() {
             get_check("File exists. Delete old savefile?") == 0 ||
             (i = unlink(savefile)) < 0) {
             if (i < 0) {
-                (void)sprintf(temp, "Can't delete '%s'", savefile);
+                (void)snprintf(temp, sizeof(temp), "Can't delete '%s'", savefile);
                 msg_print(temp);
             }
             prt("New Savefile [ESC to give up]:", 0, 0);
@@ -391,7 +395,7 @@ bool save_char() {
                 (void)strcpy(savefile, temp);
             }
         }
-        (void)sprintf(temp, "Saving with %s...", savefile);
+        (void)snprintf(temp, sizeof(temp), "Saving with %s...", savefile);
         prt(temp, 0, 0);
     }
 
@@ -424,8 +428,8 @@ bool _save_char(char *fnam) {
         fileptr = fopen(savefile, "wb");
     }
 
-    DEBUG(logfile = fopen("IO_LOG", "a"));
-    DEBUG(fprintf(logfile, "Saving data to %s\n", savefile));
+    SAVE_LOG(logfile = fopen("IO_LOG", "a"));
+    SAVE_LOG(fprintf(logfile, "Saving data to %s\n", savefile));
 
     if (fileptr != NULL) {
         xor_byte = 0;
@@ -442,7 +446,7 @@ bool _save_char(char *fnam) {
 
         ok = sv_write();
 
-        DEBUG(fclose(logfile));
+        SAVE_LOG(fclose(logfile));
 
         if (fclose(fileptr) == EOF) {
             ok = false;
@@ -491,8 +495,8 @@ bool get_char(bool *generate) {
 
     clear_screen();
 
-    vtype temp;
-    (void)sprintf(temp, "Savefile %s present. Attempting restore.", savefile);
+    msgtype temp;
+    (void)snprintf(temp, sizeof(temp), "Savefile %s present. Attempting restore.", savefile);
     put_buffer(temp, 23, 0);
 
     // FIXME: check this if/else logic! -- MRC
@@ -518,8 +522,8 @@ bool get_char(bool *generate) {
         prt("Restoring Memory...", 0, 0);
         put_qio();
 
-        DEBUG(logfile = fopen("IO_LOG", "a"));
-        DEBUG(fprintf(logfile, "Reading data from %s\n", savefile));
+        SAVE_LOG(logfile = fopen("IO_LOG", "a"));
+        SAVE_LOG(fprintf(logfile, "Reading data from %s\n", savefile));
 
         uint8_t version_maj, version_min, patch_level;
 
@@ -762,8 +766,8 @@ bool get_char(bool *generate) {
                 rd_string(old_msg[i]);
             }
 
-            rd_short((uint16_t *)&panic_save);
-            rd_short((uint16_t *)&total_winner);
+            rd_bool(&panic_save);
+            rd_bool(&total_winner);
             rd_short((uint16_t *)&noscore);
             rd_shorts(player_hp, MAX_PLAYER_LEVEL);
 
@@ -895,12 +899,18 @@ bool get_char(bool *generate) {
 
         // read in the rest of the cave info
         cave_type *c_ptr = &cave[0][0];
+
+        // 番地としては &cave[MAX_HEIGHT][0] と同じだが、そう書くと存在しない
+        // 行 MAX_HEIGHT の添字を書くことになる（-Warray-bounds）。cave は
+        // 行の配列なので、末尾のひとつ先は行の側で数える。
+        const cave_type *const cave_end = (const cave_type *)END_OF(cave);
+
         int total_count = 0;
         while (total_count != MAX_HEIGHT * MAX_WIDTH) {
             rd_byte(&count);
             rd_byte(&char_tmp);
             for (int i = count; i > 0; i--) {
-                if (c_ptr >= &cave[MAX_HEIGHT][0]) {
+                if (c_ptr >= cave_end) {
                     goto error;
                 }
                 c_ptr->fval = char_tmp & 0xF;
@@ -974,7 +984,7 @@ bool get_char(bool *generate) {
 
     closefiles:
 
-        DEBUG(fclose(logfile));
+        SAVE_LOG(fclose(logfile));
 
         if (fileptr != NULL) {
             if (fclose(fileptr) < 0) {
@@ -1065,77 +1075,77 @@ bool get_char(bool *generate) {
 static void wr_byte(uint8_t c) {
     xor_byte ^= c;
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)xor_byte, (int)c));
+    SAVE_LOG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)xor_byte, (int)c));
 }
 
 static void wr_short(uint16_t s) {
     xor_byte ^= (s & 0xFF);
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, "SHORT: %02X", (int)xor_byte));
+    SAVE_LOG(fprintf(logfile, "SHORT: %02X", (int)xor_byte));
     xor_byte ^= ((s >> 8) & 0xFF);
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, " %02X = %d\n", (int)xor_byte, (int)s));
+    SAVE_LOG(fprintf(logfile, " %02X = %d\n", (int)xor_byte, (int)s));
 }
 
 static void wr_long(uint32_t l) {
     xor_byte ^= (l & 0xFF);
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, "LONG:  %02X", (int)xor_byte));
+    SAVE_LOG(fprintf(logfile, "LONG:  %02X", (int)xor_byte));
     xor_byte ^= ((l >> 8) & 0xFF);
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
+    SAVE_LOG(fprintf(logfile, " %02X", (int)xor_byte));
     xor_byte ^= ((l >> 16) & 0xFF);
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
+    SAVE_LOG(fprintf(logfile, " %02X", (int)xor_byte));
     xor_byte ^= ((l >> 24) & 0xFF);
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, " %02X = %ld\n", (int)xor_byte, (int32_t)l));
+    SAVE_LOG(fprintf(logfile, " %02X = %ld\n", (int)xor_byte, (int32_t)l));
 }
 
 static void wr_bytes(uint8_t *c, int count) {
     uint8_t *ptr;
 
-    DEBUG(fprintf(logfile, "%d BYTES:", count));
+    SAVE_LOG(fprintf(logfile, "%d BYTES:", count));
     ptr = c;
     for (int i = 0; i < count; i++) {
         xor_byte ^= *ptr++;
         (void)putc((int)xor_byte, fileptr);
-        DEBUG(fprintf(logfile, "  %02X = %d", (int)xor_byte, (int)(ptr[-1])));
+        SAVE_LOG(fprintf(logfile, "  %02X = %d", (int)xor_byte, (int)(ptr[-1])));
     }
-    DEBUG(fprintf(logfile, "\n"));
+    SAVE_LOG(fprintf(logfile, "\n"));
 }
 
 static void wr_string(char *str) {
-    DEBUG(char *s = str);
-    DEBUG(fprintf(logfile, "STRING:"));
+    SAVE_LOG(char *s = str);
+    SAVE_LOG(fprintf(logfile, "STRING:"));
     while (*str != '\0') {
         xor_byte ^= *str++;
         (void)putc((int)xor_byte, fileptr);
-        DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
+        SAVE_LOG(fprintf(logfile, " %02X", (int)xor_byte));
     }
     xor_byte ^= *str;
     (void)putc((int)xor_byte, fileptr);
-    DEBUG(fprintf(logfile, " %02X = \"%s\"\n", (int)xor_byte, s));
+    SAVE_LOG(fprintf(logfile, " %02X = \"%s\"\n", (int)xor_byte, s));
 }
 
 static void wr_shorts(uint16_t *s, int count) {
-    DEBUG(fprintf(logfile, "%d SHORTS:", count));
+    SAVE_LOG(fprintf(logfile, "%d SHORTS:", count));
 
     uint16_t *sptr = s;
 
     for (int i = 0; i < count; i++) {
         xor_byte ^= (*sptr & 0xFF);
         (void)putc((int)xor_byte, fileptr);
-        DEBUG(fprintf(logfile, "  %02X", (int)xor_byte));
+        SAVE_LOG(fprintf(logfile, "  %02X", (int)xor_byte));
         xor_byte ^= ((*sptr++ >> 8) & 0xFF);
         (void)putc((int)xor_byte, fileptr);
-        DEBUG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
+        SAVE_LOG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
     }
-    DEBUG(fprintf(logfile, "\n"));
+    SAVE_LOG(fprintf(logfile, "\n"));
 }
 
 static void wr_item(inven_type *item) {
-    DEBUG(fprintf(logfile, "ITEM:\n"));
+    SAVE_LOG(fprintf(logfile, "ITEM:\n"));
     wr_short(item->index);
     wr_byte(item->name2);
     wr_string(item->inscrip);
@@ -1157,7 +1167,7 @@ static void wr_item(inven_type *item) {
 }
 
 static void wr_monster(monster_type *mon) {
-    DEBUG(fprintf(logfile, "MONSTER:\n"));
+    SAVE_LOG(fprintf(logfile, "MONSTER:\n"));
     wr_short((uint16_t)mon->hp);
     wr_short((uint16_t)mon->csleep);
     wr_short((uint16_t)mon->cspeed);
@@ -1174,7 +1184,7 @@ static void rd_byte(uint8_t *ptr) {
     uint8_t c = getc(fileptr) & 0xFF;
     *ptr = c ^ xor_byte;
     xor_byte = c;
-    DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)c, (int)*ptr));
+    SAVE_LOG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)c, (int)*ptr));
 }
 
 static void rd_short(uint16_t *ptr) {
@@ -1184,7 +1194,16 @@ static void rd_short(uint16_t *ptr) {
     xor_byte = (getc(fileptr) & 0xFF);
     s |= (uint16_t)(c ^ xor_byte) << 8;
     *ptr = s;
-    DEBUG(fprintf(logfile, "SHORT: %02X %02X = %d\n", (int)c, (int)xor_byte, (int)s));
+    SAVE_LOG(fprintf(logfile, "SHORT: %02X %02X = %d\n", (int)c, (int)xor_byte, (int)s));
+}
+
+// 真偽値は wr_short() で 2 バイトとして書かれている（save.c:247）ので、
+// 読むほうも 2 バイト消費する。ただし bool は 1 バイトなので、そこへ直接
+// 読ませると隣まで書きつぶす。いったん uint16_t で受けてから詰める。
+static void rd_bool(bool *ptr) {
+    uint16_t value;
+    rd_short(&value);
+    *ptr = (value != 0);
 }
 
 static void rd_long(uint32_t *ptr) {
@@ -1193,41 +1212,41 @@ static void rd_long(uint32_t *ptr) {
 
     xor_byte = (getc(fileptr) & 0xFF);
     l |= (uint32_t)(c ^ xor_byte) << 8;
-    DEBUG(fprintf(logfile, "LONG:  %02X %02X ", (int)c, (int)xor_byte));
+    SAVE_LOG(fprintf(logfile, "LONG:  %02X %02X ", (int)c, (int)xor_byte));
     c = (getc(fileptr) & 0xFF);
     l |= (uint32_t)(c ^ xor_byte) << 16;
     xor_byte = (getc(fileptr) & 0xFF);
     l |= (uint32_t)(c ^ xor_byte) << 24;
     *ptr = l;
-    DEBUG(fprintf(logfile, "%02X %02X = %ld\n", (int)c, (int)xor_byte, (int32_t)l));
+    SAVE_LOG(fprintf(logfile, "%02X %02X = %ld\n", (int)c, (int)xor_byte, (int32_t)l));
 }
 
 static void rd_bytes(uint8_t *ch_ptr, int count) {
-    DEBUG(fprintf(logfile, "%d BYTES:", count));
+    SAVE_LOG(fprintf(logfile, "%d BYTES:", count));
     uint8_t *ptr = ch_ptr;
     for (int i = 0; i < count; i++) {
         uint8_t c = (getc(fileptr) & 0xFF);
         *ptr++ = c ^ xor_byte;
         xor_byte = c;
-        DEBUG(fprintf(logfile, "  %02X = %d", (int)c, (int)ptr[-1]));
+        SAVE_LOG(fprintf(logfile, "  %02X = %d", (int)c, (int)ptr[-1]));
     }
-    DEBUG(fprintf(logfile, "\n"));
+    SAVE_LOG(fprintf(logfile, "\n"));
 }
 
 static void rd_string(char *str) {
-    DEBUG(char *s = str);
-    DEBUG(fprintf(logfile, "STRING: "));
+    SAVE_LOG(char *s = str);
+    SAVE_LOG(fprintf(logfile, "STRING: "));
     do {
         uint8_t c = (getc(fileptr) & 0xFF);
         *str = c ^ xor_byte;
         xor_byte = c;
-        DEBUG(fprintf(logfile, "%02X ", (int)c));
+        SAVE_LOG(fprintf(logfile, "%02X ", (int)c));
     } while (*str++ != '\0');
-    DEBUG(fprintf(logfile, "= \"%s\"\n", s));
+    SAVE_LOG(fprintf(logfile, "= \"%s\"\n", s));
 }
 
 static void rd_shorts(uint16_t *ptr, int count) {
-    DEBUG(fprintf(logfile, "%d SHORTS:", count));
+    SAVE_LOG(fprintf(logfile, "%d SHORTS:", count));
     uint16_t *sptr = ptr;
 
     for (int i = 0; i < count; i++) {
@@ -1236,13 +1255,13 @@ static void rd_shorts(uint16_t *ptr, int count) {
         xor_byte = (getc(fileptr) & 0xFF);
         s |= (uint16_t)(c ^ xor_byte) << 8;
         *sptr++ = s;
-        DEBUG(fprintf(logfile, "  %02X %02X = %d", (int)c, (int)xor_byte, (int)s));
+        SAVE_LOG(fprintf(logfile, "  %02X %02X = %d", (int)c, (int)xor_byte, (int)s));
     }
-    DEBUG(fprintf(logfile, "\n"));
+    SAVE_LOG(fprintf(logfile, "\n"));
 }
 
 static void rd_item(inven_type *item) {
-    DEBUG(fprintf(logfile, "ITEM:\n"));
+    SAVE_LOG(fprintf(logfile, "ITEM:\n"));
     rd_short(&item->index);
     rd_byte(&item->name2);
     rd_string(item->inscrip);
@@ -1264,7 +1283,7 @@ static void rd_item(inven_type *item) {
 }
 
 static void rd_monster(monster_type *mon) {
-    DEBUG(fprintf(logfile, "MONSTER:\n"));
+    SAVE_LOG(fprintf(logfile, "MONSTER:\n"));
     rd_short((uint16_t *)&mon->hp);
     rd_short((uint16_t *)&mon->csleep);
     rd_short((uint16_t *)&mon->cspeed);
@@ -1285,8 +1304,8 @@ void set_fileptr(FILE *file) {
 }
 
 void wr_highscore(high_scores *score) {
-    DEBUG(logfile = fopen("IO_LOG", "a"));
-    DEBUG(fprintf(logfile, "Saving score:\n"));
+    SAVE_LOG(logfile = fopen("IO_LOG", "a"));
+    SAVE_LOG(fprintf(logfile, "Saving score:\n"));
 
     // Save the encryption byte for robustness.
     wr_byte(xor_byte);
@@ -1304,12 +1323,12 @@ void wr_highscore(high_scores *score) {
     wr_byte(score->class);
     wr_bytes((uint8_t *)score->name, PLAYER_NAME_SIZE);
     wr_bytes((uint8_t *)score->died_from, 25);
-    DEBUG(fclose(logfile));
+    SAVE_LOG(fclose(logfile));
 }
 
 void rd_highscore(high_scores *score) {
-    DEBUG(logfile = fopen("IO_LOG", "a"));
-    DEBUG(fprintf(logfile, "Reading score:\n"));
+    SAVE_LOG(logfile = fopen("IO_LOG", "a"));
+    SAVE_LOG(fprintf(logfile, "Reading score:\n"));
 
     // Read the encryption byte.
     rd_byte(&xor_byte);
@@ -1327,5 +1346,5 @@ void rd_highscore(high_scores *score) {
     rd_byte(&score->class);
     rd_bytes((uint8_t *)score->name, PLAYER_NAME_SIZE);
     rd_bytes((uint8_t *)score->died_from, 25);
-    DEBUG(fclose(logfile));
+    SAVE_LOG(fclose(logfile));
 }

@@ -54,7 +54,7 @@ void tunnel(int dir) {
 
     if (c_ptr->cptr > 1) {
         monster_type *m_ptr = &m_list[c_ptr->cptr];
-        msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
+        msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
 
         // let the player attack the creature
         if (py.flags.afraid < 1) {
@@ -152,7 +152,7 @@ void tunnel(int dir) {
 }
 
 // Disarms a trap -RAK-
-void disarm_trap() {
+void disarm_trap(void) {
     int y = char_row;
     int x = char_col;
 
@@ -166,7 +166,7 @@ void disarm_trap() {
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_VIS_TRAP || t_list[c_ptr->tptr].tval == TV_CHEST)) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-            msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
+            msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * py.misc.lev / 3);
 
@@ -326,7 +326,7 @@ static int map_diag2[] = {2, 1, 0, 4, 3};
 // Looks first at real objects and monsters, and looks at rock types only after all
 // other things have been seen.  Only looks at rock types if the highlight_seams
 // option is set.
-void look() {
+void look(void) {
     int dir;
 
     if (py.flags.blind > 0) {
@@ -526,7 +526,7 @@ static bool look_see(int x, int y, bool *transparent) {
         msg_print(tmp_str);
     }
 
-    char *dstring;
+    const char *dstring;
     if (x == 0 && y == 0) {
         dstring = "You are on";
     } else {
@@ -552,7 +552,7 @@ static bool look_see(int x, int y, bool *transparent) {
     // a warning. Perhaps we can set it to `ESCAPE` here as default. -MRC-
     char query = ESCAPE;
 
-    bigvtype out_val;
+    msgtype out_val;
     out_val[0] = 0;
 
     if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
@@ -577,7 +577,7 @@ static bool look_see(int x, int y, bool *transparent) {
             if (gl_rock == 0 && t_list[c_ptr->tptr].tval != TV_INVIS_TRAP) {
                 bigvtype obj_string;
                 objdes(obj_string, &t_list[c_ptr->tptr], true);
-                (void)sprintf(out_val, "%s %s ---pause---", dstring, obj_string);
+                (void)snprintf(out_val, sizeof(out_val), "%s %s ---pause---", dstring, obj_string);
                 dstring = "It is in";
                 prt(out_val, 0, 0);
                 move_cursor_relative(y, x);
@@ -586,7 +586,7 @@ static bool look_see(int x, int y, bool *transparent) {
         }
 
         if ((gl_rock || out_val[0]) && c_ptr->fval >= MIN_CLOSED_SPACE) {
-            char *string;
+            const char *string;
 
             switch (c_ptr->fval) {
             case BOUNDARY_WALL:
@@ -760,9 +760,10 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
         t_list[cur_pos] = *t_ptr;
         lite_spot(i, j);
     } else {
-        bigvtype out_val, tmp_str;
+        msgtype out_val;
+        bigvtype tmp_str;
         objdes(tmp_str, t_ptr, false);
-        (void)sprintf(out_val, "The %s disappears.", tmp_str);
+        (void)snprintf(out_val, sizeof(out_val), "The %s disappears.", tmp_str);
         msg_print(out_val);
     }
 }
@@ -771,7 +772,7 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
 // Note: Flasks of oil do fire damage
 // Note: Extra damage and chance of hitting when missiles are used
 // with correct weapon.  I.E.  wield bow and throw arrow.
-void throw_object() {
+void throw_object(void) {
     int item_val;
 
     if (inven_ctr == 0) {
@@ -829,14 +830,14 @@ void throw_object() {
                             bigvtype tmp_str;
                             objdes(tmp_str, &throw_obj, false);
 
-                            bigvtype out_val;
+                            msgtype out_val;
 
                             // Does the player know what he's fighting?
                             if (!m_ptr->ml) {
-                                (void)sprintf(out_val, "You hear a cry as the %s finds a mark.", tmp_str);
+                                (void)snprintf(out_val, sizeof(out_val), "You hear a cry as the %s finds a mark.", tmp_str);
                                 visible = false;
                             } else {
-                                (void)sprintf(out_val, "The %s hits the %s.", tmp_str, r_ptr->name);
+                                (void)snprintf(out_val, sizeof(out_val), "The %s hits the %s.", tmp_str, r_ptr->name);
                                 visible = true;
                             }
                             msg_print(out_val);
@@ -887,7 +888,7 @@ static void py_bash(int y, int x) {
     m_ptr->csleep = 0;
 
     // Does the player know what he's fighting?
-    const char *cdesc = monster_name_lower((vtype){}, m_ptr);
+    const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
 
     int base_tohit = py.stats.use_stat[A_STR] + inventory[INVEN_ARM].weight / 2 + py.misc.wt / 10;
 
@@ -953,7 +954,7 @@ static void py_bash(int y, int x) {
 // in the line of sight or not, such a creature may unlock or unstick a door.
 //
 // A creature with no such ability will attempt to bash a non-secret door.
-void bash() {
+void bash(void) {
     int y = char_row;
     int x = char_col;
 

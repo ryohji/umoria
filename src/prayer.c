@@ -15,7 +15,7 @@
 #include "externs.h"
 
 // Pray like HELL. -RAK-
-void pray() {
+void pray(void) {
     int i, j, item_val, dir;
 
     free_turn_flag = true;

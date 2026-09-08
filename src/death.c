@@ -24,7 +24,7 @@ static void date(char *day) {
 }
 
 // Centers a string within a 31 character string -JWT-
-static char *center_string(char *centered_str, char *in_str) {
+static char *center_string(char *centered_str, const char *in_str) {
     int i = (int)strlen(in_str);
     int j = 15 - i / 2;
     (void)sprintf(centered_str, "%*s%s%*s", j, "", in_str, 31 - i - j, "");
@@ -105,14 +105,14 @@ void display_scores(int show_player) {
     (void)fclose(highscore_fp);
 }
 
-bool duplicate_character() {
+bool duplicate_character(void) {
     // Only check for duplicate characters under unix.
     return false;
 }
 
 // Prints the gravestone of the character -RAK-
-static void print_tomb() {
-    char *p;
+static void print_tomb(void) {
+    const char *p;
     vtype str, tmp_str;
 
     clear_screen();
@@ -158,14 +158,19 @@ static void print_tomb() {
     (void)sprintf(str, "| %s |         _;,,,,;_", center_string(tmp_str, str));
     put_buffer(str, 14, 9);
     put_buffer("|            killed by            |", 15, 9);
-    p = died_from;
 
-    int len = (int)strlen(p);
-    p[len] = '.'; // add a trailing period
-    p[len + 1] = '\0';
-    (void)sprintf(str, "| %s |", center_string(tmp_str, p));
+    // 死因の行だけ末尾に句点を足す。もとはグローバルの died_from を
+    // 直接書きかえて表示し、そのあと元に戻していた。表示のために
+    // 状態を触る必要はないので、写しをつくって足す。
+    // もとの書きかたは died_from が 78 文字以上だと died_from[79] と
+    // died_from[80] に書いていた（配列外）。
+    //
+    // 写しは died_from（vtype）の中身と '.' と終端で 1 バイト分だけ大きく
+    // とる。ちょうど足りるので切り詰めは起こらない。
+    char killed_by[sizeof(vtype) + 1];
+    (void)snprintf(killed_by, sizeof(killed_by), "%s.", died_from);
+    (void)sprintf(str, "| %s |", center_string(tmp_str, killed_by));
     put_buffer(str, 16, 9);
-    p[len] = '\0'; // strip off the period
 
     char day[11];
     date(day);
@@ -212,7 +217,7 @@ retry:
 }
 
 // Calculates the total number of points earned -JWT-
-int32_t total_points() {
+int32_t total_points(void) {
     int32_t total = py.misc.max_exp + (100 * py.misc.max_dlv);
     total += py.misc.au / 100;
 
@@ -231,7 +236,7 @@ int32_t total_points() {
 }
 
 // Enters a players name on the top twenty list -JWT-
-static void highscores() {
+static void highscores(void) {
     clear_screen();
 
     if (noscore) {
@@ -394,8 +399,8 @@ static void highscores() {
 }
 
 // Change the player into a King! -RAK-
-static void kingly() {
-    char *p;
+static void kingly(void) {
+    const char *p;
 
     // Change the character attributes.
     dun_level = 0;
@@ -438,7 +443,7 @@ static void kingly() {
 
 // Handles the gravestone end top-twenty routines -RAK-
 // What happens upon dying. -RAK-
-void exit_game() {
+_Noreturn void exit_game(void) {
     msg_print(CNIL);
 
     flush();     // flush all input

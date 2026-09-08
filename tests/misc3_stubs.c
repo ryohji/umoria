@@ -59,7 +59,7 @@ bool wizard;
 static char fixture_messages[FIXTURE_MSG_MAX][FIXTURE_MSG_LEN + 1];
 static int fixture_msg_count;
 
-void msg_print(char *str)
+void msg_print(const char *str)
 {
     if (str == NULL || fixture_msg_count >= FIXTURE_MSG_MAX) {
         return;
@@ -81,7 +81,7 @@ const char *fixture_message_text(int index)
 /* msg_print が呼ばれた回数。表示の有無そのものを固定したいときに使う。 */
 int fixture_message_count(void) { return fixture_msg_count; }
 
-void prt(char *s, int r, int c) { (void)s; (void)r; (void)c; }
+void prt(const char *s, int r, int c) { (void)s; (void)r; (void)c; }
 void prt_map(void) {}
 
 /* put_buffer は捨てるだけでなく、書かれた内容を記録する。
@@ -93,7 +93,7 @@ void prt_map(void) {}
 #define FIXTURE_SCREEN_COLS 80
 static char fixture_screen[FIXTURE_SCREEN_ROWS][FIXTURE_SCREEN_COLS + 1];
 
-void put_buffer(char *s, int r, int c)
+void put_buffer(const char *s, int r, int c)
 {
     if (s == NULL || r < 0 || r >= FIXTURE_SCREEN_ROWS || c < 0 ||
         c >= FIXTURE_SCREEN_COLS) {
@@ -125,8 +125,8 @@ void bell(void) {}
 
 /* --- 入力 --- */
 char inkey(void) { return ' '; }
-int get_com(char *p, char *c) { (void)p; (void)c; return 0; }
-bool get_check(char *p) { (void)p; return false; }
+int get_com(const char *p, char *c) { (void)p; (void)c; return 0; }
+bool get_check(const char *p) { (void)p; return false; }
 bool get_string(char *s, int r, int c, int l) {
     (void)s; (void)r; (void)c; (void)l;
     return false;

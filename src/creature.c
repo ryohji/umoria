@@ -262,7 +262,7 @@ static void make_attack(int monptr) {
     monster_type *m_ptr = &m_list[monptr];
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-    const char *cdesc = monster_name((vtype){}, m_ptr);
+    const char *cdesc = monster_name((vtype){0}, m_ptr);
 
     // For "DIED_FROM" string
     vtype ddesc;
@@ -1073,7 +1073,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         update_mon(monptr);
 
         // Describe the attack
-        const char *cdesc = monster_name((vtype){}, m_ptr);
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
 
         // For "DIED_FROM" string
         vtype ddesc;

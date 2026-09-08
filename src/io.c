@@ -18,10 +18,10 @@
 
 #define use_value2
 
-static void wait_for_more_confirmation();
+static void wait_for_more_confirmation(void);
 
 // Dump IO to buffer -RAK-
-void put_buffer(char *out_str, int row, int col) {
+void put_buffer(const char *out_str, int row, int col) {
     vtype tmp_str;
 
     // truncate the string, to make sure that it won't go past right edge of screen.
@@ -35,14 +35,14 @@ void put_buffer(char *out_str, int row, int col) {
 }
 
 // Dump the IO buffer to terminal -RAK-
-void put_qio() {
+void put_qio(void) {
     // Let inven_command know something has changed.
     screen_change = true;
 
     render_refresh();
 }
 
-void shell_out() {
+void shell_out(void) {
     put_buffer("[Opening new shells is not currently supported]\n", 0, 0);
 }
 
@@ -51,7 +51,7 @@ void shell_out() {
 // This silently consumes ^R to redraw the screen and reset the
 // terminal, so that this operation can always be performed at
 // any input prompt. inkey() never returns ^R.
-char inkey() {
+char inkey(void) {
     put_qio();         // Dump IO buffer
     command_count = 0; // Just to be safe -CJS-
 
@@ -98,7 +98,7 @@ char inkey() {
 }
 
 // Flush the buffer -RAK-
-void flush() {
+void flush(void) {
     if (!eof_flag) {
         input_flush();
     }
@@ -114,7 +114,7 @@ void erase_line(int row, int col) {
 }
 
 // Clears screen
-void clear_screen() {
+void clear_screen(void) {
     if (msg_flag) {
         msg_print(CNIL);
     }
@@ -146,14 +146,14 @@ void move_cursor_relative(int row, int col) {
 }
 
 // Print a message so as not to interrupt a counted command. -CJS-
-void count_msg_print(char *p) {
+void count_msg_print(const char *p) {
     int i = command_count;
     msg_print(p);
     command_count = i;
 }
 
 // Outputs a line to a given y, x position -RAK-
-void prt(char *str_buff, int row, int col) {
+void prt(const char *str_buff, int row, int col) {
     erase_line(row, col);
     put_buffer(str_buff, row, col);
 }
@@ -165,7 +165,7 @@ void move_cursor(int row, int col) {
 
 // Outputs message to top line of screen
 // These messages are kept for later reference.
-void msg_print(char *str_buff) {
+void msg_print(const char *str_buff) {
     const int old_len = msg_flag ? strlen(old_msg[last_msg]) : 0;
     const bool prev_msg_exists = msg_flag;
     const bool combine_messages = prev_msg_exists && str_buff && old_len + 2 + strlen(str_buff) < 73;
@@ -204,7 +204,7 @@ void msg_print(char *str_buff) {
     }
 }
 
-static inline void wait_for_more_confirmation() {
+static inline void wait_for_more_confirmation(void) {
     // let sigint handler know that we are waiting for a space
     wait_for_more = true;
 
@@ -224,7 +224,7 @@ retry:
 }
 
 // Used to verify a choice - user gets the chance to abort choice. -CJS-
-bool get_check(char *prompt) {
+bool get_check(const char *prompt) {
     prt(prompt, 0, 0);
 
     // Calculate cursor position after printing prompt
@@ -249,7 +249,7 @@ bool get_check(char *prompt) {
 
 // Prompts (optional) and returns ord value of input char
 // Function returns false if <ESCAPE> is input
-int get_com(char *prompt, char *command) {
+int get_com(const char *prompt, char *command) {
     if (prompt) {
         prt(prompt, 0, 0);
     }
@@ -362,15 +362,15 @@ void pause_exit(int prt_line, int delay) {
     erase_line(prt_line, 0);
 }
 
-void save_screen() {
+void save_screen(void) {
     render_save_screen();
 }
 
-void restore_screen() {
+void restore_screen(void) {
     render_restore_screen();
 }
 
-void bell() {
+void bell(void) {
     put_qio();
 
     // The player can turn off beeps if he/she finds them annoying.
@@ -396,7 +396,7 @@ void bell() {
 // Display highest priority object in the RATIO by RATIO area
 #define RATIO 3
 
-void screen_map() {
+void screen_map(void) {
     static uint8_t screen_border[2][6] = {
         {'+', '+', '+', '+', '-', '|'}, // normal chars
         {201, 187, 200, 188, 205, 186}, // graphics chars
@@ -523,8 +523,8 @@ void user_name(char *buf) {
         (void)strcpy(buf, "X"); // Gotta have some name
     }
 #else
-    extern char *getlogin();
-
+    // getlogin() は <unistd.h>（headers.h 経由）が宣言する。関数内 extern で
+    // 上書きすると引数の型検査が効かなくなるので、システムの宣言を使う。
     char *p = getlogin();
 
     if (p && p[0]) {
@@ -550,7 +550,7 @@ void user_name(char *buf) {
 #undef open
 
 // open a file just as does fopen, but allow a leading ~ to specify a home directory
-FILE *tfopen(char *file, char *mode) {
+FILE *tfopen(const char *file, const char *mode) {
     // extern int errno;
 
     char buf[1024];
@@ -574,7 +574,7 @@ int topen(char *file, int flags, int mode) {
 }
 
 // expands a tilde at the beginning of a file name to a users home directory
-int tilde(char *file, char *exp) {
+int tilde(const char *file, char *exp) {
     *exp = '\0';
     if (file) {
         if (*file == '~') {
@@ -584,7 +584,13 @@ int tilde(char *file, char *exp) {
 
             user[0] = '\0';
             file++;
-            while (*file != '/' && i < sizeof(user)) {
+            // 上限は sizeof(user) ではなく sizeof(user) - 1。ループを抜けた
+            // 直後に user[i] へ終端を書くので、その 1 バイトを残しておく
+            // 必要がある。元の条件だと i が 128 まで進みうるので
+            // user[128] への書きこみ（配列外）が起きていた。
+            // 符号も揃える。i は int、sizeof は size_t（符号なし）なので、
+            // そのまま比べると i が符号なしに変換される。
+            while (*file != '/' && i < (int)sizeof(user) - 1) {
                 user[i++] = *file++;
             }
             user[i] = '\0';

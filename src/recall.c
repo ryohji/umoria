@@ -14,10 +14,10 @@
 
 #include "externs.h"
 
-static void roff(char *);
+static void roff(const char *);
 static uint8_t count_previous_non_blank_chars(const char *from);
 
-static char *desc_atype[] = {
+static const char *desc_atype[] = {
     "do something undefined",
     "attack",
     "weaken",
@@ -45,7 +45,7 @@ static char *desc_atype[] = {
     "absorb charges",
 };
 
-static char *desc_amethod[] = {
+static const char *desc_amethod[] = {
     "make an undefined advance",
     "hit",
     "bite",
@@ -68,7 +68,7 @@ static char *desc_amethod[] = {
     "insult",
 };
 
-static char *desc_howmuch[] = {
+static const char *desc_howmuch[] = {
     " not at all",
     " a bit",
     "",
@@ -79,7 +79,7 @@ static char *desc_howmuch[] = {
     " extremely",
 };
 
-static char *desc_move[] = {
+static const char *desc_move[] = {
     "move invisibly",
     "open doors",
     "pass through walls",
@@ -88,7 +88,7 @@ static char *desc_move[] = {
     "breed explosively",
 };
 
-static char *desc_spell[] = {
+static const char *desc_spell[] = {
     "teleport short distances",
     "teleport long distances",
     "teleport its prey",
@@ -106,7 +106,7 @@ static char *desc_spell[] = {
     "unknown 2",
 };
 
-static char *desc_breath[] = {
+static const char *desc_breath[] = {
     "lightning",
     "poison gases",
     "acid",
@@ -114,7 +114,7 @@ static char *desc_breath[] = {
     "fire",
 };
 
-static char *desc_weakness[] = {
+static const char *desc_weakness[] = {
     "frost",
     "fire",
     "poison",
@@ -159,7 +159,7 @@ bool bool_roff_recall(creature_type *type) {
 // Print out what we have discovered about this monster.
 int roff_recall(creature_type *cp) {
     bool known;
-    char *p, *q;
+    const char *p, *q;
     const attack_handle *iter;
     uint32_t j;
     vtype temp;
@@ -566,7 +566,9 @@ int roff_recall(creature_type *cp) {
 
     // We know about attacks it has used on us, and maybe the damage they do.
     // known_attacks is the total number of known attacks, used for punctuation
-    int known_attacks = 0;
+    // 0 から始めて増やすだけの個数で、下の j（uint32_t）と比べるので
+    // 符号を揃えておく。
+    uint32_t known_attacks = 0;
 
     // Turbo C needs a 16 bit int for the array index.
     for (j = 0; j < 4; j++) {
@@ -650,7 +652,7 @@ int roff_recall(creature_type *cp) {
 }
 
 // Print out strings, filling up lines as we go.
-static void roff(char *p) {
+static void roff(const char *p) {
     while (*p) {
         *roffp = *p;
         if (*p == '\n' || roffp + 1 == END_OF(roffbuf)) {

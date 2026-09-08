@@ -51,7 +51,7 @@ int16_t last_store_inc = 0;
 
 void move_cursor(int row, int col) { (void)row; (void)col; }
 void inven_command(char command) { (void)command; }
-int get_item(int *cn, char *pmt, int i, int j, char *m, char *p) {
+int get_item(int *cn, const char *pmt, int i, int j, const char *m, const char *p) {
     (void)cn; (void)pmt; (void)i; (void)j; (void)m; (void)p;
     return 0;
 }

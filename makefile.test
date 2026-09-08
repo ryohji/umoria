@@ -23,13 +23,11 @@ STD = -std=c17
 WARNINGS = -Wall -Wextra -Wno-unused-parameter \
            -Wshadow -Wstrict-prototypes -Wold-style-definition \
            -Wformat=2 -Wwrite-strings
-# 本体のソース／ヘッダ由来の既存警告（externs.h の非プロトタイプ宣言、
-# tables.c の文字列リテラル等で数千件）は抑制する。これを残すと
-# テストコード自身の警告が埋もれて見えなくなる。本体側の警告は
-# make（本体ビルド）で見るべきもので、ここでの関心事ではない。
-SUPPRESS_UPSTREAM = -Wno-strict-prototypes -Wno-discarded-qualifiers \
-                    -Wno-write-strings -Wno-old-style-definition
-CFLAGS = $(STD) $(WARNINGS) $(SUPPRESS_UPSTREAM) -g -Isrc -Itests
+# 以前はここに本体由来の既存警告（非プロトタイプ宣言・const の落ち・
+# 文字列リテラルへの書きこみ等、数千件）の抑制を並べていた。本体側の
+# 警告解消でどれも 0 件になったので、抑制ごと外した。テスト・本体とも
+# この設定で警告 0 件。
+CFLAGS = $(STD) $(WARNINGS) -g -Isrc -Itests
 TESTDIR = tests
 BUILDDIR = $(TESTDIR)/build
 
@@ -37,7 +35,7 @@ BUILDDIR = $(TESTDIR)/build
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
-        stat_bonus_test
+        stat_bonus_test objdes_test creature_iterator_test save_bool_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -83,14 +81,11 @@ $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src
 # 本物をリンクする。desc.c が参照する定数テーブル（tables.c）とグローバルな
 # インベントリ（treasure.c）も本物を使い、py と画面出力だけを
 # tests/fixture.c で補う（リンクシーム）。写しではなく実体を検証している。
-#
-# desc.c の sprintf に -Wformat-overflow の警告が出るが、本体側の既存の
-# 事情なのでテストのために本体を変えない。この 1 つだけ警告を落とす。
 $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                              src/item_ident.c src/item_ident.h \
                              src/desc.c src/tables.c src/treasure.c | $(BUILDDIR)
-	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/item_ident_test.c \
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/item_ident_test.c \
 	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c
 
 # アイテムのスタック可否判定は misc3.c の inven_check_num() と inven_carry() に
@@ -106,15 +101,12 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # fixture.c は使わない。py・msg_print・insert_str・prt_experience を
 # player.c / misc3.c が本物として持っているので multiple definition になる。
 # 代わりに misc3_stubs.c が fixture.h の窓口を提供する。
-#
-# desc.c / misc3.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
-# 既存の事情なのでテストのために本体を変えない。この 1 つだけ警告を落とす。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                               src/misc3.c src/desc.c src/tables.c \
                               src/treasure.c src/player.c src/abilities.c | $(BUILDDIR)
-	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/inven_stack_test.c \
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
@@ -137,7 +129,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/misc3.c src/desc.c src/tables.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/put_misc3_test.c \
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
@@ -156,17 +148,13 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 # 同じ（misc3.c の未解決シンボルを代役で埋め、定数表・インベントリ・py は
 # 本物を使う）。store2.c だけが要求する 14 個のシンボルは
 # haggle_comment_test.c の中に置いた（misc3.c 系の他のテストには不要）。
-#
-# store2.c / desc.c / misc3.c の sprintf に -Wformat-overflow の警告が出るが、
-# 本体側の既存の事情なのでテストのために本体を変えない。この 1 つだけ
-# 警告を落とす。
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                  src/store2.c src/misc3.c src/desc.c \
                                  src/tables.c src/treasure.c src/player.c \
                                  src/abilities.c | $(BUILDDIR)
-	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/haggle_comment_test.c \
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
@@ -198,18 +186,66 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
 # リンク構成は inven_stack_test / put_misc3_test と同じ（misc3.c の未解決
 # シンボルを misc3_stubs.c の代役で埋め、定数表・インベントリ・py は本物を
 # 使う）。新しい代役は要らなかった。
-#
-# desc.c / misc3.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
-# 既存の事情なのでテストのために本体を変えない。この 1 つだけ警告を落とす。
 $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
                              $(TESTDIR)/misc3_stubs.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                              src/misc3.c src/desc.c src/tables.c \
                              src/treasure.c src/player.c \
                              src/abilities.c | $(BUILDDIR)
-	$(CC) $(CFLAGS) -Wno-format-overflow -o $@ $(TESTDIR)/stat_bonus_test.c \
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/stat_bonus_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
+
+# 未鑑定アイテムの名前組み立ては src/desc.c の objdes() にある。外部
+# リンケージなのでそのまま呼べる。写しではなく実体を検証したいので desc.c を
+# リンクする。
+#
+# objdes() は名前の複数形化に misc3.c の insert_str() を使う。fixture.c は
+# これを空の代役にしているので、fixture.c ではなく misc3_stubs.c 側の構成
+# （misc3.c の本物をリンクする）を使う。リンク構成は stat_bonus_test と同じ。
+$(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
+                         $(TESTDIR)/misc3_stubs.c \
+                         $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                         src/misc3.c src/desc.c src/tables.c \
+                         src/treasure.c src/player.c \
+                         src/abilities.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    src/treasure.c src/player.c src/abilities.c
+
+# モンスター表の逆順走査は src/monsters.c の rbegin / rend / prev にある。
+# 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
+# monsters.c をリンクする。
+#
+# monsters.c が外に求めるのは is_a_vowel（src/desc.c）だけ。desc.c をリンクすると
+# 定数表とインベントリまで芋づるで付いてくるので、代役をテスト側に置く。
+# 検証したいのは走査の順序で、名前に冠詞を付ける処理は関係しない。
+$(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
+                                    $(TESTDIR)/minunit.h \
+                                    src/monsters.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/creature_iterator_test.c src/monsters.c
+
+# セーブデータ中の真偽値の読み書きは src/save.c の wr_short / rd_bool にある。
+# どちらも static なので外から呼べない。写しでは書きかえ後の実体を検証できず
+# 保護にならないので、テスト側が src/save.c を #include して実体ごと取りこみ、
+# static 関数を直接呼ぶ。ゆえに save.c は依存に書くがコンパイル対象には
+# 並べない（二重定義になる）。
+#
+# save.c は 1300 行（セーブ／ロード全体）なので、取りこむと 77 個の未解決
+# シンボルが芋づるで付いてくる。データ側（variable.c のグローバル、tables.c の
+# 定数表、treasure.c のインベントリ、player.c の py、monsters.c の m_list）は
+# 本物をリンクし、画面表示・入力・シグナル・店・乱数は save_stubs.c の代役で
+# 埋める。一覧はリンカに列挙させたもので、手で数えあげたわけではない。
+#
+# 読み書きの相手は tmpfile()。fileptr / xor_byte も save.c の static なので
+# テストから直接設定でき、実ファイルもセーブデータの雛形も要らない。
+$(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
+                            $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
+                            src/save.c src/variable.c src/tables.c \
+                            src/treasure.c src/player.c src/monsters.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
+	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
+	    src/treasure.c src/player.c src/monsters.c
 
 clean:
 	rm -rf $(BUILDDIR)

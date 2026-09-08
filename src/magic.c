@@ -15,7 +15,7 @@
 #include "externs.h"
 
 // Throw a magic spell -RAK-
-void cast() {
+void cast(void) {
     int i, j, item_val;
 
     free_turn_flag = true;

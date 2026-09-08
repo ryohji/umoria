@@ -277,7 +277,7 @@ void store_destroy(int store_num, int item_val, int one_of) {
 }
 
 // Initializes the stores with owners -RAK-
-void store_init() {
+void store_init(void) {
     int i = MAX_OWNERS / MAX_STORES;
 
     for (int j = 0; j < MAX_STORES; j++) {
@@ -331,7 +331,7 @@ static void store_create(int store_num) {
 }
 
 // Initialize and up-keep the store's inventory. -RAK-
-void store_maint() {
+void store_maint(void) {
     for (int i = 0; i < MAX_STORES; i++) {
         store_type *s_ptr = &store[i];
 

@@ -12,6 +12,8 @@
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 // Define this to compile as a standalone test
 // #define TEST_RNG
 
@@ -71,7 +73,7 @@
 // 32 bit seed
 static uint32_t rnd_seed;
 
-uint32_t get_rnd_seed() {
+uint32_t get_rnd_seed(void) {
     return rnd_seed;
 }
 
@@ -81,7 +83,7 @@ void set_rnd_seed(uint32_t seedval) {
 }
 
 // returns a pseudo-random number from set 1, 2, ..., RNG_M - 1
-int32_t rnd() {
+int32_t rnd(void) {
     int32_t high = (int32_t)(rnd_seed / RNG_Q);
     int32_t low = (int32_t)(rnd_seed % RNG_Q);
     int32_t test = (int32_t)(RNG_A * low - RNG_R * high);

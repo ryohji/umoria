@@ -59,10 +59,11 @@ void search(int y, int x, int chance) {
 
                     // Trap on floor?
                     if (t_ptr->tval == TV_INVIS_TRAP) {
-                        bigvtype tmp_str, tmp_str2;
+                        msgtype tmp_str;
+                        bigvtype tmp_str2;
 
                         objdes(tmp_str2, t_ptr, true);
-                        (void)sprintf(tmp_str, "You have found %s", tmp_str2);
+                        (void)snprintf(tmp_str, sizeof(tmp_str), "You have found %s", tmp_str2);
                         msg_print(tmp_str);
                         change_trap(i, j);
                         end_find();
@@ -276,7 +277,7 @@ void find_init(int dir) {
     }
 }
 
-void find_run() {
+void find_run(void) {
     // prevent infinite loops in find mode, will stop after moving 100 times
     if (find_flag++ > 100) {
         msg_print("You stop running to catch your breath.");
@@ -287,7 +288,7 @@ void find_run() {
 }
 
 // Switch off the run flag - and get the light correct. -CJS-
-void end_find() {
+void end_find(void) {
     if (find_flag) {
         find_flag = 0;
         move_light(char_row, char_col, char_row, char_col);
@@ -504,15 +505,16 @@ int minus_ac(uint32_t typ_dam) {
 
         inven_type *i_ptr = &inventory[j];
 
-        bigvtype out_val, tmp_str;
+        msgtype out_val;
+        bigvtype tmp_str;
         if (i_ptr->flags & typ_dam) {
             objdes(tmp_str, &inventory[j], false);
-            (void)sprintf(out_val, "Your %s resists damage!", tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "Your %s resists damage!", tmp_str);
             msg_print(out_val);
             minus = true;
         } else if ((i_ptr->ac + i_ptr->toac) > 0) {
             objdes(tmp_str, &inventory[j], false);
-            (void)sprintf(out_val, "Your %s is damaged!", tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "Your %s is damaged!", tmp_str);
             msg_print(out_val);
             i_ptr->toac--;
             calc_bonuses();
@@ -523,7 +525,7 @@ int minus_ac(uint32_t typ_dam) {
 }
 
 // Corrode the unsuspecting person's armor -RAK-
-void corrode_gas(char *kb_str) {
+void corrode_gas(const char *kb_str) {
     if (!minus_ac((uint32_t)TR_RES_ACID)) {
         take_hit(randint(8), kb_str);
     }
@@ -534,13 +536,13 @@ void corrode_gas(char *kb_str) {
 }
 
 // Poison gas the idiot. -RAK-
-void poison_gas(int dam, char *kb_str) {
+void poison_gas(int dam, const char *kb_str) {
     take_hit(dam, kb_str);
     py.flags.poisoned += 12 + randint(dam);
 }
 
 // Burn the fool up. -RAK-
-void fire_dam(int dam, char *kb_str) {
+void fire_dam(int dam, const char *kb_str) {
     if (py.flags.fire_resist) {
         dam = dam / 3;
     }
@@ -580,7 +582,7 @@ void light_dam(int dam, char *kb_str) {
 }
 
 // Throw acid on the hapless victim -RAK-
-void acid_dam(int dam, char *kb_str) {
+void acid_dam(int dam, const char *kb_str) {
     int flag = 0;
     if (minus_ac((uint32_t)TR_RES_ACID)) {
         flag = 1;

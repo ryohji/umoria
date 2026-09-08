@@ -18,6 +18,18 @@ typedef char vtype[VTYPESIZ];
 // note that since its output can easily exceed 80 characters, objdes must
 // always be called with a bigvtype as the first paramter
 typedef char bigvtype[BIGVTYPESIZ];
+
+// 文字列を「Your %s glows faintly!」のような文に埋めこんだ結果を入れる。
+// 埋めこみ先を埋めこむ文字列と同じ大きさ（bigvtype や vtype）にすると、
+// 中身が長いときに配列の外へ書く。-Wformat-overflow が指していたのはこれ。
+// 前後に付く語の分だけ余分にとってあるので、切り詰めも溢れも起こらない。
+//
+// 埋めこむ文字列でもっとも長いのは objdes() が返すアイテム説明（bigvtype）
+// なので、それに 1 行分（vtype 1 つ分 = 画面 1 行）を足した大きさにする。
+// この種の文で前後に付く語はどれも 1 行に収まる。
+#define MSGTYPESIZ (BIGVTYPESIZ + VTYPESIZ)
+typedef char msgtype[MSGTYPESIZ];
+
 typedef char stat_type[7];
 
 // Many of the character fields used to be fixed length, which greatly
@@ -67,6 +79,22 @@ typedef struct {
     uint16_t place;
 } creature_handle;
 
+// モンスター定義表を末尾から先頭へたどる反復子。
+//
+// 持つのは「指したい要素そのもの」ではなく「その 1 つ先」（base）。
+// std::reverse_iterator と同じ持ちかたで、先頭を指す状態でも base は先頭に
+// 留まるので、配列の直前を指すポインタが現れない。C17 6.5.6p8 が認めるのは
+// 「同じ配列の要素、または末尾の 1 つ先」までで、それより手前は参照しなくても
+// 値を作った時点で未定義動作になる。以前の実装は終端に c_list - 1 を使って
+// いた（-Warray-bounds が指していたのはこれ）。
+//
+// creature_type * を裸で持ちまわらず構造体に包んでいるのは、1 つずれた値を
+// うっかり -> で読めないようにするため。要素を得るには
+// monster_creature_rget() を通す必要がある。
+typedef struct {
+    creature_type *base;
+} creature_rev_iterator;
+
 typedef struct monster_type {
     int16_t hp;               // Hit points
     int16_t csleep;           // Inactive counter
@@ -84,7 +112,7 @@ typedef struct monster_type {
 } monster_type;
 
 typedef struct treasure_type {
-    char *name;        // Object name
+    const char *name;  // Object name
     uint32_t flags;    // Special flags
     uint8_t tval;      // Category number
     uint8_t tchar;     // Character representation
@@ -240,7 +268,7 @@ typedef struct spell_type {
 } spell_type;
 
 typedef struct race_type {
-    char *trace;     // Type of race
+    const char *trace; // Type of race
     int16_t str_adj; // adjustments
     int16_t int_adj;
     int16_t wis_adj;
@@ -271,7 +299,7 @@ typedef struct race_type {
 } race_type;
 
 typedef struct class_type {
-    char *title;             // type of class
+    const char *title;       // type of class
     uint8_t adj_hd;          // Adjust hit points
     uint8_t mdis;            // mod disarming traps
     uint8_t msrh;            // modifier to searching
@@ -292,7 +320,7 @@ typedef struct class_type {
 } class_type;
 
 typedef struct background_type {
-    char *info;    // History information
+    const char *info; // History information
     uint8_t roll;  // Die roll needed for history
     uint8_t chart; // Table number
     uint8_t next;  // Pointer to next table
@@ -313,7 +341,7 @@ typedef struct cave_type {
 } cave_type;
 
 typedef struct owner_type {
-    char *owner_name;
+    const char *owner_name;
     int16_t max_cost;
     uint8_t max_inflate;
     uint8_t min_inflate;

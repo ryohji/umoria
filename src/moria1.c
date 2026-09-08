@@ -65,7 +65,7 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 }
 
 // Recalculate the effect of all the stuff we use. -CJS-
-void calc_bonuses() {
+void calc_bonuses(void) {
     struct flags *p_ptr = &py.flags;
     struct misc *m_ptr = &py.misc;
 
@@ -242,7 +242,7 @@ void calc_bonuses() {
 // does not fit, it may be moved left.  The return value is the left edge
 // used. If mask is non-zero, then only display those items which have a
 // non-zero entry in the mask array.
-int show_inven(int r1, int r2, bool weight, int col, char *mask) {
+int show_inven(int r1, int r2, bool weight, int col, const char *mask) {
     bigvtype tmp_val;
     vtype out_val[23];
 
@@ -301,8 +301,8 @@ int show_inven(int r1, int r2, bool weight, int col, char *mask) {
 }
 
 // Return a string describing how a given equipment item is carried. -CJS-
-char *describe_use(int i) {
-    char *p;
+const char *describe_use(int i) {
+    const char *p;
     switch (i) {
     case INVEN_WIELD:
         p = "wielding";
@@ -369,7 +369,7 @@ int show_equip(bool weight, int col) {
     for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
         i_ptr = &inventory[i];
         if (i_ptr->tval != TV_NOTHING) {
-            char *prt1;
+            const char *prt1;
 
             // Get position
             switch (i) {
@@ -472,7 +472,7 @@ void takeoff(int item_val, int posn) {
     inven_weight -= t_ptr->weight * t_ptr->number;
     py.flags.status |= PY_STR_WGT;
 
-    char *p;
+    const char *p;
     if (item_val == INVEN_WIELD || item_val == INVEN_AUX) {
         p = "Was wielding ";
     } else if (item_val == INVEN_LIGHT) {
@@ -481,12 +481,13 @@ void takeoff(int item_val, int posn) {
         p = "Was wearing ";
     }
 
-    bigvtype out_val, prt2;
+    msgtype out_val;
+    bigvtype prt2;
     objdes(prt2, t_ptr, true);
     if (posn >= 0) {
-        (void)sprintf(out_val, "%s%s (%c)", p, prt2, 'a' + posn);
+        (void)snprintf(out_val, sizeof(out_val), "%s%s (%c)", p, prt2, 'a' + posn);
     } else {
-        (void)sprintf(out_val, "%s%s", p, prt2);
+        (void)snprintf(out_val, sizeof(out_val), "%s%s", p, prt2);
     }
     msg_print(out_val);
 
@@ -499,7 +500,7 @@ void takeoff(int item_val, int posn) {
 
 // Used to verify if this really is the item we wish to -CJS-
 // wear or read.
-int verify(char *prompt, int item) {
+int verify(const char *prompt, int item) {
     bigvtype out_str, object;
 
     objdes(object, &inventory[item], true);
@@ -599,7 +600,8 @@ static void inven_screen(int new_scr) {
 
 // This does all the work.
 void inven_command(char command) {
-    bigvtype prt1, prt2;
+    msgtype prt1;
+    bigvtype prt2;
     int item, tmp;
     inven_type tmp_obj;
     int slot = 0;
@@ -762,8 +764,8 @@ void inven_command(char command) {
         char which = 'z';
         while (selecting && free_turn_flag) {
             int from, to;
-            char *prompt;
-            char *swap = "";
+            const char *prompt;
+            const char *swap = "";
 
             if (command == 'w') {
                 from = wear_low;
@@ -792,7 +794,7 @@ void inven_command(char command) {
             if (from > to) {
                 selecting = false;
             } else {
-                char *disp;
+                const char *disp;
                 if (scr_state == BLANK_SCR) {
                     disp = ", * to list";
                 } else {
@@ -1038,7 +1040,7 @@ void inven_command(char command) {
                                 equip_ctr++;
                                 py_bonuses(i_ptr, 1);
 
-                                char *string;
+                                const char *string;
                                 if (slot == INVEN_WIELD) {
                                     string = "You are wielding";
                                 } else if (slot == INVEN_LIGHT) {
@@ -1056,7 +1058,7 @@ void inven_command(char command) {
                                     }
                                 }
 
-                                (void)sprintf(prt1, "%s %s (%c)", string, prt2, 'a' + item);
+                                (void)snprintf(prt1, sizeof(prt1), "%s %s (%c)", string, prt2, 'a' + item);
                                 msg_print(prt1);
                                 // this is a new weapon, so clear heavy flag
                                 if (slot == INVEN_WIELD) {
@@ -1175,7 +1177,7 @@ void inven_command(char command) {
 }
 
 // Get the ID of an item and return the CTR value of it -RAK-
-int get_item(int *com_val, char *pmt, int i, int j, char *mask, char *message) {
+int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, const char *message) {
     bool test_flag;
     bool full;
     bool item = false;
@@ -1345,7 +1347,7 @@ int get_item(int *com_val, char *pmt, int i, int j, char *mask, char *message) {
 // hooks which I have not had time to re-think. -RAK-
 
 // Returns true if player has no light -RAK-
-bool no_light() {
+bool no_light(void) {
     cave_type *c_ptr = &cave[char_row][char_col];
 
     if (!c_ptr->tl && !c_ptr->pl) {
@@ -1390,7 +1392,7 @@ static char map_roguedir(char comval) {
 
 // Prompts for a direction -RAK-
 // Direction memory added, for repeated commands.  -CJS
-bool get_dir(char *prompt, int *dir) {
+bool get_dir(const char *prompt, int *dir) {
     static char prev_dir; // Direction memory. -CJS-
 
     // used in counted commands. -CJS-
@@ -1431,7 +1433,7 @@ bool get_dir(char *prompt, int *dir) {
 
 // Similar to get_dir, except that no memory exists, and it is -CJS-
 // allowed to enter the null direction.
-bool get_alldir(char *prompt, int *dir) {
+bool get_alldir(const char *prompt, int *dir) {
     char command;
 
     for (;;) {
@@ -1610,7 +1612,7 @@ void disturb(int s, int l) {
 }
 
 // Search Mode enhancement -RAK-
-void search_on() {
+void search_on(void) {
     change_speed(1);
     py.flags.status |= PY_SEARCH;
     prt_state();
@@ -1618,7 +1620,7 @@ void search_on() {
     py.flags.food_digested++;
 }
 
-void search_off() {
+void search_off(void) {
     check_view();
     change_speed(-1);
 
@@ -1630,7 +1632,7 @@ void search_off() {
 }
 
 // Resting allows a player to safely restore his hp -RAK-
-void rest() {
+void rest(void) {
     int rest_num;
 
     if (command_count > 0) {
@@ -1670,7 +1672,7 @@ void rest() {
     }
 }
 
-void rest_off() {
+void rest_off(void) {
     py.flags.rest = 0;
     py.flags.status &= ~PY_REST;
 
@@ -1701,7 +1703,7 @@ bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
 }
 
 // Decreases players hit points and sets death flag if necessary -RAK-
-void take_hit(int damage, char *hit_from) {
+void take_hit(int damage, const char *hit_from) {
     if (py.flags.invuln > 0) {
         damage = 0;
     }

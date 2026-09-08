@@ -51,7 +51,7 @@ void set_seed(uint32_t seed) {
 }
 
 // restore the normal random generator state
-void reset_seed() {
+void reset_seed(void) {
     set_rnd_seed(old_seed);
 }
 
@@ -125,7 +125,10 @@ int randnor(int mean, int stand) {
 int bit_pos(uint32_t *test) {
     uint32_t mask = 0x1;
 
-    for (int i = 0; i < sizeof(*test) * 8; i++) {
+    // i は int、sizeof(*test) * 8 は size_t（符号なし）。そのまま比べると
+    // i が符号なしに変換される。ここは i >= 0 しか通らないので値は変わらない
+    // が、変換が起きていることを明示しておく。
+    for (int i = 0; i < (int)(sizeof(*test) * 8); i++) {
         if (*test & mask) {
             *test &= ~mask;
             return i;
@@ -147,7 +150,7 @@ bool in_bounds(int y, int x) {
 }
 
 // Calculates current boundaries -RAK-
-void panel_bounds() {
+void panel_bounds(void) {
     panel_row_min = panel_row * (SCREEN_HEIGHT / 2);
     panel_row_max = panel_row_min + SCREEN_HEIGHT - 1;
     panel_row_prt = panel_row_min - 1;
@@ -479,7 +482,7 @@ bool test_light(int y, int x) {
 }
 
 // Prints the map of the dungeon -RAK-
-void prt_map() {
+void prt_map(void) {
     int k = 0;
 
     // Top to bottom
@@ -499,7 +502,7 @@ void prt_map() {
 
 // Compact monsters -RAK-
 // Return true if any monsters were deleted, false if could not delete any monsters.
-bool compact_monsters() {
+bool compact_monsters(void) {
     msg_print("Compacting monsters...");
 
     int cur_dis = 66;
@@ -569,7 +572,7 @@ void add_food(int num) {
 
 // Returns a pointer to next free space -RAK-
 // Returns -1 if could not allocate a monster.
-int popm() {
+int popm(void) {
     if (mfptr == MAX_MALLOC) {
         if (!compact_monsters()) {
             return -1;
@@ -608,7 +611,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
 }
 
 // Places a monster at given location -RAK-
-void place_win_monster() {
+void place_win_monster(void) {
     if (!total_winner) {
         int x, y, z = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
 
@@ -736,7 +739,7 @@ bool summon_undead(int *y, int *x) {
 }
 
 // If too many objects on floor level, delete some of them-RAK-
-static void compact_objects() {
+static void compact_objects(void) {
     msg_print("Compacting objects...");
 
     int ctr = 0;
@@ -791,7 +794,7 @@ static void compact_objects() {
 }
 
 // Gives pointer to next free space -RAK-
-int popt() {
+int popt(void) {
     if (tcptr == MAX_TALLOC) {
         compact_objects();
     }

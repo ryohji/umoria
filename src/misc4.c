@@ -17,15 +17,16 @@
 #include <stdarg.h>
 
 // Add a comment to an object description. -CJS-
-void scribe_object() {
+void scribe_object(void) {
     if (inven_ctr > 0 || equip_ctr > 0) {
         int item_val;
 
         if (get_item(&item_val, "Which one? ", 0, INVEN_ARRAY_SIZE, CNIL, CNIL)) {
-            bigvtype out_val, tmp_str;
+            msgtype out_val;
+            bigvtype tmp_str;
 
             objdes(tmp_str, &inventory[item_val], true);
-            (void)sprintf(out_val, "Inscribing %s", tmp_str);
+            (void)snprintf(out_val, sizeof(out_val), "Inscribing %s", tmp_str);
             msg_print(out_val);
             if (inventory[item_val].inscrip[0] != '\0') {
                 (void)sprintf(out_val, "Replace %s New inscription:",
@@ -53,12 +54,12 @@ void add_inscribe(inven_type *i_ptr, uint8_t type) {
 }
 
 // Replace any existing comment in an object description with a new one. -CJS-
-void inscribe(inven_type *i_ptr, char *str) {
+void inscribe(inven_type *i_ptr, const char *str) {
     (void)strcpy(i_ptr->inscrip, str);
 }
 
 // We need to reset the view of things. -CJS-
-void check_view() {
+void check_view(void) {
     cave_type *c_ptr = &cave[char_row][char_col];
 
     // Check for new panel

@@ -14,7 +14,7 @@
 
 #include "externs.h"
 
-static char *comment1[14] = {
+static const char *comment1[14] = {
     "Done!",
     "Accepted!",
     "Fine.",
@@ -31,13 +31,13 @@ static char *comment1[14] = {
     "My spouse will skin me, but accepted.",
 };
 
-static char *comment2a[3] = {
+static const char *comment2a[3] = {
     "%A2 is my final offer; take it or leave it.",
     "I'll give you no more than %A2.",
     "My patience grows thin.  %A2 is final.",
 };
 
-static char *comment2b[16] = {
+static const char *comment2b[16] = {
     "%A1 for such a fine item?  HA!  No less than %A2.",
     "%A1 is an insult!  Try %A2 gold pieces.",
     "%A1?!?  You would rob my poor starving children?",
@@ -56,13 +56,13 @@ static char *comment2b[16] = {
     "Your mother was a Troll!  %A2 or I'll tell.",
 };
 
-static char *comment3a[3] = {
+static const char *comment3a[3] = {
     "I'll pay no more than %A1; take it or leave it.",
     "You'll get no more than %A1 from me.",
     "%A1 and that's final.",
 };
 
-static char *comment3b[15] = {
+static const char *comment3b[15] = {
     "%A2 for that piece of junk?  No more than %A1.",
     "For %A2 I could own ten of those.  Try %A1.",
     "%A2?  NEVER!  %A1 is more like it.",
@@ -80,7 +80,7 @@ static char *comment3b[15] = {
     "%A2 is too much, let us say %A1 gold.",
 };
 
-static char *comment4a[5] = {
+static const char *comment4a[5] = {
     "ENOUGH!  You have abused me once too often!",
     "THAT DOES IT!  You shall waste my time no more!",
     "This is getting nowhere.  I'm going home!",
@@ -88,13 +88,13 @@ static char *comment4a[5] = {
     "Begone!  I have had enough abuse for one day.",
 };
 
-static char *comment4b[5] = {
+static const char *comment4b[5] = {
     "Out of my place!", "out... Out... OUT!!!",
     "Come back tomorrow.", "Leave my place.  Begone!",
     "Come back when thou art richer.",
 };
 
-static char *comment5[10] = {
+static const char *comment5[10] = {
     "You will have to do better than that!",
     "That's an insult!",
     "Do you wish to do business or not?",
@@ -107,7 +107,7 @@ static char *comment5[10] = {
     "Hmmm, nice weather we're having.",
 };
 
-static char *comment6[5] = {
+static const char *comment6[5] = {
     "I must have heard you wrong.", "What was that?",
     "I'm sorry, say that again.", "What did you say?",
     "Sorry, what was that again?",
@@ -115,7 +115,7 @@ static char *comment6[5] = {
 
 // Comments vary. -RAK-
 // Comment one : Finished haggling
-static void prt_comment1() {
+static void prt_comment1(void) {
     msg_print(comment1[randint(14) - 1]);
 }
 
@@ -128,8 +128,8 @@ static void prt_comment1() {
 // The meaning of the two numbers depends on the caller: the buyer and the
 // seller swap their roles, so they are named after the placeholder they
 // land in rather than after offer / asking.
-static void prt_haggle_comment(char **final_comments, int final_comment_count,
-                               char **normal_comments, int normal_comment_count,
+static void prt_haggle_comment(const char **final_comments, int final_comment_count,
+                               const char **normal_comments, int normal_comment_count,
                                int32_t a1, int32_t a2, int final) {
     vtype comment;
 
@@ -158,22 +158,22 @@ static void prt_comment3(int32_t offer, int32_t asking, int final) {
 }
 
 // Kick 'da bum out. -RAK-
-static void prt_comment4() {
+static void prt_comment4(void) {
     int tmp = randint(5) - 1;
     msg_print(comment4a[tmp]);
     msg_print(comment4b[tmp]);
 }
 
-static void prt_comment5() {
+static void prt_comment5(void) {
     msg_print(comment5[randint(10) - 1]);
 }
 
-static void prt_comment6() {
+static void prt_comment6(void) {
     msg_print(comment6[randint(5) - 1]);
 }
 
 // Displays the set of commands -RAK-
-static void display_commands() {
+static void display_commands(void) {
     prt("You may:", 20, 0);
     prt(" p) Purchase an item.           b) Browse store's inventory.", 21, 0);
     prt(" s) Sell an item.               i/e/t/w/x) Inventory/Equipment Lists.", 22, 0);
@@ -210,11 +210,12 @@ static void display_inventory(int store_num, int start) {
             i_ptr->number = 1;
         }
 
-        bigvtype out_val1, out_val2;
+        bigvtype out_val1;
+        msgtype out_val2;
 
         objdes(out_val1, i_ptr, true);
         i_ptr->number = x;
-        (void)sprintf(out_val2, "%c) %s", 'a' + i, out_val1);
+        (void)snprintf(out_val2, sizeof(out_val2), "%c) %s", 'a' + i, out_val1);
         prt(out_val2, i + 5, 0);
         x = s_ptr->store_inven[start].scost;
         if (x <= 0) {
@@ -262,7 +263,7 @@ static void display_cost(int store_num, int pos) {
 }
 
 // Displays players gold -RAK-
-static void store_prt_gold() {
+static void store_prt_gold(void) {
     vtype out_val;
     (void)sprintf(out_val, "Gold Remaining : %d", py.misc.au);
     prt(out_val, 18, 17);
@@ -282,7 +283,7 @@ static void display_store(int store_num, int cur_top) {
 }
 
 // Get the ID of a store item and return it's value -RAK-
-static bool get_store_item(int *com_val, char *pmt, int i, int j) {
+static bool get_store_item(int *com_val, const char *pmt, int i, int j) {
     bool flag = false;
 
     *com_val = -1;
@@ -346,7 +347,7 @@ static bool haggle_insults(int store_num) {
     return haggle;
 }
 
-static bool get_haggle(char *comment, int32_t *new_offer, int num_offer) {
+static bool get_haggle(const char *comment, int32_t *new_offer, int num_offer) {
     bool flag = true;
     bool increment = false;
 
@@ -415,7 +416,7 @@ static bool get_haggle(char *comment, int32_t *new_offer, int num_offer) {
     return flag;
 }
 
-static int receive_offer(int store_num, char *comment, int32_t *new_offer, int32_t last_offer, int num_offer, int factor) {
+static int receive_offer(int store_num, const char *comment, int32_t *new_offer, int32_t last_offer, int num_offer, int factor) {
     int receive = 0;
 
     bool flag = false;
@@ -482,7 +483,7 @@ static int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
     int32_t last_offer = min_offer;
     int32_t new_offer = 0;
     int num_offer = 0; // this prevents incremental haggling on first try
-    char *comment = "Asking";
+    const char *comment = "Asking";
 
     // go right to final price if player has bargained well
     if (noneedtobargain(store_num, final_ask)) {
@@ -647,7 +648,7 @@ static int sell_haggle(int store_num, int32_t *price, inven_type *item) {
 
     int32_t cur_ask;
     int32_t final_ask = 0;
-    char *comment;
+    const char *comment;
 
     if (!flag) {
         haggle_commands(-1);
@@ -848,9 +849,10 @@ static bool store_purchase(int store_num, int *cur_top) {
                     i = s_ptr->store_ctr;
                     store_destroy(store_num, item_val, true);
 
-                    bigvtype out_val, tmp_str;
+                    msgtype out_val;
+                    bigvtype tmp_str;
                     objdes(tmp_str, &inventory[item_new], true);
-                    (void)sprintf(out_val, "You have %s (%c)", tmp_str, item_new + 'a');
+                    (void)snprintf(out_val, sizeof(out_val), "You have %s (%c)", tmp_str, item_new + 'a');
                     prt(out_val, 0, 0);
 
                     check_strength();
@@ -922,12 +924,13 @@ static bool store_sell(int store_num, int *cur_top) {
         msg_print("You have nothing to sell to this store!");
     } else if (get_item(&item_val, "Which one? ", first_item, last_item, mask, "I do not buy such items.")) {
         inven_type sold_obj;
-        bigvtype out_val, tmp_str;
+        msgtype out_val;
+        bigvtype tmp_str;
 
         take_one_item(&sold_obj, &inventory[item_val]);
         objdes(tmp_str, &sold_obj, true);
 
-        (void)sprintf(out_val, "Selling %s (%c)", tmp_str, item_val + 'a');
+        (void)snprintf(out_val, sizeof(out_val), "Selling %s (%c)", tmp_str, item_val + 'a');
         msg_print(out_val);
 
         if (store_check_num(&sold_obj, store_num)) {
@@ -949,7 +952,7 @@ static bool store_sell(int store_num, int *cur_top) {
                 known2(&sold_obj);
                 inven_destroy(item_val);
                 objdes(tmp_str, &sold_obj, true);
-                (void)sprintf(out_val, "You've sold %s", tmp_str);
+                (void)snprintf(out_val, sizeof(out_val), "You've sold %s", tmp_str);
                 msg_print(out_val);
 
                 int item_pos;

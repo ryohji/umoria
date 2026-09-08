@@ -209,7 +209,7 @@ static void hit_trap(int y, int x) {
 // returns -1 if no spells in book
 // returns  1 if choose a spell in book to cast
 // returns  0 if don't choose a spell, i.e. exit with an escape
-int cast_spell(char *prompt, int item_val, int *sn, int *sc) {
+int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     int result = -1;
     int i = 0;
 
@@ -247,7 +247,8 @@ int cast_spell(char *prompt, int item_val, int *sn, int *sc) {
 // on the TVAL of the object. Traps are set off, money and most objects
 // are picked up. Some objects, such as open doors, just sit there.
 static void carry(int y, int x, bool pickup) {
-    bigvtype out_val, tmp_str;
+    msgtype out_val;
+    bigvtype tmp_str;
 
     cave_type *c_ptr = &cave[y][x];
     inven_type *i_ptr = &t_list[c_ptr->tptr];
@@ -299,7 +300,7 @@ static void carry(int y, int x, bool pickup) {
                 }
             } else {
                 objdes(tmp_str, i_ptr, true);
-                (void)sprintf(out_val, "You can't carry %s", tmp_str);
+                (void)snprintf(out_val, sizeof(out_val), "You can't carry %s", tmp_str);
                 msg_print(out_val);
             }
         }
@@ -564,7 +565,7 @@ void py_attack(int y, int x) {
     inven_type *i_ptr = &inventory[INVEN_WIELD];
 
     // Does the player know what he's fighting?
-    const char *cdesc = monster_name_lower((vtype){}, m_ptr);
+    const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
 
     int blows, tot_tohit;
     if (i_ptr->tval != TV_NOTHING) {
@@ -842,7 +843,7 @@ void chest_trap(int y, int x) {
 }
 
 // Opens a closed door or closed chest. -RAK-
-void openobject() {
+void openobject(void) {
     int y = char_row;
     int x = char_col;
 
@@ -855,7 +856,7 @@ void openobject() {
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR || t_list[c_ptr->tptr].tval == TV_CHEST)) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
-            msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
+            msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             // Closed door
             if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
@@ -949,7 +950,7 @@ void openobject() {
 }
 
 // Closes an open door. -RAK-
-void closeobject() {
+void closeobject(void) {
     int y = char_row;
     int x = char_col;
 
@@ -973,7 +974,7 @@ void closeobject() {
                     }
                 } else {
                     monster_type *m_ptr = &m_list[c_ptr->cptr];
-                    msg_print(CONCAT(monster_name_or_something((vtype){}, m_ptr), " is in your way!"));
+                    msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
                 }
             } else {
                 no_object = true;

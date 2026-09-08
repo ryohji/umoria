@@ -14,7 +14,7 @@
 
 #include "externs.h"
 
-void ident_char() {
+void ident_char(void) {
     char command;
     if (get_com("Enter character to be identified :", &command)) {
         // every printing ASCII character is listed here, in the
@@ -296,9 +296,10 @@ void ident_char() {
     // Allow access to monster memory. -CJS-
     int n = 0;
     char query;
-    creature_type *it, *const end = monster_creature_rend();
-    for (it = monster_creature_rbegin(); it != end; it = monster_creature_prev(it)) {
-        if (it->cchar == command && bool_roff_recall(it)) {
+    const creature_rev_iterator end = monster_creature_rend();
+    for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
+        creature_type *const creature = monster_creature_rget(it);
+        if (creature->cchar == command && bool_roff_recall(creature)) {
             if (n == 0) {
                 put_buffer("You recall those details? [y/n]", 0, 40);
                 query = inkey();
@@ -309,7 +310,7 @@ void ident_char() {
                 save_screen();
             }
             n++;
-            query = roff_recall(it);
+            query = roff_recall(creature);
             restore_screen();
             if (query == ESCAPE) {
                 break;

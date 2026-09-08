@@ -15,15 +15,15 @@
 #include "externs.h"
 #include "platform.h"
 
-static void char_inven_init();
-static void init_m_level();
-static void init_t_level();
+static void char_inven_init(void);
+static void init_m_level(void);
+static void init_t_level(void);
 
 #if (COST_ADJ != 100)
 static void price_adjust();
 #endif
 
-static void check_file_permissions();
+static void check_file_permissions(void);
 
 // Initialize, restore, and get the ball rolling. -RAK-
 int main(int argc, char *argv[]) {
@@ -224,7 +224,7 @@ int main(int argc, char *argv[]) {
 }
 
 // Init players with some belongings -RAK-
-static void char_inven_init() {
+static void char_inven_init(void) {
     int i, j;
     inven_type inven_init;
 
@@ -252,14 +252,14 @@ static void char_inven_init() {
 }
 
 // Initializes M_LEVEL array for use with PLACE_MONSTER -RAK-
-static void init_m_level() {
+static void init_m_level(void) {
     for (int i = 0; i <= MAX_MONS_LEVEL; i++) {
         m_level[i] = 0;
     }
 
-    creature_type *const end = monster_creature_rend(), *it;
-    for (it = monster_creature_rbegin(); it != end; it = monster_creature_prev(it)) {
-        const uint8_t level = it->level;
+    const creature_rev_iterator end = monster_creature_rend();
+    for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
+        const uint8_t level = monster_creature_rget(it)->level;
         if (level <= MAX_MONS_LEVEL) {
             m_level[level] += 1;
         }
@@ -271,7 +271,7 @@ static void init_m_level() {
 }
 
 // Initializes T_LEVEL array for use with PLACE_OBJECT -RAK-
-static void init_t_level() {
+static void init_t_level(void) {
     for (int i = 0; i <= MAX_OBJ_LEVEL; i++) {
         t_level[i] = 0;
     }
@@ -312,7 +312,7 @@ static void price_adjust() {
 
 // Check user permissions on Unix based systems,
 // or if on Windows just return. -MRC-
-static void check_file_permissions() {
+static void check_file_permissions(void) {
 #ifndef _WIN32
     if (0 != setuid(getuid())) {
         perror("Can't set permissions correctly!  Setuid call failed.\n");

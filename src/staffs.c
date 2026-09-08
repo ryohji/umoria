@@ -18,7 +18,7 @@
 #include "item_ident.h"
 
 // Use a staff. -RAK-
-void use() {
+void use(void) {
     int j, k, y, x;
     int item_val;
 

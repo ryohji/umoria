@@ -32,7 +32,7 @@ void fixture_reset(void)
  * ここで最小限の代役を置く。 */
 
 /* 画面出力。テストでは捨てる */
-void msg_print(char *str) { (void)str; }
+void msg_print(const char *str) { (void)str; }
 
 /* 経験値の表示。本物（misc3.c:1838）は表示のついでに上限の打ち切りと
  * レベルアップ判定（gain_level）も行うので、リンクすると画面・呪文・
@@ -72,7 +72,7 @@ void reset_seed(void) {}
 uint32_t randes_seed = 0;
 
 /* 文字列組み立て。desc.c 内の別関数用で、今回の対象は呼ばない */
-void insert_str(char *o, char *m, char *i) { (void)o; (void)m; (void)i; }
+void insert_str(char *o, const char *m, const char *i) { (void)o; (void)m; (void)i; }
 void add_inscribe(inven_type *i, int flag) { (void)i; (void)flag; }
 
 /* 店舗の商品判定。desc.c の store_bought_p が参照する */

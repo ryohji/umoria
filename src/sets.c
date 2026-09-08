@@ -12,6 +12,8 @@
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 bool set_room(int element) {
     if ((element == DARK_FLOOR) || (element == LIGHT_FLOOR)) {
         return true;

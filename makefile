@@ -14,6 +14,11 @@ CC = gcc
 # Use C17 standard (latest widely-supported C standard)
 STD = -std=c17
 
+# POSIX 拡張を有効にする。-std=c17 だけでは kill() や getpid() のような
+# POSIX 関数が宣言されず、暗黙宣言（引数と戻り値の型検査が効かない状態）
+# になっていた。C17 は ISO C の範囲しか公開しないため、明示的に要求する。
+POSIX = -D_DEFAULT_SOURCE
+
 # Warning flags for better code quality
 WARNINGS = -Wall -Wextra -Wpedantic -Wformat=2 -Wno-unused-parameter \
            -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
@@ -31,7 +36,7 @@ OPT_FLAGS = -O2
 INCLUDES = -I$(SRCDIR)
 
 # Combine all compiler flags
-CFLAGS = $(STD) $(WARNINGS) $(DEBUG_FLAGS) $(OPT_FLAGS) $(INCLUDES)
+CFLAGS = $(STD) $(POSIX) $(WARNINGS) $(DEBUG_FLAGS) $(OPT_FLAGS) $(INCLUDES)
 
 # Linker flags
 LDFLAGS =
