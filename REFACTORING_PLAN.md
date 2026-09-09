@@ -218,7 +218,32 @@ $ cd data && TERM=xterm ../umoria
 | 15 | **完了** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | **完了** | 理解しづらいロジック | io.c:207-224 | `wait_for_more_confirmation` が `goto inkey` + switch。**読みにくさの原因は `case` の列挙ではなく、ラベル名（関数 `inkey()` と同名）と `default` の位置だった。** ラベルを `retry` に改め、`default` を後置してコメントを補った。`case` で受理文字を並べる形は「集合の宣言」として読めるので残した | ラベル改名 + 分岐の並べ替え | Medium | Low |
 | 17 | **検証済み** | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
-| 18 | データの散在 | misc3.c:369-540, dungeon.c:580-780, view_observer.h | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 / observer 型に4重分散 | #3 の削除後に再評価 | High | Medium |
+| 18 | データの散在 | `externs.h` の 112 個（misc3.c:369-540, dungeon.c:580-780 ほか） | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 に分散。**2026-09-09 に全体像を計測 → [GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)** | 区分ごとに分割して着手（下記） | High | 区分ごと |
+
+### #18 の全体像（2026-09-09 に計測）
+
+`externs.h` の 112 個を `scripts/globals.py` で数えあげた。詳細は
+[GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)。計画に効く点だけ抜くと:
+
+- **前提が消えた。** この行はもともと「`view_observer.h` に分散」を理由に
+  #3 の削除待ちとしていたが、`view_observer.c`（129 行）は `externs.h` の
+  112 個を **1 個も参照していない**。#18 と `view_observer` は切り離して
+  進められる。
+- **1 個の課題ではなく 11 個の課題。** 参照 3147 のうち 47% が
+  `py` `cave` `inventory` `char_row` `char_col` `t_list` の 6 個に集まる。
+  一括では終わらないので、区分ごとに別項目として扱う。
+- **着手順は「安い順」。** オプション 11 個（`misc2.c:856` に既に登録表が
+  あり、表の外で書くのは `save.c` と `main.c` の 3 箇所だけ）→ メッセージ
+  4 個 → パネル 10 個 → 店・持ち物 → プレイヤー状態 →
+  ダンジョン（`cave` の別名 145、単独で 1 プロジェクト）。
+- **#18 に混ぜないもの。** `free_turn_flag`（書きこみ 67／14 ファイル）は
+  変数の置き場の問題ではなく戻り値にすべき制御フロー。別項目にする。
+  実質定数 16 個は `const` 化の話で「散在」ではない。
+  逆に「定数表に見えて起動時に書きかわる 7 個」（`colors` 系と
+  `object_list`）は `const` 化すると壊れる。
+- **`game_state.c` は真実の源ではない。** `game_state_init()` は 40 個ほどの
+  グローバルを `state->` に写しとるだけで、以降は二重管理。#18 は
+  「`GameState` を作る」ではなく「この二重を解く」作業になる。
 
 ### #16 で浮上した課題：`wait_for_more` グローバルフラグ（2026-08-28）
 
