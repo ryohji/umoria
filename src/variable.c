@@ -74,19 +74,23 @@ bool to_be_wizard = false; // used during startup, when -w option used
 bool panic_save = false;   // this is true if playing from a panic save
 int16_t noscore = 0;       // Don't log the game. -CJS-
 
-bool rogue_like_commands; // set in config.h/main.c
-
 // options set via the '=' command
-bool find_cut = true;
-bool find_examine = true;
-bool find_bound = false;
-bool find_prself = false;
-bool prompt_carry_flag = false;
-bool show_weight_flag = false;
-bool highlight_seams = false;
-bool find_ignore_doors = false;
-bool sound_beep_flag = true;
-bool display_counts = true;
+//
+// The starting values live in options.c, beside the prompt and the save file
+// bit of each option; game_options_reset() puts them here at startup. They
+// used to be split: ten initialized right here, and rogue_like_commands in
+// main.c from config.h.
+bool rogue_like_commands;
+bool find_cut;
+bool find_examine;
+bool find_bound;
+bool find_prself;
+bool prompt_carry_flag;
+bool show_weight_flag;
+bool highlight_seams;
+bool find_ignore_doors;
+bool sound_beep_flag;
+bool display_counts;
 
 // FIXME: was a `bool`, but also holds an ASCII character. Is this the best solution?
 char doing_inven = 0; // Track inventory commands. -CJS-

@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "options.h"
 #include "platform.h"
 
 static void char_inven_init(void);
@@ -31,8 +32,9 @@ int main(int argc, char *argv[]) {
     bool force_rogue_like = false;
     bool force_keys_to = false;
 
-    // default command set defined in config.h file
-    rogue_like_commands = ROGUE_LIKE;
+    // the options start at their defaults; the table in options.c holds them,
+    // including the default command set defined in config.h
+    game_options_reset();
 
     // call this routine to grab a file pointer to the highscore file
     // and prepare things to relinquish setuid privileges

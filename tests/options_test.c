@@ -269,6 +269,72 @@ TEST(the_prompts_are_in_the_order_the_options_screen_showed_them)
     ASSERT_EQ_INT(mismatch, -1);
 }
 
+TEST(the_defaults_are_the_ones_the_globals_used_to_be_initialized_with)
+{
+    /* variable.c:80-89 の初期値と main.c:35 の ROGUE_LIKE の写し。並びは
+     * 設定画面の並び（表の順）。既定値の置き場を表に移しても、新規ゲームの
+     * 出発点は変わってはいけない。 */
+    static const bool was[] = {
+        true,  /* find_cut */
+        true,  /* find_examine */
+        false, /* find_prself */
+        false, /* find_bound */
+        false, /* find_ignore_doors */
+        false, /* prompt_carry_flag */
+        ROGUE_LIKE, /* rogue_like_commands -- config.h の選択 */
+        false, /* show_weight_flag */
+        false, /* highlight_seams */
+        true,  /* sound_beep_flag */
+        true,  /* display_counts */
+    };
+    int mismatch = -1;
+
+    for (int i = 0; i < VALUE_COUNT; i++) {
+        if (game_options[i].initial != was[i]) {
+            mismatch = i;
+            break;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
+TEST(resetting_puts_every_default_into_its_global)
+{
+    unsigned expected;
+    unsigned actual;
+
+    /* 表からではなく、上の写しと同じ経路（game_options[].initial）を使わずに
+     * 見たいので、いったん全部裏返してから reset し、11 個の値を読む。 */
+    spread(0);
+    game_options_reset();
+    actual = gather();
+
+    spread(COMBINATIONS - 1);
+    game_options_reset();
+    expected = gather();
+
+    /* どちらから始めても同じところに落ちつく（前の値が残らない）。 */
+    ASSERT_EQ_INT(actual, expected);
+}
+
+TEST(the_defaults_are_what_reset_actually_writes)
+{
+    unsigned from_table = 0;
+
+    for (int i = 0; i < VALUE_COUNT; i++) {
+        /* values[] の並びは表の並びとは違うので、置き場のアドレスで対応づける。 */
+        for (int j = 0; j < VALUE_COUNT; j++) {
+            if (game_options[i].value == values[j] && game_options[i].initial) {
+                from_table |= 1u << j;
+            }
+        }
+    }
+
+    spread(0);
+    game_options_reset();
+    ASSERT_EQ_INT(gather(), from_table);
+}
+
 int main(void)
 {
     RUN_TEST(the_table_has_eleven_options);
@@ -279,5 +345,8 @@ int main(void)
     RUN_TEST(unpacking_ignores_the_bits_that_share_the_word);
     RUN_TEST(every_option_has_a_bit_of_its_own);
     RUN_TEST(the_prompts_are_in_the_order_the_options_screen_showed_them);
+    RUN_TEST(the_defaults_are_the_ones_the_globals_used_to_be_initialized_with);
+    RUN_TEST(resetting_puts_every_default_into_its_global);
+    RUN_TEST(the_defaults_are_what_reset_actually_writes);
     return TEST_SUMMARY();
 }

@@ -22,6 +22,7 @@ struct game_option {
     const char *prompt; // shown on the options screen; NULL ends the table
     bool *value;        // still a global, hence the pointer
     uint32_t save_bit;  // position in the option word of a save file
+    bool initial;       // what a fresh game starts with
 };
 
 // The options, in the order the options screen lists them. Terminated by an
@@ -34,6 +35,10 @@ extern const struct game_option game_options[];
 
 // Number of options, not counting the terminator.
 int game_options_count(void);
+
+// Sets every option to what a fresh game starts with. Called once at startup;
+// loading a save file overwrites the lot through game_options_unpack().
+void game_options_reset(void);
 
 // The eleven option bits of the word a save file stores. Only those bits: the
 // caller adds the flags that share the word (death, total_winner).
