@@ -36,7 +36,7 @@ BUILDDIR = $(TESTDIR)/build
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
-        options_test
+        options_test messages_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -249,10 +249,11 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \
                             src/treasure.c src/player.c src/monsters.c \
-                            src/options.c | $(BUILDDIR)
+                            src/options.c src/messages.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
-	    src/treasure.c src/player.c src/monsters.c src/options.c
+	    src/treasure.c src/player.c src/monsters.c src/options.c \
+	    src/messages.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -266,6 +267,19 @@ $(BUILDDIR)/options_test: $(TESTDIR)/options_test.c $(TESTDIR)/minunit.h \
                           src/options.c src/options.h \
                           src/variable.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/options_test.c src/options.c src/variable.c
+
+# メッセージ履歴のリングバッファは src/messages.c にある。外部リンケージなので
+# そのまま呼べる。輪そのもの（old_msg / last_msg）も messages.c が持つので、
+# 他のソースは何も要らない（このテストの構成が最小になっているのは、そこに
+# 寄せた結果そのもの）。
+#
+# 「輪の回りかた」は io.c / dungeon.c の関数の中に直に書かれていて外から
+# 呼べなかったので、変更前の dungeon.c の辿りかたをテスト側に写しとり
+# （legacy_walk_back）、新しい実体と突きあわせている。#7（device.c）や
+# #18-1（options.c）と同じ「テスト側に写す」方式。
+$(BUILDDIR)/messages_test: $(TESTDIR)/messages_test.c $(TESTDIR)/minunit.h \
+                           src/messages.c src/messages.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/messages_test.c src/messages.c
 
 clean:
 	rm -rf $(BUILDDIR)

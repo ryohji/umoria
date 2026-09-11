@@ -55,6 +55,9 @@ extern uint32_t town_seed;          // Seed for town genera
 extern int16_t dun_level;           // Cur dungeon level
 extern int16_t missile_ctr;         // Counter for missiles
 extern bool msg_flag;               // Set with first msg
+// The message history now lives in messages.c, together with the code that
+// walks it; see messages.h. Still declared here so that the remaining call
+// sites can be moved over one at a time.
 extern vtype old_msg[MAX_SAVE_MSG]; // Last messages -CJS-
 extern int16_t last_msg;            // Where in the array is the last
 extern bool death;                  // True if died
