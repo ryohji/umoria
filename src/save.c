@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "options.h"
 
 // For debugging the savefile code on systems with broken compilers.
 #define SAVE_LOG(x)
@@ -61,41 +62,10 @@ static bool sv_write(void) {
         death = false;
     }
 
-    uint32_t l = 0;
+    // The low eleven bits are the player's options; which option owns which
+    // bit is stated once, in options.c.
+    uint32_t l = game_options_pack();
 
-    if (find_cut) {
-        l |= 0x1;
-    }
-    if (find_examine) {
-        l |= 0x2;
-    }
-    if (find_prself) {
-        l |= 0x4;
-    }
-    if (find_bound) {
-        l |= 0x8;
-    }
-    if (prompt_carry_flag) {
-        l |= 0x10;
-    }
-    if (rogue_like_commands) {
-        l |= 0x20;
-    }
-    if (show_weight_flag) {
-        l |= 0x40;
-    }
-    if (highlight_seams) {
-        l |= 0x80;
-    }
-    if (find_ignore_doors) {
-        l |= 0x100;
-    }
-    if (sound_beep_flag) {
-        l |= 0x200;
-    }
-    if (display_counts) {
-        l |= 0x400;
-    }
     if (death) {
         // Sign bit
         l |= 0x80000000L;
@@ -571,68 +541,16 @@ bool get_char(bool *generate) {
         uint32_t l;
         rd_long(&l);
 
-        if (l & 0x1) {
-            find_cut = true;
-        } else {
-            find_cut = false;
-        }
-        if (l & 0x2) {
-            find_examine = true;
-        } else {
-            find_examine = false;
-        }
-        if (l & 0x4) {
-            find_prself = true;
-        } else {
-            find_prself = false;
-        }
-        if (l & 0x8) {
-            find_bound = true;
-        } else {
-            find_bound = false;
-        }
-        if (l & 0x10) {
-            prompt_carry_flag = true;
-        } else {
-            prompt_carry_flag = false;
-        }
-        if (l & 0x20) {
-            rogue_like_commands = true;
-        } else {
-            rogue_like_commands = false;
-        }
-        if (l & 0x40) {
-            show_weight_flag = true;
-        } else {
-            show_weight_flag = false;
-        }
-        if (l & 0x80) {
-            highlight_seams = true;
-        } else {
-            highlight_seams = false;
-        }
-        if (l & 0x100) {
-            find_ignore_doors = true;
-        } else {
-            find_ignore_doors = false;
-        }
-        // save files before 5.2.2 don't have sound_beep_flag, set it on
-        // for compatibility
+        // The same eleven bits sv_write() packed; the bit assignment lives in
+        // options.c, so this side cannot drift from that one.
+        game_options_unpack(l);
+
+        // save files before 5.2.2 have no bit for sound_beep_flag nor for
+        // display_counts, so the bits just read are meaningless. Set them on
+        // for compatibility.
         if ((version_min < 2) || (version_min == 2 && patch_level < 2)) {
             sound_beep_flag = true;
-        } else if (l & 0x200) {
-            sound_beep_flag = true;
-        } else {
-            sound_beep_flag = false;
-        }
-        // save files before 5.2.2 don't have display_counts, set it on
-        // for compatibility
-        if ((version_min < 2) || (version_min == 2 && patch_level < 2)) {
             display_counts = true;
-        } else if (l & 0x400) {
-            display_counts = true;
-        } else {
-            display_counts = false;
         }
 
         // Don't allow resurrection of total_winner characters.  It causes
