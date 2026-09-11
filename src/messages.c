@@ -15,11 +15,11 @@
 #include "externs.h"
 #include "messages.h"
 
-// The ring itself, and the slot holding the newest message. Declared in
-// externs.h for now, so that the call sites can be moved over one at a time;
-// they used to be defined in variable.c.
-vtype old_msg[MAX_SAVE_MSG];
-int16_t last_msg = 0;
+// The ring itself, and the slot holding the newest message. Private: the wrap
+// -around rule below is the only code that may name them. They used to be
+// globals in variable.c, walked by hand in three other files.
+static vtype old_msg[MAX_SAVE_MSG];
+static int16_t last_msg = 0;
 
 // Turns "how far back" into a slot. Adding the capacity keeps the result
 // positive: C's % gives a negative answer for a negative left operand.
@@ -54,6 +54,10 @@ int msg_history_slot_count(void) {
 
 char *msg_history_slot(int slot) {
     return old_msg[slot];
+}
+
+vtype *msg_history_slots(void) {
+    return old_msg;
 }
 
 int msg_history_newest_slot(void) {

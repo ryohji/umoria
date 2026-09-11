@@ -17,11 +17,12 @@
  * セーブファイルの形式（枠を storage の順に MAX_SAVE_MSG 個 + 現在位置の
  * 添字）も押さえる。ここが動くと既存のセーブファイルが読めなくなる。
  */
+/* externs.h を include していない。輪が messages.c の static になったので、
+ * ふれる先は messages.h の窓口だけで足りる。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
-#include "externs.h"
 #include "messages.h"
 
 #include "minunit.h"
@@ -29,10 +30,13 @@
 #include <stdio.h>
 
 /* --- 変更前の dungeon.c:1115-1128 の写し -------------------------------
- * j = last_msg から始めて、1 つずつ古いほうへ。0 の次は MAX_SAVE_MSG - 1。 */
+ * j = last_msg から始めて、1 つずつ古いほうへ。0 の次は MAX_SAVE_MSG - 1。
+ * old_msg / last_msg は messages.c の static になったので、写しのほうは
+ * セーブファイル用の窓口（枠そのものを見る側）から輪にふれる。辿りかた
+ * ——保護したいところ——は変更前のままの形。 */
 static const char *legacy_walk_back(int back)
 {
-    int j = last_msg;
+    int j = msg_history_newest_slot();
 
     for (int step = 0; step < back; step++) {
         if (j == 0) {
@@ -41,7 +45,7 @@ static const char *legacy_walk_back(int back)
             j--;
         }
     }
-    return old_msg[j];
+    return msg_history_slot(j);
 }
 
 /* 履歴を空にしてから n 個入れる。中身は "msg 0", "msg 1", ... で、
@@ -132,11 +136,11 @@ TEST(the_previous_message_block_puts_the_oldest_at_the_top)
 
         /* x は ^P が出す行数。dungeon.c は 1 以上 MAX_SAVE_MSG 以下に丸める。 */
         for (int x = 2; x <= MAX_SAVE_MSG; x++) {
-            int legacy_slot = last_msg;
+            int legacy_slot = msg_history_newest_slot();
 
             /* 変更後: 行 i に recent(x - 1 - i)。行は x-1 から 0 へ下る。 */
             for (int i = x - 1; i >= 0; i--) {
-                if (strcmp(msg_history_recent(x - 1 - i), old_msg[legacy_slot]) != 0) {
+                if (strcmp(msg_history_recent(x - 1 - i), msg_history_slot(legacy_slot)) != 0) {
                     mismatch = x;
                     break;
                 }

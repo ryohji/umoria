@@ -10,6 +10,7 @@
 
 #include "constant.h"
 #include "externs.h"
+#include "messages.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +37,7 @@ GameState *game_state_init(void) {
     state->treasure = t_list;
     state->inventory = inventory;
     state->stores = store;
-    state->old_messages = old_msg;
+    state->old_messages = msg_history_slots();
 
     // Initialize game metadata from existing globals
     state->dungeon_level = dun_level;
@@ -56,7 +57,7 @@ GameState *game_state_init(void) {
 
     // Message system
     state->msg_flag = msg_flag;
-    state->last_msg_index = last_msg;
+    state->last_msg_index = (int16_t)msg_history_newest_slot();
 
     // Seeds
     state->rng_seed = randes_seed;

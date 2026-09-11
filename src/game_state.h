@@ -51,7 +51,7 @@ struct GameState {
 
     // Message system
     bool msg_flag;
-    vtype *old_messages;   // Message history (points to old_msg global)
+    vtype *old_messages;   // Message history (points into messages.c)
     int16_t last_msg_index;
 
     // Seeds

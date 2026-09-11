@@ -40,4 +40,9 @@ char *msg_history_slot(int slot);
 int msg_history_newest_slot(void);
 void msg_history_set_newest_slot(int slot);
 
+// The whole block at once. Only for game_state.c, whose snapshot holds a
+// pointer to the history rather than a copy of it. Walking the result by hand
+// is what this module exists to stop -- use msg_history_recent() to read.
+vtype *msg_history_slots(void);
+
 #endif // MESSAGES_H
