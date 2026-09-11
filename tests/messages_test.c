@@ -237,6 +237,34 @@ TEST(the_newest_slot_survives_a_round_trip)
     ASSERT_EQ_INT(msg_history_newest_slot(), saved);
 }
 
+/* セーブファイルの言う添字は誰も検査していない（save.c は読んだ値をそのまま
+ * 渡す）。輪への入口はここ 1 箇所なので、範囲外は畳んで受ける。変更前は
+ * 添字 40000 と書かれたセーブファイルで ^P が old_msg[40000] を読み、
+ * msg_print() がそこへ書いていた。正しい値（0〜21）では畳んでも同じ値に
+ * なるので、まともなセーブファイルのふるまいは変わらない。 */
+TEST(a_slot_index_from_a_broken_save_file_folds_into_the_ring)
+{
+    fill(MAX_SAVE_MSG);
+    msg_history_set_newest_slot(40000);
+    ASSERT_EQ_INT(msg_history_newest_slot(), 40000 % MAX_SAVE_MSG);
+}
+
+TEST(every_slot_index_a_save_file_can_hold_stays_inside_the_ring)
+{
+    int outside = -1;
+
+    /* rd_short() は uint16_t を渡すので、来うる値は 0〜65535 の全部。 */
+    for (int slot = 0; slot <= 65535; slot++) {
+        msg_history_set_newest_slot(slot);
+        if (msg_history_newest_slot() < 0 || msg_history_newest_slot() >= MAX_SAVE_MSG) {
+            outside = slot;
+            break;
+        }
+    }
+    msg_history_set_newest_slot(0);
+    ASSERT_EQ_INT(outside, -1);
+}
+
 /* --- 上端の行の状態（旧 msg_flag / wait_for_more） --------------------
  * どちらも真偽値ひとつなので、確かめられるのは 2 点だけ。起動時の値と、
  * 読み書きの向きが逆になっていないこと。起動時の値は変更前の variable.c の
@@ -294,6 +322,8 @@ int main(void)
     RUN_TEST(appending_stays_inside_the_slot);
     RUN_TEST(the_storage_view_is_what_the_save_file_writes);
     RUN_TEST(the_newest_slot_survives_a_round_trip);
+    RUN_TEST(a_slot_index_from_a_broken_save_file_folds_into_the_ring);
+    RUN_TEST(every_slot_index_a_save_file_can_hold_stays_inside_the_ring);
 
     RUN_TEST(a_pending_message_reads_back_as_pending);
     RUN_TEST(the_more_prompt_reads_back_as_showing);

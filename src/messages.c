@@ -88,5 +88,10 @@ int msg_history_newest_slot(void) {
 }
 
 void msg_history_set_newest_slot(int slot) {
-    last_msg = (int16_t)slot;
+    // The save file is the only caller, and nothing checks what a save file
+    // says: the index is read straight off the disk. Folding it into range here
+    // -- at the one door into the ring -- keeps every slot index valid
+    // afterwards. Before this module, a save file claiming an index of 40000
+    // made the ^P command read old_msg[40000] and msg_print() write there.
+    last_msg = (int16_t)((slot % MAX_SAVE_MSG + MAX_SAVE_MSG) % MAX_SAVE_MSG);
 }
