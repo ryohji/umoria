@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "messages.h"
 #include "options.h"
 
 // For debugging the savefile code on systems with broken compilers.
@@ -209,9 +210,11 @@ static bool sv_write(void) {
     wr_bytes(object_ident, OBJECT_IDENT_SIZE);
     wr_long(randes_seed);
     wr_long(town_seed);
-    wr_short((uint16_t)last_msg);
-    for (int i = 0; i < MAX_SAVE_MSG; i++) {
-        wr_string(old_msg[i]);
+    // The file format is the raw ring: the index of the newest message, then
+    // every slot in storage order.
+    wr_short((uint16_t)msg_history_newest_slot());
+    for (int i = 0; i < msg_history_slot_count(); i++) {
+        wr_string(msg_history_slot(i));
     }
 
     // this indicates 'cheating' if it is a one
@@ -679,9 +682,11 @@ bool get_char(bool *generate) {
             rd_bytes(object_ident, OBJECT_IDENT_SIZE);
             rd_long(&randes_seed);
             rd_long(&town_seed);
-            rd_short((uint16_t *)&last_msg);
-            for (int i = 0; i < MAX_SAVE_MSG; i++) {
-                rd_string(old_msg[i]);
+            uint16_t newest_msg_slot;
+            rd_short(&newest_msg_slot);
+            msg_history_set_newest_slot(newest_msg_slot);
+            for (int i = 0; i < msg_history_slot_count(); i++) {
+                rd_string(msg_history_slot(i));
             }
 
             rd_bool(&panic_save);

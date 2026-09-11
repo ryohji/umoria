@@ -118,6 +118,42 @@ TEST(walking_back_a_whole_lap_comes_around_to_the_newest)
     ASSERT_EQ_STR(msg_history_recent(MAX_SAVE_MSG), msg_history_recent(0));
 }
 
+/* ^P の表示は「どの行に、何個前のメッセージを出すか」の対応そのもので、
+ * 変更前は行番号と枠の添字を同時に減らしていた（i-- と j--）。書きかえで
+ * 添字の向きが逆になった（recent(x - 1 - i)）ので、対応が変わっていない
+ * ことを確かめる。dungeon.c の case 文は外から呼べないので、両方の並べかたを
+ * ここに写して突きあわせる。 */
+TEST(the_previous_message_block_puts_the_oldest_at_the_top)
+{
+    int mismatch = -1;
+
+    for (int pushed = 0; pushed <= 2 * MAX_SAVE_MSG; pushed++) {
+        fill(pushed);
+
+        /* x は ^P が出す行数。dungeon.c は 1 以上 MAX_SAVE_MSG 以下に丸める。 */
+        for (int x = 2; x <= MAX_SAVE_MSG; x++) {
+            int legacy_slot = last_msg;
+
+            /* 変更後: 行 i に recent(x - 1 - i)。行は x-1 から 0 へ下る。 */
+            for (int i = x - 1; i >= 0; i--) {
+                if (strcmp(msg_history_recent(x - 1 - i), old_msg[legacy_slot]) != 0) {
+                    mismatch = x;
+                    break;
+                }
+                /* 変更前: 行を 1 つ上げるたびに枠を 1 つ古いほうへ。 */
+                legacy_slot = legacy_slot == 0 ? MAX_SAVE_MSG - 1 : legacy_slot - 1;
+            }
+            if (mismatch >= 0) {
+                break;
+            }
+        }
+        if (mismatch >= 0) {
+            break;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
 TEST(pushing_advances_the_slot_by_one)
 {
     fill(0);
@@ -202,6 +238,7 @@ int main(void)
     RUN_TEST(walking_back_crosses_the_seam_of_the_ring);
     RUN_TEST(walking_back_matches_the_original_for_every_number_of_messages);
     RUN_TEST(walking_back_a_whole_lap_comes_around_to_the_newest);
+    RUN_TEST(the_previous_message_block_puts_the_oldest_at_the_top);
     RUN_TEST(pushing_advances_the_slot_by_one);
     RUN_TEST(pushing_wraps_the_slot_back_to_zero);
     RUN_TEST(a_long_message_is_truncated_to_the_slot_size);

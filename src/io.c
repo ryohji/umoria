@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "input.h"
+#include "messages.h"
 #include "render.h"
 
 #define use_value2
@@ -166,7 +167,7 @@ void move_cursor(int row, int col) {
 // Outputs message to top line of screen
 // These messages are kept for later reference.
 void msg_print(const char *str_buff) {
-    const int old_len = msg_flag ? strlen(old_msg[last_msg]) : 0;
+    const int old_len = msg_flag ? strlen(msg_history_recent(0)) : 0;
     const bool prev_msg_exists = msg_flag;
     const bool combine_messages = prev_msg_exists && str_buff && old_len + 2 + strlen(str_buff) < 73;
 
@@ -188,9 +189,7 @@ void msg_print(const char *str_buff) {
             command_count = 0;
 
             put_buffer(str_buff, MSG_LINE, 0);
-            last_msg = last_msg + 1 == MAX_SAVE_MSG ? 0 : last_msg + 1;
-            strncpy(old_msg[last_msg], str_buff, VTYPESIZ);
-            old_msg[last_msg][VTYPESIZ - 1] = '\0';
+            msg_history_push(str_buff);
         }
     } else {
         command_count = 0;
@@ -200,7 +199,7 @@ void msg_print(const char *str_buff) {
         // So we don't flush the old message in this case.
 
         put_buffer(str_buff, MSG_LINE, old_len + 2);
-        sprintf(old_msg[last_msg] + old_len, "  %s", str_buff);
+        msg_history_append(str_buff);
     }
 }
 

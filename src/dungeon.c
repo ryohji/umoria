@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "messages.h"
 
 static char original_commands(char);
 static void do_command(char);
@@ -1042,7 +1043,7 @@ static char original_commands(char com_val) {
 static void do_command(char com_val) {
     int dir_val;
     bool do_pickup, do_diplay_scores;
-    int y, x, i, j;
+    int y, x, i;
     vtype out_val, tmp_str;
     struct flags *const f_ptr = &py.flags;
 
@@ -1112,20 +1113,15 @@ static void do_command(char com_val) {
             i = MAX_SAVE_MSG;
         }
 
-        j = last_msg;
-
         if (i > 1) {
             save_screen();
             x = i;
 
+            // Oldest at the top, newest on the bottom row of the block: the
+            // row number counts down as we walk back through the history.
             while (i > 0) {
                 i--;
-                prt(old_msg[j], i, 0);
-                if (j == 0) {
-                    j = MAX_SAVE_MSG - 1;
-                } else {
-                    j--;
-                }
+                prt(msg_history_recent(x - 1 - i), i, 0);
             }
 
             erase_line(x, 0);
@@ -1134,7 +1130,7 @@ static void do_command(char com_val) {
         } else {
             // Distinguish real and recovered messages with a '>'. -CJS-
             put_buffer(">", 0, 0);
-            prt(old_msg[j], 0, 1);
+            prt(msg_history_recent(0), 0, 1);
         }
 
         free_turn_flag = true;
