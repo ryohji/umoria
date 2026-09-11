@@ -56,7 +56,7 @@ GameState *game_state_init(void) {
     state->default_dir = default_dir;
 
     // Message system
-    state->msg_flag = msg_flag;
+    state->msg_flag = msg_pending();
     state->last_msg_index = (int16_t)msg_history_newest_slot();
 
     // Seeds
@@ -97,7 +97,7 @@ GameState *game_state_init(void) {
     state->eof_flag = eof_flag;
     state->noscore = noscore;
     state->panic_save = panic_save;
-    state->wait_for_more = wait_for_more;
+    state->wait_for_more = msg_at_more_prompt();
     state->closing_flag = closing_flag;
 
     // Dungeon dimensions

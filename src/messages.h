@@ -4,7 +4,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// The rolling history of the messages shown on the top line -CJS-
+// The messages shown on the top line: their rolling history -CJS-, and whether
+// the one up there now has been seen by the player.
 
 #ifndef MESSAGES_H
 #define MESSAGES_H
@@ -44,5 +45,23 @@ void msg_history_set_newest_slot(int slot);
 // pointer to the history rather than a copy of it. Walking the result by hand
 // is what this module exists to stop -- use msg_history_recent() to read.
 vtype *msg_history_slots(void);
+
+// --- the top line itself, and its -more- prompt ---
+
+// True while the top line holds a message the player has not acknowledged.
+// msg_print() asks for -more- before letting anything overwrite one, and
+// erase_line()/clear_screen() flush it rather than wiping it unseen.
+bool msg_pending(void);
+
+// msg_print() decides this for the message it prints. Others only ever clear
+// it, meaning "the player has seen what is up there": both command loops
+// (dungeon.c, store2.c) do so before reading a key, and inkey() does so on EOF,
+// where nobody is left to answer a -more- prompt.
+void msg_set_pending(bool pending);
+
+// True while msg_print() is stopped at a -more- prompt. The interrupt handler
+// reads it: if the player cancels a *Suicide* the prompt has to be put back.
+bool msg_at_more_prompt(void);
+void msg_set_at_more_prompt(bool waiting);
 
 #endif // MESSAGES_H

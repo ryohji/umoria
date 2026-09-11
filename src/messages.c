@@ -4,7 +4,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// The rolling history of the messages shown on the top line -CJS-
+// The messages shown on the top line: their rolling history -CJS-, and whether
+// the one up there now has been seen by the player.
 
 #include "headers.h"
 
@@ -58,6 +59,28 @@ char *msg_history_slot(int slot) {
 
 vtype *msg_history_slots(void) {
     return old_msg;
+}
+
+// The top line, and the -more- prompt. Both were globals (msg_flag and
+// wait_for_more in variable.c); the second one exists only so that the
+// interrupt handler can put a prompt back that it overwrote.
+static bool message_pending = false;
+static bool at_more_prompt = false;
+
+bool msg_pending(void) {
+    return message_pending;
+}
+
+void msg_set_pending(bool pending) {
+    message_pending = pending;
+}
+
+bool msg_at_more_prompt(void) {
+    return at_more_prompt;
+}
+
+void msg_set_at_more_prompt(bool waiting) {
+    at_more_prompt = waiting;
 }
 
 int msg_history_newest_slot(void) {

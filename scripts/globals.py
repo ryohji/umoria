@@ -74,10 +74,10 @@ GROUPS = {
     "画面の見えている範囲（パネル）": """
         panel_row panel_col panel_row_min panel_row_max panel_col_min panel_col_max
         panel_row_prt panel_col_prt max_panel_rows max_panel_cols""",
-    # old_msg / last_msg（履歴の輪）は #18-2 で messages.c の static になり、
-    # externs.h から外れた。この一覧は externs.h にあるものを数える道具なので、
-    # 片づいたものは消えていく。消えた記録は GLOBALS_INVENTORY.md 側に残す。
-    "メッセージ表示": "msg_flag wait_for_more",
+    # メッセージ表示の区分（msg_flag old_msg last_msg wait_for_more の 4 個）は
+    # #18-2 で messages.c の static になり、externs.h から全部外れた。この一覧は
+    # externs.h にあるものを数える道具なので、片づいた区分は行ごと消える。
+    # 消えた記録は GLOBALS_INVENTORY.md 側に残す。
     "コマンド入力・実行中のフラグ": """
         command_count default_dir last_command doing_inven screen_change find_flag
         free_turn_flag new_level_flag teleport_flag eof_flag light_flag closing_flag

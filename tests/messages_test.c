@@ -16,6 +16,9 @@
  *
  * セーブファイルの形式（枠を storage の順に MAX_SAVE_MSG 個 + 現在位置の
  * 添字）も押さえる。ここが動くと既存のセーブファイルが読めなくなる。
+ *
+ * 上端の行の状態（旧 msg_flag / wait_for_more）も同じ module に入ったので、
+ * ファイル末尾でその 2 つを見ている。
  */
 /* externs.h を include していない。輪が messages.c の static になったので、
  * ふれる先は messages.h の窓口だけで足りる。 */
@@ -234,8 +237,48 @@ TEST(the_newest_slot_survives_a_round_trip)
     ASSERT_EQ_INT(msg_history_newest_slot(), saved);
 }
 
+/* --- 上端の行の状態（旧 msg_flag / wait_for_more） --------------------
+ * どちらも真偽値ひとつなので、確かめられるのは 2 点だけ。起動時の値と、
+ * 読み書きの向きが逆になっていないこと。起動時の値は変更前の variable.c の
+ * 初期値（msg_flag は初期化子なし = false、wait_for_more は = false）。
+ * false で始まることには意味がある。まだ何も出していないうちに -more- を
+ * 待ってしまうと、誰も答えられない。 */
+
+TEST(no_message_is_pending_at_startup)
+{
+    ASSERT_TRUE(!msg_pending());
+}
+
+TEST(a_pending_message_reads_back_as_pending)
+{
+    msg_set_pending(true);
+    bool pending = msg_pending();
+
+    msg_set_pending(false);
+    ASSERT_TRUE(pending);
+}
+
+TEST(the_more_prompt_is_not_showing_at_startup)
+{
+    ASSERT_TRUE(!msg_at_more_prompt());
+}
+
+TEST(the_more_prompt_reads_back_as_showing)
+{
+    msg_set_at_more_prompt(true);
+    bool showing = msg_at_more_prompt();
+
+    msg_set_at_more_prompt(false);
+    ASSERT_TRUE(showing);
+}
+
 int main(void)
 {
+    /* 起動時の値を見るテストが先。あとで書きかえてしまうと、もう
+     * 「起動時」を観測できない。 */
+    RUN_TEST(no_message_is_pending_at_startup);
+    RUN_TEST(the_more_prompt_is_not_showing_at_startup);
+
     RUN_TEST(the_ring_holds_twenty_two_messages);
     RUN_TEST(the_newest_message_is_the_one_just_pushed);
     RUN_TEST(walking_back_one_gives_the_message_before_it);
@@ -251,5 +294,8 @@ int main(void)
     RUN_TEST(appending_stays_inside_the_slot);
     RUN_TEST(the_storage_view_is_what_the_save_file_writes);
     RUN_TEST(the_newest_slot_survives_a_round_trip);
+
+    RUN_TEST(a_pending_message_reads_back_as_pending);
+    RUN_TEST(the_more_prompt_reads_back_as_showing);
     return TEST_SUMMARY();
 }

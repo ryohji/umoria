@@ -58,9 +58,9 @@ uint32_t town_seed;               // for restarting town_seed
 int16_t cur_height, cur_width;    // Cur dungeon size
 int16_t dun_level = 0;            // Cur dungeon level
 int16_t missile_ctr = 0;          // Counter for missiles
-bool msg_flag;                    // Set with first msg
-// old_msg / last_msg (the message history ring) moved to messages.c, next to
-// the code that walks the ring
+// msg_flag, old_msg and last_msg (the top line: whether its message has been
+// seen, and the history ring) moved to messages.c, next to the code that uses
+// them
 bool death = false;               // True if died
 
 int find_flag; // Used in MORIA for .(dir)
@@ -105,8 +105,9 @@ bool player_light;       // Player carrying light
 int eof_flag = 0;        // Used to signal EOF/HANGUP condition
 bool light_flag = false; // Track if temporary light about player.
 
-bool wait_for_more = false; // used when ^C hit during -more- prompt
-int closing_flag = 0;       // Used for closing
+// wait_for_more moved to messages.c as well; it is the -more- prompt's own
+// state, read by the interrupt handler
+int closing_flag = 0; // Used for closing
 
 // Following are calculated from max dungeon sizes
 int16_t max_panel_rows, max_panel_cols;

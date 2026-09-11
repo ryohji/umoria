@@ -54,16 +54,14 @@ extern uint32_t randes_seed;        // For encoding colors
 extern uint32_t town_seed;          // Seed for town genera
 extern int16_t dun_level;           // Cur dungeon level
 extern int16_t missile_ctr;         // Counter for missiles
-extern bool msg_flag;               // Set with first msg
-// The message history (was: old_msg[MAX_SAVE_MSG] and last_msg) is private to
-// messages.c now, together with the code that walks the ring; see messages.h.
+// The top line (was: msg_flag, old_msg[MAX_SAVE_MSG], last_msg and
+// wait_for_more) is private to messages.c now, together with the code that
+// walks the ring and the -more- prompt; see messages.h.
 extern bool death;                  // True if died
 extern int32_t turn;                // Cur trun of game
 extern bool wizard;                 // Wizard flag
 extern bool to_be_wizard;
 extern bool panic_save; // this is true if playing from a panic save
-
-extern bool wait_for_more;
 
 extern char days[7][29];
 extern int closing_flag; // Used for closing

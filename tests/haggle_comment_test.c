@@ -45,7 +45,8 @@
  * 「呼ばれたら何もしない／固定値を返す」で足りる。
  * 一覧はリンカに出させたもので、手で数えあげたわけではない。 */
 char doing_inven = 0;
-bool msg_flag = false;
+/* msg_flag はもう要らない。メッセージの状態は messages.c が持つので、
+ * 代役ではなく本物をリンクしている（makefile.test 参照）。 */
 int32_t turn = 0;
 int16_t last_store_inc = 0;
 

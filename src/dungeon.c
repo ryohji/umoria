@@ -681,10 +681,10 @@ void dungeon(void) {
                     move_cursor_relative(char_row, char_col);
 
                     if (command_count > 0) {
-                        msg_flag = false;
+                        msg_set_pending(false);
                         default_dir = true;
                     } else {
-                        msg_flag = false;
+                        msg_set_pending(false);
                         command = inkey();
 
                         i = 0;

@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "messages.h"
 
 static const char *comment1[14] = {
     "Done!",
@@ -1006,8 +1007,9 @@ void enter_store(int store_num) {
         do {
             move_cursor(20, 9);
 
-            // clear the msg flag just like we do in dungeon.c
-            msg_flag = false;
+            // the player is about to be asked for a command, so the message
+            // up there needs no -more- (the same as dungeon.c's command loop)
+            msg_set_pending(false);
 
             char command;
             if (get_com(CNIL, &command)) {
