@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "stats.h"
+
 // Generates character's stats -JWT-
 static void get_stats(void) {
     int tot;

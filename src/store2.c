@@ -15,6 +15,7 @@
 #include "externs.h"
 #include "stores.h"
 #include "messages.h"
+#include "stats.h"
 
 static const char *comment1[14] = {
     "Done!",

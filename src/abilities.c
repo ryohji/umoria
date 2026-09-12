@@ -23,6 +23,7 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "stats.h"
 
 struct player_abilities calc_player_abilities(void) {
     struct misc *p_ptr = &py.misc;

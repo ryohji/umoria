@@ -16,6 +16,7 @@
 
 #include "device.h"
 #include "item_ident.h"
+#include "stats.h"
 
 // Wands for the aiming.
 void aim(void) {
