@@ -48,7 +48,6 @@ char doing_inven = 0;
 /* msg_flag はもう要らない。メッセージの状態は messages.c が持つので、
  * 代役ではなく本物をリンクしている（makefile.test 参照）。 */
 int32_t turn = 0;
-int16_t last_store_inc = 0;
 
 void move_cursor(int row, int col) { (void)row; (void)col; }
 void inven_command(char command) { (void)command; }

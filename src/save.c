@@ -17,6 +17,7 @@
 #include "panel.h"
 #include "messages.h"
 #include "options.h"
+#include "stores.h"
 
 // For debugging the savefile code on systems with broken compilers.
 #define SAVE_LOG(x)
@@ -34,6 +35,7 @@ static void wr_bytes(uint8_t *, int);
 static void wr_string(char *);
 static void wr_shorts(uint16_t *, int);
 static void wr_item(inven_type *);
+static void wr_store(store_type *);
 static void wr_monster(monster_type *);
 static void rd_byte(uint8_t *);
 static void rd_short(uint16_t *);
@@ -43,6 +45,7 @@ static void rd_bytes(uint8_t *, int);
 static void rd_string(char *);
 static void rd_shorts(uint16_t *, int);
 static void rd_item(inven_type *);
+static bool rd_store(store_type *);
 static void rd_monster(monster_type *);
 
 // these are used for the save file, to avoid having to pass them to every procedure
@@ -224,19 +227,8 @@ static bool sv_write(void) {
     wr_short((uint16_t)noscore);
     wr_shorts(player_hp, MAX_PLAYER_LEVEL);
 
-    for (int i = 0; i < MAX_STORES; i++) {
-        store_type *st_ptr = &store[i];
-
-        wr_long((uint32_t)st_ptr->store_open);
-        wr_short((uint16_t)st_ptr->insult_cur);
-        wr_byte(st_ptr->owner);
-        wr_byte(st_ptr->store_ctr);
-        wr_short(st_ptr->good_buy);
-        wr_short(st_ptr->bad_buy);
-        for (int j = 0; j < st_ptr->store_ctr; j++) {
-            wr_long((uint32_t)st_ptr->store_inven[j].scost);
-            wr_item(&st_ptr->store_inven[j].sitem);
-        }
+    for (int i = 0; i < store_count(); i++) {
+        wr_store(store_at(i));
     }
 
     // save the current time in the savefile
@@ -696,21 +688,9 @@ bool get_char(bool *generate) {
             rd_shorts(player_hp, MAX_PLAYER_LEVEL);
 
             if ((version_min >= 2) || (version_min == 1 && patch_level >= 3)) {
-                for (int i = 0; i < MAX_STORES; i++) {
-                    store_type *st_ptr = &store[i];
-
-                    rd_long((uint32_t *)&st_ptr->store_open);
-                    rd_short((uint16_t *)&st_ptr->insult_cur);
-                    rd_byte(&st_ptr->owner);
-                    rd_byte(&st_ptr->store_ctr);
-                    rd_short(&st_ptr->good_buy);
-                    rd_short(&st_ptr->bad_buy);
-                    if (st_ptr->store_ctr > STORE_INVEN_MAX) {
+                for (int i = 0; i < store_count(); i++) {
+                    if (!rd_store(store_at(i))) {
                         goto error;
-                    }
-                    for (int j = 0; j < st_ptr->store_ctr; j++) {
-                        rd_long((uint32_t *)&st_ptr->store_inven[j].scost);
-                        rd_item(&st_ptr->store_inven[j].sitem);
                     }
                 }
             }
@@ -869,21 +849,9 @@ bool get_char(bool *generate) {
         *generate = false; // We have restored a cave - no need to generate.
 
         if ((version_min == 1 && patch_level < 3) || (version_min == 0)) {
-            for (int i = 0; i < MAX_STORES; i++) {
-                store_type *st_ptr = &store[i];
-
-                rd_long((uint32_t *)&st_ptr->store_open);
-                rd_short((uint16_t *)&st_ptr->insult_cur);
-                rd_byte(&st_ptr->owner);
-                rd_byte(&st_ptr->store_ctr);
-                rd_short(&st_ptr->good_buy);
-                rd_short(&st_ptr->bad_buy);
-                if (st_ptr->store_ctr > STORE_INVEN_MAX) {
+            for (int i = 0; i < store_count(); i++) {
+                if (!rd_store(store_at(i))) {
                     goto error;
-                }
-                for (int j = 0; j < st_ptr->store_ctr; j++) {
-                    rd_long((uint32_t *)&st_ptr->store_inven[j].scost);
-                    rd_item(&st_ptr->store_inven[j].sitem);
                 }
             }
         }
@@ -1094,6 +1062,24 @@ static void wr_item(inven_type *item) {
     wr_byte(item->ident);
 }
 
+// One shop: the counters at the front, then only the shelves it actually has
+// something on. Written once and read twice (the current file format and the
+// pre-5.1.3 one both store shops this way), so all three places used to carry
+// their own copy of this field list.
+static void wr_store(store_type *store) {
+    SAVE_LOG(fprintf(logfile, "STORE:\n"));
+    wr_long((uint32_t)store->store_open);
+    wr_short((uint16_t)store->insult_cur);
+    wr_byte(store->owner);
+    wr_byte(store->store_ctr);
+    wr_short(store->good_buy);
+    wr_short(store->bad_buy);
+    for (int i = 0; i < store->store_ctr; i++) {
+        wr_long((uint32_t)store->store_inven[i].scost);
+        wr_item(&store->store_inven[i].sitem);
+    }
+}
+
 static void wr_monster(monster_type *mon) {
     SAVE_LOG(fprintf(logfile, "MONSTER:\n"));
     wr_short((uint16_t)mon->hp);
@@ -1208,6 +1194,32 @@ static void rd_item(inven_type *item) {
     rd_bytes(item->damage, 2);
     rd_byte(&item->level);
     rd_byte(&item->ident);
+}
+
+// The counterpart of wr_store(). Returns false if the file claims a shop has
+// more items than it can hold: the shelf count decides how much is read next,
+// so an impossible one means this is not one of our save files. The caller
+// abandons the load, which is what both read paths did with their own copy of
+// this check.
+static bool rd_store(store_type *store) {
+    SAVE_LOG(fprintf(logfile, "STORE:\n"));
+    rd_long((uint32_t *)&store->store_open);
+    rd_short((uint16_t *)&store->insult_cur);
+    rd_byte(&store->owner);
+    rd_byte(&store->store_ctr);
+    rd_short(&store->good_buy);
+    rd_short(&store->bad_buy);
+
+    if (store->store_ctr > STORE_INVEN_MAX) {
+        return false;
+    }
+
+    for (int i = 0; i < store->store_ctr; i++) {
+        rd_long((uint32_t *)&store->store_inven[i].scost);
+        rd_item(&store->store_inven[i].sitem);
+    }
+
+    return true;
 }
 
 static void rd_monster(monster_type *mon) {

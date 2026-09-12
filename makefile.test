@@ -36,7 +36,7 @@ BUILDDIR = $(TESTDIR)/build
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
-        options_test messages_test panel_test
+        options_test messages_test panel_test stores_test store_save_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -153,15 +153,19 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 # store2.c のコマンド待ちループがメッセージの状態（旧 msg_flag）にふれるので
 # messages.c もリンクする。代役でもよいが、依存が無い module なので本物のほうが
 # 短い。
+#
+# 店の記録も src/stores.c 越しになった。こちらも依存が無いので本物をリンクする
+# （値切りは s_ptr の中身を読むだけで、記録の置き場には関心が無い）。
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                  src/store2.c src/misc3.c src/desc.c \
                                  src/tables.c src/treasure.c src/player.c \
-                                 src/abilities.c src/messages.c | $(BUILDDIR)
+                                 src/abilities.c src/messages.c src/stores.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
-	    src/treasure.c src/player.c src/abilities.c src/messages.c
+	    src/treasure.c src/player.c src/abilities.c src/messages.c \
+	    src/stores.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -252,15 +256,35 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 #
 # パネル数の読み書きも src/panel.c 越しになったので panel.c もリンクする。
 # 依存が無い module なので代役より本物のほうが短い。
+# 店 6 軒の記録も src/stores.c 越しになったので同じくリンクする。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \
                             src/treasure.c src/player.c src/monsters.c \
-                            src/options.c src/messages.c src/panel.c | $(BUILDDIR)
+                            src/options.c src/messages.c src/panel.c \
+                            src/stores.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
-	    src/messages.c src/panel.c
+	    src/messages.c src/panel.c src/stores.c
+
+# 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
+# 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
+# save.c の static なので、save_bool_test と同じく src/save.c を取りこみ、
+# 代役も同じ tests/save_stubs.c を使いまわす。
+#
+# 店の記録の置き場は src/stores.c なので本物をリンクする（比べる相手が
+# 本体と同じ記録でなければ意味が無い）。
+$(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
+                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
+                             src/save.c src/variable.c src/tables.c \
+                             src/treasure.c src/player.c src/monsters.c \
+                             src/options.c src/messages.c src/panel.c \
+                             src/stores.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
+	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
+	    src/treasure.c src/player.c src/monsters.c src/options.c \
+	    src/messages.c src/panel.c src/stores.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -302,6 +326,16 @@ $(BUILDDIR)/messages_test: $(TESTDIR)/messages_test.c $(TESTDIR)/minunit.h \
 $(BUILDDIR)/panel_test: $(TESTDIR)/panel_test.c $(TESTDIR)/minunit.h \
                         src/panel.c src/panel.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/panel_test.c src/panel.c
+
+# 店 6 軒の記録は src/stores.c にある。置き場だけの module なので、リンクする
+# のは stores.c 1 本きり（externs.h も variable.c も要らない）。
+#
+# 見るのは「置き場としてのふるまい」だけで、店の在庫の出し入れ（store1.c）や
+# 値切り（store2.c）はここでは見ない。前者は t_list や object_list を、後者は
+# 画面と入力を連れてくるので、この 1 本の潔さが保てなくなる。
+$(BUILDDIR)/stores_test: $(TESTDIR)/stores_test.c $(TESTDIR)/minunit.h \
+                         src/stores.c src/stores.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/stores_test.c src/stores.c
 
 clean:
 	rm -rf $(BUILDDIR)

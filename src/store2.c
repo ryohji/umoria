@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "stores.h"
 #include "messages.h"
 
 static const char *comment1[14] = {
@@ -194,7 +195,7 @@ static void haggle_commands(int typ) {
 
 // Displays a store's inventory -RAK-
 static void display_inventory(int store_num, int start) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     int i = (start % 12);
 
@@ -248,7 +249,7 @@ static void display_inventory(int store_num, int start) {
 
 // Re-displays only a single cost -RAK-
 static void display_cost(int store_num, int pos) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     int i = (pos % 12);
 
@@ -272,7 +273,7 @@ static void store_prt_gold(void) {
 
 // Displays store -RAK-
 static void display_store(int store_num, int cur_top) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     clear_screen();
     put_buffer(owners[s_ptr->owner].owner_name, 3, 9);
@@ -311,7 +312,7 @@ static bool get_store_item(int *com_val, const char *pmt, int i, int j) {
 static bool increase_insults(int store_num) {
     bool increase = false;
 
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
     s_ptr->insult_cur++;
 
     if (s_ptr->insult_cur > owners[s_ptr->owner].insult_max) {
@@ -327,7 +328,7 @@ static bool increase_insults(int store_num) {
 
 // Decrease insults -RAK-
 static void decrease_insults(int store_num) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     if (s_ptr->insult_cur != 0) {
         s_ptr->insult_cur--;
@@ -347,6 +348,10 @@ static bool haggle_insults(int store_num) {
 
     return haggle;
 }
+
+// The last offer the player typed as an increment ("+50"), so that an empty
+// line can repeat it. Only the haggling below ever looks at it.
+static int16_t last_store_inc;
 
 static bool get_haggle(const char *comment, int32_t *new_offer, int num_offer) {
     bool flag = true;
@@ -451,7 +456,7 @@ static int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
     int purchase = 0;
     int final_flag = 0;
 
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
     owner_type *o_ptr = &owners[s_ptr->owner];
 
     int32_t max_sell, min_sell;
@@ -614,7 +619,7 @@ static int sell_haggle(int store_num, int32_t *price, inven_type *item) {
     int sell = 0;
     int final_flag = 0;
 
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     int32_t cost = item_value(item);
     if (cost < 1) {
@@ -805,7 +810,7 @@ static int sell_haggle(int store_num, int32_t *price, inven_type *item) {
 static bool store_purchase(int store_num, int *cur_top) {
     bool purchase = false;
 
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     // i == number of objects shown on screen
     int i;
@@ -997,7 +1002,7 @@ static bool store_sell(int store_num, int *cur_top) {
 
 // Entering a store -RAK-
 void enter_store(int store_num) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     if (s_ptr->store_open < turn) {
         bool exit_flag = false;

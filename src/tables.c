@@ -13,7 +13,6 @@
 
 #include "externs.h"
 
-store_type store[MAX_STORES];
 
 // Store owners have different characteristics for pricing and haggling
 // Note: Store owners should be added in groups, one for each store

@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "stores.h"
 
 static void insert_store(int, int, int32_t, inven_type *);
 static void store_create(int);
@@ -129,7 +130,7 @@ int32_t item_value(inven_type *i_ptr) {
 
 // Asking price for an item -RAK-
 int32_t sell_price(int snum, int32_t *max_sell, int32_t *min_sell, inven_type *item) {
-    store_type *s_ptr = &store[snum];
+    store_type *s_ptr = store_at(snum);
 
     int32_t i = item_value(item);
 
@@ -156,7 +157,7 @@ int32_t sell_price(int snum, int32_t *max_sell, int32_t *min_sell, inven_type *i
 bool store_check_num(inven_type *t_ptr, int store_num) {
     bool store_check = false;
 
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     if (s_ptr->store_ctr < STORE_INVEN_MAX) {
         store_check = true;
@@ -179,7 +180,7 @@ bool store_check_num(inven_type *t_ptr, int store_num) {
 
 // Insert INVEN_MAX at given location
 static void insert_store(int store_num, int pos, int32_t icost, inven_type *i_ptr) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     for (int i = s_ptr->store_ctr - 1; i >= pos; i--) {
         s_ptr->store_inven[i + 1] = s_ptr->store_inven[i];
@@ -196,7 +197,7 @@ void store_carry(int store_num, int *ipos, inven_type *t_ptr) {
 
     int32_t icost, dummy;
     if (sell_price(store_num, &icost, &dummy, t_ptr) > 0) {
-        store_type *s_ptr = &store[store_num];
+        store_type *s_ptr = store_at(store_num);
 
         int item_val = 0;
         int item_num = t_ptr->number;
@@ -245,7 +246,7 @@ void store_carry(int store_num, int *ipos, inven_type *t_ptr) {
 // Destroy an item in the stores inventory.  Note that if
 // "one_of" is false, an entire slot is destroyed -RAK-
 void store_destroy(int store_num, int item_val, int one_of) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
     inven_type *i_ptr = &s_ptr->store_inven[item_val].sitem;
 
     int number;
@@ -278,12 +279,12 @@ void store_destroy(int store_num, int item_val, int one_of) {
 
 // Initializes the stores with owners -RAK-
 void store_init(void) {
-    int i = MAX_OWNERS / MAX_STORES;
+    int i = MAX_OWNERS / store_count();
 
-    for (int j = 0; j < MAX_STORES; j++) {
-        store_type *s_ptr = &store[j];
+    for (int j = 0; j < store_count(); j++) {
+        store_type *s_ptr = store_at(j);
 
-        s_ptr->owner      = MAX_STORES * (randint(i) - 1) + j;
+        s_ptr->owner      = store_count() * (randint(i) - 1) + j;
         s_ptr->insult_cur = 0;
         s_ptr->store_open = 0;
         s_ptr->store_ctr  = 0;
@@ -302,7 +303,7 @@ static void store_create(int store_num) {
     int tries = 0;
     int cur_pos = popt();
 
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     do {
         int i = store_choice[store_num][randint(STORE_CHOICES) - 1];
@@ -332,8 +333,8 @@ static void store_create(int store_num) {
 
 // Initialize and up-keep the store's inventory. -RAK-
 void store_maint(void) {
-    for (int i = 0; i < MAX_STORES; i++) {
-        store_type *s_ptr = &store[i];
+    for (int i = 0; i < store_count(); i++) {
+        store_type *s_ptr = store_at(i);
 
         s_ptr->insult_cur = 0;
         if (s_ptr->store_ctr >= STORE_MIN_INVEN) {
@@ -360,7 +361,7 @@ void store_maint(void) {
 
 // eliminate need to bargain if player has haggled well in the past -DJB-
 bool noneedtobargain(int store_num, int32_t minprice) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     if (s_ptr->good_buy == MAX_SHORT) {
         return true;
@@ -372,7 +373,7 @@ bool noneedtobargain(int store_num, int32_t minprice) {
 
 // update the bargin info -DJB-
 void updatebargain(int store_num, int32_t price, int32_t minprice) {
-    store_type *s_ptr = &store[store_num];
+    store_type *s_ptr = store_at(store_num);
 
     if (minprice > 9) {
         if (price == minprice) {
