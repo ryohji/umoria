@@ -35,7 +35,8 @@ BUILDDIR = $(TESTDIR)/build
 # 対象を増やすときは、ここに <name>_test を足し、下に依存関係を書く。
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
-        stat_bonus_test objdes_test creature_iterator_test save_bool_test
+        stat_bonus_test objdes_test creature_iterator_test save_bool_test \
+        options_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -239,13 +240,32 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 #
 # 読み書きの相手は tmpfile()。fileptr / xor_byte も save.c の static なので
 # テストから直接設定でき、実ファイルもセーブデータの雛形も要らない。
+#
+# オプションのビット詰めを src/options.c に寄せたので、save.c を取りこむと
+# game_options_pack / game_options_unpack も要る。代役ではなく本物をリンクする
+# （このテストが見ているのはバイト数と値の対応で、表は関係しないが、
+# 実体をリンクしておけば表とセーブ側が食いちがえばここでも落ちる）。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \
-                            src/treasure.c src/player.c src/monsters.c | $(BUILDDIR)
+                            src/treasure.c src/player.c src/monsters.c \
+                            src/options.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
-	    src/treasure.c src/player.c src/monsters.c
+	    src/treasure.c src/player.c src/monsters.c src/options.c
+
+# オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
+# 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
+# variable.c は定義だけの集まりで、他の .c を要求しない（この 2 つで足りる）。
+#
+# 書きこみ・読みこみの実体は save.c の sv_write() / rd_* の中に並んだ if 文
+# だったので、関数として呼べない。テスト側に変更前の並びを写しとり
+# （legacy_pack / legacy_unpack）、新しい実体と 2^11 通りすべてで
+# 突きあわせている。#7（device.c）と同じ「テスト側に写す」方式。
+$(BUILDDIR)/options_test: $(TESTDIR)/options_test.c $(TESTDIR)/minunit.h \
+                          src/options.c src/options.h \
+                          src/variable.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/options_test.c src/options.c src/variable.c
 
 clean:
 	rm -rf $(BUILDDIR)

@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "options.h"
 
 // Chance of treasure having magic abilities -RAK-
 // Chance increases with each dungeon level
@@ -853,30 +854,18 @@ void magic_treasure(int x, int level) {
     }
 }
 
-static struct opt_desc { const char *o_prompt; bool *o_var; } options[] = {
-    {"Running: cut known corners", &find_cut},
-    {"Running: examine potential corners", &find_examine},
-    {"Running: print self during run", &find_prself},
-    {"Running: stop when map sector changes", &find_bound},
-    {"Running: run through open doors", &find_ignore_doors},
-    {"Prompt to pick up objects", &prompt_carry_flag},
-    {"Rogue like commands", &rogue_like_commands},
-    {"Show weights in inventory", &show_weight_flag},
-    {"Highlight and notice mineral seams", &highlight_seams},
-    {"Beep for invalid character", &sound_beep_flag},
-    {"Display rest/repeat counts", &display_counts},
-    {0, 0},
-};
-
 // Set or unset various boolean options. -CJS-
+//
+// The options themselves are in options.c, so that this screen and the save
+// file cannot disagree about what they are.
 void set_options(void) {
     prt("  ESC when finished, y/n to set options, <return> or - to move cursor", 0, 0);
 
     int max;
-    for (max = 0; options[max].o_prompt != 0; max++) {
+    for (max = 0; game_options[max].prompt != NULL; max++) {
         vtype string;
 
-        (void)sprintf(string, "%-38s: %s", options[max].o_prompt, (*options[max].o_var ? "yes" : "no "));
+        (void)sprintf(string, "%-38s: %s", game_options[max].prompt, (*game_options[max].value ? "yes" : "no "));
         prt(string, max + 1, 0);
     }
     erase_line(max + 1, 0);
@@ -903,7 +892,7 @@ void set_options(void) {
             break;
         case 'y': case 'Y':
             put_buffer("yes", i + 1, 40);
-            *options[i].o_var = true;
+            *game_options[i].value = true;
             if (i + 1 < max) {
                 i++;
             } else {
@@ -912,7 +901,7 @@ void set_options(void) {
             break;
         case 'n': case 'N':
             put_buffer("no ", i + 1, 40);
-            *options[i].o_var = false;
+            *game_options[i].value = false;
             if (i + 1 < max) {
                 i++;
             } else {

@@ -21,5 +21,5 @@
 // This sets the default user interface.
 // To use the original key bindings (keypad for movement) set ROGUE_LIKE to false;
 // to use the rogue-like key bindings (vi style movement) set ROGUE_LIKE to true.
-// If you change this, you only need to recompile main.c.
+// If you change this, you only need to recompile options.c.
 #define ROGUE_LIKE false
