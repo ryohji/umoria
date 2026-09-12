@@ -276,9 +276,9 @@ int randint(int);
 int randnor(int, int);
 int bit_pos(uint32_t *);
 bool in_bounds(int, int);
-void panel_bounds(void);
+// panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
+// panel_contains() は panel.h。
 int get_panel(int, int, int);
-bool panel_contains(int, int);
 int distance(int, int, int, int);
 int next_to_walls(int, int);
 int next_to_corr(int, int);

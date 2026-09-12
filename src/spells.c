@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 
 static void replace_spot(int, int, int);
 

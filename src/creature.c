@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 
 // Updates screen when monsters move about -RAK-
 void update_mon(int monptr) {

@@ -36,7 +36,7 @@ BUILDDIR = $(TESTDIR)/build
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
-        options_test messages_test
+        options_test messages_test panel_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -284,6 +284,22 @@ $(BUILDDIR)/options_test: $(TESTDIR)/options_test.c $(TESTDIR)/minunit.h \
 $(BUILDDIR)/messages_test: $(TESTDIR)/messages_test.c $(TESTDIR)/minunit.h \
                            src/messages.c src/messages.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/messages_test.c src/messages.c
+
+# パネル（画面が見せているダンジョンの範囲）の計算は src/panel.c にある。
+# 外部リンケージなのでそのまま呼べる。ステップ A の時点では 10 個の値は
+# まだ本体のグローバル（variable.c）なので、options_test と同じく variable.c を
+# リンクする。variable.c は定義だけの集まりで、他の .c を要求しない。
+#
+# 導出（panel_bounds）も移動の判定（get_panel）も、変更前は misc1.c の関数の
+# 中に直に書かれていた。get_panel は end_find() を呼ぶので、そのままでは
+# ダンジョンと移動処理が芋づるで付いてくる。判定の部分だけを panel.c の
+# panel_move_to() に取りだし、副作用（end_find）は misc1.c 側に残した。
+# 変更前の 2 関数はテスト側に写しとって（legacy_bounds / legacy_get_panel）
+# 新しい実体と総当たりで突きあわせている。#7 / #18-1 / #18-2 と同じ方式。
+$(BUILDDIR)/panel_test: $(TESTDIR)/panel_test.c $(TESTDIR)/minunit.h \
+                        src/panel.c src/panel.h \
+                        src/variable.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/panel_test.c src/panel.c src/variable.c
 
 clean:
 	rm -rf $(BUILDDIR)
