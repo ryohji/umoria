@@ -15,6 +15,7 @@
 #include "externs.h"
 #include "panel.h"
 #include "messages.h"
+#include "stats.h"
 
 static char original_commands(char);
 static void do_command(char);

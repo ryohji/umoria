@@ -16,6 +16,7 @@
 
 #include "device.h"
 #include "item_ident.h"
+#include "stats.h"
 
 // Use a staff. -RAK-
 void use(void) {

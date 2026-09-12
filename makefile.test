@@ -105,10 +105,10 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                              src/misc3.c src/desc.c src/tables.c \
+                              src/misc3.c src/stats.c src/desc.c src/tables.c \
                               src/treasure.c src/player.c src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
@@ -127,11 +127,11 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/desc.c src/tables.c \
+                            src/misc3.c src/stats.c src/desc.c src/tables.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
@@ -159,11 +159,11 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                                 src/store2.c src/misc3.c src/desc.c \
+                                 src/store2.c src/misc3.c src/stats.c src/desc.c \
                                  src/tables.c src/treasure.c src/player.c \
                                  src/abilities.c src/messages.c src/stores.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c
 
@@ -189,21 +189,23 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c
 
-# 能力値の補正値を返す 5 関数（stat_adj / tohit_adj / toac_adj / todis_adj /
-# todam_adj）は misc3.c にあり、いずれも外部リンケージなのでそのまま呼べる。
-# 写しではなくテーブル化後の実体を検証したいので misc3.c をリンクする。
-# リンク構成は inven_stack_test / put_misc3_test と同じ（misc3.c の未解決
-# シンボルを misc3_stubs.c の代役で埋め、定数表・インベントリ・py は本物を
-# 使う）。新しい代役は要らなかった。
+# 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
+# toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
+# リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
+# stats.c をリンクする。
+#
+# #40B までは misc3.c にあり、8 コンパイル単位を引いていた
+# （stat_bonus_test.c misc3_stubs.c + misc3.c desc.c tables.c treasure.c
+# player.c abilities.c）。補正表の依存は py だけなのに、misc3.c と同居して
+# いたせいで画面描画・持ち物・定数表が芋づるで付いてきていた。
+# stats.c に切りだしたあとの未解決シンボルは py と fixture_reset の 2 個だけ
+# なので、3 単位で足りる（#38 の芋づるリンクを数字で減らした最初の例）。
 $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
-                             $(TESTDIR)/misc3_stubs.c \
+                             $(TESTDIR)/stats_fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                             src/misc3.c src/desc.c src/tables.c \
-                             src/treasure.c src/player.c \
-                             src/abilities.c | $(BUILDDIR)
+                             src/stats.c src/stats.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/stat_bonus_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
-	    src/treasure.c src/player.c src/abilities.c
+	    $(TESTDIR)/stats_fixture.c src/stats.c
 
 # 未鑑定アイテムの名前組み立ては src/desc.c の objdes() にある。外部
 # リンケージなのでそのまま呼べる。写しではなく実体を検証したいので desc.c を
@@ -215,11 +217,11 @@ $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
 $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          $(TESTDIR)/misc3_stubs.c \
                          $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                         src/misc3.c src/desc.c src/tables.c \
+                         src/misc3.c src/stats.c src/desc.c src/tables.c \
                          src/treasure.c src/player.c \
                          src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # モンスター表の逆順走査は src/monsters.c の rbegin / rend / prev にある。

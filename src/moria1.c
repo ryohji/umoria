@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "panel.h"
+#include "stats.h"
 
 // Changes speed of monsters relative to player -RAK-
 // Note: When the player is sped up or slowed down, I simply change

@@ -1,8 +1,10 @@
 /* 能力値の補正値算出のテスト -- 現在の実装を保護する
  *
- * src/misc3.c の 5 関数（stat_adj:258 / tohit_adj:681 / toac_adj:728 /
- * todis_adj:755 / todam_adj:786）はいずれも「能力値 -> 段階的な補正値」を
- * 返す if-else の階段だが、比較演算子が揃っていない。
+ * 対象は src/stats.c の 7 関数。#40B までは src/misc3.c にあった
+ * （5 関数が stat_adj:258 / tohit_adj:681 / toac_adj:728 / todis_adj:755 /
+ * todam_adj:786、のちに chr_adj / con_adj を追加）。いずれも
+ * 「能力値 -> 段階的な補正値」を返す if-else の階段だが、
+ * 比較演算子が揃っていなかった。
  *   stat_adj  -- > の降順
  *   tohit_adj -- < の昇順（A_DEX と A_STR の 2 段構え）
  *   toac_adj  -- < と == の混在
@@ -15,7 +17,7 @@
  * このテストは各段の境界の両側（境界値 - 1 と境界値）を対で押さえる。
  *
  * 写しにしなかった理由: 写しではテーブル化後の実体を検証できず
- * 保護にならない。src/misc3.c をそのままリンクしている。
+ * 保護にならない。実体（src/stats.c）をそのままリンクしている。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、
  * いまどう振るまうかを固定することが目的。
@@ -28,14 +30,9 @@
 
 extern player_type py;
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-int stat_adj(int stat);
-int tohit_adj(void);
-int toac_adj(void);
-int todis_adj(void);
-int todam_adj(void);
-int chr_adj(void);
+/* 検証対象。宣言は module のヘッダから受ける（#40B までは externs.h が
+ * ncurses まで引きこむので、必要な宣言だけをここに書いていた）。 */
+#include "stats.h"
 
 #define MU_SETUP() fixture_reset()
 
@@ -928,6 +925,110 @@ TEST(chr_adj_returns_ninety_at_maximum_charisma)
     ASSERT_EQ_INT(chr_adj(), 90);
 }
 
+/* ------------------------------------------------------------------
+ * con_adj -- 耐久力による体力（hit point）の増減
+ *
+ * 7 関数のうちこれだけがテーブルを持たない生の if/else 連鎖
+ * （src/misc3.c:311-327）。段は 6 つで、閾値は 7 / 17 / 18 / 94 / 117。
+ * 最下段だけが定数ではなく con - 7 という式なので、そこは 1 点では
+ * 固定できない（0 / 3 / 6 の 3 点で傾きまで押さえる）。
+ *
+ * このあと src/stats.c へそのまま移す予定。移動だけの変更でも、
+ * 閾値を 1 つずらしたり返す値を書きまちがえたら誰も気づかないので、
+ * 各閾値の両側を対で押さえる。
+ *
+ * 期待値はすべて現在の実装が返した実際の値。
+ * ------------------------------------------------------------------ */
+
+static void given_constitution(int value)
+{
+    py.stats.use_stat[A_CON] = (uint8_t)value;
+}
+
+/* 最下段は con - 7。use_stat は uint8_t なので 0 が下限で、返る値の下限は -7 */
+TEST(con_adj_returns_minus_seven_at_constitution_zero)
+{
+    given_constitution(0);
+    ASSERT_EQ_INT(con_adj(), -7);
+}
+
+/* 生成時の最低能力値 3。定数ではなく式であることを 3 点目で示す */
+TEST(con_adj_returns_minus_four_at_constitution_three)
+{
+    given_constitution(3);
+    ASSERT_EQ_INT(con_adj(), -4);
+}
+
+/* 6 は最下段の上端（con < 7 の内側） */
+TEST(con_adj_returns_minus_one_at_constitution_six)
+{
+    given_constitution(6);
+    ASSERT_EQ_INT(con_adj(), -1);
+}
+
+/* 7 で罰則が消えて 0 になる。閾値 7 の外側 */
+TEST(con_adj_returns_zero_at_constitution_seven)
+{
+    given_constitution(7);
+    ASSERT_EQ_INT(con_adj(), 0);
+}
+
+/* 7..16 は一律 0。範囲の上端（閾値 17 の内側） */
+TEST(con_adj_returns_zero_at_constitution_sixteen)
+{
+    given_constitution(16);
+    ASSERT_EQ_INT(con_adj(), 0);
+}
+
+/* 17 だけを取りだす == の段。ここが幅 1 であることが要点 */
+TEST(con_adj_returns_one_at_constitution_seventeen)
+{
+    given_constitution(17);
+    ASSERT_EQ_INT(con_adj(), 1);
+}
+
+/* 18 で次の段。== 17 の段が幅 1 だと示す対の片側 */
+TEST(con_adj_returns_two_at_constitution_eighteen)
+{
+    given_constitution(18);
+    ASSERT_EQ_INT(con_adj(), 2);
+}
+
+/* 18..93 は一律 2。範囲の上端（閾値 94 の内側） */
+TEST(con_adj_returns_two_at_constitution_ninety_three)
+{
+    given_constitution(93);
+    ASSERT_EQ_INT(con_adj(), 2);
+}
+
+/* 94 で次の段。閾値 94 の外側 */
+TEST(con_adj_returns_three_at_constitution_ninety_four)
+{
+    given_constitution(94);
+    ASSERT_EQ_INT(con_adj(), 3);
+}
+
+/* 94..116 は一律 3。範囲の上端（閾値 117 の内側） */
+TEST(con_adj_returns_three_at_constitution_one_hundred_sixteen)
+{
+    given_constitution(116);
+    ASSERT_EQ_INT(con_adj(), 3);
+}
+
+/* 117 で最上段（else 節）。閾値 117 の外側 */
+TEST(con_adj_returns_four_at_constitution_one_hundred_seventeen)
+{
+    given_constitution(117);
+    ASSERT_EQ_INT(con_adj(), 4);
+}
+
+/* uint8_t の上限でも最上段のまま。頭打ちであることを示す */
+TEST(con_adj_returns_four_at_maximum_constitution)
+{
+    given_constitution(255);
+    ASSERT_EQ_INT(con_adj(), 4);
+}
+
 int main(void)
 {
     /* --- stat_adj: 8 段の境界を両側から押さえる --- */
@@ -1071,6 +1172,21 @@ int main(void)
     RUN_TEST(chr_adj_still_returns_ninety_two_at_charisma_one_hundred_seventeen);
     RUN_TEST(chr_adj_returns_ninety_at_charisma_one_hundred_eighteen);
     RUN_TEST(chr_adj_returns_ninety_at_maximum_charisma);
+
+    /* --- con_adj: 6 段の境界を両側から押さえる（最下段は式なので 3 点） --- */
+
+    RUN_TEST(con_adj_returns_minus_seven_at_constitution_zero);
+    RUN_TEST(con_adj_returns_minus_four_at_constitution_three);
+    RUN_TEST(con_adj_returns_minus_one_at_constitution_six);
+    RUN_TEST(con_adj_returns_zero_at_constitution_seven);
+    RUN_TEST(con_adj_returns_zero_at_constitution_sixteen);
+    RUN_TEST(con_adj_returns_one_at_constitution_seventeen);
+    RUN_TEST(con_adj_returns_two_at_constitution_eighteen);
+    RUN_TEST(con_adj_returns_two_at_constitution_ninety_three);
+    RUN_TEST(con_adj_returns_three_at_constitution_ninety_four);
+    RUN_TEST(con_adj_returns_three_at_constitution_one_hundred_sixteen);
+    RUN_TEST(con_adj_returns_four_at_constitution_one_hundred_seventeen);
+    RUN_TEST(con_adj_returns_four_at_maximum_constitution);
 
     return TEST_SUMMARY();
 }
