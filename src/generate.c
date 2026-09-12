@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 
 typedef struct coords {
     int x, y;
@@ -1257,10 +1258,7 @@ static void town_gen(void) {
 
 // Generates a random dungeon level -RAK-
 void generate_cave(void) {
-    panel_row_min = 0;
-    panel_row_max = 0;
-    panel_col_min = 0;
-    panel_col_max = 0;
+    panel_forget_bounds();
     char_row = -1;
     char_col = -1;
 
@@ -1271,18 +1269,12 @@ void generate_cave(void) {
     if (dun_level == 0) {
         cur_height = SCREEN_HEIGHT;
         cur_width = SCREEN_WIDTH;
-        max_panel_rows = (cur_height / SCREEN_HEIGHT) * 2 - 2;
-        max_panel_cols = (cur_width / SCREEN_WIDTH) * 2 - 2;
-        panel_row = max_panel_rows;
-        panel_col = max_panel_cols;
+        panel_set_dungeon_size(cur_height, cur_width);
         town_gen();
     } else {
         cur_height = MAX_HEIGHT;
         cur_width = MAX_WIDTH;
-        max_panel_rows = (cur_height / SCREEN_HEIGHT) * 2 - 2;
-        max_panel_cols = (cur_width / SCREEN_WIDTH) * 2 - 2;
-        panel_row = max_panel_rows;
-        panel_col = max_panel_cols;
+        panel_set_dungeon_size(cur_height, cur_width);
         cave_gen();
     }
 }

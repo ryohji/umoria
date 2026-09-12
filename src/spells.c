@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 
 static void replace_spot(int, int, int);
 
@@ -52,8 +53,8 @@ int sleep_monsters1(int y, int x) {
 int detect_treasure(void) {
     bool detect = false;
 
-    for (int i = panel_row_min; i <= panel_row_max; i++) {
-        for (int j = panel_col_min; j <= panel_col_max; j++) {
+    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
+        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             cave_type *c_ptr = &cave[i][j];
 
             if ((c_ptr->tptr != 0) && (t_list[c_ptr->tptr].tval == TV_GOLD) &&
@@ -72,8 +73,8 @@ int detect_treasure(void) {
 int detect_object(void) {
     bool detect = false;
 
-    for (int i = panel_row_min; i <= panel_row_max; i++) {
-        for (int j = panel_col_min; j <= panel_col_max; j++) {
+    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
+        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             cave_type *c_ptr = &cave[i][j];
 
             if ((c_ptr->tptr != 0) &&
@@ -93,8 +94,8 @@ int detect_object(void) {
 int detect_trap(void) {
     bool detect = false;
 
-    for (int i = panel_row_min; i <= panel_row_max; i++) {
-        for (int j = panel_col_min; j <= panel_col_max; j++) {
+    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
+        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             cave_type *c_ptr = &cave[i][j];
 
             if (c_ptr->tptr != 0) {
@@ -117,8 +118,8 @@ int detect_trap(void) {
 int detect_sdoor(void) {
     bool detect = false;
 
-    for (int i = panel_row_min; i <= panel_row_max; i++) {
-        for (int j = panel_col_min; j <= panel_col_max; j++) {
+    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
+        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             cave_type *c_ptr = &cave[i][j];
 
             if (c_ptr->tptr != 0) {
@@ -241,10 +242,10 @@ int unlight_area(int y, int x) {
 
 // Map the current area plus some -RAK-
 void map_area(void) {
-    int i = panel_row_min - randint(10);
-    int j = panel_row_max + randint(10);
-    int k = panel_col_min - randint(20);
-    int l = panel_col_max + randint(20);
+    int i = panel_top_row() - randint(10);
+    int j = panel_bottom_row() + randint(10);
+    int k = panel_left_col() - randint(20);
+    int l = panel_right_col() + randint(20);
 
     for (int m = i; m <= j; m++) {
         for (int n = k; n <= l; n++) {

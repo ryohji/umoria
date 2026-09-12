@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 #include "input.h"
 #include "messages.h"
 #include "render.h"
@@ -131,19 +132,13 @@ void clear_from(int row) {
 void print(char ch, int row, int col) {
 
     // Real co-ords convert to screen positions
-    row -= panel_row_prt;
-    col -= panel_col_prt;
-
-    render_char(row, col, ch, RENDER_COLOR_DEFAULT);
+    render_char(panel_screen_row(row), panel_screen_col(col), ch, RENDER_COLOR_DEFAULT);
 }
 
 // Moves the cursor to a given interpolated y, x position -RAK-
 void move_cursor_relative(int row, int col) {
     // Real co-ords convert to screen positions
-    row -= panel_row_prt;
-    col -= panel_col_prt;
-
-    render_move_cursor(row, col);
+    render_move_cursor(panel_screen_row(row), panel_screen_col(col));
 }
 
 // Print a message so as not to interrupt a counted command. -CJS-

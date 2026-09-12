@@ -71,9 +71,9 @@ GROUPS = {
     "持ち物・アイテム": """
         inventory inven_ctr inven_weight equip_ctr object_ident sorted_objects""",
     "店": "store last_store_inc",
-    "画面の見えている範囲（パネル）": """
-        panel_row panel_col panel_row_min panel_row_max panel_col_min panel_col_max
-        panel_row_prt panel_col_prt max_panel_rows max_panel_cols""",
+    # 画面の見えている範囲（パネル）の 10 個は #18-3 で panel.c の static に
+    # なり、externs.h から全部外れた。メッセージ表示と同じく、片づいた区分は
+    # 行ごと消える（消えた記録は GLOBALS_INVENTORY.md 側）。
     # メッセージ表示の区分（msg_flag old_msg last_msg wait_for_more の 4 個）は
     # #18-2 で messages.c の static になり、externs.h から全部外れた。この一覧は
     # externs.h にあるものを数える道具なので、片づいた区分は行ごと消える。

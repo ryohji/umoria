@@ -52,7 +52,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	item_ident.c abilities.c options.c messages.c \
 	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
 	render.c render_ncurses.c view_observer.c game_state.c \
-	input.c input_ncurses.c platform.c \
+	input.c input_ncurses.c platform.c panel.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -62,7 +62,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	item_ident.o abilities.o options.o messages.o \
 	scrolls.o spells.o wizard.o store2.o signals.o signal_flags.o \
 	render.o render_ncurses.o view_observer.o game_state.o \
-	input.o input_ncurses.o platform.o \
+	input.o input_ncurses.o platform.o panel.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -172,6 +172,7 @@ moria1.o: $(HEADERS_FULL)
 moria2.o: $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
 moria4.o: $(HEADERS_FULL)
+panel.o: $(SRCDIR)/panel.h $(HEADERS_FULL)
 player.o: $(HEADERS_COMMON)
 potions.o: $(HEADERS_FULL)
 prayer.o: $(HEADERS_FULL)

@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 #include "messages.h"
 
 static char original_commands(char);
@@ -61,14 +62,14 @@ void dungeon(void) {
     mon_tot_mult = 0;
     cave[char_row][char_col].cptr = 1;
 
-    // Ensure we display the panel. Used to do this with a global var. -CJS-
-    panel_row = panel_col = -1;
+    // Ensure we display the panel.
+    panel_forget_position();
 
     // Light up the area around character
     check_view();
 
-    // must do this after panel_row/col set to -1, because search_off() will
-    // call check_view(), and so the panel_* variables must be valid before
+    // must do this after panel_forget_position(), because search_off() will
+    // call check_view(), and so the panel must know where it is before
     // search_off() is called
     if (f_ptr->status & PY_SEARCH) {
         search_off();
@@ -1307,11 +1308,11 @@ static void do_command(char com_val) {
             if (get_panel(y, x, true)) {
                 prt_map();
             }
-            cy = panel_row;
-            cx = panel_col;
+            cy = panel_row_index();
+            cx = panel_col_index();
             for (;;) {
-                p_y = panel_row;
-                p_x = panel_col;
+                p_y = panel_row_index();
+                p_x = panel_col_index();
                 if (p_y == cy && p_x == cx) {
                     tmp_str[0] = '\0';
                 } else {

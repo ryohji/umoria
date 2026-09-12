@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 
 static creature_handle get_mons_num(int level);
 static bool summon(int *y, int *x, creature_handle h, int slp);
@@ -149,65 +150,22 @@ bool in_bounds(int y, int x) {
     }
 }
 
-// Calculates current boundaries -RAK-
-void panel_bounds(void) {
-    panel_row_min = panel_row * (SCREEN_HEIGHT / 2);
-    panel_row_max = panel_row_min + SCREEN_HEIGHT - 1;
-    panel_row_prt = panel_row_min - 1;
-    panel_col_min = panel_col * (SCREEN_WIDTH / 2);
-    panel_col_max = panel_col_min + SCREEN_WIDTH - 1;
-    panel_col_prt = panel_col_min - 13;
-}
-
-// Given an row (y) and col (x), this routine detects -RAK-
-// when a move off the screen has occurred and figures new borders.
-// Force forcses the panel bounds to be recalculated, useful for 'W'here.
+// Moves the panel if the player has walked off the edge of it, and redraws
+// nothing: the caller does that when we return true. Force forces the panel
+// bounds to be recalculated, useful for 'W'here.
+//
+// The move itself is panel.c's; what is left here is the one thing it must not
+// do, which is to reach back into the movement code.
 int get_panel(int y, int x, int force) {
-    bool panel;
-
-    int prow = panel_row;
-    int pcol = panel_col;
-    if (force || (y < panel_row_min + 2) || (y > panel_row_max - 2)) {
-        prow = ((y - SCREEN_HEIGHT / 4) / (SCREEN_HEIGHT / 2));
-        if (prow > max_panel_rows) {
-            prow = max_panel_rows;
-        } else if (prow < 0) {
-            prow = 0;
-        }
-    }
-    if (force || (x < panel_col_min + 3) || (x > panel_col_max - 3)) {
-        pcol = ((x - SCREEN_WIDTH / 4) / (SCREEN_WIDTH / 2));
-        if (pcol > max_panel_cols) {
-            pcol = max_panel_cols;
-        } else if (pcol < 0) {
-            pcol = 0;
-        }
-    }
-    if ((prow != panel_row) || (pcol != panel_col)) {
-        panel_row = prow;
-        panel_col = pcol;
-        panel_bounds();
-        panel = true;
-
-        // stop movement if any
-        if (find_bound) {
-            end_find();
-        }
-    } else {
-        panel = false;
-    }
-    return panel;
-}
-
-// Tests a given point to see if it is within the screen -RAK-
-// boundaries.
-bool panel_contains(int y, int x) {
-    if ((y >= panel_row_min) && (y <= panel_row_max) && (x >= panel_col_min) &&
-        (x <= panel_col_max)) {
-        return true;
-    } else {
+    if (!panel_move_to(y, x, force != 0)) {
         return false;
     }
+
+    // stop movement if any
+    if (find_bound) {
+        end_find();
+    }
+    return true;
 }
 
 // Distance between two points -RAK-
@@ -483,15 +441,14 @@ bool test_light(int y, int x) {
 
 // Prints the map of the dungeon -RAK-
 void prt_map(void) {
-    int k = 0;
-
-    // Top to bottom
-    for (int i = panel_row_min; i <= panel_row_max; i++) {
-        k++;
-        erase_line(k, 13);
+    // Top to bottom. The row counter used to be kept here (starting at 1, one
+    // step per dungeon row), which is the same walk print() makes when it
+    // converts a dungeon row into a screen row -- so ask for that instead.
+    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
+        erase_line(panel_screen_row(i), PANEL_MAP_LEFT_COL);
 
         // Left to right
-        for (int j = panel_col_min; j <= panel_col_max; j++) {
+        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             uint8_t tmp = loc_symbol(i, j);
             if (tmp != ' ') {
                 print(tmp, i, j);

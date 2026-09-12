@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 #include "messages.h"
 #include "options.h"
 
@@ -273,8 +274,8 @@ static bool sv_write(void) {
     wr_short((uint16_t)mon_tot_mult);
     wr_short((uint16_t)cur_height);
     wr_short((uint16_t)cur_width);
-    wr_short((uint16_t)max_panel_rows);
-    wr_short((uint16_t)max_panel_cols);
+    wr_short((uint16_t)panel_max_row_index());
+    wr_short((uint16_t)panel_max_col_index());
 
     for (int i = 0; i < MAX_HEIGHT; i++) {
         for (int j = 0; j < MAX_WIDTH; j++) {
@@ -789,8 +790,12 @@ bool get_char(bool *generate) {
         rd_short((uint16_t *)&mon_tot_mult);
         rd_short((uint16_t *)&cur_height);
         rd_short((uint16_t *)&cur_width);
-        rd_short((uint16_t *)&max_panel_rows);
-        rd_short((uint16_t *)&max_panel_cols);
+        uint16_t max_panel_rows_read, max_panel_cols_read;
+        rd_short(&max_panel_rows_read);
+        rd_short(&max_panel_cols_read);
+        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた。
+        // 同じ値を渡すために int16_t を通す（正しいセーブファイルなら 0〜4）。
+        panel_set_max_indexes((int16_t)max_panel_rows_read, (int16_t)max_panel_cols_read);
 
         uint8_t char_tmp, ychar, xchar, count;
 

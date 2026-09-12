@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 
 static bool look_ray(int, int, int);
 static bool look_see(int, int, bool *);

@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "panel.h"
 
 // Player hit a trap.  (Chuckle) -RAK-
 static void hit_trap(int y, int x) {

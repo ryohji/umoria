@@ -70,11 +70,9 @@ extern int16_t cur_height; // Current dungeon height
 extern int16_t cur_width;  // Current dungeon width
 
 // Following are calculated from max dungeon sizes
-extern int16_t max_panel_rows, max_panel_cols;
-extern int panel_row, panel_col;
-extern int panel_row_min, panel_row_max;
-extern int panel_col_min, panel_col_max;
-extern int panel_col_prt, panel_row_prt;
+// The panel (the ten values that say which part of the dungeon is on screen)
+// is private to panel.c now, together with the arithmetic that derives the six
+// coordinates from the two indexes. See panel.h.
 
 // Following are all floor definitions
 extern cave_type cave[MAX_HEIGHT][MAX_WIDTH];
@@ -276,9 +274,9 @@ int randint(int);
 int randnor(int, int);
 int bit_pos(uint32_t *);
 bool in_bounds(int, int);
-void panel_bounds(void);
+// panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
+// panel_contains() は panel.h。
 int get_panel(int, int, int);
-bool panel_contains(int, int);
 int distance(int, int, int, int);
 int next_to_walls(int, int);
 int next_to_corr(int, int);
