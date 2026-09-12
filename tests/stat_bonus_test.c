@@ -1,8 +1,10 @@
 /* 能力値の補正値算出のテスト -- 現在の実装を保護する
  *
- * src/misc3.c の 5 関数（stat_adj:258 / tohit_adj:681 / toac_adj:728 /
- * todis_adj:755 / todam_adj:786）はいずれも「能力値 -> 段階的な補正値」を
- * 返す if-else の階段だが、比較演算子が揃っていない。
+ * 対象は src/stats.c の 7 関数。#40B までは src/misc3.c にあった
+ * （5 関数が stat_adj:258 / tohit_adj:681 / toac_adj:728 / todis_adj:755 /
+ * todam_adj:786、のちに chr_adj / con_adj を追加）。いずれも
+ * 「能力値 -> 段階的な補正値」を返す if-else の階段だが、
+ * 比較演算子が揃っていなかった。
  *   stat_adj  -- > の降順
  *   tohit_adj -- < の昇順（A_DEX と A_STR の 2 段構え）
  *   toac_adj  -- < と == の混在
@@ -15,7 +17,7 @@
  * このテストは各段の境界の両側（境界値 - 1 と境界値）を対で押さえる。
  *
  * 写しにしなかった理由: 写しではテーブル化後の実体を検証できず
- * 保護にならない。src/misc3.c をそのままリンクしている。
+ * 保護にならない。実体（src/stats.c）をそのままリンクしている。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、
  * いまどう振るまうかを固定することが目的。
@@ -28,15 +30,9 @@
 
 extern player_type py;
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-int stat_adj(int stat);
-int tohit_adj(void);
-int toac_adj(void);
-int todis_adj(void);
-int todam_adj(void);
-int chr_adj(void);
-int con_adj(void);
+/* 検証対象。宣言は module のヘッダから受ける（#40B までは externs.h が
+ * ncurses まで引きこむので、必要な宣言だけをここに書いていた）。 */
+#include "stats.h"
 
 #define MU_SETUP() fixture_reset()
 
