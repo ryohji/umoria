@@ -17,6 +17,7 @@
 #include "panel.h"
 #include "messages.h"
 #include "options.h"
+#include "stores.h"
 
 // For debugging the savefile code on systems with broken compilers.
 #define SAVE_LOG(x)
@@ -224,8 +225,8 @@ static bool sv_write(void) {
     wr_short((uint16_t)noscore);
     wr_shorts(player_hp, MAX_PLAYER_LEVEL);
 
-    for (int i = 0; i < MAX_STORES; i++) {
-        store_type *st_ptr = &store[i];
+    for (int i = 0; i < store_count(); i++) {
+        store_type *st_ptr = store_at(i);
 
         wr_long((uint32_t)st_ptr->store_open);
         wr_short((uint16_t)st_ptr->insult_cur);
@@ -696,8 +697,8 @@ bool get_char(bool *generate) {
             rd_shorts(player_hp, MAX_PLAYER_LEVEL);
 
             if ((version_min >= 2) || (version_min == 1 && patch_level >= 3)) {
-                for (int i = 0; i < MAX_STORES; i++) {
-                    store_type *st_ptr = &store[i];
+                for (int i = 0; i < store_count(); i++) {
+                    store_type *st_ptr = store_at(i);
 
                     rd_long((uint32_t *)&st_ptr->store_open);
                     rd_short((uint16_t *)&st_ptr->insult_cur);
@@ -869,8 +870,8 @@ bool get_char(bool *generate) {
         *generate = false; // We have restored a cave - no need to generate.
 
         if ((version_min == 1 && patch_level < 3) || (version_min == 0)) {
-            for (int i = 0; i < MAX_STORES; i++) {
-                store_type *st_ptr = &store[i];
+            for (int i = 0; i < store_count(); i++) {
+                store_type *st_ptr = store_at(i);
 
                 rd_long((uint32_t *)&st_ptr->store_open);
                 rd_short((uint16_t *)&st_ptr->insult_cur);

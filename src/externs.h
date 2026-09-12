@@ -105,7 +105,8 @@ extern int32_t max_score;
 
 // Following are store definitions
 extern owner_type owners[MAX_OWNERS];
-extern store_type store[MAX_STORES];
+// 6 軒の記録の実体は stores.c の static。窓口は stores.h の
+// store_at() / store_count()。
 extern uint16_t store_choice[MAX_STORES][STORE_CHOICES];
 // 実体は tables.c:90。店ごとの買いとり判定で、引数は品物の tval。
 // 戻り値は長らく int と書かれていたが、実体は bool を返す。
