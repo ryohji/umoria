@@ -36,7 +36,8 @@ BUILDDIR = $(TESTDIR)/build
 TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
-        options_test messages_test panel_test stores_test store_save_test
+        options_test messages_test panel_test stores_test store_save_test \
+        str_insert_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -221,6 +222,20 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/treasure.c src/player.c \
                          src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
+	    src/treasure.c src/player.c src/abilities.c
+
+# 文字列への差しこみ（insert_str / insert_lnum）の実体はまだ src/misc3.c に
+# あるので、misc3.c 全体（と芋づるで付く desc.c 以下）をリンクせざるをえない。
+# この重いリンクは一時的なもので、#41 のステップ C で実体を src/str_insert.c へ
+# 移したあと src/str_insert.c 1 本に減らす（対象の依存は標準ライブラリだけ）。
+$(BUILDDIR)/str_insert_test: $(TESTDIR)/str_insert_test.c \
+                             $(TESTDIR)/misc3_stubs.c \
+                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                             src/misc3.c src/stats.c src/desc.c src/tables.c \
+                             src/treasure.c src/player.c \
+                             src/abilities.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/str_insert_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
