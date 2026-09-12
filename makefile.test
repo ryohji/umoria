@@ -83,6 +83,12 @@ $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src
 # 本物をリンクする。desc.c が参照する定数テーブル（tables.c）とグローバルな
 # インベントリ（treasure.c）も本物を使い、py と画面出力だけを
 # tests/fixture.c で補う（リンクシーム）。写しではなく実体を検証している。
+#
+# #41B で insert_str / insert_lnum の実体は src/str_insert.c へ移ったが、この
+# 構成は src/str_insert.c を「リンクしない」。desc.c は insert_str を呼ぶが、
+# ここで見ているのは鑑定時の経験値と識別フラグで、名前の複数形化は関係しない。
+# fixture.c:75 の空の代役を残し、実体は同居させない（同居させると multiple
+# definition になる）。名前組み立ての実体を見るのは objdes_test / str_insert_test。
 $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                              src/item_ident.c src/item_ident.h \
@@ -103,13 +109,18 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # fixture.c は使わない。py・msg_print・insert_str・prt_experience を
 # player.c / misc3.c が本物として持っているので multiple definition になる。
 # 代わりに misc3_stubs.c が fixture.h の窓口を提供する。
+#
+# #41B で insert_str の実体が src/str_insert.c に移ったので、この構成では
+# そちらもリンクする（desc.c が呼ぶ。リンカが未解決として挙げた）。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                              src/misc3.c src/stats.c src/desc.c src/tables.c \
+                              src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                              src/tables.c \
                               src/treasure.c src/player.c src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
@@ -128,11 +139,13 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/stats.c src/desc.c src/tables.c \
+                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/tables.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
@@ -151,6 +164,10 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 # 本物を使う）。store2.c だけが要求する 14 個のシンボルは
 # haggle_comment_test.c の中に置いた（misc3.c 系の他のテストには不要）。
 #
+# 値切りのコメントは insert_lnum で数値を差しこむので、#41B で移した
+# src/str_insert.c もリンクする（リンカが未解決として挙げた 2 箇所は
+# haggle_comment_test.c:146-147 の呼びだし）。
+#
 # store2.c のコマンド待ちループがメッセージの状態（旧 msg_flag）にふれるので
 # messages.c もリンクする。代役でもよいが、依存が無い module なので本物のほうが
 # 短い。
@@ -160,11 +177,13 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                                 src/store2.c src/misc3.c src/stats.c src/desc.c \
+                                 src/store2.c src/misc3.c src/stats.c \
+                                 src/str_insert.c src/desc.c \
                                  src/tables.c src/treasure.c src/player.c \
                                  src/abilities.c src/messages.c src/stores.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c
 
@@ -212,31 +231,36 @@ $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
 # リンケージなのでそのまま呼べる。写しではなく実体を検証したいので desc.c を
 # リンクする。
 #
-# objdes() は名前の複数形化に misc3.c の insert_str() を使う。fixture.c は
-# これを空の代役にしているので、fixture.c ではなく misc3_stubs.c 側の構成
-# （misc3.c の本物をリンクする）を使う。リンク構成は stat_bonus_test と同じ。
+# objdes() は名前の複数形化に insert_str() を使う（#41B で misc3.c から
+# src/str_insert.c へ移した）。fixture.c はこれを空の代役にしているので、
+# fixture.c ではなく misc3_stubs.c 側の構成（misc3.c と str_insert.c の本物を
+# リンクする）を使う。
 $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          $(TESTDIR)/misc3_stubs.c \
                          $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                         src/misc3.c src/stats.c src/desc.c src/tables.c \
+                         src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                         src/tables.c \
                          src/treasure.c src/player.c \
                          src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
-# 文字列への差しこみ（insert_str / insert_lnum）の実体はまだ src/misc3.c に
-# あるので、misc3.c 全体（と芋づるで付く desc.c 以下）をリンクせざるをえない。
-# この重いリンクは一時的なもので、#41 のステップ C で実体を src/str_insert.c へ
-# 移したあと src/str_insert.c 1 本に減らす（対象の依存は標準ライブラリだけ）。
+# 文字列への差しこみ（insert_str / insert_lnum）の実体は #41B で
+# src/str_insert.c へ移った。対象の依存は標準ライブラリだけなので、本来は
+# src/str_insert.c 1 本で足りる。まだ misc3.c 以下を引いているのは、この
+# コミットを「純粋な移動」に限るため。1 単位への削減は #41 のステップ C。
 $(BUILDDIR)/str_insert_test: $(TESTDIR)/str_insert_test.c \
                              $(TESTDIR)/misc3_stubs.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                             src/misc3.c src/stats.c src/desc.c src/tables.c \
+                             src/misc3.c src/stats.c src/str_insert.c \
+                             src/str_insert.h src/desc.c src/tables.c \
                              src/treasure.c src/player.c \
                              src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/str_insert_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/desc.c src/tables.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # モンスター表の逆順走査は src/monsters.c の rbegin / rend / prev にある。

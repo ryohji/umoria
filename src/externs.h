@@ -369,8 +369,6 @@ void gain_spells(void);
 void calc_mana(int);
 void prt_experience(void);
 void calc_hitpoints(void);
-void insert_str(char *, const char *, const char *);
-void insert_lnum(char *, const char *, int32_t, int);
 bool enter_wiz_mode(void);
 int attack_blows(int, int *);
 int tot_dam(inven_type *, int, creature_handle);

@@ -30,14 +30,16 @@ CC = gcc
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	create.c desc.c generate.c sets.c dungeon.c creature.c death.c \
 	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c \
-	scrolls.c spells.c wizard.c store2.c stats.c moria1.c moria2.c \
+	scrolls.c spells.c wizard.c store2.c stats.c str_insert.c \
+	moria1.c moria2.c \
 	moria3.c moria4.c monsters.c treasure.c variable.c rnd.c recall.c \
 	player.c tables.c
 
 OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	create.o desc.o generate.o sets.o dungeon.o creature.o death.o \
 	eat.o help.o magic.o potions.o prayer.o save.o staffs.o wands.o \
-	scrolls.o spells.o wizard.o store2.o stats.o moria1.o moria2.o \
+	scrolls.o spells.o wizard.o store2.o stats.o str_insert.o \
+	moria1.o moria2.o \
 	moria3.o moria4.o monsters.o treasure.o variable.o rnd.o recall.o \
 	player.o tables.o
 
@@ -105,6 +107,7 @@ staffs.o: constant.h types.h externs.h config.h
 store1.o: constant.h types.h externs.h config.h
 store2.o: constant.h types.h externs.h config.h
 stats.o: stats.h constant.h types.h config.h
+str_insert.o: str_insert.h constant.h types.h config.h
 tables.o: constant.h types.h config.h
 treasure.o: constant.h types.h config.h
 variable.o: constant.h types.h config.h
