@@ -32,6 +32,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "messages.h"
 #include "signal_flags.h"
 #include "platform.h"
 
@@ -173,7 +174,7 @@ void handle_pending_signals(void) {
                 put_qio();
 
                 // Restore -more- prompt if needed
-                if (wait_for_more) {
+                if (msg_at_more_prompt()) {
                     put_buffer(" -more-", MSG_LINE, 0);
                 }
                 put_qio();

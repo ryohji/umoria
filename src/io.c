@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "input.h"
+#include "messages.h"
 #include "render.h"
 
 #define use_value2
@@ -61,7 +62,7 @@ char inkey(void) {
         // some machines may not sign extend.
         if (i == EOF) {
             // avoid infinite loops while trying to call inkey() for a -more- prompt.
-            msg_flag = false;
+            msg_set_pending(false);
 
             eof_flag++;
 
@@ -106,7 +107,7 @@ void flush(void) {
 
 // Clears given line of text -RAK-
 void erase_line(int row, int col) {
-    if (row == MSG_LINE && msg_flag) {
+    if (row == MSG_LINE && msg_pending()) {
         msg_print(CNIL);
     }
 
@@ -115,7 +116,7 @@ void erase_line(int row, int col) {
 
 // Clears screen
 void clear_screen(void) {
-    if (msg_flag) {
+    if (msg_pending()) {
         msg_print(CNIL);
     }
     render_clear();
@@ -166,11 +167,11 @@ void move_cursor(int row, int col) {
 // Outputs message to top line of screen
 // These messages are kept for later reference.
 void msg_print(const char *str_buff) {
-    const int old_len = msg_flag ? strlen(old_msg[last_msg]) : 0;
-    const bool prev_msg_exists = msg_flag;
+    const int old_len = msg_pending() ? strlen(msg_history_recent(0)) : 0;
+    const bool prev_msg_exists = msg_pending();
     const bool combine_messages = prev_msg_exists && str_buff && old_len + 2 + strlen(str_buff) < 73;
 
-    msg_flag = str_buff != CNIL;
+    msg_set_pending(str_buff != CNIL);
 
     if (!combine_messages) {
         // Make the null string a special case. -CJS-
@@ -184,13 +185,11 @@ void msg_print(const char *str_buff) {
 
         render_erase_line(MSG_LINE, 0);
 
-        if (msg_flag) {
+        if (msg_pending()) {
             command_count = 0;
 
             put_buffer(str_buff, MSG_LINE, 0);
-            last_msg = last_msg + 1 == MAX_SAVE_MSG ? 0 : last_msg + 1;
-            strncpy(old_msg[last_msg], str_buff, VTYPESIZ);
-            old_msg[last_msg][VTYPESIZ - 1] = '\0';
+            msg_history_push(str_buff);
         }
     } else {
         command_count = 0;
@@ -200,13 +199,13 @@ void msg_print(const char *str_buff) {
         // So we don't flush the old message in this case.
 
         put_buffer(str_buff, MSG_LINE, old_len + 2);
-        sprintf(old_msg[last_msg] + old_len, "  %s", str_buff);
+        msg_history_append(str_buff);
     }
 }
 
 static inline void wait_for_more_confirmation(void) {
     // let sigint handler know that we are waiting for a space
-    wait_for_more = true;
+    msg_set_at_more_prompt(true);
 
 retry:
     switch (inkey()) {
@@ -220,7 +219,7 @@ retry:
         goto retry;
     }
 
-    wait_for_more = false;
+    msg_set_at_more_prompt(false);
 }
 
 // Used to verify a choice - user gets the chance to abort choice. -CJS-
