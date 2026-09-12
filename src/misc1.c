@@ -441,15 +441,14 @@ bool test_light(int y, int x) {
 
 // Prints the map of the dungeon -RAK-
 void prt_map(void) {
-    int k = 0;
-
-    // Top to bottom
-    for (int i = panel_row_min; i <= panel_row_max; i++) {
-        k++;
-        erase_line(k, 13);
+    // Top to bottom. The row counter used to be kept here (starting at 1, one
+    // step per dungeon row), which is the same walk print() makes when it
+    // converts a dungeon row into a screen row -- so ask for that instead.
+    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
+        erase_line(panel_screen_row(i), PANEL_MAP_LEFT_COL);
 
         // Left to right
-        for (int j = panel_col_min; j <= panel_col_max; j++) {
+        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             uint8_t tmp = loc_symbol(i, j);
             if (tmp != ' ') {
                 print(tmp, i, j);

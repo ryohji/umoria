@@ -10,6 +10,7 @@
 
 #include "constant.h"
 #include "externs.h"
+#include "panel.h"
 #include "messages.h"
 
 #include <stdlib.h>
@@ -103,8 +104,8 @@ GameState *game_state_init(void) {
     // Dungeon dimensions
     state->cur_height = cur_height;
     state->cur_width = cur_width;
-    state->max_panel_rows = max_panel_rows;
-    state->max_panel_cols = max_panel_cols;
+    state->max_panel_rows = (int16_t)panel_max_row_index();
+    state->max_panel_cols = (int16_t)panel_max_col_index();
 
     // Temporary
     state->hack_monptr = hack_monptr;

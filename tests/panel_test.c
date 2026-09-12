@@ -301,6 +301,37 @@ TEST(the_top_left_of_the_window_is_where_prt_map_starts_drawing)
                 panel_screen_col(panel_left_col()) == PANEL_MAP_LEFT_COL);
 }
 
+/* prt_map() は行番号を自分で数えていた（k = 0 から始めて 1 行ずつ ++）。
+ * これは print() が座標を画面へ移す歩みと同じものなので、数えるのをやめて
+ * panel_screen_row() に訊く形にした。同じかどうかをここで見る。 */
+TEST(the_map_rows_come_out_consecutively_from_the_top)
+{
+    int mismatch = -1;
+
+    panel_set_dungeon_size(MAX_HEIGHT, MAX_WIDTH);
+
+    for (int panel = 0; panel <= panel_max_row_index() && mismatch < 0; panel++) {
+        struct panel_state p = {panel, 0, 0, 0, 0, 0, 0, 0};
+        int k = 0; /* 変更前の prt_map() の数えかたの写し */
+
+        legacy_bounds(&p);
+        load(&p);
+
+        for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
+            k++;
+            if (panel_screen_row(i) != k) {
+                mismatch = panel;
+                break;
+            }
+        }
+        /* 地図は必ず SCREEN_HEIGHT 行ぶん、1 行目から。 */
+        if (k != SCREEN_HEIGHT) {
+            mismatch = panel;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
 TEST(the_dungeon_size_decides_how_many_panels_there_are)
 {
     int mismatch = -1;
@@ -362,6 +393,7 @@ int main(void)
     RUN_TEST(containment_matches_the_original_over_the_whole_dungeon);
     RUN_TEST(dungeon_coordinates_land_where_the_original_printed_them);
     RUN_TEST(the_top_left_of_the_window_is_where_prt_map_starts_drawing);
+    RUN_TEST(the_map_rows_come_out_consecutively_from_the_top);
     RUN_TEST(the_dungeon_size_decides_how_many_panels_there_are);
     RUN_TEST(the_panel_counts_survive_a_save_file_round_trip);
     RUN_TEST(forgetting_the_position_puts_the_indexes_outside_the_valid_range);
