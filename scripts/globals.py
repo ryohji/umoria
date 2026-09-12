@@ -70,7 +70,9 @@ GROUPS = {
         t_list tcptr t_level hack_monptr""",
     "持ち物・アイテム": """
         inventory inven_ctr inven_weight equip_ctr object_ident sorted_objects""",
-    "店": "store last_store_inc",
+    # last_store_inc は #18-4A で store2.c の static になった（値切りの途中の
+    # 入力を覚えているだけの値で、店の在庫とは別のもの）。
+    "店": "store",
     # 画面の見えている範囲（パネル）の 10 個は #18-3 で panel.c の static に
     # なり、externs.h から全部外れた。メッセージ表示と同じく、片づいた区分は
     # 行ごと消える（消えた記録は GLOBALS_INVENTORY.md 側）。

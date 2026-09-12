@@ -348,6 +348,10 @@ static bool haggle_insults(int store_num) {
     return haggle;
 }
 
+// The last offer the player typed as an increment ("+50"), so that an empty
+// line can repeat it. Only the haggling below ever looks at it.
+static int16_t last_store_inc;
+
 static bool get_haggle(const char *comment, int32_t *new_offer, int num_offer) {
     bool flag = true;
     bool increment = false;
