@@ -12,12 +12,23 @@
 #include "constant.h"
 #include "types.h"
 
-#include "externs.h"
 #include "panel.h"
 
-// The ten variables are still the globals in variable.c: the callers this
-// module does not cover yet reach them directly, so both sides have to see the
-// same state. They move in here once nobody else names them.
+// Which panel we are looking at, and the six coordinates that follow from it.
+// Private: recalculate_bounds() below is the only code that may derive the six,
+// and it is the only reason the six exist at all. They used to be globals in
+// variable.c, where four other files reached them and did the arithmetic over
+// again.
+//
+// No externs.h here. Nothing outside this file is needed to say where the
+// window is, which is the whole point of the move.
+static int panel_row, panel_col;
+static int panel_row_min, panel_row_max;
+static int panel_col_min, panel_col_max;
+static int panel_row_prt, panel_col_prt;
+
+// Following are calculated from max dungeon sizes
+static int max_panel_rows, max_panel_cols;
 
 int panel_row_index(void) {
     return panel_row;
@@ -113,8 +124,8 @@ int panel_screen_col(int dungeon_col) {
 }
 
 void panel_set_dungeon_size(int height, int width) {
-    max_panel_rows = (int16_t)((height / SCREEN_HEIGHT) * 2 - 2);
-    max_panel_cols = (int16_t)((width / SCREEN_WIDTH) * 2 - 2);
+    max_panel_rows = (height / SCREEN_HEIGHT) * 2 - 2;
+    max_panel_cols = (width / SCREEN_WIDTH) * 2 - 2;
     panel_row = max_panel_rows;
     panel_col = max_panel_cols;
 }
@@ -128,6 +139,6 @@ int panel_max_col_index(void) {
 }
 
 void panel_set_max_indexes(int max_row, int max_col) {
-    max_panel_rows = (int16_t)max_row;
-    max_panel_cols = (int16_t)max_col;
+    max_panel_rows = max_row;
+    max_panel_cols = max_col;
 }

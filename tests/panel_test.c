@@ -20,6 +20,8 @@
  * （「まだ見ていない」を表す -1 と 0 埋めも含む）、force の両方について、
  * 動いたかどうかと座標 6 個すべてを比べる。
  */
+/* externs.h も variable.c も要らない。10 個の値が panel.c の static に
+ * なったので、ふれる先は panel.h の窓口だけで足りる。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"
@@ -30,13 +32,16 @@
 
 #include <stdio.h>
 
-/* 本体のグローバル（variable.c）。ステップ C で panel.c の static になる。
- * それまでは写しと実体が同じ場所を見ていなければ比べる意味がない。 */
-extern int16_t max_panel_rows, max_panel_cols;
-extern int panel_row, panel_col;
-extern int panel_row_min, panel_row_max;
-extern int panel_col_min, panel_col_max;
-extern int panel_col_prt, panel_row_prt;
+/* パネル数（旧 max_panel_rows / max_panel_cols）。写しの側は本体と同じ値を
+ * 見ていなければ比べる意味がないので、窓口から入れた値を控えておく。 */
+static int max_panel_rows, max_panel_cols;
+
+static void set_max_indexes(int rows, int cols)
+{
+    max_panel_rows = rows;
+    max_panel_cols = cols;
+    panel_set_max_indexes(rows, cols);
+}
 
 /* --- 変更前の写し ------------------------------------------------------- */
 
@@ -97,51 +102,94 @@ static int legacy_get_panel(struct panel_state *p, int y, int x, int force)
 
 /* --- 総当たりの下ごしらえ ---------------------------------------------- */
 
-static void load(const struct panel_state *p)
+/* 出発点の作りかた。生の代入はもうできないので、窓口を使って本体を目的の
+ * 状態まで運ぶ。写しの側にも同じ順で同じ操作をあてる（recipe が両方の
+ * 手順書）。運べる状態しか出発点にしないので、本体が実際になりうる状態
+ * だけを見ていることにもなる。
+ *   まともなパネル位置: 位置を忘れさせてから、そのパネルの真ん中へ動かす
+ *   4 辺を忘れた形:     generate_cave() が階を作る前に呼ぶ形
+ *   位置を忘れた形:     dungeon() が新しい階の頭で呼ぶ形 */
+struct start_recipe {
+    int row, col;
+    bool forget_bounds;
+    bool forget_position;
+};
+
+static void legacy_forget_bounds(struct panel_state *p)
 {
-    panel_row = p->row;
-    panel_col = p->col;
-    panel_row_min = p->row_min;
-    panel_row_max = p->row_max;
-    panel_col_min = p->col_min;
-    panel_col_max = p->col_max;
-    panel_row_prt = p->row_prt;
-    panel_col_prt = p->col_prt;
+    /* generate.c:1260-1263 の写し。4 辺だけを 0 にする（prt はそのまま）。 */
+    p->row_min = 0;
+    p->row_max = 0;
+    p->col_min = 0;
+    p->col_max = 0;
 }
 
+static void legacy_forget_position(struct panel_state *p)
+{
+    /* dungeon.c:65 の写し。 */
+    p->row = -1;
+    p->col = -1;
+}
+
+static struct panel_state expected_start(const struct start_recipe *r)
+{
+    struct panel_state p = {r->row, r->col, 0, 0, 0, 0, 0, 0};
+
+    legacy_bounds(&p);
+    if (r->forget_bounds) {
+        legacy_forget_bounds(&p);
+    }
+    if (r->forget_position) {
+        legacy_forget_position(&p);
+    }
+    return p;
+}
+
+static void load(const struct start_recipe *r)
+{
+    /* パネル row の真ん中の座標。prow = (y - 5) / 11 がちょうど row になる。 */
+    panel_forget_position();
+    (void)panel_move_to(r->row * (SCREEN_HEIGHT / 2) + SCREEN_HEIGHT / 4,
+                        r->col * (SCREEN_WIDTH / 2) + SCREEN_WIDTH / 4, true);
+    if (r->forget_bounds) {
+        panel_forget_bounds();
+    }
+    if (r->forget_position) {
+        panel_forget_position();
+    }
+}
+
+/* 見えるのは窓口越しの 8 個。row_prt / col_prt は引き算の相手なので、
+ * 座標 0 を画面座標に移した値（= -prt）で見る。 */
 static bool same(const struct panel_state *p)
 {
-    return panel_row == p->row && panel_col == p->col &&
-           panel_row_min == p->row_min && panel_row_max == p->row_max &&
-           panel_col_min == p->col_min && panel_col_max == p->col_max &&
-           panel_row_prt == p->row_prt && panel_col_prt == p->col_prt;
+    return panel_row_index() == p->row && panel_col_index() == p->col &&
+           panel_top_row() == p->row_min && panel_bottom_row() == p->row_max &&
+           panel_left_col() == p->col_min && panel_right_col() == p->col_max &&
+           panel_screen_row(0) == -p->row_prt && panel_screen_col(0) == -p->col_prt;
 }
 
-/* 出発点にする状態。まともなパネル位置のほか、「まだ見ていない」を表す
- * 2 つ（dungeon.c の -1、generate_cave() の 0 埋め）も混ぜる。 */
-static int starting_states(struct panel_state *out)
+/* 出発点の一覧。まともなパネル位置すべてと、「まだ見ていない」を表す 3 通り。 */
+static int starting_states(struct start_recipe *out, int max_row, int max_col)
 {
     int n = 0;
 
-    for (int row = 0; row <= 4; row++) {
-        for (int col = 0; col <= 4; col++) {
-            struct panel_state p = {row, col, 0, 0, 0, 0, 0, 0};
+    for (int row = 0; row <= max_row; row++) {
+        for (int col = 0; col <= max_col; col++) {
+            struct start_recipe r = {row, col, false, false};
 
-            legacy_bounds(&p);
-            out[n++] = p;
+            out[n++] = r;
         }
     }
 
-    struct panel_state forgotten_position = {-1, -1, 0, 0, 0, 0, 0, 0};
-    legacy_bounds(&forgotten_position);
-    out[n++] = forgotten_position;
-
-    /* generate_cave() の形。添字は最終パネル、4 辺は手で 0。 */
-    struct panel_state forgotten_bounds = {4, 4, 0, 0, 0, 0, -1, -13};
+    struct start_recipe forgotten_bounds = {max_row, max_col, true, false};
     out[n++] = forgotten_bounds;
 
-    /* 両方を忘れた形。dungeon() が generate_cave() のあとで -1 を入れる。 */
-    struct panel_state forgotten_both = {-1, -1, 0, 0, 0, 0, -1, -13};
+    struct start_recipe forgotten_position = {max_row, max_col, false, true};
+    out[n++] = forgotten_position;
+
+    /* generate_cave() が 4 辺を 0 にし、そのあと dungeon() が位置を忘れる。 */
+    struct start_recipe forgotten_both = {max_row, max_col, true, true};
     out[n++] = forgotten_both;
 
     return n;
@@ -151,12 +199,12 @@ static int starting_states(struct panel_state *out)
 
 TEST(a_panel_moves_exactly_where_the_original_moved_it)
 {
-    struct panel_state starts[32];
-    int start_count = starting_states(starts);
+    struct start_recipe starts[32];
     int mismatch = -1;
 
     /* ダンジョンは 66 x 198。パネル数はその大きさから決まる 4 x 4。 */
-    panel_set_max_indexes(4, 4);
+    set_max_indexes(4, 4);
+    int start_count = starting_states(starts, max_panel_rows, max_panel_cols);
 
     /* 外側 4 マスまで含める。map_area() は 4 辺から randint(10) / randint(20)
      * ぶん外へ出た座標を作るので、範囲外を渡されることがある。 */
@@ -164,7 +212,7 @@ TEST(a_panel_moves_exactly_where_the_original_moved_it)
         for (int y = -4; y < MAX_HEIGHT + 4 && mismatch < 0; y++) {
             for (int x = -4; x < MAX_WIDTH + 4; x++) {
                 for (int force = 0; force <= 1; force++) {
-                    struct panel_state expected = starts[s];
+                    struct panel_state expected = expected_start(&starts[s]);
                     int legacy = legacy_get_panel(&expected, y, x, force);
 
                     load(&starts[s]);
@@ -186,19 +234,19 @@ TEST(a_panel_moves_exactly_where_the_original_moved_it)
 
 TEST(a_town_sized_dungeon_has_a_single_panel)
 {
-    struct panel_state starts[32];
-    int start_count = starting_states(starts);
+    struct start_recipe starts[32];
     int mismatch = -1;
 
     /* 町は 1 パネルぶんの大きさしかない（max_panel_* が 0）。上の総当たりは
      * ダンジョン側の 4 なので、丸めの向きが逆になる町も見る。 */
-    panel_set_max_indexes(0, 0);
+    set_max_indexes(0, 0);
+    int start_count = starting_states(starts, max_panel_rows, max_panel_cols);
 
     for (int s = 0; s < start_count && mismatch < 0; s++) {
         for (int y = -4; y < SCREEN_HEIGHT + 4 && mismatch < 0; y++) {
             for (int x = -4; x < SCREEN_WIDTH + 4; x++) {
                 for (int force = 0; force <= 1; force++) {
-                    struct panel_state expected = starts[s];
+                    struct panel_state expected = expected_start(&starts[s]);
                     int legacy = legacy_get_panel(&expected, y, x, force);
 
                     load(&starts[s]);
@@ -223,10 +271,11 @@ TEST(the_four_edges_are_the_ones_the_original_walked_between)
     /* prt_map() や map_area() は row_min..row_max、col_min..col_max を
      * そのまま for の両端に使う。窓の高さ・幅がずれると地図の描画が
      * 欠けるか、はみ出す。 */
-    struct panel_state expected = {2, 3, 0, 0, 0, 0, 0, 0};
+    struct start_recipe r = {2, 3, false, false};
+    struct panel_state expected = expected_start(&r);
 
-    legacy_bounds(&expected);
-    load(&expected);
+    set_max_indexes(4, 4);
+    load(&r);
     ASSERT_TRUE(panel_top_row() == expected.row_min &&
                 panel_bottom_row() == expected.row_max &&
                 panel_left_col() == expected.col_min &&
@@ -235,21 +284,22 @@ TEST(the_four_edges_are_the_ones_the_original_walked_between)
 
 TEST(the_window_is_one_screen_high_and_one_screen_wide)
 {
-    struct panel_state p = {2, 3, 0, 0, 0, 0, 0, 0};
+    struct start_recipe r = {2, 3, false, false};
 
-    legacy_bounds(&p);
-    load(&p);
+    set_max_indexes(4, 4);
+    load(&r);
     ASSERT_TRUE(panel_bottom_row() - panel_top_row() == SCREEN_HEIGHT - 1 &&
                 panel_right_col() - panel_left_col() == SCREEN_WIDTH - 1);
 }
 
 TEST(containment_matches_the_original_over_the_whole_dungeon)
 {
-    struct panel_state p = {2, 3, 0, 0, 0, 0, 0, 0};
+    struct start_recipe r = {2, 3, false, false};
+    struct panel_state p = expected_start(&r);
     int mismatch = -1;
 
-    legacy_bounds(&p);
-    load(&p);
+    set_max_indexes(4, 4);
+    load(&r);
 
     for (int y = -4; y < MAX_HEIGHT + 4 && mismatch < 0; y++) {
         for (int x = -4; x < MAX_WIDTH + 4; x++) {
@@ -267,11 +317,12 @@ TEST(containment_matches_the_original_over_the_whole_dungeon)
 
 TEST(dungeon_coordinates_land_where_the_original_printed_them)
 {
-    struct panel_state p = {2, 3, 0, 0, 0, 0, 0, 0};
+    struct start_recipe r = {2, 3, false, false};
+    struct panel_state p = expected_start(&r);
     int mismatch = -1;
 
-    legacy_bounds(&p);
-    load(&p);
+    set_max_indexes(4, 4);
+    load(&r);
 
     for (int y = 0; y < MAX_HEIGHT && mismatch < 0; y++) {
         for (int x = 0; x < MAX_WIDTH; x++) {
@@ -294,6 +345,7 @@ TEST(the_top_left_of_the_window_is_where_prt_map_starts_drawing)
      * （引き算の相手を module が導出しているので、写しを載せると
      * 導出のほうを見ないまま通ってしまう）。 */
     panel_set_dungeon_size(MAX_HEIGHT, MAX_WIDTH);
+    set_max_indexes(panel_max_row_index(), panel_max_col_index());
     panel_forget_position();
     (void)panel_move_to(MAX_HEIGHT / 2, MAX_WIDTH / 2, false);
 
@@ -311,11 +363,10 @@ TEST(the_map_rows_come_out_consecutively_from_the_top)
     panel_set_dungeon_size(MAX_HEIGHT, MAX_WIDTH);
 
     for (int panel = 0; panel <= panel_max_row_index() && mismatch < 0; panel++) {
-        struct panel_state p = {panel, 0, 0, 0, 0, 0, 0, 0};
+        struct start_recipe r = {panel, 0, false, false};
         int k = 0; /* 変更前の prt_map() の数えかたの写し */
 
-        legacy_bounds(&p);
-        load(&p);
+        load(&r);
 
         for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
             k++;

@@ -109,12 +109,9 @@ bool light_flag = false; // Track if temporary light about player.
 // state, read by the interrupt handler
 int closing_flag = 0; // Used for closing
 
-// Following are calculated from max dungeon sizes
-int16_t max_panel_rows, max_panel_cols;
-int panel_row, panel_col;
-int panel_row_min, panel_row_max;
-int panel_col_min, panel_col_max;
-int panel_col_prt, panel_row_prt;
+// The panel (which part of the dungeon the screen shows, and the coordinates
+// that follow from it) moved to panel.c, next to the arithmetic that derives
+// one from the other
 
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 

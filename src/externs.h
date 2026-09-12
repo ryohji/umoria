@@ -70,11 +70,9 @@ extern int16_t cur_height; // Current dungeon height
 extern int16_t cur_width;  // Current dungeon width
 
 // Following are calculated from max dungeon sizes
-extern int16_t max_panel_rows, max_panel_cols;
-extern int panel_row, panel_col;
-extern int panel_row_min, panel_row_max;
-extern int panel_col_min, panel_col_max;
-extern int panel_col_prt, panel_row_prt;
+// The panel (the ten values that say which part of the dungeon is on screen)
+// is private to panel.c now, together with the arithmetic that derives the six
+// coordinates from the two indexes. See panel.h.
 
 // Following are all floor definitions
 extern cave_type cave[MAX_HEIGHT][MAX_WIDTH];
