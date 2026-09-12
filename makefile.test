@@ -247,21 +247,23 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
 	    src/desc.c src/tables.c \
 	    src/treasure.c src/player.c src/abilities.c
 
-# 文字列への差しこみ（insert_str / insert_lnum）の実体は #41B で
-# src/str_insert.c へ移った。対象の依存は標準ライブラリだけなので、本来は
-# src/str_insert.c 1 本で足りる。まだ misc3.c 以下を引いているのは、この
-# コミットを「純粋な移動」に限るため。1 単位への削減は #41 のステップ C。
+# 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
+# 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
+# str_insert.c をリンクする。
+#
+# この 2 関数がプロジェクト内に求めるシンボルは 0 個（strcpy / strcat /
+# strlen / sprintf など標準ライブラリだけ）なので、代役ファイルもフィクスチャ
+# も要らず、対象 1 本で足りる。str_insert_test.c は fixture.h を include する
+# が fixture_reset() を呼ばないため、fixture.c / misc3_stubs.c は不要。
+#
+# #41B までは misc3.c と同居していたせいで 10 コンパイル単位を引いていた
+# （str_insert_test.c misc3_stubs.c + misc3.c stats.c str_insert.c desc.c
+# tables.c treasure.c player.c abilities.c）。#41C で 2 単位に減らした
+# （src/ 側は 8 → 1）。
 $(BUILDDIR)/str_insert_test: $(TESTDIR)/str_insert_test.c \
-                             $(TESTDIR)/misc3_stubs.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                             src/misc3.c src/stats.c src/str_insert.c \
-                             src/str_insert.h src/desc.c src/tables.c \
-                             src/treasure.c src/player.c \
-                             src/abilities.c | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/str_insert_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
-	    src/treasure.c src/player.c src/abilities.c
+                             src/str_insert.c src/str_insert.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/str_insert_test.c src/str_insert.c
 
 # モンスター表の逆順走査は src/monsters.c の rbegin / rend / prev にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
