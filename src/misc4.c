@@ -23,16 +23,16 @@ void scribe_object(void) {
     if (inventory_count() > 0 || equipment_count() > 0) {
         int item_val;
 
-        if (get_item(&item_val, "Which one? ", 0, INVEN_ARRAY_SIZE, CNIL, CNIL)) {
+        if (get_item(&item_val, "Which one? ", 0, inventory_and_equipment_slot_count(), CNIL, CNIL)) {
             msgtype out_val;
             bigvtype tmp_str;
 
-            objdes(tmp_str, &inventory[item_val], true);
+            objdes(tmp_str, inventory_and_equipment_at(item_val), true);
             (void)snprintf(out_val, sizeof(out_val), "Inscribing %s", tmp_str);
             msg_print(out_val);
-            if (inventory[item_val].inscrip[0] != '\0') {
+            if (inventory_and_equipment_at(item_val)->inscrip[0] != '\0') {
                 (void)sprintf(out_val, "Replace %s New inscription:",
-                              inventory[item_val].inscrip);
+                              inventory_and_equipment_at(item_val)->inscrip);
             } else {
                 (void)strcpy(out_val, "Inscription: ");
             }
@@ -42,7 +42,7 @@ void scribe_object(void) {
             }
             prt(out_val, 0, 0);
             if (get_string(out_val, 0, (int)strlen(out_val), j)) {
-                inscribe(&inventory[item_val], out_val);
+                inscribe(inventory_and_equipment_at(item_val), out_val);
             }
         }
     } else {
