@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "inventory.h"
 
 // Pray like HELL. -RAK-
 void pray(void) {
@@ -28,7 +29,7 @@ void pray(void) {
         msg_print("You are too confused.");
     } else if (class[py.misc.pclass].spell != PRIEST) {
         msg_print("Pray hard enough and your prayers may be answered.");
-    } else if (inven_ctr == 0) {
+    } else if (inventory_count() == 0) {
         msg_print("But you are not carrying anything!");
     } else if (!find_range(TV_PRAYER_BOOK, TV_NEVER, &i, &j)) {
         msg_print("You are not carrying any Holy Books!");
@@ -95,8 +96,8 @@ void pray(void) {
                     create_food();
                     break;
                 case 15:
-                    for (i = 0; i < INVEN_ARRAY_SIZE; i++) {
-                        inven_type *i_ptr = &inventory[i];
+                    for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
+                        inven_type *i_ptr = inventory_and_equipment_at(i);
 
                         // only clear flag for items that are wielded or worn
                         if (i_ptr->tval >= TV_MIN_WEAR && i_ptr->tval <= TV_MAX_WEAR) {
