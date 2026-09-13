@@ -276,11 +276,11 @@ int ident_spell(void) {
     bool ident = false;
 
     int item_val;
-    if (get_item(&item_val, "Item you wish identified?", 0, INVEN_ARRAY_SIZE, CNIL, CNIL)) {
+    if (get_item(&item_val, "Item you wish identified?", 0, inventory_and_equipment_slot_count(), CNIL, CNIL)) {
         ident = true;
         identify(&item_val);
 
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_and_equipment_at(item_val);
         known2(i_ptr);
 
         bigvtype tmp_str;
