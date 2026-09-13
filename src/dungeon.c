@@ -630,11 +630,11 @@ void dungeon(void) {
         if (((turn & 0xF) == 0) && (f_ptr->confused == 0) &&
             (randint((10 + 750 / (5 + py.misc.lev))) == 1)) {
 
-            for (i = 0; i < INVEN_ARRAY_SIZE; i++) {
-                if (i == inven_ctr) {
+            for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
+                if (i == inventory_count()) {
                     i = 22;
                 }
-                i_ptr = &inventory[i];
+                i_ptr = inventory_and_equipment_at(i);
 
                 // if in inventory, succeed 1 out of 50 times,
                 // if in equipment list, success 1 out of 10 times
