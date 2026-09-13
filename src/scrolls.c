@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "equipment.h"
+#include "inventory.h"
 #include "item_ident.h"
 
 // Scrolls for the reading -RAK-
@@ -32,14 +33,14 @@ void read_scroll(void) {
         msg_print("You have no light to read by.");
     } else if (py.flags.confused > 0) {
         msg_print("You are too confused to read a scroll.");
-    } else if (inven_ctr == 0) {
+    } else if (inventory_count() == 0) {
         msg_print("You are not carrying anything!");
     } else if (!find_range(TV_SCROLL1, TV_SCROLL2, &j, &k)) {
         msg_print("You are not carrying any scrolls!");
     } else if (get_item(&item_val, "Read which scroll?", j, k, CNIL, CNIL)) {
         free_turn_flag = false;
 
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
         uint32_t i = i_ptr->flags;
 
         bool used_up = true;
@@ -160,7 +161,7 @@ void read_scroll(void) {
                 // another identify scroll, but it always moves down.
                 while (i_ptr->tval != TV_SCROLL1 || i_ptr->flags != 0x00000008) {
                     item_val--;
-                    i_ptr = &inventory[item_val];
+                    i_ptr = inventory_at(item_val);
                 }
                 break;
             case 5:
