@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "inventory.h"
 #include "options.h"
 #include "platform.h"
 
@@ -231,8 +232,8 @@ static void char_inven_init(void) {
     inven_type inven_init;
 
     // this is needed for bash to work right, it can't hurt anyway
-    for (i = 0; i < INVEN_ARRAY_SIZE; i++) {
-        invcopy(&inventory[i], OBJ_NOTHING);
+    for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
+        invcopy(inventory_and_equipment_at(i), OBJ_NOTHING);
     }
 
     for (i = 0; i < 5; i++) {
