@@ -214,12 +214,24 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 #
 # turn は代役側で定義しており（本体では variable.c:69）、extern int32_t
 # なのでテストから直接代入して制御できる。
+#
+# #18-5B31 で creature.c が持ち物・装備の窓口（equipment_at・inventory_at・
+# inventory_count）を呼ぶようになったので、src/inventory.c を足した。
+# 代役を書く形（creature_stubs.c に equipment_at 等を並べる）と比べてこちらを
+# 選んだ理由は 2 つある。(1) 本物の窓口を通るので、窓口の書きかえがこの
+# テストで検出できる。(2) リンカに聞いたら inventory.c が要求する未解決は
+# inven_weight と equip_ctr の 2 個だけで（inventory と inven_ctr は代役側に
+# 既にある）、代役に 2 行足すだけで済んだ。tests/inventory_fixture.c は同じ
+# 4 個を定義しているが、そちらを足すと inventory と inven_ctr が二重定義に
+# なるので流用できない。inventory.c は externs.h を include しないので、
+# 芋づるは 1 本も増えない（2 → 3 コンパイル単位）。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                                src/creature.c | $(BUILDDIR)
+                                src/creature.c src/inventory.c \
+                                src/equipment.h src/inventory.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
-	    $(TESTDIR)/creature_stubs.c
+	    $(TESTDIR)/creature_stubs.c src/inventory.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部

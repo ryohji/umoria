@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "equipment.h"
 #include "externs.h"
 #include "panel.h"
 
@@ -732,7 +733,7 @@ static void make_attack(int monptr) {
                     i = INVEN_FEET;
                     break;
                 }
-                i_ptr = &inventory[i];
+                i_ptr = equipment_at(i);
 
                 if (i_ptr->tohit > 0) {
                     i_ptr->tohit -= randint(2);
@@ -777,7 +778,7 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 23: // Eat light
-                i_ptr = &inventory[INVEN_LIGHT];
+                i_ptr = equipment_at(INVEN_LIGHT);
                 if (i_ptr->p1 > 0) {
                     i_ptr->p1 -= (250 + randint(250));
                     if (i_ptr->p1 < 1) {
