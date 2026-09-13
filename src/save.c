@@ -658,18 +658,24 @@ bool get_char(bool *generate) {
 
             rd_short((uint16_t *)&missile_ctr);
             rd_long((uint32_t *)&turn);
-            rd_short((uint16_t *)&inven_ctr);
-            if (inven_ctr > INVEN_WIELD) {
+            uint16_t pack_count;
+            rd_short(&pack_count);
+            inventory_set_count((int16_t)pack_count);
+            if (inventory_count() > inventory_slot_count()) {
                 goto error;
             }
-            for (int i = 0; i < inven_ctr; i++) {
-                rd_item(&inventory[i]);
+            for (int i = 0; i < inventory_count(); i++) {
+                rd_item(inventory_at(i));
             }
-            for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
-                rd_item(&inventory[i]);
+            for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
+                rd_item(equipment_at(i));
             }
-            rd_short((uint16_t *)&inven_weight);
-            rd_short((uint16_t *)&equip_ctr);
+            uint16_t pack_weight;
+            rd_short(&pack_weight);
+            inventory_set_weight((int16_t)pack_weight);
+            uint16_t equip_count;
+            rd_short(&equip_count);
+            equipment_set_count((int16_t)equip_count);
             rd_long(&spell_learned);
             rd_long(&spell_worked);
             rd_long(&spell_forgotten);
