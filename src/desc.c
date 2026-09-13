@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "str_insert.h"
+
 static void unsample(inven_type *);
 
 char titles[MAX_TITLES][10];
