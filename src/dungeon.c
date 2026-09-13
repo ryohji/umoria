@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "equipment.h"
+#include "inventory.h"
 #include "panel.h"
 #include "messages.h"
 #include "stats.h"
@@ -1781,7 +1782,7 @@ static void examine_book(void) {
         spell_type *s_ptr;
 
         bool flag = true;
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
 
         if (class[py.misc.pclass].spell == MAGE) {
             if (i_ptr->tval != TV_MAGIC_BOOK) {
@@ -1799,7 +1800,7 @@ static void examine_book(void) {
             msg_print("You do not understand the language.");
         } else {
             i = 0;
-            uint32_t j = inventory[item_val].flags;
+            uint32_t j = inventory_at(item_val)->flags;
 
             while (j) {
                 k = bit_pos(&j);
@@ -1888,10 +1889,10 @@ static void jamdoor(void) {
                         // Series is: 0 20 30 37 43 48 52 56 60 64 67 70 ...
                         t_ptr->p1 -= 1 + 190 / (10 - t_ptr->p1);
 
-                        inven_type *i_ptr = &inventory[i];
+                        inven_type *i_ptr = inventory_at(i);
                         if (i_ptr->number > 1) {
                             i_ptr->number--;
-                            inven_weight -= i_ptr->weight;
+                            inventory_set_weight(inventory_weight() - i_ptr->weight);
                         } else {
                             inven_destroy(i);
                         }
@@ -1932,7 +1933,7 @@ static void refill_lamp(void) {
         free_turn_flag = false;
 
         inven_type *i_ptr = equipment_at(INVEN_LIGHT);
-        i_ptr->p1 += inventory[i].p1;
+        i_ptr->p1 += inventory_at(i)->p1;
         if (i_ptr->p1 > OBJ_LAMP_MAX) {
             i_ptr->p1 = OBJ_LAMP_MAX;
             msg_print("Your lamp overflows, spilling oil on the ground.");
