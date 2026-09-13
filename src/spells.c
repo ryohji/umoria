@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "equipment.h"
 #include "externs.h"
 #include "panel.h"
 
@@ -2120,8 +2121,8 @@ bool enchant(int16_t *plusses, int16_t limit) {
 int remove_curse(void) {
     bool result = false;
 
-    for (int i = INVEN_WIELD; i <= INVEN_OUTER; i++) {
-        inven_type *i_ptr = &inventory[i];
+    for (int i = equipment_first_slot(); i <= INVEN_OUTER; i++) {
+        inven_type *i_ptr = equipment_at(i);
 
         if (TR_CURSED & i_ptr->flags) {
             i_ptr->flags &= ~TR_CURSED;
