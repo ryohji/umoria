@@ -14,6 +14,7 @@
 
 #include "externs.h"
 
+#include "inventory.h"
 #include "item_ident.h"
 
 // Eat some food. -RAK-
@@ -22,7 +23,7 @@ void eat(void) {
 
     free_turn_flag = true;
 
-    if (inven_ctr == 0) {
+    if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
     } else if (!find_range(TV_FOOD, TV_NEVER, &j, &k)) {
         msg_print("You are not carrying any food.");
@@ -31,7 +32,7 @@ void eat(void) {
 
         struct flags *f_ptr;
 
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
         bool ident = false;
 
         uint32_t i = i_ptr->flags;

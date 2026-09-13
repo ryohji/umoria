@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "device.h"
+#include "inventory.h"
 #include "item_ident.h"
 #include "stats.h"
 
@@ -23,12 +24,12 @@ void aim(void) {
     free_turn_flag = true;
 
     int j, k, item_val;
-    if (inven_ctr == 0) {
+    if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
     } else if (!find_range(TV_WAND, TV_NEVER, &j, &k)) {
         msg_print("You are not carrying any wands.");
     } else if (get_item(&item_val, "Aim which wand?", j, k, CNIL, CNIL)) {
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
         free_turn_flag = false;
 
         int dir;

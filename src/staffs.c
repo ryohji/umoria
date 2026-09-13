@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "device.h"
+#include "inventory.h"
 #include "item_ident.h"
 #include "stats.h"
 
@@ -25,14 +26,14 @@ void use(void) {
 
     free_turn_flag = true;
 
-    if (inven_ctr == 0) {
+    if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
     } else if (!find_range(TV_STAFF, TV_NEVER, &j, &k)) {
         msg_print("You are not carrying any staffs.");
     } else if (get_item(&item_val, "Use which staff?", j, k, CNIL, CNIL)) {
         free_turn_flag = false;
 
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
 
         struct misc *m_ptr = &py.misc;
 
