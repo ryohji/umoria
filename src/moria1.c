@@ -579,8 +579,8 @@ static void inven_screen(int new_scr) {
             line = 7;
             break;
         case INVEN_SCR:
-            scr_left = show_inven(0, inven_ctr - 1, show_weight_flag, scr_left, CNIL);
-            line = inven_ctr;
+            scr_left = show_inven(0, inventory_count() - 1, show_weight_flag, scr_left, CNIL);
+            line = inventory_count();
             break;
         case WEAR_SCR:
             scr_left = show_inven(wear_low, wear_high, show_weight_flag, scr_left, CNIL);
@@ -650,7 +650,7 @@ void inven_command(char command) {
         selecting = false;
         switch (command) {
         case 'i': // Inventory
-            if (inven_ctr == 0) {
+            if (inventory_count() == 0) {
                 msg_print("You are not carrying anything.");
             } else {
                 inven_screen(INVEN_SCR);
@@ -668,7 +668,7 @@ void inven_command(char command) {
                 msg_print("You are not using any equipment.");
                 // don't print message restarting inven command after taking off
                 // something, it is confusing
-            } else if (inven_ctr >= inventory_slot_count() && !doing_inven) {
+            } else if (inventory_count() >= inventory_slot_count() && !doing_inven) {
                 msg_print("You will have to drop something first.");
             } else {
                 if (scr_state != BLANK_SCR) {
@@ -678,14 +678,14 @@ void inven_command(char command) {
             }
             break;
         case 'd': // Drop
-            if (inven_ctr == 0 && equipment_count() == 0) {
+            if (inventory_count() == 0 && equipment_count() == 0) {
                 msg_print("But you're not carrying anything.");
             } else if (cave[char_row][char_col].tptr != 0) {
                 msg_print("There's no room to drop anything here.");
             } else {
                 selecting = true;
                 if ((scr_state == EQUIP_SCR && equipment_count() > 0) ||
-                    inven_ctr == 0) {
+                    inventory_count() == 0) {
                     if (scr_state != BLANK_SCR) {
                         inven_screen(EQUIP_SCR);
                     }
@@ -697,11 +697,11 @@ void inven_command(char command) {
             break;
         case 'w': // Wear/wield
             for (wear_low = 0;
-                 wear_low < inven_ctr && inventory_at(wear_low)->tval > TV_MAX_WEAR;
+                 wear_low < inventory_count() && inventory_at(wear_low)->tval > TV_MAX_WEAR;
                  wear_low++) {
                 ;
             }
-            for (wear_high = wear_low; wear_high < inven_ctr &&
+            for (wear_high = wear_low; wear_high < inventory_count() &&
                                        inventory_at(wear_high)->tval >= TV_MIN_WEAR;
                  wear_high++) {
                 ;
@@ -778,7 +778,7 @@ void inven_command(char command) {
             } else {
                 from = 0;
                 if (command == 'd') {
-                    to = inven_ctr - 1;
+                    to = inventory_count() - 1;
                     prompt = "Drop";
                     if (equipment_count() > 0) {
                         swap = ", / for Equip";
@@ -789,7 +789,7 @@ void inven_command(char command) {
                         prompt = "Take off";
                     } else { // command == 'r'
                         prompt = "Throw off";
-                        if (inven_ctr > 0) {
+                        if (inventory_count() > 0) {
                             swap = ", / for Inven";
                         }
                     }
@@ -894,7 +894,7 @@ void inven_command(char command) {
                                     inven_drop(item, true);
                                     // As a safety measure, set the player's inven
                                     // weight to 0, when the last object is dropped.
-                                    if (inven_ctr == 0 && equipment_count() == 0) {
+                                    if (inventory_count() == 0 && equipment_count() == 0) {
                                         inven_weight = 0;
                                     }
                                 } else {
@@ -1029,11 +1029,11 @@ void inven_command(char command) {
                                 // from equipment list, if necessary.
                                 i_ptr = equipment_at(slot);
                                 if (i_ptr->tval != TV_NOTHING) {
-                                    int tmp2 = inven_ctr;
+                                    int tmp2 = inventory_count();
                                     tmp = inven_carry(i_ptr);
                                     // If item removed did not stack with anything
                                     // in inventory, then increment wear_high.
-                                    if (inven_ctr != tmp2) {
+                                    if (inventory_count() != tmp2) {
                                         wear_high++;
                                     }
                                     takeoff(slot, tmp);
@@ -1112,7 +1112,7 @@ void inven_command(char command) {
 
                             // As a safety measure, set the player's inven weight
                             // to 0, when the last object is dropped.
-                            if (inven_ctr == 0 && equipment_count() == 0) {
+                            if (inventory_count() == 0 && equipment_count() == 0) {
                                 inven_weight = 0;
                             }
                         }
@@ -1139,10 +1139,10 @@ void inven_command(char command) {
         } else {
             // Put an appropriate header.
             if (scr_state == INVEN_SCR) {
-                if (!show_weight_flag || inven_ctr == 0) {
+                if (!show_weight_flag || inventory_count() == 0) {
                     (void)sprintf(prt1, "You are carrying %d.%d pounds. In your pack there is %s",
                                   inven_weight / 10, inven_weight % 10,
-                                  (inven_ctr == 0 ? "nothing." : "-"));
+                                  (inventory_count() == 0 ? "nothing." : "-"));
                 } else {
                     (void)sprintf(prt1, "You are carrying %d.%d pounds. Your capacity is %d.%d pounds. %s",
                                   inven_weight / 10, inven_weight % 10,
@@ -1191,17 +1191,17 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
 
     if (j > INVEN_WIELD) {
         full = true;
-        if (inven_ctr == 0) {
+        if (inventory_count() == 0) {
             i_scr = 0;
             j = equipment_count() - 1;
         } else {
-            j = inven_ctr - 1;
+            j = inventory_count() - 1;
         }
     } else {
         full = false;
     }
 
-    if (inven_ctr > 0 || (full && equipment_count() > 0)) {
+    if (inventory_count() > 0 || (full && equipment_count() > 0)) {
         do {
             if (redraw) {
                 if (i_scr > 0) {
@@ -1247,7 +1247,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                                 test_flag = true;
                                 if (redraw) {
                                     j = equipment_count();
-                                    while (j < inven_ctr) {
+                                    while (j < inventory_count()) {
                                         j++;
                                         erase_line(j, 0);
                                     }
@@ -1256,20 +1256,20 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                             }
                             prt(out_val, 0, 0);
                         } else {
-                            if (inven_ctr == 0) {
+                            if (inventory_count() == 0) {
                                 prt("But you're not carrying anything -more-", 0, 0);
                                 (void)inkey();
                             } else {
                                 i_scr = 1;
                                 test_flag = true;
                                 if (redraw) {
-                                    j = inven_ctr;
+                                    j = inventory_count();
                                     while (j < equipment_count()) {
                                         j++;
                                         erase_line(j, 0);
                                     }
                                 }
-                                j = inven_ctr - 1;
+                                j = inventory_count() - 1;
                             }
                         }
                     }
