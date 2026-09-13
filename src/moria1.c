@@ -507,7 +507,10 @@ void takeoff(int item_val, int posn) {
 int verify(const char *prompt, int item) {
     bigvtype out_str, object;
 
-    objdes(object, &inventory[item], true);
+    // The index crosses both windows: of the five call sites, two hand in a
+    // pack slot, two an equipment slot, and get_item hands in whichever screen
+    // the player is looking at.
+    objdes(object, inventory_and_equipment_at(item), true);
 
     // change the period to a question mark
     object[strlen(object) - 1] = '?';
