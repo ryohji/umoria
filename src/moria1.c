@@ -109,8 +109,8 @@ void calc_bonuses(void) {
     m_ptr->dis_ac = 0;             // Display AC
     m_ptr->dis_tac = m_ptr->ptoac; // Display To AC
 
-    for (int i = INVEN_WIELD; i < INVEN_LIGHT; i++) {
-        inven_type *i_ptr = &inventory[i];
+    for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
+        inven_type *i_ptr = equipment_at(i);
         if (i_ptr->tval != TV_NOTHING) {
             m_ptr->ptohit += i_ptr->tohit;
 
@@ -163,8 +163,8 @@ void calc_bonuses(void) {
     inven_type *i_ptr;
 
     uint32_t item_flags = 0;
-    i_ptr = &inventory[INVEN_WIELD];
-    for (int i = INVEN_WIELD; i < INVEN_LIGHT; i++) {
+    i_ptr = equipment_at(equipment_first_slot());
+    for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
         item_flags |= i_ptr->flags;
         i_ptr++;
     }
@@ -203,8 +203,8 @@ void calc_bonuses(void) {
         p_ptr->ffall = true;
     }
 
-    i_ptr = &inventory[INVEN_WIELD];
-    for (int i = INVEN_WIELD; i < INVEN_LIGHT; i++) {
+    i_ptr = equipment_at(equipment_first_slot());
+    for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
         if (TR_SUST_STAT & i_ptr->flags) {
             switch (i_ptr->p1) {
             case 1:
@@ -370,8 +370,8 @@ int show_equip(bool weight, int col) {
     }
 
     // Range of equipment
-    for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
-        i_ptr = &inventory[i];
+    for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
+        i_ptr = equipment_at(i);
         if (i_ptr->tval != TV_NOTHING) {
             const char *prt1;
 
@@ -421,7 +421,7 @@ int show_equip(bool weight, int col) {
                 prt1 = "Unknown value";
                 break;
             }
-            objdes(prt2, &inventory[i], true);
+            objdes(prt2, equipment_at(i), true);
 
             // Truncate if necessary
             prt2[lim] = 0;
@@ -445,8 +445,8 @@ int show_equip(bool weight, int col) {
     line = 0;
 
     // Range of equipment
-    for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
-        i_ptr = &inventory[i];
+    for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
+        i_ptr = equipment_at(i);
         if (i_ptr->tval != TV_NOTHING) {
             // don't need first two spaces when using whole screen
             if (col == 0) {
@@ -469,7 +469,7 @@ int show_equip(bool weight, int col) {
 
 // Remove item from equipment list -RAK-
 void takeoff(int item_val, int posn) {
-    equip_ctr--;
+    equipment_set_count(equipment_count() - 1);
 
     inven_type *t_ptr = equipment_at(item_val);
 
@@ -588,7 +588,7 @@ static void inven_screen(int new_scr) {
             break;
         case EQUIP_SCR:
             scr_left = show_equip(show_weight_flag, scr_left);
-            line = equip_ctr;
+            line = equipment_count();
             break;
         }
         if (line >= scr_base) {
@@ -657,14 +657,14 @@ void inven_command(char command) {
             }
             break;
         case 'e': // Equipment
-            if (equip_ctr == 0) {
+            if (equipment_count() == 0) {
                 msg_print("You are not using any equipment.");
             } else {
                 inven_screen(EQUIP_SCR);
             }
             break;
         case 't': // Take off
-            if (equip_ctr == 0) {
+            if (equipment_count() == 0) {
                 msg_print("You are not using any equipment.");
                 // don't print message restarting inven command after taking off
                 // something, it is confusing
@@ -678,13 +678,13 @@ void inven_command(char command) {
             }
             break;
         case 'd': // Drop
-            if (inven_ctr == 0 && equip_ctr == 0) {
+            if (inven_ctr == 0 && equipment_count() == 0) {
                 msg_print("But you're not carrying anything.");
             } else if (cave[char_row][char_col].tptr != 0) {
                 msg_print("There's no room to drop anything here.");
             } else {
                 selecting = true;
-                if ((scr_state == EQUIP_SCR && equip_ctr > 0) ||
+                if ((scr_state == EQUIP_SCR && equipment_count() > 0) ||
                     inven_ctr == 0) {
                     if (scr_state != BLANK_SCR) {
                         inven_screen(EQUIP_SCR);
@@ -780,11 +780,11 @@ void inven_command(char command) {
                 if (command == 'd') {
                     to = inven_ctr - 1;
                     prompt = "Drop";
-                    if (equip_ctr > 0) {
+                    if (equipment_count() > 0) {
                         swap = ", / for Equip";
                     }
                 } else {
-                    to = equip_ctr - 1;
+                    to = equipment_count() - 1;
                     if (command == 't') {
                         prompt = "Take off";
                     } else { // command == 'r'
@@ -894,7 +894,7 @@ void inven_command(char command) {
                                     inven_drop(item, true);
                                     // As a safety measure, set the player's inven
                                     // weight to 0, when the last object is dropped.
-                                    if (inven_ctr == 0 && equip_ctr == 0) {
+                                    if (inven_ctr == 0 && equipment_count() == 0) {
                                         inven_weight = 0;
                                     }
                                 } else {
@@ -1041,7 +1041,7 @@ void inven_command(char command) {
 
                                 // third, wear new item
                                 *i_ptr = tmp_obj;
-                                equip_ctr++;
+                                equipment_set_count(equipment_count() + 1);
                                 py_bonuses(i_ptr, 1);
 
                                 const char *string;
@@ -1054,7 +1054,7 @@ void inven_command(char command) {
                                 }
                                 objdes(prt2, i_ptr, true);
                                 // Get the right equipment letter.
-                                tmp = INVEN_WIELD;
+                                tmp = equipment_first_slot();
                                 item = 0;
                                 while (tmp != slot) {
                                     if (equipment_at(tmp++)->tval != TV_NOTHING) {
@@ -1112,7 +1112,7 @@ void inven_command(char command) {
 
                             // As a safety measure, set the player's inven weight
                             // to 0, when the last object is dropped.
-                            if (inven_ctr == 0 && equip_ctr == 0) {
+                            if (inven_ctr == 0 && equipment_count() == 0) {
                                 inven_weight = 0;
                             }
                         }
@@ -1157,7 +1157,7 @@ void inven_command(char command) {
                     prt("You could wield -", 0, 0);
                 }
             } else if (scr_state == EQUIP_SCR) {
-                if (equip_ctr == 0) {
+                if (equipment_count() == 0) {
                     prt("You are not using anything.", 0, 0);
                 } else {
                     prt("You are using -", 0, 0);
@@ -1193,7 +1193,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
         full = true;
         if (inven_ctr == 0) {
             i_scr = 0;
-            j = equip_ctr - 1;
+            j = equipment_count() - 1;
         } else {
             j = inven_ctr - 1;
         }
@@ -1201,7 +1201,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
         full = false;
     }
 
-    if (inven_ctr > 0 || (full && equip_ctr > 0)) {
+    if (inven_ctr > 0 || (full && equipment_count() > 0)) {
         do {
             if (redraw) {
                 if (i_scr > 0) {
@@ -1239,20 +1239,20 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                 case '/':
                     if (full) {
                         if (i_scr > 0) {
-                            if (equip_ctr == 0) {
+                            if (equipment_count() == 0) {
                                 prt("But you're not using anything -more-", 0, 0);
                                 (void)inkey();
                             } else {
                                 i_scr = 0;
                                 test_flag = true;
                                 if (redraw) {
-                                    j = equip_ctr;
+                                    j = equipment_count();
                                     while (j < inven_ctr) {
                                         j++;
                                         erase_line(j, 0);
                                     }
                                 }
-                                j = equip_ctr - 1;
+                                j = equipment_count() - 1;
                             }
                             prt(out_val, 0, 0);
                         } else {
@@ -1264,7 +1264,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                                 test_flag = true;
                                 if (redraw) {
                                     j = inven_ctr;
-                                    while (j < equip_ctr) {
+                                    while (j < equipment_count()) {
                                         j++;
                                         erase_line(j, 0);
                                     }
@@ -1305,7 +1305,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                             i = 21;
                             j = *com_val;
                             do {
-                                while (inventory[++i].tval == TV_NOTHING) {
+                                while (equipment_at(++i)->tval == TV_NOTHING) {
                                     ;
                                 }
                                 j--;
