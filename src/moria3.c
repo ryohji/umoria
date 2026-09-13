@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "equipment.h"
 #include "panel.h"
 #include "stats.h"
 
@@ -564,7 +565,7 @@ void py_attack(int y, int x) {
     monster_type *const m_ptr = m_list + crptr;
     const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
-    inven_type *i_ptr = &inventory[INVEN_WIELD];
+    inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
     // Does the player know what he's fighting?
     const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
@@ -652,7 +653,7 @@ void py_attack(int y, int x) {
                 py.flags.status |= PY_STR_WGT;
 
                 if (i_ptr->number == 0) {
-                    equip_ctr--;
+                    equipment_set_count(equipment_count() - 1);
                     py_bonuses(i_ptr, -1);
                     invcopy(i_ptr, OBJ_NOTHING);
                     calc_bonuses();
