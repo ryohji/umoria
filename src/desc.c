@@ -217,7 +217,10 @@ void sample(inven_type *i_ptr) {
 // Somethings been identified.
 // Extra complexity by CJS so that it can merge store/dungeon objects when appropriate.
 void identify(int *item) {
-    inven_type *i_ptr = &inventory[*item];
+    // The index crosses both windows: ident_spell() lets the player pick from
+    // the whole index space, so *item can be a pack slot or an equipment slot.
+    // The merging below only ever touches pack slots.
+    inven_type *i_ptr = inventory_and_equipment_at(*item);
 
     if (i_ptr->flags & TR_CURSED) {
         add_inscribe(i_ptr, ID_DAMD);
