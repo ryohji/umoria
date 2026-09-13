@@ -15,6 +15,8 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "equipment.h"
+#include "inventory.h"
 #include "stats.h"
 
 static const char *stat_names[] = {
@@ -967,7 +969,7 @@ bool inven_check_weight(inven_type *i_ptr) {
 
 // Are we strong enough for the current pack and weapon? -CJS-
 void check_strength(void) {
-    inven_type *i_ptr = &inventory[INVEN_WIELD];
+    inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
     if (i_ptr->tval != TV_NOTHING &&
         (py.stats.use_stat[A_STR] * 15 < i_ptr->weight)) {

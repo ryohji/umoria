@@ -112,15 +112,19 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 #
 # #41B で insert_str の実体が src/str_insert.c に移ったので、この構成では
 # そちらもリンクする（desc.c が呼ぶ。リンカが未解決として挙げた）。
+#
+# #18-5B7 で misc3.c が持ち物と装備を src/inventory.h / src/equipment.h の窓口
+# 越しに引くようになったので、その実体（src/inventory.c）もリンクする。配列
+# そのものは今も treasure.c の定義で、inventory.c は extern で引いている。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                               src/misc3.c src/stats.c src/str_insert.c src/desc.c \
-                              src/tables.c \
+                              src/tables.c src/inventory.c \
                               src/treasure.c src/player.c src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
@@ -140,12 +144,12 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                             src/misc3.c src/stats.c src/str_insert.c src/desc.c \
-                            src/tables.c \
+                            src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
@@ -179,11 +183,12 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                  src/store2.c src/misc3.c src/stats.c \
                                  src/str_insert.c src/desc.c \
-                                 src/tables.c src/treasure.c src/player.c \
+                                 src/tables.c src/inventory.c \
+                                 src/treasure.c src/player.c \
                                  src/abilities.c src/messages.c src/stores.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c
 
@@ -239,12 +244,12 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          $(TESTDIR)/misc3_stubs.c \
                          $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                          src/misc3.c src/stats.c src/str_insert.c src/desc.c \
-                         src/tables.c \
+                         src/tables.c src/inventory.c \
                          src/treasure.c src/player.c \
                          src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
