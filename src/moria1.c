@@ -473,7 +473,7 @@ void takeoff(int item_val, int posn) {
 
     inven_type *t_ptr = equipment_at(item_val);
 
-    inven_weight -= t_ptr->weight * t_ptr->number;
+    inventory_set_weight(inventory_weight() - t_ptr->weight * t_ptr->number);
     py.flags.status |= PY_STR_WGT;
 
     const char *p;
@@ -895,7 +895,7 @@ void inven_command(char command) {
                                     // As a safety measure, set the player's inven
                                     // weight to 0, when the last object is dropped.
                                     if (inventory_count() == 0 && equipment_count() == 0) {
-                                        inven_weight = 0;
+                                        inventory_set_weight(0);
                                     }
                                 } else {
                                     slot = inven_carry(equipment_at(item));
@@ -1020,7 +1020,7 @@ void inven_command(char command) {
                                     i_ptr->number = 1;
                                     wear_high++;
                                 }
-                                inven_weight += i_ptr->weight * i_ptr->number;
+                                inventory_set_weight(inventory_weight() + i_ptr->weight * i_ptr->number);
 
                                 // Subtracts weight
                                 inven_destroy(item);
@@ -1113,7 +1113,7 @@ void inven_command(char command) {
                             // As a safety measure, set the player's inven weight
                             // to 0, when the last object is dropped.
                             if (inventory_count() == 0 && equipment_count() == 0) {
-                                inven_weight = 0;
+                                inventory_set_weight(0);
                             }
                         }
                         if (free_turn_flag == false && scr_state == BLANK_SCR) {
@@ -1141,11 +1141,11 @@ void inven_command(char command) {
             if (scr_state == INVEN_SCR) {
                 if (!show_weight_flag || inventory_count() == 0) {
                     (void)sprintf(prt1, "You are carrying %d.%d pounds. In your pack there is %s",
-                                  inven_weight / 10, inven_weight % 10,
+                                  inventory_weight() / 10, inventory_weight() % 10,
                                   (inventory_count() == 0 ? "nothing." : "-"));
                 } else {
                     (void)sprintf(prt1, "You are carrying %d.%d pounds. Your capacity is %d.%d pounds. %s",
-                                  inven_weight / 10, inven_weight % 10,
+                                  inventory_weight() / 10, inventory_weight() % 10,
                                   weight_limit() / 10, weight_limit() % 10,
                                   "In your pack is -");
                 }
