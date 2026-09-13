@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "equipment.h"
+
 static bool see_wall(int, int, int);
 
 // Change a trap from invisible to visible -RAK-
@@ -472,28 +474,28 @@ void area_affect(int dir, int y, int x) {
 int minus_ac(uint32_t typ_dam) {
     int tmp[6];
     int i = 0;
-    if (inventory[INVEN_BODY].tval != TV_NOTHING) {
+    if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
         tmp[i] = INVEN_BODY;
         i++;
     }
-    if (inventory[INVEN_ARM].tval != TV_NOTHING) {
+    if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
         tmp[i] = INVEN_ARM;
         i++;
     }
-    if (inventory[INVEN_OUTER].tval != TV_NOTHING) {
+    if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
         tmp[i] = INVEN_OUTER;
         i++;
     }
-    if (inventory[INVEN_HANDS].tval != TV_NOTHING) {
+    if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
         tmp[i] = INVEN_HANDS;
         i++;
     }
-    if (inventory[INVEN_HEAD].tval != TV_NOTHING) {
+    if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
         tmp[i] = INVEN_HEAD;
         i++;
     }
     // also affect boots
-    if (inventory[INVEN_FEET].tval != TV_NOTHING) {
+    if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
         tmp[i] = INVEN_FEET;
         i++;
     }
@@ -503,17 +505,17 @@ int minus_ac(uint32_t typ_dam) {
     if (i > 0) {
         int j = tmp[randint(i) - 1];
 
-        inven_type *i_ptr = &inventory[j];
+        inven_type *i_ptr = equipment_at(j);
 
         msgtype out_val;
         bigvtype tmp_str;
         if (i_ptr->flags & typ_dam) {
-            objdes(tmp_str, &inventory[j], false);
+            objdes(tmp_str, equipment_at(j), false);
             (void)snprintf(out_val, sizeof(out_val), "Your %s resists damage!", tmp_str);
             msg_print(out_val);
             minus = true;
         } else if ((i_ptr->ac + i_ptr->toac) > 0) {
-            objdes(tmp_str, &inventory[j], false);
+            objdes(tmp_str, equipment_at(j), false);
             (void)snprintf(out_val, sizeof(out_val), "Your %s is damaged!", tmp_str);
             msg_print(out_val);
             i_ptr->toac--;
