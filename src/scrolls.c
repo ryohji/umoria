@@ -14,6 +14,7 @@
 
 #include "externs.h"
 
+#include "equipment.h"
 #include "item_ident.h"
 
 // Scrolls for the reading -RAK-
@@ -56,7 +57,7 @@ void read_scroll(void) {
             // Scrolls.
             switch (j) {
             case 1:
-                i_ptr = &inventory[INVEN_WIELD];
+                i_ptr = equipment_at(INVEN_WIELD);
                 if (i_ptr->tval != TV_NOTHING) {
                     objdes(tmp_str, i_ptr, false);
                     (void)snprintf(out_val, sizeof(out_val), "Your %s glows faintly!", tmp_str);
@@ -71,7 +72,7 @@ void read_scroll(void) {
                 }
                 break;
             case 2:
-                i_ptr = &inventory[INVEN_WIELD];
+                i_ptr = equipment_at(INVEN_WIELD);
                 if (i_ptr->tval != TV_NOTHING) {
                     objdes(tmp_str, i_ptr, false);
                     (void)snprintf(out_val, sizeof(out_val), "Your %s glows faintly!", tmp_str);
@@ -96,23 +97,23 @@ void read_scroll(void) {
             case 3:
                 k = 0;
                 l = 0;
-                if (inventory[INVEN_BODY].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_BODY;
                 }
-                if (inventory[INVEN_ARM].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_ARM;
                 }
-                if (inventory[INVEN_OUTER].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_OUTER;
                 }
-                if (inventory[INVEN_HANDS].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_HANDS;
                 }
-                if (inventory[INVEN_HEAD].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_HEAD;
                 }
                 // also enchant boots
-                if (inventory[INVEN_FEET].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_FEET;
                 }
 
@@ -120,22 +121,22 @@ void read_scroll(void) {
                     l = tmp[randint(k) - 1];
                 }
 
-                if (TR_CURSED & inventory[INVEN_BODY].flags) {
+                if (TR_CURSED & equipment_at(INVEN_BODY)->flags) {
                     l = INVEN_BODY;
-                } else if (TR_CURSED & inventory[INVEN_ARM].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_ARM)->flags) {
                     l = INVEN_ARM;
-                } else if (TR_CURSED & inventory[INVEN_OUTER].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_OUTER)->flags) {
                     l = INVEN_OUTER;
-                } else if (TR_CURSED & inventory[INVEN_HEAD].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_HEAD)->flags) {
                     l = INVEN_HEAD;
-                } else if (TR_CURSED & inventory[INVEN_HANDS].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_HANDS)->flags) {
                     l = INVEN_HANDS;
-                } else if (TR_CURSED & inventory[INVEN_FEET].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_FEET)->flags) {
                     l = INVEN_FEET;
                 }
 
                 if (l > 0) {
-                    i_ptr = &inventory[l];
+                    i_ptr = equipment_at(l);
                     objdes(tmp_str, i_ptr, false);
                     (void)snprintf(out_val, sizeof(out_val), "Your %s glows faintly!", tmp_str);
                     msg_print(out_val);
@@ -270,7 +271,7 @@ void read_scroll(void) {
                 ident = dispel_creature(CD_UNDEAD, 60);
                 break;
             case 33:
-                i_ptr = &inventory[INVEN_WIELD];
+                i_ptr = equipment_at(INVEN_WIELD);
                 if (i_ptr->tval != TV_NOTHING) {
                     objdes(tmp_str, i_ptr, false);
                     (void)snprintf(out_val, sizeof(out_val), "Your %s glows brightly!", tmp_str);
@@ -303,7 +304,7 @@ void read_scroll(void) {
                 }
                 break;
             case 34:
-                i_ptr = &inventory[INVEN_WIELD];
+                i_ptr = equipment_at(INVEN_WIELD);
                 if (i_ptr->tval != TV_NOTHING) {
                     objdes(tmp_str, i_ptr, false);
                     (void)snprintf(out_val, sizeof(out_val), "Your %s glows black, fades.", tmp_str);
@@ -324,23 +325,23 @@ void read_scroll(void) {
             case 35:
                 k = 0;
                 l = 0;
-                if (inventory[INVEN_BODY].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_BODY;
                 }
-                if (inventory[INVEN_ARM].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_ARM;
                 }
-                if (inventory[INVEN_OUTER].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_OUTER;
                 }
-                if (inventory[INVEN_HANDS].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_HANDS;
                 }
-                if (inventory[INVEN_HEAD].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_HEAD;
                 }
                 // also enchant boots
-                if (inventory[INVEN_FEET].tval != TV_NOTHING) {
+                if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
                     tmp[k++] = INVEN_FEET;
                 }
 
@@ -348,22 +349,22 @@ void read_scroll(void) {
                     l = tmp[randint(k) - 1];
                 }
 
-                if (TR_CURSED & inventory[INVEN_BODY].flags) {
+                if (TR_CURSED & equipment_at(INVEN_BODY)->flags) {
                     l = INVEN_BODY;
-                } else if (TR_CURSED & inventory[INVEN_ARM].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_ARM)->flags) {
                     l = INVEN_ARM;
-                } else if (TR_CURSED & inventory[INVEN_OUTER].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_OUTER)->flags) {
                     l = INVEN_OUTER;
-                } else if (TR_CURSED & inventory[INVEN_HEAD].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_HEAD)->flags) {
                     l = INVEN_HEAD;
-                } else if (TR_CURSED & inventory[INVEN_HANDS].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_HANDS)->flags) {
                     l = INVEN_HANDS;
-                } else if (TR_CURSED & inventory[INVEN_FEET].flags) {
+                } else if (TR_CURSED & equipment_at(INVEN_FEET)->flags) {
                     l = INVEN_FEET;
                 }
 
                 if (l > 0) {
-                    i_ptr = &inventory[l];
+                    i_ptr = equipment_at(l);
                     objdes(tmp_str, i_ptr, false);
                     (void)snprintf(out_val, sizeof(out_val), "Your %s glows brightly!", tmp_str);
                     msg_print(out_val);
@@ -383,36 +384,36 @@ void read_scroll(void) {
                 }
                 break;
             case 36:
-                if ((inventory[INVEN_BODY].tval != TV_NOTHING) && (randint(4) == 1)) {
+                if ((equipment_at(INVEN_BODY)->tval != TV_NOTHING) && (randint(4) == 1)) {
                     k = INVEN_BODY;
-                } else if ((inventory[INVEN_ARM].tval != TV_NOTHING) && (randint(3) == 1)) {
+                } else if ((equipment_at(INVEN_ARM)->tval != TV_NOTHING) && (randint(3) == 1)) {
                     k = INVEN_ARM;
-                } else if ((inventory[INVEN_OUTER].tval != TV_NOTHING) && (randint(3) == 1)) {
+                } else if ((equipment_at(INVEN_OUTER)->tval != TV_NOTHING) && (randint(3) == 1)) {
                     k = INVEN_OUTER;
-                } else if ((inventory[INVEN_HEAD].tval != TV_NOTHING) && (randint(3) == 1)) {
+                } else if ((equipment_at(INVEN_HEAD)->tval != TV_NOTHING) && (randint(3) == 1)) {
                     k = INVEN_HEAD;
-                } else if ((inventory[INVEN_HANDS].tval != TV_NOTHING) && (randint(3) == 1)) {
+                } else if ((equipment_at(INVEN_HANDS)->tval != TV_NOTHING) && (randint(3) == 1)) {
                     k = INVEN_HANDS;
-                } else if ((inventory[INVEN_FEET].tval != TV_NOTHING) && (randint(3) == 1)) {
+                } else if ((equipment_at(INVEN_FEET)->tval != TV_NOTHING) && (randint(3) == 1)) {
                     k = INVEN_FEET;
-                } else if (inventory[INVEN_BODY].tval != TV_NOTHING) {
+                } else if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
                     k = INVEN_BODY;
-                } else if (inventory[INVEN_ARM].tval != TV_NOTHING) {
+                } else if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
                     k = INVEN_ARM;
-                } else if (inventory[INVEN_OUTER].tval != TV_NOTHING) {
+                } else if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
                     k = INVEN_OUTER;
-                } else if (inventory[INVEN_HEAD].tval != TV_NOTHING) {
+                } else if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
                     k = INVEN_HEAD;
-                } else if (inventory[INVEN_HANDS].tval != TV_NOTHING) {
+                } else if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
                     k = INVEN_HANDS;
-                } else if (inventory[INVEN_FEET].tval != TV_NOTHING) {
+                } else if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
                     k = INVEN_FEET;
                 } else {
                     k = 0;
                 }
 
                 if (k > 0) {
-                    i_ptr = &inventory[k];
+                    i_ptr = equipment_at(k);
                     objdes(tmp_str, i_ptr, false);
                     (void)snprintf(out_val, sizeof(out_val), "Your %s glows black, fades.", tmp_str);
                     msg_print(out_val);
