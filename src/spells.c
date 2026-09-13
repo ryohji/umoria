@@ -14,6 +14,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "inventory.h"
 #include "panel.h"
 
 static void replace_spot(int, int, int);
@@ -917,7 +918,7 @@ int recharge(int num) {
     if (!find_range(TV_STAFF, TV_WAND, &i, &j)) {
         msg_print("You have nothing to recharge.");
     } else if (get_item(&item_val, "Recharge which item?", i, j, CNIL, CNIL)) {
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
 
         res = true;
 
