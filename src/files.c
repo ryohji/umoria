@@ -17,6 +17,7 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "equipment.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later
@@ -255,14 +256,14 @@ bool file_character(char *filename1) {
         int j = 0;
 
         (void)fprintf(file1, "\n  [Character's Equipment List]\n\n");
-        if (equip_ctr == 0) {
+        if (equipment_count() == 0) {
             (void)fprintf(file1, "  Character has no equipment in use.\n");
         } else {
             const char *p;
             inven_type *i_ptr;
 
-            for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
-                i_ptr = &inventory[i];
+            for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
+                i_ptr = equipment_at(i);
                 if (i_ptr->tval != TV_NOTHING) {
                     switch (i) {
                     case INVEN_WIELD:
@@ -305,7 +306,7 @@ bool file_character(char *filename1) {
                         p = "*Unknown value*";
                         break;
                     }
-                    objdes(prt2, &inventory[i], true);
+                    objdes(prt2, equipment_at(i), true);
                     (void)fprintf(file1, "  %c) %-19s: %s\n", j + 'a', p, prt2);
                     j++;
                 }
