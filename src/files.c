@@ -18,6 +18,7 @@
 
 #include "abilities.h"
 #include "equipment.h"
+#include "inventory.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later
@@ -317,11 +318,11 @@ bool file_character(char *filename1) {
         (void)fprintf(file1, "%c\n\n", CTRL_KEY('L'));
 
         (void)fprintf(file1, "  [General Inventory List]\n\n");
-        if (inven_ctr == 0) {
+        if (inventory_count() == 0) {
             (void)fprintf(file1, "  Character has no objects in inventory.\n");
         } else {
-            for (int i = 0; i < inven_ctr; i++) {
-                objdes(prt2, &inventory[i], true);
+            for (int i = 0; i < inventory_count(); i++) {
+                objdes(prt2, inventory_at(i), true);
                 (void)fprintf(file1, "%c) %s\n", i + 'a', prt2);
             }
         }
