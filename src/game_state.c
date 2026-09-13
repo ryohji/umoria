@@ -10,6 +10,7 @@
 
 #include "constant.h"
 #include "externs.h"
+#include "inventory.h"
 #include "panel.h"
 #include "stores.h"
 #include "messages.h"
@@ -37,7 +38,7 @@ GameState *game_state_init(void) {
     state->cave = cave;
     state->monsters = m_list;
     state->treasure = t_list;
-    state->inventory = inventory;
+    state->inventory = inventory_and_equipment_at(0);
     state->stores = store_at(0);
     state->old_messages = msg_history_slots();
 
