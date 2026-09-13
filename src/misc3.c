@@ -840,11 +840,11 @@ void inven_destroy(int item_val) {
         inven_weight -= i_ptr->weight;
     } else {
         inven_weight -= i_ptr->weight * i_ptr->number;
-        for (int j = item_val; j < inven_ctr - 1; j++) {
+        for (int j = item_val; j < inventory_count() - 1; j++) {
             *inventory_at(j) = *inventory_at(j + 1);
         }
-        invcopy(inventory_at(inven_ctr - 1), OBJ_NOTHING);
-        inven_ctr--;
+        invcopy(inventory_at(inventory_count() - 1), OBJ_NOTHING);
+        inventory_set_count(inventory_count() - 1);
     }
     py.flags.status |= PY_STR_WGT;
 }
@@ -875,12 +875,12 @@ void inven_drop(int item_val, int drop_all) {
     } else {
         if (drop_all || i_ptr->number == 1) {
             inven_weight -= i_ptr->weight * i_ptr->number;
-            inven_ctr--;
-            while (item_val < inven_ctr) {
+            inventory_set_count(inventory_count() - 1);
+            while (item_val < inventory_count()) {
                 *inventory_at(item_val) = *inventory_at(item_val + 1);
                 item_val++;
             }
-            invcopy(inventory_at(inven_ctr), OBJ_NOTHING);
+            invcopy(inventory_at(inventory_count()), OBJ_NOTHING);
         } else {
             t_list[i].number = 1;
             inven_weight -= i_ptr->weight;
@@ -900,7 +900,7 @@ void inven_drop(int item_val, int drop_all) {
 int inven_damage(bool (*typ)(inven_type *), int perc) {
     int j = 0;
 
-    for (int i = 0; i < inven_ctr; i++) {
+    for (int i = 0; i < inventory_count(); i++) {
         if ((*typ)(inventory_at(i)) && (randint(100) < perc)) {
             inven_destroy(i);
             j++;
@@ -938,10 +938,10 @@ static bool items_can_stack(inven_type *existing, inven_type *incoming) {
 }
 
 bool inven_check_num(inven_type *t_ptr) {
-    if (inven_ctr < inventory_slot_count()) {
+    if (inventory_count() < inventory_slot_count()) {
         return true;
     }
-    for (int i = 0; i < inven_ctr; i++) {
+    for (int i = 0; i < inventory_count(); i++) {
         if (items_can_stack(inventory_at(i), t_ptr)) {
             return true;
         }
@@ -1026,11 +1026,11 @@ int inven_carry(inven_type *i_ptr) {
             // For items which are always known1p, i.e. never have a 'color',
             // insert them into the inventory in sorted order.
 
-            for (int i = inven_ctr - 1; i >= locn; i--) {
+            for (int i = inventory_count() - 1; i >= locn; i--) {
                 *inventory_at(i + 1) = *inventory_at(i);
             }
             *inventory_at(locn) = *i_ptr;
-            inven_ctr++;
+            inventory_set_count(inventory_count() + 1);
             break;
         }
     }
@@ -1412,7 +1412,7 @@ void gain_spells(void) {
         // mages need the book to learn a spell, priests do not need the book
         if (stat == A_INT) {
             spell_flag = 0;
-            for (int i = 0; i < inven_ctr; i++) {
+            for (int i = 0; i < inventory_count(); i++) {
                 if (inventory_at(i)->tval == TV_MAGIC_BOOK) {
                     spell_flag |= inventory_at(i)->flags;
                 }
@@ -1852,7 +1852,7 @@ int find_range(int item1, int item2, int *j, int *k) {
 
     bool flag = false;
 
-    while (i < inven_ctr) {
+    while (i < inventory_count()) {
         if (!flag) {
             if ((i_ptr->tval == item1) || (i_ptr->tval == item2)) {
                 flag = true;
@@ -1869,7 +1869,7 @@ int find_range(int item1, int item2, int *j, int *k) {
     }
 
     if (flag && (*k == -1)) {
-        *k = inven_ctr - 1;
+        *k = inventory_count() - 1;
     }
 
     return flag;
