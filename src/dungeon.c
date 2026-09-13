@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "equipment.h"
 #include "panel.h"
 #include "messages.h"
 #include "stats.h"
@@ -46,7 +47,7 @@ void dungeon(void) {
     struct misc *const p_ptr = &py.misc;
 
     // Check light status for setup
-    inven_type *i_ptr = &inventory[INVEN_LIGHT];
+    inven_type *i_ptr = equipment_at(INVEN_LIGHT);
     player_light = i_ptr->p1 > 0;
 
     // Check for a maximum level
@@ -103,7 +104,7 @@ void dungeon(void) {
         }
 
         // Check light status
-        i_ptr = &inventory[INVEN_LIGHT];
+        i_ptr = equipment_at(INVEN_LIGHT);
         if (player_light) {
             if (i_ptr->p1 > 0) {
                 i_ptr->p1--;
@@ -1921,7 +1922,7 @@ static void refill_lamp(void) {
 
     free_turn_flag = true;
 
-    int k = inventory[INVEN_LIGHT].subval;
+    int k = equipment_at(INVEN_LIGHT)->subval;
 
     if (k != 0) {
         msg_print("But you are not using a lamp.");
@@ -1930,7 +1931,7 @@ static void refill_lamp(void) {
     } else {
         free_turn_flag = false;
 
-        inven_type *i_ptr = &inventory[INVEN_LIGHT];
+        inven_type *i_ptr = equipment_at(INVEN_LIGHT);
         i_ptr->p1 += inventory[i].p1;
         if (i_ptr->p1 > OBJ_LAMP_MAX) {
             i_ptr->p1 = OBJ_LAMP_MAX;
