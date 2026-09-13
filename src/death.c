@@ -210,7 +210,7 @@ retry:
                 msg_print(CNIL);
                 msg_print("You are carrying:");
                 clear_from(1);
-                (void)show_inven(0, inven_ctr - 1, true, 0, CNIL);
+                (void)show_inven(0, inventory_count() - 1, true, 0, CNIL);
                 msg_print(CNIL);
             }
         }
