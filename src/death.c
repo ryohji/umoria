@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "inventory.h"
 #include "platform.h"
 
 static void date(char *day) {
@@ -187,9 +188,9 @@ retry:
     put_buffer("Character record?", 22, 0);
 
     if (get_string(str, 22, 18, 60)) {
-        for (int i = 0; i < INVEN_ARRAY_SIZE; i++) {
-            known1(&inventory[i]);
-            known2(&inventory[i]);
+        for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
+            known1(inventory_and_equipment_at(i));
+            known2(inventory_and_equipment_at(i));
         }
 
         calc_bonuses();
@@ -221,8 +222,8 @@ int32_t total_points(void) {
     int32_t total = py.misc.max_exp + (100 * py.misc.max_dlv);
     total += py.misc.au / 100;
 
-    for (int i = 0; i < INVEN_ARRAY_SIZE; i++) {
-        total += item_value(&inventory[i]);
+    for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
+        total += item_value(inventory_and_equipment_at(i));
     }
 
     total += dun_level * 50;
