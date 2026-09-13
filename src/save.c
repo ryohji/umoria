@@ -14,6 +14,8 @@
 #include "types.h"
 
 #include "externs.h"
+#include "equipment.h"
+#include "inventory.h"
 #include "panel.h"
 #include "messages.h"
 #include "options.h"
@@ -198,15 +200,15 @@ static bool sv_write(void) {
 
     wr_short((uint16_t)missile_ctr);
     wr_long((uint32_t)turn);
-    wr_short((uint16_t)inven_ctr);
-    for (int i = 0; i < inven_ctr; i++) {
-        wr_item(&inventory[i]);
+    wr_short((uint16_t)inventory_count());
+    for (int i = 0; i < inventory_count(); i++) {
+        wr_item(inventory_at(i));
     }
-    for (int i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
-        wr_item(&inventory[i]);
+    for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
+        wr_item(equipment_at(i));
     }
-    wr_short((uint16_t)inven_weight);
-    wr_short((uint16_t)equip_ctr);
+    wr_short((uint16_t)inventory_weight());
+    wr_short((uint16_t)equipment_count());
     wr_long(spell_learned);
     wr_long(spell_worked);
     wr_long(spell_forgotten);

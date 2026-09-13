@@ -312,16 +312,20 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # パネル数の読み書きも src/panel.c 越しになったので panel.c もリンクする。
 # 依存が無い module なので代役より本物のほうが短い。
 # 店 6 軒の記録も src/stores.c 越しになったので同じくリンクする。
+#
+# 持ち物と装備の読み書きも src/inventory.c 越しになったので inventory.c も
+# リンクする。実体（inventory[] と 3 つの数え）はこれまでどおり src/treasure.c に
+# あり、inventory.c は窓口だけを足す。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \
                             src/treasure.c src/player.c src/monsters.c \
                             src/options.c src/messages.c src/panel.c \
-                            src/stores.c | $(BUILDDIR)
+                            src/stores.c src/inventory.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
-	    src/messages.c src/panel.c src/stores.c
+	    src/messages.c src/panel.c src/stores.c src/inventory.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -330,16 +334,19 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 #
 # 店の記録の置き場は src/stores.c なので本物をリンクする（比べる相手が
 # 本体と同じ記録でなければ意味が無い）。
+#
+# save.c が持ち物と装備の窓口を呼ぶので src/inventory.c もリンクする
+# （save_bool_test と同じ理由）。
 $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                              src/save.c src/variable.c src/tables.c \
                              src/treasure.c src/player.c src/monsters.c \
                              src/options.c src/messages.c src/panel.c \
-                             src/stores.c | $(BUILDDIR)
+                             src/stores.c src/inventory.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
-	    src/messages.c src/panel.c src/stores.c
+	    src/messages.c src/panel.c src/stores.c src/inventory.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
