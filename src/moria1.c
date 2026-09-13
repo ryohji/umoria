@@ -262,7 +262,7 @@ int show_inven(int r1, int r2, bool weight, int col, const char *mask) {
     // Print the items
     for (int i = r1; i <= r2; i++) {
         if (mask == CNIL || mask[i]) {
-            objdes(tmp_val, &inventory[i], true);
+            objdes(tmp_val, inventory_at(i), true);
 
             // Truncate if too long.
             tmp_val[lim] = 0;
@@ -294,7 +294,7 @@ int show_inven(int r1, int r2, bool weight, int col, const char *mask) {
                 prt(out_val[i], current_line, col + 2);
             }
             if (weight) {
-                int total_weight = inventory[i].weight * inventory[i].number;
+                int total_weight = inventory_at(i)->weight * inventory_at(i)->number;
                 (void)sprintf(tmp_val, "%3d.%d lb", (total_weight) / 10, (total_weight) % 10);
                 prt(tmp_val, current_line, 71);
             }
@@ -668,7 +668,7 @@ void inven_command(char command) {
                 msg_print("You are not using any equipment.");
                 // don't print message restarting inven command after taking off
                 // something, it is confusing
-            } else if (inven_ctr >= INVEN_WIELD && !doing_inven) {
+            } else if (inven_ctr >= inventory_slot_count() && !doing_inven) {
                 msg_print("You will have to drop something first.");
             } else {
                 if (scr_state != BLANK_SCR) {
@@ -697,12 +697,12 @@ void inven_command(char command) {
             break;
         case 'w': // Wear/wield
             for (wear_low = 0;
-                 wear_low < inven_ctr && inventory[wear_low].tval > TV_MAX_WEAR;
+                 wear_low < inven_ctr && inventory_at(wear_low)->tval > TV_MAX_WEAR;
                  wear_low++) {
                 ;
             }
             for (wear_high = wear_low; wear_high < inven_ctr &&
-                                       inventory[wear_high].tval >= TV_MIN_WEAR;
+                                       inventory_at(wear_high)->tval >= TV_MIN_WEAR;
                  wear_high++) {
                 ;
             }
@@ -846,8 +846,8 @@ void inven_command(char command) {
                         // look for item whose inscription matches "which"
                         int m;
                         for (m = from;
-                             m <= to && ((inventory[m].inscrip[0] != which) ||
-                                         (inventory[m].inscrip[1] != '\0'));
+                             m <= to && ((inventory_at(m)->inscrip[0] != which) ||
+                                         (inventory_at(m)->inscrip[1] != '\0'));
                              m++) {
                             ;
                         }
@@ -914,7 +914,7 @@ void inven_command(char command) {
                                 item = -1;
                             } else {
                                 // Slot for equipment
-                                switch (inventory[item].tval) {
+                                switch (inventory_at(item)->tval) {
                                 case TV_SLING_AMMO: case TV_BOLT: case TV_ARROW: case TV_BOW:
                                 case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
                                 case TV_DIGGING: case TV_SPIKE:
@@ -994,8 +994,8 @@ void inven_command(char command) {
                                     }
                                     msg_print(strcat(prt2, "appears to be cursed."));
                                     item = -1;
-                                } else if (inventory[item].subval == ITEM_GROUP_MIN &&
-                                           inventory[item].number > 1 &&
+                                } else if (inventory_at(item)->subval == ITEM_GROUP_MIN &&
+                                           inventory_at(item)->number > 1 &&
                                            !inven_check_num(equipment_at(slot)))
                                 {
                                     // this can happen if try to wield a torch,
@@ -1009,7 +1009,7 @@ void inven_command(char command) {
                                 free_turn_flag = false;
 
                                 // first remove new item from inventory
-                                tmp_obj = inventory[item];
+                                tmp_obj = *inventory_at(item);
                                 inven_type *i_ptr = &tmp_obj;
 
                                 wear_high--;
@@ -1082,8 +1082,8 @@ void inven_command(char command) {
                             // NOTE: initializing to `ESCAPE` as warnings were being given. -MRC-
                             char query = ESCAPE;
 
-                            if (inventory[item].number > 1) {
-                                objdes(prt1, &inventory[item], true);
+                            if (inventory_at(item)->number > 1) {
+                                objdes(prt1, inventory_at(item), true);
                                 prt1[strlen(prt1) - 1] = '?';
                                 (void)sprintf(prt2, "Drop all %s [y/n]", prt1);
                                 prt1[strlen(prt1) - 1] = '.';
@@ -1285,10 +1285,10 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                     // look for item whose inscription matches "which"
                     if ((which >= '0') && (which <= '9') && (i_scr != 0)) {
                         int m;
-                        for (m = i; (m < INVEN_WIELD) && ((inventory[m].inscrip[0] != which) || (inventory[m].inscrip[1] != '\0')); m++) {
+                        for (m = i; (m < inventory_slot_count()) && ((inventory_at(m)->inscrip[0] != which) || (inventory_at(m)->inscrip[1] != '\0')); m++) {
                             ;
                         }
-                        if (m < INVEN_WIELD) {
+                        if (m < inventory_slot_count()) {
                             *com_val = m;
                         } else {
                             *com_val = -1;
