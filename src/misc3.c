@@ -837,9 +837,9 @@ void inven_destroy(int item_val) {
 
     if ((i_ptr->number > 1) && (i_ptr->subval <= ITEM_SINGLE_STACK_MAX)) {
         i_ptr->number--;
-        inven_weight -= i_ptr->weight;
+        inventory_set_weight(inventory_weight() - i_ptr->weight);
     } else {
-        inven_weight -= i_ptr->weight * i_ptr->number;
+        inventory_set_weight(inventory_weight() - i_ptr->weight * i_ptr->number);
         for (int j = item_val; j < inventory_count() - 1; j++) {
             *inventory_at(j) = *inventory_at(j + 1);
         }
@@ -874,7 +874,7 @@ void inven_drop(int item_val, int drop_all) {
         takeoff(item_val, -1);
     } else {
         if (drop_all || i_ptr->number == 1) {
-            inven_weight -= i_ptr->weight * i_ptr->number;
+            inventory_set_weight(inventory_weight() - i_ptr->weight * i_ptr->number);
             inventory_set_count(inventory_count() - 1);
             while (item_val < inventory_count()) {
                 *inventory_at(item_val) = *inventory_at(item_val + 1);
@@ -883,7 +883,7 @@ void inven_drop(int item_val, int drop_all) {
             invcopy(inventory_at(inventory_count()), OBJ_NOTHING);
         } else {
             t_list[i].number = 1;
-            inven_weight -= i_ptr->weight;
+            inventory_set_weight(inventory_weight() - i_ptr->weight);
             i_ptr->number--;
         }
 
@@ -952,7 +952,7 @@ bool inven_check_num(inven_type *t_ptr) {
 // return false if picking up an object would change the players speed
 bool inven_check_weight(inven_type *i_ptr) {
     int i = weight_limit();
-    int new_inven_weight = i_ptr->number * i_ptr->weight + inven_weight;
+    int new_inven_weight = i_ptr->number * i_ptr->weight + inventory_weight();
 
     if (i < new_inven_weight) {
         i = new_inven_weight / (i + 1);
@@ -987,8 +987,8 @@ void check_strength(void) {
     }
 
     int i = weight_limit();
-    if (i < inven_weight) {
-        i = inven_weight / (i + 1);
+    if (i < inventory_weight()) {
+        i = inventory_weight() / (i + 1);
     } else {
         i = 0;
     }
@@ -1035,7 +1035,7 @@ int inven_carry(inven_type *i_ptr) {
         }
     }
 
-    inven_weight += i_ptr->number * i_ptr->weight;
+    inventory_set_weight(inventory_weight() + i_ptr->number * i_ptr->weight);
     py.flags.status |= PY_STR_WGT;
 
     return locn;
