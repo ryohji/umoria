@@ -14,6 +14,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "inventory.h"
 #include "panel.h"
 
 // Updates screen when monsters move about -RAK-
@@ -357,7 +358,7 @@ static void make_attack(int monptr) {
             }
             break;
         case 13: // Steal Object
-            if ((test_hit(2, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (inven_ctr > 0)) {
+            if ((test_hit(2, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (inventory_count() > 0)) {
                 flag = true;
             }
             break;
@@ -412,7 +413,7 @@ static void make_attack(int monptr) {
         case 24: // Eat charges
             // check to make sure an object exists
             if ((test_hit(15, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) &&
-                (inven_ctr > 0)) {
+                (inventory_count() > 0)) {
                 flag = true;
             }
             break;
@@ -651,7 +652,7 @@ static void make_attack(int monptr) {
                     (randint(124) < py.stats.use_stat[A_DEX])) {
                     msg_print("You grab hold of your backpack!");
                 } else {
-                    i = randint(inven_ctr) - 1;
+                    i = randint(inventory_count()) - 1;
                     inven_destroy(i);
                     msg_print("Your backpack feels lighter.");
                 }
@@ -794,9 +795,9 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 24: // Eat charges
-                i = randint(inven_ctr) - 1;
+                i = randint(inventory_count()) - 1;
                 j = r_ptr->level;
-                i_ptr = &inventory[i];
+                i_ptr = inventory_at(i);
                 if (((i_ptr->tval == TV_STAFF) || (i_ptr->tval == TV_WAND)) &&
                     (i_ptr->p1 > 0)) {
                     m_ptr->hp += j * i_ptr->p1;
