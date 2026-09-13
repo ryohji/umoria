@@ -89,12 +89,19 @@ $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src
 # ここで見ているのは鑑定時の経験値と識別フラグで、名前の複数形化は関係しない。
 # fixture.c:75 の空の代役を残し、実体は同居させない（同居させると multiple
 # definition になる）。名前組み立ての実体を見るのは objdes_test / str_insert_test。
+#
+# #18-5B で desc.c が持ち物の窓口（inventory_at / inventory_count /
+# inventory_set_count）越しに inventory を触るようになったので src/inventory.c を
+# 足す（リンカが未解決として挙げた）。実体は treasure.c 側にあり、
+# inventory.c はその窓口。
 $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                              src/item_ident.c src/item_ident.h \
-                             src/desc.c src/tables.c src/treasure.c | $(BUILDDIR)
+                             src/desc.c src/tables.c src/treasure.c \
+                             src/inventory.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/item_ident_test.c \
-	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c
+	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c \
+	    src/inventory.c
 
 # アイテムのスタック可否判定は misc3.c の inven_check_num() と inven_carry() に
 # 二重に書かれている（本体のコメントが「must be identical」と明記している）。
