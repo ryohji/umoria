@@ -866,7 +866,7 @@ void inven_drop(int item_val, int drop_all) {
     }
 
     int i = popt();
-    inven_type *i_ptr = &inventory[item_val];
+    inven_type *i_ptr = inventory_and_equipment_at(item_val);
     t_list[i] = *i_ptr;
     cave[char_row][char_col].tptr = i;
 
