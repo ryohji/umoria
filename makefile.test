@@ -37,7 +37,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
-        str_insert_test
+        str_insert_test inventory_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -379,6 +379,19 @@ $(BUILDDIR)/panel_test: $(TESTDIR)/panel_test.c $(TESTDIR)/minunit.h \
 $(BUILDDIR)/stores_test: $(TESTDIR)/stores_test.c $(TESTDIR)/minunit.h \
                          src/stores.c src/stores.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/stores_test.c src/stores.c
+
+# 持ち物と装備の置き場は src/inventory.c にある。窓口は誰も呼ばないので
+# 代役は 1 つも要らず、対象 1 本で足りる。ただし配列と 3 つの件数の実体は
+# まだ treasure.c にあるので（実体の移動は #18-5C の仕事）、その 4 個だけを
+# tests/inventory_fixture.c に置いてリンクする。treasure.c をリンクすると
+# 550 行のアイテム定数表が芋づるで付いてくるため。
+$(BUILDDIR)/inventory_test: $(TESTDIR)/inventory_test.c \
+                            $(TESTDIR)/inventory_fixture.c \
+                            $(TESTDIR)/minunit.h \
+                            src/inventory.c src/inventory.h \
+                            src/equipment.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inventory_test.c \
+	    $(TESTDIR)/inventory_fixture.c src/inventory.c
 
 clean:
 	rm -rf $(BUILDDIR)
