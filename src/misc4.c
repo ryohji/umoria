@@ -12,13 +12,15 @@
 #include "constant.h"
 #include "types.h"
 
+#include "equipment.h"
 #include "externs.h"
+#include "inventory.h"
 
 #include <stdarg.h>
 
 // Add a comment to an object description. -CJS-
 void scribe_object(void) {
-    if (inven_ctr > 0 || equip_ctr > 0) {
+    if (inventory_count() > 0 || equipment_count() > 0) {
         int item_val;
 
         if (get_item(&item_val, "Which one? ", 0, INVEN_ARRAY_SIZE, CNIL, CNIL)) {
