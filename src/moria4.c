@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "equipment.h"
+#include "inventory.h"
 #include "panel.h"
 #include "stats.h"
 
@@ -633,13 +634,13 @@ static bool look_see(int x, int y, bool *transparent) {
 }
 
 static void inven_throw(int item_val, inven_type *t_ptr) {
-    inven_type *i_ptr = &inventory[item_val];
+    inven_type *i_ptr = inventory_at(item_val);
 
     *t_ptr = *i_ptr;
     if (i_ptr->number > 1) {
         t_ptr->number = 1;
         i_ptr->number--;
-        inven_weight -= i_ptr->weight;
+        inventory_set_weight(inventory_weight() - i_ptr->weight);
         py.flags.status |= PY_STR_WGT;
     } else {
         inven_destroy(item_val);
@@ -778,10 +779,10 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
 void throw_object(void) {
     int item_val;
 
-    if (inven_ctr == 0) {
+    if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
         free_turn_flag = true;
-    } else if (get_item(&item_val, "Fire/Throw which one?", 0, inven_ctr - 1, CNIL, CNIL)) {
+    } else if (get_item(&item_val, "Fire/Throw which one?", 0, inventory_count() - 1, CNIL, CNIL)) {
         int dir;
         if (get_dir(CNIL, &dir)) {
             desc_remain(item_val);
