@@ -223,10 +223,10 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # 代役を書く形（creature_stubs.c に equipment_at 等を並べる）と比べてこちらを
 # 選んだ理由は 2 つある。(1) 本物の窓口を通るので、窓口の書きかえがこの
 # テストで検出できる。(2) リンカに聞いたら inventory.c が要求する未解決は
-# inven_weight と equip_ctr の 2 個だけで（inventory と inven_ctr は代役側に
-# 既にある）、代役に 2 行足すだけで済んだ。tests/inventory_fixture.c は同じ
-# 4 個を定義しているが、そちらを足すと inventory と inven_ctr が二重定義に
-# なるので流用できない。inventory.c は externs.h を include しないので、
+# 4 個だけだった。#18-5C でその 4 個は inventory.c 自身が static で持つように
+# なったので、creature_stubs.c から 4 個の代役を消した（残しても inventory.c の
+# 分とは別の器になり、窓口越しの読み書きが届かない）。
+# inventory.c は externs.h を include しないので、
 # 芋づるは 1 本も増えない（2 → 3 コンパイル単位）。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
@@ -414,18 +414,16 @@ $(BUILDDIR)/stores_test: $(TESTDIR)/stores_test.c $(TESTDIR)/minunit.h \
                          src/stores.c src/stores.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/stores_test.c src/stores.c
 
-# 持ち物と装備の置き場は src/inventory.c にある。窓口は誰も呼ばないので
-# 代役は 1 つも要らず、対象 1 本で足りる。ただし配列と 3 つの件数の実体は
-# まだ treasure.c にあるので（実体の移動は #18-5C の仕事）、その 4 個だけを
-# tests/inventory_fixture.c に置いてリンクする。treasure.c をリンクすると
-# 550 行のアイテム定数表が芋づるで付いてくるため。
+# 持ち物と装備の置き場は src/inventory.c にある。#18-5C で配列と 3 つの件数の
+# 実体が treasure.c から移ってきて static になったので、足場（かつて置いていた
+# tests/inventory_fixture.c）はもう要らない。窓口は誰も呼ばないので代役も
+# 1 つも要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （str_insert_test・stat_bonus_test と同じ形）。
 $(BUILDDIR)/inventory_test: $(TESTDIR)/inventory_test.c \
-                            $(TESTDIR)/inventory_fixture.c \
                             $(TESTDIR)/minunit.h \
                             src/inventory.c src/inventory.h \
                             src/equipment.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inventory_test.c \
-	    $(TESTDIR)/inventory_fixture.c src/inventory.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inventory_test.c src/inventory.c
 
 clean:
 	rm -rf $(BUILDDIR)

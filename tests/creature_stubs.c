@@ -37,18 +37,12 @@ player_type py;
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 monster_type m_list[MAX_MALLOC];
 inven_type t_list[MAX_TALLOC];
-inven_type inventory[INVEN_ARRAY_SIZE];
 int16_t char_row;
 int16_t char_col;
-int16_t inven_ctr;
-/* inven_weight と equip_ctr は creature.c 自身は使わないが、#18-5B31 で
- * creature.c が窓口（equipment_at）越しに inventory を触るようになり、
- * src/inventory.c をリンクするようになった。その inventory.c が要求する
- * 4 個のうちの残り 2 個。tests/inventory_fixture.c にも同じ 4 個の定義が
- * あるが、そちらを足すと inventory と inven_ctr が二重定義になる
- * （リンカが実際にそう言った）。 */
-int16_t inven_weight;
-int16_t equip_ctr;
+/* 持ち物の 4 個（inventory / inven_ctr / inven_weight / equip_ctr）はここに
+ * 無い。#18-5C で src/inventory.c が static で持つようになったので、代役を
+ * 置く必要が無くなった（置くと inventory.c の分と別の器になり、窓口越しの
+ * 読み書きが別の場所に当たる）。 */
 int16_t mfptr;
 int16_t mon_tot_mult;
 int find_flag;
