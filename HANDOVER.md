@@ -288,15 +288,6 @@ module 連鎖）は**次に新しいテストを足すときの足場の重さ�
 `tests/inventory_fixture.c` 31 行と `tests/creature_stubs.c` の代役 4 個が消えた。
 **分割（#42）は代役を減らさないが、カプセル化（#18）は減らす。**
 
-**#18-5 で二面性の 2 例目が出た。** 新設の `inventory_test` は **2 単位・代役 0**
-で済んだ一方、**`item_ident_test` は `src/inventory.c` を引くようになった**
-（`desc.c` が持ち物の窓口越しに `inventory` を触るため。同じことが
-`movement_rate_test` 2 → 3、`save_bool_test` と `store_save_test` にも起きている）。
-つまり**窓口を作る作業でも既存テストのリンクは重くなる。** ただし #41 と違って
-**軽くなる側にも動いた** —— 実体が `inventory.c` の `static` になったので、
-`tests/inventory_fixture.c` 31 行と `tests/creature_stubs.c` の代役 4 個が消えた。
-**分割（#42）は代役を減らさないが、カプセル化（#18）は減らす。**
-
 ## 7. 地雷とつまずきどころ
 
 前の担当が実際に踏んだもの。
