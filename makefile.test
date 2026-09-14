@@ -37,7 +37,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
-        str_insert_test inventory_test progress_test score_death_test
+        str_insert_test inventory_test progress_test score_death_test \
+        save_state_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -453,6 +454,32 @@ $(BUILDDIR)/score_death_test: $(TESTDIR)/score_death_test.c \
                               src/score_death.c src/score_death.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/score_death_test.c \
 	    $(TESTDIR)/score_death_fixture.c src/score_death.c
+
+# セーブの置き場（savefile・生成済み・保存済み・panic）と 3 つの述語。
+# 3 module のうち唯一よそを読む側なので、この 1 本だけリンクが長い:
+# save_state_has_live_character が score_death.h の player_is_dead を、
+# save_state_character_is_in_play が progress.h の progress_turn を呼ぶ。
+# よって src/ 側は 3 本、足場も 3 本、テスト 1 本で 7 コンパイル単位になる。
+# それが有向依存の代金で、隠さずに数えておく（progress_test /
+# score_death_test はそれぞれ 3 単位）。
+#
+# 足場を 3 つに分けてあるのは二重定義を避けるため。save_state_fixture.c は
+# save_state.c が要る 4 個だけを定義し、残り 9 個は progress_fixture.c と
+# score_death_fixture.c が持つ。代役は 1 つも要らない。
+# ステップ C で 13 個の実体が 3 module の static になれば足場は消え、
+# この実行形式はテスト 1 本＋module 3 本の 4 単位になる。
+$(BUILDDIR)/save_state_test: $(TESTDIR)/save_state_test.c \
+                             $(TESTDIR)/save_state_fixture.c \
+                             $(TESTDIR)/progress_fixture.c \
+                             $(TESTDIR)/score_death_fixture.c \
+                             $(TESTDIR)/minunit.h \
+                             src/save_state.c src/save_state.h \
+                             src/progress.c src/progress.h \
+                             src/score_death.c src/score_death.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_state_test.c \
+	    $(TESTDIR)/save_state_fixture.c $(TESTDIR)/progress_fixture.c \
+	    $(TESTDIR)/score_death_fixture.c \
+	    src/save_state.c src/progress.c src/score_death.c
 
 clean:
 	rm -rf $(BUILDDIR)

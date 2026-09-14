@@ -53,7 +53,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
 	render.c render_ncurses.c view_observer.c game_state.c \
 	input.c input_ncurses.c platform.c panel.c stores.c stats.c str_insert.c \
-	inventory.c progress.c score_death.c \
+	inventory.c progress.c score_death.c save_state.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -64,7 +64,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	scrolls.o spells.o wizard.o store2.o signals.o signal_flags.o \
 	render.o render_ncurses.o view_observer.o game_state.o \
 	input.o input_ncurses.o platform.o panel.o stores.o stats.o str_insert.o \
-	inventory.o progress.o score_death.o \
+	inventory.o progress.o score_death.o save_state.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -202,6 +202,10 @@ staffs.o: $(SRCDIR)/device.h $(HEADERS_FULL)
 progress.o: $(SRCDIR)/progress.h $(HEADERS_COMMON)
 # score_death.c does not include externs.h either, so HEADERS_COMMON is enough.
 score_death.o: $(SRCDIR)/score_death.h $(HEADERS_COMMON)
+# save_state.c does not include externs.h either, but it does read the other
+# two windows of this batch, so its headers are here as well.
+save_state.o: $(SRCDIR)/save_state.h $(SRCDIR)/progress.h \
+              $(SRCDIR)/score_death.h $(HEADERS_COMMON)
 store1.o: $(SRCDIR)/stores.h $(HEADERS_FULL)
 store2.o: $(SRCDIR)/stores.h $(HEADERS_FULL)
 stores.o: $(SRCDIR)/stores.h $(HEADERS_FULL)
