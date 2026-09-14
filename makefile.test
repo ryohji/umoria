@@ -37,7 +37,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
-        str_insert_test inventory_test
+        str_insert_test inventory_test progress_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -424,6 +424,20 @@ $(BUILDDIR)/inventory_test: $(TESTDIR)/inventory_test.c \
                             src/inventory.c src/inventory.h \
                             src/equipment.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inventory_test.c src/inventory.c
+
+# 進行の置き場（turn・種 2 つ・wizard 2 つ）。#19A の時点では実体がまだ
+# src/variable.c にあり、src/progress.c は手書きの extern 越しに読み書きする
+# （呼びだし側を 1 箇所も変えていない＝ふるまい不変）。variable.c は global
+# 92 個ぶんの実体を抱えていて芋づるで大半の module を引くので、リンクせず
+# tests/progress_fixture.c で 5 個だけを定義する。代役は 1 つも要らない。
+# ステップ C で実体を progress.c の static に引きこめば足場は消え、
+# inventory_test と同じ 2 単位・代役 0 になる。
+$(BUILDDIR)/progress_test: $(TESTDIR)/progress_test.c \
+                           $(TESTDIR)/progress_fixture.c \
+                           $(TESTDIR)/minunit.h \
+                           src/progress.c src/progress.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/progress_test.c \
+	    $(TESTDIR)/progress_fixture.c src/progress.c
 
 clean:
 	rm -rf $(BUILDDIR)
