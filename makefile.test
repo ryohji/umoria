@@ -37,7 +37,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
-        str_insert_test inventory_test progress_test
+        str_insert_test inventory_test progress_test score_death_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -438,6 +438,21 @@ $(BUILDDIR)/progress_test: $(TESTDIR)/progress_test.c \
                            src/progress.c src/progress.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/progress_test.c \
 	    $(TESTDIR)/progress_fixture.c src/progress.c
+
+# 結末の置き場（death・died_from・birth_date・noscore）。progress_test と同じ形で、
+# #19A の時点では実体がまだ src/variable.c にあるので tests/score_death_fixture.c
+# で 4 個だけを定義する。代役は 1 つも要らない。
+#
+# highscore_fp はこの区分の global だがここには無い。display_scores() と
+# highscores() が関数の中で fopen して fclose するだけなので局所変数にできる
+# （ユーザーの判断）。ファイル操作を抱えないので externs.h（fopen を tfopen に
+# 置きかえる）を include せずに済んでいる。
+$(BUILDDIR)/score_death_test: $(TESTDIR)/score_death_test.c \
+                              $(TESTDIR)/score_death_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/score_death.c src/score_death.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/score_death_test.c \
+	    $(TESTDIR)/score_death_fixture.c src/score_death.c
 
 clean:
 	rm -rf $(BUILDDIR)
