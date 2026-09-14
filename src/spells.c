@@ -12,7 +12,9 @@
 #include "constant.h"
 #include "types.h"
 
+#include "equipment.h"
 #include "externs.h"
+#include "inventory.h"
 #include "panel.h"
 
 static void replace_spot(int, int, int);
@@ -274,11 +276,11 @@ int ident_spell(void) {
     bool ident = false;
 
     int item_val;
-    if (get_item(&item_val, "Item you wish identified?", 0, INVEN_ARRAY_SIZE, CNIL, CNIL)) {
+    if (get_item(&item_val, "Item you wish identified?", 0, inventory_and_equipment_slot_count(), CNIL, CNIL)) {
         ident = true;
         identify(&item_val);
 
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_and_equipment_at(item_val);
         known2(i_ptr);
 
         bigvtype tmp_str;
@@ -916,7 +918,7 @@ int recharge(int num) {
     if (!find_range(TV_STAFF, TV_WAND, &i, &j)) {
         msg_print("You have nothing to recharge.");
     } else if (get_item(&item_val, "Recharge which item?", i, j, CNIL, CNIL)) {
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
 
         res = true;
 
@@ -2116,12 +2118,15 @@ bool enchant(int16_t *plusses, int16_t limit) {
     return res;
 }
 
-// Removes curses from items in inventory -RAK-
+// Removes curses from equipment -RAK-
+// Only the slots up to INVEN_OUTER, so the light source and the second weapon
+// keep their curse. Note the other two spells with this effect walk different
+// ranges: magic.c reaches every equipment slot, prayer.c every slot at all.
 int remove_curse(void) {
     bool result = false;
 
-    for (int i = INVEN_WIELD; i <= INVEN_OUTER; i++) {
-        inven_type *i_ptr = &inventory[i];
+    for (int i = equipment_first_slot(); i <= INVEN_OUTER; i++) {
+        inven_type *i_ptr = equipment_at(i);
 
         if (TR_CURSED & i_ptr->flags) {
             i_ptr->flags &= ~TR_CURSED;

@@ -13,6 +13,8 @@
 #include "types.h"
 
 #include "externs.h"
+#include "equipment.h"
+#include "inventory.h"
 #include "panel.h"
 #include "stats.h"
 
@@ -37,7 +39,7 @@ void tunnel(int dir) {
     // strength, and type of tool used
     int tabil = py.stats.use_stat[A_STR];
 
-    inven_type *i_ptr = &inventory[INVEN_WIELD];
+    inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
     // Don't let the player tunnel somewhere illegal, this is necessary to
     // prevent the player from getting a free attack by trying to tunnel
@@ -632,13 +634,13 @@ static bool look_see(int x, int y, bool *transparent) {
 }
 
 static void inven_throw(int item_val, inven_type *t_ptr) {
-    inven_type *i_ptr = &inventory[item_val];
+    inven_type *i_ptr = inventory_at(item_val);
 
     *t_ptr = *i_ptr;
     if (i_ptr->number > 1) {
         t_ptr->number = 1;
         i_ptr->number--;
-        inven_weight -= i_ptr->weight;
+        inventory_set_weight(inventory_weight() - i_ptr->weight);
         py.flags.status |= PY_STR_WGT;
     } else {
         inven_destroy(item_val);
@@ -660,8 +662,8 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
     *tpth = py.misc.ptohit + i_ptr->tohit;
 
     // Add this back later if the correct throwing device. -CJS-
-    if (inventory[INVEN_WIELD].tval != TV_NOTHING) {
-        *tpth -= inventory[INVEN_WIELD].tohit;
+    if (equipment_at(INVEN_WIELD)->tval != TV_NOTHING) {
+        *tpth -= equipment_at(INVEN_WIELD)->tohit;
     }
 
     *tdis = (((py.stats.use_stat[A_STR] + 20) * 10) / tmp_weight);
@@ -673,13 +675,13 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
     // missile/weapon combo, this makes them much more useful
 
     // Using Bows,  slings,  or crossbows
-    if (inventory[INVEN_WIELD].tval == TV_BOW) {
-        switch (inventory[INVEN_WIELD].p1) {
+    if (equipment_at(INVEN_WIELD)->tval == TV_BOW) {
+        switch (equipment_at(INVEN_WIELD)->p1) {
         case 1:
             if (i_ptr->tval == TV_SLING_AMMO) { // Sling and ammo
                 *tbth = py.misc.bthb;
-                *tpth += 2 * inventory[INVEN_WIELD].tohit;
-                *tdam += inventory[INVEN_WIELD].todam;
+                *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
+                *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 2;
                 *tdis = 20;
             }
@@ -687,8 +689,8 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         case 2:
             if (i_ptr->tval == TV_ARROW) { // Short Bow and Arrow
                 *tbth = py.misc.bthb;
-                *tpth += 2 * inventory[INVEN_WIELD].tohit;
-                *tdam += inventory[INVEN_WIELD].todam;
+                *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
+                *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 2;
                 *tdis = 25;
             }
@@ -696,8 +698,8 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         case 3:
             if (i_ptr->tval == TV_ARROW) { // Long Bow and Arrow
                 *tbth = py.misc.bthb;
-                *tpth += 2 * inventory[INVEN_WIELD].tohit;
-                *tdam += inventory[INVEN_WIELD].todam;
+                *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
+                *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 3;
                 *tdis = 30;
             }
@@ -705,8 +707,8 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         case 4:
             if (i_ptr->tval == TV_ARROW) { // Composite Bow and Arrow
                 *tbth = py.misc.bthb;
-                *tpth += 2 * inventory[INVEN_WIELD].tohit;
-                *tdam += inventory[INVEN_WIELD].todam;
+                *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
+                *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 4;
                 *tdis = 35;
             }
@@ -714,8 +716,8 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         case 5:
             if (i_ptr->tval == TV_BOLT) { // Light Crossbow and Bolt
                 *tbth = py.misc.bthb;
-                *tpth += 2 * inventory[INVEN_WIELD].tohit;
-                *tdam += inventory[INVEN_WIELD].todam;
+                *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
+                *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 3;
                 *tdis = 25;
             }
@@ -723,8 +725,8 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         case 6:
             if (i_ptr->tval == TV_BOLT) { // Heavy Crossbow and Bolt
                 *tbth = py.misc.bthb;
-                *tpth += 2 * inventory[INVEN_WIELD].tohit;
-                *tdam += inventory[INVEN_WIELD].todam;
+                *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
+                *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 4;
                 *tdis = 35;
             }
@@ -777,10 +779,10 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
 void throw_object(void) {
     int item_val;
 
-    if (inven_ctr == 0) {
+    if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
         free_turn_flag = true;
-    } else if (get_item(&item_val, "Fire/Throw which one?", 0, inven_ctr - 1, CNIL, CNIL)) {
+    } else if (get_item(&item_val, "Fire/Throw which one?", 0, inventory_count() - 1, CNIL, CNIL)) {
         int dir;
         if (get_dir(CNIL, &dir)) {
             desc_remain(item_val);
@@ -892,7 +894,7 @@ static void py_bash(int y, int x) {
     // Does the player know what he's fighting?
     const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
 
-    int base_tohit = py.stats.use_stat[A_STR] + inventory[INVEN_ARM].weight / 2 + py.misc.wt / 10;
+    int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + py.misc.wt / 10;
 
     if (!m_ptr->ml) {
         base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (py.misc.lev * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
@@ -900,8 +902,8 @@ static void py_bash(int y, int x) {
 
     if (test_hit(base_tohit, (int)py.misc.lev, (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {
         msg_print(CONCAT("You hit ", cdesc, "."));
-        int k = pdamroll(inventory[INVEN_ARM].damage);
-        k = critical_blow((inventory[INVEN_ARM].weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
+        int k = pdamroll(equipment_at(INVEN_ARM)->damage);
+        k = critical_blow((equipment_at(INVEN_ARM)->weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
         k += py.misc.wt / 60 + 3;
         if (k < 0) {
             k = 0;

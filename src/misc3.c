@@ -15,6 +15,8 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "equipment.h"
+#include "inventory.h"
 #include "stats.h"
 
 static const char *stat_names[] = {
@@ -831,18 +833,18 @@ void change_name(void) {
 
 // Destroy an item in the inventory -RAK-
 void inven_destroy(int item_val) {
-    inven_type *i_ptr = &inventory[item_val];
+    inven_type *i_ptr = inventory_at(item_val);
 
     if ((i_ptr->number > 1) && (i_ptr->subval <= ITEM_SINGLE_STACK_MAX)) {
         i_ptr->number--;
-        inven_weight -= i_ptr->weight;
+        inventory_set_weight(inventory_weight() - i_ptr->weight);
     } else {
-        inven_weight -= i_ptr->weight * i_ptr->number;
-        for (int j = item_val; j < inven_ctr - 1; j++) {
-            inventory[j] = inventory[j + 1];
+        inventory_set_weight(inventory_weight() - i_ptr->weight * i_ptr->number);
+        for (int j = item_val; j < inventory_count() - 1; j++) {
+            *inventory_at(j) = *inventory_at(j + 1);
         }
-        invcopy(&inventory[inven_ctr - 1], OBJ_NOTHING);
-        inven_ctr--;
+        invcopy(inventory_at(inventory_count() - 1), OBJ_NOTHING);
+        inventory_set_count(inventory_count() - 1);
     }
     py.flags.status |= PY_STR_WGT;
 }
@@ -864,7 +866,7 @@ void inven_drop(int item_val, int drop_all) {
     }
 
     int i = popt();
-    inven_type *i_ptr = &inventory[item_val];
+    inven_type *i_ptr = inventory_and_equipment_at(item_val);
     t_list[i] = *i_ptr;
     cave[char_row][char_col].tptr = i;
 
@@ -872,16 +874,16 @@ void inven_drop(int item_val, int drop_all) {
         takeoff(item_val, -1);
     } else {
         if (drop_all || i_ptr->number == 1) {
-            inven_weight -= i_ptr->weight * i_ptr->number;
-            inven_ctr--;
-            while (item_val < inven_ctr) {
-                inventory[item_val] = inventory[item_val + 1];
+            inventory_set_weight(inventory_weight() - i_ptr->weight * i_ptr->number);
+            inventory_set_count(inventory_count() - 1);
+            while (item_val < inventory_count()) {
+                *inventory_at(item_val) = *inventory_at(item_val + 1);
                 item_val++;
             }
-            invcopy(&inventory[inven_ctr], OBJ_NOTHING);
+            invcopy(inventory_at(inventory_count()), OBJ_NOTHING);
         } else {
             t_list[i].number = 1;
-            inven_weight -= i_ptr->weight;
+            inventory_set_weight(inventory_weight() - i_ptr->weight);
             i_ptr->number--;
         }
 
@@ -898,8 +900,8 @@ void inven_drop(int item_val, int drop_all) {
 int inven_damage(bool (*typ)(inven_type *), int perc) {
     int j = 0;
 
-    for (int i = 0; i < inven_ctr; i++) {
-        if ((*typ)(&inventory[i]) && (randint(100) < perc)) {
+    for (int i = 0; i < inventory_count(); i++) {
+        if ((*typ)(inventory_at(i)) && (randint(100) < perc)) {
             inven_destroy(i);
             j++;
         }
@@ -936,11 +938,11 @@ static bool items_can_stack(inven_type *existing, inven_type *incoming) {
 }
 
 bool inven_check_num(inven_type *t_ptr) {
-    if (inven_ctr < INVEN_WIELD) {
+    if (inventory_count() < inventory_slot_count()) {
         return true;
     }
-    for (int i = 0; i < inven_ctr; i++) {
-        if (items_can_stack(&inventory[i], t_ptr)) {
+    for (int i = 0; i < inventory_count(); i++) {
+        if (items_can_stack(inventory_at(i), t_ptr)) {
             return true;
         }
     }
@@ -950,7 +952,7 @@ bool inven_check_num(inven_type *t_ptr) {
 // return false if picking up an object would change the players speed
 bool inven_check_weight(inven_type *i_ptr) {
     int i = weight_limit();
-    int new_inven_weight = i_ptr->number * i_ptr->weight + inven_weight;
+    int new_inven_weight = i_ptr->number * i_ptr->weight + inventory_weight();
 
     if (i < new_inven_weight) {
         i = new_inven_weight / (i + 1);
@@ -967,7 +969,7 @@ bool inven_check_weight(inven_type *i_ptr) {
 
 // Are we strong enough for the current pack and weapon? -CJS-
 void check_strength(void) {
-    inven_type *i_ptr = &inventory[INVEN_WIELD];
+    inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
     if (i_ptr->tval != TV_NOTHING &&
         (py.stats.use_stat[A_STR] * 15 < i_ptr->weight)) {
@@ -985,8 +987,8 @@ void check_strength(void) {
     }
 
     int i = weight_limit();
-    if (i < inven_weight) {
-        i = inven_weight / (i + 1);
+    if (i < inventory_weight()) {
+        i = inventory_weight() / (i + 1);
     } else {
         i = 0;
     }
@@ -1015,7 +1017,7 @@ int inven_carry(inven_type *i_ptr) {
 
     // Now, check to see if player can carry object
     for (locn = 0;; locn++) {
-        inven_type *t_ptr = &inventory[locn];
+        inven_type *t_ptr = inventory_at(locn);
 
         if (items_can_stack(t_ptr, i_ptr)) {
             t_ptr->number += i_ptr->number;
@@ -1024,16 +1026,16 @@ int inven_carry(inven_type *i_ptr) {
             // For items which are always known1p, i.e. never have a 'color',
             // insert them into the inventory in sorted order.
 
-            for (int i = inven_ctr - 1; i >= locn; i--) {
-                inventory[i + 1] = inventory[i];
+            for (int i = inventory_count() - 1; i >= locn; i--) {
+                *inventory_at(i + 1) = *inventory_at(i);
             }
-            inventory[locn] = *i_ptr;
-            inven_ctr++;
+            *inventory_at(locn) = *i_ptr;
+            inventory_set_count(inventory_count() + 1);
             break;
         }
     }
 
-    inven_weight += i_ptr->number * i_ptr->weight;
+    inventory_set_weight(inventory_weight() + i_ptr->number * i_ptr->weight);
     py.flags.status |= PY_STR_WGT;
 
     return locn;
@@ -1410,9 +1412,9 @@ void gain_spells(void) {
         // mages need the book to learn a spell, priests do not need the book
         if (stat == A_INT) {
             spell_flag = 0;
-            for (int i = 0; i < inven_ctr; i++) {
-                if (inventory[i].tval == TV_MAGIC_BOOK) {
-                    spell_flag |= inventory[i].flags;
+            for (int i = 0; i < inventory_count(); i++) {
+                if (inventory_at(i)->tval == TV_MAGIC_BOOK) {
+                    spell_flag |= inventory_at(i)->flags;
                 }
             }
         } else {
@@ -1846,11 +1848,11 @@ int find_range(int item1, int item2, int *j, int *k) {
     *j = -1;
     *k = -1;
 
-    inven_type *i_ptr = &inventory[0];
+    inven_type *i_ptr = inventory_at(0);
 
     bool flag = false;
 
-    while (i < inven_ctr) {
+    while (i < inventory_count()) {
         if (!flag) {
             if ((i_ptr->tval == item1) || (i_ptr->tval == item2)) {
                 flag = true;
@@ -1867,7 +1869,7 @@ int find_range(int item1, int item2, int *j, int *k) {
     }
 
     if (flag && (*k == -1)) {
-        *k = inven_ctr - 1;
+        *k = inventory_count() - 1;
     }
 
     return flag;

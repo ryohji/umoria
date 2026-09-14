@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "equipment.h"
 #include "externs.h"
 
 // Throw a magic spell -RAK-
@@ -99,8 +100,8 @@ void cast(void) {
                     teleport((py.misc.lev * 5));
                     break;
                 case 14:
-                    for (int id = 22; id < INVEN_ARRAY_SIZE; id++) {
-                        inven_type *i_ptr = &inventory[id];
+                    for (int id = 22; id < equipment_end_slot(); id++) {
+                        inven_type *i_ptr = equipment_at(id);
                         i_ptr->flags = (i_ptr->flags & ~TR_CURSED);
                     }
                     break;

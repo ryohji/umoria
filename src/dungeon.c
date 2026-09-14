@@ -13,6 +13,8 @@
 #include "types.h"
 
 #include "externs.h"
+#include "equipment.h"
+#include "inventory.h"
 #include "panel.h"
 #include "messages.h"
 #include "stats.h"
@@ -46,7 +48,7 @@ void dungeon(void) {
     struct misc *const p_ptr = &py.misc;
 
     // Check light status for setup
-    inven_type *i_ptr = &inventory[INVEN_LIGHT];
+    inven_type *i_ptr = equipment_at(INVEN_LIGHT);
     player_light = i_ptr->p1 > 0;
 
     // Check for a maximum level
@@ -103,7 +105,7 @@ void dungeon(void) {
         }
 
         // Check light status
-        i_ptr = &inventory[INVEN_LIGHT];
+        i_ptr = equipment_at(INVEN_LIGHT);
         if (player_light) {
             if (i_ptr->p1 > 0) {
                 i_ptr->p1--;
@@ -628,11 +630,11 @@ void dungeon(void) {
         if (((turn & 0xF) == 0) && (f_ptr->confused == 0) &&
             (randint((10 + 750 / (5 + py.misc.lev))) == 1)) {
 
-            for (i = 0; i < INVEN_ARRAY_SIZE; i++) {
-                if (i == inven_ctr) {
+            for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
+                if (i == inventory_count()) {
                     i = 22;
                 }
-                i_ptr = &inventory[i];
+                i_ptr = inventory_and_equipment_at(i);
 
                 // if in inventory, succeed 1 out of 50 times,
                 // if in equipment list, success 1 out of 10 times
@@ -1780,7 +1782,7 @@ static void examine_book(void) {
         spell_type *s_ptr;
 
         bool flag = true;
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
 
         if (class[py.misc.pclass].spell == MAGE) {
             if (i_ptr->tval != TV_MAGIC_BOOK) {
@@ -1798,7 +1800,7 @@ static void examine_book(void) {
             msg_print("You do not understand the language.");
         } else {
             i = 0;
-            uint32_t j = inventory[item_val].flags;
+            uint32_t j = inventory_at(item_val)->flags;
 
             while (j) {
                 k = bit_pos(&j);
@@ -1887,10 +1889,10 @@ static void jamdoor(void) {
                         // Series is: 0 20 30 37 43 48 52 56 60 64 67 70 ...
                         t_ptr->p1 -= 1 + 190 / (10 - t_ptr->p1);
 
-                        inven_type *i_ptr = &inventory[i];
+                        inven_type *i_ptr = inventory_at(i);
                         if (i_ptr->number > 1) {
                             i_ptr->number--;
-                            inven_weight -= i_ptr->weight;
+                            inventory_set_weight(inventory_weight() - i_ptr->weight);
                         } else {
                             inven_destroy(i);
                         }
@@ -1921,7 +1923,7 @@ static void refill_lamp(void) {
 
     free_turn_flag = true;
 
-    int k = inventory[INVEN_LIGHT].subval;
+    int k = equipment_at(INVEN_LIGHT)->subval;
 
     if (k != 0) {
         msg_print("But you are not using a lamp.");
@@ -1930,8 +1932,8 @@ static void refill_lamp(void) {
     } else {
         free_turn_flag = false;
 
-        inven_type *i_ptr = &inventory[INVEN_LIGHT];
-        i_ptr->p1 += inventory[i].p1;
+        inven_type *i_ptr = equipment_at(INVEN_LIGHT);
+        i_ptr->p1 += inventory_at(i)->p1;
         if (i_ptr->p1 > OBJ_LAMP_MAX) {
             i_ptr->p1 = OBJ_LAMP_MAX;
             msg_print("Your lamp overflows, spilling oil on the ground.");

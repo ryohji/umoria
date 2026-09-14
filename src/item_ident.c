@@ -21,10 +21,11 @@
 
 #include "externs.h"
 
+#include "inventory.h"
 #include "item_ident.h"
 
 inven_type *learn_item_effect(bool effect_identified, int *item_val) {
-    inven_type *i_ptr = &inventory[*item_val];
+    inven_type *i_ptr = inventory_at(*item_val);
 
     if (effect_identified) {
         if (!known1_p(i_ptr)) {
@@ -36,7 +37,7 @@ inven_type *learn_item_effect(bool effect_identified, int *item_val) {
             prt_experience();
 
             identify(item_val);
-            i_ptr = &inventory[*item_val];
+            i_ptr = inventory_at(*item_val);
         }
     } else if (!known1_p(i_ptr)) {
         sample(i_ptr);

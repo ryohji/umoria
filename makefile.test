@@ -37,7 +37,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
-        str_insert_test
+        str_insert_test inventory_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -81,7 +81,7 @@ $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src
 # sample() / prt_experience() とグローバルな py / inventory にしか
 # 依存しない。判定に使う known1_p() / identify() / sample() は src/desc.c の
 # 本物をリンクする。desc.c が参照する定数テーブル（tables.c）とグローバルな
-# インベントリ（treasure.c）も本物を使い、py と画面出力だけを
+# インベントリ（inventory.c）も本物を使い、py と画面出力だけを
 # tests/fixture.c で補う（リンクシーム）。写しではなく実体を検証している。
 #
 # #41B で insert_str / insert_lnum の実体は src/str_insert.c へ移ったが、この
@@ -89,12 +89,20 @@ $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src
 # ここで見ているのは鑑定時の経験値と識別フラグで、名前の複数形化は関係しない。
 # fixture.c:75 の空の代役を残し、実体は同居させない（同居させると multiple
 # definition になる）。名前組み立ての実体を見るのは objdes_test / str_insert_test。
+#
+# #18-5B で desc.c が持ち物の窓口（inventory_at / inventory_count /
+# inventory_set_count）越しに inventory を触るようになったので src/inventory.c を
+# 足す（リンカが未解決として挙げた）。#18-5C で実体（inventory[] と 3 つの
+# 数え）も treasure.c から inventory.c に移り static になったので、この 1 本が
+# 窓口と置き場の両方になった。tests/fixture.c も窓口越しに消す。
 $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                              src/item_ident.c src/item_ident.h \
-                             src/desc.c src/tables.c src/treasure.c | $(BUILDDIR)
+                             src/desc.c src/tables.c src/treasure.c \
+                             src/inventory.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/item_ident_test.c \
-	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c
+	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c \
+	    src/inventory.c
 
 # アイテムのスタック可否判定は misc3.c の inven_check_num() と inven_carry() に
 # 二重に書かれている（本体のコメントが「must be identical」と明記している）。
@@ -103,8 +111,9 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # misc3.c は 2212 行・6 責務（画面描画・能力値計算・持ち物管理・呪文・戦闘・
 # 移動）が同居しているため、リンクすると 57 個の未解決シンボルが芋づるで
 # 付いてくる。内訳はリンカに列挙させ、3 つに分けた。
-#   本物をリンクできるもの: 定数表（tables.c）、インベントリと object_ident
-#     （treasure.c）、py と各種テーブル（player.c）、known1_p（desc.c）
+#   本物をリンクできるもの: 定数表（tables.c）、object_ident（treasure.c）、
+#     インベントリ（inventory.c）、py と各種テーブル（player.c）、
+#     known1_p（desc.c）
 #   代役で足りるもの: 画面描画・入力・ダンジョン・モンスター（misc3_stubs.c）
 # fixture.c は使わない。py・msg_print・insert_str・prt_experience を
 # player.c / misc3.c が本物として持っているので multiple definition になる。
@@ -112,15 +121,20 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 #
 # #41B で insert_str の実体が src/str_insert.c に移ったので、この構成では
 # そちらもリンクする（desc.c が呼ぶ。リンカが未解決として挙げた）。
+#
+# #18-5B7 で misc3.c が持ち物と装備を src/inventory.h / src/equipment.h の窓口
+# 越しに引くようになったので、その実体（src/inventory.c）もリンクする。
+# #18-5C で配列そのものも inventory.c の static 定義になったので、テスト側
+# （inven_stack_test.c と misc3_stubs.c）も窓口越しに読み書きする。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                               src/misc3.c src/stats.c src/str_insert.c src/desc.c \
-                              src/tables.c \
+                              src/tables.c src/inventory.c \
                               src/treasure.c src/player.c src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
@@ -140,12 +154,12 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                             src/misc3.c src/stats.c src/str_insert.c src/desc.c \
-                            src/tables.c \
+                            src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
@@ -179,11 +193,12 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                  src/store2.c src/misc3.c src/stats.c \
                                  src/str_insert.c src/desc.c \
-                                 src/tables.c src/treasure.c src/player.c \
+                                 src/tables.c src/inventory.c \
+                                 src/treasure.c src/player.c \
                                  src/abilities.c src/messages.c src/stores.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c
 
@@ -202,12 +217,24 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 #
 # turn は代役側で定義しており（本体では variable.c:69）、extern int32_t
 # なのでテストから直接代入して制御できる。
+#
+# #18-5B31 で creature.c が持ち物・装備の窓口（equipment_at・inventory_at・
+# inventory_count）を呼ぶようになったので、src/inventory.c を足した。
+# 代役を書く形（creature_stubs.c に equipment_at 等を並べる）と比べてこちらを
+# 選んだ理由は 2 つある。(1) 本物の窓口を通るので、窓口の書きかえがこの
+# テストで検出できる。(2) リンカに聞いたら inventory.c が要求する未解決は
+# 4 個だけだった。#18-5C でその 4 個は inventory.c 自身が static で持つように
+# なったので、creature_stubs.c から 4 個の代役を消した（残しても inventory.c の
+# 分とは別の器になり、窓口越しの読み書きが届かない）。
+# inventory.c は externs.h を include しないので、
+# 芋づるは 1 本も増えない（2 → 3 コンパイル単位）。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                                src/creature.c | $(BUILDDIR)
+                                src/creature.c src/inventory.c \
+                                src/equipment.h src/inventory.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
-	    $(TESTDIR)/creature_stubs.c
+	    $(TESTDIR)/creature_stubs.c src/inventory.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -239,12 +266,12 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          $(TESTDIR)/misc3_stubs.c \
                          $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                          src/misc3.c src/stats.c src/str_insert.c src/desc.c \
-                         src/tables.c \
+                         src/tables.c src/inventory.c \
                          src/treasure.c src/player.c \
                          src/abilities.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
-	    src/desc.c src/tables.c \
+	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
@@ -285,7 +312,7 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 #
 # save.c は 1300 行（セーブ／ロード全体）なので、取りこむと 77 個の未解決
 # シンボルが芋づるで付いてくる。データ側（variable.c のグローバル、tables.c の
-# 定数表、treasure.c のインベントリ、player.c の py、monsters.c の m_list）は
+# 定数表、inventory.c のインベントリ、player.c の py、monsters.c の m_list）は
 # 本物をリンクし、画面表示・入力・シグナル・店・乱数は save_stubs.c の代役で
 # 埋める。一覧はリンカに列挙させたもので、手で数えあげたわけではない。
 #
@@ -300,16 +327,20 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # パネル数の読み書きも src/panel.c 越しになったので panel.c もリンクする。
 # 依存が無い module なので代役より本物のほうが短い。
 # 店 6 軒の記録も src/stores.c 越しになったので同じくリンクする。
+#
+# 持ち物と装備の読み書きも src/inventory.c 越しになったので inventory.c も
+# リンクする。#18-5C で実体（inventory[] と 3 つの数え）も treasure.c から
+# inventory.c に移って static になった。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \
                             src/treasure.c src/player.c src/monsters.c \
                             src/options.c src/messages.c src/panel.c \
-                            src/stores.c | $(BUILDDIR)
+                            src/stores.c src/inventory.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
-	    src/messages.c src/panel.c src/stores.c
+	    src/messages.c src/panel.c src/stores.c src/inventory.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -318,16 +349,19 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 #
 # 店の記録の置き場は src/stores.c なので本物をリンクする（比べる相手が
 # 本体と同じ記録でなければ意味が無い）。
+#
+# save.c が持ち物と装備の窓口を呼ぶので src/inventory.c もリンクする
+# （save_bool_test と同じ理由）。
 $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                              src/save.c src/variable.c src/tables.c \
                              src/treasure.c src/player.c src/monsters.c \
                              src/options.c src/messages.c src/panel.c \
-                             src/stores.c | $(BUILDDIR)
+                             src/stores.c src/inventory.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
-	    src/messages.c src/panel.c src/stores.c
+	    src/messages.c src/panel.c src/stores.c src/inventory.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -379,6 +413,17 @@ $(BUILDDIR)/panel_test: $(TESTDIR)/panel_test.c $(TESTDIR)/minunit.h \
 $(BUILDDIR)/stores_test: $(TESTDIR)/stores_test.c $(TESTDIR)/minunit.h \
                          src/stores.c src/stores.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/stores_test.c src/stores.c
+
+# 持ち物と装備の置き場は src/inventory.c にある。#18-5C で配列と 3 つの件数の
+# 実体が treasure.c から移ってきて static になったので、足場（かつて置いていた
+# tests/inventory_fixture.c）はもう要らない。窓口は誰も呼ばないので代役も
+# 1 つも要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （str_insert_test・stat_bonus_test と同じ形）。
+$(BUILDDIR)/inventory_test: $(TESTDIR)/inventory_test.c \
+                            $(TESTDIR)/minunit.h \
+                            src/inventory.c src/inventory.h \
+                            src/equipment.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inventory_test.c src/inventory.c
 
 clean:
 	rm -rf $(BUILDDIR)

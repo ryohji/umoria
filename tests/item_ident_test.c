@@ -24,10 +24,10 @@
 
 #include "fixture.h"
 
+#include "inventory.h"
+
 extern player_type py;
-extern inven_type inventory[];
 extern uint8_t object_ident[];
-extern int16_t inven_ctr;
 
 /* 検証に使う本物（src/desc.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
@@ -58,12 +58,12 @@ static void apply_ident(bool ident, int item_val)
  * なること。store_bought フラグは立てないので未鑑定から始まる。 */
 static void given_unknown_item(int item_level, int player_level)
 {
-    inven_type *i_ptr = &inventory[0];
+    inven_type *i_ptr = inventory_at(0);
     i_ptr->tval = TV_SCROLL1;
     i_ptr->subval = ITEM_SINGLE_STACK_MIN; /* 64。単品スタックの下限 */
     i_ptr->number = 1;
     i_ptr->level = (uint8_t)item_level;
-    inven_ctr = 1;
+    inventory_set_count(1);
     py.misc.lev = (uint16_t)player_level;
     py.misc.expfact = 100;
 }
@@ -193,7 +193,7 @@ TEST(experience_gain_is_added_to_existing_experience)
 TEST(item_prepared_by_fixture_starts_unknown)
 {
     given_unknown_item(5, 1);
-    ASSERT_EQ_INT(known1_p(&inventory[0]), 0);
+    ASSERT_EQ_INT(known1_p(inventory_at(0)), 0);
 }
 
 /* ident が真で未鑑定なら identify() が呼ばれ、既知になる。 */
@@ -201,7 +201,7 @@ TEST(unknown_item_becomes_known_when_effect_is_identified)
 {
     given_unknown_item(5, 1);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(known1_p(&inventory[0]), OD_KNOWN1);
+    ASSERT_EQ_INT(known1_p(inventory_at(0)), OD_KNOWN1);
 }
 
 /* すでに既知なら経験値はつかない。二重取得を防ぐ分岐。 */
@@ -228,7 +228,7 @@ TEST(already_known_item_stays_known_after_identifying_effect)
     given_unknown_item(5, 1);
     identify(&(int){0});
     apply_ident(true, 0);
-    ASSERT_EQ_INT(known1_p(&inventory[0]), OD_KNOWN1);
+    ASSERT_EQ_INT(known1_p(inventory_at(0)), OD_KNOWN1);
 }
 
 /* ------------------------------------------------------------------
@@ -267,7 +267,7 @@ TEST(item_stays_unknown_when_effect_is_not_identified)
 {
     given_unknown_item(5, 1);
     apply_ident(false, 0);
-    ASSERT_EQ_INT(known1_p(&inventory[0]), 0);
+    ASSERT_EQ_INT(known1_p(inventory_at(0)), 0);
 }
 
 /* 既知のアイテムには sample() が呼ばれない（else if の条件が偽）。

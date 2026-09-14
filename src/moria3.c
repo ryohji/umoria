@@ -13,6 +13,8 @@
 #include "types.h"
 
 #include "externs.h"
+#include "equipment.h"
+#include "inventory.h"
 #include "panel.h"
 #include "stats.h"
 
@@ -215,10 +217,10 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     int result = -1;
     int i = 0;
 
-    uint32_t j = inventory[item_val].flags;
+    uint32_t j = inventory_at(item_val)->flags;
     int first_spell = bit_pos(&j);
     // set j again, since bit_pos modified it
-    j = inventory[item_val].flags & spell_learned;
+    j = inventory_at(item_val)->flags & spell_learned;
 
     spell_type *s_ptr = magic_spell[py.misc.pclass - 1];
 
@@ -295,7 +297,7 @@ static void carry(int y, int x, bool pickup) {
                 if (pickup) {
                     int locn = inven_carry(i_ptr);
 
-                    objdes(tmp_str, &inventory[locn], true);
+                    objdes(tmp_str, inventory_at(locn), true);
                     (void)sprintf(out_val, "You have %s (%c)", tmp_str, locn + 'a');
                     msg_print(out_val);
                     (void)delete_object(y, x);
@@ -564,7 +566,7 @@ void py_attack(int y, int x) {
     monster_type *const m_ptr = m_list + crptr;
     const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
-    inven_type *i_ptr = &inventory[INVEN_WIELD];
+    inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
     // Does the player know what he's fighting?
     const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
@@ -648,11 +650,11 @@ void py_attack(int y, int x) {
                 (i_ptr->tval <= TV_SPIKE)) // Use missiles up
             {
                 i_ptr->number--;
-                inven_weight -= i_ptr->weight;
+                inventory_set_weight(inventory_weight() - i_ptr->weight);
                 py.flags.status |= PY_STR_WGT;
 
                 if (i_ptr->number == 0) {
-                    equip_ctr--;
+                    equipment_set_count(equipment_count() - 1);
                     py_bonuses(i_ptr, -1);
                     invcopy(i_ptr, OBJ_NOTHING);
                     calc_bonuses();

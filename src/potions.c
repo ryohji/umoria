@@ -14,6 +14,7 @@
 
 #include "externs.h"
 
+#include "inventory.h"
 #include "item_ident.h"
 
 // Potions for the quaffing -RAK-
@@ -21,12 +22,12 @@ void quaff(void) {
     free_turn_flag = true;
 
     int j, k, item_val;
-    if (inven_ctr == 0) {
+    if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
     } else if (!find_range(TV_POTION1, TV_POTION2, &j, &k)) {
         msg_print("You are not carrying any potions.");
     } else if (get_item(&item_val, "Quaff which potion?", j, k, CNIL, CNIL)) {
-        inven_type *i_ptr = &inventory[item_val];
+        inven_type *i_ptr = inventory_at(item_val);
 
         uint32_t i = i_ptr->flags;
         free_turn_flag = false;

@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "inventory.h"
 #include "stores.h"
 #include "messages.h"
 #include "stats.h"
@@ -859,7 +860,7 @@ static bool store_purchase(int store_num, int *cur_top) {
 
                     msgtype out_val;
                     bigvtype tmp_str;
-                    objdes(tmp_str, &inventory[item_new], true);
+                    objdes(tmp_str, inventory_at(item_new), true);
                     (void)snprintf(out_val, sizeof(out_val), "You have %s (%c)", tmp_str, item_new + 'a');
                     prt(out_val, 0, 0);
 
@@ -907,13 +908,13 @@ static bool store_purchase(int store_num, int *cur_top) {
 static bool store_sell(int store_num, int *cur_top) {
     bool sell = false;
 
-    int first_item = inven_ctr;
+    int first_item = inventory_count();
     int last_item = -1;
 
     char mask[INVEN_WIELD];
 
-    for (int counter = 0; counter < inven_ctr; counter++) {
-        int flag = (*store_buy[store_num])(inventory[counter].tval);
+    for (int counter = 0; counter < inventory_count(); counter++) {
+        int flag = (*store_buy[store_num])(inventory_at(counter)->tval);
 
         mask[counter] = flag;
         if (flag) {
@@ -935,7 +936,7 @@ static bool store_sell(int store_num, int *cur_top) {
         msgtype out_val;
         bigvtype tmp_str;
 
-        take_one_item(&sold_obj, &inventory[item_val]);
+        take_one_item(&sold_obj, inventory_at(item_val));
         objdes(tmp_str, &sold_obj, true);
 
         (void)snprintf(out_val, sizeof(out_val), "Selling %s (%c)", tmp_str, item_val + 'a');
@@ -954,7 +955,7 @@ static bool store_sell(int store_num, int *cur_top) {
                 identify(&item_val);
 
                 // retake sold_obj so that it will be identified
-                take_one_item(&sold_obj, &inventory[item_val]);
+                take_one_item(&sold_obj, inventory_at(item_val));
 
                 // call known2 for store item, so charges/pluses are known
                 known2(&sold_obj);

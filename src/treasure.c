@@ -555,10 +555,11 @@ int16_t sorted_objects[MAX_DUNGEON_OBJ];
 uint8_t object_ident[OBJECT_IDENT_SIZE];
 int16_t t_level[MAX_OBJ_LEVEL + 1];
 inven_type t_list[MAX_TALLOC];
-inven_type inventory[INVEN_ARRAY_SIZE];
+
+// What the player carries and wears used to live here as well
+// (inventory[], inven_ctr, inven_weight, equip_ctr). It now lives in
+// inventory.c, which owns it privately and hands it out through the pack
+// and equipment windows.
 
 // Treasure related values
-int16_t inven_ctr    = 0; // Total different obj's
-int16_t inven_weight = 0; // Cur carried weight
-int16_t equip_ctr    = 0; // Cur equipment ctr
-int16_t tcptr;            // Cur treasure heap ptr
+int16_t tcptr; // Cur treasure heap ptr

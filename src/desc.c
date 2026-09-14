@@ -14,6 +14,7 @@
 
 #include "externs.h"
 
+#include "inventory.h"
 #include "str_insert.h"
 
 static void unsample(inven_type *);
@@ -216,7 +217,10 @@ void sample(inven_type *i_ptr) {
 // Somethings been identified.
 // Extra complexity by CJS so that it can merge store/dungeon objects when appropriate.
 void identify(int *item) {
-    inven_type *i_ptr = &inventory[*item];
+    // The index crosses both windows: ident_spell() lets the player pick from
+    // the whole index space, so *item can be a pack slot or an equipment slot.
+    // The merging below only ever touches pack slots.
+    inven_type *i_ptr = inventory_and_equipment_at(*item);
 
     if (i_ptr->flags & TR_CURSED) {
         add_inscribe(i_ptr, ID_DAMD);
@@ -232,8 +236,8 @@ void identify(int *item) {
             int j;
             inven_type *t_ptr;
 
-            for (int i = 0; i < inven_ctr; i++) {
-                t_ptr = &inventory[i];
+            for (int i = 0; i < inventory_count(); i++) {
+                t_ptr = inventory_at(i);
                 if (t_ptr->tval == x1 && t_ptr->subval == x2 && i != *item &&
                     ((int)t_ptr->number + (int)i_ptr->number < 256)) {
                     // make *item the smaller number
@@ -244,12 +248,12 @@ void identify(int *item) {
                     }
                     msg_print("You combine similar objects from the shop and dungeon.");
 
-                    inventory[*item].number += inventory[i].number;
-                    inven_ctr--;
-                    for (j = i; j < inven_ctr; j++) {
-                        inventory[j] = inventory[j + 1];
+                    inventory_at(*item)->number += inventory_at(i)->number;
+                    inventory_set_count(inventory_count() - 1);
+                    for (j = i; j < inventory_count(); j++) {
+                        *inventory_at(j) = *inventory_at(j + 1);
                     }
-                    invcopy(&inventory[j], OBJ_NOTHING);
+                    invcopy(inventory_at(j), OBJ_NOTHING);
                 }
             }
         }
@@ -639,8 +643,8 @@ void desc_charges(int item_val) {
     int rem_num;
     vtype out_val;
 
-    if (known2_p(&inventory[item_val])) {
-        rem_num = inventory[item_val].p1;
+    if (known2_p(inventory_at(item_val))) {
+        rem_num = inventory_at(item_val)->p1;
         (void)sprintf(out_val, "You have %d charges remaining.", rem_num);
         msg_print(out_val);
     }
@@ -651,7 +655,7 @@ void desc_remain(int item_val) {
     msgtype out_val;
     bigvtype tmp_str;
 
-    inven_type *i_ptr = &inventory[item_val];
+    inven_type *i_ptr = inventory_at(item_val);
     i_ptr->number--;
     objdes(tmp_str, i_ptr, true);
     i_ptr->number++;
