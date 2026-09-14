@@ -7,8 +7,12 @@
 #include "constant.h"
 #include "types.h"
 
-player_type py;          /* 本体では player.c（530行の巨大データと同居） */
-/* inven_ctr は treasure.c にあるのでここでは定義しない */
+#include "inventory.h"
+
+player_type py;         /* 本体では player.c（530行の巨大データと同居） */
+/* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
+ * しない。#18-5C で src/inventory.c が static で持つようになったので、
+ * 消しかたも窓口（src/inventory.h）越しになる。 */
 
 /* テスト専用。オリジナルには存在しない。
  * setUp から呼ぶことで、先行テストの影響を受けない条件を作る。 */
@@ -18,11 +22,12 @@ static void fixture_clear_randint_record(void);
 void fixture_reset(void)
 {
     extern uint8_t object_ident[];
-    extern inven_type inventory[];
     memset(object_ident, 0, OBJECT_IDENT_SIZE);
-    memset(inventory, 0, sizeof(inven_type) * INVEN_ARRAY_SIZE);
+    /* 持ち物と装備は 1 本の配列なので、跨ぎの窓口で全域を消す。 */
+    memset(inventory_and_equipment_at(0), 0,
+           sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     memset(&py, 0, sizeof py);
-    { extern int16_t inven_ctr; inven_ctr = 0; }
+    inventory_set_count(0);
     fixture_clear_randint_record();
 }
 

@@ -81,7 +81,7 @@ $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src
 # sample() / prt_experience() とグローバルな py / inventory にしか
 # 依存しない。判定に使う known1_p() / identify() / sample() は src/desc.c の
 # 本物をリンクする。desc.c が参照する定数テーブル（tables.c）とグローバルな
-# インベントリ（treasure.c）も本物を使い、py と画面出力だけを
+# インベントリ（inventory.c）も本物を使い、py と画面出力だけを
 # tests/fixture.c で補う（リンクシーム）。写しではなく実体を検証している。
 #
 # #41B で insert_str / insert_lnum の実体は src/str_insert.c へ移ったが、この
@@ -92,8 +92,9 @@ $(BUILDDIR)/device_chance_test: $(TESTDIR)/device_chance_test.c src/device.c src
 #
 # #18-5B で desc.c が持ち物の窓口（inventory_at / inventory_count /
 # inventory_set_count）越しに inventory を触るようになったので src/inventory.c を
-# 足す（リンカが未解決として挙げた）。実体は treasure.c 側にあり、
-# inventory.c はその窓口。
+# 足す（リンカが未解決として挙げた）。#18-5C で実体（inventory[] と 3 つの
+# 数え）も treasure.c から inventory.c に移り static になったので、この 1 本が
+# 窓口と置き場の両方になった。tests/fixture.c も窓口越しに消す。
 $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                              src/item_ident.c src/item_ident.h \
@@ -110,8 +111,9 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # misc3.c は 2212 行・6 責務（画面描画・能力値計算・持ち物管理・呪文・戦闘・
 # 移動）が同居しているため、リンクすると 57 個の未解決シンボルが芋づるで
 # 付いてくる。内訳はリンカに列挙させ、3 つに分けた。
-#   本物をリンクできるもの: 定数表（tables.c）、インベントリと object_ident
-#     （treasure.c）、py と各種テーブル（player.c）、known1_p（desc.c）
+#   本物をリンクできるもの: 定数表（tables.c）、object_ident（treasure.c）、
+#     インベントリ（inventory.c）、py と各種テーブル（player.c）、
+#     known1_p（desc.c）
 #   代役で足りるもの: 画面描画・入力・ダンジョン・モンスター（misc3_stubs.c）
 # fixture.c は使わない。py・msg_print・insert_str・prt_experience を
 # player.c / misc3.c が本物として持っているので multiple definition になる。
@@ -121,8 +123,9 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # そちらもリンクする（desc.c が呼ぶ。リンカが未解決として挙げた）。
 #
 # #18-5B7 で misc3.c が持ち物と装備を src/inventory.h / src/equipment.h の窓口
-# 越しに引くようになったので、その実体（src/inventory.c）もリンクする。配列
-# そのものは今も treasure.c の定義で、inventory.c は extern で引いている。
+# 越しに引くようになったので、その実体（src/inventory.c）もリンクする。
+# #18-5C で配列そのものも inventory.c の static 定義になったので、テスト側
+# （inven_stack_test.c と misc3_stubs.c）も窓口越しに読み書きする。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -309,7 +312,7 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 #
 # save.c は 1300 行（セーブ／ロード全体）なので、取りこむと 77 個の未解決
 # シンボルが芋づるで付いてくる。データ側（variable.c のグローバル、tables.c の
-# 定数表、treasure.c のインベントリ、player.c の py、monsters.c の m_list）は
+# 定数表、inventory.c のインベントリ、player.c の py、monsters.c の m_list）は
 # 本物をリンクし、画面表示・入力・シグナル・店・乱数は save_stubs.c の代役で
 # 埋める。一覧はリンカに列挙させたもので、手で数えあげたわけではない。
 #
@@ -326,8 +329,8 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # 店 6 軒の記録も src/stores.c 越しになったので同じくリンクする。
 #
 # 持ち物と装備の読み書きも src/inventory.c 越しになったので inventory.c も
-# リンクする。実体（inventory[] と 3 つの数え）はこれまでどおり src/treasure.c に
-# あり、inventory.c は窓口だけを足す。
+# リンクする。#18-5C で実体（inventory[] と 3 つの数え）も treasure.c から
+# inventory.c に移って static になった。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \

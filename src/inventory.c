@@ -14,21 +14,17 @@
 #include "inventory.h"
 
 // No externs.h here, the same as panel.c, stores.c, options.c and stats.c: a
-// place to keep objects needs nothing from the rest of the game. That leaves
-// four symbols to declare, so they are declared here rather than dragging in
-// the global header (which pulls ncurses along with it) for four lines. The
-// declarations therefore appear twice, here and in externs.h; the definitions
-// are still the ones in treasure.c, so the two can not drift into different
-// objects.
+// place to keep objects needs nothing from the rest of the game. Nothing at
+// all is declared from outside now, so this file compiles on its own.
 //
-// The array is not owned here yet on purpose. Moving the definition out of
-// treasure.c and making it static is a separate step: two definitions would
-// mean two copies of the state, and the game and the tests would disagree
-// about what the player is carrying.
-extern inven_type inventory[INVEN_ARRAY_SIZE];
-extern int16_t inven_ctr;    // how many pack slots are used
-extern int16_t inven_weight; // how heavy the pack is
-extern int16_t equip_ctr;    // how many equipment slots are filled
+// The state is owned here and is static: the only way in is through the
+// windows below. One array holds both, pack in 0..INVEN_WIELD-1 and worn gear
+// in INVEN_WIELD..INVEN_ARRAY_SIZE-1, because the save file serialises it as
+// one run and splitting the array would change that order.
+static inven_type inventory[INVEN_ARRAY_SIZE];
+static int16_t inven_ctr    = 0; // how many pack slots are used
+static int16_t inven_weight = 0; // how heavy the pack is
+static int16_t equip_ctr    = 0; // how many equipment slots are filled
 
 // --- the pack ------------------------------------------------------------
 

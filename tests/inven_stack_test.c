@@ -28,10 +28,7 @@
 #include "types.h"
 
 #include "fixture.h"
-
-extern inven_type inventory[];
-extern int16_t inven_ctr;
-extern int16_t inven_weight;
+#include "inventory.h"
 
 /* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
@@ -80,9 +77,9 @@ static void set_item(inven_type *i_ptr, int tval, int subval, int number,
 static void given_full_inventory(void)
 {
     for (int i = 1; i < INVEN_WIELD; i++) {
-        set_item(&inventory[i], TV_FOOD, 0, 1, 0);
+        set_item(inventory_at(i), TV_FOOD, 0, 1, 0);
     }
-    inven_ctr = INVEN_WIELD;
+    inventory_set_count(INVEN_WIELD);
 }
 
 /* インベントリの先頭に既存アイテムを置き、残りを埋めて満杯にする。
@@ -90,7 +87,7 @@ static void given_full_inventory(void)
 static void given_existing_item(int subval, int number, int p1)
 {
     given_full_inventory();
-    set_item(&inventory[0], TV_SCROLL1, subval, number, p1);
+    set_item(inventory_at(0), TV_SCROLL1, subval, number, p1);
 }
 
 /* 新規アイテムを組みたてて返す。static にして寿命を確保する。 */
@@ -110,7 +107,7 @@ static inven_type *incoming_item(int tval, int subval, int number, int p1)
  * 新しい枠に入れられるので判定が不要ということ。 */
 TEST(inven_check_num_accepts_any_item_when_inventory_has_room)
 {
-    inven_ctr = 0;
+    inventory_set_count(0);
     ASSERT_TRUE(inven_check_num(incoming_item(TV_SCROLL1, 0, 1, 0)));
 }
 
@@ -118,7 +115,7 @@ TEST(inven_check_num_accepts_any_item_when_inventory_has_room)
 TEST(inven_check_num_accepts_item_when_one_slot_remains)
 {
     given_full_inventory();
-    inven_ctr = INVEN_WIELD - 1;
+    inventory_set_count(INVEN_WIELD - 1);
     ASSERT_TRUE(inven_check_num(incoming_item(TV_SCROLL1, 0, 1, 0)));
 }
 
@@ -339,7 +336,7 @@ TEST(items_stack_when_both_are_unidentified)
 TEST(items_stack_when_both_are_identified)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
-    known1(&inventory[0]);
+    known1(inventory_at(0));
     ASSERT_TRUE(
         inven_check_num(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 1, 0)));
 }
@@ -359,7 +356,7 @@ TEST(items_do_not_stack_when_only_incoming_item_is_identified)
 TEST(items_do_not_stack_when_only_existing_item_is_identified)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
-    inventory[0].ident |= ID_STOREBOUGHT;
+    inventory_at(0)->ident |= ID_STOREBOUGHT;
     ASSERT_FALSE(
         inven_check_num(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 1, 0)));
 }
@@ -369,7 +366,7 @@ TEST(items_do_not_stack_when_only_existing_item_is_identified)
 TEST(items_stack_when_both_are_store_bought)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
-    inventory[0].ident |= ID_STOREBOUGHT;
+    inventory_at(0)->ident |= ID_STOREBOUGHT;
     inven_type *i_ptr = incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 1, 0);
     i_ptr->ident |= ID_STOREBOUGHT;
     ASSERT_TRUE(inven_check_num(i_ptr));
@@ -391,7 +388,7 @@ TEST(inven_carry_adds_number_to_existing_item_when_stackable)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 3, 0));
-    ASSERT_EQ_INT(inventory[0].number, 4);
+    ASSERT_EQ_INT(inventory_at(0)->number, 4);
 }
 
 /* スタックしたときは枠が増えない。inven_ctr は変わらないまま。 */
@@ -399,7 +396,7 @@ TEST(inven_carry_does_not_increase_inven_ctr_when_stackable)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 3, 0));
-    ASSERT_EQ_INT(inven_ctr, INVEN_WIELD);
+    ASSERT_EQ_INT(inventory_count(), INVEN_WIELD);
 }
 
 /* スタックした位置（locn）が返る。先頭に置いた相手なので 0。 */
@@ -417,7 +414,7 @@ TEST(inven_carry_does_not_stack_when_subval_is_below_single_stack_min)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN - 1, 1, 0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN - 1, 3, 0));
-    ASSERT_EQ_INT(inventory[0].number, 1);
+    ASSERT_EQ_INT(inventory_at(0)->number, 1);
 }
 
 /* 条件 4（合計 < 256）を満たさないと inven_carry もスタックしない。
@@ -427,7 +424,7 @@ TEST(inven_carry_does_not_stack_when_number_total_reaches_two_hundred_fifty_six)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 255, 0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 1, 0));
-    ASSERT_EQ_INT(inventory[0].number, 255);
+    ASSERT_EQ_INT(inventory_at(0)->number, 255);
 }
 
 /* 境界の逆側：合計が 255 なら inven_carry も加算する。254 + 1 = 255。 */
@@ -435,7 +432,7 @@ TEST(inven_carry_stacks_when_number_total_is_two_hundred_fifty_five)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 254, 0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 1, 0));
-    ASSERT_EQ_INT(inventory[0].number, 255);
+    ASSERT_EQ_INT(inventory_at(0)->number, 255);
 }
 
 /* 条件 5（192 以上は p1 の一致が必要）を満たさないとスタックしない。 */
@@ -443,7 +440,7 @@ TEST(inven_carry_does_not_stack_with_different_p1_at_group_min)
 {
     given_existing_item(ITEM_GROUP_MIN, 1, 10);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_GROUP_MIN, 3, 20));
-    ASSERT_EQ_INT(inventory[0].number, 1);
+    ASSERT_EQ_INT(inventory_at(0)->number, 1);
 }
 
 /* 三角測量：192 以上でも p1 が同じならスタックする。1 + 3 = 4。 */
@@ -451,7 +448,7 @@ TEST(inven_carry_stacks_with_same_p1_at_group_min)
 {
     given_existing_item(ITEM_GROUP_MIN, 1, 10);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_GROUP_MIN, 3, 10));
-    ASSERT_EQ_INT(inventory[0].number, 4);
+    ASSERT_EQ_INT(inventory_at(0)->number, 4);
 }
 
 /* 条件 6（鑑定状態の一致）を満たさないとスタックしない。
@@ -462,7 +459,7 @@ TEST(inven_carry_does_not_stack_when_only_incoming_item_is_identified)
     inven_type *i_ptr = incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 3, 0);
     i_ptr->ident |= ID_STOREBOUGHT;
     inven_carry(i_ptr);
-    ASSERT_EQ_INT(inventory[0].number, 1);
+    ASSERT_EQ_INT(inventory_at(0)->number, 1);
 }
 
 /* 条件 1（tval の一致）を満たさないとスタックせず、新しい枠に挿入される。
@@ -474,7 +471,7 @@ TEST(inven_carry_inserts_before_existing_item_when_tval_is_greater)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
     inven_carry(incoming_item(TV_POTION1, ITEM_SINGLE_STACK_MIN, 3, 0));
-    ASSERT_EQ_INT(inventory[1].number, 1);
+    ASSERT_EQ_INT(inventory_at(1)->number, 1);
 }
 
 /* 同じ場面で、スタックしていないので枠が 1 つ増える。
@@ -491,7 +488,7 @@ TEST(inven_carry_increases_inven_ctr_past_inven_wield_when_full)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
     inven_carry(incoming_item(TV_POTION1, ITEM_SINGLE_STACK_MIN, 3, 0));
-    ASSERT_EQ_INT(inven_ctr, INVEN_WIELD + 1);
+    ASSERT_EQ_INT(inventory_count(), INVEN_WIELD + 1);
 }
 
 /* 条件 2（subval の一致）を満たさないとスタックしない。 */
@@ -499,16 +496,16 @@ TEST(inven_carry_does_not_stack_when_subval_differs)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN + 1, 3, 0));
-    ASSERT_EQ_INT(inventory[0].number, 1);
+    ASSERT_EQ_INT(inventory_at(0)->number, 1);
 }
 
 /* 空のインベントリに入れると新しい枠を使い、inven_ctr が 1 増える。
  * スタックの相手がいないので挿入の経路を通る。 */
 TEST(inven_carry_increases_inven_ctr_when_inserting_into_empty_inventory)
 {
-    inven_ctr = 0;
+    inventory_set_count(0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 1, 0));
-    ASSERT_EQ_INT(inven_ctr, 1);
+    ASSERT_EQ_INT(inventory_count(), 1);
 }
 
 /* TODO: 仕様確認 -- inven_carry() のループには終了条件がない。
@@ -540,7 +537,7 @@ TEST(inven_carry_adds_item_weight_to_inventory_weight)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
     inven_carry(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 3, 0));
-    ASSERT_EQ_INT(inven_weight, 3);
+    ASSERT_EQ_INT(inventory_weight(), 3);
 }
 
 int main(void)

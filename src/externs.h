@@ -117,13 +117,13 @@ extern treasure_type object_list[MAX_OBJECTS];
 extern uint8_t object_ident[OBJECT_IDENT_SIZE];
 extern int16_t t_level[MAX_OBJ_LEVEL + 1];
 extern inven_type t_list[MAX_TALLOC];
-extern inven_type inventory[INVEN_ARRAY_SIZE];
 extern const char *special_names[SN_ARRAY_SIZE];
 extern int16_t sorted_objects[MAX_DUNGEON_OBJ];
-extern int16_t inven_ctr;    // Total different obj's
-extern int16_t inven_weight; // Cur carried weight
-extern int16_t equip_ctr;    // Cur equipment ctr
-extern int16_t tcptr;        // Cur treasure heap ptr
+extern int16_t tcptr; // Cur treasure heap ptr
+
+// What the player carries and wears (inventory[], inven_ctr, inven_weight,
+// equip_ctr) is not declared here. It is private to inventory.c and is
+// reached through src/inventory.h and src/equipment.h.
 
 // Following are creature arrays and variables
 extern monster_type m_list[MAX_MALLOC];
