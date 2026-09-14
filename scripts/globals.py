@@ -69,7 +69,12 @@ GROUPS = {
         cave dun_level cur_height cur_width m_list m_level mfptr mon_tot_mult
         t_list tcptr t_level hack_monptr""",
     "持ち物・アイテム": """
-        inventory inven_ctr inven_weight equip_ctr object_ident sorted_objects""",
+        object_ident sorted_objects""",
+    # 持ち物の 4 個（inventory inven_ctr inven_weight equip_ctr）は #18-5 で
+    # inventory.c の static になり、externs.h から外れた。窓口は
+    # src/inventory.h（持ち物・跨ぎ）と src/equipment.h（装備）。同じ区分に
+    # 残る object_ident sorted_objects は持ち物とは独立なので残す。
+    # 片づいた名前は行から消える（消えた記録は GLOBALS_INVENTORY.md 側）。
     # 店の区分（store last_store_inc の 2 個）は #18-4 で externs.h から
     # 全部外れた。6 軒の記録は stores.c、値切りの途中の入力は store2.c の
     # static になった。片づいた区分は行ごと消える（記録は
