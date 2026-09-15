@@ -90,9 +90,15 @@ GROUPS = {
         command_count default_dir last_command doing_inven screen_change find_flag
         free_turn_flag new_level_flag teleport_flag eof_flag light_flag closing_flag
         missile_ctr""",
+    # セーブ／スコア／進行メタの 14 個のうち 13 個は #19C1 で 3 つの module の
+    # static になり、externs.h から外れた（progress.c に turn randes_seed
+    # town_seed wizard to_be_wizard、score_death.c に death died_from
+    # birth_date noscore、save_state.c に savefile character_generated
+    # character_saved panic_save）。残るのは highscore_fp 1 個だけで、これは
+    # global である必要が無い（display_scores() と highscores() の局所変数に
+    # なる予定）。
     "セーブ／スコア／進行メタ": """
-        savefile died_from birth_date highscore_fp noscore panic_save death wizard
-        to_be_wizard character_generated character_saved turn randes_seed town_seed""",
+        highscore_fp""",
 }
 
 # 定義の置き場。ここでの代入は初期化なので「散らばった書きこみ」に数えない。
