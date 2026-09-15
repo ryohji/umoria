@@ -15,13 +15,13 @@
 // No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
 // inventory.c and progress.c: a place to keep the ending of a run needs nothing
 // from the rest of the game, and externs.h would drag ncurses in for four
-// declarations.
+// declarations. Nothing at all is declared from outside now, so this file
+// compiles on its own.
 //
-// The four are still defined in variable.c at this step, so they are declared
-// by hand here and the window reads and writes them through these names. That
-// keeps behaviour identical while the callers are moved over one group at a
-// time; the definitions come here and turn static once no caller reaches past
-// the window.
+// The state is owned here and is static: the only way in is through the windows
+// below. The initial values came over from variable.c unchanged -- died_from and
+// birth_date had none there either, because they are written before they are
+// read (character creation fills birth_date, and dying fills died_from).
 //
 // highscore_fp is not here even though it belongs to the same group of
 // globals. It never needed to be a global at all: display_scores() and
@@ -29,10 +29,10 @@
 // a local of each. Keeping the file handle out means this module does no file
 // I/O, which is what lets it go without externs.h (externs.h replaces fopen
 // with tfopen).
-extern bool death;
-extern vtype died_from;
-extern int32_t birth_date;
-extern int16_t noscore;
+static bool death = false; // True if died
+static vtype died_from;
+static int32_t birth_date;
+static int16_t noscore = 0; // Don't log the game. -CJS-
 
 // --- the death flag ------------------------------------------------------
 

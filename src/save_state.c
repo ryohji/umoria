@@ -27,14 +27,14 @@
 // they ask. save_state depends on progress and score_death; neither depends
 // back, so the arrows all point one way.
 //
-// The four records below are still defined in variable.c at this step, so they
-// are declared by hand here and the window reads and writes them through these
-// names. The definitions come here and turn static once no caller reaches past
-// the window.
-extern vtype savefile;
-extern bool character_generated;
-extern bool character_saved;
-extern bool panic_save;
+// The four records below are owned here and are static: the only way in is
+// through the windows. The initial values came over from variable.c unchanged --
+// savefile had none there either, because main.c fills it from the command line
+// or MORIA_SAV before anything reads it.
+static vtype savefile;                    // The savefile to use.
+static bool character_generated = false;  // don't save score until char gen finished
+static bool character_saved = false;      // prevents save on kill after save_char()
+static bool panic_save = false;           // this is true if playing from a panic save
 
 // --- where the game is saved ---------------------------------------------
 
