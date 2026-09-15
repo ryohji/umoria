@@ -16,6 +16,7 @@
 #include "inventory.h"
 #include "options.h"
 #include "progress.h"
+#include "save_state.h"
 #include "score_death.h"
 #include "platform.h"
 
@@ -122,11 +123,11 @@ int main(int argc, char *argv[]) {
     // Auto-restart of saved file
     char *p;
     if (argv[0] != CNIL) {
-        (void)strcpy(savefile, argv[0]);
+        (void)strcpy(save_file_path(), argv[0]);
     } else if ((p = getenv("MORIA_SAV")) != CNIL) {
-        (void)strcpy(savefile, p);
+        (void)strcpy(save_file_path(), p);
     } else {
-        (void)strcpy(savefile, MORIA_SAV);
+        (void)strcpy(save_file_path(), MORIA_SAV);
     }
 
     // This restoration of a saved character may get ONLY the monster memory. In
@@ -137,7 +138,7 @@ int main(int argc, char *argv[]) {
     bool result = false;
     bool generate = false;
 
-    if ((new_game == false) && !access(savefile, 0) && get_char(&generate)) {
+    if ((new_game == false) && !access(save_file_path(), 0) && get_char(&generate)) {
         result = true;
     }
 
@@ -180,7 +181,7 @@ int main(int argc, char *argv[]) {
         // prevent ^c quit from entering score into scoreboard,
         // and prevent signal from creating panic save until this
         // point, all info needed for save file is now valid.
-        character_generated = true;
+        set_character_generated(true);
         generate = true;
     }
 

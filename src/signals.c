@@ -34,6 +34,7 @@
 #include "externs.h"
 #include "messages.h"
 #include "progress.h"
+#include "save_state.h"
 #include "score_death.h"
 #include "signal_flags.h"
 #include "platform.h"
@@ -165,7 +166,7 @@ void handle_pending_signals(void) {
             return;
         }
 
-        if (!character_saved && character_generated) {
+        if (save_state_has_unsaved_character()) {
             // Ask user for confirmation
             if (!get_check("Really commit *Suicide*?")) {
                 // User canceled - restore state and continue
@@ -198,9 +199,9 @@ void handle_pending_signals(void) {
             "defense!",
             23, 0);
 
-        if (!death && !character_saved && character_generated) {
+        if (save_state_has_live_character()) {
             // Try panic save
-            panic_save = 1;
+            set_panic_save(true);
             prt("Your guardian angel is trying to save you.", 0, 0);
             (void)sprintf(death_cause(), "(panic save %d)", signum);
 
@@ -212,7 +213,7 @@ void handle_pending_signals(void) {
         } else {
             set_player_dead(true);
             // Quietly save anyway
-            (void)_save_char(savefile);
+            (void)_save_char(save_file_path());
         }
 
         platform_shutdown();

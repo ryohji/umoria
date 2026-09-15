@@ -18,6 +18,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "progress.h"
+#include "save_state.h"
 #include "score_death.h"
 #include "stats.h"
 
@@ -657,7 +658,7 @@ void put_character(void) {
     put_buffer("Sex         :", 4, 1);
     put_buffer("Class       :", 5, 1);
 
-    if (character_generated) {
+    if (character_is_generated()) {
         put_buffer(m_ptr->name, 2, 15);
         put_buffer(race[m_ptr->prace].trace, 3, 15);
         put_buffer((m_ptr->male ? "Male" : "Female"), 4, 15);

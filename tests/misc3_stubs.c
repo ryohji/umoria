@@ -41,7 +41,9 @@ int16_t dun_level;
  * 読み書きするようになったので、実体は tests/score_death_fixture.c にある。 */
 int command_count;
 int pack_heavy;
-bool character_generated;
+/* character_generated もここに無い。#19B3 で misc3.c が
+ * character_is_generated() 越しに読むようになったので、実体は
+ * tests/save_state_fixture.c にある。 */
 bool display_counts;
 bool free_turn_flag;
 bool teleport_flag;

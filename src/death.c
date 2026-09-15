@@ -16,6 +16,7 @@
 #include "inventory.h"
 #include "score_death.h"
 #include "platform.h"
+#include "save_state.h"
 
 static void date(char *day) {
     char *tmp;
@@ -245,7 +246,7 @@ static void highscores(void) {
         return;
     }
 
-    if (panic_save == true) {
+    if (is_panic_save()) {
         msg_print("Sorry, scores for games restored from panic save files are not saved.");
         return;
     }
@@ -453,24 +454,24 @@ _Noreturn void exit_game(void) {
 
     // If the game has been saved, then save sets turn back to -1,
     // which inhibits the printing of the tomb.
-    if (turn >= 0) {
+    if (save_state_character_is_in_play()) {
         if (total_winner) {
             kingly();
         }
         print_tomb();
     }
 
-    if (character_generated && !character_saved) {
+    if (save_state_has_unsaved_character()) {
         // Save the memory at least.
         (void)save_char();
     }
 
     // add score to scorefile if applicable
-    if (character_generated) {
+    if (character_is_generated()) {
         // Clear character_saved, strange thing to do, but it prevents
         // inkey() from recursively calling exit_game() when there has
         // been an eof on stdin detected.
-        character_saved = false;
+        set_character_saved(false);
         highscores();
         display_scores(true);
     }
