@@ -72,9 +72,10 @@ static void fixture_clear_randint_record(void)
     fixture_randint_calls = 0;
 }
 
+/* 種の代役。#19B で desc.c が progress_color_seed() 越しに読むように
+ * なったので、randes_seed の実体は tests/progress_fixture.c に移した。 */
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
-uint32_t randes_seed = 0;
 
 /* 文字列組み立て。desc.c 内の別関数用で、今回の対象は呼ばない */
 void insert_str(char *o, const char *m, const char *i) { (void)o; (void)m; (void)i; }

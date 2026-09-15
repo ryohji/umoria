@@ -46,7 +46,9 @@ bool free_turn_flag;
 bool teleport_flag;
 bool total_winner;
 bool weapon_heavy;
-bool wizard;
+/* wizard はここに無い。#19B で misc3.c が progress_wizard_mode() 越しに
+ * 読み書きするようになったので、実体は tests/progress_fixture.c にある
+ * （両方で定義すると窓口越しの読み書きが別の器に当たる）。 */
 
 /* --- 画面描画（misc3.c の表示系 4 割がこれを呼ぶ） --- */
 
@@ -209,9 +211,9 @@ int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
  * （回数が変わると乱数列がずれ、ゲーム全体のふるまいが変わる）。 */
 int fixture_randint_call_count(void) { return fixture_randint_calls; }
 
+/* 種も同じ理由で progress_fixture.c 側にある（desc.c が窓口越しに読む）。 */
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
-uint32_t randes_seed = 0;
 
 /* --- desc.c が参照する刻印の追加。今回の対象は呼ばない --- */
 void add_inscribe(inven_type *i, uint8_t flag) { (void)i; (void)flag; }

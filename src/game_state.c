@@ -12,6 +12,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "progress.h"
 #include "stores.h"
 #include "messages.h"
 
@@ -44,9 +45,9 @@ GameState *game_state_init(void) {
 
     // Initialize game metadata from existing globals
     state->dungeon_level = dun_level;
-    state->turn = turn;
+    state->turn = progress_turn();
     state->death = death;
-    state->wizard_mode = wizard;
+    state->wizard_mode = progress_wizard_mode();
 
     // Flags
     state->new_level_flag = new_level_flag;
@@ -63,8 +64,8 @@ GameState *game_state_init(void) {
     state->last_msg_index = (int16_t)msg_history_newest_slot();
 
     // Seeds
-    state->rng_seed = randes_seed;
-    state->town_seed = town_seed;
+    state->rng_seed = progress_color_seed();
+    state->town_seed = progress_town_seed();
 
     // File paths
     // strncpy は上限まで詰まったとき終端の '\0' を書かない。ここでやりたい

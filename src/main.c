@@ -15,6 +15,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "options.h"
+#include "progress.h"
 #include "platform.h"
 
 static void char_inven_init(void);
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
             exit_game();
         case 'W':
         case 'w':
-            to_be_wizard = true;
+            progress_set_wizard_requested(true);
 
             if (isdigit((int)argv[0][2])) {
                 seed = (uint32_t)atoi(&argv[0][2]);
@@ -141,7 +142,7 @@ int main(int argc, char *argv[]) {
 
     // enter wizard mode before showing the character display, but must wait
     // until after get_char in case it was just a resurrection
-    if (to_be_wizard) {
+    if (progress_wizard_requested()) {
         if (!enter_wiz_mode()) {
             exit_game();
         }

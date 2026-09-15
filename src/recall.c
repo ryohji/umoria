@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "progress.h"
 
 static void roff(const char *);
 static uint8_t count_previous_non_blank_chars(const char *from);
@@ -140,7 +141,7 @@ static int roffpline; // Place to print line now being loaded.
 
 // Do we know anything about this monster?
 bool bool_roff_recall(creature_type *type) {
-    if (wizard) {
+    if (progress_wizard_mode()) {
         return true;
     }
 
@@ -169,7 +170,7 @@ int roff_recall(creature_type *cp) {
 
     recall_type save_mem;
 
-    if (wizard) {
+    if (progress_wizard_mode()) {
         save_mem = *mp;
         mp->r_kills = MAX_SHORT;
         mp->r_wake = mp->r_ignore = MAX_UCHAR;
@@ -644,7 +645,7 @@ int roff_recall(creature_type *cp) {
 
     roff("\n");
     prt("--pause--", roffpline, 0);
-    if (wizard) {
+    if (progress_wizard_mode()) {
         *mp = save_mem;
     }
 

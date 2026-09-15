@@ -29,9 +29,10 @@
 #include "fixture.h"
 
 /* --- グローバル状態 ---
- * turn はテストが直接代入して制御するので、ここで定義だけしておく。
- * 本体では variable.c:69 が -1 に初期化している（ゲーム開始直後の値）。 */
-int32_t turn = -1;
+ * turn と wizard はここに無い。#19B で creature.c が progress_turn() /
+ * progress_wizard_mode() 越しに読むようになったので、実体は
+ * tests/progress_fixture.c にある（両方で定義すると窓口越しの読み書きが
+ * 別の器に当たる）。テストは progress_set_turn() で turn を動かす。 */
 
 player_type py;
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
@@ -50,7 +51,6 @@ int hack_monptr;
 bool death;
 bool player_light;
 bool screen_change;
-bool wizard;
 
 /* --- 画面出力・メッセージ --- */
 void msg_print(const char *str) { (void)str; }

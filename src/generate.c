@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "panel.h"
+#include "progress.h"
 
 typedef struct coords {
     int x, y;
@@ -1203,7 +1204,7 @@ static void mlink(void) {
 
 // Town logic flow for generation of new town
 static void town_gen(void) {
-    set_seed(town_seed);
+    set_seed(progress_town_seed());
 
     int rooms[6];
     for (int i = 0; i < 6; i++) {
@@ -1230,7 +1231,7 @@ static void town_gen(void) {
 
     // Set up the character co-ords, used by alloc_monster below
     new_spot(&char_row, &char_col);
-    if (0x1 & (turn / 5000)) {
+    if (0x1 & (progress_turn() / 5000)) {
         // Night time
         for (int i = 0; i < cur_height; i++) {
             cave_type *c_ptr = &cave[i][0];

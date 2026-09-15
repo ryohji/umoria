@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "progress.h"
 
 // Updates screen when monsters move about -RAK-
 void update_mon(int monptr) {
@@ -27,7 +28,7 @@ void update_mon(int monptr) {
 
     if ((m_ptr->cdis <= MAX_SIGHT) && !(py.flags.status & PY_BLIND) &&
         (panel_contains((int)m_ptr->fy, (int)m_ptr->fx))) {
-        if (wizard) {
+        if (progress_wizard_mode()) {
             // Wizard sight.
             flag = true;
         } else if (los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
@@ -91,7 +92,7 @@ static int moves_this_turn(int16_t speed) {
         // On the first turn of the cycle it acts once, otherwise not at all.
         // Returning 1 or 0 explicitly, rather than the comparison itself,
         // says that this is a count of moves and not a truth value.
-        return ((turn % (2 - speed)) == 0) ? 1 : 0;
+        return ((progress_turn() % (2 - speed)) == 0) ? 1 : 0;
     }
 }
 

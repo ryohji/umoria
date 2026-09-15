@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "panel.h"
+#include "progress.h"
 
 static creature_handle get_mons_num(int level);
 static bool summon(int *y, int *x, creature_handle h, int slp);
@@ -27,10 +28,10 @@ void init_seeds(uint32_t seed) {
     } else {
         clock_var = seed;
     }
-    randes_seed = (int32_t)clock_var;
+    progress_set_color_seed(clock_var);
 
     clock_var += 8762;
-    town_seed = (int32_t)clock_var;
+    progress_set_town_seed(clock_var);
 
     clock_var += 113452L;
     set_rnd_seed(clock_var);

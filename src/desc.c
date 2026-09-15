@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "inventory.h"
+#include "progress.h"
 #include "str_insert.h"
 
 static void unsample(inven_type *);
@@ -38,7 +39,7 @@ void magic_init(void) {
     int j;
     const char *tmp;
 
-    set_seed(randes_seed);
+    set_seed(progress_color_seed());
 
     // The first 3 entries for colors are fixed, (slime & apple juice, water)
     for (int i = 3; i < MAX_COLORS; i++) {

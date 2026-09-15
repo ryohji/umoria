@@ -17,6 +17,7 @@
 #include "abilities.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "progress.h"
 #include "stats.h"
 
 static const char *stat_names[] = {
@@ -448,7 +449,7 @@ void prt_study(void) {
 // Prints winner status on display -RAK-
 void prt_winner(void) {
     if (noscore & 0x2) {
-        if (wizard) {
+        if (progress_wizard_mode()) {
             put_buffer("Is wizard  ", 22, 0);
         } else {
             put_buffer("Was wizard ", 22, 0);
@@ -1659,7 +1660,7 @@ bool enter_wiz_mode(void) {
 
     if (noscore || answer) {
         noscore |= 0x2;
-        wizard = true;
+        progress_set_wizard_mode(true);
         return true;
     }
 

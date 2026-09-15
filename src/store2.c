@@ -16,6 +16,7 @@
 #include "inventory.h"
 #include "stores.h"
 #include "messages.h"
+#include "progress.h"
 #include "stats.h"
 #include "str_insert.h"
 
@@ -322,7 +323,7 @@ static bool increase_insults(int store_num) {
         prt_comment4();
         s_ptr->insult_cur = 0;
         s_ptr->bad_buy++;
-        s_ptr->store_open = turn + 2500 + randint(2500);
+        s_ptr->store_open = progress_turn() + 2500 + randint(2500);
         increase = true;
     }
 
@@ -1007,7 +1008,7 @@ static bool store_sell(int store_num, int *cur_top) {
 void enter_store(int store_num) {
     store_type *s_ptr = store_at(store_num);
 
-    if (s_ptr->store_open < turn) {
+    if (s_ptr->store_open < progress_turn()) {
         bool exit_flag = false;
         int cur_top = 0;
         display_store(store_num, cur_top);

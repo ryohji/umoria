@@ -33,6 +33,7 @@
 
 #include "externs.h"
 #include "messages.h"
+#include "progress.h"
 #include "signal_flags.h"
 #include "platform.h"
 
@@ -167,7 +168,7 @@ void handle_pending_signals(void) {
             // Ask user for confirmation
             if (!get_check("Really commit *Suicide*?")) {
                 // User canceled - restore state and continue
-                if (turn > 0) {
+                if (progress_turn() > 0) {
                     disturb(1, 0);
                 }
                 erase_line(0, 0);
@@ -205,7 +206,7 @@ void handle_pending_signals(void) {
             if (!save_char()) {
                 (void)strcpy(died_from, "software bug");
                 death = true;
-                turn = -1;
+                progress_set_turn(-1);
             }
         } else {
             death = true;

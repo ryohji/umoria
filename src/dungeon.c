@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "progress.h"
 #include "messages.h"
 #include "stats.h"
 
@@ -88,14 +89,14 @@ void dungeon(void) {
     // Loop until dead,  or new level
     //
     do {
-        turn++; // Increment turn counter
+        progress_advance_turn();
 
         // Check for pending signals (SIGINT, SIGSEGV, etc.)
         // This must be done in the main loop, not in signal handlers
         handle_pending_signals();
 
         // turn over the store contents every, say, 1000 turns
-        if ((dun_level != 0) && ((turn % 1000) == 0)) {
+        if ((dun_level != 0) && ((progress_turn() % 1000) == 0)) {
             store_maint();
         }
 
@@ -347,14 +348,14 @@ void dungeon(void) {
                 case 1:
                 case 2:
                 case 3:
-                    i = ((turn % 2) == 0);
+                    i = ((progress_turn() % 2) == 0);
                     break;
                 case 4:
                 case 5:
-                    i = ((turn % 3) == 0);
+                    i = ((progress_turn() % 3) == 0);
                     break;
                 case 6:
-                    i = ((turn % 4) == 0);
+                    i = ((progress_turn() % 4) == 0);
                     break;
                 default:
                     // An uninitialized warning if given further down,
@@ -627,7 +628,7 @@ void dungeon(void) {
         // Allow for a slim chance of detect enchantment -CJS-
         // for 1st level char, check once every 2160 turns
         // for 40th level char, check once every 416 turns
-        if (((turn & 0xF) == 0) && (f_ptr->confused == 0) &&
+        if (((progress_turn() & 0xF) == 0) && (f_ptr->confused == 0) &&
             (randint((10 + 750 / (5 + py.misc.lev))) == 1)) {
 
             for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
@@ -1144,8 +1145,8 @@ static void do_command(char com_val) {
         free_turn_flag = true;
         break;
     case CTRL_KEY('W'): // (^W)izard mode
-        if (wizard) {
-            wizard = false;
+        if (progress_wizard_mode()) {
+            progress_set_wizard_mode(false);
             msg_print("Wizard mode off.");
         } else if (enter_wiz_mode()) {
             msg_print("Wizard mode on.");
@@ -1457,7 +1458,7 @@ static void do_command(char com_val) {
         inven_command('x');
         break;
     default:
-        if (wizard) {
+        if (progress_wizard_mode()) {
             // Wizard commands are free moves
             free_turn_flag = true;
 
