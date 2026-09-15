@@ -19,6 +19,9 @@
 #include "panel.h"
 #include "messages.h"
 #include "options.h"
+#include "progress.h"
+#include "save_state.h"
+#include "score_death.h"
 #include "stores.h"
 
 // For debugging the savefile code on systems with broken compilers.
@@ -66,14 +69,14 @@ static bool sv_write(void) {
     // clear the death flag when creating a HANGUP save file,
     // so that player can see tombstone when restart
     if (eof_flag) {
-        death = false;
+        set_player_dead(false);
     }
 
     // The low eleven bits are the player's options; which option owns which
     // bit is stated once, in options.c.
     uint32_t l = game_options_pack();
 
-    if (death) {
+    if (player_is_dead()) {
         // Sign bit
         l |= 0x80000000L;
     }
@@ -199,7 +202,7 @@ static bool sv_write(void) {
     wr_byte(f_ptr->new_spells);
 
     wr_short((uint16_t)missile_ctr);
-    wr_long((uint32_t)turn);
+    wr_long((uint32_t)progress_turn());
     wr_short((uint16_t)inventory_count());
     for (int i = 0; i < inventory_count(); i++) {
         wr_item(inventory_at(i));
@@ -214,8 +217,8 @@ static bool sv_write(void) {
     wr_long(spell_forgotten);
     wr_bytes(spell_order, 32);
     wr_bytes(object_ident, OBJECT_IDENT_SIZE);
-    wr_long(randes_seed);
-    wr_long(town_seed);
+    wr_long(progress_color_seed());
+    wr_long(progress_town_seed());
     // The file format is the raw ring: the index of the newest message, then
     // every slot in storage order.
     wr_short((uint16_t)msg_history_newest_slot());
@@ -224,9 +227,9 @@ static bool sv_write(void) {
     }
 
     // this indicates 'cheating' if it is a one
-    wr_short((uint16_t)panic_save);
+    wr_short((uint16_t)is_panic_save());
     wr_short((uint16_t)total_winner);
-    wr_short((uint16_t)noscore);
+    wr_short((uint16_t)score_disqualifications());
     wr_shorts(player_hp, MAX_PLAYER_LEVEL);
 
     for (int i = 0; i < store_count(); i++) {
@@ -244,18 +247,18 @@ static bool sv_write(void) {
     wr_long(l);
 
     // starting with 5.2, put died_from string in savefile
-    wr_string(died_from);
+    wr_string(death_cause());
 
     // starting with 5.2.2, put the max_score in the savefile
     l = (uint32_t)(total_points());
     wr_long(l);
 
     // starting with 5.2.2, put the birth_date in the savefile
-    wr_long((uint32_t)birth_date);
+    wr_long((uint32_t)character_birth_date());
 
     // only level specific info follows, this allows characters to be
     // resurrected, the dungeon level info is not needed for a resurrection
-    if (death) {
+    if (player_is_dead()) {
         if (ferror(fileptr) || fflush(fileptr) == EOF) {
             return false;
         }
@@ -341,18 +344,18 @@ static bool sv_write(void) {
 
 // Set up prior to actual save, do the save, then clean up
 bool save_char(void) {
-    while (!_save_char(savefile)) {
+    while (!_save_char(save_file_path())) {
         msgtype temp;
 
-        (void)snprintf(temp, sizeof(temp), "Savefile '%s' fails.", savefile);
+        (void)snprintf(temp, sizeof(temp), "Savefile '%s' fails.", save_file_path());
         msg_print(temp);
 
         int i = 0;
-        if (access(savefile, 0) < 0 ||
+        if (access(save_file_path(), 0) < 0 ||
             get_check("File exists. Delete old savefile?") == 0 ||
-            (i = unlink(savefile)) < 0) {
+            (i = unlink(save_file_path())) < 0) {
             if (i < 0) {
-                (void)snprintf(temp, sizeof(temp), "Can't delete '%s'", savefile);
+                (void)snprintf(temp, sizeof(temp), "Can't delete '%s'", save_file_path());
                 msg_print(temp);
             }
             prt("New Savefile [ESC to give up]:", 0, 0);
@@ -360,10 +363,10 @@ bool save_char(void) {
                 return false;
             }
             if (temp[0]) {
-                (void)strcpy(savefile, temp);
+                (void)strcpy(save_file_path(), temp);
             }
         }
-        (void)snprintf(temp, sizeof(temp), "Saving with %s...", savefile);
+        (void)snprintf(temp, sizeof(temp), "Saving with %s...", save_file_path());
         prt(temp, 0, 0);
     }
 
@@ -371,7 +374,7 @@ bool save_char(void) {
 }
 
 bool _save_char(char *fnam) {
-    if (character_saved) {
+    if (character_is_saved()) {
         return true; // Nothing to save.
     }
 
@@ -386,18 +389,18 @@ bool _save_char(char *fnam) {
 
     int fd = open(fnam, O_RDWR | O_CREAT | O_EXCL, 0600);
 
-    if (fd < 0 && access(fnam, 0) >= 0 && (from_savefile || (wizard && get_check("Can't make new savefile. Overwrite old?")))) {
+    if (fd < 0 && access(fnam, 0) >= 0 && (from_savefile || (progress_wizard_mode() && get_check("Can't make new savefile. Overwrite old?")))) {
         (void)chmod(fnam, 0600);
         fd = open(fnam, O_RDWR | O_TRUNC, 0600);
     }
 
     if (fd >= 0) {
         (void)close(fd);
-        fileptr = fopen(savefile, "wb");
+        fileptr = fopen(save_file_path(), "wb");
     }
 
     SAVE_LOG(logfile = fopen("IO_LOG", "a"));
-    SAVE_LOG(fprintf(logfile, "Saving data to %s\n", savefile));
+    SAVE_LOG(fprintf(logfile, "Saving data to %s\n", save_file_path()));
 
     if (fileptr != NULL) {
         xor_byte = 0;
@@ -436,10 +439,10 @@ bool _save_char(char *fnam) {
 
         return false;
     } else {
-        character_saved = true;
+        set_character_saved(true);
     }
 
-    turn = -1;
+    progress_set_turn(-1);
     signals();
 
     return true;
@@ -455,7 +458,7 @@ bool get_char(bool *generate) {
 
     // Not required for Mac, because the file name is obtained through a dialog.
     // There is no way for a non existnat file to be specified. -BS-
-    if (access(savefile, 0) != 0) {
+    if (access(save_file_path(), 0) != 0) {
         signals();
         msg_print("Savefile does not exist.");
         return false; // Don't bother with messages here. File absent.
@@ -464,24 +467,24 @@ bool get_char(bool *generate) {
     clear_screen();
 
     msgtype temp;
-    (void)snprintf(temp, sizeof(temp), "Savefile %s present. Attempting restore.", savefile);
+    (void)snprintf(temp, sizeof(temp), "Savefile %s present. Attempting restore.", save_file_path());
     put_buffer(temp, 23, 0);
 
     // FIXME: check this if/else logic! -- MRC
-    if (turn >= 0) {
+    if (save_state_character_is_in_play()) {
         msg_print("IMPOSSIBLE! Attempt to restore while still alive!");
-    } else if ((fd = open(savefile, O_RDONLY, 0)) < 0 && (chmod(savefile, 0400) < 0 || (fd = open(savefile, O_RDONLY, 0)) < 0)) {
+    } else if ((fd = open(save_file_path(), O_RDONLY, 0)) < 0 && (chmod(save_file_path(), 0400) < 0 || (fd = open(save_file_path(), O_RDONLY, 0)) < 0)) {
         // Allow restoring a file belonging to someone else, if we can delete it.
         // Hence first try to read without doing a chmod.
 
         msg_print("Can't open file for reading.");
     } else {
-        turn = -1;
+        progress_set_turn(-1);
         bool ok = true;
 
         (void)close(fd);
         fd = -1; // Make sure it isn't closed again
-        fileptr = fopen(savefile, "rb");
+        fileptr = fopen(save_file_path(), "rb");
 
         if (fileptr == NULL) {
             goto error;
@@ -491,7 +494,7 @@ bool get_char(bool *generate) {
         put_qio();
 
         SAVE_LOG(logfile = fopen("IO_LOG", "a"));
-        SAVE_LOG(fprintf(logfile, "Reading data from %s\n", savefile));
+        SAVE_LOG(fprintf(logfile, "Reading data from %s\n", save_file_path()));
 
         uint8_t version_maj, version_min, patch_level;
 
@@ -553,10 +556,10 @@ bool get_char(bool *generate) {
 
         // Don't allow resurrection of total_winner characters.  It causes
         // problems because the character level is out of the allowed range.
-        if (to_be_wizard && (l & 0x40000000L)) {
+        if (progress_wizard_requested() && (l & 0x40000000L)) {
             msg_print("Sorry, this character is retired from moria.");
             msg_print("You can not resurrect a retired character.");
-        } else if (to_be_wizard && (l & 0x80000000L) && get_check("Resurrect a dead character?")) {
+        } else if (progress_wizard_requested() && (l & 0x80000000L) && get_check("Resurrect a dead character?")) {
             l &= ~0x80000000L;
         }
 
@@ -657,7 +660,9 @@ bool get_char(bool *generate) {
             rd_byte(&f_ptr->new_spells);
 
             rd_short((uint16_t *)&missile_ctr);
-            rd_long((uint32_t *)&turn);
+            uint32_t saved_turn;
+            rd_long(&saved_turn);
+            progress_set_turn((int32_t)saved_turn);
             uint16_t pack_count;
             rd_short(&pack_count);
             inventory_set_count((int16_t)pack_count);
@@ -681,8 +686,12 @@ bool get_char(bool *generate) {
             rd_long(&spell_forgotten);
             rd_bytes(spell_order, 32);
             rd_bytes(object_ident, OBJECT_IDENT_SIZE);
-            rd_long(&randes_seed);
-            rd_long(&town_seed);
+            uint32_t saved_color_seed;
+            rd_long(&saved_color_seed);
+            progress_set_color_seed(saved_color_seed);
+            uint32_t saved_town_seed;
+            rd_long(&saved_town_seed);
+            progress_set_town_seed(saved_town_seed);
             uint16_t newest_msg_slot;
             rd_short(&newest_msg_slot);
             msg_history_set_newest_slot(newest_msg_slot);
@@ -690,9 +699,13 @@ bool get_char(bool *generate) {
                 rd_string(msg_history_slot(i));
             }
 
-            rd_bool(&panic_save);
+            bool saved_panic;
+            rd_bool(&saved_panic);
+            set_panic_save(saved_panic);
             rd_bool(&total_winner);
-            rd_short((uint16_t *)&noscore);
+            uint16_t saved_disqualifications;
+            rd_short(&saved_disqualifications);
+            set_score_disqualifications((int16_t)saved_disqualifications);
             rd_shorts(player_hp, MAX_PLAYER_LEVEL);
 
             if ((version_min >= 2) || (version_min == 1 && patch_level >= 3)) {
@@ -708,7 +721,7 @@ bool get_char(bool *generate) {
             }
 
             if (version_min >= 2) {
-                rd_string(died_from);
+                rd_string(death_cause());
             }
 
             if ((version_min >= 3) || (version_min == 2 && patch_level >= 2)) {
@@ -718,16 +731,18 @@ bool get_char(bool *generate) {
             }
 
             if ((version_min >= 3) || (version_min == 2 && patch_level >= 2)) {
-                rd_long((uint32_t *)&birth_date);
+                uint32_t saved_birth_date;
+                rd_long(&saved_birth_date);
+                set_character_birth_date((int32_t)saved_birth_date);
             } else {
-                birth_date = (int32_t)time((time_t *)0);
+                set_character_birth_date((int32_t)time((time_t *)0));
             }
         }
 
         int c = getc(fileptr);
         if (c == EOF || (l & 0x80000000L)) {
             if ((l & 0x80000000L) == 0) {
-                if (!to_be_wizard || turn < 0) {
+                if (!progress_wizard_requested() || !save_state_character_is_in_play()) {
                     goto error;
                 }
                 prt("Attempting a resurrection!", 0, 0);
@@ -747,17 +762,17 @@ bool get_char(bool *generate) {
                 }
 
                 dun_level = 0; // Resurrect on the town level.
-                character_generated = true;
+                set_character_generated(true);
 
                 // set noscore to indicate a resurrection, and don't enter
                 // wizard mode
-                to_be_wizard = false;
-                noscore |= 0x1;
+                progress_set_wizard_requested(false);
+                set_score_disqualifications((int16_t)(score_disqualifications() | 0x1));
             } else {
                 // Make sure that this message is seen, since it is a bit
                 // more interesting than the other messages.
                 msg_print("Restoring Memory of a departed spirit...");
-                turn = -1;
+                progress_set_turn(-1);
             }
             put_qio();
             goto closefiles;
@@ -875,15 +890,15 @@ bool get_char(bool *generate) {
             goto error;
         }
 
-        if (turn < 0) {
+        if (!save_state_character_is_in_play()) {
         error:
             ok = false; // Assume bad data.
         } else {
             // don't overwrite the killed by string if character is dead
             if (py.misc.chp >= 0) {
-                (void)strcpy(died_from, "(alive and well)");
+                (void)strcpy(death_cause(), "(alive and well)");
             }
-            character_generated = true;
+            set_character_generated(true);
         }
 
     closefiles:
@@ -907,18 +922,18 @@ bool get_char(bool *generate) {
 
             signals();
 
-            if (panic_save == true) {
+            if (is_panic_save()) {
                 (void)sprintf(temp, "This game is from a panic save.  Score "
                                     "will not be added to scoreboard.");
                 msg_print(temp);
-            } else if (((!noscore) & 0x04) && duplicate_character()) {
+            } else if (((!score_disqualifications()) & 0x04) && duplicate_character()) {
                 (void)sprintf(temp, "This character is already on the "
                                     "scoreboard; it will not be scored again.");
                 msg_print(temp);
-                noscore |= 0x4;
+                set_score_disqualifications((int16_t)(score_disqualifications() | 0x4));
             }
 
-            if (turn >= 0) { // Only if a full restoration.
+            if (save_state_character_is_in_play()) { // Only if a full restoration.
                 weapon_heavy = false;
                 pack_heavy = 0;
                 check_strength();
@@ -947,7 +962,7 @@ bool get_char(bool *generate) {
                 }
             }
 
-            if (noscore) {
+            if (score_disqualifications()) {
                 msg_print("This save file cannot be used to get on the score board.");
             }
 
@@ -960,14 +975,14 @@ bool get_char(bool *generate) {
                 msg_print(temp);
             }
 
-            if (turn >= 0) {
+            if (save_state_character_is_in_play()) {
                 return true;
             } else {
                 return false; // Only restored options and monster memory.
             }
         }
     }
-    turn = -1;
+    progress_set_turn(-1);
     prt("Please try again without that savefile.", 1, 0);
     signals();
 
