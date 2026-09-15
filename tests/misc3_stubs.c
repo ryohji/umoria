@@ -38,20 +38,20 @@ int16_t cur_height;
 int16_t cur_width;
 int16_t dun_level;
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
- * 読み書きするようになったので、実体は tests/score_death_fixture.c にある。 */
+ * 読み書きするようになったので、実体は src/score_death.c の static である。 */
 int command_count;
 int pack_heavy;
 /* character_generated もここに無い。#19B3 で misc3.c が
  * character_is_generated() 越しに読むようになったので、実体は
- * tests/save_state_fixture.c にある。 */
+ * src/save_state.c の static である。 */
 bool display_counts;
 bool free_turn_flag;
 bool teleport_flag;
 bool total_winner;
 bool weapon_heavy;
 /* wizard はここに無い。#19B で misc3.c が progress_wizard_mode() 越しに
- * 読み書きするようになったので、実体は tests/progress_fixture.c にある
- * （両方で定義すると窓口越しの読み書きが別の器に当たる）。 */
+ * 読み書きするようになったので、実体は src/progress.c の static である
+ * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 
 /* --- 画面描画（misc3.c の表示系 4 割がこれを呼ぶ） --- */
 
@@ -214,7 +214,8 @@ int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
  * （回数が変わると乱数列がずれ、ゲーム全体のふるまいが変わる）。 */
 int fixture_randint_call_count(void) { return fixture_randint_calls; }
 
-/* 種も同じ理由で progress_fixture.c 側にある（desc.c が窓口越しに読む）。 */
+/* 種も同じ理由でここに無い。実体は src/progress.c の static（desc.c が窓口
+ * 越しに読む）。 */
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
 

@@ -73,7 +73,7 @@ static void fixture_clear_randint_record(void)
 }
 
 /* 種の代役。#19B で desc.c が progress_color_seed() 越しに読むように
- * なったので、randes_seed の実体は tests/progress_fixture.c に移した。 */
+ * なったので、randes_seed の実体は src/progress.c が static で持つ（#19C1）。 */
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
 
