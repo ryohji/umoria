@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "score_death.h"
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
@@ -480,7 +481,7 @@ uint32_t monster_death(int y, int x, uint32_t flags) {
 
     if (flags & CM_WIN) {
         // maybe the player died in mid-turn
-        if (!death) {
+        if (!player_is_dead()) {
             total_winner = true;
             prt_winner();
             msg_print("*** CONGRATULATIONS *** You have won the game.");

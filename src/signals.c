@@ -34,6 +34,7 @@
 #include "externs.h"
 #include "messages.h"
 #include "progress.h"
+#include "score_death.h"
 #include "signal_flags.h"
 #include "platform.h"
 
@@ -158,7 +159,7 @@ void handle_pending_signals(void) {
     // Handle based on signal type
     if (type == SIGNAL_INTERRUPT) {
         // User interrupt (SIGINT or SIGQUIT)
-        if (death) {
+        if (player_is_dead()) {
             // Can't quit after death - ignore
             (void)signal(signum, SIG_IGN);
             return;
@@ -183,13 +184,13 @@ void handle_pending_signals(void) {
             }
 
             // User confirmed suicide
-            (void)strcpy(died_from, "Interrupting");
+            (void)strcpy(death_cause(), "Interrupting");
         } else {
-            (void)strcpy(died_from, "Abortion");
+            (void)strcpy(death_cause(), "Abortion");
         }
 
         prt("Interrupt!", 0, 0);
-        death = true;
+        set_player_dead(true);
         exit_game();
     } else if (type == SIGNAL_ERROR) {
         // Fatal error signal (SIGSEGV, SIGBUS, etc.)
@@ -201,15 +202,15 @@ void handle_pending_signals(void) {
             // Try panic save
             panic_save = 1;
             prt("Your guardian angel is trying to save you.", 0, 0);
-            (void)sprintf(died_from, "(panic save %d)", signum);
+            (void)sprintf(death_cause(), "(panic save %d)", signum);
 
             if (!save_char()) {
-                (void)strcpy(died_from, "software bug");
-                death = true;
+                (void)strcpy(death_cause(), "software bug");
+                set_player_dead(true);
                 progress_set_turn(-1);
             }
         } else {
-            death = true;
+            set_player_dead(true);
             // Quietly save anyway
             (void)_save_char(savefile);
         }

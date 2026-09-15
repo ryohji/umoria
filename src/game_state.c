@@ -13,6 +13,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "progress.h"
+#include "score_death.h"
 #include "stores.h"
 #include "messages.h"
 
@@ -46,7 +47,7 @@ GameState *game_state_init(void) {
     // Initialize game metadata from existing globals
     state->dungeon_level = dun_level;
     state->turn = progress_turn();
-    state->death = death;
+    state->death = player_is_dead();
     state->wizard_mode = progress_wizard_mode();
 
     // Flags
@@ -73,8 +74,8 @@ GameState *game_state_init(void) {
     // 表す snprintf を使う。戻り値は切り詰めが起きたかを示すが、状態の
     // 写しとりに失敗の扱いはないので捨てる。
     (void)snprintf(state->save_file_path, sizeof(vtype), "%s", savefile);
-    (void)snprintf(state->died_from, sizeof(vtype), "%s", died_from);
-    state->birth_date = birth_date;
+    (void)snprintf(state->died_from, sizeof(vtype), "%s", death_cause());
+    state->birth_date = character_birth_date();
     state->highscore_fp = highscore_fp;
 
     // Options
@@ -99,7 +100,7 @@ GameState *game_state_init(void) {
     state->doing_inven = doing_inven;
     state->screen_change = screen_change;
     state->eof_flag = eof_flag;
-    state->noscore = noscore;
+    state->noscore = score_disqualifications();
     state->panic_save = panic_save;
     state->wait_for_more = msg_at_more_prompt();
     state->closing_flag = closing_flag;

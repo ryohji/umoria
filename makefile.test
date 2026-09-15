@@ -134,12 +134,15 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                               src/tables.c src/inventory.c \
                               src/treasure.c src/player.c src/abilities.c \
-                              src/progress.c $(TESTDIR)/progress_fixture.c | $(BUILDDIR)
+                              src/progress.c $(TESTDIR)/progress_fixture.c \
+                              src/score_death.c \
+                              $(TESTDIR)/score_death_fixture.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
-	    src/progress.c $(TESTDIR)/progress_fixture.c
+	    src/progress.c $(TESTDIR)/progress_fixture.c \
+	    src/score_death.c $(TESTDIR)/score_death_fixture.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -161,12 +164,15 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h \
-                            src/progress.c $(TESTDIR)/progress_fixture.c | $(BUILDDIR)
+                            src/progress.c $(TESTDIR)/progress_fixture.c \
+                            src/score_death.c \
+                            $(TESTDIR)/score_death_fixture.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
-	    src/progress.c $(TESTDIR)/progress_fixture.c
+	    src/progress.c $(TESTDIR)/progress_fixture.c \
+	    src/score_death.c $(TESTDIR)/score_death_fixture.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -203,12 +209,15 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/treasure.c src/player.c \
                                  src/abilities.c src/messages.c src/stores.c \
                                  src/progress.c \
-                                 $(TESTDIR)/progress_fixture.c | $(BUILDDIR)
+                                 $(TESTDIR)/progress_fixture.c \
+                                 src/score_death.c \
+                                 $(TESTDIR)/score_death_fixture.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
-	    src/stores.c src/progress.c $(TESTDIR)/progress_fixture.c
+	    src/stores.c src/progress.c $(TESTDIR)/progress_fixture.c \
+	    src/score_death.c $(TESTDIR)/score_death_fixture.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -242,10 +251,13 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/creature.c src/inventory.c \
                                 src/equipment.h src/inventory.h \
                                 src/progress.c \
-                                $(TESTDIR)/progress_fixture.c | $(BUILDDIR)
+                                $(TESTDIR)/progress_fixture.c \
+                                src/score_death.c \
+                                $(TESTDIR)/score_death_fixture.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
-	    $(TESTDIR)/progress_fixture.c
+	    $(TESTDIR)/progress_fixture.c src/score_death.c \
+	    $(TESTDIR)/score_death_fixture.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -280,12 +292,14 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/tables.c src/inventory.c \
                          src/treasure.c src/player.c \
                          src/abilities.c src/progress.c \
-                         $(TESTDIR)/progress_fixture.c | $(BUILDDIR)
+                         $(TESTDIR)/progress_fixture.c src/score_death.c \
+                         $(TESTDIR)/score_death_fixture.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
-	    src/progress.c $(TESTDIR)/progress_fixture.c
+	    src/progress.c $(TESTDIR)/progress_fixture.c \
+	    src/score_death.c $(TESTDIR)/score_death_fixture.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので

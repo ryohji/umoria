@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "progress.h"
+#include "score_death.h"
 
 // Updates screen when monsters move about -RAK-
 void update_mon(int monptr) {
@@ -259,7 +260,7 @@ static void get_moves(int monptr, int *mm) {
 // Make an attack on the player (chuckle.) -RAK-
 static void make_attack(int monptr) {
     // don't beat a dead body!
-    if (death) {
+    if (player_is_dead()) {
         return;
     }
 
@@ -277,7 +278,7 @@ static void make_attack(int monptr) {
     inven_type *i_ptr;
 
     const attack_handle *iter = r_ptr->attack;
-    for (; iter != END_OF(r_ptr->attack) && !monster_attack_is_null(*iter) && !death; iter += 1) {
+    for (; iter != END_OF(r_ptr->attack) && !monster_attack_is_null(*iter) && !player_is_dead(); iter += 1) {
         const int attackn = iter - r_ptr->attack;
         int attype = monster_attack_get_type(*iter);
         int adesc = monster_attack_get_desc(*iter);
@@ -837,7 +838,7 @@ static void make_attack(int monptr) {
                     verb = " appears confused.";
                 }
                 msg_print(CONCAT(cdesc, verb));
-                if (visible && !death && randint(4) == 1) {
+                if (visible && !player_is_dead() && randint(4) == 1) {
                     recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
                 }
             }
@@ -849,7 +850,7 @@ static void make_attack(int monptr) {
             if ((notice || (visible && recall_get(m_ptr->creature)->r_attacks[attackn] != 0 && attype != 99)) && recall_get(m_ptr->creature)->r_attacks[attackn] < MAX_UCHAR) {
                 recall_get(m_ptr->creature)->r_attacks[attackn]++;
             }
-            if (death) {
+            if (player_is_dead()) {
                 recall_increment_death(m_ptr->creature);
             }
         } else {
@@ -1048,7 +1049,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
 //   cast_spell = true if creature changes position
 //   took_turn  = true if creature casts a spell
 static void mon_cast_spell(int monptr, bool *took_turn) {
-    if (death) {
+    if (player_is_dead()) {
         return;
     }
 
@@ -1253,7 +1254,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         if (m_ptr->ml) {
             recall_update_spell(m_ptr->creature, 1U << (thrown_spell - 1));
             recall_increment_spell_chance(m_ptr->creature);
-            if (death) {
+            if (player_is_dead()) {
                 recall_increment_death(m_ptr->creature);
             }
         }
@@ -1523,7 +1524,7 @@ void creatures(int attack) {
     vtype cdesc;
 
     // Process the monsters
-    for (int i = mfptr - 1; i >= MIN_MONIX && !death; i--) {
+    for (int i = mfptr - 1; i >= MIN_MONIX && !player_is_dead(); i--) {
         m_ptr = &m_list[i];
         // Get rid of an eaten/breathed on monster.  Note: Be sure not to
         // process this monster. This is necessary because we can't delete

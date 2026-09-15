@@ -17,6 +17,7 @@
 #include "input.h"
 #include "messages.h"
 #include "render.h"
+#include "score_death.h"
 
 #define use_value2
 
@@ -79,10 +80,10 @@ char inkey(void) {
                 // just in case, to make sure that the process eventually dies
                 panic_save = true;
 
-                (void)strcpy(died_from, "(end of input: panic saved)");
+                (void)strcpy(death_cause(), "(end of input: panic saved)");
                 if (!save_char()) {
-                    (void)strcpy(died_from, "panic: unexpected eof");
-                    death = true;
+                    (void)strcpy(death_cause(), "panic: unexpected eof");
+                    set_player_dead(true);
                 }
                 exit_game();
             }

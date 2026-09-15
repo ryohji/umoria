@@ -48,7 +48,8 @@ int16_t mfptr;
 int16_t mon_tot_mult;
 int find_flag;
 int hack_monptr;
-bool death;
+/* death もここに無い。#19B2 で creature.c が player_is_dead() 越しに読む
+ * ようになったので、実体は tests/score_death_fixture.c にある。 */
 bool player_light;
 bool screen_change;
 

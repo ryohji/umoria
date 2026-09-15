@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "progress.h"
+#include "score_death.h"
 #include "messages.h"
 #include "stats.h"
 
@@ -660,7 +661,7 @@ void dungeon(void) {
         }
 
         // Accept a command?
-        if ((f_ptr->paralysis < 1) && (f_ptr->rest == 0) && (!death)) {
+        if ((f_ptr->paralysis < 1) && (f_ptr->rest == 0) && (!player_is_dead())) {
             char command; // Last command
 
             // Accept a command and execute it
@@ -1100,8 +1101,8 @@ static void do_command(char com_val) {
         flush();
         if (get_check("Do you really want to quit?")) {
             new_level_flag = true;
-            death = true;
-            (void)strcpy(died_from, "Quitting");
+            set_player_dead(true);
+            (void)strcpy(death_cause(), "Quitting");
         }
         free_turn_flag = true;
         break;
@@ -1165,14 +1166,14 @@ static void do_command(char com_val) {
                 msg_print("Use <Control>-K when you are ready to quit.");
             }
         } else {
-            (void)strcpy(died_from, "(saved)");
+            (void)strcpy(death_cause(), "(saved)");
             msg_print("Saving game...");
 
             if (save_char()) {
                 exit_game();
             }
 
-            (void)strcpy(died_from, "(alive and well)");
+            (void)strcpy(death_cause(), "(alive and well)");
         }
 
         free_turn_flag = true;

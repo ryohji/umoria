@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "score_death.h"
 #include "platform.h"
 
 static void date(char *day) {
@@ -169,7 +170,7 @@ static void print_tomb(void) {
     // 写しは died_from（vtype）の中身と '.' と終端で 1 バイト分だけ大きく
     // とる。ちょうど足りるので切り詰めは起こらない。
     char killed_by[sizeof(vtype) + 1];
-    (void)snprintf(killed_by, sizeof(killed_by), "%s.", died_from);
+    (void)snprintf(killed_by, sizeof(killed_by), "%s.", death_cause());
     (void)sprintf(str, "| %s |", center_string(tmp_str, killed_by));
     put_buffer(str, 16, 9);
 
@@ -240,7 +241,7 @@ int32_t total_points(void) {
 static void highscores(void) {
     clear_screen();
 
-    if (noscore) {
+    if (score_disqualifications()) {
         return;
     }
 
@@ -251,7 +252,7 @@ static void highscores(void) {
 
     high_scores new_entry;
     new_entry.points = total_points();
-    new_entry.birth_date = birth_date;
+    new_entry.birth_date = character_birth_date();
     new_entry.uid = 0; // NOTE: do we not want to use `getuid()`? -MRC-
     new_entry.mhp = py.misc.mhp;
     new_entry.chp = py.misc.chp;
@@ -263,7 +264,7 @@ static void highscores(void) {
     new_entry.class = py.misc.pclass;
     (void)strcpy(new_entry.name, py.misc.name);
 
-    char *tmp = died_from;
+    char *tmp = death_cause();
     if ('a' == *tmp) {
         if ('n' == *(++tmp)) {
             tmp++;
@@ -405,7 +406,7 @@ static void kingly(void) {
 
     // Change the character attributes.
     dun_level = 0;
-    (void)strcpy(died_from, "Ripe Old Age");
+    (void)strcpy(death_cause(), "Ripe Old Age");
 
     struct misc *p_ptr = &py.misc;
 

@@ -37,7 +37,8 @@ cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 int16_t cur_height;
 int16_t cur_width;
 int16_t dun_level;
-int16_t noscore;
+/* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
+ * 読み書きするようになったので、実体は tests/score_death_fixture.c にある。 */
 int command_count;
 int pack_heavy;
 bool character_generated;
