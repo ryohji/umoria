@@ -49,9 +49,14 @@ int32_t max_score = 0;
 //   score_death.c death, died_from, birth_date, noscore
 //   save_state.c  savefile, character_generated, character_saved, panic_save
 //
-// See src/progress.h, src/score_death.h and src/save_state.h. highscore_fp
-// stays here for now; it is the one of that batch that never needed to be a
-// global at all (see the note in score_death.c).
+// See src/progress.h, src/score_death.h and src/save_state.h.
+//
+// highscore_fp is the fourteenth of that batch and stays here. The two
+// functions that read and write the score file (display_scores() and
+// highscores(), both in death.c) use a local now, so the only writer left is
+// init_scorefile() (files.c), which opens the file while the setuid privileges
+// are still there. That handle is never read and never closed -- recorded as
+// bug candidate B19, not changed here.
 FILE *highscore_fp;               // File pointer to high score file
 int16_t cur_height, cur_width;    // Cur dungeon size
 int16_t dun_level = 0;            // Cur dungeon level

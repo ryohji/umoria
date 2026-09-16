@@ -24,11 +24,14 @@
 // read (character creation fills birth_date, and dying fills died_from).
 //
 // highscore_fp is not here even though it belongs to the same group of
-// globals. It never needed to be a global at all: display_scores() and
-// highscores() each fopen and fclose it inside the one function, so it becomes
-// a local of each. Keeping the file handle out means this module does no file
-// I/O, which is what lets it go without externs.h (externs.h replaces fopen
-// with tfopen).
+// globals. It never needed to be a global for the two functions that do the
+// reading and writing: display_scores() and highscores() each fopen and fclose
+// it inside the one function, and both now use a local (death.c). What is left
+// of the global belongs to init_scorefile() (files.c), which opens the file
+// while the setuid privileges are still there -- a startup concern, not this
+// module's. Keeping the file handle out means this module does no file I/O,
+// which is what lets it go without externs.h (externs.h replaces fopen with
+// tfopen).
 static bool death = false; // True if died
 static vtype died_from;
 static int32_t birth_date;

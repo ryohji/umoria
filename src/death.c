@@ -37,22 +37,27 @@ static char *center_string(char *centered_str, const char *in_str) {
 void display_scores(int show_player) {
     char string[100];
 
-    if ((highscore_fp = fopen(MORIA_TOP, "rb")) == NULL) {
+    // The score file used to be opened into a global. Nothing outside this
+    // function reads it: the handle is opened, used and closed here, and
+    // rd_highscore() reaches it through set_fileptr() below.
+    FILE *score_fp = fopen(MORIA_TOP, "rb");
+
+    if (score_fp == NULL) {
         sprintf(string, "Error opening score file \"%s\"\n", MORIA_TOP);
         msg_print(string);
         msg_print(CNIL);
         return;
     }
 
-    (void)fseek(highscore_fp, (off_t)0, SEEK_SET);
+    (void)fseek(score_fp, (off_t)0, SEEK_SET);
 
     // Read version numbers from the score file, and check for validity.
-    uint8_t version_maj = getc(highscore_fp);
-    uint8_t version_min = getc(highscore_fp);
-    uint8_t patch_level = getc(highscore_fp);
+    uint8_t version_maj = getc(score_fp);
+    uint8_t version_min = getc(score_fp);
+    uint8_t patch_level = getc(score_fp);
 
     // Support score files from 5.2.2 to present.
-    if (feof(highscore_fp)) {
+    if (feof(score_fp)) {
         ; // An empty score file.
     } else if ((version_maj != CUR_VERSION_MAJ) ||
                (version_min > CUR_VERSION_MIN) ||
@@ -61,12 +66,12 @@ void display_scores(int show_player) {
         msg_print("Sorry. This scorefile is from a different version of umoria.");
         msg_print(CNIL);
 
-        (void)fclose(highscore_fp);
+        (void)fclose(score_fp);
         return;
     }
 
     // set the static fileptr in save.c to the highscore file pointer
-    set_fileptr(highscore_fp);
+    set_fileptr(score_fp);
 
     high_scores score;
     rd_highscore(&score);
@@ -76,11 +81,11 @@ void display_scores(int show_player) {
     int i = 0;
     int rank = 1;
 
-    while (!feof(highscore_fp)) {
+    while (!feof(score_fp)) {
         i = 1;
         clear_screen();
         // Put twenty scores on each page, on lines 2 through 21.
-        while (!feof(highscore_fp) && i < 21) {
+        while (!feof(score_fp) && i < 21) {
             // Only show the entry if show_player false
             // NOTE: let's show all players for now with `true` -MRC-
             if (!show_player || true) {
@@ -105,7 +110,7 @@ void display_scores(int show_player) {
         }
     }
 
-    (void)fclose(highscore_fp);
+    (void)fclose(score_fp);
 }
 
 bool duplicate_character(void) {
@@ -276,7 +281,11 @@ static void highscores(void) {
     }
     (void)strcpy(new_entry.died_from, tmp);
 
-    if ((highscore_fp = fopen(MORIA_TOP, "rb+")) == NULL) {
+    // A local for the same reason as in display_scores(): opened, used and
+    // closed inside this one function.
+    FILE *score_fp = fopen(MORIA_TOP, "rb+");
+
+    if (score_fp == NULL) {
         char string[100];
 
         (void)sprintf(string, "Error opening score file \"%s\"\n", MORIA_TOP);
@@ -288,25 +297,25 @@ static void highscores(void) {
     // Search file to find where to insert this character, if uid != 0 and
     // find same uid/sex/race/class combo then exit without saving this score.
     // Seek to the beginning of the file just to be safe.
-    (void)fseek(highscore_fp, (long)0, SEEK_SET);
+    (void)fseek(score_fp, (long)0, SEEK_SET);
 
     // Read version numbers from the score file, and check for validity.
-    uint8_t version_maj = getc(highscore_fp);
-    uint8_t version_min = getc(highscore_fp);
-    uint8_t patch_level = getc(highscore_fp);
+    uint8_t version_maj = getc(score_fp);
+    uint8_t version_min = getc(score_fp);
+    uint8_t patch_level = getc(score_fp);
 
     // If this is a new scorefile, it should be empty.
     // Write the current version numbers to the score file.
-    if (feof(highscore_fp)) {
+    if (feof(score_fp)) {
         // Seek to the beginning of the file just to be safe.
-        (void)fseek(highscore_fp, (long)0, SEEK_SET);
+        (void)fseek(score_fp, (long)0, SEEK_SET);
 
-        (void)putc(CUR_VERSION_MAJ, highscore_fp);
-        (void)putc(CUR_VERSION_MIN, highscore_fp);
-        (void)putc(PATCH_LEVEL, highscore_fp);
+        (void)putc(CUR_VERSION_MAJ, score_fp);
+        (void)putc(CUR_VERSION_MIN, score_fp);
+        (void)putc(PATCH_LEVEL, score_fp);
 
         // must fseek() before can change read/write mode
-        (void)fseek(highscore_fp, (long)0, SEEK_CUR);
+        (void)fseek(score_fp, (long)0, SEEK_CUR);
     } else if (
         (version_maj != CUR_VERSION_MAJ) ||
         (version_min > CUR_VERSION_MIN) ||
@@ -316,20 +325,20 @@ static void highscores(void) {
         // Support score files from 5.2.2 to present.
         // No need to print a message, a subsequent call to
         // display_scores() will print a message.
-        (void)fclose(highscore_fp);
+        (void)fclose(score_fp);
         return;
     }
 
     // set the static fileptr in save.c to the highscore file pointer
-    set_fileptr(highscore_fp);
+    set_fileptr(score_fp);
 
     high_scores old_entry, entry;
 
     int i = 0;
-    off_t curpos = ftell(highscore_fp);
+    off_t curpos = ftell(score_fp);
     rd_highscore(&old_entry);
 
-    while (!feof(highscore_fp)) {
+    while (!feof(score_fp)) {
         if (new_entry.points >= old_entry.points) {
             break;
         }
@@ -344,30 +353,30 @@ static void highscores(void) {
             new_entry.sex == old_entry.sex &&
             new_entry.race == old_entry.race &&
             new_entry.class == old_entry.class) {
-            (void)fclose(highscore_fp);
+            (void)fclose(score_fp);
             return;
         }
 
         // only allow one thousand scores in the score file
         if (++i >= SCOREFILE_SIZE) {
-            (void)fclose(highscore_fp);
+            (void)fclose(score_fp);
             return;
         }
 
-        curpos = ftell(highscore_fp);
+        curpos = ftell(score_fp);
         rd_highscore(&old_entry);
     }
 
-    if (feof(highscore_fp)) {
+    if (feof(score_fp)) {
         // write out new_entry at end of file
-        (void)fseek(highscore_fp, curpos, SEEK_SET);
+        (void)fseek(score_fp, curpos, SEEK_SET);
 
         wr_highscore(&new_entry);
     } else {
         entry = new_entry;
 
-        while (!feof(highscore_fp)) {
-            (void)fseek(highscore_fp, -(long)sizeof(high_scores) - (long)sizeof(char), SEEK_CUR);
+        while (!feof(score_fp)) {
+            (void)fseek(score_fp, -(long)sizeof(high_scores) - (long)sizeof(char), SEEK_CUR);
 
             wr_highscore(&entry);
 
@@ -386,19 +395,19 @@ static void highscores(void) {
             entry = old_entry;
 
             // must fseek() before can change read/write mode
-            (void)fseek(highscore_fp, (long)0, SEEK_CUR);
+            (void)fseek(score_fp, (long)0, SEEK_CUR);
 
-            curpos = ftell(highscore_fp);
+            curpos = ftell(score_fp);
             rd_highscore(&old_entry);
         }
-        if (feof(highscore_fp)) {
-            (void)fseek(highscore_fp, curpos, SEEK_SET);
+        if (feof(score_fp)) {
+            (void)fseek(score_fp, curpos, SEEK_SET);
 
             wr_highscore(&entry);
         }
     }
 
-    (void)fclose(highscore_fp);
+    (void)fclose(score_fp);
 }
 
 // Change the player into a King! -RAK-

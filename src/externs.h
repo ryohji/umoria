@@ -40,7 +40,7 @@ extern int pack_heavy;      // Flag if the pack too heavy -CJS-
 extern char doing_inven;    // Track inventory commands
 extern bool screen_change;  // Screen changes (used in inven_commands)
 
-extern FILE *highscore_fp;          // High score file pointer
+extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 extern int command_count;           // Repetition of commands. -CJS-
 extern bool default_dir;            // Use last direction in repeated commands
 extern int16_t dun_level;           // Cur dungeon level
