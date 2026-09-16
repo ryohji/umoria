@@ -13,7 +13,7 @@
 
 | | |
 |---|---|
-| ブランチ | 作業中のものは無い（`refactor/19-savemeta` 14 コミットは `8c2af3f` で `--no-ff` マージし、ユーザーの指示でブランチを削除した）。ローカルには `develop` のほかに**マージ済みの `docs/fix-chunk-count` と `docs/history-rewrite` が残っている**（2026-09-14 の削除のときに残ったもの。消してよいか未確認なので触っていない）。**`origin/develop` は `38ec3c3` のままで、push はしていない** |
+| ブランチ | **ローカルは `develop` 1 本だけ**（`refactor/19-savemeta` 14 コミットは `8c2af3f` で `--no-ff` マージし、ユーザーの指示でブランチを削除。2026-09-14 の削除で残っていた `docs/fix-chunk-count` と `docs/history-rewrite` も、同じ日にユーザーの指示で削除した）。**`origin/develop` は `38ec3c3` のままで、push はしていない** |
 | 警告 | **0 件**（`make clean && make`） |
 | テスト | **514 件グリーン**（21 実行形式） |
 | `externs.h` の global | **79 個・参照 2215**（着手時 112・3147。`highscore_fp` の局所化で参照が 38 減った） |
@@ -110,8 +110,10 @@ rm -f scores.dat /tmp/probe.sav
   指示を得て `refactor/19-savemeta` を消している**（マージ後に確認 5 つを
   通してから消す）。区分ごとにブランチを切る作法は変わらないので、次の区分でも
   同じように切って、マージまで終わったらユーザーに消してよいか確かめる。
-  **`docs/fix-chunk-count` と `docs/history-rewrite` はマージ済みのまま残って
-  いる**（指示に含まれていなかったので触っていない）。
+  **同じ日に `docs/fix-chunk-count` と `docs/history-rewrite`（2026-09-14 の
+  削除で残っていた 2 本）も指示を得て消したので、ローカルは `develop` 1 本
+  だけ。** どちらも `git branch --merged develop` に出る＝完全にマージ済みで、
+  `-d` で消えた（`-D` は使っていない）。
 - **バグ候補（B2〜B19）は直さない。**見つけたら記録して報告する。判断は
   ユーザーの領分。
 - 文書・コミットメッセージ・テストのコメントは日本語。**ソースコードの
