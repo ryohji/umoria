@@ -12,6 +12,9 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "progress.h"
+#include "save_state.h"
+#include "score_death.h"
 #include "stores.h"
 #include "messages.h"
 
@@ -44,15 +47,15 @@ GameState *game_state_init(void) {
 
     // Initialize game metadata from existing globals
     state->dungeon_level = dun_level;
-    state->turn = turn;
-    state->death = death;
-    state->wizard_mode = wizard;
+    state->turn = progress_turn();
+    state->death = player_is_dead();
+    state->wizard_mode = progress_wizard_mode();
 
     // Flags
     state->new_level_flag = new_level_flag;
     state->teleport_flag = teleport_flag;
-    state->character_generated = character_generated;
-    state->character_saved = character_saved;
+    state->character_generated = character_is_generated();
+    state->character_saved = character_is_saved();
 
     // Command state
     state->command_count = command_count;
@@ -63,17 +66,17 @@ GameState *game_state_init(void) {
     state->last_msg_index = (int16_t)msg_history_newest_slot();
 
     // Seeds
-    state->rng_seed = randes_seed;
-    state->town_seed = town_seed;
+    state->rng_seed = progress_color_seed();
+    state->town_seed = progress_town_seed();
 
     // File paths
     // strncpy は上限まで詰まったとき終端の '\0' を書かない。ここでやりたい
     // のは「収まらなければ切り詰め、必ず終端する」なので、それをそのまま
     // 表す snprintf を使う。戻り値は切り詰めが起きたかを示すが、状態の
     // 写しとりに失敗の扱いはないので捨てる。
-    (void)snprintf(state->save_file_path, sizeof(vtype), "%s", savefile);
-    (void)snprintf(state->died_from, sizeof(vtype), "%s", died_from);
-    state->birth_date = birth_date;
+    (void)snprintf(state->save_file_path, sizeof(vtype), "%s", save_file_path());
+    (void)snprintf(state->died_from, sizeof(vtype), "%s", death_cause());
+    state->birth_date = character_birth_date();
     state->highscore_fp = highscore_fp;
 
     // Options
@@ -98,8 +101,8 @@ GameState *game_state_init(void) {
     state->doing_inven = doing_inven;
     state->screen_change = screen_change;
     state->eof_flag = eof_flag;
-    state->noscore = noscore;
-    state->panic_save = panic_save;
+    state->noscore = score_disqualifications();
+    state->panic_save = is_panic_save();
     state->wait_for_more = msg_at_more_prompt();
     state->closing_flag = closing_flag;
 

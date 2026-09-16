@@ -15,10 +15,6 @@ extern const char *copyright[17];
 // deep within creatures() via place_monster() and summon_monster().
 extern int hack_monptr;
 
-extern vtype died_from;
-extern vtype savefile; // The save file. -CJS-
-extern int32_t birth_date;
-
 // These are options, set with set_options command -CJS-
 extern bool rogue_like_commands;
 extern bool find_cut;          // Cut corners on a run
@@ -44,24 +40,20 @@ extern int pack_heavy;      // Flag if the pack too heavy -CJS-
 extern char doing_inven;    // Track inventory commands
 extern bool screen_change;  // Screen changes (used in inven_commands)
 
-extern bool character_generated;    // don't save score until char gen finished
-extern bool character_saved;        // prevents save on kill after save_char()
-extern FILE *highscore_fp;          // High score file pointer
+extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 extern int command_count;           // Repetition of commands. -CJS-
 extern bool default_dir;            // Use last direction in repeated commands
-extern int16_t noscore;             // Don't score this game. -CJS-
-extern uint32_t randes_seed;        // For encoding colors
-extern uint32_t town_seed;          // Seed for town genera
 extern int16_t dun_level;           // Cur dungeon level
 extern int16_t missile_ctr;         // Counter for missiles
 // The top line (was: msg_flag, old_msg[MAX_SAVE_MSG], last_msg and
 // wait_for_more) is private to messages.c now, together with the code that
 // walks the ring and the -more- prompt; see messages.h.
-extern bool death;                  // True if died
-extern int32_t turn;                // Cur trun of game
-extern bool wizard;                 // Wizard flag
-extern bool to_be_wizard;
-extern bool panic_save; // this is true if playing from a panic save
+
+// How far the game has got (turn, randes_seed, town_seed, wizard,
+// to_be_wizard), how this life ended (death, died_from, birth_date, noscore)
+// and where it is saved (savefile, character_generated, character_saved,
+// panic_save) are not declared here. Each group is private to its own file and
+// is reached through src/progress.h, src/score_death.h and src/save_state.h.
 
 extern char days[7][29];
 extern int closing_flag; // Used for closing

@@ -17,6 +17,8 @@
 #include "input.h"
 #include "messages.h"
 #include "render.h"
+#include "save_state.h"
+#include "score_death.h"
 
 #define use_value2
 
@@ -69,7 +71,7 @@ char inkey(void) {
 
             render_refresh();
 
-            if (!character_generated || character_saved) {
+            if (!save_state_has_unsaved_character()) {
                 exit_game();
             }
 
@@ -77,12 +79,12 @@ char inkey(void) {
 
             if (eof_flag > 100) {
                 // just in case, to make sure that the process eventually dies
-                panic_save = true;
+                set_panic_save(true);
 
-                (void)strcpy(died_from, "(end of input: panic saved)");
+                (void)strcpy(death_cause(), "(end of input: panic saved)");
                 if (!save_char()) {
-                    (void)strcpy(died_from, "panic: unexpected eof");
-                    death = true;
+                    (void)strcpy(death_cause(), "panic: unexpected eof");
+                    set_player_dead(true);
                 }
                 exit_game();
             }

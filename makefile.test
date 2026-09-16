@@ -37,7 +37,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
-        str_insert_test inventory_test
+        str_insert_test inventory_test progress_test score_death_test \
+        save_state_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -99,10 +100,10 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
                              $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                              src/item_ident.c src/item_ident.h \
                              src/desc.c src/tables.c src/treasure.c \
-                             src/inventory.c | $(BUILDDIR)
+                             src/inventory.c src/progress.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/item_ident_test.c \
 	    $(TESTDIR)/fixture.c src/item_ident.c src/desc.c src/tables.c src/treasure.c \
-	    src/inventory.c
+	    src/inventory.c src/progress.c
 
 # アイテムのスタック可否判定は misc3.c の inven_check_num() と inven_carry() に
 # 二重に書かれている（本体のコメントが「must be identical」と明記している）。
@@ -131,11 +132,14 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                               src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                               src/tables.c src/inventory.c \
-                              src/treasure.c src/player.c src/abilities.c | $(BUILDDIR)
+                              src/treasure.c src/player.c src/abilities.c \
+                              src/progress.c src/score_death.c \
+                              src/save_state.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
-	    src/treasure.c src/player.c src/abilities.c
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -156,11 +160,14 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
-                            src/abilities.c src/abilities.h | $(BUILDDIR)
+                            src/abilities.c src/abilities.h \
+                            src/progress.c src/score_death.c \
+                            src/save_state.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
-	    src/treasure.c src/player.c src/abilities.c
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -195,12 +202,14 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/str_insert.c src/desc.c \
                                  src/tables.c src/inventory.c \
                                  src/treasure.c src/player.c \
-                                 src/abilities.c src/messages.c src/stores.c | $(BUILDDIR)
+                                 src/abilities.c src/messages.c src/stores.c \
+                                 src/progress.c src/score_death.c \
+                                 src/save_state.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
-	    src/stores.c
+	    src/stores.c src/progress.c src/score_death.c src/save_state.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -215,8 +224,8 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # なる（misc3_stubs.c だと py・msg_print・randint が重複する）。
 # 一覧はリンカに列挙させたもので、手で数えあげたわけではない。
 #
-# turn は代役側で定義しており（本体では variable.c:69）、extern int32_t
-# なのでテストから直接代入して制御できる。
+# turn の実体は #19C1 で src/progress.c の static になったので、そちらを
+# リンクする。テストは progress_set_turn() で制御する（代役も extern も無い）。
 #
 # #18-5B31 で creature.c が持ち物・装備の窓口（equipment_at・inventory_at・
 # inventory_count）を呼ぶようになったので、src/inventory.c を足した。
@@ -232,9 +241,11 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                 src/creature.c src/inventory.c \
-                                src/equipment.h src/inventory.h | $(BUILDDIR)
+                                src/equipment.h src/inventory.h \
+                                src/progress.c src/score_death.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
-	    $(TESTDIR)/creature_stubs.c src/inventory.c
+	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
+	    src/score_death.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -268,11 +279,13 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                          src/tables.c src/inventory.c \
                          src/treasure.c src/player.c \
-                         src/abilities.c | $(BUILDDIR)
+                         src/abilities.c src/progress.c \
+                         src/score_death.c src/save_state.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
-	    src/treasure.c src/player.c src/abilities.c
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
@@ -331,16 +344,25 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # 持ち物と装備の読み書きも src/inventory.c 越しになったので inventory.c も
 # リンクする。#18-5C で実体（inventory[] と 3 つの数え）も treasure.c から
 # inventory.c に移って static になった。
+#
+# #19B4 で save.c がセーブ／進行メタ 13 個も窓口越しに読み書きするように
+# なったので、progress.c / score_death.c / save_state.c もリンクする。足場
+# （tests/*_fixture.c）は要らない —— この構成は variable.c の本物をリンクして
+# いて、13 個の実体はまだそこにあるから。ステップ C で実体が 3 つの module の
+# static に移っても、この 3 本をリンクしている形は変えなくてよい。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \
                             src/treasure.c src/player.c src/monsters.c \
                             src/options.c src/messages.c src/panel.c \
-                            src/stores.c src/inventory.c | $(BUILDDIR)
+                            src/stores.c src/inventory.c \
+                            src/progress.c src/score_death.c \
+                            src/save_state.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
-	    src/messages.c src/panel.c src/stores.c src/inventory.c
+	    src/messages.c src/panel.c src/stores.c src/inventory.c \
+	    src/progress.c src/score_death.c src/save_state.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -357,11 +379,14 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/save.c src/variable.c src/tables.c \
                              src/treasure.c src/player.c src/monsters.c \
                              src/options.c src/messages.c src/panel.c \
-                             src/stores.c src/inventory.c | $(BUILDDIR)
+                             src/stores.c src/inventory.c \
+                             src/progress.c src/score_death.c \
+                             src/save_state.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
-	    src/messages.c src/panel.c src/stores.c src/inventory.c
+	    src/messages.c src/panel.c src/stores.c src/inventory.c \
+	    src/progress.c src/score_death.c src/save_state.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -424,6 +449,46 @@ $(BUILDDIR)/inventory_test: $(TESTDIR)/inventory_test.c \
                             src/inventory.c src/inventory.h \
                             src/equipment.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inventory_test.c src/inventory.c
+
+# 進行の置き場（turn・種 2 つ・wizard 2 つ）。#19C1 で 5 個の実体が
+# src/progress.c の static になったので、足場（tests/progress_fixture.c）は
+# 要らなくなった。窓口は誰も呼ばないので代役も 1 つも要らず、リンクは対象
+# 1 本＋テスト 1 本の 2 コンパイル単位で足りる（inventory_test・
+# str_insert_test・stat_bonus_test と同じ形）。
+$(BUILDDIR)/progress_test: $(TESTDIR)/progress_test.c \
+                           $(TESTDIR)/minunit.h \
+                           src/progress.c src/progress.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/progress_test.c src/progress.c
+
+# 結末の置き場（death・died_from・birth_date・noscore）。progress_test と同じ形で、
+# #19C1 で 4 個の実体が src/score_death.c の static になったので足場は消え、
+# 2 コンパイル単位・代役 0 になった。
+#
+# highscore_fp はこの区分の global だがここには無い。display_scores() と
+# highscores() が関数の中で fopen して fclose するだけなので局所変数にできる
+# （ユーザーの判断）。ファイル操作を抱えないので externs.h（fopen を tfopen に
+# 置きかえる）を include せずに済んでいる。
+$(BUILDDIR)/score_death_test: $(TESTDIR)/score_death_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/score_death.c src/score_death.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/score_death_test.c src/score_death.c
+
+# セーブの置き場（savefile・生成済み・保存済み・panic）と 3 つの述語。
+# 3 module のうち唯一よそを読む側なので、この 1 本だけリンクが長い:
+# save_state_has_live_character が score_death.h の player_is_dead を、
+# save_state_character_is_in_play が progress.h の progress_turn を呼ぶ。
+# よって src/ 側は 3 本、テスト 1 本で 4 コンパイル単位になる。それが有向依存の
+# 代金で、隠さずに数えておく（progress_test / score_death_test はそれぞれ
+# 2 単位）。#19C1 で 13 個の実体が 3 module の static になったので、足場
+# 3 本（save_state_fixture.c・progress_fixture.c・score_death_fixture.c）は
+# 消えた。代役は 1 つも要らない。
+$(BUILDDIR)/save_state_test: $(TESTDIR)/save_state_test.c \
+                             $(TESTDIR)/minunit.h \
+                             src/save_state.c src/save_state.h \
+                             src/progress.c src/progress.h \
+                             src/score_death.c src/score_death.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_state_test.c \
+	    src/save_state.c src/progress.c src/score_death.c
 
 clean:
 	rm -rf $(BUILDDIR)

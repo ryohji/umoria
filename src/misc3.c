@@ -17,6 +17,9 @@
 #include "abilities.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "progress.h"
+#include "save_state.h"
+#include "score_death.h"
 #include "stats.h"
 
 static const char *stat_names[] = {
@@ -447,15 +450,15 @@ void prt_study(void) {
 
 // Prints winner status on display -RAK-
 void prt_winner(void) {
-    if (noscore & 0x2) {
-        if (wizard) {
+    if (score_disqualifications() & 0x2) {
+        if (progress_wizard_mode()) {
             put_buffer("Is wizard  ", 22, 0);
         } else {
             put_buffer("Was wizard ", 22, 0);
         }
-    } else if (noscore & 0x1) {
+    } else if (score_disqualifications() & 0x1) {
         put_buffer("Resurrected", 22, 0);
-    } else if (noscore & 0x4) {
+    } else if (score_disqualifications() & 0x4) {
         put_buffer("Duplicate", 22, 0);
     } else if (total_winner) {
         put_buffer("*Winner*   ", 22, 0);
@@ -655,7 +658,7 @@ void put_character(void) {
     put_buffer("Sex         :", 4, 1);
     put_buffer("Class       :", 5, 1);
 
-    if (character_generated) {
+    if (character_is_generated()) {
         put_buffer(m_ptr->name, 2, 15);
         put_buffer(race[m_ptr->prace].trace, 3, 15);
         put_buffer((m_ptr->male ? "Male" : "Female"), 4, 15);
@@ -1652,14 +1655,14 @@ void calc_hitpoints(void) {
 bool enter_wiz_mode(void) {
     bool answer = false;
 
-    if (!noscore) {
+    if (!score_disqualifications()) {
         msg_print("Wizard mode is for debugging and experimenting.");
         answer = get_check("The game will not be scored if you enter wizard mode. Are you sure?");
     }
 
-    if (noscore || answer) {
-        noscore |= 0x2;
-        wizard = true;
+    if (score_disqualifications() || answer) {
+        set_score_disqualifications((int16_t)(score_disqualifications() | 0x2));
+        progress_set_wizard_mode(true);
         return true;
     }
 

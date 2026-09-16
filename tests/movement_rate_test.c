@@ -33,6 +33,8 @@
  * config.h / constant.h / types.h も creature.c が連れてくる。 */
 #include "creature.c"
 
+#include "progress.h"
+
 #include "fixture.h"
 
 /* 各テストの前に必ず呼ばれる。py がクリアされる（rest も 0 に戻る）。
@@ -52,21 +54,21 @@
 
 TEST(returns_one_move_when_speed_is_one)
 {
-    turn = 0;
+    progress_set_turn(0);
     ASSERT_EQ_INT(moves_this_turn(1), 1);
 }
 
 /* 三角測量。1 だけでは「つねに 1 を返す」実装と区別できない。 */
 TEST(returns_five_moves_when_speed_is_five)
 {
-    turn = 0;
+    progress_set_turn(0);
     ASSERT_EQ_INT(moves_this_turn(5), 5);
 }
 
 /* 休憩中は speed が大きくても 1 回に抑えられる。 */
 TEST(returns_one_move_when_speed_is_five_and_player_is_resting)
 {
-    turn = 0;
+    progress_set_turn(0);
     py.flags.rest = 1;
     ASSERT_EQ_INT(moves_this_turn(5), 1);
 }
@@ -75,7 +77,7 @@ TEST(returns_one_move_when_speed_is_five_and_player_is_resting)
  * rest の判定は != 0 なので、休憩の残りターン数がいくつでも 1 になる。 */
 TEST(returns_five_moves_again_when_resting_is_cleared)
 {
-    turn = 0;
+    progress_set_turn(0);
     py.flags.rest = 0;
     ASSERT_EQ_INT(moves_this_turn(5), 5);
 }
@@ -84,7 +86,7 @@ TEST(returns_five_moves_again_when_resting_is_cleared)
  * 本体では「休憩ターン数が -1 のとき無限休憩」という使い方がある。 */
 TEST(returns_one_move_when_resting_count_is_negative)
 {
-    turn = 0;
+    progress_set_turn(0);
     py.flags.rest = -1;
     ASSERT_EQ_INT(moves_this_turn(5), 1);
 }
@@ -104,20 +106,20 @@ TEST(returns_one_move_when_resting_count_is_negative)
 
 TEST(moves_once_at_the_start_of_the_cycle_when_speed_is_zero)
 {
-    turn = 0;
+    progress_set_turn(0);
     ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
 TEST(does_not_move_on_the_odd_turn_when_speed_is_zero)
 {
-    turn = 1;
+    progress_set_turn(1);
     ASSERT_EQ_INT(moves_this_turn(0), 0);
 }
 
 /* 周期 2 なので turn = 2 でまた動く。周期性が固定される。 */
 TEST(moves_again_two_turns_later_when_speed_is_zero)
 {
-    turn = 2;
+    progress_set_turn(2);
     ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
@@ -128,7 +130,7 @@ TEST(moves_again_two_turns_later_when_speed_is_zero)
  * 固定する（自分で計算していない）。 */
 TEST(does_not_move_when_turn_is_the_initial_minus_one_and_speed_is_zero)
 {
-    turn = -1;
+    progress_set_turn(-1);
     ASSERT_EQ_INT(moves_this_turn(0), 0);
 }
 
@@ -136,7 +138,7 @@ TEST(does_not_move_when_turn_is_the_initial_minus_one_and_speed_is_zero)
  * つまり負の側でも周期 2 は保たれており、位相だけがずれている。 */
 TEST(moves_once_when_turn_is_minus_two_and_speed_is_zero)
 {
-    turn = -2;
+    progress_set_turn(-2);
     ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
@@ -150,13 +152,13 @@ TEST(moves_once_when_turn_is_minus_two_and_speed_is_zero)
 
 TEST(moves_once_every_three_turns_at_turn_zero_when_speed_is_minus_one)
 {
-    turn = 0;
+    progress_set_turn(0);
     ASSERT_EQ_INT(moves_this_turn(-1), 1);
 }
 
 TEST(does_not_move_at_turn_one_when_speed_is_minus_one)
 {
-    turn = 1;
+    progress_set_turn(1);
     ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
@@ -164,13 +166,13 @@ TEST(does_not_move_at_turn_one_when_speed_is_minus_one)
  * speed = -1 では周期 3 なのでまだ動かない。 */
 TEST(does_not_move_at_turn_two_when_speed_is_minus_one)
 {
-    turn = 2;
+    progress_set_turn(2);
     ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
 TEST(moves_again_at_turn_three_when_speed_is_minus_one)
 {
-    turn = 3;
+    progress_set_turn(3);
     ASSERT_EQ_INT(moves_this_turn(-1), 1);
 }
 
@@ -178,13 +180,13 @@ TEST(moves_again_at_turn_three_when_speed_is_minus_one)
  * ターンだが、周期 4 では動かない。 */
 TEST(does_not_move_at_turn_three_when_speed_is_minus_two)
 {
-    turn = 3;
+    progress_set_turn(3);
     ASSERT_EQ_INT(moves_this_turn(-2), 0);
 }
 
 TEST(moves_once_at_turn_four_when_speed_is_minus_two)
 {
-    turn = 4;
+    progress_set_turn(4);
     ASSERT_EQ_INT(moves_this_turn(-2), 1);
 }
 
@@ -203,19 +205,19 @@ TEST(moves_once_at_turn_four_when_speed_is_minus_two)
 
 TEST(returns_exactly_one_at_phase_zero_of_the_three_turn_cycle)
 {
-    turn = 9;
+    progress_set_turn(9);
     ASSERT_EQ_INT(moves_this_turn(-1), 1);
 }
 
 TEST(returns_exactly_zero_at_phase_one_of_the_three_turn_cycle)
 {
-    turn = 10;
+    progress_set_turn(10);
     ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
 TEST(returns_exactly_zero_at_phase_two_of_the_three_turn_cycle)
 {
-    turn = 11;
+    progress_set_turn(11);
     ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 
@@ -223,14 +225,14 @@ TEST(returns_exactly_zero_at_phase_two_of_the_three_turn_cycle)
  * 返れば呼びだし側のループが余分に回ってしまう。 */
 TEST(returns_exactly_one_at_a_large_turn_on_the_cycle)
 {
-    turn = 1000000;
+    progress_set_turn(1000000);
     ASSERT_EQ_INT(moves_this_turn(-2), 1);
 }
 
 /* 速度が大きく負でも上限は 1。周期 12 の頭を外したところ。 */
 TEST(returns_exactly_zero_for_a_deeply_negative_speed_off_the_cycle)
 {
-    turn = 5;
+    progress_set_turn(5);
     ASSERT_EQ_INT(moves_this_turn(-10), 0);
 }
 
@@ -244,7 +246,7 @@ TEST(returns_exactly_zero_for_a_deeply_negative_speed_off_the_cycle)
 
 TEST(ignores_resting_when_speed_is_zero_and_the_turn_is_on_the_cycle)
 {
-    turn = 0;
+    progress_set_turn(0);
     py.flags.rest = 1;
     ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
@@ -253,14 +255,14 @@ TEST(ignores_resting_when_speed_is_zero_and_the_turn_is_on_the_cycle)
  * 判定を外側に出すと 1 が返ってレッドになる。 */
 TEST(ignores_resting_when_speed_is_zero_and_the_turn_is_off_the_cycle)
 {
-    turn = 1;
+    progress_set_turn(1);
     py.flags.rest = 1;
     ASSERT_EQ_INT(moves_this_turn(0), 0);
 }
 
 TEST(ignores_resting_when_speed_is_negative_and_the_turn_is_off_the_cycle)
 {
-    turn = 1;
+    progress_set_turn(1);
     py.flags.rest = 100;
     ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }

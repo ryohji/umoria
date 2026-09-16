@@ -1,6 +1,6 @@
 /* creature.c をテストに取りこむための代役
  *
- * movement_rate() の依存はグローバル turn と py.flags.rest の 2 つだけだが、
+ * movement_rate() の依存は turn（src/progress.c）と py.flags.rest の 2 つだけだが、
  * static 関数なので外から呼べない。実体を検証するにはテスト側が
  * src/creature.c を #include して翻訳単位ごと取りこむしかなく、そうすると
  * creature.c 全体（1609 行、モンスターの移動・攻撃・呪文）が持ちこまれ、
@@ -29,9 +29,10 @@
 #include "fixture.h"
 
 /* --- グローバル状態 ---
- * turn はテストが直接代入して制御するので、ここで定義だけしておく。
- * 本体では variable.c:69 が -1 に初期化している（ゲーム開始直後の値）。 */
-int32_t turn = -1;
+ * turn と wizard はここに無い。#19B で creature.c が progress_turn() /
+ * progress_wizard_mode() 越しに読むようになったので、実体は
+ * src/progress.c の static である（#19C1。ここで定義しても窓口には届かない
+ * 別の器になるだけ）。テストは progress_set_turn() で turn を動かす。 */
 
 player_type py;
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
@@ -47,10 +48,10 @@ int16_t mfptr;
 int16_t mon_tot_mult;
 int find_flag;
 int hack_monptr;
-bool death;
+/* death もここに無い。#19B2 で creature.c が player_is_dead() 越しに読む
+ * ようになったので、実体は src/score_death.c の static である。 */
 bool player_light;
 bool screen_change;
-bool wizard;
 
 /* --- 画面出力・メッセージ --- */
 void msg_print(const char *str) { (void)str; }
@@ -169,7 +170,7 @@ char *concat(char *buffer, ...) { return buffer; }
 
 /* --- テスト専用の初期化。本体（src/）には存在しない。
  * MU_SETUP から呼ぶことで、先行テストの影響を受けない条件を作る。
- * turn はここでは触らない。テストごとに明示的に代入して制御するため
+ * turn はここでは触らない。テストごとに progress_set_turn() で制御するため
  * （fixture_reset が値を決めると、テストの前提が見えなくなる）。 --- */
 void fixture_reset(void)
 {

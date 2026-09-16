@@ -39,36 +39,36 @@ int hack_monptr = -1;
 
 bool weapon_heavy = false;
 int pack_heavy = 0;
-vtype died_from;
-int32_t birth_date;
-
-vtype savefile; // The savefile to use.
-
 bool total_winner = false;
 int32_t max_score = 0;
-bool character_generated = false; // don't save score until char gen finished
-bool character_saved = false;     // prevents save on kill after save_char()
+
+// Thirteen records that used to live here now live beside the code that uses
+// them, private to their own file and reached through a window:
+//
+//   progress.c    turn, randes_seed, town_seed, wizard, to_be_wizard
+//   score_death.c death, died_from, birth_date, noscore
+//   save_state.c  savefile, character_generated, character_saved, panic_save
+//
+// See src/progress.h, src/score_death.h and src/save_state.h.
+//
+// highscore_fp is the fourteenth of that batch and stays here. The two
+// functions that read and write the score file (display_scores() and
+// highscores(), both in death.c) use a local now, so the only writer left is
+// init_scorefile() (files.c), which opens the file while the setuid privileges
+// are still there. That handle is never read and never closed -- recorded as
+// bug candidate B19, not changed here.
 FILE *highscore_fp;               // File pointer to high score file
-uint32_t randes_seed;             // for restarting randes_state
-uint32_t town_seed;               // for restarting town_seed
 int16_t cur_height, cur_width;    // Cur dungeon size
 int16_t dun_level = 0;            // Cur dungeon level
 int16_t missile_ctr = 0;          // Counter for missiles
 // msg_flag, old_msg and last_msg (the top line: whether its message has been
 // seen, and the history ring) moved to messages.c, next to the code that uses
 // them
-bool death = false;               // True if died
-
 int find_flag; // Used in MORIA for .(dir)
 
 bool free_turn_flag;       // Used in MORIA, do not move creatures
 int command_count;         // Gives repetition of commands. -CJS-
 bool default_dir = false;  // Use last direction for repeated command
-int32_t turn = -1;         // Cur turn of game
-bool wizard = false;       // Wizard flag
-bool to_be_wizard = false; // used during startup, when -w option used
-bool panic_save = false;   // this is true if playing from a panic save
-int16_t noscore = 0;       // Don't log the game. -CJS-
 
 // options set via the '=' command
 //

@@ -47,7 +47,8 @@
 char doing_inven = 0;
 /* msg_flag はもう要らない。メッセージの状態は messages.c が持つので、
  * 代役ではなく本物をリンクしている（makefile.test 参照）。 */
-int32_t turn = 0;
+/* turn は src/progress.c の static である（#19B で store2.c が progress_turn()
+ * 越しに読むようになり、#19C1 で実体もそこへ移った）。 */
 
 void move_cursor(int row, int col) { (void)row; (void)col; }
 void inven_command(char command) { (void)command; }

@@ -37,16 +37,21 @@ cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 int16_t cur_height;
 int16_t cur_width;
 int16_t dun_level;
-int16_t noscore;
+/* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
+ * 読み書きするようになったので、実体は src/score_death.c の static である。 */
 int command_count;
 int pack_heavy;
-bool character_generated;
+/* character_generated もここに無い。#19B3 で misc3.c が
+ * character_is_generated() 越しに読むようになったので、実体は
+ * src/save_state.c の static である。 */
 bool display_counts;
 bool free_turn_flag;
 bool teleport_flag;
 bool total_winner;
 bool weapon_heavy;
-bool wizard;
+/* wizard はここに無い。#19B で misc3.c が progress_wizard_mode() 越しに
+ * 読み書きするようになったので、実体は src/progress.c の static である
+ * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 
 /* --- 画面描画（misc3.c の表示系 4 割がこれを呼ぶ） --- */
 
@@ -209,9 +214,10 @@ int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
  * （回数が変わると乱数列がずれ、ゲーム全体のふるまいが変わる）。 */
 int fixture_randint_call_count(void) { return fixture_randint_calls; }
 
+/* 種も同じ理由でここに無い。実体は src/progress.c の static（desc.c が窓口
+ * 越しに読む）。 */
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
-uint32_t randes_seed = 0;
 
 /* --- desc.c が参照する刻印の追加。今回の対象は呼ばない --- */
 void add_inscribe(inven_type *i, uint8_t flag) { (void)i; (void)flag; }

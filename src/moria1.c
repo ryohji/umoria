@@ -14,6 +14,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "score_death.h"
 #include "inventory.h"
 #include "panel.h"
 #include "stats.h"
@@ -1716,9 +1717,9 @@ void take_hit(int damage, const char *hit_from) {
     }
     py.misc.chp -= damage;
     if (py.misc.chp < 0) {
-        if (!death) {
-            death = true;
-            (void)strcpy(died_from, hit_from);
+        if (!player_is_dead()) {
+            set_player_dead(true);
+            (void)strcpy(death_cause(), hit_from);
             total_winner = false;
         }
         new_level_flag = true;

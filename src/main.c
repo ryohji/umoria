@@ -15,6 +15,9 @@
 #include "externs.h"
 #include "inventory.h"
 #include "options.h"
+#include "progress.h"
+#include "save_state.h"
+#include "score_death.h"
 #include "platform.h"
 
 static void char_inven_init(void);
@@ -82,7 +85,7 @@ int main(int argc, char *argv[]) {
             exit_game();
         case 'W':
         case 'w':
-            to_be_wizard = true;
+            progress_set_wizard_requested(true);
 
             if (isdigit((int)argv[0][2])) {
                 seed = (uint32_t)atoi(&argv[0][2]);
@@ -120,11 +123,11 @@ int main(int argc, char *argv[]) {
     // Auto-restart of saved file
     char *p;
     if (argv[0] != CNIL) {
-        (void)strcpy(savefile, argv[0]);
+        (void)strcpy(save_file_path(), argv[0]);
     } else if ((p = getenv("MORIA_SAV")) != CNIL) {
-        (void)strcpy(savefile, p);
+        (void)strcpy(save_file_path(), p);
     } else {
-        (void)strcpy(savefile, MORIA_SAV);
+        (void)strcpy(save_file_path(), MORIA_SAV);
     }
 
     // This restoration of a saved character may get ONLY the monster memory. In
@@ -135,13 +138,13 @@ int main(int argc, char *argv[]) {
     bool result = false;
     bool generate = false;
 
-    if ((new_game == false) && !access(savefile, 0) && get_char(&generate)) {
+    if ((new_game == false) && !access(save_file_path(), 0) && get_char(&generate)) {
         result = true;
     }
 
     // enter wizard mode before showing the character display, but must wait
     // until after get_char in case it was just a resurrection
-    if (to_be_wizard) {
+    if (progress_wizard_requested()) {
         if (!enter_wiz_mode()) {
             exit_game();
         }
@@ -152,12 +155,12 @@ int main(int argc, char *argv[]) {
 
         // could be restoring a dead character after a signal or HANGUP
         if (py.misc.chp < 0) {
-            death = true;
+            set_player_dead(true);
         }
     } else { // Create character
         create_character();
 
-        birth_date = (int32_t)time((time_t *)0);
+        set_character_birth_date((int32_t)time((time_t *)0));
 
         char_inven_init();
         py.flags.food = 7500;
@@ -178,7 +181,7 @@ int main(int argc, char *argv[]) {
         // prevent ^c quit from entering score into scoreboard,
         // and prevent signal from creating panic save until this
         // point, all info needed for save file is now valid.
-        character_generated = true;
+        set_character_generated(true);
         generate = true;
     }
 
@@ -196,7 +199,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Loop till dead, or exit
-    while (!death) {
+    while (!player_is_dead()) {
         // Check for pending signals at the top level
         handle_pending_signals();
 
@@ -205,16 +208,16 @@ int main(int argc, char *argv[]) {
         // check for eof here, see inkey() in io.c
         // eof can occur if the process gets a HANGUP signal
         if (eof_flag) {
-            (void)strcpy(died_from, "(end of input: saved)");
+            (void)strcpy(death_cause(), "(end of input: saved)");
             if (!save_char()) {
-                (void)strcpy(died_from, "unexpected eof");
+                (void)strcpy(death_cause(), "unexpected eof");
             }
 
             // should not reach here, but if we do, this guarantees exit
-            death = true;
+            set_player_dead(true);
         }
 
-        if (!death) {
+        if (!player_is_dead()) {
             // New level
             generate_cave();
         }
