@@ -94,9 +94,11 @@ GROUPS = {
     # static になり、externs.h から外れた（progress.c に turn randes_seed
     # town_seed wizard to_be_wizard、score_death.c に death died_from
     # birth_date noscore、save_state.c に savefile character_generated
-    # character_saved panic_save）。残るのは highscore_fp 1 個だけで、これは
-    # global である必要が無い（display_scores() と highscores() の局所変数に
-    # なる予定）。
+    # character_saved panic_save）。残るのは highscore_fp 1 個。得点ファイルを
+    # 読み書きする 2 関数（death.c の display_scores() と highscores()）は
+    # #19-5-1 で局所変数にしたので、書きこみは init_scorefile()（files.c）の
+    # 1 箇所だけになった。その handle は誰も読まず誰も閉じない（バグ候補
+    # B19）ので、この 1 個を片づけるにはふるまいの判断が要る。
     "セーブ／スコア／進行メタ": """
         highscore_fp""",
 }
