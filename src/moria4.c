@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_pos.h"
 #include "stats.h"
 
 static bool look_ray(int, int, int);
@@ -29,8 +30,8 @@ void tunnel(int dir) {
         dir = randint(9);
     }
 
-    int y = char_row;
-    int x = char_col;
+    int y = player_row();
+    int x = player_col();
     (void)mmove(dir, &y, &x);
 
     cave_type *c_ptr = &cave[y][x];
@@ -141,7 +142,7 @@ void tunnel(int dir) {
                     // Secret doors.
 
                     count_msg_print("You tunnel into the granite wall.");
-                    search(char_row, char_col, py.misc.srh);
+                    search(player_row(), player_col(), py.misc.srh);
                 } else {
                     abort();
                 }
@@ -157,8 +158,8 @@ void tunnel(int dir) {
 
 // Disarms a trap -RAK-
 void disarm_trap(void) {
-    int y = char_row;
-    int x = char_col;
+    int y = player_row();
+    int x = player_col();
 
     int dir;
     if (get_dir(CNIL, &dir)) {
@@ -299,8 +300,8 @@ void disarm_trap(void) {
 
   The others map co-ords in the ray frame to dungeon co-ords.
 
-  dungeon y = char_row   + gl_fyx * (ray x)  + gl_fyy * (ray y)
-  dungeon x = char_col   + gl_fxx * (ray x)  + gl_fxy * (ray y)
+  dungeon y = player_row() + gl_fyx * (ray x) + gl_fyy * (ray y)
+  dungeon x = player_col() + gl_fxx * (ray x) + gl_fxy * (ray y)
 */
 static int gl_fxx, gl_fxy, gl_fyx, gl_fyy;
 static int gl_nseen;
@@ -537,8 +538,8 @@ static bool look_see(int x, int y, bool *transparent) {
         dstring = "You see";
     }
 
-    int j = char_col + gl_fxx * x + gl_fxy * y;
-    y = char_row + gl_fyx * x + gl_fyy * y;
+    int j = player_col() + gl_fxx * x + gl_fxy * y;
+    y = player_row() + gl_fyx * x + gl_fyy * y;
     x = j;
     if (!panel_contains(y, x)) {
         *transparent = false;
@@ -802,10 +803,10 @@ void throw_object(void) {
             char tchar = throw_obj.tchar;
             bool flag = false;
             bool visible;
-            int y = char_row;
-            int x = char_col;
-            int oldy = char_row;
-            int oldx = char_col;
+            int y = player_row();
+            int x = player_col();
+            int oldy = player_row();
+            int oldx = player_col();
             int cur_dis = 0;
 
             do {
@@ -959,8 +960,8 @@ static void py_bash(int y, int x) {
 //
 // A creature with no such ability will attempt to bash a non-secret door.
 void bash(void) {
-    int y = char_row;
-    int x = char_col;
+    int y = player_row();
+    int x = player_col();
 
     int dir;
     if (get_dir(CNIL, &dir)) {
