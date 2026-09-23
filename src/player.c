@@ -15,9 +15,10 @@
 // Player record for most player related info
 player_type py;
 
-// calculated base hp values for player at each level, store them
-// so that drain life + restore life does not affect hit points.
-uint16_t player_hp[MAX_PLAYER_LEVEL];
+// player_hp is not here any more. The table of hit points rolled for every
+// level now lives in hp_table.c, behind hp_total_at_level() and its two
+// companions (#18-7-2C1). Everything that used to subscript it -- character
+// creation, calc_hitpoints() and the save file -- goes through the window.
 
 // Class titles for different levels
 const char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL] = {
