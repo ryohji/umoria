@@ -38,7 +38,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
         str_insert_test inventory_test progress_test score_death_test \
-        save_state_test
+        save_state_test player_pos_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -489,6 +489,19 @@ $(BUILDDIR)/save_state_test: $(TESTDIR)/save_state_test.c \
                              src/score_death.c src/score_death.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_state_test.c \
 	    src/save_state.c src/progress.c src/score_death.c
+
+# プレイヤーの居場所の置き場（char_row・char_col）。#18-6 のステップ A では
+# 実体がまだ src/player.c にあるので、足場（tests/player_pos_fixture.c）で
+# 2 つの実体を用意する（stat_bonus_test が py に対してやっているのと同じ形。
+# player.c は 530 行の定数表と同居しているのでリンクできない）。代役は 1 つも
+# 要らない。ステップ C で実体が static になったら足場ごと消して、
+# progress_test と同じ 2 コンパイル単位・代役 0 になる。
+$(BUILDDIR)/player_pos_test: $(TESTDIR)/player_pos_test.c \
+                             $(TESTDIR)/player_pos_fixture.c \
+                             $(TESTDIR)/minunit.h \
+                             src/player_pos.c src/player_pos.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_pos_test.c \
+	    $(TESTDIR)/player_pos_fixture.c src/player_pos.c
 
 clean:
 	rm -rf $(BUILDDIR)
