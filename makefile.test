@@ -540,18 +540,15 @@ $(BUILDDIR)/player_pos_test: $(TESTDIR)/player_pos_test.c \
                              src/player_pos.c src/player_pos.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_pos_test.c src/player_pos.c
 
-# レベルごとの HP 表の置き場（player_hp[40]）。ステップ A のあいだは実体が
-# まだ src/player.c にあるので足場 1 本（tests/hp_table_fixture.c）が要る。
-# src/player.c そのものを引くと py ほか一式を抱えこむので、表の 1 行だけを
-# 足場に置く（#18-6A・#18-7-1A と同じやりかた）。ステップ C で実体が
-# src/hp_table.c の static になったら足場を消して、progress_test たちと同じ
-# 2 コンパイル単位・代役 0 に戻す。
+# レベルごとの HP 表の置き場（player_hp[40]）。#18-7-2C1 で実体が
+# src/hp_table.c の static になったので、ステップ A のあいだ要った足場
+# （tests/hp_table_fixture.c）は消えた。窓口は誰も呼ばないので代役も 1 つも
+# 要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （progress_test・score_death_test・player_pos_test と同じ形）。
 $(BUILDDIR)/hp_table_test: $(TESTDIR)/hp_table_test.c \
-                           $(TESTDIR)/hp_table_fixture.c \
                            $(TESTDIR)/minunit.h \
                            src/hp_table.c src/hp_table.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/hp_table_test.c \
-	    $(TESTDIR)/hp_table_fixture.c src/hp_table.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/hp_table_test.c src/hp_table.c
 
 # 最大 HP の計算（misc3.c:1624 の calc_hitpoints）。レベルごとの HP 表を読む
 # 唯一の場所で、単体テストが 1 件も届いていなかった（表の段を 1 つずらす
