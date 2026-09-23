@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_pos.h"
 #include "progress.h"
 #include "score_death.h"
 
@@ -32,7 +33,7 @@ void update_mon(int monptr) {
         if (progress_wizard_mode()) {
             // Wizard sight.
             flag = true;
-        } else if (los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
+        } else if (los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             // Normal sight.
             c_ptr = &cave[m_ptr->fy][m_ptr->fx];
             r_ptr = monster_get_creature(m_ptr->creature);
@@ -113,8 +114,8 @@ static bool check_mon_lite(int y, int x) {
 static void get_moves(int monptr, int *mm) {
     int ay, ax, move_val;
 
-    int y = m_list[monptr].fy - char_row;
-    int x = m_list[monptr].fx - char_col;
+    int y = m_list[monptr].fy - player_row();
+    int x = m_list[monptr].fx - player_col();
 
     if (y < 0) {
         move_val = 8;
@@ -963,7 +964,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                 (t_list[c_ptr->tptr].tval == TV_VIS_TRAP) &&
                 (t_list[c_ptr->tptr].subval == 99)) {
                 if (randint(OBJ_RUNE_PROT) < monster_get_creature(m_ptr->creature)->level) {
-                    if ((newy == char_row) && (newx == char_col)) {
+                    if ((newy == player_row()) && (newx == player_col())) {
                         msg_print("The rune of protection is broken!");
                     }
                     (void)delete_object(newy, newx);
@@ -1035,7 +1036,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                 }
                 m_ptr->fy = newy;
                 m_ptr->fx = newx;
-                m_ptr->cdis = distance(char_row, char_col, newy, newx);
+                m_ptr->cdis = distance(player_row(), player_col(), newy, newx);
                 do_turn = true;
             }
         }
@@ -1065,7 +1066,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         // Must be within certain range
 
         *took_turn = false;
-    } else if (!los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
+    } else if (!los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
         // Must have unobstructed Line-Of-Sight
 
         *took_turn = false;
@@ -1175,8 +1176,8 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             break;
         case 14: // Summon Monster
             msg_print(CONCAT(cdesc, " magically summons a monster!"));
-            y = char_row;
-            x = char_col;
+            y = player_row();
+            x = player_col();
 
             // in case compact_monster() is called,it needs monptr
             hack_monptr = monptr;
@@ -1186,8 +1187,8 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             break;
         case 15: // Summon Undead
             msg_print(CONCAT(cdesc, " magically summons an undead!"));
-            y = char_row;
-            x = char_col;
+            y = player_row();
+            x = player_col();
 
             // in case compact_monster() is called,it needs monptr
             hack_monptr = monptr;
@@ -1228,23 +1229,23 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             break;
         case 20: // Breath Light
             msg_print(CONCAT(cdesc, " breathes lightning."));
-            breath(GF_LIGHTNING, char_row, char_col, (m_ptr->hp / 4), ddesc, monptr);
+            breath(GF_LIGHTNING, player_row(), player_col(), (m_ptr->hp / 4), ddesc, monptr);
             break;
         case 21: // Breath Gas
             msg_print(CONCAT(cdesc, " breathes gas."));
-            breath(GF_POISON_GAS, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
+            breath(GF_POISON_GAS, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
             break;
         case 22: // Breath Acid
             msg_print(CONCAT(cdesc, " breathes acid."));
-            breath(GF_ACID, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
+            breath(GF_ACID, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
             break;
         case 23: // Breath Frost
             msg_print(CONCAT(cdesc, " breathes frost."));
-            breath(GF_FROST, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
+            breath(GF_FROST, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
             break;
         case 24: // Breath Fire
             msg_print(CONCAT(cdesc, " breathes fire."));
-            breath(GF_FIRE, char_row, char_col, (m_ptr->hp / 3), ddesc, monptr);
+            breath(GF_FIRE, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
             break;
         default:
             msg_print(CONCAT(cdesc, " cast unknown spell."));
@@ -1534,7 +1535,7 @@ void creatures(int attack) {
             continue;
         }
 
-        m_ptr->cdis = distance(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx);
+        m_ptr->cdis = distance(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx);
 
         // Attack is argument passed to CREATURE
         if (attack) {

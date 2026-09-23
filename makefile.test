@@ -237,15 +237,22 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # 分とは別の器になり、窓口越しの読み書きが届かない）。
 # inventory.c は externs.h を include しないので、
 # 芋づるは 1 本も増えない（2 → 3 コンパイル単位）。
+#
+# #18-6B4 で creature.c が居場所の窓口（player_row・player_col）を呼ぶように
+# なったので、同じ理由で src/player_pos.c もリンクする（3 → 4 コンパイル単位）。
+# 実体（char_row・char_col）はまだ creature_stubs.c:41-42 の代役が持っている。
+# ステップ C で実体が player_pos.c の static になったら、その 2 行は消す
+# （残すと窓口越しの読み書きが届かない別の器になる。#18-5C と同じ）。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                 src/creature.c src/inventory.c \
                                 src/equipment.h src/inventory.h \
-                                src/progress.c src/score_death.c | $(BUILDDIR)
+                                src/progress.c src/score_death.c \
+                                src/player_pos.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
-	    src/score_death.c
+	    src/score_death.c src/player_pos.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
