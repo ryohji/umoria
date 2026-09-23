@@ -63,8 +63,13 @@ GROUPS = {
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
         sound_beep_flag display_counts""",
     "プレイヤー状態": """
-        py char_row char_col player_hp spell_learned spell_worked spell_forgotten
+        py player_hp spell_learned spell_worked spell_forgotten
         spell_order total_winner max_score player_light weapon_heavy pack_heavy""",
+    # 居場所の 2 個（char_row char_col）は #18-6C1 で player_pos.c の static に
+    # なり、externs.h から外れた。窓口は src/player_pos.h（player_row /
+    # player_col / player_place / player_pos_forget）。同じ区分に残る 11 個は
+    # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
+    # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
         cave dun_level cur_height cur_width m_list m_level mfptr mon_tot_mult
         t_list tcptr t_level hack_monptr""",
