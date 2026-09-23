@@ -54,7 +54,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	render.c render_ncurses.c view_observer.c game_state.c \
 	input.c input_ncurses.c platform.c panel.c stores.c stats.c str_insert.c \
 	inventory.c progress.c score_death.c save_state.c player_pos.c \
-	hp_table.c player_light.c \
+	hp_table.c player_light.c burden.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -66,7 +66,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	render.o render_ncurses.o view_observer.o game_state.o \
 	input.o input_ncurses.o platform.o panel.o stores.o stats.o str_insert.o \
 	inventory.o progress.o score_death.o save_state.o player_pos.o \
-	hp_table.o player_light.o \
+	hp_table.o player_light.o burden.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -152,6 +152,8 @@ help:
 HEADERS_COMMON = $(SRCDIR)/constant.h $(SRCDIR)/types.h $(SRCDIR)/config.h
 HEADERS_FULL = $(HEADERS_COMMON) $(SRCDIR)/externs.h
 
+# burden.c does not include externs.h either, so HEADERS_COMMON is enough.
+burden.o: $(SRCDIR)/burden.h $(HEADERS_COMMON)
 create.o: $(HEADERS_FULL)
 creature.o: $(HEADERS_FULL)
 death.o: $(HEADERS_FULL)
