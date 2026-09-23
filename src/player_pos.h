@@ -15,7 +15,7 @@
 // rather than preserve it.
 //
 // The two getters are named after the player, not after this file. They are
-// read 258 times, nearly always inside an expression that already says what it
+// read 284 times, nearly always inside an expression that already says what it
 // is doing -- cave[player_row()][player_col()], los(player_row(), player_col(),
 // y, x) -- and player_pos_row() would only add noise at every one of them. The
 // two entry points that are not reads keep the module's prefix, so a reader
