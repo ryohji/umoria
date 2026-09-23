@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "panel.h"
+#include "player_pos.h"
 #include "progress.h"
 
 typedef struct coords {
@@ -1135,7 +1136,9 @@ static void cave_gen(void) {
     place_stairs(1, randint(2), 3);
 
     // Set up the character co-ords, used by alloc_monster, place_win_monster
-    new_spot(&char_row, &char_col);
+    int16_t start_row, start_col;
+    new_spot(&start_row, &start_col);
+    player_place(start_row, start_col);
     alloc_monster((randint(8) + MIN_MALLOC_LEVEL + alloc_level), 0, true);
     alloc_object(set_corr, 3, randint(alloc_level));
     alloc_object(set_room, 5, randnor(TREAS_ROOM_ALLOC, 3));
@@ -1230,7 +1233,9 @@ static void town_gen(void) {
     reset_seed();
 
     // Set up the character co-ords, used by alloc_monster below
-    new_spot(&char_row, &char_col);
+    int16_t start_row, start_col;
+    new_spot(&start_row, &start_col);
+    player_place(start_row, start_col);
     if (0x1 & (progress_turn() / 5000)) {
         // Night time
         for (int i = 0; i < cur_height; i++) {
@@ -1260,8 +1265,7 @@ static void town_gen(void) {
 // Generates a random dungeon level -RAK-
 void generate_cave(void) {
     panel_forget_bounds();
-    char_row = -1;
-    char_col = -1;
+    player_pos_forget();
 
     tlink();
     mlink();
