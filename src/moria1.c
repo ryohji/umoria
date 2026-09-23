@@ -17,6 +17,7 @@
 #include "score_death.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_pos.h"
 #include "stats.h"
 
 // Changes speed of monsters relative to player -RAK-
@@ -684,7 +685,7 @@ void inven_command(char command) {
         case 'd': // Drop
             if (inventory_count() == 0 && equipment_count() == 0) {
                 msg_print("But you're not carrying anything.");
-            } else if (cave[char_row][char_col].tptr != 0) {
+            } else if (cave[player_row()][player_col()].tptr != 0) {
                 msg_print("There's no room to drop anything here.");
             } else {
                 selecting = true;
@@ -884,7 +885,7 @@ void inven_command(char command) {
                                 msg_print("Hmmm, it seems to be cursed.");
                                 item = -1;
                             } else if (command == 't' && !inven_check_num(equipment_at(item))) {
-                                if (cave[char_row][char_col].tptr != 0) {
+                                if (cave[player_row()][player_col()].tptr != 0) {
                                     msg_print("You can't carry it.");
                                     item = -1;
                                 } else if (get_check("You can't carry it.  Drop it?")) {
@@ -1356,7 +1357,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
 
 // Returns true if player has no light -RAK-
 bool no_light(void) {
-    cave_type *c_ptr = &cave[char_row][char_col];
+    cave_type *c_ptr = &cave[player_row()][player_col()];
 
     if (!c_ptr->tl && !c_ptr->pl) {
         return true;

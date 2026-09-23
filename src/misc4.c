@@ -15,6 +15,7 @@
 #include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
+#include "player_pos.h"
 
 #include <stdarg.h>
 
@@ -62,27 +63,27 @@ void inscribe(inven_type *i_ptr, const char *str) {
 
 // We need to reset the view of things. -CJS-
 void check_view(void) {
-    cave_type *c_ptr = &cave[char_row][char_col];
+    cave_type *c_ptr = &cave[player_row()][player_col()];
 
     // Check for new panel
-    if (get_panel(char_row, char_col, false)) {
+    if (get_panel(player_row(), player_col(), false)) {
         prt_map();
     }
 
     // Move the light source
-    move_light(char_row, char_col, char_row, char_col);
+    move_light(player_row(), player_col(), player_row(), player_col());
 
     if (c_ptr->fval == LIGHT_FLOOR) {
         // A room of light should be lit.
 
         if ((py.flags.blind < 1) && !c_ptr->pl) {
-            light_room(char_row, char_col);
+            light_room(player_row(), player_col());
         }
     } else if (c_ptr->lr && (py.flags.blind < 1)) {
         // In doorway of light-room?
 
-        for (int i = (char_row - 1); i <= (char_row + 1); i++) {
-            for (int j = (char_col - 1); j <= (char_col + 1); j++) {
+        for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {
+            for (int j = (player_col() - 1); j <= (player_col() + 1); j++) {
                 cave_type *d_ptr = &cave[i][j];
                 if ((d_ptr->fval == LIGHT_FLOOR) && !d_ptr->pl) {
                     light_room(i, j);

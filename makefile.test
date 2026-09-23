@@ -127,6 +127,10 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # 越しに引くようになったので、その実体（src/inventory.c）もリンクする。
 # #18-5C で配列そのものも inventory.c の static 定義になったので、テスト側
 # （inven_stack_test.c と misc3_stubs.c）も窓口越しに読み書きする。
+#
+# #18-6B5 で misc3.c が居場所を src/player_pos.h の窓口越しに引くように
+# なったので src/player_pos.c もリンクする（実体はまだ src/player.c にあり、
+# この構成はそれをリンクしているので足場は要らない）。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -134,12 +138,14 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               src/tables.c src/inventory.c \
                               src/treasure.c src/player.c src/abilities.c \
                               src/progress.c src/score_death.c \
-                              src/save_state.c | $(BUILDDIR)
+                              src/save_state.c \
+                              src/player_pos.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
-	    src/progress.c src/score_death.c src/save_state.c
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -154,6 +160,9 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 # ステップ B で 9 式は src/abilities.c の calc_player_abilities() に
 # 抽出した。put_misc3() がそれを呼ぶので abilities.c もリンクする。
 # 観測の経路（put_buffer 越し）は変わっていない。
+#
+# #18-6B5 で misc3.c が居場所の窓口を呼ぶので src/player_pos.c もリンクする
+# （inven_stack_test と同じ理由）。
 $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -162,12 +171,14 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h \
                             src/progress.c src/score_death.c \
-                            src/save_state.c | $(BUILDDIR)
+                            src/save_state.c \
+                            src/player_pos.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
-	    src/progress.c src/score_death.c src/save_state.c
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -195,6 +206,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 #
 # 店の記録も src/stores.c 越しになった。こちらも依存が無いので本物をリンクする
 # （値切りは s_ptr の中身を読むだけで、記録の置き場には関心が無い）。
+# 居場所の窓口 src/player_pos.c も同じ（#18-6B5。misc3.c が呼ぶ）。
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -204,12 +216,14 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/treasure.c src/player.c \
                                  src/abilities.c src/messages.c src/stores.c \
                                  src/progress.c src/score_death.c \
-                                 src/save_state.c | $(BUILDDIR)
+                                 src/save_state.c \
+                                 src/player_pos.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
-	    src/stores.c src/progress.c src/score_death.c src/save_state.c
+	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -279,7 +293,7 @@ $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
 # objdes() は名前の複数形化に insert_str() を使う（#41B で misc3.c から
 # src/str_insert.c へ移した）。fixture.c はこれを空の代役にしているので、
 # fixture.c ではなく misc3_stubs.c 側の構成（misc3.c と str_insert.c の本物を
-# リンクする）を使う。
+# リンクする）を使う。居場所の窓口 src/player_pos.c も同じ（#18-6B5）。
 $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          $(TESTDIR)/misc3_stubs.c \
                          $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -287,12 +301,14 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/tables.c src/inventory.c \
                          src/treasure.c src/player.c \
                          src/abilities.c src/progress.c \
-                         src/score_death.c src/save_state.c | $(BUILDDIR)
+                         src/score_death.c src/save_state.c \
+                         src/player_pos.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
-	    src/progress.c src/score_death.c src/save_state.c
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので

@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "panel.h"
+#include "player_pos.h"
 #include "progress.h"
 
 static creature_handle get_mons_num(int level);
@@ -560,7 +561,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
         // the creature speed value is 10 greater, so that it can be a uint8_t
         mon_ptr->cspeed = r_ptr->speed - 10 + py.flags.speed;
         mon_ptr->stunned = 0;
-        mon_ptr->cdis = distance(char_row, char_col, y, x);
+        mon_ptr->cdis = distance(player_row(), player_col(), y, x);
         mon_ptr->ml = false;
         mon_ptr->csleep = (slp = slp ? r_ptr->sleep : 0) ? slp * 2 + randint(slp * 10) : 0;
         cave[y][x].cptr = cur_pos;
@@ -578,7 +579,7 @@ void place_win_monster(void) {
             x = randint(cur_width - 2);
         } while ((cave[y][x].fval >= MIN_CLOSED_SPACE) ||
                  (cave[y][x].cptr != 0) || (cave[y][x].tptr != 0) ||
-                 (distance(y, x, char_row, char_col) <= MAX_SIGHT));
+                 (distance(y, x, player_row(), player_col()) <= MAX_SIGHT));
 
         // Check for case where could not allocate space for
         // the win monster, this should never happen.
@@ -632,7 +633,7 @@ void alloc_monster(int num, int dis, int slp) {
         do {
             y = randint(cur_height - 2);
             x = randint(cur_width - 2);
-        } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, char_row, char_col) <= dis));
+        } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, player_row(), player_col()) <= dis));
 
         creature_handle h = get_mons_num(dun_level);
         const uint8_t cchar = monster_get_creature(h)->cchar;
@@ -710,7 +711,7 @@ static void compact_objects(void) {
 
                 cave_type *cave_ptr = &cave[i][j];
                 if ((cave_ptr->tptr != 0) &&
-                    (distance(i, j, char_row, char_col) > cur_dis)) {
+                    (distance(i, j, player_row(), player_col()) > cur_dis)) {
                     switch (t_list[cave_ptr->tptr].tval) {
                     case TV_VIS_TRAP:
                         chance = 15;

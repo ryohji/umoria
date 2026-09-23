@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "player_pos.h"
 
 // Pray like HELL. -RAK-
 void pray(void) {
@@ -64,7 +65,7 @@ void pray(void) {
                     (void)remove_fear();
                     break;
                 case 5:
-                    (void)light_area(char_row, char_col);
+                    (void)light_area(player_row(), player_col());
                     break;
                 case 6:
                     (void)detect_trap();
@@ -77,7 +78,7 @@ void pray(void) {
                     break;
                 case 9:
                     if (get_dir(CNIL, &dir)) {
-                        (void)confuse_monster(dir, char_row, char_col);
+                        (void)confuse_monster(dir, player_row(), player_col());
                     }
                     break;
                 case 10:
@@ -90,7 +91,7 @@ void pray(void) {
                     bless(randint(24) + 24);
                     break;
                 case 13:
-                    (void)sleep_monsters1(char_row, char_col);
+                    (void)sleep_monsters1(player_row(), player_col());
                     break;
                 case 14:
                     create_food();
@@ -117,7 +118,7 @@ void pray(void) {
                     break;
                 case 18:
                     if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_HOLY_ORB, dir, char_row, char_col, (damroll(3, 6) + py.misc.lev), "Black Sphere");
+                        fire_ball(GF_HOLY_ORB, dir, player_row(), player_col(), (damroll(3, 6) + py.misc.lev), "Black Sphere");
                     }
                     break;
                 case 19:
