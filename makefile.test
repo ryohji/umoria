@@ -260,9 +260,10 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # #18-5C と同じ）。この 1 本が窓口と置き場の両方になっている。
 #
 # #18-7-3B1 で creature.c が明かりの窓口（player_has_light）を呼ぶように
-# なったので src/player_light.c もリンクする（4 → 5 コンパイル単位）。実体は
-# まだ creature_stubs.c の 1 行なので、窓口の extern はそこに結びつく。
-# ステップ C で実体が player_light.c の static に移ったら、その 1 行を消す。
+# なったので src/player_light.c もリンクする（4 → 5 コンパイル単位）。
+# #18-7-3C1 で実体も player_light.c の static になったので、creature_stubs.c から
+# 代役 1 個を消した（残すと窓口越しの読み書きが届かない別の器になる。
+# player_pos.c・inventory.c と同じ）。この 1 本が窓口と置き場の両方になっている。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \

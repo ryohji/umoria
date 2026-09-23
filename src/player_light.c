@@ -17,10 +17,11 @@
 // inventory.c, progress.c, score_death.c, player_pos.c and hp_table.c: one
 // remembered flag needs nothing from the rest of the game.
 
-// Step A keeps the flag where it has always been (variable.c) and only adds the
-// window over it, so this commit cannot change behaviour. Step C moves the
-// definition in here and makes it static.
-extern bool player_light;
+// The flag is owned here and is static: the only way in is through the two
+// windows below. It came over from variable.c unchanged (#18-7-3C1), with its
+// comment ("Player carrying light"), and it had no initial value there either --
+// dungeon() writes it from the light slot before the first turn.
+static bool player_light;
 
 bool player_has_light(void) {
     return player_light;

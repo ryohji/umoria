@@ -32,7 +32,6 @@ extern bool display_counts;    // Display rest/repeat counts
 extern bool new_level_flag; // Next level when true
 extern bool teleport_flag;  // Handle teleport traps
 extern int eof_flag;        // Used to handle eof/HANGUP
-extern bool player_light;   // Player carrying light
 extern int find_flag;       // Used in MORIA
 extern bool free_turn_flag; // Used in MORIA
 extern bool weapon_heavy;   // Flag if the weapon too heavy -CJS-

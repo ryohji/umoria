@@ -96,7 +96,9 @@ char last_command = ' ';    // Memory of previous command.
 // these used to be in dungeon.c
 bool new_level_flag;     // Next level when true
 bool teleport_flag;      // Handle teleport traps
-bool player_light;       // Player carrying light
+// player_light（明かりを持っているか）はここに無い。#18-7-3C1 で
+// src/player_light.c の static になった。窓口は src/player_light.h
+// （player_has_light / set_player_has_light）。
 int eof_flag = 0;        // Used to signal EOF/HANGUP condition
 bool light_flag = false; // Track if temporary light about player.
 
