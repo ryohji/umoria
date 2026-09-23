@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_light.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "score_death.h"
@@ -37,7 +38,7 @@ void update_mon(int monptr) {
             // Normal sight.
             c_ptr = &cave[m_ptr->fy][m_ptr->fx];
             r_ptr = monster_get_creature(m_ptr->creature);
-            if (c_ptr->pl || c_ptr->tl || (find_flag && m_ptr->cdis < 2 && player_light)) {
+            if (c_ptr->pl || c_ptr->tl || (find_flag && m_ptr->cdis < 2 && player_has_light())) {
                 if ((CM_INVISIBLE & r_ptr->cmove) == 0) {
                     flag = true;
                 } else if (py.flags.see_inv) {

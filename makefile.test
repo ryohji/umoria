@@ -258,16 +258,21 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # #18-6C1 で実体も player_pos.c の static になったので、creature_stubs.c から
 # 代役 2 個を消した（残すと窓口越しの読み書きが届かない別の器になる。
 # #18-5C と同じ）。この 1 本が窓口と置き場の両方になっている。
+#
+# #18-7-3B1 で creature.c が明かりの窓口（player_has_light）を呼ぶように
+# なったので src/player_light.c もリンクする（4 → 5 コンパイル単位）。実体は
+# まだ creature_stubs.c の 1 行なので、窓口の extern はそこに結びつく。
+# ステップ C で実体が player_light.c の static に移ったら、その 1 行を消す。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                 src/creature.c src/inventory.c \
                                 src/equipment.h src/inventory.h \
                                 src/progress.c src/score_death.c \
-                                src/player_pos.c | $(BUILDDIR)
+                                src/player_pos.c src/player_light.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
-	    src/score_death.c src/player_pos.c
+	    src/score_death.c src/player_pos.c src/player_light.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部

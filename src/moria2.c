@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "equipment.h"
+#include "player_light.h"
 #include "player_pos.h"
 
 static bool see_wall(int, int, int);
@@ -345,7 +346,7 @@ void area_affect(int dir, int y, int x) {
                 cave_type *c_ptr = &cave[row][col];
 
                 bool inv;
-                if (player_light || c_ptr->tl || c_ptr->pl || c_ptr->fm) {
+                if (player_has_light() || c_ptr->tl || c_ptr->pl || c_ptr->fm) {
                     if (c_ptr->tptr != 0) {
                         int t = t_list[c_ptr->tptr].tval;
                         if (t != TV_INVIS_TRAP && t != TV_SECRET_DOOR &&

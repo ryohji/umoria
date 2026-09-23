@@ -17,6 +17,7 @@
 #include "score_death.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_light.h"
 #include "player_pos.h"
 #include "stats.h"
 
@@ -1595,7 +1596,7 @@ static void sub3_move_light(int y1, int x1, int y2, int x2) {
 // Package for moving the character's light about the screen
 // Four cases : Normal, Finding, Blind, and Nolight -RAK-
 void move_light(int y1, int x1, int y2, int x2) {
-    if (py.flags.blind > 0 || !player_light) {
+    if (py.flags.blind > 0 || !player_has_light()) {
         sub3_move_light(y1, x1, y2, x2);
     } else {
         sub1_move_light(y1, x1, y2, x2);
