@@ -12,19 +12,19 @@
 
 #include "player_pos.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c and progress.c: two coordinates need nothing from the rest of the
-// game. That leaves two symbols to declare, so they are declared here rather
-// than dragging in the global header (which pulls ncurses along with it) for
-// two lines -- the reason spelled out in stats.c:17-23.
+// No externs.h here, the same as panel.c, stores.c, options.c, inventory.c and
+// progress.c: two coordinates need nothing from the rest of the game. This file
+// now needs nothing declared at all -- the record it hands out is its own.
 //
-// The definitions are still the ones in player.c. That is deliberate for now:
-// this step puts the window and its tests in place without moving anything, so
-// the game's behaviour can not have changed. Once every caller in src/ and
-// tests/ goes through the window, the definitions move in here and become
-// static, and these two lines and the two in externs.h go away together.
-extern int16_t char_row;
-extern int16_t char_col;
+// The two were `int16_t char_row; int16_t char_col;` in player.c, reachable from
+// anywhere through externs.h. Every caller in src/ and tests/ goes through the
+// four entry points below, so the record moved in here and became static: the
+// compiler is now what guarantees nobody reaches around the window.
+//
+// No initialiser, which is what player.c had as well. The game writes the
+// position (generate.c, or the save file's reader) before anything reads it.
+static int16_t char_row;
+static int16_t char_col;
 
 int16_t player_row(void) {
     return char_row;
