@@ -38,7 +38,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
         str_insert_test inventory_test progress_test score_death_test \
-        save_state_test player_pos_test hp_table_test
+        save_state_test player_pos_test hp_table_test \
+        calc_hitpoints_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -551,6 +552,28 @@ $(BUILDDIR)/hp_table_test: $(TESTDIR)/hp_table_test.c \
                            src/hp_table.c src/hp_table.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/hp_table_test.c \
 	    $(TESTDIR)/hp_table_fixture.c src/hp_table.c
+
+# 最大 HP の計算（misc3.c:1624 の calc_hitpoints）。レベルごとの HP 表を読む
+# 唯一の場所で、単体テストが 1 件も届いていなかった（表の段を 1 つずらす
+# 変異を入れても全テストがグリーンのままだった）。リンク構成は put_misc3_test
+# と同じ（misc3.c の未解決シンボルを misc3_stubs.c の代役で埋め、定数表・
+# インベントリ・py は本物を使う）。表の窓口 src/hp_table.c も本物をリンクする。
+$(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
+                            $(TESTDIR)/misc3_stubs.c \
+                            $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/tables.c src/inventory.c \
+                            src/treasure.c src/player.c \
+                            src/abilities.c src/abilities.h \
+                            src/progress.c src/score_death.c \
+                            src/save_state.c \
+                            src/player_pos.c src/hp_table.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_hitpoints_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c src/inventory.c \
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c src/hp_table.c
 
 clean:
 	rm -rf $(BUILDDIR)
