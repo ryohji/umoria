@@ -17,6 +17,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_pos.h"
 
 // Scrolls for the reading -RAK-
 void read_scroll(void) {
@@ -171,12 +172,12 @@ void read_scroll(void) {
                 }
                 break;
             case 6:
-                ident = light_area(char_row, char_col);
+                ident = light_area(player_row(), player_col());
                 break;
             case 7:
                 for (k = 0; k < randint(3); k++) {
-                    y = char_row;
-                    x = char_col;
+                    y = player_row();
+                    x = player_col();
                     ident |= summon_monster(&y, &x, false);
                 }
                 break;
@@ -208,7 +209,7 @@ void read_scroll(void) {
                 map_area();
                 break;
             case 13:
-                ident = sleep_monsters1(char_row, char_col);
+                ident = sleep_monsters1(player_row(), player_col());
                 break;
             case 14:
                 ident = true;
@@ -259,7 +260,7 @@ void read_scroll(void) {
                 ident = true;
                 break;
             case 27:
-                ident = unlight_area(char_row, char_col);
+                ident = unlight_area(player_row(), player_col());
                 break;
             case 28:
                 ident = protect_evil();
@@ -430,8 +431,8 @@ void read_scroll(void) {
             case 37:
                 ident = false;
                 for (k = 0; k < randint(3); k++) {
-                    y = char_row;
-                    x = char_col;
+                    y = player_row();
+                    x = player_col();
                     ident |= summon_undead(&y, &x);
                 }
                 break;
@@ -455,7 +456,7 @@ void read_scroll(void) {
                 msg_print("The air about you becomes charged.");
                 break;
             case 42:
-                destroy_area(char_row, char_col);
+                destroy_area(player_row(), player_col());
                 ident = true;
                 break;
             default:

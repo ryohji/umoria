@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "equipment.h"
+#include "player_pos.h"
 
 static bool see_wall(int, int, int);
 
@@ -204,8 +205,8 @@ static int find_prevdir;
 static int find_direction; // Keep a record of which way we are going.
 
 void find_init(int dir) {
-    int row = char_row;
-    int col = char_col;
+    int row = player_row();
+    int col = player_col();
 
     if (!mmove(dir, &row, &col)) {
         find_flag = 0;
@@ -222,14 +223,14 @@ void find_init(int dir) {
             bool shortleft = false;
             bool shortright = false;
 
-            if (see_wall(cycle[i + 1], char_row, char_col)) {
+            if (see_wall(cycle[i + 1], player_row(), player_col())) {
                 find_breakleft = true;
                 shortleft = true;
             } else if (see_wall(cycle[i + 1], row, col)) {
                 find_breakleft = true;
                 deepleft = true;
             }
-            if (see_wall(cycle[i - 1], char_row, char_col)) {
+            if (see_wall(cycle[i - 1], player_row(), player_col())) {
                 find_breakright = true;
                 shortright = true;
             } else if (see_wall(cycle[i - 1], row, col)) {
@@ -270,7 +271,7 @@ void find_init(int dir) {
     // of find mode, when the initial position of the character must be erased.
     // Hence we must do the erasure here.
     if (!light_flag && !find_prself) {
-        print(loc_symbol(char_row, char_col), char_row, char_col);
+        print(loc_symbol(player_row(), player_col()), player_row(), player_col());
     }
 
     move_char(dir, true);
@@ -293,7 +294,7 @@ void find_run(void) {
 void end_find(void) {
     if (find_flag) {
         find_flag = 0;
-        move_light(char_row, char_col, char_row, char_col);
+        move_light(player_row(), player_col(), player_row(), player_col());
     }
 }
 

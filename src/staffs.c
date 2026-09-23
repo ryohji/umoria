@@ -17,6 +17,7 @@
 #include "device.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_pos.h"
 #include "stats.h"
 
 // Use a staff. -RAK-
@@ -53,7 +54,7 @@ void use(void) {
                 // Staffs.
                 switch (pos) {
                 case 1:
-                    ident = light_area(char_row, char_col);
+                    ident = light_area(player_row(), player_col());
                     break;
                 case 2:
                     ident = detect_sdoor();
@@ -78,18 +79,18 @@ void use(void) {
                 case 8:
                     ident = false;
                     for (k = 0; k < randint(4); k++) {
-                        y = char_row;
-                        x = char_col;
+                        y = player_row();
+                        x = player_col();
                         ident |= summon_monster(&y, &x, false);
                     }
                     break;
                 case 10:
                     ident = true;
-                    destroy_area(char_row, char_col);
+                    destroy_area(player_row(), player_col());
                     break;
                 case 11:
                     ident = true;
-                    starlite(char_row, char_col);
+                    starlite(player_row(), player_col());
                     break;
                 case 12:
                     ident = speed_monsters(1);
@@ -142,7 +143,7 @@ void use(void) {
                     ident = dispel_creature(CD_EVIL, 60);
                     break;
                 case 25:
-                    ident = unlight_area(char_row, char_col);
+                    ident = unlight_area(player_row(), player_col());
                     break;
                 case 32:
                     // store bought flag

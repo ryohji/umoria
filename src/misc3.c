@@ -17,6 +17,7 @@
 #include "abilities.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "player_pos.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
@@ -145,7 +146,7 @@ void alloc_object(bool (*alloc_set)(int), int typ, int num) {
 
         // don't put an object beneath the player, this could cause
         // problems if player is standing under rubble, or on a trap.
-        while ((!(*alloc_set)(cave[i][j].fval)) || (cave[i][j].tptr != 0) || (i == char_row && j == char_col));
+        while ((!(*alloc_set)(cave[i][j].fval)) || (cave[i][j].tptr != 0) || (i == player_row() && j == player_col()));
 
         // NOTE: typ == 2 is not used - used to be visible traps.
         if (typ < 4) {
@@ -864,14 +865,14 @@ void take_one_item(inven_type *s_ptr, inven_type *i_ptr) {
 
 // Drops an item from inventory to given location -RAK-
 void inven_drop(int item_val, int drop_all) {
-    if (cave[char_row][char_col].tptr != 0) {
-        (void)delete_object(char_row, char_col);
+    if (cave[player_row()][player_col()].tptr != 0) {
+        (void)delete_object(player_row(), player_col());
     }
 
     int i = popt();
     inven_type *i_ptr = inventory_and_equipment_at(item_val);
     t_list[i] = *i_ptr;
-    cave[char_row][char_col].tptr = i;
+    cave[player_row()][player_col()].tptr = i;
 
     if (item_val >= INVEN_WIELD) {
         takeoff(item_val, -1);
@@ -1885,24 +1886,23 @@ void teleport(int dis) {
     do {
         y = randint(cur_height) - 1;
         x = randint(cur_width) - 1;
-        while (distance(y, x, char_row, char_col) > dis) {
-            y += ((char_row - y) / 2);
-            x += ((char_col - x) / 2);
+        while (distance(y, x, player_row(), player_col()) > dis) {
+            y += ((player_row() - y) / 2);
+            x += ((player_col() - x) / 2);
         }
     } while ((cave[y][x].fval >= MIN_CLOSED_SPACE) || (cave[y][x].cptr >= 2));
 
-    move_rec(char_row, char_col, y, x);
+    move_rec(player_row(), player_col(), y, x);
 
-    for (int i = char_row - 1; i <= char_row + 1; i++) {
-        for (int j = char_col - 1; j <= char_col + 1; j++) {
+    for (int i = player_row() - 1; i <= player_row() + 1; i++) {
+        for (int j = player_col() - 1; j <= player_col() + 1; j++) {
             cave[i][j].tl = false;
             lite_spot(i, j);
         }
     }
 
-    lite_spot(char_row, char_col);
-    char_row = y;
-    char_col = x;
+    lite_spot(player_row(), player_col());
+    player_place(y, x);
     check_view();
     creatures(false);
     teleport_flag = false;

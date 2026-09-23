@@ -17,6 +17,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_pos.h"
 #include "stats.h"
 
 // Player hit a trap.  (Chuckle) -RAK-
@@ -679,8 +680,8 @@ void move_char(int dir, bool do_pickup) {
         end_find();
     }
 
-    int y = char_row;
-    int x = char_col;
+    int y = player_row();
+    int x = player_col();
 
     // Legal move?
     if (mmove(dir, &y, &x)) {
@@ -696,42 +697,41 @@ void move_char(int dir, bool do_pickup) {
             // Open floor spot
             if (c_ptr->fval <= MAX_OPEN_SPACE) {
                 // Make final assignments of char co-ords
-                int old_row = char_row;
-                int old_col = char_col;
-                char_row = y;
-                char_col = x;
+                int old_row = player_row();
+                int old_col = player_col();
+                player_place(y, x);
 
                 // Move character record (-1)
-                move_rec(old_row, old_col, char_row, char_col);
+                move_rec(old_row, old_col, player_row(), player_col());
 
                 // Check for new panel
-                if (get_panel(char_row, char_col, false)) {
+                if (get_panel(player_row(), player_col(), false)) {
                     prt_map();
                 }
 
                 // Check to see if he should stop
                 if (find_flag) {
-                    area_affect(dir, char_row, char_col);
+                    area_affect(dir, player_row(), player_col());
                 }
 
                 // Check to see if he notices something
                 // fos may be negative if have good rings of searching
                 if ((py.misc.fos <= 1) || (randint(py.misc.fos) == 1) ||
                     (py.flags.status & PY_SEARCH)) {
-                    search(char_row, char_col, py.misc.srh);
+                    search(player_row(), player_col(), py.misc.srh);
                 }
 
                 // A room of light should be lit.
                 if (c_ptr->fval == LIGHT_FLOOR) {
                     if (!c_ptr->pl && !py.flags.blind) {
-                        light_room(char_row, char_col);
+                        light_room(player_row(), player_col());
                     }
                 }
 
                 // In doorway of light-room?
                 else if (c_ptr->lr && (py.flags.blind < 1)) {
-                    for (int i = (char_row - 1); i <= (char_row + 1); i++) {
-                        for (int j = (char_col - 1); j <= (char_col + 1); j++) {
+                    for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {
+                        for (int j = (player_col() - 1); j <= (player_col() + 1); j++) {
                             cave_type *d_ptr = &cave[i][j];
 
                             if ((d_ptr->fval == LIGHT_FLOOR) && (!d_ptr->pl)) {
@@ -742,28 +742,27 @@ void move_char(int dir, bool do_pickup) {
                 }
 
                 // Move the light source
-                move_light(old_row, old_col, char_row, char_col);
+                move_light(old_row, old_col, player_row(), player_col());
 
                 // An object is beneath him.
                 if (c_ptr->tptr != 0) {
-                    carry(char_row, char_col, do_pickup);
+                    carry(player_row(), player_col(), do_pickup);
 
                     // if stepped on falling rock trap, and space contains
                     // rubble, then step back into a clear area
                     if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
-                        move_rec(char_row, char_col, old_row, old_col);
-                        move_light(char_row, char_col, old_row, old_col);
-                        char_row = old_row;
-                        char_col = old_col;
+                        move_rec(player_row(), player_col(), old_row, old_col);
+                        move_light(player_row(), player_col(), old_row, old_col);
+                        player_place(old_row, old_col);
 
                         // check to see if we have stepped back onto another
                         // trap, if so, set it off
-                        c_ptr = &cave[char_row][char_col];
+                        c_ptr = &cave[player_row()][player_col()];
                         if (c_ptr->tptr != 0) {
                             int i = t_list[c_ptr->tptr].tval;
                             if (i == TV_INVIS_TRAP || i == TV_VIS_TRAP ||
                                 i == TV_STORE_DOOR) {
-                                hit_trap(char_row, char_col);
+                                hit_trap(player_row(), player_col());
                             }
                         }
                     }
@@ -849,8 +848,8 @@ void chest_trap(int y, int x) {
 
 // Opens a closed door or closed chest. -RAK-
 void openobject(void) {
-    int y = char_row;
-    int x = char_col;
+    int y = player_row();
+    int x = player_col();
 
     int dir;
     if (get_dir(CNIL, &dir)) {
@@ -956,8 +955,8 @@ void openobject(void) {
 
 // Closes an open door. -RAK-
 void closeobject(void) {
-    int y = char_row;
-    int x = char_col;
+    int y = player_row();
+    int x = player_col();
 
     int dir;
     if (get_dir(CNIL, &dir)) {

@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_pos.h"
 #include "progress.h"
 #include "score_death.h"
 #include "messages.h"
@@ -65,7 +66,7 @@ void dungeon(void) {
     find_flag = 0;
     teleport_flag = false;
     mon_tot_mult = 0;
-    cave[char_row][char_col].cptr = 1;
+    cave[player_row()][player_col()].cptr = 1;
 
     // Ensure we display the panel.
     panel_forget_position();
@@ -684,7 +685,7 @@ void dungeon(void) {
                     inven_command(doing_inven);
                 } else {
                     // move the cursor to the players character
-                    move_cursor_relative(char_row, char_col);
+                    move_cursor_relative(player_row(), player_col());
 
                     if (command_count > 0) {
                         msg_set_pending(false);
@@ -763,7 +764,7 @@ void dungeon(void) {
                         }
 
                         // move cursor to player char again, in case it moved
-                        move_cursor_relative(char_row, char_col);
+                        move_cursor_relative(player_row(), player_col());
 
                         // Commands are always converted to rogue form. -CJS-
                         if (rogue_like_commands == false) {
@@ -783,7 +784,7 @@ void dungeon(void) {
 
                     // Flash the message line.
                     erase_line(MSG_LINE, 0);
-                    move_cursor_relative(char_row, char_col);
+                    move_cursor_relative(player_row(), player_col());
                     put_qio();
 
                     do_command(command);
@@ -804,7 +805,7 @@ void dungeon(void) {
         } else {
             // if paralyzed, resting, or dead, flush output
             // but first move the cursor onto the player, for aesthetics
-            move_cursor_relative(char_row, char_col);
+            move_cursor_relative(player_row(), player_col());
             put_qio();
         }
 
@@ -1308,8 +1309,8 @@ static void do_command(char com_val) {
         } else {
             int cy, cx, p_y, p_x;
 
-            y = char_row;
-            x = char_col;
+            y = player_row();
+            x = player_col();
             if (get_panel(y, x, true)) {
                 prt_map();
             }
@@ -1349,7 +1350,7 @@ static void do_command(char com_val) {
             }
 
             // Move to a new panel - but only if really necessary.
-            if (get_panel(char_row, char_col, false)) {
+            if (get_panel(player_row(), player_col(), false)) {
                 prt_map();
             }
         }
@@ -1440,7 +1441,7 @@ static void do_command(char com_val) {
         read_scroll();
         break;
     case 's': // (s)earch for a turn
-        search(char_row, char_col, py.misc.srh);
+        search(player_row(), player_col(), py.misc.srh);
         break;
     case 'T': // (T)ake off something  (t)ake off
         inven_command('t');
@@ -1497,7 +1498,7 @@ static void do_command(char com_val) {
                 } else {
                     i = 1;
                 }
-                random_object(char_row, char_col, i);
+                random_object(player_row(), player_col(), i);
                 prt_map();
                 break;
             case CTRL_KEY('D'): // ^D = up/down
@@ -1559,8 +1560,8 @@ static void do_command(char com_val) {
                 prt_experience();
                 break;
             case '&': // & = summon
-                y = char_row;
-                x = char_col;
+                y = player_row();
+                x = player_col();
                 (void)summon_monster(&y, &x, true);
                 creatures(false);
                 break;
@@ -1824,7 +1825,7 @@ static void examine_book(void) {
 // Go up one level -RAK-
 static void go_up(void) {
     bool no_stairs = false;
-    cave_type *c_ptr = &cave[char_row][char_col];
+    cave_type *c_ptr = &cave[player_row()][player_col()];
 
     if (c_ptr->tptr != 0) {
         if (t_list[c_ptr->tptr].tval == TV_UP_STAIR) {
@@ -1847,7 +1848,7 @@ static void go_up(void) {
 
 // Go down one level -RAK-
 static void go_down(void) {
-    const uint8_t tptr = cave[char_row][char_col].tptr;
+    const uint8_t tptr = cave[player_row()][player_col()].tptr;
 
     if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
         dun_level++;
@@ -1864,8 +1865,8 @@ static void go_down(void) {
 static void jamdoor(void) {
     free_turn_flag = true;
 
-    int y = char_row;
-    int x = char_col;
+    int y = player_row();
+    int x = player_col();
 
     int dir;
     if (get_dir(CNIL, &dir)) {

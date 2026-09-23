@@ -17,6 +17,7 @@
 #include "device.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_pos.h"
 #include "stats.h"
 
 // Wands for the aiming.
@@ -54,13 +55,13 @@ void aim(void) {
 
                 while (i != 0) {
                     j = bit_pos(&i) + 1;
-                    k = char_row;
-                    int l = char_col;
+                    k = player_row();
+                    int l = player_col();
                     // Wands
                     switch (j) {
                     case 1:
                         msg_print("A line of blue shimmering light appears.");
-                        light_line(dir, char_row, char_col);
+                        light_line(dir, player_row(), player_col());
                         ident = true;
                         break;
                     case 2:

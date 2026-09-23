@@ -38,8 +38,10 @@ player_type py;
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 monster_type m_list[MAX_MALLOC];
 inven_type t_list[MAX_TALLOC];
-int16_t char_row;
-int16_t char_col;
+/* 居場所の 2 個（char_row / char_col）もここに無い。#18-6C1 で
+ * src/player_pos.c が static で持つようになったので、代役を置くと窓口越しの
+ * 読み書きが届かない別の器になるだけ。creature.c は player_row() /
+ * player_col() 越しに読み、テストが位置を動かすなら player_place() を使う。 */
 /* 持ち物の 4 個（inventory / inven_ctr / inven_weight / equip_ctr）はここに
  * 無い。#18-5C で src/inventory.c が static で持つようになったので、代役を
  * 置く必要が無くなった（置くと inventory.c の分と別の器になり、窓口越しの

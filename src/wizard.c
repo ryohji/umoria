@@ -13,12 +13,13 @@
 #include "types.h"
 
 #include "externs.h"
+#include "player_pos.h"
 
 // Light up the dungeon -RAK-
 void wizard_light(void) {
     bool flag;
 
-    if (cave[char_row][char_col].pl) {
+    if (cave[player_row()][player_col()].pl) {
         flag = false;
     } else {
         flag = true;
@@ -386,9 +387,9 @@ void wizard_create(void) {
 
     if (get_check("Allocate?")) {
         // delete object first if any, before call popt
-        cave_type *c_ptr = &cave[char_row][char_col];
+        cave_type *c_ptr = &cave[player_row()][player_col()];
         if (c_ptr->tptr != 0) {
-            (void)delete_object(char_row, char_col);
+            (void)delete_object(player_row(), player_col());
         }
 
         tmp_val = popt();

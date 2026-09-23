@@ -76,8 +76,6 @@ extern race_type race[MAX_RACES];
 extern background_type background[MAX_BACKGROUND];
 extern uint32_t player_exp[MAX_PLAYER_LEVEL];
 extern uint16_t player_hp[MAX_PLAYER_LEVEL];
-extern int16_t char_row;
-extern int16_t char_col;
 
 extern uint8_t rgold_adj[MAX_RACES][MAX_RACES];
 

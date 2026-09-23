@@ -18,6 +18,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "messages.h"
+#include "player_pos.h"
 #include "options.h"
 #include "progress.h"
 #include "save_state.h"
@@ -266,8 +267,8 @@ static bool sv_write(void) {
     }
 
     wr_short((uint16_t)dun_level);
-    wr_short((uint16_t)char_row);
-    wr_short((uint16_t)char_col);
+    wr_short((uint16_t)player_row());
+    wr_short((uint16_t)player_col());
     wr_short((uint16_t)mon_tot_mult);
     wr_short((uint16_t)cur_height);
     wr_short((uint16_t)cur_width);
@@ -788,8 +789,12 @@ bool get_char(bool *generate) {
         // not present for dead characters
 
         rd_short((uint16_t *)&dun_level);
-        rd_short((uint16_t *)&char_row);
-        rd_short((uint16_t *)&char_col);
+        uint16_t char_row_read, char_col_read;
+        rd_short(&char_row_read);
+        rd_short(&char_col_read);
+        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた。
+        // 同じ値を渡すために int16_t を通す（panel の 2 つと同じ形）。
+        player_place((int16_t)char_row_read, (int16_t)char_col_read);
         rd_short((uint16_t *)&mon_tot_mult);
         rd_short((uint16_t *)&cur_height);
         rd_short((uint16_t *)&cur_width);
