@@ -635,17 +635,16 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
 	    src/progress.c src/score_death.c src/save_state.c \
 	    src/player_pos.c src/hp_table.c src/burden.c
 
-# 重さに負けているかどうかの置き場（weapon_heavy と pack_heavy）。実体はまだ
-# src/variable.c にあり、そこを引くと 73 個のグローバル一式が付いてくるので、
-# ステップ A のあいだは tests/burden_fixture.c の 2 行を足場にする
-# （#18-7-3A の player_light_fixture.c と同じ形）。ステップ C で実体が
-# src/burden.c の static に移ったら足場を消し、2 コンパイル単位・代役 0 にする。
+# 重さに負けているかどうかの置き場（weapon_heavy と pack_heavy）。#18-7-4C1 で
+# 実体が src/burden.c の static になったので、ステップ A のあいだ要った足場
+# （tests/burden_fixture.c）は消えた。窓口は誰も呼ばないので代役も 1 つも
+# 要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （progress_test・score_death_test・player_pos_test・hp_table_test・
+# player_light_test と同じ形）。
 $(BUILDDIR)/burden_test: $(TESTDIR)/burden_test.c \
-                        $(TESTDIR)/burden_fixture.c \
                         $(TESTDIR)/minunit.h \
                         src/burden.c src/burden.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/burden_test.c \
-	    $(TESTDIR)/burden_fixture.c src/burden.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/burden_test.c src/burden.c
 
 clean:
 	rm -rf $(BUILDDIR)
