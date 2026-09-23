@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_pos.h"
 
 static void replace_spot(int, int, int);
 
@@ -325,13 +326,13 @@ int aggravate_monster(int dis_affect) {
 int trap_creation(void) {
     bool trap = true;
 
-    for (int i = char_row - 1; i <= char_row + 1; i++) {
-        for (int j = char_col - 1; j <= char_col + 1; j++) {
+    for (int i = player_row() - 1; i <= player_row() + 1; i++) {
+        for (int j = player_col() - 1; j <= player_col() + 1; j++) {
             // Don't put a trap under the player, since this can lead to
             // strange situations, e.g. falling through a trap door while
             // trying to rest, setting off a falling rock trap and ending
             // up under the rock.
-            if (i == char_row && j == char_col) {
+            if (i == player_row() && j == player_col()) {
                 continue;
             }
 
@@ -359,9 +360,9 @@ int trap_creation(void) {
 int door_creation(void) {
     bool door = false;
 
-    for (int i = char_row - 1; i <= char_row + 1; i++) {
-        for (int j = char_col - 1; j <= char_col + 1; j++) {
-            if ((i != char_row) || (j != char_col)) {
+    for (int i = player_row() - 1; i <= player_row() + 1; i++) {
+        for (int j = player_col() - 1; j <= player_col() + 1; j++) {
+            if ((i != player_row()) || (j != player_col())) {
                 cave_type *c_ptr = &cave[i][j];
 
                 if (c_ptr->fval <= MAX_CAVE_FLOOR) {
@@ -388,8 +389,8 @@ int door_creation(void) {
 int td_destroy(void) {
     bool destroy = false;
 
-    for (int i = char_row - 1; i <= char_row + 1; i++) {
-        for (int j = char_col - 1; j <= char_col + 1; j++) {
+    for (int i = player_row() - 1; i <= player_row() + 1; i++) {
+        for (int j = player_col() - 1; j <= player_col() + 1; j++) {
             cave_type *c_ptr = &cave[i][j];
             if (c_ptr->tptr != 0) {
                 if (((t_list[c_ptr->tptr].tval >= TV_INVIS_TRAP) &&
@@ -1421,7 +1422,7 @@ void teleport_away(int monptr, int dis) {
     // this is necessary, because the creature is
     // not currently visible in its new position.
     m_ptr->ml = false;
-    m_ptr->cdis = distance(char_row, char_col, yn, xn);
+    m_ptr->cdis = distance(player_row(), player_col(), yn, xn);
     update_mon(monptr);
 }
 
@@ -1441,19 +1442,18 @@ void teleport_to(int ny, int nx) {
         }
     } while (!in_bounds(y, x) || (cave[y][x].fval >= MIN_CLOSED_SPACE) || (cave[y][x].cptr >= 2));
 
-    move_rec(char_row, char_col, y, x);
+    move_rec(player_row(), player_col(), y, x);
 
-    for (int i = char_row - 1; i <= char_row + 1; i++) {
-        for (int j = char_col - 1; j <= char_col + 1; j++) {
+    for (int i = player_row() - 1; i <= player_row() + 1; i++) {
+        for (int j = player_col() - 1; j <= player_col() + 1; j++) {
             cave_type *c_ptr = &cave[i][j];
             c_ptr->tl = false;
             lite_spot(i, j);
         }
     }
 
-    lite_spot(char_row, char_col);
-    char_row = y;
-    char_col = x;
+    lite_spot(player_row(), player_col());
+    player_place(y, x);
     check_view();
 
     // light creatures
@@ -1542,7 +1542,7 @@ int speed_monsters(int spd) {
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
-        if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
+        if ((m_ptr->cdis > MAX_SIGHT) || !los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
         } else if (spd > 0) {
             m_ptr->cspeed += spd;
@@ -1578,7 +1578,7 @@ int sleep_monsters2(void) {
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
-        if ((m_ptr->cdis > MAX_SIGHT) || !los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
+        if ((m_ptr->cdis > MAX_SIGHT) || !los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             ; // do nothing
         } else if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
             if (m_ptr->ml) {
@@ -1742,9 +1742,9 @@ int remove_fear(void) {
 // turn them into open spots.  Pick some open spots and turn
 // them into walls.  An "Earthquake" effect. -RAK-
 void earthquake(void) {
-    for (int i = char_row - 8; i <= char_row + 8; i++) {
-        for (int j = char_col - 8; j <= char_col + 8; j++) {
-            if (((i != char_row) || (j != char_col)) && in_bounds(i, j) && (randint(8) == 1)) {
+    for (int i = player_row() - 8; i <= player_row() + 8; i++) {
+        for (int j = player_col() - 8; j <= player_col() + 8; j++) {
+            if (((i != player_row()) || (j != player_col())) && in_bounds(i, j) && (randint(8) == 1)) {
                 cave_type *c_ptr = &cave[i][j];
 
                 if (c_ptr->tptr != 0) {
@@ -1819,7 +1819,7 @@ int protect_evil(void) {
 
 // Create some high quality mush for the player. -RAK-
 void create_food(void) {
-    cave_type *c_ptr = &cave[char_row][char_col];
+    cave_type *c_ptr = &cave[player_row()][player_col()];
 
     if (c_ptr->tptr != 0) {
         // take no action here, don't want to destroy object under player
@@ -1828,7 +1828,7 @@ void create_food(void) {
         // set free_turn_flag so that scroll/spell points won't be used
         free_turn_flag = true;
     } else {
-        place_object(char_row, char_col, false);
+        place_object(player_row(), player_col(), false);
         invcopy(&t_list[c_ptr->tptr], OBJ_MUSH);
     }
 }
@@ -1842,7 +1842,7 @@ int dispel_creature(int cflag, int damage) {
         monster_type *m_ptr = &m_list[i];
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)) {
+        if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             recall_update_characteristics(m_ptr->creature, cflag);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1869,7 +1869,7 @@ int turn_undead(void) {
         monster_type *m_ptr = &m_list[i];
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(char_row, char_col, m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
+        if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(player_row(), player_col(), m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
             const char *cdesc = monster_name((vtype){0}, m_ptr);
             if (((py.misc.lev + 1) > r_ptr->level) || (randint(5) == 1)) {
                 msg_print(CONCAT(cdesc, " runs frantically!"));
@@ -1887,7 +1887,7 @@ int turn_undead(void) {
 
 // Leave a glyph of warding. Creatures will not pass over! -RAK-
 void warding_glyph(void) {
-    cave_type *c_ptr = &cave[char_row][char_col];
+    cave_type *c_ptr = &cave[player_row()][player_col()];
 
     if (c_ptr->tptr == 0) {
         int i = popt();

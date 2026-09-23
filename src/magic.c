@@ -14,6 +14,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "player_pos.h"
 
 // Throw a magic spell -RAK-
 void cast(void) {
@@ -51,7 +52,7 @@ void cast(void) {
                 switch (choice + 1) {
                 case 1:
                     if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_MAGIC_MISSILE, dir, char_row, char_col, damroll(2, 6), spell_names[0]);
+                        fire_bolt(GF_MAGIC_MISSILE, dir, player_row(), player_col(), damroll(2, 6), spell_names[0]);
                     }
                     break;
                 case 2:
@@ -61,7 +62,7 @@ void cast(void) {
                     teleport(10);
                     break;
                 case 4:
-                    (void)light_area(char_row, char_col);
+                    (void)light_area(player_row(), player_col());
                     break;
                 case 5:
                     (void)hp_player(damroll(4, 4));
@@ -72,17 +73,17 @@ void cast(void) {
                     break;
                 case 7:
                     if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_POISON_GAS, dir, char_row, char_col, 12, spell_names[6]);
+                        fire_ball(GF_POISON_GAS, dir, player_row(), player_col(), 12, spell_names[6]);
                     }
                     break;
                 case 8:
                     if (get_dir(CNIL, &dir)) {
-                        (void)confuse_monster(dir, char_row, char_col);
+                        (void)confuse_monster(dir, player_row(), player_col());
                     }
                     break;
                 case 9:
                     if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_LIGHTNING, dir, char_row, char_col, damroll(4, 8), spell_names[8]);
+                        fire_bolt(GF_LIGHTNING, dir, player_row(), player_col(), damroll(4, 8), spell_names[8]);
                     }
                     break;
                 case 10:
@@ -90,7 +91,7 @@ void cast(void) {
                     break;
                 case 11:
                     if (get_dir(CNIL, &dir)) {
-                        (void)sleep_monster(dir, char_row, char_col);
+                        (void)sleep_monster(dir, player_row(), player_col());
                     }
                     break;
                 case 12:
@@ -107,12 +108,12 @@ void cast(void) {
                     break;
                 case 15:
                     if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_FROST, dir, char_row, char_col, damroll(6, 8), spell_names[14]);
+                        fire_bolt(GF_FROST, dir, player_row(), player_col(), damroll(6, 8), spell_names[14]);
                     }
                     break;
                 case 16:
                     if (get_dir(CNIL, &dir)) {
-                        (void)wall_to_mud(dir, char_row, char_col);
+                        (void)wall_to_mud(dir, player_row(), player_col());
                     }
                     break;
                 case 17:
@@ -122,11 +123,11 @@ void cast(void) {
                     (void)recharge(20);
                     break;
                 case 19:
-                    (void)sleep_monsters1(char_row, char_col);
+                    (void)sleep_monsters1(player_row(), player_col());
                     break;
                 case 20:
                     if (get_dir(CNIL, &dir)) {
-                        (void)poly_monster(dir, char_row, char_col);
+                        (void)poly_monster(dir, player_row(), player_col());
                     }
                     break;
                 case 21:
@@ -137,17 +138,17 @@ void cast(void) {
                     break;
                 case 23:
                     if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_FIRE, dir, char_row, char_col, damroll(9, 8), spell_names[22]);
+                        fire_bolt(GF_FIRE, dir, player_row(), player_col(), damroll(9, 8), spell_names[22]);
                     }
                     break;
                 case 24:
                     if (get_dir(CNIL, &dir)) {
-                        (void)speed_monster(dir, char_row, char_col, -1);
+                        (void)speed_monster(dir, player_row(), player_col(), -1);
                     }
                     break;
                 case 25:
                     if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_FROST, dir, char_row, char_col, 48, spell_names[24]);
+                        fire_ball(GF_FROST, dir, player_row(), player_col(), 48, spell_names[24]);
                     }
                     break;
                 case 26:
@@ -155,7 +156,7 @@ void cast(void) {
                     break;
                 case 27:
                     if (get_dir(CNIL, &dir)) {
-                        (void)teleport_monster(dir, char_row, char_col);
+                        (void)teleport_monster(dir, player_row(), player_col());
                     }
                     break;
                 case 28:
@@ -164,11 +165,11 @@ void cast(void) {
                     break;
                 case 29:
                     if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_FIRE, dir, char_row, char_col, 72, spell_names[28]);
+                        fire_ball(GF_FIRE, dir, player_row(), player_col(), 72, spell_names[28]);
                     }
                     break;
                 case 30:
-                    destroy_area(char_row, char_col);
+                    destroy_area(player_row(), player_col());
                     break;
                 case 31:
                     (void)genocide();
