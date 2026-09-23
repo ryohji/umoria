@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "burden.h"
 #include "equipment.h"
 #include "externs.h"
 #include "score_death.h"
@@ -141,7 +142,7 @@ void calc_bonuses(void) {
     }
     m_ptr->dis_ac += m_ptr->dis_tac;
 
-    if (weapon_heavy) {
+    if (weapon_is_too_heavy()) {
         m_ptr->dis_th += (py.stats.use_stat[A_STR] * 15 - equipment_at(INVEN_WIELD)->weight);
     }
 
@@ -751,7 +752,7 @@ void inven_command(char command) {
                 }
 
                 // this is a new weapon, so clear the heavy flag
-                weapon_heavy = false;
+                set_weapon_too_heavy(false);
                 check_strength();
             }
             break;
@@ -1072,7 +1073,7 @@ void inven_command(char command) {
                                 msg_print(prt1);
                                 // this is a new weapon, so clear heavy flag
                                 if (slot == INVEN_WIELD) {
-                                    weapon_heavy = false;
+                                    set_weapon_too_heavy(false);
                                 }
                                 check_strength();
                                 if (i_ptr->flags & TR_CURSED) {

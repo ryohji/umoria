@@ -162,7 +162,7 @@ device.o: $(SRCDIR)/device.h $(HEADERS_FULL)
 dungeon.o: $(HEADERS_FULL)
 eat.o: $(HEADERS_FULL)
 files.o: $(HEADERS_FULL)
-game_state.o: $(SRCDIR)/game_state.h $(HEADERS_FULL)
+game_state.o: $(SRCDIR)/game_state.h $(SRCDIR)/burden.h $(HEADERS_FULL)
 generate.o: $(HEADERS_FULL)
 help.o: $(HEADERS_FULL)
 # hp_table.c does not include externs.h either, so HEADERS_COMMON is enough.
@@ -180,10 +180,10 @@ misc2.o: $(HEADERS_FULL)
 misc3.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 misc4.o: $(HEADERS_FULL)
 monsters.o: $(HEADERS_COMMON)
-moria1.o: $(HEADERS_FULL)
+moria1.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 moria2.o: $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
-moria4.o: $(HEADERS_FULL)
+moria4.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 panel.o: $(SRCDIR)/panel.h $(HEADERS_FULL)
 player.o: $(HEADERS_COMMON)
 # player_pos.c does not include externs.h, so HEADERS_COMMON is enough here
@@ -201,7 +201,7 @@ view_observer.o: $(SRCDIR)/view_observer.h
 input.o: $(SRCDIR)/input.h
 input_ncurses.o: $(SRCDIR)/input.h $(SRCDIR)/backend_ncurses.h
 platform.o: $(SRCDIR)/platform.h $(SRCDIR)/backend_ncurses.h $(SRCDIR)/render.h $(SRCDIR)/input.h
-save.o: $(HEADERS_FULL)
+save.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 scrolls.o: $(HEADERS_FULL)
 sets.o: $(SRCDIR)/constant.h $(SRCDIR)/config.h
 signal_flags.o: $(SRCDIR)/signal_flags.h

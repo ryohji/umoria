@@ -8,6 +8,7 @@
 
 #include "game_state.h"
 
+#include "burden.h"
 #include "constant.h"
 #include "externs.h"
 #include "inventory.h"
@@ -97,8 +98,8 @@ GameState *game_state_init(void) {
     state->player_light = player_has_light();
     state->find_flag = find_flag;
     state->free_turn_flag = free_turn_flag;
-    state->weapon_heavy = weapon_heavy;
-    state->pack_heavy = pack_heavy;
+    state->weapon_heavy = weapon_is_too_heavy();
+    state->pack_heavy = pack_speed_penalty();
     state->doing_inven = doing_inven;
     state->screen_change = screen_change;
     state->eof_flag = eof_flag;

@@ -97,10 +97,10 @@ misc2.o: constant.h types.h externs.h config.h
 misc3.o: burden.h constant.h types.h externs.h config.h
 misc4.o: constant.h types.h externs.h config.h
 monsters.o: constant.h types.h config.h
-moria1.o: constant.h types.h externs.h config.h
+moria1.o: burden.h constant.h types.h externs.h config.h
 moria2.o: constant.h types.h externs.h config.h
 moria3.o: constant.h types.h externs.h config.h
-moria4.o: constant.h types.h externs.h config.h
+moria4.o: burden.h constant.h types.h externs.h config.h
 player.o: constant.h types.h config.h
 player_light.o: player_light.h constant.h types.h config.h
 player_pos.o: player_pos.h constant.h types.h config.h
@@ -109,7 +109,7 @@ prayer.o: constant.h types.h externs.h config.h
 progress.o: progress.h constant.h types.h config.h
 recall.o: constant.h config.h types.h externs.h
 rnd.o: constant.h types.h
-save.o: constant.h types.h externs.h config.h
+save.o: burden.h constant.h types.h externs.h config.h
 save_state.o: save_state.h progress.h score_death.h constant.h types.h config.h
 score_death.o: score_death.h constant.h types.h config.h
 scrolls.o: constant.h types.h externs.h config.h

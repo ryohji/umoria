@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "burden.h"
 #include "externs.h"
 #include "equipment.h"
 #include "hp_table.h"
@@ -383,8 +384,8 @@ bool _save_char(char *fnam) {
     nosignals();
     put_qio();
     disturb(1, 0);             // Turn off resting and searching.
-    change_speed(-pack_heavy); // Fix the speed
-    pack_heavy = 0;
+    change_speed(-pack_speed_penalty()); // Fix the speed
+    set_pack_speed_penalty(0);
     bool ok = false;
 
     fileptr = NULL; // Do not assume it has been init'ed
@@ -947,8 +948,8 @@ bool get_char(bool *generate) {
             }
 
             if (save_state_character_is_in_play()) { // Only if a full restoration.
-                weapon_heavy = false;
-                pack_heavy = 0;
+                set_weapon_too_heavy(false);
+                set_pack_speed_penalty(0);
                 check_strength();
 
                 // rotate store inventory, depending on how old the save file
