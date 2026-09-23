@@ -39,14 +39,13 @@ int hack_monptr = -1;
 
 bool weapon_heavy = false;
 int pack_heavy = 0;
-bool total_winner = false;
-int32_t max_score = 0;
 
-// Thirteen records that used to live here now live beside the code that uses
+// Fifteen records that used to live here now live beside the code that uses
 // them, private to their own file and reached through a window:
 //
 //   progress.c    turn, randes_seed, town_seed, wizard, to_be_wizard
-//   score_death.c death, died_from, birth_date, noscore
+//   score_death.c death, died_from, birth_date, noscore, total_winner,
+//                 max_score
 //   save_state.c  savefile, character_generated, character_saved, panic_save
 //
 // See src/progress.h, src/score_death.h and src/save_state.h.

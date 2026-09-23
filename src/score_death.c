@@ -15,15 +15,9 @@
 // No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
 // inventory.c, progress.c and player_pos.c: a place to keep the ending of a run
 // needs nothing from the rest of the game, and externs.h would drag ncurses in
-// for six declarations. The two declarations below are hand-written for the same
-// reason stats.c writes its own.
-//
-// total_winner and max_score still live in variable.c while the callers are
-// being moved over to the windows at the bottom of this file, so this file
-// declares them itself. Both lines go away once the callers are through the
-// windows and the storage moves in here.
-extern bool total_winner;
-extern int32_t max_score;
+// for six declarations. Nothing at all is declared from outside now, so this
+// file compiles on its own again (it borrowed two extern lines from variable.c
+// while the callers were being moved over).
 //
 // The state is owned here and is static: the only way in is through the windows
 // below. The initial values came over from variable.c unchanged -- died_from and
@@ -43,6 +37,8 @@ static bool death = false; // True if died
 static vtype died_from;
 static int32_t birth_date;
 static int16_t noscore = 0; // Don't log the game. -CJS-
+static bool total_winner = false;
+static int32_t max_score = 0;
 
 // --- the death flag ------------------------------------------------------
 

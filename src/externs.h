@@ -90,8 +90,6 @@ extern uint32_t spell_worked;    // Bit field for spells tried -CJS-
 extern uint32_t spell_forgotten; // Bit field for spells forgotten -JEW-
 extern uint8_t spell_order[32];  // remember order that spells are learned in
 extern uint16_t player_init[MAX_CLASS][5];
-extern bool total_winner;
-extern int32_t max_score;
 
 // Following are store definitions
 extern owner_type owners[MAX_OWNERS];
