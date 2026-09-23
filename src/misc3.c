@@ -16,6 +16,7 @@
 
 #include "abilities.h"
 #include "equipment.h"
+#include "hp_table.h"
 #include "inventory.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -1623,7 +1624,7 @@ void prt_experience(void) {
 // Calculate the players hit points
 void calc_hitpoints(void) {
     struct misc *p_ptr = &py.misc;
-    int hitpoints = player_hp[p_ptr->lev - 1] + (con_adj() * p_ptr->lev);
+    int hitpoints = hp_total_at_level(p_ptr->lev) + (con_adj() * p_ptr->lev);
 
     // always give at least one point per level + 1
     if (hitpoints < (p_ptr->lev + 1)) {
