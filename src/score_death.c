@@ -13,10 +13,17 @@
 #include "score_death.h"
 
 // No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c and progress.c: a place to keep the ending of a run needs nothing
-// from the rest of the game, and externs.h would drag ncurses in for four
-// declarations. Nothing at all is declared from outside now, so this file
-// compiles on its own.
+// inventory.c, progress.c and player_pos.c: a place to keep the ending of a run
+// needs nothing from the rest of the game, and externs.h would drag ncurses in
+// for six declarations. The two declarations below are hand-written for the same
+// reason stats.c writes its own.
+//
+// total_winner and max_score still live in variable.c while the callers are
+// being moved over to the windows at the bottom of this file, so this file
+// declares them itself. Both lines go away once the callers are through the
+// windows and the storage moves in here.
+extern bool total_winner;
+extern int32_t max_score;
 //
 // The state is owned here and is static: the only way in is through the windows
 // below. The initial values came over from variable.c unchanged -- died_from and
@@ -71,4 +78,24 @@ int16_t score_disqualifications(void) {
 
 void set_score_disqualifications(int16_t reasons) {
     noscore = reasons;
+}
+
+// --- whether the game was won --------------------------------------------
+
+bool player_has_won(void) {
+    return total_winner;
+}
+
+void set_player_has_won(bool won) {
+    total_winner = won;
+}
+
+// --- the best score the run has reached ----------------------------------
+
+int32_t best_score_so_far(void) {
+    return max_score;
+}
+
+void set_best_score_so_far(int32_t score) {
+    max_score = score;
 }

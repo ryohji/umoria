@@ -1,7 +1,7 @@
 /* 結末の置き場のテスト -- 現在のふるまいを保護する
  *
- * ここにも計算は無い。death / died_from / birth_date / noscore は置き場そのもの
- * だが、2 つだけ意味のある性質がある。
+ * ここにも計算は無い。death / died_from / birth_date / noscore / total_winner /
+ * max_score は置き場そのものだが、3 つだけ意味のある性質がある。
  *
  *   died_from は「アドレスを返す窓口」である。呼びだし側は strcpy() と
  *   sprintf() で中身を書きかえるので、窓口が値の写しを返すと書きこみが
@@ -15,6 +15,12 @@
  *   なお 0x4 は本体では立たない（バグ候補 B18。save.c:914 の括弧のずれで
  *   `((!noscore) & 0x04)` が常に 0）。ここで固定するのは置き場のふるまいで、
  *   B18 は直さないので立てられること自体は変えない。
+ *
+ *   max_score には「大きいほうを採る」判断が無い（#18-7-1 で足した 2 個）。
+ *   得点は呼ばれるたびに計算しなおされるので下がりうる。下がらないように
+ *   するのは death.c:239 の呼びだし側の仕事で、窓口は入れた値をそのまま返す。
+ *   total_winner は勝ったあとに死ぬと取り消される（moria1.c:1724）ので、
+ *   立てたものを下ろせることも固定する。
  *
  * テストは 1 プロセスで状態を共有する。走りだしの状態を見るテストは
  * main() の先頭に置いてある。
@@ -50,6 +56,14 @@ TEST(the_game_starts_with_nothing_disqualifying_the_score) {
 }
 
 /* --- 死んだかどうか ----------------------------------------------------- */
+
+TEST(the_game_starts_with_the_game_not_won) {
+    ASSERT_FALSE(player_has_won());
+}
+
+TEST(the_game_starts_with_no_best_score) {
+    ASSERT_EQ_INT(0, best_score_so_far());
+}
 
 TEST(dying_is_remembered) {
     set_player_dead(true);
@@ -214,12 +228,69 @@ TEST(dying_does_not_disqualify_the_score_by_itself) {
     ASSERT_EQ_INT(0, score_disqualifications());
 }
 
+
+/* --- 勝ったかどうか ----------------------------------------------------- */
+
+TEST(winning_is_remembered) {
+    set_player_has_won(true);
+    ASSERT_TRUE(player_has_won());
+}
+
+TEST(the_win_can_be_taken_back) {
+    /* moria1.c:1724 -- 勝ったあとに死ぬと取り消される。 */
+    set_player_has_won(true);
+    set_player_has_won(false);
+    ASSERT_FALSE(player_has_won());
+}
+
+TEST(winning_and_dying_are_separate_records) {
+    set_player_has_won(true);
+    set_player_dead(false);
+    ASSERT_TRUE(player_has_won() && !player_is_dead());
+}
+
+/* --- これまでの最高得点 ------------------------------------------------- */
+
+TEST(what_was_put_in_the_best_score_stays_there) {
+    set_best_score_so_far(12345);
+    ASSERT_EQ_INT(12345, best_score_so_far());
+}
+
+TEST(the_best_score_holds_the_largest_signed_value) {
+    /* セーブファイルは 4 バイトで読み書きする（save.c の rd_long / wr_long）。 */
+    set_best_score_so_far(2147483647L);
+    ASSERT_EQ_INT(2147483647L, best_score_so_far());
+}
+
+TEST(the_best_score_holds_a_negative_value) {
+    /* 窓口は範囲を検査しない。本体が負を入れることは無いが、
+     * 置き場としてのふるまいを固定しておく（int32_t のまま通ること）。 */
+    set_best_score_so_far(-1);
+    ASSERT_EQ_INT(-1, best_score_so_far());
+}
+
+TEST(the_best_score_does_not_climb_by_itself) {
+    /* 窓口に「大きいほうを採る」判断は無い。低い値を入れれば低くなる
+     * （下がらないようにするのは death.c:239 の呼びだし側の仕事）。 */
+    set_best_score_so_far(500);
+    set_best_score_so_far(100);
+    ASSERT_EQ_INT(100, best_score_so_far());
+}
+
+TEST(the_best_score_and_the_win_do_not_share_storage) {
+    set_best_score_so_far(777);
+    set_player_has_won(false);
+    ASSERT_TRUE(best_score_so_far() == 777 && !player_has_won());
+}
+
 int main(void) {
     /* 走りだしの状態を見る 4 件を最初に。以降のテストが書きこむ。 */
     RUN_TEST(the_game_starts_with_the_player_alive);
     RUN_TEST(the_game_starts_with_no_cause_of_death);
     RUN_TEST(the_game_starts_with_no_birth_date);
     RUN_TEST(the_game_starts_with_nothing_disqualifying_the_score);
+    RUN_TEST(the_game_starts_with_the_game_not_won);
+    RUN_TEST(the_game_starts_with_no_best_score);
 
     RUN_TEST(dying_is_remembered);
     RUN_TEST(the_death_flag_can_be_cleared_again);
@@ -248,6 +319,16 @@ int main(void) {
     RUN_TEST(writing_the_death_flag_leaves_the_other_records_alone);
     RUN_TEST(writing_the_cause_of_death_leaves_the_other_records_alone);
     RUN_TEST(dying_does_not_disqualify_the_score_by_itself);
+
+    RUN_TEST(winning_is_remembered);
+    RUN_TEST(the_win_can_be_taken_back);
+    RUN_TEST(winning_and_dying_are_separate_records);
+
+    RUN_TEST(what_was_put_in_the_best_score_stays_there);
+    RUN_TEST(the_best_score_holds_the_largest_signed_value);
+    RUN_TEST(the_best_score_holds_a_negative_value);
+    RUN_TEST(the_best_score_does_not_climb_by_itself);
+    RUN_TEST(the_best_score_and_the_win_do_not_share_storage);
 
     TEST_SUMMARY();
 }
