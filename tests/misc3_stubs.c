@@ -40,15 +40,19 @@ int16_t dun_level;
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
  * 読み書きするようになったので、実体は src/score_death.c の static である。 */
 int command_count;
-int pack_heavy;
+/* pack_heavy と weapon_heavy はここに無い。#18-7-4B で misc3.c が
+ * pack_speed_penalty() / weapon_is_too_heavy() 越しに読み書きするように
+ * なり、#18-7-4C1 で実体が src/burden.c の static になった
+ * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* character_generated もここに無い。#19B3 で misc3.c が
  * character_is_generated() 越しに読むようになったので、実体は
  * src/save_state.c の static である。 */
 bool display_counts;
 bool free_turn_flag;
 bool teleport_flag;
-bool total_winner;
-bool weapon_heavy;
+/* total_winner と max_score はここに無い。#18-7-1B で misc3.c が
+ * player_has_won() 越しに読むようになり、#18-7-1C1 で実体が
+ * src/score_death.c の static になった。 */
 /* wizard はここに無い。#19B で misc3.c が progress_wizard_mode() 越しに
  * 読み書きするようになったので、実体は src/progress.c の static である
  * （ここで定義しても窓口には届かない別の器になるだけ）。 */
@@ -175,8 +179,39 @@ void recall_update_characteristics(creature_handle h, int defence) {
 }
 
 /* --- プレイヤー状態の更新 --- */
-void calc_bonuses(void) {}
-void change_speed(int num) { (void)num; }
+
+/* change_speed と calc_bonuses は捨てるだけでなく、渡された値と呼ばれた
+ * 回数を記録する。check_strength()（misc3.c:975）の重さの判定は、結果を
+ * 画面（msg_print）と速度（change_speed）に流すだけで戻り値が無いので、
+ * 呼ばれかたを写しとらなければふるまいを観測できない（msg_print と同じ
+ * リンクシーム）。
+ *
+ * change_speed に渡るのは**段数の差**（新しい段数 − 覚えた段数）で、符号が
+ * 向きを表す。正なら遅くなる・負なら速くなる。合計ではなく最後の値と回数を
+ * 覚えるのは、1 回の check_strength が高々 1 回しか呼ばないため。
+ *
+ * 記録は fixture_reset() で消えるので、テスト間で漏れない。 */
+static int fixture_speed_change_last;
+static int fixture_speed_change_calls;
+static int fixture_bonuses_calls;
+
+void calc_bonuses(void) { fixture_bonuses_calls++; }
+
+void change_speed(int num) {
+    fixture_speed_change_last = num;
+    fixture_speed_change_calls++;
+}
+
+/* 最後に change_speed へ渡された段数の差。まだ呼ばれていなければ 0。 */
+int fixture_speed_change_last_steps(void) { return fixture_speed_change_last; }
+
+/* change_speed が呼ばれた回数。差が 0 のときに「呼ばない」ことを見るために
+ * 要る（最後の値だけでは、呼ばれていないのと 0 を渡されたのが区別できない）。 */
+int fixture_speed_change_count(void) { return fixture_speed_change_calls; }
+
+/* calc_bonuses が呼ばれた回数。武器の旗が変わったときの再計算を見る。 */
+int fixture_calc_bonuses_count(void) { return fixture_bonuses_calls; }
+
 void check_view(void) {}
 void takeoff(int item, int posn) { (void)item; (void)posn; }
 bool no_light(void) { return false; }
@@ -252,4 +287,7 @@ void fixture_reset(void)
     fixture_randint_calls = 0;
     memset(fixture_messages, 0, sizeof fixture_messages);
     fixture_msg_count = 0;
+    fixture_speed_change_last = 0;
+    fixture_speed_change_calls = 0;
+    fixture_bonuses_calls = 0;
 }

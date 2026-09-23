@@ -14,6 +14,7 @@
 
 #include "externs.h"
 
+#include "hp_table.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -382,14 +383,16 @@ static void get_class(void) {
             // if it is within 1/8 of average value.
             min_value = (MAX_PLAYER_LEVEL * 3 / 8 * (m_ptr->hitdie - 1)) + MAX_PLAYER_LEVEL;
             max_value = (MAX_PLAYER_LEVEL * 5 / 8 * (m_ptr->hitdie - 1)) + MAX_PLAYER_LEVEL;
-            player_hp[0] = m_ptr->hitdie;
+            set_hp_total_at_level(1, m_ptr->hitdie);
             do {
+                // i は添字ではなくレベル - 1 のまま回す（振る回数と順番を
+                // 変えないため）。level i + 1 の合計は、その段の振りに
+                // 1 つ下の段までの合計を足したもの。
                 for (i = 1; i < MAX_PLAYER_LEVEL; i++) {
-                    player_hp[i] = randint((int)m_ptr->hitdie);
-                    player_hp[i] += player_hp[i - 1];
+                    set_hp_total_at_level(i + 1, (uint16_t)(randint((int)m_ptr->hitdie) + hp_total_at_level(i)));
                 }
-            } while ((player_hp[MAX_PLAYER_LEVEL - 1] < min_value) ||
-                     (player_hp[MAX_PLAYER_LEVEL - 1] > max_value));
+            } while ((hp_total_at_level(MAX_PLAYER_LEVEL) < min_value) ||
+                     (hp_total_at_level(MAX_PLAYER_LEVEL) > max_value));
 
             m_ptr->bth += c_ptr->mbth;
             m_ptr->bthb += c_ptr->mbthb; // RAK

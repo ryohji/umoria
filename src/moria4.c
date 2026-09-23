@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "burden.h"
 #include "externs.h"
 #include "equipment.h"
 #include "inventory.h"
@@ -80,7 +81,7 @@ void tunnel(int dir) {
         // If this weapon is too heavy for the player to wield properly, then
         // also make it harder to dig with it.
 
-        if (weapon_heavy) {
+        if (weapon_is_too_heavy()) {
             tabil += (py.stats.use_stat[A_STR] * 15) - i_ptr->weight;
             if (tabil < 0) {
                 tabil = 0;

@@ -483,7 +483,7 @@ uint32_t monster_death(int y, int x, uint32_t flags) {
     if (flags & CM_WIN) {
         // maybe the player died in mid-turn
         if (!player_is_dead()) {
-            total_winner = true;
+            set_player_has_won(true);
             prt_winner();
             msg_print("*** CONGRATULATIONS *** You have won the game.");
             msg_print("You cannot save this game, but you may retire when ready.");

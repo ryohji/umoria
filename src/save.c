@@ -13,8 +13,10 @@
 #include "constant.h"
 #include "types.h"
 
+#include "burden.h"
 #include "externs.h"
 #include "equipment.h"
+#include "hp_table.h"
 #include "inventory.h"
 #include "panel.h"
 #include "messages.h"
@@ -81,7 +83,7 @@ static bool sv_write(void) {
         // Sign bit
         l |= 0x80000000L;
     }
-    if (total_winner) {
+    if (player_has_won()) {
         l |= 0x40000000L;
     }
 
@@ -229,9 +231,9 @@ static bool sv_write(void) {
 
     // this indicates 'cheating' if it is a one
     wr_short((uint16_t)is_panic_save());
-    wr_short((uint16_t)total_winner);
+    wr_short((uint16_t)player_has_won());
     wr_short((uint16_t)score_disqualifications());
-    wr_shorts(player_hp, MAX_PLAYER_LEVEL);
+    wr_shorts(hp_table_slots(), MAX_PLAYER_LEVEL);
 
     for (int i = 0; i < store_count(); i++) {
         wr_store(store_at(i));
@@ -382,8 +384,8 @@ bool _save_char(char *fnam) {
     nosignals();
     put_qio();
     disturb(1, 0);             // Turn off resting and searching.
-    change_speed(-pack_heavy); // Fix the speed
-    pack_heavy = 0;
+    change_speed(-pack_speed_penalty()); // Fix the speed
+    set_pack_speed_penalty(0);
     bool ok = false;
 
     fileptr = NULL; // Do not assume it has been init'ed
@@ -555,7 +557,7 @@ bool get_char(bool *generate) {
             display_counts = true;
         }
 
-        // Don't allow resurrection of total_winner characters.  It causes
+        // Don't allow resurrection of characters that have won.  It causes
         // problems because the character level is out of the allowed range.
         if (progress_wizard_requested() && (l & 0x40000000L)) {
             msg_print("Sorry, this character is retired from moria.");
@@ -703,11 +705,13 @@ bool get_char(bool *generate) {
             bool saved_panic;
             rd_bool(&saved_panic);
             set_panic_save(saved_panic);
-            rd_bool(&total_winner);
+            bool saved_has_won;
+            rd_bool(&saved_has_won);
+            set_player_has_won(saved_has_won);
             uint16_t saved_disqualifications;
             rd_short(&saved_disqualifications);
             set_score_disqualifications((int16_t)saved_disqualifications);
-            rd_shorts(player_hp, MAX_PLAYER_LEVEL);
+            rd_shorts(hp_table_slots(), MAX_PLAYER_LEVEL);
 
             if ((version_min >= 2) || (version_min == 1 && patch_level >= 3)) {
                 for (int i = 0; i < store_count(); i++) {
@@ -726,9 +730,14 @@ bool get_char(bool *generate) {
             }
 
             if ((version_min >= 3) || (version_min == 2 && patch_level >= 2)) {
-                rd_long((uint32_t *)&max_score);
+                // Read into a local first: max_score is int32_t and rd_long
+                // takes a uint32_t *, so the old cast lied about the pointer's
+                // type (the same fix as panel and the player's position).
+                uint32_t saved_best_score;
+                rd_long(&saved_best_score);
+                set_best_score_so_far((int32_t)saved_best_score);
             } else {
-                max_score = 0;
+                set_best_score_so_far(0);
             }
 
             if ((version_min >= 3) || (version_min == 2 && patch_level >= 2)) {
@@ -939,8 +948,8 @@ bool get_char(bool *generate) {
             }
 
             if (save_state_character_is_in_play()) { // Only if a full restoration.
-                weapon_heavy = false;
-                pack_heavy = 0;
+                set_weapon_too_heavy(false);
+                set_pack_speed_penalty(0);
                 check_strength();
 
                 // rotate store inventory, depending on how old the save file

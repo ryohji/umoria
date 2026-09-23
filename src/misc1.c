@@ -16,6 +16,7 @@
 #include "panel.h"
 #include "player_pos.h"
 #include "progress.h"
+#include "score_death.h"
 
 static creature_handle get_mons_num(int level);
 static bool summon(int *y, int *x, creature_handle h, int slp);
@@ -571,7 +572,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
 
 // Places a monster at given location -RAK-
 void place_win_monster(void) {
-    if (!total_winner) {
+    if (!player_has_won()) {
         int x, y, z = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
 
         do {

@@ -38,7 +38,9 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
         str_insert_test inventory_test progress_test score_death_test \
-        save_state_test player_pos_test
+        save_state_test player_pos_test hp_table_test \
+        calc_hitpoints_test player_light_test burden_test \
+        check_strength_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -131,6 +133,12 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # #18-6B5 で misc3.c が居場所を src/player_pos.h の窓口越しに引くように
 # なったので src/player_pos.c もリンクする（実体はまだ src/player.c にあり、
 # この構成はそれをリンクしているので足場は要らない）。
+#
+# #18-7-4B1 で misc3.c が「重さに負けているか」の 2 つの答え（weapon_heavy と
+# pack_heavy）を src/burden.h の窓口越しに読み書きするようになったので、
+# src/burden.c もリンクする。実体はまだ misc3_stubs.c:43,53 にあり、窓口は
+# それを指す（ステップ C1 で実体が burden.c の static に移ったら代役を消す）。
+# misc3.c をリンクする 6 本の規則すべてに同じ 1 行が要る。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -139,13 +147,14 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               src/treasure.c src/player.c src/abilities.c \
                               src/progress.c src/score_death.c \
                               src/save_state.c \
-                              src/player_pos.c | $(BUILDDIR)
+                              src/player_pos.c src/hp_table.c \
+                              src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -172,13 +181,14 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/abilities.c src/abilities.h \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
-                            src/player_pos.c | $(BUILDDIR)
+                            src/player_pos.c src/hp_table.c \
+                            src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -217,13 +227,14 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/abilities.c src/messages.c src/stores.c \
                                  src/progress.c src/score_death.c \
                                  src/save_state.c \
-                                 src/player_pos.c | $(BUILDDIR)
+                                 src/player_pos.c src/hp_table.c \
+                                 src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -257,16 +268,22 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # #18-6C1 で実体も player_pos.c の static になったので、creature_stubs.c から
 # 代役 2 個を消した（残すと窓口越しの読み書きが届かない別の器になる。
 # #18-5C と同じ）。この 1 本が窓口と置き場の両方になっている。
+#
+# #18-7-3B1 で creature.c が明かりの窓口（player_has_light）を呼ぶように
+# なったので src/player_light.c もリンクする（4 → 5 コンパイル単位）。
+# #18-7-3C1 で実体も player_light.c の static になったので、creature_stubs.c から
+# 代役 1 個を消した（残すと窓口越しの読み書きが届かない別の器になる。
+# player_pos.c・inventory.c と同じ）。この 1 本が窓口と置き場の両方になっている。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                 src/creature.c src/inventory.c \
                                 src/equipment.h src/inventory.h \
                                 src/progress.c src/score_death.c \
-                                src/player_pos.c | $(BUILDDIR)
+                                src/player_pos.c src/player_light.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
-	    src/score_death.c src/player_pos.c
+	    src/score_death.c src/player_pos.c src/player_light.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -302,13 +319,14 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/treasure.c src/player.c \
                          src/abilities.c src/progress.c \
                          src/score_death.c src/save_state.c \
-                         src/player_pos.c | $(BUILDDIR)
+                         src/player_pos.c src/hp_table.c \
+                         src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
@@ -377,6 +395,16 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # #18-6B1 で save.c が居場所 2 個も src/player_pos.c の窓口越しに読み書きする
 # ようになったので player_pos.c もリンクする（実体はまだ player.c にあるので
 # 足場は要らない）。
+#
+# #18-7-2B1 でレベルごとの HP 表も src/hp_table.c の窓口越しになったので
+# hp_table.c もリンクする（実体はまだ player.c にあり、その player.c を本物で
+# リンクしているので足場は要らない。player_pos.c と同じ）。
+#
+# #18-7-4B2 で save.c が「重さに負けているか」の 2 つの答えも src/burden.h の
+# 窓口越しに読み書きするようになったので src/burden.c もリンクする（実体は
+# まだ variable.c にあり、その variable.c を本物でリンクしているので足場は
+# 要らない。player_pos.c・hp_table.c と同じ）。
+
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                             src/save.c src/variable.c src/tables.c \
@@ -384,12 +412,14 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/options.c src/messages.c src/panel.c \
                             src/stores.c src/inventory.c \
                             src/progress.c src/score_death.c \
-                            src/save_state.c src/player_pos.c | $(BUILDDIR)
+                            src/save_state.c src/player_pos.c \
+                            src/hp_table.c src/burden.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
 	    src/messages.c src/panel.c src/stores.c src/inventory.c \
-	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c
+	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
+	    src/hp_table.c src/burden.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -400,7 +430,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 # 本体と同じ記録でなければ意味が無い）。
 #
 # save.c が持ち物と装備の窓口を呼ぶので src/inventory.c もリンクする
-# （save_bool_test と同じ理由）。居場所 2 個の窓口 src/player_pos.c も同じ。
+# （save_bool_test と同じ理由）。居場所 2 個の窓口 src/player_pos.c、レベル
+# ごとの HP 表の窓口 src/hp_table.c も同じ。
 $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                              src/save.c src/variable.c src/tables.c \
@@ -408,12 +439,14 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/options.c src/messages.c src/panel.c \
                              src/stores.c src/inventory.c \
                              src/progress.c src/score_death.c \
-                             src/save_state.c src/player_pos.c | $(BUILDDIR)
+                             src/save_state.c src/player_pos.c \
+                             src/hp_table.c src/burden.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
 	    src/messages.c src/panel.c src/stores.c src/inventory.c \
-	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c
+	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
+	    src/hp_table.c src/burden.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -495,6 +528,9 @@ $(BUILDDIR)/progress_test: $(TESTDIR)/progress_test.c \
 # highscores() が関数の中で fopen して fclose するだけなので局所変数にできる
 # （ユーザーの判断）。ファイル操作を抱えないので externs.h（fopen を tfopen に
 # 置きかえる）を include せずに済んでいる。
+# #18-7-1C1 で total_winner と max_score の実体も src/score_death.c の static に
+# なったので、ステップ A のあいだ要った足場（tests/score_death_fixture.c）は
+# 消えた。2 コンパイル単位・代役 0 に戻っている。
 $(BUILDDIR)/score_death_test: $(TESTDIR)/score_death_test.c \
                               $(TESTDIR)/minunit.h \
                               src/score_death.c src/score_death.h | $(BUILDDIR)
@@ -526,6 +562,89 @@ $(BUILDDIR)/player_pos_test: $(TESTDIR)/player_pos_test.c \
                              $(TESTDIR)/minunit.h \
                              src/player_pos.c src/player_pos.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_pos_test.c src/player_pos.c
+
+# レベルごとの HP 表の置き場（player_hp[40]）。#18-7-2C1 で実体が
+# src/hp_table.c の static になったので、ステップ A のあいだ要った足場
+# （tests/hp_table_fixture.c）は消えた。窓口は誰も呼ばないので代役も 1 つも
+# 要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （progress_test・score_death_test・player_pos_test と同じ形）。
+$(BUILDDIR)/hp_table_test: $(TESTDIR)/hp_table_test.c \
+                           $(TESTDIR)/minunit.h \
+                           src/hp_table.c src/hp_table.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/hp_table_test.c src/hp_table.c
+
+# 最大 HP の計算（misc3.c:1624 の calc_hitpoints）。レベルごとの HP 表を読む
+# 唯一の場所で、単体テストが 1 件も届いていなかった（表の段を 1 つずらす
+# 変異を入れても全テストがグリーンのままだった）。リンク構成は put_misc3_test
+# と同じ（misc3.c の未解決シンボルを misc3_stubs.c の代役で埋め、定数表・
+# インベントリ・py は本物を使う）。表の窓口 src/hp_table.c も本物をリンクする。
+$(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
+                            $(TESTDIR)/misc3_stubs.c \
+                            $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/tables.c src/inventory.c \
+                            src/treasure.c src/player.c \
+                            src/abilities.c src/abilities.h \
+                            src/progress.c src/score_death.c \
+                            src/save_state.c \
+                            src/player_pos.c src/hp_table.c \
+                            src/burden.c src/burden.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_hitpoints_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c src/inventory.c \
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c src/hp_table.c src/burden.c
+
+# 明かりを持っているかどうかの置き場（player_light）。#18-7-3C1 で実体が
+# src/player_light.c の static になったので、ステップ A のあいだ要った足場
+# （tests/player_light_fixture.c）は消えた。窓口は誰も呼ばないので代役も 1 つも
+# 要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （progress_test・score_death_test・player_pos_test・hp_table_test と同じ形）。
+$(BUILDDIR)/player_light_test: $(TESTDIR)/player_light_test.c \
+                               $(TESTDIR)/minunit.h \
+                               src/player_light.c src/player_light.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_light_test.c src/player_light.c
+
+# 重さに負けているかどうかの判定（misc3.c:975 の check_strength と
+# misc3.c:957 の inven_check_weight）。2 つの答えを書く唯一の場所で、
+# 単体テストが 1 件も届いていなかった。戻り値が無く、結果はメッセージ・
+# 速度（change_speed）・能力の再計算（calc_bonuses）にしか現れないので、
+# misc3_stubs.c の代役が記録した内容を fixture.h の窓口で読みとる。
+#
+# リンク構成は put_misc3_test・calc_hitpoints_test と同じ（misc3.c の未解決
+# シンボルを代役で埋め、定数表・インベントリ・py は本物を使う）＋ 覚えた
+# 答えを読み書きする src/burden.c。weapon_heavy と pack_heavy の実体は
+# ステップ A のあいだ misc3_stubs.c:43,53 にあり、burden.c の窓口はそれを
+# 指す（ステップ C1 で実体が burden.c の static に移ったら代役を消す）。
+$(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
+                            $(TESTDIR)/misc3_stubs.c \
+                            $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/tables.c src/inventory.c \
+                            src/treasure.c src/player.c \
+                            src/abilities.c src/abilities.h \
+                            src/progress.c src/score_death.c \
+                            src/save_state.c \
+                            src/player_pos.c src/hp_table.c \
+                            src/burden.c src/burden.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/check_strength_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c src/inventory.c \
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c src/hp_table.c src/burden.c
+
+# 重さに負けているかどうかの置き場（weapon_heavy と pack_heavy）。#18-7-4C1 で
+# 実体が src/burden.c の static になったので、ステップ A のあいだ要った足場
+# （tests/burden_fixture.c）は消えた。窓口は誰も呼ばないので代役も 1 つも
+# 要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （progress_test・score_death_test・player_pos_test・hp_table_test・
+# player_light_test と同じ形）。
+$(BUILDDIR)/burden_test: $(TESTDIR)/burden_test.c \
+                        $(TESTDIR)/minunit.h \
+                        src/burden.c src/burden.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/burden_test.c src/burden.c
 
 clean:
 	rm -rf $(BUILDDIR)

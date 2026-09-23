@@ -12,11 +12,13 @@
 #include "constant.h"
 #include "types.h"
 
+#include "burden.h"
 #include "equipment.h"
 #include "externs.h"
 #include "score_death.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_light.h"
 #include "player_pos.h"
 #include "stats.h"
 
@@ -140,7 +142,7 @@ void calc_bonuses(void) {
     }
     m_ptr->dis_ac += m_ptr->dis_tac;
 
-    if (weapon_heavy) {
+    if (weapon_is_too_heavy()) {
         m_ptr->dis_th += (py.stats.use_stat[A_STR] * 15 - equipment_at(INVEN_WIELD)->weight);
     }
 
@@ -750,7 +752,7 @@ void inven_command(char command) {
                 }
 
                 // this is a new weapon, so clear the heavy flag
-                weapon_heavy = false;
+                set_weapon_too_heavy(false);
                 check_strength();
             }
             break;
@@ -1071,7 +1073,7 @@ void inven_command(char command) {
                                 msg_print(prt1);
                                 // this is a new weapon, so clear heavy flag
                                 if (slot == INVEN_WIELD) {
-                                    weapon_heavy = false;
+                                    set_weapon_too_heavy(false);
                                 }
                                 check_strength();
                                 if (i_ptr->flags & TR_CURSED) {
@@ -1595,7 +1597,7 @@ static void sub3_move_light(int y1, int x1, int y2, int x2) {
 // Package for moving the character's light about the screen
 // Four cases : Normal, Finding, Blind, and Nolight -RAK-
 void move_light(int y1, int x1, int y2, int x2) {
-    if (py.flags.blind > 0 || !player_light) {
+    if (py.flags.blind > 0 || !player_has_light()) {
         sub3_move_light(y1, x1, y2, x2);
     } else {
         sub1_move_light(y1, x1, y2, x2);
@@ -1721,7 +1723,7 @@ void take_hit(int damage, const char *hit_from) {
         if (!player_is_dead()) {
             set_player_dead(true);
             (void)strcpy(death_cause(), hit_from);
-            total_winner = false;
+            set_player_has_won(false);
         }
         new_level_flag = true;
     } else {

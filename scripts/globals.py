@@ -63,8 +63,25 @@ GROUPS = {
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
         sound_beep_flag display_counts""",
     "プレイヤー状態": """
-        py player_hp spell_learned spell_worked spell_forgotten
-        spell_order total_winner max_score player_light weapon_heavy pack_heavy""",
+        py spell_learned spell_worked spell_forgotten
+        spell_order""",
+    # 重さに負けているか 2 個（weapon_heavy・pack_heavy）は #18-7-4C1 で
+    # burden.c の static になり、externs.h から外れた。窓口は src/burden.h。
+    # 装備と持ち物の重さから毎回導出する形にはしていない —— 重い／軽いの
+    # **変わり目**でしか起きないこと（4 通りの message と change_speed への
+    # 差分）が check_strength()（misc3.c）にあるので、覚えた答えを返す
+    # 置き場のままにしてある（player_light と同じ理由）。
+    # 明かりの有無（player_light）は #18-7-3C1 で player_light.c の static に
+    # なり、externs.h から外れた。窓口は src/player_light.h（player_has_light /
+    # set_player_has_light）。装備の欄から導出する形にはしていない —— 明るい／
+    # 暗いの**変わり目**でしか起きないこと（message・モンスターの出しなおし）が
+    # dungeon.c にあるので、覚えた答えを返す置き場のままにしてある。
+    # レベルごとの HP 表（player_hp）は #18-7-2C1 で hp_table.c の static に
+    # なり、externs.h から外れた。窓口は src/hp_table.h（hp_total_at_level /
+    # set_hp_total_at_level / hp_table_slots）。表は 1 起点で読む。
+    # 勝ちと最高得点の 2 個（total_winner max_score）は #18-7-1C1 で
+    # score_death.c の static になり、externs.h から外れた。窓口は
+    # src/score_death.h（player_has_won / best_score_so_far）。
     # 居場所の 2 個（char_row char_col）は #18-6C1 で player_pos.c の static に
     # なり、externs.h から外れた。窓口は src/player_pos.h（player_row /
     # player_col / player_place / player_pos_forget）。同じ区分に残る 11 個は

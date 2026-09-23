@@ -8,10 +8,12 @@
 
 #include "game_state.h"
 
+#include "burden.h"
 #include "constant.h"
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_light.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
@@ -93,11 +95,11 @@ GameState *game_state_init(void) {
     state->display_counts = display_counts;
 
     // Runtime state
-    state->player_light = player_light;
+    state->player_light = player_has_light();
     state->find_flag = find_flag;
     state->free_turn_flag = free_turn_flag;
-    state->weapon_heavy = weapon_heavy;
-    state->pack_heavy = pack_heavy;
+    state->weapon_heavy = weapon_is_too_heavy();
+    state->pack_heavy = pack_speed_penalty();
     state->doing_inven = doing_inven;
     state->screen_change = screen_change;
     state->eof_flag = eof_flag;

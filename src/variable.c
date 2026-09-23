@@ -37,16 +37,17 @@ const char *copyright[17] = {
 // creatures() via summon_monster() and place_monster()
 int hack_monptr = -1;
 
-bool weapon_heavy = false;
-int pack_heavy = 0;
-bool total_winner = false;
-int32_t max_score = 0;
+// weapon_heavy と pack_heavy（重さに負けているか）はここに無い。#18-7-4C1 で
+// src/burden.c の static になった。窓口は src/burden.h
+// （weapon_is_too_heavy / set_weapon_too_heavy /
+//  pack_speed_penalty / set_pack_speed_penalty）。
 
-// Thirteen records that used to live here now live beside the code that uses
+// Fifteen records that used to live here now live beside the code that uses
 // them, private to their own file and reached through a window:
 //
 //   progress.c    turn, randes_seed, town_seed, wizard, to_be_wizard
-//   score_death.c death, died_from, birth_date, noscore
+//   score_death.c death, died_from, birth_date, noscore, total_winner,
+//                 max_score
 //   save_state.c  savefile, character_generated, character_saved, panic_save
 //
 // See src/progress.h, src/score_death.h and src/save_state.h.
@@ -97,7 +98,9 @@ char last_command = ' ';    // Memory of previous command.
 // these used to be in dungeon.c
 bool new_level_flag;     // Next level when true
 bool teleport_flag;      // Handle teleport traps
-bool player_light;       // Player carrying light
+// player_light（明かりを持っているか）はここに無い。#18-7-3C1 で
+// src/player_light.c の static になった。窓口は src/player_light.h
+// （player_has_light / set_player_has_light）。
 int eof_flag = 0;        // Used to signal EOF/HANGUP condition
 bool light_flag = false; // Track if temporary light about player.
 

@@ -52,8 +52,11 @@ int find_flag;
 int hack_monptr;
 /* death もここに無い。#19B2 で creature.c が player_is_dead() 越しに読む
  * ようになったので、実体は src/score_death.c の static である。 */
-bool player_light;
+/* player_light もここに無い。#18-7-3C1 で src/player_light.c が static で
+ * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 bool screen_change;
+/* total_winner と max_score もここに無い。#18-7-1C1 で src/score_death.c が
+ * static で持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 
 /* --- 画面出力・メッセージ --- */
 void msg_print(const char *str) { (void)str; }

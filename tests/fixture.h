@@ -42,4 +42,18 @@ const char *fixture_message_text(int index);
 /* msg_print() が呼ばれた回数。fixture_reset() で 0 に戻る。 */
 int fixture_message_count(void);
 
+/* 最後に change_speed() へ渡された段数の差。misc3_stubs.c だけが提供する
+ * （fixture.c にはない）。check_strength() は速度を change_speed(新しい段数 −
+ * 覚えた段数) という**差**で動かすので、符号と大きさが観測できなければ
+ * 「遅くなった」と「速くなった」を区別できない。fixture_reset() で 0 に戻る。 */
+int fixture_speed_change_last_steps(void);
+
+/* change_speed() が呼ばれた回数。差が 0 のときに呼ばないことを見るために要る
+ * （最後の値だけでは、呼ばれていないのと 0 を渡されたのが区別できない）。 */
+int fixture_speed_change_count(void);
+
+/* calc_bonuses() が呼ばれた回数。武器が重すぎるかどうかが変わったときに
+ * 能力の再計算が走ることを見る。misc3_stubs.c だけが提供する。 */
+int fixture_calc_bonuses_count(void);
+
 #endif /* FIXTURE_H */

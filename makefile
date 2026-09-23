@@ -54,6 +54,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	render.c render_ncurses.c view_observer.c game_state.c \
 	input.c input_ncurses.c platform.c panel.c stores.c stats.c str_insert.c \
 	inventory.c progress.c score_death.c save_state.c player_pos.c \
+	hp_table.c player_light.c burden.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -65,6 +66,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	render.o render_ncurses.o view_observer.o game_state.o \
 	input.o input_ncurses.o platform.o panel.o stores.o stats.o str_insert.o \
 	inventory.o progress.o score_death.o save_state.o player_pos.o \
+	hp_table.o player_light.o burden.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -150,6 +152,8 @@ help:
 HEADERS_COMMON = $(SRCDIR)/constant.h $(SRCDIR)/types.h $(SRCDIR)/config.h
 HEADERS_FULL = $(HEADERS_COMMON) $(SRCDIR)/externs.h
 
+# burden.c does not include externs.h either, so HEADERS_COMMON is enough.
+burden.o: $(SRCDIR)/burden.h $(HEADERS_COMMON)
 create.o: $(HEADERS_FULL)
 creature.o: $(HEADERS_FULL)
 death.o: $(HEADERS_FULL)
@@ -158,9 +162,11 @@ device.o: $(SRCDIR)/device.h $(HEADERS_FULL)
 dungeon.o: $(HEADERS_FULL)
 eat.o: $(HEADERS_FULL)
 files.o: $(HEADERS_FULL)
-game_state.o: $(SRCDIR)/game_state.h $(HEADERS_FULL)
+game_state.o: $(SRCDIR)/game_state.h $(SRCDIR)/burden.h $(HEADERS_FULL)
 generate.o: $(HEADERS_FULL)
 help.o: $(HEADERS_FULL)
+# hp_table.c does not include externs.h either, so HEADERS_COMMON is enough.
+hp_table.o: $(SRCDIR)/hp_table.h $(HEADERS_COMMON)
 # inventory.c does not include externs.h, so HEADERS_COMMON is enough here
 # (the same as stats.o and str_insert.o below). It provides both windows on the
 # one array, so equipment.h is a dependency too.
@@ -171,17 +177,19 @@ magic.o: $(HEADERS_FULL)
 main.o: $(HEADERS_FULL)
 misc1.o: $(HEADERS_FULL)
 misc2.o: $(HEADERS_FULL)
-misc3.o: $(HEADERS_FULL)
+misc3.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 misc4.o: $(HEADERS_FULL)
 monsters.o: $(HEADERS_COMMON)
-moria1.o: $(HEADERS_FULL)
+moria1.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 moria2.o: $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
-moria4.o: $(HEADERS_FULL)
+moria4.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 panel.o: $(SRCDIR)/panel.h $(HEADERS_FULL)
 player.o: $(HEADERS_COMMON)
 # player_pos.c does not include externs.h, so HEADERS_COMMON is enough here
 # (the same as stats.o and str_insert.o below).
+# player_light.c does not include externs.h either, so HEADERS_COMMON is enough.
+player_light.o: $(SRCDIR)/player_light.h $(HEADERS_COMMON)
 player_pos.o: $(SRCDIR)/player_pos.h $(HEADERS_COMMON)
 potions.o: $(HEADERS_FULL)
 prayer.o: $(HEADERS_FULL)
@@ -193,7 +201,7 @@ view_observer.o: $(SRCDIR)/view_observer.h
 input.o: $(SRCDIR)/input.h
 input_ncurses.o: $(SRCDIR)/input.h $(SRCDIR)/backend_ncurses.h
 platform.o: $(SRCDIR)/platform.h $(SRCDIR)/backend_ncurses.h $(SRCDIR)/render.h $(SRCDIR)/input.h
-save.o: $(HEADERS_FULL)
+save.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 scrolls.o: $(HEADERS_FULL)
 sets.o: $(SRCDIR)/constant.h $(SRCDIR)/config.h
 signal_flags.o: $(SRCDIR)/signal_flags.h

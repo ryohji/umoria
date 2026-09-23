@@ -135,7 +135,7 @@ static void print_tomb(void) {
     (void)sprintf(str, "/%s\\,;_          _;,,,;_", center_string(tmp_str, py.misc.name));
     put_buffer(str, 6, 10);
     put_buffer("|               the               |   ___", 7, 9);
-    if (!total_winner) {
+    if (!player_has_won()) {
         p = title_string();
     } else {
         p = "Magnificent";
@@ -144,7 +144,7 @@ static void print_tomb(void) {
     put_buffer(str, 8, 9);
     put_buffer("|", 9, 9);
     put_buffer("|  :   :", 9, 43);
-    if (!total_winner) {
+    if (!player_has_won()) {
         p = class[py.misc.pclass].title;
     } else if (py.misc.male) {
         p = "*King*";
@@ -236,8 +236,8 @@ int32_t total_points(void) {
     total += dun_level * 50;
 
     // Don't ever let the score decrease from one save to the next.
-    if (max_score > total) {
-        return max_score;
+    if (best_score_so_far() > total) {
+        return best_score_so_far();
     }
 
     return total;
@@ -464,7 +464,7 @@ _Noreturn void exit_game(void) {
     // If the game has been saved, then save sets turn back to -1,
     // which inhibits the printing of the tomb.
     if (save_state_character_is_in_play()) {
-        if (total_winner) {
+        if (player_has_won()) {
             kingly();
         }
         print_tomb();

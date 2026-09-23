@@ -32,11 +32,8 @@ extern bool display_counts;    // Display rest/repeat counts
 extern bool new_level_flag; // Next level when true
 extern bool teleport_flag;  // Handle teleport traps
 extern int eof_flag;        // Used to handle eof/HANGUP
-extern bool player_light;   // Player carrying light
 extern int find_flag;       // Used in MORIA
 extern bool free_turn_flag; // Used in MORIA
-extern bool weapon_heavy;   // Flag if the weapon too heavy -CJS-
-extern int pack_heavy;      // Flag if the pack too heavy -CJS-
 extern char doing_inven;    // Track inventory commands
 extern bool screen_change;  // Screen changes (used in inven_commands)
 
@@ -75,7 +72,6 @@ extern const char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL];
 extern race_type race[MAX_RACES];
 extern background_type background[MAX_BACKGROUND];
 extern uint32_t player_exp[MAX_PLAYER_LEVEL];
-extern uint16_t player_hp[MAX_PLAYER_LEVEL];
 
 extern uint8_t rgold_adj[MAX_RACES][MAX_RACES];
 
@@ -90,8 +86,6 @@ extern uint32_t spell_worked;    // Bit field for spells tried -CJS-
 extern uint32_t spell_forgotten; // Bit field for spells forgotten -JEW-
 extern uint8_t spell_order[32];  // remember order that spells are learned in
 extern uint16_t player_init[MAX_CLASS][5];
-extern bool total_winner;
-extern int32_t max_score;
 
 // Following are store definitions
 extern owner_type owners[MAX_OWNERS];

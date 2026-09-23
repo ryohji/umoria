@@ -5,7 +5,8 @@
 // for further details.
 
 // How this life ended and whether it counts: the death flag, what did it, when
-// the character was born, and the reasons the score is not to be recorded.
+// the character was born, the reasons the score is not to be recorded, whether
+// the game was won, and the best score the run has reached.
 
 #ifndef SCORE_DEATH_H
 #define SCORE_DEATH_H
@@ -52,5 +53,25 @@ void set_character_birth_date(int32_t date);
 // over rather than answering either question.
 int16_t score_disqualifications(void);
 void set_score_disqualifications(int16_t reasons);
+
+// --- whether the game was won --------------------------------------------
+
+// True once the player has beaten the game (killing a CM_WIN monster). It
+// outlives the win: dying afterwards clears it (moria1.c), the tomb and the
+// character sheet print a different title while it is true, the win monster is
+// not placed again, and the save file refuses a resurrection.
+bool player_has_won(void);
+void set_player_has_won(bool won);
+
+// --- the best score the run has reached ----------------------------------
+
+// The highest total the run has ever been worth. The score is recomputed from
+// the character and the dungeon level every time it is asked for, so it would
+// otherwise fall when the player loses items or climbs; this record is what
+// keeps it from decreasing (death.c). Written only by the save file's reader,
+// which is why there is no "raise it to" window: the running game just reads it
+// and hands back the larger of the two numbers.
+int32_t best_score_so_far(void);
+void set_best_score_so_far(int32_t score);
 
 #endif // SCORE_DEATH_H
