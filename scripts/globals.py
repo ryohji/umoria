@@ -63,8 +63,11 @@ GROUPS = {
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
         sound_beep_flag display_counts""",
     "プレイヤー状態": """
-        py player_hp spell_learned spell_worked spell_forgotten
+        py spell_learned spell_worked spell_forgotten
         spell_order player_light weapon_heavy pack_heavy""",
+    # レベルごとの HP 表（player_hp）は #18-7-2C1 で hp_table.c の static に
+    # なり、externs.h から外れた。窓口は src/hp_table.h（hp_total_at_level /
+    # set_hp_total_at_level / hp_table_slots）。表は 1 起点で読む。
     # 勝ちと最高得点の 2 個（total_winner max_score）は #18-7-1C1 で
     # score_death.c の static になり、externs.h から外れた。窓口は
     # src/score_death.h（player_has_won / best_score_so_far）。
