@@ -1721,7 +1721,7 @@ void take_hit(int damage, const char *hit_from) {
         if (!player_is_dead()) {
             set_player_dead(true);
             (void)strcpy(death_cause(), hit_from);
-            total_winner = false;
+            set_player_has_won(false);
         }
         new_level_flag = true;
     } else {

@@ -1158,7 +1158,7 @@ static void do_command(char com_val) {
         free_turn_flag = true;
         break;
     case CTRL_KEY('X'): // e(^X)it and save
-        if (total_winner) {
+        if (player_has_won()) {
             msg_print(
                 "You are a Total Winner,  your character must be retired.");
             if (rogue_like_commands) {

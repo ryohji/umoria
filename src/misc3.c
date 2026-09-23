@@ -461,7 +461,7 @@ void prt_winner(void) {
         put_buffer("Resurrected", 22, 0);
     } else if (score_disqualifications() & 0x4) {
         put_buffer("Duplicate", 22, 0);
-    } else if (total_winner) {
+    } else if (player_has_won()) {
         put_buffer("*Winner*   ", 22, 0);
     }
 }
