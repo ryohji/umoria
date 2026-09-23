@@ -64,7 +64,12 @@ GROUPS = {
         sound_beep_flag display_counts""",
     "プレイヤー状態": """
         py spell_learned spell_worked spell_forgotten
-        spell_order player_light weapon_heavy pack_heavy""",
+        spell_order weapon_heavy pack_heavy""",
+    # 明かりの有無（player_light）は #18-7-3C1 で player_light.c の static に
+    # なり、externs.h から外れた。窓口は src/player_light.h（player_has_light /
+    # set_player_has_light）。装備の欄から導出する形にはしていない —— 明るい／
+    # 暗いの**変わり目**でしか起きないこと（message・モンスターの出しなおし）が
+    # dungeon.c にあるので、覚えた答えを返す置き場のままにしてある。
     # レベルごとの HP 表（player_hp）は #18-7-2C1 で hp_table.c の static に
     # なり、externs.h から外れた。窓口は src/hp_table.h（hp_total_at_level /
     # set_hp_total_at_level / hp_table_slots）。表は 1 起点で読む。
