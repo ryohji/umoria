@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "equipment.h"
+#include "hp_table.h"
 #include "inventory.h"
 #include "panel.h"
 #include "messages.h"
@@ -231,7 +232,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)is_panic_save());
     wr_short((uint16_t)player_has_won());
     wr_short((uint16_t)score_disqualifications());
-    wr_shorts(player_hp, MAX_PLAYER_LEVEL);
+    wr_shorts(hp_table_slots(), MAX_PLAYER_LEVEL);
 
     for (int i = 0; i < store_count(); i++) {
         wr_store(store_at(i));
@@ -709,7 +710,7 @@ bool get_char(bool *generate) {
             uint16_t saved_disqualifications;
             rd_short(&saved_disqualifications);
             set_score_disqualifications((int16_t)saved_disqualifications);
-            rd_shorts(player_hp, MAX_PLAYER_LEVEL);
+            rd_shorts(hp_table_slots(), MAX_PLAYER_LEVEL);
 
             if ((version_min >= 2) || (version_min == 1 && patch_level >= 3)) {
                 for (int i = 0; i < store_count(); i++) {
