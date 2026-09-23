@@ -54,11 +54,8 @@ int hack_monptr;
  * ようになったので、実体は src/score_death.c の static である。 */
 bool player_light;
 bool screen_change;
-/* total_winner と max_score は #18-7-1 のあいだだけ要る代役。src/score_death.c が
- * まだ src/variable.c の実体を extern で読み書きしているので、ここに 2 行置く。
- * ステップ C で実体が static になったら消す（残すと窓口に届かない器になる）。 */
-bool total_winner;
-int32_t max_score;
+/* total_winner と max_score もここに無い。#18-7-1C1 で src/score_death.c が
+ * static で持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 
 /* --- 画面出力・メッセージ --- */
 void msg_print(const char *str) { (void)str; }

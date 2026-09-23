@@ -495,16 +495,13 @@ $(BUILDDIR)/progress_test: $(TESTDIR)/progress_test.c \
 # highscores() が関数の中で fopen して fclose するだけなので局所変数にできる
 # （ユーザーの判断）。ファイル操作を抱えないので externs.h（fopen を tfopen に
 # 置きかえる）を include せずに済んでいる。
-# #18-7-1 のあいだだけ足場が 1 本ある。total_winner と max_score の実体はまだ
-# src/variable.c にあり、src/score_death.c が extern 2 行で読み書きするので、
-# その 2 行を tests/score_death_fixture.c が用意する（src/variable.c を引くと
-# externs.h ごと全部を抱えこむ）。ステップ C で実体が static になったら消す。
+# #18-7-1C1 で total_winner と max_score の実体も src/score_death.c の static に
+# なったので、ステップ A のあいだ要った足場（tests/score_death_fixture.c）は
+# 消えた。2 コンパイル単位・代役 0 に戻っている。
 $(BUILDDIR)/score_death_test: $(TESTDIR)/score_death_test.c \
-                              $(TESTDIR)/score_death_fixture.c \
                               $(TESTDIR)/minunit.h \
                               src/score_death.c src/score_death.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/score_death_test.c src/score_death.c \
-	    $(TESTDIR)/score_death_fixture.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/score_death_test.c src/score_death.c
 
 # セーブの置き場（savefile・生成済み・保存済み・panic）と 3 つの述語。
 # 3 module のうち唯一よそを読む側なので、この 1 本だけリンクが長い:
@@ -516,14 +513,12 @@ $(BUILDDIR)/score_death_test: $(TESTDIR)/score_death_test.c \
 # 3 本（save_state_fixture.c・progress_fixture.c・score_death_fixture.c）は
 # 消えた。代役は 1 つも要らない。
 $(BUILDDIR)/save_state_test: $(TESTDIR)/save_state_test.c \
-                             $(TESTDIR)/score_death_fixture.c \
                              $(TESTDIR)/minunit.h \
                              src/save_state.c src/save_state.h \
                              src/progress.c src/progress.h \
                              src/score_death.c src/score_death.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_state_test.c \
-	    src/save_state.c src/progress.c src/score_death.c \
-	    $(TESTDIR)/score_death_fixture.c
+	    src/save_state.c src/progress.c src/score_death.c
 
 # プレイヤーの居場所の置き場（char_row・char_col）。#18-6C1 で実体が
 # src/player_pos.c の static になったので、足場（tests/player_pos_fixture.c）は

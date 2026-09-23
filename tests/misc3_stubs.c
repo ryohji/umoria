@@ -47,11 +47,9 @@ int pack_heavy;
 bool display_counts;
 bool free_turn_flag;
 bool teleport_flag;
-bool total_winner;
-/* max_score は #18-7-1 のあいだだけ要る代役。misc3.c ではなく
- * src/score_death.c が src/variable.c の実体を extern で読み書きするために要る
- * （ステップ C で実体が static になったら消す）。 */
-int32_t max_score;
+/* total_winner と max_score はここに無い。#18-7-1B で misc3.c が
+ * player_has_won() 越しに読むようになり、#18-7-1C1 で実体が
+ * src/score_death.c の static になった。 */
 bool weapon_heavy;
 /* wizard はここに無い。#19B で misc3.c が progress_wizard_mode() 越しに
  * 読み書きするようになったので、実体は src/progress.c の static である
