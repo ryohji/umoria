@@ -94,7 +94,7 @@ magic.o: constant.h types.h externs.h config.h
 main.o: constant.h types.h externs.h config.h
 misc1.o: constant.h types.h externs.h config.h
 misc2.o: constant.h types.h externs.h config.h
-misc3.o: constant.h types.h externs.h config.h
+misc3.o: burden.h constant.h types.h externs.h config.h
 misc4.o: constant.h types.h externs.h config.h
 monsters.o: constant.h types.h config.h
 moria1.o: constant.h types.h externs.h config.h

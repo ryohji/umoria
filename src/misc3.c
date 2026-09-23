@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "burden.h"
 #include "equipment.h"
 #include "hp_table.h"
 #include "inventory.h"
@@ -965,7 +966,7 @@ bool inven_check_weight(inven_type *i_ptr) {
         i = 0;
     }
 
-    if (pack_heavy != i) {
+    if (pack_speed_penalty() != i) {
         return false;
     } else {
         return true;
@@ -978,13 +979,13 @@ void check_strength(void) {
 
     if (i_ptr->tval != TV_NOTHING &&
         (py.stats.use_stat[A_STR] * 15 < i_ptr->weight)) {
-        if (weapon_heavy == false) {
+        if (!weapon_is_too_heavy()) {
             msg_print("You have trouble wielding such a heavy weapon.");
-            weapon_heavy = true;
+            set_weapon_too_heavy(true);
             calc_bonuses();
         }
-    } else if (weapon_heavy == true) {
-        weapon_heavy = false;
+    } else if (weapon_is_too_heavy()) {
+        set_weapon_too_heavy(false);
         if (i_ptr->tval != TV_NOTHING) {
             msg_print("You are strong enough to wield your weapon.");
         }
@@ -998,14 +999,18 @@ void check_strength(void) {
         i = 0;
     }
 
-    if (pack_heavy != i) {
-        if (pack_heavy < i) {
+    // The remembered penalty is read four times below (compare, direction of the
+    // message, and the difference handed to change_speed), and nothing in
+    // between writes it, so read it once.
+    int remembered = pack_speed_penalty();
+    if (remembered != i) {
+        if (remembered < i) {
             msg_print("Your pack is so heavy that it slows you down.");
         } else {
             msg_print("You move more easily under the weight of your pack.");
         }
-        change_speed(i - pack_heavy);
-        pack_heavy = i;
+        change_speed(i - remembered);
+        set_pack_speed_penalty(i);
     }
     py.flags.status &= ~PY_STR_WGT;
 }

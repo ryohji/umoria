@@ -133,6 +133,12 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # #18-6B5 で misc3.c が居場所を src/player_pos.h の窓口越しに引くように
 # なったので src/player_pos.c もリンクする（実体はまだ src/player.c にあり、
 # この構成はそれをリンクしているので足場は要らない）。
+#
+# #18-7-4B1 で misc3.c が「重さに負けているか」の 2 つの答え（weapon_heavy と
+# pack_heavy）を src/burden.h の窓口越しに読み書きするようになったので、
+# src/burden.c もリンクする。実体はまだ misc3_stubs.c:43,53 にあり、窓口は
+# それを指す（ステップ C1 で実体が burden.c の static に移ったら代役を消す）。
+# misc3.c をリンクする 6 本の規則すべてに同じ 1 行が要る。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -141,13 +147,14 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               src/treasure.c src/player.c src/abilities.c \
                               src/progress.c src/score_death.c \
                               src/save_state.c \
-                              src/player_pos.c src/hp_table.c | $(BUILDDIR)
+                              src/player_pos.c src/hp_table.c \
+                              src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -174,13 +181,14 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/abilities.c src/abilities.h \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
-                            src/player_pos.c src/hp_table.c | $(BUILDDIR)
+                            src/player_pos.c src/hp_table.c \
+                            src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -219,13 +227,14 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/abilities.c src/messages.c src/stores.c \
                                  src/progress.c src/score_death.c \
                                  src/save_state.c \
-                                 src/player_pos.c src/hp_table.c | $(BUILDDIR)
+                                 src/player_pos.c src/hp_table.c \
+                                 src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -310,13 +319,14 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/treasure.c src/player.c \
                          src/abilities.c src/progress.c \
                          src/score_death.c src/save_state.c \
-                         src/player_pos.c src/hp_table.c | $(BUILDDIR)
+                         src/player_pos.c src/hp_table.c \
+                         src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
@@ -571,13 +581,14 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
                             src/abilities.c src/abilities.h \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
-                            src/player_pos.c src/hp_table.c | $(BUILDDIR)
+                            src/player_pos.c src/hp_table.c \
+                            src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_hitpoints_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # 明かりを持っているかどうかの置き場（player_light）。#18-7-3C1 で実体が
 # src/player_light.c の static になったので、ステップ A のあいだ要った足場
@@ -608,8 +619,9 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
                             src/treasure.c src/player.c \
                             src/abilities.c src/abilities.h \
                             src/progress.c src/score_death.c \
-                            src/save_state.c src/burden.c src/burden.h \
-                            src/player_pos.c src/hp_table.c | $(BUILDDIR)
+                            src/save_state.c \
+                            src/player_pos.c src/hp_table.c \
+                            src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/check_strength_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
