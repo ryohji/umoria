@@ -40,7 +40,10 @@ int16_t dun_level;
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
  * 読み書きするようになったので、実体は src/score_death.c の static である。 */
 int command_count;
-int pack_heavy;
+/* pack_heavy と weapon_heavy はここに無い。#18-7-4B で misc3.c が
+ * pack_speed_penalty() / weapon_is_too_heavy() 越しに読み書きするように
+ * なり、#18-7-4C1 で実体が src/burden.c の static になった
+ * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* character_generated もここに無い。#19B3 で misc3.c が
  * character_is_generated() 越しに読むようになったので、実体は
  * src/save_state.c の static である。 */
@@ -50,7 +53,6 @@ bool teleport_flag;
 /* total_winner と max_score はここに無い。#18-7-1B で misc3.c が
  * player_has_won() 越しに読むようになり、#18-7-1C1 で実体が
  * src/score_death.c の static になった。 */
-bool weapon_heavy;
 /* wizard はここに無い。#19B で misc3.c が progress_wizard_mode() 越しに
  * 読み書きするようになったので、実体は src/progress.c の static である
  * （ここで定義しても窓口には届かない別の器になるだけ）。 */
@@ -209,6 +211,7 @@ int fixture_speed_change_count(void) { return fixture_speed_change_calls; }
 
 /* calc_bonuses が呼ばれた回数。武器の旗が変わったときの再計算を見る。 */
 int fixture_calc_bonuses_count(void) { return fixture_bonuses_calls; }
+
 void check_view(void) {}
 void takeoff(int item, int posn) { (void)item; (void)posn; }
 bool no_light(void) { return false; }

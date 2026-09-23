@@ -34,8 +34,6 @@ extern bool teleport_flag;  // Handle teleport traps
 extern int eof_flag;        // Used to handle eof/HANGUP
 extern int find_flag;       // Used in MORIA
 extern bool free_turn_flag; // Used in MORIA
-extern bool weapon_heavy;   // Flag if the weapon too heavy -CJS-
-extern int pack_heavy;      // Flag if the pack too heavy -CJS-
 extern char doing_inven;    // Track inventory commands
 extern bool screen_change;  // Screen changes (used in inven_commands)
 

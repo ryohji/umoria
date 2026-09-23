@@ -37,8 +37,10 @@ const char *copyright[17] = {
 // creatures() via summon_monster() and place_monster()
 int hack_monptr = -1;
 
-bool weapon_heavy = false;
-int pack_heavy = 0;
+// weapon_heavy と pack_heavy（重さに負けているか）はここに無い。#18-7-4C1 で
+// src/burden.c の static になった。窓口は src/burden.h
+// （weapon_is_too_heavy / set_weapon_too_heavy /
+//  pack_speed_penalty / set_pack_speed_penalty）。
 
 // Fifteen records that used to live here now live beside the code that uses
 // them, private to their own file and reached through a window:
