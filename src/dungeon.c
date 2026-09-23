@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_light.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "score_death.h"
@@ -52,7 +53,7 @@ void dungeon(void) {
 
     // Check light status for setup
     inven_type *i_ptr = equipment_at(INVEN_LIGHT);
-    player_light = i_ptr->p1 > 0;
+    set_player_has_light(i_ptr->p1 > 0);
 
     // Check for a maximum level
     if (dun_level > p_ptr->max_dlv) {
@@ -109,11 +110,11 @@ void dungeon(void) {
 
         // Check light status
         i_ptr = equipment_at(INVEN_LIGHT);
-        if (player_light) {
+        if (player_has_light()) {
             if (i_ptr->p1 > 0) {
                 i_ptr->p1--;
                 if (i_ptr->p1 == 0) {
-                    player_light = false;
+                    set_player_has_light(false);
                     msg_print("Your light has gone out!");
                     disturb(0, 1);
 
@@ -124,7 +125,7 @@ void dungeon(void) {
                     msg_print("Your light is growing faint.");
                 }
             } else {
-                player_light = false;
+                set_player_has_light(false);
                 disturb(0, 1);
 
                 // unlight creatures
@@ -132,7 +133,7 @@ void dungeon(void) {
             }
         } else if (i_ptr->p1 > 0) {
             i_ptr->p1--;
-            player_light = true;
+            set_player_has_light(true);
             disturb(0, 1);
 
             // light creatures
