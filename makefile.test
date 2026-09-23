@@ -578,18 +578,15 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
 	    src/progress.c src/score_death.c src/save_state.c \
 	    src/player_pos.c src/hp_table.c
 
-# 明かりを持っているかどうかの置き場（player_light）。実体はまだ
-# src/variable.c にあり、そこを引くと 74 個のグローバル一式が付いてくるので、
-# ステップ A のあいだは tests/player_light_fixture.c の 1 行を足場にする
-# （#18-7-2A の hp_table_fixture.c と同じ形）。ステップ C で実体が
-# src/player_light.c の static に移ったら足場を消し、2 コンパイル単位・代役 0 に
-# する（progress_test・score_death_test・player_pos_test・hp_table_test の形）。
+# 明かりを持っているかどうかの置き場（player_light）。#18-7-3C1 で実体が
+# src/player_light.c の static になったので、ステップ A のあいだ要った足場
+# （tests/player_light_fixture.c）は消えた。窓口は誰も呼ばないので代役も 1 つも
+# 要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （progress_test・score_death_test・player_pos_test・hp_table_test と同じ形）。
 $(BUILDDIR)/player_light_test: $(TESTDIR)/player_light_test.c \
-                               $(TESTDIR)/player_light_fixture.c \
                                $(TESTDIR)/minunit.h \
                                src/player_light.c src/player_light.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_light_test.c \
-	    $(TESTDIR)/player_light_fixture.c src/player_light.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_light_test.c src/player_light.c
 
 clean:
 	rm -rf $(BUILDDIR)
