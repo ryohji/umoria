@@ -39,7 +39,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         options_test messages_test panel_test stores_test store_save_test \
         str_insert_test inventory_test progress_test score_death_test \
         save_state_test player_pos_test hp_table_test \
-        calc_hitpoints_test player_light_test burden_test
+        calc_hitpoints_test player_light_test burden_test \
+        check_strength_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -587,6 +588,34 @@ $(BUILDDIR)/player_light_test: $(TESTDIR)/player_light_test.c \
                                $(TESTDIR)/minunit.h \
                                src/player_light.c src/player_light.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_light_test.c src/player_light.c
+
+# 重さに負けているかどうかの判定（misc3.c:975 の check_strength と
+# misc3.c:957 の inven_check_weight）。2 つの答えを書く唯一の場所で、
+# 単体テストが 1 件も届いていなかった。戻り値が無く、結果はメッセージ・
+# 速度（change_speed）・能力の再計算（calc_bonuses）にしか現れないので、
+# misc3_stubs.c の代役が記録した内容を fixture.h の窓口で読みとる。
+#
+# リンク構成は put_misc3_test・calc_hitpoints_test と同じ（misc3.c の未解決
+# シンボルを代役で埋め、定数表・インベントリ・py は本物を使う）＋ 覚えた
+# 答えを読み書きする src/burden.c。weapon_heavy と pack_heavy の実体は
+# ステップ A のあいだ misc3_stubs.c:43,53 にあり、burden.c の窓口はそれを
+# 指す（ステップ C1 で実体が burden.c の static に移ったら代役を消す）。
+$(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
+                            $(TESTDIR)/misc3_stubs.c \
+                            $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/tables.c src/inventory.c \
+                            src/treasure.c src/player.c \
+                            src/abilities.c src/abilities.h \
+                            src/progress.c src/score_death.c \
+                            src/save_state.c src/burden.c src/burden.h \
+                            src/player_pos.c src/hp_table.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/check_strength_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c src/inventory.c \
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 # 重さに負けているかどうかの置き場（weapon_heavy と pack_heavy）。実体はまだ
 # src/variable.c にあり、そこを引くと 73 個のグローバル一式が付いてくるので、
