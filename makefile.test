@@ -254,9 +254,9 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 #
 # #18-6B4 で creature.c が居場所の窓口（player_row・player_col）を呼ぶように
 # なったので、同じ理由で src/player_pos.c もリンクする（3 → 4 コンパイル単位）。
-# 実体（char_row・char_col）はまだ creature_stubs.c:41-42 の代役が持っている。
-# ステップ C で実体が player_pos.c の static になったら、その 2 行は消す
-# （残すと窓口越しの読み書きが届かない別の器になる。#18-5C と同じ）。
+# #18-6C1 で実体も player_pos.c の static になったので、creature_stubs.c から
+# 代役 2 個を消した（残すと窓口越しの読み書きが届かない別の器になる。
+# #18-5C と同じ）。この 1 本が窓口と置き場の両方になっている。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -517,18 +517,15 @@ $(BUILDDIR)/save_state_test: $(TESTDIR)/save_state_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_state_test.c \
 	    src/save_state.c src/progress.c src/score_death.c
 
-# プレイヤーの居場所の置き場（char_row・char_col）。#18-6 のステップ A では
-# 実体がまだ src/player.c にあるので、足場（tests/player_pos_fixture.c）で
-# 2 つの実体を用意する（stat_bonus_test が py に対してやっているのと同じ形。
-# player.c は 530 行の定数表と同居しているのでリンクできない）。代役は 1 つも
-# 要らない。ステップ C で実体が static になったら足場ごと消して、
-# progress_test と同じ 2 コンパイル単位・代役 0 になる。
+# プレイヤーの居場所の置き場（char_row・char_col）。#18-6C1 で実体が
+# src/player_pos.c の static になったので、足場（tests/player_pos_fixture.c）は
+# 要らなくなった。窓口は誰も呼ばないので代役も 1 つも要らず、リンクは対象
+# 1 本＋テスト 1 本の 2 コンパイル単位で足りる（progress_test・score_death_test・
+# inventory_test・str_insert_test と同じ形）。
 $(BUILDDIR)/player_pos_test: $(TESTDIR)/player_pos_test.c \
-                             $(TESTDIR)/player_pos_fixture.c \
                              $(TESTDIR)/minunit.h \
                              src/player_pos.c src/player_pos.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_pos_test.c \
-	    $(TESTDIR)/player_pos_fixture.c src/player_pos.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_pos_test.c src/player_pos.c
 
 clean:
 	rm -rf $(BUILDDIR)
