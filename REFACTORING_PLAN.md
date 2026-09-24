@@ -226,7 +226,7 @@ $ cd data && TERM=xterm ../umoria
 | 15 | **完了** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | **完了** | 理解しづらいロジック | io.c:207-224 | `wait_for_more_confirmation` が `goto inkey` + switch。**読みにくさの原因は `case` の列挙ではなく、ラベル名（関数 `inkey()` と同名）と `default` の位置だった。** ラベルを `retry` に改め、`default` を後置してコメントを補った。`case` で受理文字を並べる形は「集合の宣言」として読めるので残した | ラベル改名 + 分岐の並べ替え | Medium | Low |
 | 17 | **検証済み** | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
-| 18 | データの散在 | `externs.h` の 60 個（着手時 112。misc3.c:369-540, dungeon.c:580-780 ほか） | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 に分散。**2026-09-09 に全体像を計測 → [GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)** | 区分ごとに分割して着手（下記）。**9 区分のうち 8 つ完了** —— オプション 11 個・メッセージ 4 個・パネル 10 個・店 2 個・**持ち物・アイテム 6 個（2026-09-24 に `object_ident` → `src/item_ident.c`（#18-9）、`sorted_objects` ＋ `t_level` → `src/object_levels.c`（#18-10）で区分ごと閉じた。後者は台帳の区分をまたいだ 1 つの表だった）**・セーブ／スコア／進行メタ 13 個（区分に残るのは `highscore_fp` 1 個。**その 1 個も 2026-09-16 に `death.c` の 2 関数の局所変数にしたが、`init_scorefile()` のために `externs.h` には残る** → バグ候補 B19）。7 区分目「プレイヤー状態 13 個」に着手し、**2026-09-23 に居場所 2 個（`char_row` `char_col`）を `src/player_pos.c` へ**（→ #18-6）、**2026-09-24 に 4 群 6 個**（勝ちと最高得点 → `score_death.c`、レベルごとの HP 表 → `hp_table.c`、明かりの有無 → `player_light.c`、重さ 2 個 → `burden.c`。→ #18-7）、**同日に呪文 4 個を `src/spells_known.c` へ**（→ #18-8）。**区分に残るのは `py` 1 個**（552 参照。1 本の module にはならず、問い単位の窓口で別に進める）。8 区分目「コマンド入力・実行中のフラグ 13 個」に着手し、**2026-09-25 に `light_flag` を `src/player_light.c` へ**（13 → 12 個。→ #18-11-1）、**同日に `missile_ctr` を新設 `src/missile_serial.c` へ**（12 → 11 個。折りかえしの計算を窓口の内側に隠した。→ #18-11-2）、**同日に `doing_inven` ＋ `screen_change` を新設 `src/inven_command_state.c` と `src/screen_touched.c` へ**（11 → 9 個。読み手で 2 本に分け、「中断」という 1 つの行いだけ 1 本の窓口に隠した。→ #18-11-3） | High | 区分ごと |
+| 18 | データの散在 | `externs.h` の 58 個（着手時 112。misc3.c:369-540, dungeon.c:580-780 ほか） | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 に分散。**2026-09-09 に全体像を計測 → [GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)** | 区分ごとに分割して着手（下記）。**9 区分のうち 8 つ完了** —— オプション 11 個・メッセージ 4 個・パネル 10 個・店 2 個・**持ち物・アイテム 6 個（2026-09-24 に `object_ident` → `src/item_ident.c`（#18-9）、`sorted_objects` ＋ `t_level` → `src/object_levels.c`（#18-10）で区分ごと閉じた。後者は台帳の区分をまたいだ 1 つの表だった）**・セーブ／スコア／進行メタ 13 個（区分に残るのは `highscore_fp` 1 個。**その 1 個も 2026-09-16 に `death.c` の 2 関数の局所変数にしたが、`init_scorefile()` のために `externs.h` には残る** → バグ候補 B19）。7 区分目「プレイヤー状態 13 個」に着手し、**2026-09-23 に居場所 2 個（`char_row` `char_col`）を `src/player_pos.c` へ**（→ #18-6）、**2026-09-24 に 4 群 6 個**（勝ちと最高得点 → `score_death.c`、レベルごとの HP 表 → `hp_table.c`、明かりの有無 → `player_light.c`、重さ 2 個 → `burden.c`。→ #18-7）、**同日に呪文 4 個を `src/spells_known.c` へ**（→ #18-8）。**区分に残るのは `py` 1 個**（552 参照。1 本の module にはならず、問い単位の窓口で別に進める）。8 区分目「コマンド入力・実行中のフラグ 13 個」に着手し、**2026-09-25 に `light_flag` を `src/player_light.c` へ**（13 → 12 個。→ #18-11-1）、**同日に `missile_ctr` を新設 `src/missile_serial.c` へ**（12 → 11 個。折りかえしの計算を窓口の内側に隠した。→ #18-11-2）、**同日に `doing_inven` ＋ `screen_change` を新設 `src/inven_command_state.c` と `src/screen_touched.c` へ**（11 → 9 個。読み手で 2 本に分け、「中断」という 1 つの行いだけ 1 本の窓口に隠した。→ #18-11-3）、**同日に `new_level_flag` ＋ `teleport_flag` を新設 `src/level_exit.c` と `src/pending_teleport.c` へ**（9 → 7 個。`dun_level` と対で動く形を窓口にし、上限・下限は呼ぶ側に残した。→ #18-11-4） | High | 区分ごと |
 | 42 | 未着手 | 肥大化クラス／モジュール | misc3.c の残る **10 塊**（→ 上記「#33 の精査」） | 配置 161 行／描画 475 行／能力値の変更 115 行／名前 50 行／持ち物 210 行／呪文 525 行／経験値 82 行／wizard 18 行／戦闘 120 行／移動 118 行 | モジュール分割（1 塊 1 コミット。終点は misc3.c が無くなるところ） | High | High |
 
 ### #18 の全体像（2026-09-09 に計測）
@@ -1239,6 +1239,76 @@ suspend_inven_command(resume);
 残っていた FIXME（"was a `bool`, but also holds an ASCII character"）そのもので、
 **その FIXME もこの単位で片づいた**（答えは「`char` のままでよい。0 が
 『待っていない』」で、`inven_command_state.h` に書いた）。
+
+### #18-11-4 階を出る／teleport を待つを 2 本の module に分けた（2026-09-25 完了）
+
+`new_level_flag`（16 参照）＋ `teleport_flag`（6 参照）。同じ区分の安い順で
+4 番目（ユーザーの順では D）。どちらも「この turn を途中で切りあげる理由」を
+持つ 1 ビット。**module を 2 本に分けるのも、`dun_level` と対で動く形を窓口に
+するのも、ユーザーが決めた。**
+
+| | 着手前 | 完了後 |
+|---|---:|---:|
+| `externs.h` の global | 60 | **58** |
+| 区分「コマンド入力・実行中のフラグ」 | 9 個・参照 199 | **7 個・参照 176** |
+| テスト | 760 件・34 実行形式 | **778 件・36 実行形式**（新設 2 本。10 件＋8 件） |
+| リンク構成の変化 | —— | **9 本**（`misc3.c` をリンクする全部に `pending_teleport.c`） |
+
+| 段 | 何をしたか |
+|---|---|
+| A `3d00cba` | `src/level_exit.{c,h}` と `src/pending_teleport.{c,h}`、窓口 8 つ、テスト 18 件。ビルド定義 3 つ。足場 2 つ |
+| B `59b84b4` | 22 か所を窓口越しに（`dungeon.c` 16・`moria3.c` 2・`moria1.c` 1・`scrolls.c` 1・`misc3.c` 1、`game_state.c` の写しとり 2 を含む）。`misc3.c` をリンクする 9 本に 1 単位ずつ足した |
+| C `8018fea` | 実体を 2 本の `static` へ（`level_over` / `teleport_pending`）。`externs.h` から 2 行、足場 1 つと代役 1 つも消えた。`level_exit_fixture.c` は `dun_level` だけになって残る |
+
+**対で動く形を窓口にした。** `new_level_flag` を立てる 8 か所のうち **6 か所が
+`dun_level` の置きかえと同じ息で並んでいた**（階段の上り下り・落とし穴・
+word-of-recall・深みに落ちる巻物・wizard の ^D）。
+
+```c
+dun_level++;
+new_level_flag = true;
+  ↓
+leave_for_level(dun_level + 1);
+```
+
+残る 2 か所（死・Quit）は行き先を言わないので `end_level()` を別に置いた。
+**旧名はここが少し狭い** —— `new_level_flag` は「次の階へ」と言うが、
+8 か所に共通するのは「この階は終わり」なので窓口はそう言っている
+（`level_is_over()` / `end_level()`）。
+
+**書かれていなかった道が 1 つ見えた。** word-of-recall（`dungeon.c:560`）は
+変更前、旗を**無条件に**立ててから行き先を `if-else` で決めていた。行き先が
+2 つとも当てはまらない場合（町にいて `max_dlv` が 0）は旗だけが立つ ——
+町が作りなおされる。窓口が「行き先つき／行き先なし」に分かれているので、
+この道を `else { end_level(); }` と書かないと通らない。ふるまいは同じで、
+**今までコードのどこにも書かれていなかった道**が見えるようになった
+（→ 台帳の所見 23）。
+
+**上限・下限は呼ぶ側に残した。** 同じ窓口を呼ぶ 2 か所が**反対向きに**丸めて
+いる —— wizard の ^D は 99 で止め（prompt が "Go to which level (0-99) ?" と
+言っているから）、深みに落ちる巻物は 1 で止める（町より上へ押しあげないため）。
+どちらも「階を出る」の規則ではないので内側に入れない（→ 台帳の所見 24。
+所見 21 で `missile_ctr` の折りかえしを**内側に入れた**のと逆の判断で、
+分かれ目は「規則が何についてのものか」）。
+
+**`dun_level` への `extern` 1 本が残る。** `level_exit.c` が深さを書くので、
+別の区分（地下そのもの。44 参照）の global を 1 行だけ自分で宣言している
+（`stats.c` の `py`・`object_levels.c` の `object_list` と同じ手）。
+`tests/level_exit_fixture.c` も C の後まで残り、中身は `dun_level` だけ ——
+**旗の足場ではない**（混同すると「窓口に届かない別の器」の罠に戻る）。
+どちらも `dun_level` を閉じる人が引きとる。
+
+**リンクの税は 9 本**で、これまでで一番大きい。`misc3.c` の `teleport()` が
+出口で `teleport_done()` を呼ぶので、`misc3.c` をリンクする実行形式すべてに
+`src/pending_teleport.c` が要る。註は 1 本目にだけ書いた。
+
+**変異は 7 通り**（A で 3・B で 3・C で 2）。A の 3 つは**対の両側が見えている**
+ことを示した —— `leave_for_level()` から旗を落とすと 5 件 RED、深さの書きこみを
+落とすと**同じく 5 件 RED**。B の 3 つのうち 2 つは**落ちなかった**（`misc3.c` の
+`teleport_done()`、階段下りの深さの変更。P3 #49 の形で、`misc3.c` は 9 本に
+リンクされているが `teleport()` を通るテストは 1 件も無く、`dungeon.c` は
+どのテストもリンクしない）。C は**幅を狭める変異が使えない**単位
+（2 つとも `bool`）なので、初期値と「片方の窓口を効かなくする」で押さえた。
 
 ### #16 で浮上した課題：`wait_for_more` グローバルフラグ（2026-08-28）
 
@@ -2255,3 +2325,6 @@ comment3a（売却・最終）: "I'll pay no more than %A1; take it or leave it.
 | 2026-09-25 | #18-11-3A | **変更**：中断した持ち物コマンドの 2 個（`doing_inven` 11 参照・`screen_change` 8 参照）に **module 2 本**を新設し、窓口 5 つとテスト 14 件を足した（`90294bc`。新しい実行形式 `screen_touched_test` 6 件と `inven_command_state_test` 8 件、全体 746 → 760・32 → 34 本）。安い順で 3 番目（ユーザーの順の C）。**2 本に分けるのはユーザーの判断** —— 読み手が違う（「再開する文字」は `dungeon.c` と `store2.c` が訊く、「画面が流されたか」は `io.c` と `creature.c` が立てて `moria1.c` が読む）。**ただし「中断」は 2 つで 1 つの行いなので、そこだけ 1 本の窓口に隠すのもユーザーが決めた** —— `suspend_inven_command()` が「再開する文字を覚える」と「画面の旗を忘れる」の両方をやる。片方だけ起きたときの事故が反対向きに 2 つあり（旗を消し忘れると何も起きていない画面について player に訊く／別の場所で消すと視界に入ったモンスターを見のがす）、それがこの窓口の存在理由。代償は **module 間の依存 1 本**（`inven_command_state.c` → `screen_touched.h`）で、テストもその形（`inven_command_state_test` は `screen_touched.c` もリンクする）。テストの要は 3 つ（0 だけが「待っていない」—— `' '` は dummy command という立派な答えで C では真／中断は 2 つで 1 つ／終わりは画面について何も言わない）。足場 2 つ、ビルド定義 3 つとも足した。変異は `suspend` から `forget_screen_flushed()` を落とす → **2 件レッド**（不変条件を見る 2 件だけ） | 760 | GREEN |
 | 2026-09-25 | #18-11-3B | **変更**：直に触っていた 11 か所を窓口越しに（`de9e4df`）。`moria1.c` 5・`dungeon.c` 2・`store2.c` 1・`io.c` 1・`creature.c` 2 と `game_state.c` の写しとり 2。**いちばん大きい変化は `moria1.c:1138-1144`** —— 2 つの旗を別々に動かす 6 行が、順序の理由つき 4 行になった。**順序を 1 か所入れかえた**：窓口が 2 つを同時に動かすので `msg_print(CNIL)` の**後**に呼ぶ（message を出すこと自体が「画面が流された」を立てる。変更前のコメントも "flush last message before clearing screen_change" と言っていた）。`doing_inven` を先に置くか後かは効かないことを `grep` で確かめた（読み手は 3 ファイルだけ）。`moria1.c:529-556` の -CJS- の説明も窓口の名前に書きなおした —— 「中断と再開の約束」が唯一書かれている場所なので、global の名前のまま残すと嘘になる。**リンク構成は 2 本動いた**（`movement_rate_test` に `screen_touched.c`、`haggle_comment_test` に `inven_command_state.c` ＋ `screen_touched.c`）。どちらも「テストが `.c` を丸ごと `#include` する」形で、**#18-11-2B で踏んだ落とし穴をこちらでは先に数えてから着手した**。変異は 3 通り —— `note_screen_flushed()` を no-op にすると **5 件レッド**、しかし `creature.c` の通知を落としても `store2.c` の再開を落としても **1 件も落ちない**（P3 #49。丸ごと取りこまれてはいるが、この経路は 1 件も通っていない） | 760 | GREEN |
 | 2026-09-25 | #18-11-3C | **変更**：実体 2 つを `variable.c` から 2 本の `static` へ移し、`externs.h` の宣言 2 行を消した（`83ebf3b`。名前は窓口に合わせて `pending_command` / `screen_flushed`）。**11 → 9 個・参照 224 → 199、全体は 62 → 60 個・参照 1761 → 1736**。足場 2 つと**代役 2 つ**（`creature_stubs.c` の `screen_change`・`haggle_comment_test.c` の `doing_inven`）も消した。`screen_touched_test` は **2 単位・代役 0**、`inven_command_state_test` は 3 単位（増えた 1 本は代役ではなく `screen_touched.c` 自身）。**`variable.c` の FIXME も片づいた** —— "was a `bool`, but also holds an ASCII character. Is this the best solution?" の答えは「`char` のままでよい。0 が『待っていない』、それ以外は再開するコマンド」で、`inven_command_state.h` に書いた。型に迷いが出ていたのは置き場と意味が離れていたから。変異は 2 通り —— `pending_command` を `char` → `bool` に狭めると **4 件レッド**（FIXME が言っていた話そのものが押さえられている）、`screen_flushed` の初期値を `true` にすると **1 件レッド**（`bool` は狭める幅が無いので #18-11-1C と同じ手）。`nm` で局所記号（どちらも `b`）であること、および古い 2 つの名前が実行形式に**1 つも残っていない**ことを確認した | 760 | GREEN |
+| 2026-09-25 | #18-11-4A | **変更**：階を出る／teleport を待つの 2 個（`new_level_flag` 16 参照・`teleport_flag` 6 参照）に **module 2 本**を新設し、窓口 8 つとテスト 18 件を足した（`3d00cba`。新しい実行形式 `level_exit_test` 10 件と `pending_teleport_test` 8 件、全体 760 → 778・34 → 36 本）。安い順で 4 番目（ユーザーの順の D）。**2 本に分けるのはユーザーの判断** —— 起きる場所も読まれかたも違う（「この階は終わったか」は本編のループが 3 回訊いて 8 か所が立てる、「teleport が待っているか」は罠 1 か所が立ててループが読む）。**`dun_level` と対で動く形を窓口にするのもユーザーが決めた** —— 8 か所のうち 6 か所が深さの置きかえと同じ息で並んでいたので `leave_for_level(n)` が両方をやる。残る 2 か所（死・Quit）は行き先を言わないので `end_level()` を別に。旧名は「次の階へ」と言うが 8 か所に共通するのは「この階は終わり」なので窓口はそう言う。**上限・下限は窓口に入れない** —— 呼び手 2 つが反対向きに丸めており（^D は 99 で、巻物は 1 で）、理由も窓口の外にある。足場 2 つ、ビルド定義 3 つとも足した。変異は 3 通り —— `leave_for_level` から旗を落とすと **5 件レッド**、深さの書きこみを落とすと**同じく 5 件レッド**（対の両側が見えている）、`schedule_teleport` を空にすると **3 件レッド** | 778 | GREEN |
+| 2026-09-25 | #18-11-4B | **変更**：直に触っていた 22 か所を窓口越しに（`59b84b4`）。`dungeon.c` 16・`moria3.c` 2・`moria1.c` 1・`scrolls.c` 1・`misc3.c` 1（`game_state.c` の写しとり 2 を含む）。**深さと旗が並んでいた 2 行が 1 行になった 6 か所**が主な変化。**word-of-recall に `else` を 1 つ足した** —— 変更前は旗を無条件に立ててから行き先を決めていたので、行き先が 2 つとも当てはまらない場合（町にいて `max_dlv` が 0）は旗だけが立つ。窓口が「行き先つき／行き先なし」に分かれているので、その道を `end_level()` と書かないと通らない。**ふるまいは同じで、今までコードのどこにも書かれていなかった道が 1 つ見えるようになった**（→ 台帳の所見 23）。巻物の `case 10` は波括弧で囲んだ（label の直後に宣言は置けない）。**リンク構成は 9 本動いた**（`misc3.c` の `teleport()` が出口で窓口を呼ぶので、`misc3.c` をリンクする実行形式すべてに `src/pending_teleport.c`。これまでで一番大きい税で、註は 1 本目にだけ書いた）。変異は 3 通り —— `level_is_over()` を常に false にすると **6 件レッド**、しかし `misc3.c` の `teleport_done()` を落としても階段下りの深さの変更を落としても **1 件も落ちない**（P3 #49。`misc3.c` は 9 本にリンクされているが `teleport()` を通るテストは 1 件も無く、`dungeon.c` はどのテストもリンクしない） | 778 | GREEN |
+| 2026-09-25 | #18-11-4C | **変更**：実体 2 つを `variable.c` から 2 本の `static` へ移し、`externs.h` の宣言 2 行を消した（`8018fea`。名前は窓口に合わせて `level_over` / `teleport_pending`）。**9 → 7 個・参照 199 → 176、全体は 60 → 58 個・参照 1736 → 1709**。足場 1 つ（`pending_teleport_fixture.c`）と代役 1 つ（`misc3_stubs.c:53`）も消した。**`tests/level_exit_fixture.c` は残る** —— 中身は `dun_level` 1 つだけで、これは別の区分（地下そのもの。44 参照）の global。`level_exit.c` も同じ 1 行を `extern` で自分で宣言している（`stats.c`・`object_levels.c` と同じ手）。旗の足場ではないことをファイルの頭と `makefile.test` の両方に書いた（「窓口に届かない別の器」の罠は #18-6C2 以来のくりかえし）。**`dun_level` を閉じる人が両方を引きとる。** 変異は**幅を狭める手が使えない**単位（2 つとも `bool`）なので 2 通り —— 初期値を `true` にすると **1 件レッド**、`teleport_done()` を空にすると **2 件レッド**。`nm` で局所記号（どちらも `b`）であること、古い 2 つの名前が実行形式に**1 つも残っていない**ことを確認した | 778 | GREEN |
