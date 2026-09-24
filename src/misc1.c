@@ -16,6 +16,7 @@
 #include "panel.h"
 #include "player_pos.h"
 #include "progress.h"
+#include "running.h"
 #include "score_death.h"
 
 static creature_handle get_mons_num(int level);
@@ -409,7 +410,7 @@ uint8_t loc_symbol(int y, int x) {
     cave_type *cave_ptr = &cave[y][x];
     struct flags *f_ptr = &py.flags;
 
-    if ((cave_ptr->cptr == 1) && (!find_flag || find_prself)) {
+    if ((cave_ptr->cptr == 1) && (!player_is_running() || find_prself)) {
         return '@';
     } else if (f_ptr->status & PY_BLIND) {
         return ' ';

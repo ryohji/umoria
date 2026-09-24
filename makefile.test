@@ -339,6 +339,12 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # #18-11-3C で実体も screen_touched.c の static になったので、creature_stubs.c
 # から代役 1 個（screen_change）を消した（残すと窓口越しの読み書きが届かない
 # 別の器になる。上の 3 件と同じ）。この 1 本が窓口と置き場の両方になっている。
+#
+# #18-11-6B で creature.c が「走っているか」を窓口越しに訊くようになったので
+# src/running.c もリンクする（6 → 7 コンパイル単位）。この段では実体はまだ
+# variable.c にあり、running.c は extern 宣言で見にいく。その器は
+# creature_stubs.c:51 の代役 find_flag。#18-11-6C で実体が running.c の static
+# に入ったら、上の 4 件と同じ理由でその代役を消す。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -346,11 +352,12 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/equipment.h src/inventory.h \
                                 src/progress.c src/score_death.c \
                                 src/player_pos.c src/player_light.c \
-                                src/screen_touched.c src/screen_touched.h | $(BUILDDIR)
+                                src/screen_touched.c src/screen_touched.h \
+                                src/running.c src/running.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
-	    src/screen_touched.c
+	    src/screen_touched.c src/running.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部

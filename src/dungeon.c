@@ -23,6 +23,7 @@
 #include "player_light.h"
 #include "player_pos.h"
 #include "progress.h"
+#include "running.h"
 #include "score_death.h"
 #include "messages.h"
 #include "stats.h"
@@ -68,7 +69,7 @@ void dungeon(void) {
     int find_count = 0;
     command_count = 0;
     begin_level();
-    find_flag = 0;
+    forget_run();
     forget_pending_teleport();
     mon_tot_mult = 0;
     cave[player_row()][player_col()].cptr = 1;
@@ -427,7 +428,8 @@ void dungeon(void) {
         }
 
         // Check for interrupts to find or rest.
-        if ((command_count > 0 || find_flag || f_ptr->rest != 0) && (check_input(find_flag ? 0 : 10000))) {
+        if ((command_count > 0 || player_is_running() || f_ptr->rest != 0) &&
+            (check_input(player_is_running() ? 0 : 10000))) {
             disturb(0, 0);
         }
 
@@ -683,7 +685,7 @@ void dungeon(void) {
                 default_dir = false;
                 free_turn_flag = false;
 
-                if (find_flag) {
+                if (player_is_running()) {
                     find_run();
                     find_count--;
                     if (find_count == 0) {
@@ -799,7 +801,7 @@ void dungeon(void) {
                     do_command(command);
 
                     // Find is counted differently, as the command changes.
-                    if (find_flag) {
+                    if (player_is_running()) {
                         find_count = command_count - 1;
                         command_count = 0;
                     } else if (free_turn_flag) {

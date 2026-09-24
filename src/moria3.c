@@ -20,6 +20,7 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_pos.h"
+#include "running.h"
 #include "spells_known.h"
 #include "stats.h"
 
@@ -712,7 +713,7 @@ void move_char(int dir, bool do_pickup) {
                 }
 
                 // Check to see if he should stop
-                if (find_flag) {
+                if (player_is_running()) {
                     area_affect(dir, player_row(), player_col());
                 }
 
@@ -772,7 +773,7 @@ void move_char(int dir, bool do_pickup) {
             } else {
                 // Can't move onto floor space
 
-                if (!find_flag && (c_ptr->tptr != 0)) {
+                if (!player_is_running() && (c_ptr->tptr != 0)) {
                     if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
                         msg_print("There is rubble blocking your way.");
                     } else if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
@@ -786,11 +787,11 @@ void move_char(int dir, bool do_pickup) {
         } else {
             // Attacking a creature!
 
-            int old_find_flag = find_flag;
+            bool was_running = player_is_running();
             end_find();
 
             // if player can see monster, and was in find mode, then nothing
-            if (m_list[c_ptr->cptr].ml && old_find_flag) {
+            if (m_list[c_ptr->cptr].ml && was_running) {
                 // did not do anything this turn
                 free_turn_flag = true;
             } else {

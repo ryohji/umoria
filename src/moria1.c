@@ -22,6 +22,7 @@
 #include "panel.h"
 #include "player_light.h"
 #include "player_pos.h"
+#include "running.h"
 #include "screen_touched.h"
 #include "stats.h"
 
@@ -1528,10 +1529,10 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
                 cave[i][j].tl = false;
             }
         }
-        if (find_flag && !find_prself) {
+        if (player_is_running() && !find_prself) {
             set_player_light_drawn(false);
         }
-    } else if (!find_flag || find_prself) {
+    } else if (!player_is_running() || find_prself) {
         set_player_light_drawn(true);
     }
 
@@ -1590,11 +1591,11 @@ static void sub3_move_light(int y1, int x1, int y2, int x2) {
             }
         }
         set_player_light_drawn(false);
-    } else if (!find_flag || find_prself) {
+    } else if (!player_is_running() || find_prself) {
         print(loc_symbol(y1, x1), y1, x1);
     }
 
-    if (!find_flag || find_prself) {
+    if (!player_is_running() || find_prself) {
         print('@', y2, x2);
     }
 }
@@ -1620,8 +1621,8 @@ void disturb(int s, int l) {
     if (py.flags.rest != 0) {
         rest_off();
     }
-    if (l || find_flag) {
-        find_flag = 0;
+    if (l || player_is_running()) {
+        stop_running();
         check_view();
     }
     flush();
