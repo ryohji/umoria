@@ -55,6 +55,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	input.c input_ncurses.c platform.c panel.c stores.c stats.c str_insert.c \
 	inventory.c progress.c score_death.c save_state.c player_pos.c \
 	hp_table.c player_light.c burden.c spells_known.c object_levels.c \
+	missile_serial.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -67,6 +68,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	input.o input_ncurses.o platform.o panel.o stores.o stats.o str_insert.o \
 	inventory.o progress.o score_death.o save_state.o player_pos.o \
 	hp_table.o player_light.o burden.o spells_known.o object_levels.o \
+	missile_serial.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -179,6 +181,9 @@ misc1.o: $(HEADERS_FULL)
 misc2.o: $(HEADERS_FULL)
 misc3.o: $(SRCDIR)/burden.h $(HEADERS_FULL)
 misc4.o: $(HEADERS_FULL)
+# missile_serial.c does not include externs.h either (MAX_SHORT comes from
+# constant.h), so HEADERS_COMMON is enough.
+missile_serial.o: $(SRCDIR)/missile_serial.h $(HEADERS_COMMON)
 monsters.o: $(HEADERS_COMMON)
 # object_levels.c does not include externs.h (it declares the three things it
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.
