@@ -10,10 +10,11 @@
 #define PLAYER_FOOD_H
 
 // One question, one module -- the second question to leave `py`, after the
-// purse (player_gold.c). Two fields answer it together and only together:
-// py.flags.food is the counter, py.flags.food_digested is how much of it a
-// single turn costs, and the one place that reads the rate subtracts it from
-// the counter. Thirty-eight places touch the pair.
+// purse (player_gold.c). Two numbers answer it together and only together: one
+// is the counter, the other is how much of it a single turn costs, and the one
+// place that read the rate did nothing with it but subtract it from the
+// counter. They came from py.flags.food and py.flags.food_digested, which
+// thirty-eight places used to touch.
 
 // Two rules live inside, because each has exactly one reader and each is about
 // nothing but the stomach:

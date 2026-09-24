@@ -17,46 +17,51 @@
 // not know the hunger thresholds, does not touch the status flags, does not
 // deal damage and does not print anything.
 
-// The pair still lives in py.flags (player.c:17). It comes in here at
-// #18-12-2C, where these become statics of their own and the two fields leave
-// the struct. Declared here rather than taken from externs.h so that what this
-// module touches is one line long and visible.
-extern player_type py;
+// Owned here and static: the only way in is through the windows below. The pair
+// came over from py.flags.food and py.flags.food_digested (#18-12-2C) with
+// their initial values -- the fields were inside a struct with no initializer,
+// so an empty stomach that digests nothing is what a program starts with, and
+// main.c puts the 7500 and the 2 in once the character exists.
+//
+// The names follow the windows rather than the old fields: "food" was a
+// counter, not a larder, and "food_digested" was a rate.
+static int16_t food = 0;
+static int16_t digestion = 0;
 
 int16_t player_food(void) {
-    return py.flags.food;
+    return food;
 }
 
 void player_gain_food(int amount) {
     // The first bite forgives a starvation debt: what add_food() did before
     // adding anything. Without it a starving character would have to eat back
     // the whole deficit before the counter meant anything again.
-    if (py.flags.food < 0) {
-        py.flags.food = 0;
+    if (food < 0) {
+        food = 0;
     }
-    py.flags.food = (int16_t)(py.flags.food + amount);
+    food = (int16_t)(food + amount);
 }
 
 void player_burn_food(int amount) {
-    py.flags.food = (int16_t)(py.flags.food - amount);
+    food = (int16_t)(food - amount);
 }
 
 void player_set_food(int16_t amount) {
-    py.flags.food = amount;
+    food = amount;
 }
 
 void player_digest(void) {
-    py.flags.food = (int16_t)(py.flags.food - py.flags.food_digested);
+    food = (int16_t)(food - digestion);
 }
 
 int16_t player_digestion(void) {
-    return py.flags.food_digested;
+    return digestion;
 }
 
 void player_set_digestion(int16_t amount) {
-    py.flags.food_digested = amount;
+    digestion = amount;
 }
 
 void player_adjust_digestion(int delta) {
-    py.flags.food_digested = (int16_t)(py.flags.food_digested + delta);
+    digestion = (int16_t)(digestion + delta);
 }
