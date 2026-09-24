@@ -97,30 +97,36 @@ def ellipse(g, cy, cx, ry, rx, fill=2, edge=1, hi=3):
 # 黒は各パレットに 1 色ずつ持ち、壁の奥と未探索の闇をそれで塗る
 # （壁の外が闇に溶けこむ）。
 #
-#   P0 床    : 床 / 影 / 明るい床（敷石）/ 黒
-#   P1 岩    : 床 / 黒 / 岩（中）/ 岩（明）  … 岩の壁・溶岩・瓦礫・扉
-#   P2 灰と白: 床 / 黒 / 灰 / 白            … レンガの壁・石英・薬瓶・文字
-#   P3 生き物: 床 / 黒 / 緑 / 明るい緑      … モンスターの既定・酸
+#   P0 影側  : 床 / 黒 / 岩 / 影（ピンク）
+#   P1 光側  : 床 / 黒 / 岩 / 明かり（敷石の色）
+#   P2 淡色  : 床 / 黒 / 岩 / 淡いクリーム … レンガの壁・石英・文字
+#   P3 生き物: 床 / 黒 / 緑 / 明るい緑 … モンスターの既定・酸
+#
+# P0・P1・P2 は 1 番（黒）と 2 番（岩）が同じで、3 番だけが違う。
+# 3 番に描いた点は、P0 のマスでは床に落ちた影（ピンク）に、P1 のマスでは
+# 光の当たった縁や敷石（黄）に、P2 のマスでは淡い光（参考画像の薄いピンクに
+# あたる色）に見える。同じチップを属性（パレット）の振りかたで描き分ける
+# （参考画像の岩も、黒と茶は共通で 3 色目だけが砂・ピンク・薄いピンクと
+# 入れかわっている）。
 # ---------------------------------------------------------------------------
 SCHEMES = [
-    # 名前, 床, 影, 明るい床, 岩（中）, 岩（明）
-    ("B1-10", 0x36, 0x35, 0x38, 0x17, 0x27),   # 砂岩: 参考画像の配色
-    ("B11-20", 0x10, 0x00, 0x37, 0x08, 0x18),  # 石灰岩: 灰の床に黄土色の岩、敷石は淡い黄
-    ("B21-30", 0x3B, 0x2B, 0x3A, 0x0B, 0x1A),  # 苔: 薄緑の床に深緑の岩
-    ("B31-40", 0x31, 0x21, 0x32, 0x02, 0x12),  # 氷: 水色の床に青い岩
-    ("B41-", 0x06, 0x07, 0x08, 0x00, 0x10),    # 火山: 赤黒い床に灰の岩、敷石は玄武岩色
+    # 名前, 床, 岩, 影, 明かり
+    ("B1-10", 0x36, 0x17, 0x25, 0x38),   # 砂岩: 参考画像の配色
+    ("B11-20", 0x10, 0x18, 0x00, 0x37),  # 石灰岩: 灰の床に黄土色の岩
+    ("B21-30", 0x3B, 0x1A, 0x2B, 0x3A),  # 苔: 薄緑の床に緑の岩
+    ("B31-40", 0x31, 0x12, 0x21, 0x30),  # 氷: 水色の床に青い岩
+    ("B41-", 0x06, 0x10, 0x07, 0x17),    # 火山: 赤黒い床に灰の岩
 ]
 
 
 def palettes(scheme=0):
-    _, bg, sh, lt, rm, rl = SCHEMES[scheme]
+    _, bg, rock, sh, lt = SCHEMES[scheme]
     return {
-        "P0": [bg, sh, lt, 0x0F],
-        "P1": [bg, 0x0F, rm, rl],
-        "P2": [bg, 0x0F, 0x00, 0x30],
+        "P0": [bg, 0x0F, rock, sh],
+        "P1": [bg, 0x0F, rock, lt],
+        "P2": [bg, 0x0F, rock, 0x37],
         "P3": [bg, 0x0F, 0x1A, 0x2A],
     }
-
 
 # スプライトパレット（プレイヤー）と、全体マップ画面のパレット（黒地）
 SPRITE_PAL = [0x0F, 0x0F, 0x12, 0x37]
@@ -226,8 +232,31 @@ add_chip("blank", "P0", chip(0))  # 床の色だけ（0 番。どのパレット
 add_chip("black", "P1", chip(1))  # 黒だけ（P1・P2 の 1 番）。壁の奥・未探索の闇
 
 
-# --- 岩の壁（P1。石英の鉱脈は同じチップを P2 で使う） ----------------------
-# 床に面した辺だけに岩の塊を並べ、奥は黒に溶けこませる。
+# --- 岩の壁（P0/P1。石英の鉱脈は同じチップを P2 で使う） -------------------
+# 0 床・1 黒（右下の影）・2 岩・3 床の側の点（P0 で影、P1 で明かり）。
+# 左上は輪郭を描かず岩の色のまま床に接し、右下だけ黒で締める。
+def _cast_shadow(g, right=False, bottom=False):
+    """岩（黒を含む）の右・下に接する床の 1 ドットを 3 番にする（床に落ちる影）。"""
+    out = [row[:] for row in g]
+    for y in range(8):
+        for x in range(8):
+            if g[y][x] != 0:
+                continue
+            if (bottom and y > 0 and g[y - 1][x] != 0) or (right and x > 0 and g[y][x - 1] != 0):
+                out[y][x] = 3
+    return out
+
+
+def rock_chip(floor_fn, blobs, lit, right=False, bottom=False):
+    """岩のチップ。lit=3 なら左上の縁に 3 番の明かり、2 なら明かり無し。"""
+    g = area_chip(floor_fn, blobs, body=2, lit=lit, dark=1)
+    return _cast_shadow(g, right, bottom)
+
+
+def _no_floor(y, x):
+    return False
+
+
 def _floor_top(y, x):
     return y < 3
 
@@ -244,68 +273,50 @@ def _floor_right(y, x):
     return x > 4
 
 
-ROCK_EDGES = {
-    # 床の側に岩の塊を大きく 1〜2 個。A と B を交互に並べて繰りかえしを崩す
-    "top": (_floor_top, [[(3.3, 3.6, 3.4, 3.9)],
-                         [(3.0, 1.9, 3.1, 2.5), (3.9, 5.6, 3.1, 2.4)]]),
-    "bottom": (_floor_bottom, [[(3.9, 3.6, 3.1, 3.9)],
-                               [(4.4, 2.0, 2.6, 2.5), (3.6, 5.6, 3.4, 2.4)]]),
-    "left": (_floor_left, [[(3.6, 3.4, 3.9, 3.2)],
-                           [(1.9, 3.0, 2.4, 3.1), (5.6, 3.6, 2.4, 3.0)]]),
-    "right": (_floor_right, [[(3.6, 3.6, 3.9, 3.2)],
-                             [(2.0, 4.0, 2.4, 2.9), (5.6, 3.4, 2.4, 3.2)]]),
+ROCK_SPECS = {
+    # 名前: (床の側, 岩の塊, 明かり, 右に影, 下に影)
+    # 奥（床に面していない 1/4）: 黒の中に岩の塊。3 番は岩の頭の小さな明かり
+    "rock_in_a": (_no_floor, [(3.0, 2.8, 3.2, 2.9), (6.2, 6.4, 2.6, 2.4)], 3, 0, 0),
+    "rock_in_b": (_no_floor, [(2.4, 5.6, 2.8, 2.6), (5.8, 2.4, 2.8, 2.6)], 3, 0, 0),
+    "rock_in_c": (_no_floor, [(3.6, 3.6, 3.6, 3.4)], 3, 0, 0),
+    "rock_in_d": (_no_floor, [(1.6, 1.6, 2.2, 2.2), (4.6, 5.0, 3.2, 3.0)], 3, 0, 0),
+    "rock_in_e": (_no_floor, [(2.2, 3.8, 2.4, 3.6), (6.0, 1.8, 2.2, 2.0), (6.2, 6.0, 2.0, 2.2)], 3, 0, 0),
+    "rock_in_f": (_no_floor, [(4.0, 2.2, 3.8, 2.2), (3.2, 6.2, 3.0, 1.8)], 3, 0, 0),
+    # 上・左が床: 光の当たる側。左上の縁に明かり
+    "rock_top_a": (_floor_top, [(3.3, 3.6, 3.4, 3.9)], 3, 0, 0),
+    "rock_top_b": (_floor_top, [(3.0, 1.9, 3.1, 2.5), (3.9, 5.6, 3.1, 2.4)], 3, 0, 0),
+    "rock_left_a": (_floor_left, [(3.6, 3.4, 3.9, 3.2)], 3, 0, 0),
+    "rock_left_b": (_floor_left, [(1.9, 3.0, 2.4, 3.1), (5.6, 3.6, 2.4, 3.0)], 3, 0, 0),
+    # 下・右が床: 影の側。明かりは入れず、外の床に影を落とす
+    "rock_bottom_a": (_floor_bottom, [(3.6, 3.6, 3.1, 3.9)], 2, 0, 1),
+    "rock_bottom_b": (_floor_bottom, [(4.0, 2.0, 2.6, 2.5), (3.4, 5.6, 3.2, 2.4)], 2, 0, 1),
+    "rock_right_a": (_floor_right, [(3.6, 3.4, 3.9, 3.2)], 2, 1, 0),
+    "rock_right_b": (_floor_right, [(2.0, 3.8, 2.4, 2.9), (5.6, 3.2, 2.4, 3.1)], 2, 1, 0),
+    # 2 辺が床の角
+    "rock_ctl": (lambda y, x: y < 3 or x < 3, [(4.0, 4.0, 3.4, 3.4)], 3, 0, 0),
+    "rock_ctr": (lambda y, x: y < 3 or x > 4, [(4.0, 3.4, 3.4, 3.4)], 3, 1, 0),
+    "rock_cbl": (lambda y, x: y > 4 or x < 3, [(3.4, 4.0, 3.4, 3.4)], 3, 0, 1),
+    "rock_cbr": (lambda y, x: y > 4 or x > 4, [(3.2, 3.2, 3.1, 3.1)], 2, 1, 1),
 }
-for side, (fn, variants) in ROCK_EDGES.items():
-    for i, blobs in enumerate(variants):
-        add_chip("rock_%s_%s" % (side, "ab"[i]), "P1", area_chip(fn, blobs))
+for _name, (_fn, _blobs, _lit, _r, _b) in ROCK_SPECS.items():
+    add_chip(_name, "P1", rock_chip(_fn, _blobs, _lit, _r, _b))
 
-ROCK_CORNERS = {
-    "tl": (lambda y, x: y < 3 or x < 3, [(4.0, 4.0, 3.4, 3.4)]),
-    "tr": (lambda y, x: y < 3 or x > 4, [(4.0, 3.4, 3.4, 3.4)]),
-    "bl": (lambda y, x: y > 4 or x < 3, [(3.4, 4.0, 3.4, 3.4)]),
-    "br": (lambda y, x: y > 4 or x > 4, [(3.2, 3.2, 3.1, 3.1)]),
-}
-for corner, (fn, blobs) in ROCK_CORNERS.items():
-    add_chip("rock_c%s" % corner, "P1", area_chip(fn, blobs))
+# 宝を含む鉱脈: 上・下の縁の岩に 3 番の粒（P1 で金、P2 で白い宝石）
+_GEM = [(2, 5), (3, 5), (3, 6), (4, 2), (5, 2), (5, 3), (2, 2)]
 
 
-def _recolor(g, table):
-    return [[table.get(v, v) for v in row] for row in g]
-
-
-def _dots(g, pts, v):
+def _gem(g):
     g = [row[:] for row in g]
-    for (y, x) in pts:
-        g[y][x] = v
+    for (y, x) in _GEM:
+        if g[y][x] == 2:
+            g[y][x] = 3
     return g
 
 
-def _on_rock(g, pts, v):
-    """岩の上（2・3 番）の点だけを塗る。"""
-    g = [row[:] for row in g]
-    for (y, x) in pts:
-        if g[y][x] in (2, 3):
-            g[y][x] = v
-    return g
-
-
-CRACK = [(1, 3), (2, 3), (3, 4), (4, 4), (5, 3), (2, 5), (3, 6), (4, 2), (5, 2)]
-NUGGET = [(2, 5), (3, 5), (3, 6), (4, 2), (5, 2), (5, 3), (1, 2)]
-# 溶岩の鉱脈: 黒い岩に明るい割れ目（上と下の辺だけ差しかえる）
-def _magma(g):
-    """岩を暗くし（中→黒、明→中）、割れ目を明るく光らせる。"""
-    out = _recolor(g, {2: 1, 3: 2})
-    for (y, x) in CRACK:
-        if g[y][x] in (2, 3):
-            out[y][x] = 3
-    return out
-
-
-add_chip("magma_top", "P1", _magma(CHIPS["rock_top_a"][1]))
-add_chip("magma_bottom", "P1", _magma(CHIPS["rock_bottom_a"][1]))
-# 宝を含む鉱脈: 岩に金（3 番）の粒
-add_chip("treasure_top", "P1", _on_rock(CHIPS["rock_top_b"][1], NUGGET, 3))
-add_chip("treasure_bottom", "P1", _on_rock(CHIPS["rock_bottom_b"][1], NUGGET, 3))
+add_chip("gem_top", "P1", _gem(CHIPS["rock_top_a"][1]))
+add_chip("gem_bottom", "P1", _gem(CHIPS["rock_bottom_a"][1]))
+ROCK_INSIDE = ["rock_in_a", "rock_in_b", "rock_in_c", "rock_in_d", "rock_in_e", "rock_in_f",
+               "rock_in_a", "rock_in_c"]  # 3 ビットで引く（a と c は出やすい）
 
 
 # --- レンガの壁（P2: 床・黒・灰・白）。部屋のまわりに使う ------------------
@@ -679,6 +690,29 @@ CHIPS["acid"][1][3][3] = 3
 # 選ぶ。1/4 に効くのはその角をはさむ 2 辺だけなので、表は
 # 「1/4 の位置 × 2 辺の状態（4 通り）」で済む。
 # ---------------------------------------------------------------------------
+# --- 第 3 版のチップを新しいパレットの並びに合わせて塗りかえる -------------
+# 旧 P0（床・影・明かり・黒）で描いたもの、旧 P1 と同じ並びのものを、
+# 新しい P0（床・黒・岩・影）/ P1（床・黒・岩・明かり）に合わせる。
+_REMAP = {
+    # 名前: (パレット, {旧の番号: 新しい番号})
+    "ripple_a": ("P1", {1: 3}), "ripple_b": ("P1", {1: 3}),
+    "tile_big": ("P1", {2: 3}), "tile_small": ("P1", {2: 3}),
+    "tile_crack": ("P1", {1: 2, 2: 3}), "tile_worn": ("P1", {1: 2, 2: 3}),
+    "tile_brick": ("P1", {2: 3}),
+    "shadow_top": ("P0", {1: 3}), "shadow_left": ("P0", {1: 3}),
+    "shadow_tl": ("P0", {1: 3}), "shadow_dot": ("P0", {1: 3}),
+    "steps_l": ("P1", {2: 3, 1: 2, 3: 1}), "steps_r": ("P1", {2: 3, 1: 2, 3: 1}),
+    "steps_dark_l": ("P1", {1: 2, 3: 1}), "steps_dark_r": ("P1", {1: 2, 3: 1}),
+    "grate": ("P1", {2: 3, 3: 1, 1: 2}), "plate": ("P1", {2: 3, 3: 1, 1: 2}),
+    "scorch": ("P0", {3: 1, 1: 3}),
+}
+for _q in ("tl", "tr", "bl", "br"):
+    _REMAP["pit_" + _q] = ("P0", {3: 1, 1: 3})
+    _REMAP["ring_" + _q] = ("P0", {1: 3})  # 輪は岩の色、中の星が 3 番
+for _name, (_pal, _table) in _REMAP.items():
+    CHIPS[_name] = (_pal, [[_table.get(v, v) for v in row] for row in CHIPS[_name][1]])
+
+
 N, E, S, W = 1, 2, 4, 8
 QUADS = ("tl", "tr", "bl", "br")
 # 1/4 ごとに見る 2 辺（縦の辺, 横の辺）
@@ -687,46 +721,67 @@ QUAD_V = {"tl": "top", "tr": "top", "bl": "bottom", "br": "bottom"}
 QUAD_H = {"tl": "left", "tr": "right", "bl": "left", "br": "right"}
 
 WALL_FAMILIES = {
-    # 名前: パレット, 説明
-    "rock": ("P1", "岩の壁（花崗岩）。通路のまわり。外周の壁と隠し扉も同じ"),
-    "brick": ("P2", "レンガの壁。部屋のまわり"),
-    "magma": ("P1", "溶岩の鉱脈"),
-    "quartz": ("P2", "石英の鉱脈（岩のチップを P2 で使う）"),
-    "magma_t": ("P1", "溶岩の鉱脈＋宝"),
-    "quartz_t": ("P2", "石英の鉱脈＋宝"),
+    # 名前: 説明（パレットは wall_palette() で決める）
+    "rock": "岩の壁（花崗岩・溶岩）。通路のまわり。外周の壁と隠し扉も同じ",
+    "brick": "レンガの壁。部屋のまわり（P2）",
+    "quartz": "石英の鉱脈（岩のチップを P2 で）",
+    "gem": "宝を含む鉱脈（上下の縁を宝のチップに）",
 }
 
 
-def wall_quad(family, quad, mask, var):
-    """壁の 1/4 に使うチップの名前。var は 0/1 で岩の模様 A/B を入れかえる。"""
+def wall_quad(family, quad, mask, var, inner=False):
+    """壁の 1/4 に使うチップの名前。
+
+    var は位置から決めた値。岩では 1/4 ごとに 3 ビット（左上が下位）を取り出し、
+    奥の岩の 6 種と縁の模様 A/B を 1/4 ごとに別々に選ぶ。レンガでは 0/1 が
+    目地の模様、3 がひび。
+    inner は、辺では床に面していないが斜めの隣が床のマス（岩山の奥の段）。
+    """
     sv, sh = QUAD_SIDES[quad]
     v, h = bool(mask & sv), bool(mask & sh)
-    ab = "ab"[(var + (quad in ("tr", "bl"))) % 2]
-    if not v and not h:
-        return "black"
     if family == "brick":
+        ab = "ab"[(var + (quad in ("tr", "bl"))) % 2]
+        if not v and not h:
+            return "black"
         if v and h:
             return "brick_c" + quad
         if v and QUAD_V[quad] == "top":
             return "brick_cap_top"
         if v:
-            return ("brick_face_crack" if var == 2 else "brick_face_" + ab)
+            return ("brick_face_crack" if var == 3 else "brick_face_" + ab)
         return "brick_cap_" + QUAD_H[quad]
+    sub = (var >> (3 * QUADS.index(quad))) & 7
+    ab = "ab"[sub & 1]
+    if not v and not h:
+        if mask == 0 and not inner:
+            return "black"
+        return ROCK_INSIDE[sub]
     if v and h:
         return "rock_c" + quad
     if v:
         side = QUAD_V[quad]
-        if family in ("magma", "magma_t") and not (family == "magma_t" and quad in ("tl", "bl")):
-            return "magma_" + side
-        if family in ("magma_t", "quartz_t") and quad in ("tl", "bl"):
-            return "treasure_" + side
+        if family == "gem" and quad in ("tl", "br"):
+            return "gem_" + side
         return "rock_%s_%s" % (side, ab)
     return "rock_%s_%s" % (QUAD_H[quad], ab)
 
 
-def wall_metatile(family, mask, var=0):
-    return [wall_quad(family, q, mask, var) for q in QUADS]
+def wall_palette(family, mask, var):
+    """壁のマスのパレット（属性）。
 
+    岩は、右か下が床なら影側の P0（床に落ちる影がピンクになる）。そうでなければ
+    位置（var の上位ビット）で P0・P1・P2 を振り、同じチップの明かりの色を
+    ピンク・黄・淡いクリームに描き分ける。レンガと石英は P2。
+    """
+    if family in ("brick", "quartz"):
+        return "P2"
+    if mask & (S | E):
+        return "P0"
+    return ("P0", "P1", "P2")[(var >> 12) % 3]
+
+
+def wall_metatile(family, mask, var=0, inner=False):
+    return [wall_quad(family, q, mask, var, inner) for q in QUADS]
 
 SAND = [
     ["blank", "blank", "blank", "blank"],
@@ -744,7 +799,7 @@ PAVED = [
     ["tile_brick", "tile_brick", "tile_brick", "tile_brick"],
     ["tile_worn", "tile_big", "tile_big", "tile_small"],
 ]
-PEBBLE = ["blank", "blank", "blank", "pebble"]  # P1
+PEBBLE = ["blank", "blank", "blank", "pebble"]
 
 
 def floor_metatile(y, x, room, wall_n, wall_w, wall_nw):
@@ -753,9 +808,13 @@ def floor_metatile(y, x, room, wall_n, wall_w, wall_nw):
     if room:
         base = PAVED[noise(x * 31 + y * 17, 9, 0, len(PAVED) - 1)]
     elif not shadow and noise(x * 13 + y * 29, 4, 0, 5) == 0:
-        return "P1", PEBBLE
+        return ("P0" if (x + y) % 2 else "P1"), PEBBLE
     else:
         base = SAND[noise(x * 31 + y * 17, 9, 0, len(SAND) - 1)]
+    if shadow:
+        # 影のマスは P0 になり、3 番（さざ波・敷石）がピンクに化けるので無地にする。
+        # 部屋では壁ぎわに敷石の無い帯ができる
+        base = SAND[0]
     q = list(base)
     if wall_n and wall_w:
         q[0] = "shadow_tl"
@@ -769,7 +828,9 @@ def floor_metatile(y, x, room, wall_n, wall_w, wall_nw):
         q[1] = "shadow_top"
     if wall_w:
         q[2] = "shadow_left"
-    return "P0", q
+    # 影の落ちたマスは P0（3 番がピンクの影）。敷石は影の色に沈む。
+    # 影の無いマスは P1（3 番が明かり）で、敷石とさざ波が明るい色になる
+    return ("P0" if shadow else "P1"), q
 
 
 FIXED = {
@@ -777,15 +838,15 @@ FIXED = {
     "void": ("P1", ["black"] * 4, "未探索の闇（壁の奥と同じ黒）"),
     "door_closed": ("P1", ["door_l", "door_r", "door_l", "door_r"], "閉じた扉（縦横どちらの壁でも同じ）"),
     "door_open": ("P1", ["door_open_l", "door_open_r", "door_open_l", "door_open_r"], "開いた扉・壊れた扉"),
-    "stairs_up": ("P0", ["steps_l", "steps_r", "steps_l", "steps_r"], "上り階段 <"),
-    "stairs_down": ("P0", ["steps_l", "steps_r", "steps_dark_l", "steps_dark_r"], "下り階段 >（下半分が闇）"),
+    "stairs_up": ("P1", ["steps_l", "steps_r", "steps_l", "steps_r"], "上り階段 <"),
+    "stairs_down": ("P1", ["steps_l", "steps_r", "steps_dark_l", "steps_dark_r"], "下り階段 >（下半分が闇）"),
     "rubble": ("P1", ["boulder_b", "boulder_a", "boulder_a", "boulder_b"], "瓦礫 :"),
     "trap_pit": ("P0", ["pit_tl", "pit_tr", "pit_bl", "pit_br"], "落とし穴"),
     "trap_door": ("P1", ["planks"] * 4, "落とし戸"),
-    "trap_dart": ("P0", ["plate"] * 4, "矢・吹き矢の罠"),
-    "trap_gas": ("P0", ["grate"] * 4, "ガスの罠"),
-    "trap_rune": ("P0", ["ring_tl", "ring_tr", "ring_bl", "ring_br"], "不思議なルーン（明るい輪）"),
-    "glyph": ("P1", ["ring_tl", "ring_tr", "ring_bl", "ring_br"], "守りのルーン（ルーンと同じ絵を岩の色で）"),
+    "trap_dart": ("P1", ["plate"] * 4, "矢・吹き矢の罠"),
+    "trap_gas": ("P1", ["grate"] * 4, "ガスの罠"),
+    "trap_rune": ("P0", ["ring_tl", "ring_tr", "ring_bl", "ring_br"], "不思議なルーン（岩の色の輪にピンクの星）"),
+    "glyph": ("P1", ["ring_tl", "ring_tr", "ring_bl", "ring_br"], "守りのルーン（同じ絵で星が黄）"),
     "trap_fire": ("P0", ["scorch", "blank", "blank", "scorch"], "焦げ跡（火炎の罠）"),
     "trap_rock": ("P1", ["pebble", "boulder_a", "blank", "pebble"], "落石の罠"),
     "trap_acid": ("P3", ["blank", "acid", "acid", "blank"], "酸の罠"),
@@ -1312,7 +1373,8 @@ MOCK = [
     "# ########:#####",
     "#        #,#    ",
 ]
-VEIN_CH = {"m": "magma", "M": "magma_t", "q": "quartz", "Q": "quartz_t"}
+# 溶岩の鉱脈は原典どおり花崗岩と同じ見た目（highlight_seams を切った既定の表示）
+VEIN_CH = {"m": "rock", "M": "gem", "q": "quartz", "Q": "gem"}
 ROOM_CH = set(".<>@*!j^W")
 FIXED_CH = {"<": "stairs_up", ">": "stairs_down", ":": "rubble", "^": "trap_pit",
             "T": "trap_door", "W": "glyph", "+": "door_closed", "'": "door_open"}
@@ -1349,10 +1411,16 @@ def cell_metatile(rows, y, x):
             near_room = any(cell(rows, y + dy, x + dx) in ROOM_CH
                             for dy in (-1, 0, 1) for dx in (-1, 0, 1))
             family = "brick" if near_room else "rock"
-        var = (x + y) % 2
-        if family == "brick" and noise(x * 7 + y * 5, 2, 0, 4) == 0:
-            var = 2
-        return WALL_FAMILIES[family][0], compose(wall_metatile(family, m, var))
+        inner = any(is_open(cell(rows, y + dy, x + dx)) for dy in (-1, 1) for dx in (-1, 1))
+        var = rock_var(y, x)
+        if family == "brick":
+            var = (x + y) % 2
+            if noise(x * 7 + y * 5, 2, 0, 4) == 0:
+                var = 3
+        pal = wall_palette(family, m, var)
+        if ch == "Q":
+            pal = "P2"
+        return pal, compose(wall_metatile(family, m, var, inner))
     if ch == " ":
         pal, quads, _ = FIXED["void"]
         return pal, compose(quads)
@@ -1395,6 +1463,57 @@ def render_depths():
     return cv
 
 
+# 参考画像の岩山の配置（16x16 のマス単位に読みとったもの。, は砂地）
+ROCK_DEMO = [
+    "#######qq#,#####",
+    "###,,,,,,,,,,###",
+    "##,,,,,,,,,,,,##",
+    "#,,,,,,,,,,,,,##",
+    "#,,,,,,,,,,,,,##",
+    "#,,,,,,,,,,,,,#,",
+    "#,,,,,,,,,,,,,,#",
+    "##,,,,,,,,,,,,,,",
+    "#q###,,,,,,,,,,,",
+    "#qq###,,,,,,,,,,",
+]
+
+
+def rock_var(y, x):
+    """岩のマスの模様と属性を決める値（位置から計算。1/4 ごとに 3 ビット＋属性）。"""
+    return noise(x * 37 + y * 101, 7, 0, 1008) * 47 % 49152
+
+
+def rock_stats(rows):
+    """岩のマスに使ったチップ・色つきの 8x8・16x16 の種類を数える。"""
+    chips, colored, blocks, cells = set(), set(), set(), 0
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch not in "#q":
+                continue
+            m = 0
+            m |= N if is_open(cell(rows, y - 1, x)) else 0
+            m |= S if is_open(cell(rows, y + 1, x)) else 0
+            m |= W if is_open(cell(rows, y, x - 1)) else 0
+            m |= E if is_open(cell(rows, y, x + 1)) else 0
+            inner = any(is_open(cell(rows, y + dy, x + dx)) for dy in (-1, 1) for dx in (-1, 1))
+            var = rock_var(y, x)
+            family = "quartz" if ch == "q" else "rock"
+            quads = wall_metatile(family, m, var, inner)
+            pal = wall_palette(family, m, var)
+            cells += 1
+            chips.update(quads)
+            # 黒だけのチップは、どのパレットでも同じ色になる
+            colored.update((q, "-" if q == "black" else pal) for q in quads)
+            blocks.add((tuple(quads), pal))
+    return cells, chips, colored, blocks
+
+
+def render_rock_demo():
+    cv = Canvas(256, len(ROCK_DEMO) * 16)
+    draw_map(cv, ROCK_DEMO, palettes(0))
+    return cv
+
+
 # ---------------------------------------------------------------------------
 # 一覧画像
 # ---------------------------------------------------------------------------
@@ -1421,16 +1540,19 @@ def sheet_rows():
     """組みたて例の行: [(パレット, 16x16), ...]。"""
     rows = []
     for family in ("rock", "brick"):
-        pal = WALL_FAMILIES[family][0]
-        rows.append([(pal, compose(wall_metatile(family, m, 0))) for m in range(16)])
+        rows.append([(wall_palette(family, m, 0), compose(wall_metatile(family, m, 0, True)))
+                     for m in range(16)])
+    # 同じチップの組みを P0（影側）と P1（光側）で描き分けた例
+    rows.append([(pal, compose(wall_metatile("rock", m, v, True)))
+                 for m, v in ((0, 0), (0, 0o1234), (0, 0o4321), (0, 0o5501), (N, 0o1111), (W, 0o1111))
+                 for pal in ("P0", "P1", "P2")])
     veins = []
-    for family in ("magma", "quartz", "magma_t", "quartz_t"):
-        pal = WALL_FAMILIES[family][0]
+    for family, pal in (("quartz", "P2"), ("gem", "P1"), ("gem", "P2")):
         for m in (S, N, S | W, N | E):
-            veins.append((pal, compose(wall_metatile(family, m, 0))))
+            veins.append((pal, compose(wall_metatile(family, m, 0, True))))
     rows.append(veins)
-    rows.append([("P0", compose(q)) for q in SAND] + [("P1", compose(PEBBLE))] +
-                [("P0", compose(q)) for q in PAVED])
+    rows.append([("P0", compose(q)) for q in SAND] + [("P0", compose(PEBBLE)), ("P1", compose(PEBBLE))] +
+                [("P1", compose(q)) for q in PAVED])
     shadows = []
     for (n, w, nw) in ((1, 0, 0), (0, 1, 0), (1, 1, 0), (0, 0, 1)):
         for room in (False, True):
@@ -1508,30 +1630,38 @@ def main():
         f.write("\n; --- 壁: 1/4 ごとのチップ ---\n")
         f.write("; wall_<種類>: 左上・右上・左下・右下の順に 4 組。各組は 2 辺の状態\n")
         f.write(";   0 どちらも床に面していない / 1 左右の辺だけ（左上なら左）/ 2 上下の辺だけ（左上なら上）/ 3 両方\n")
-        f.write("; を模様 A・B で 2 通り（計 8 バイト）。岩の模様は (x + y) & 1 で選ぶ\n")
-        for family, (pal, note) in WALL_FAMILIES.items():
-            f.write("\n; %s（パレット %s）\n" % (note, pal))
+        f.write("; を模様 8 通り（計 32 バイト）。模様は位置から 1/4 ごとに 3 ビットずつ決める\n")
+        f.write("; 状態 0 は、マスが斜めにだけ床に接していれば奥の岩（ROCK_IN_A〜D を位置で）、\n")
+        f.write("; どこにも接していなければ黒。表には斜めに接している場合を載せる\n")
+        f.write("; パレット: 岩は右か下が床なら P0（影側）、それ以外は位置で P0/P1/P2 を振る。\n")
+        f.write(";           レンガと石英は P2\n")
+        for family, note in WALL_FAMILIES.items():
+            f.write("\n; %s\n" % note)
             f.write("wall_%s:\n" % family)
             for q in QUADS:
                 sv, sh = QUAD_SIDES[q]
                 vals = []
                 for state in range(4):
                     mask = (sh if state & 1 else 0) | (sv if state & 2 else 0)
-                    for var in (0, 1):
-                        vals.append("CHIP_" + wall_quad(family, q, mask, var).upper())
+                    if family == "brick":
+                        vars_ = (0, 1, 0, 1)
+                    else:
+                        vars_ = [sub << (3 * QUADS.index(q)) for sub in range(8)]
+                    for var in vars_:
+                        vals.append("CHIP_" + wall_quad(family, q, mask, var, True).upper())
                 f.write("    .byte %s  ; %s\n" % (",".join(vals), q))
         f.write("brick_face_crack = CHIP_BRICK_FACE_CRACK  ; レンガの正面は時々ひびに差しかえる\n")
 
         f.write("\n; --- 床: 模様（位置で選ぶ）。影は左上・右上・左下の 1/4 を差しかえる ---\n")
         f.write("; 上が壁: 左上と右上を SHADOW_TOP / 左が壁: 左上と左下を SHADOW_LEFT\n")
         f.write("; 上と左が壁: 左上を SHADOW_TL / 左上だけ壁: 左上を SHADOW_DOT\n")
-        f.write("floor_sand:   ; P0\n")
+        f.write("floor_sand:   ; P1（影のマスは P0 で無地）\n")
         for q in SAND:
             f.write("    .byte %s\n" % q4(q))
-        f.write("floor_paved:  ; P0（部屋）\n")
+        f.write("floor_paved:  ; P1（部屋。影の落ちたマスは P0 で敷石ごと影の色に）\n")
         for q in PAVED:
             f.write("    .byte %s\n" % q4(q))
-        f.write("floor_pebble: ; P1（影の無い通路の床に時々）\n    .byte %s\n" % q4(PEBBLE))
+        f.write("floor_pebble: ; P0/P1 を位置で（影の無い通路の床に時々）\n    .byte %s\n" % q4(PEBBLE))
 
         f.write("\n; --- そのほかのメタタイル（左上・右上・左下・右下, パレット） ---\n")
         for name, (pal, quads, note) in FIXED.items():
@@ -1556,11 +1686,18 @@ def main():
     render_depths().save(os.path.join(OUT, "dungeon_depths.png"), scale=2)
     render_mock().save(os.path.join(OUT, "mock_screen.png"))
     render_minimap_sheet().save(os.path.join(OUT, "minimap_tiles.png"))
+    render_rock_demo().save(os.path.join(OUT, "rock_demo.png"))
     cv, tiles, g, known = render_minimap_mock()
     cv.save(os.path.join(OUT, "mock_minimap.png"))
 
     print("8x8 tiles: %d (terrain %d, samples %d, minimap %d, font %d)" % (
         len(chr_.tiles), n_terrain, n_samples, n_mm, n_font))
+    rock_chips = [n for n in CHIPS if n.startswith(("rock_", "gem_"))] + ["black"]
+    print("rock chips in CHR: %d" % len(rock_chips))
+    for label, rows in (("rock_demo", ROCK_DEMO), ("mock", [r.replace("m", "#") for r in MOCK])):
+        cells, chips, colored, blocks = rock_stats(rows)
+        print("%s: rock cells %d, 8x8 positions %d, chips used %d, colored 8x8 variants %d, 16x16 variants %d" % (
+            label, cells, cells * 4, len(chips), len(colored), len(blocks)))
     if "-v" in sys.argv:
         for y in range(DH):
             print("".join(g[y][x] if known[y][x] else " " for x in range(DW)))
