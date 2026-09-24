@@ -44,7 +44,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         spells_known_test object_levels_test missile_serial_test \
         screen_touched_test inven_command_state_test \
         level_exit_test pending_teleport_test input_ended_test \
-        running_test
+        running_test command_state_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -812,6 +812,27 @@ $(BUILDDIR)/running_test: $(TESTDIR)/running_test.c \
                           $(TESTDIR)/minunit.h \
                           src/running.c src/running.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/running_test.c src/running.c
+
+# 打っているコマンドについて覚えていること（command_state）。#18-11-7A で新設。
+# 3 つの global（`command_count` `default_dir` `last_command`）が 1 本に入って
+# いる —— **どれも「コマンドに繰りかえしの回数を付けられる」ことから出ている**
+# ので、ユーザーの判断で module 1 本にまとめた。
+#
+# **「数を受けとって終わりにする」（5 か所）と「退避して戻す」（3 か所）の
+# 2 つの言いまわしも窓口の内側に入れた**（ユーザーが決めた）。後者は値を呼び手に
+# 返す形にしてある —— dungeon.c の `-` の hack と get_dir() が入れ子で抱えるので、
+# module の中に置き場を 1 つ持つと内側の戻しが外側を上書きする。テストの
+# held_counts_can_nest がそれを押さえている。
+#
+# 足場 tests/command_state_fixture.c は実体がまだ variable.c にあるあいだだけ
+# 要る。#18-11-7C で消す（**そのとき tests/misc3_stubs.c:43 の代役
+# command_count も消す** —— misc3.c を引く 9 本がそれを使っている）。
+$(BUILDDIR)/command_state_test: $(TESTDIR)/command_state_test.c \
+                                $(TESTDIR)/command_state_fixture.c \
+                                $(TESTDIR)/minunit.h \
+                                src/command_state.c src/command_state.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/command_state_test.c src/command_state.c \
+	    $(TESTDIR)/command_state_fixture.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて
