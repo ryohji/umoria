@@ -718,18 +718,15 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # 覚えている呪文の置き場（spell_learned・spell_worked・spell_forgotten・
-# spell_order）。ステップ A のあいだ実体は src/player.c にあり、窓口はそれを
-# 指す。player.c をそのままリンクすると呪文の 4 個だけでなく段の表・名前の表・
-# キャラクタ作成の初期値まで付いてくるので、対象 1 本を見るテストには
-# tests/spells_known_fixture.c で 4 つだけ置いた足場を使う（hp_table_test と
-# burden_test がステップ A のあいだ取っていた形と同じ）。ステップ C で実体が
-# src/spells_known.c の static に移ったら、この足場は消える。
+# spell_order）。#18-8-C で実体が src/spells_known.c の static になったので、
+# ステップ A のあいだ要った足場（tests/spells_known_fixture.c）は消えた。
+# リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
+# （progress_test・score_death_test・player_pos_test・hp_table_test・
+# player_light_test・burden_test と同じ形）。
 $(BUILDDIR)/spells_known_test: $(TESTDIR)/spells_known_test.c \
-                        $(TESTDIR)/spells_known_fixture.c \
                         $(TESTDIR)/minunit.h \
                         src/spells_known.c src/spells_known.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/spells_known_test.c \
-	    $(TESTDIR)/spells_known_fixture.c src/spells_known.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/spells_known_test.c src/spells_known.c
 
 clean:
 	rm -rf $(BUILDDIR)

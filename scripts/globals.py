@@ -63,8 +63,12 @@ GROUPS = {
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
         sound_beep_flag display_counts""",
     "プレイヤー状態": """
-        py spell_learned spell_worked spell_forgotten
-        spell_order""",
+        py""",
+    # 覚えている呪文 4 個（spell_learned・spell_worked・spell_forgotten・
+    # spell_order）は #18-8-C で spells_known.c の static になり、externs.h から
+    # 外れた。窓口は src/spells_known.h。導出する形にはしていない —— 何を覚えた
+    # かは履歴で、覚えていた記録がなければ復元できない（progress・score_death と
+    # 同じ理由）。ビット演算（1L << spell）は窓口の内側にある。
     # 重さに負けているか 2 個（weapon_heavy・pack_heavy）は #18-7-4C1 で
     # burden.c の static になり、externs.h から外れた。窓口は src/burden.h。
     # 装備と持ち物の重さから毎回導出する形にはしていない —— 重い／軽いの

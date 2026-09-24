@@ -17,13 +17,19 @@
 // player_light.c and burden.c: what the character has learned needs nothing
 // from the rest of the game.
 
-// Step A keeps all four where they have always been (player.c) and only adds
-// the windows over them, so this commit cannot change behaviour. Step C moves
-// the definitions in here and makes them static.
-extern uint32_t spell_learned;
-extern uint32_t spell_worked;
-extern uint32_t spell_forgotten;
-extern uint8_t spell_order[32];
+// The four answers, reachable only through the windows below. They used to be
+// globals in player.c, declared in externs.h, and thirteen places in six files
+// read or wrote them directly.
+static uint32_t spell_learned = 0;   // bit mask of spells learned
+static uint32_t spell_worked = 0;    // bit mask of spells tried and worked
+static uint32_t spell_forgotten = 0; // bit mask of spells learned but forgotten
+
+// The order the spells were learned in, one spell number per place. Starting
+// out as zeroes is what player.c gave it: the game start fills it with
+// SPELL_NONE (main.c, through spell_order_forget_all) and loading a save file
+// reads it back byte for byte, and until then no spell is marked learned or
+// forgotten, so nothing looks at what is in here.
+static uint8_t spell_order[32];
 
 // The bit for one spell. SPELL_NONE (and any other number outside 0..31) gets
 // no bit at all: `1L << 99` has no defined result, and the callers walk the
