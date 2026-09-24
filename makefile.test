@@ -43,7 +43,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         check_strength_test calc_spells_test gain_spells_test \
         spells_known_test object_levels_test missile_serial_test \
         screen_touched_test inven_command_state_test \
-        level_exit_test pending_teleport_test input_ended_test
+        level_exit_test pending_teleport_test input_ended_test \
+        running_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -786,6 +787,24 @@ $(BUILDDIR)/input_ended_test: $(TESTDIR)/input_ended_test.c \
                               $(TESTDIR)/minunit.h \
                               src/input_ended.c src/input_ended.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/input_ended_test.c src/input_ended.c
+
+# 走っているか／何歩走ったか（running）。#18-11-6A で新設。1 つの int が旗と
+# 歩数計を兼ねていたので、窓口は問いごとに分けた（走っているか・走りだす・
+# 止める・階の始まりに忘れる・1 歩進めてまだ走れるか・写しとり用の生）。
+#
+# **息切れの回数（元の moria2.c:286 の `find_flag++ > 100`）は窓口の内側に
+# 入れた**（ユーザーが決めた。読み手は 1 つで、歩数を数えている唯一の理由が
+# これ）。だから境目を見るテストはここにしか無い。**「もう走れない」と言うだけで
+# 止めはしない**（止めるのは find_run() の側）ので、それも 1 件で押さえている。
+#
+# 足場 tests/running_fixture.c は実体がまだ variable.c にあるあいだだけ要る。
+# #18-11-6C で消す。
+$(BUILDDIR)/running_test: $(TESTDIR)/running_test.c \
+                          $(TESTDIR)/running_fixture.c \
+                          $(TESTDIR)/minunit.h \
+                          src/running.c src/running.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/running_test.c src/running.c \
+	    $(TESTDIR)/running_fixture.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて
