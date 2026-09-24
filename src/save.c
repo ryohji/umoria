@@ -23,6 +23,7 @@
 #include "missile_serial.h"
 #include "panel.h"
 #include "messages.h"
+#include "player_gold.h"
 #include "player_pos.h"
 #include "options.h"
 #include "progress.h"
@@ -117,7 +118,7 @@ static bool sv_write(void) {
     struct misc *m_ptr = &py.misc;
     wr_string(m_ptr->name);
     wr_byte(m_ptr->male);
-    wr_long((uint32_t)m_ptr->au);
+    wr_long((uint32_t)player_gold());
     wr_long((uint32_t)m_ptr->max_exp);
     wr_long((uint32_t)m_ptr->exp);
     wr_short(m_ptr->exp_frac);
@@ -575,7 +576,11 @@ bool get_char(bool *generate) {
 
             rd_string(m_ptr->name);
             rd_byte(&m_ptr->male);
-            rd_long((uint32_t *)&m_ptr->au);
+            // 金は m_ptr->au ではなく窓口へ入れる。読みは器の番地を要る
+            // ので、いったん受けてから置く（幅と符号の扱いは元のまま）。
+            uint32_t gold;
+            rd_long(&gold);
+            player_set_gold((int32_t)gold);
             rd_long((uint32_t *)&m_ptr->max_exp);
             rd_long((uint32_t *)&m_ptr->exp);
             rd_short(&m_ptr->exp_frac);

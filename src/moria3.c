@@ -20,6 +20,7 @@
 #include "level_exit.h"
 #include "panel.h"
 #include "pending_teleport.h"
+#include "player_gold.h"
 #include "player_pos.h"
 #include "running.h"
 #include "spells_known.h"
@@ -269,7 +270,7 @@ static void carry(int y, int x, bool pickup) {
 
         // There's GOLD in them thar hills!
         if (i == TV_GOLD) {
-            py.misc.au += i_ptr->cost;
+            player_gain_gold(i_ptr->cost);
             objdes(tmp_str, i_ptr, true);
             (void)sprintf(out_val, "You have found %d gold pieces worth of %s",
                           i_ptr->cost, tmp_str);

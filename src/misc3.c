@@ -23,6 +23,7 @@
 #include "item_ident.h"
 #include "object_levels.h"
 #include "pending_teleport.h"
+#include "player_gold.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "save_state.h"
@@ -316,7 +317,7 @@ void prt_pac(void) {
 
 // Prints current gold -RAK-
 void prt_gold(void) {
-    prt_long(py.misc.au, 20, STAT_COLUMN + 6);
+    prt_long(player_gold(), 20, STAT_COLUMN + 6);
 }
 
 // Prints depth in stat area -RAK-
@@ -614,7 +615,7 @@ void prt_stat_block(void) {
     prt_num("MHP ", m_ptr->mhp, 16, STAT_COLUMN);
     prt_num("CHP ", m_ptr->chp, 17, STAT_COLUMN);
     prt_num("AC  ", m_ptr->dis_ac, 19, STAT_COLUMN);
-    prt_lnum("GOLD", m_ptr->au, 20, STAT_COLUMN);
+    prt_lnum("GOLD", player_gold(), 20, STAT_COLUMN);
     prt_winner();
 
     uint32_t status = py.flags.status;
@@ -747,7 +748,7 @@ void put_misc2(void) {
         prt_7lnum("Exp to Adv.", (int32_t)(player_exp[m_ptr->lev - 1] * m_ptr->expfact / 100), 12, 28);
     }
 
-    prt_7lnum("Gold       ", m_ptr->au, 13, 28);
+    prt_7lnum("Gold       ", player_gold(), 13, 28);
     prt_num("Max Hit Points ", m_ptr->mhp, 9, 52);
     prt_num("Cur Hit Points ", m_ptr->chp, 10, 52);
     prt_num("Max Mana       ", m_ptr->mana, 11, 52);

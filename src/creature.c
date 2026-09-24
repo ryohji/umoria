@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_gold.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -359,7 +360,7 @@ static void make_attack(int monptr) {
             }
             break;
         case 12: // Steal Money
-            if ((test_hit(5, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (p_ptr->au > 0)) {
+            if ((test_hit(5, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (player_gold() > 0)) {
                 flag = true;
             }
             break;
@@ -639,11 +640,11 @@ static void make_attack(int monptr) {
                     (randint(124) < py.stats.use_stat[A_DEX])) {
                     msg_print("You quickly protect your money pouch!");
                 } else {
-                    gold = (p_ptr->au / 10) + randint(25);
-                    if (gold > p_ptr->au) {
-                        p_ptr->au = 0;
+                    gold = (player_gold() / 10) + randint(25);
+                    if (gold > player_gold()) {
+                        player_set_gold(0);
                     } else {
-                        p_ptr->au -= gold;
+                        player_pay_gold(gold);
                     }
                     msg_print("Your purse feels lighter.");
                     prt_gold();
