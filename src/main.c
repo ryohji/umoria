@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "object_levels.h"
 #include "options.h"
+#include "player_food.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
@@ -165,8 +166,8 @@ int main(int argc, char *argv[]) {
         set_character_birth_date((int32_t)time((time_t *)0));
 
         char_inven_init();
-        py.flags.food = 7500;
-        py.flags.food_digested = 2;
+        player_set_food(7500);
+        player_set_digestion(2);
 
         if (class[py.misc.pclass].spell == MAGE) {
             // Magic realm

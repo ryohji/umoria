@@ -23,6 +23,7 @@
 #include "missile_serial.h"
 #include "panel.h"
 #include "messages.h"
+#include "player_food.h"
 #include "player_gold.h"
 #include "player_pos.h"
 #include "options.h"
@@ -169,8 +170,8 @@ static bool sv_write(void) {
     wr_short((uint16_t)f_ptr->blind);
     wr_short((uint16_t)f_ptr->paralysis);
     wr_short((uint16_t)f_ptr->confused);
-    wr_short((uint16_t)f_ptr->food);
-    wr_short((uint16_t)f_ptr->food_digested);
+    wr_short((uint16_t)player_food());
+    wr_short((uint16_t)player_digestion());
     wr_short((uint16_t)f_ptr->protection);
     wr_short((uint16_t)f_ptr->speed);
     wr_short((uint16_t)f_ptr->fast);
@@ -631,8 +632,15 @@ bool get_char(bool *generate) {
             rd_short((uint16_t *)&f_ptr->blind);
             rd_short((uint16_t *)&f_ptr->paralysis);
             rd_short((uint16_t *)&f_ptr->confused);
-            rd_short((uint16_t *)&f_ptr->food);
-            rd_short((uint16_t *)&f_ptr->food_digested);
+            // 腹の具合は f_ptr ではなく窓口へ入れる。読みは器の番地を要る
+            // ので、いったん受けてから置く（幅と符号の扱いは元のまま。
+            // 並びは動かせないのでこの位置のまま）。
+            uint16_t food;
+            rd_short(&food);
+            player_set_food((int16_t)food);
+            uint16_t food_digested;
+            rd_short(&food_digested);
+            player_set_digestion((int16_t)food_digested);
             rd_short((uint16_t *)&f_ptr->protection);
             rd_short((uint16_t *)&f_ptr->speed);
             rd_short((uint16_t *)&f_ptr->fast);
@@ -779,8 +787,8 @@ bool get_char(bool *generate) {
                 }
 
                 // don't let him starve to death immediately
-                if (py.flags.food < 0) {
-                    py.flags.food = 0;
+                if (player_food() < 0) {
+                    player_set_food(0);
                 }
 
                 // don't let him die of poison again immediately

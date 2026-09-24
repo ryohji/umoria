@@ -21,6 +21,7 @@
 #include "inventory.h"
 #include "level_exit.h"
 #include "panel.h"
+#include "player_food.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "running.h"
@@ -83,10 +84,10 @@ void calc_bonuses(void) {
     struct misc *m_ptr = &py.misc;
 
     if (p_ptr->slow_digest) {
-        p_ptr->food_digested++;
+        player_adjust_digestion(1);
     }
     if (p_ptr->regenerate) {
-        p_ptr->food_digested -= 3;
+        player_adjust_digestion(-3);
     }
 
     p_ptr->see_inv = false;
@@ -242,10 +243,10 @@ void calc_bonuses(void) {
     }
 
     if (p_ptr->slow_digest) {
-        p_ptr->food_digested--;
+        player_adjust_digestion(-1);
     }
     if (p_ptr->regenerate) {
-        p_ptr->food_digested += 3;
+        player_adjust_digestion(3);
     }
 }
 
@@ -1635,7 +1636,7 @@ void search_on(void) {
     py.flags.status |= PY_SEARCH;
     prt_state();
     prt_speed();
-    py.flags.food_digested++;
+    player_adjust_digestion(1);
 }
 
 void search_off(void) {
@@ -1646,7 +1647,7 @@ void search_off(void) {
 
     prt_state();
     prt_speed();
-    py.flags.food_digested--;
+    player_adjust_digestion(-1);
 }
 
 // Resting allows a player to safely restore his hp -RAK-
@@ -1677,7 +1678,7 @@ void rest(void) {
         py.flags.rest = rest_num;
         py.flags.status |= PY_REST;
         prt_state();
-        py.flags.food_digested--;
+        player_adjust_digestion(-1);
         prt("Press any key to stop resting...", 0, 0);
         put_qio();
     } else {
@@ -1698,7 +1699,7 @@ void rest_off(void) {
     // flush last message, or delete "press any key" message
     msg_print(CNIL);
 
-    py.flags.food_digested++;
+    player_adjust_digestion(1);
 }
 
 // Attacker's level and plusses,  defender's AC -RAK-

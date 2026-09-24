@@ -16,6 +16,7 @@
 
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_food.h"
 
 // Potions for the quaffing -RAK-
 void quaff(void) {
@@ -237,8 +238,8 @@ void quaff(void) {
                 case 35:
                     f_ptr = &py.flags;
                     (void)cure_poison();
-                    if (f_ptr->food > 150) {
-                        f_ptr->food = 150;
+                    if (player_food() > 150) {
+                        player_set_food(150);
                     }
                     f_ptr->paralysis = 4;
                     msg_print("The potion makes you vomit!");
