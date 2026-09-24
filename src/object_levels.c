@@ -10,10 +10,10 @@
 // static -- so the counting sort at its heart had never been reachable from a
 // test. Moving it here is what made it testable.
 //
-// This file needs three things from outside: the object definitions, and (until
-// #18-10-C) the two tables themselves. Rather than include externs.h, which
-// drags in ncurses for the sake of a few lines, the declarations are written
-// out here -- the same choice stats.c made and for the same reason.
+// This file needs one thing from outside: the object definitions. Rather than
+// include externs.h, which drags in ncurses for the sake of one line, the
+// declaration is written out here -- the same choice stats.c made and for the
+// same reason.
 
 #include "config.h"
 #include "constant.h"
@@ -23,16 +23,15 @@
 
 extern treasure_type object_list[MAX_OBJECTS];
 
-// Still the globals in treasure.c at this step, so that there is exactly one
-// copy while the readers are moved across one at a time; #18-10-C turns these
-// into static definitions here.
-//
 // The body of the table: object_list indexes in order of level.
-extern int16_t sorted_objects[MAX_DUNGEON_OBJ];
+static int16_t sorted_objects[MAX_DUNGEON_OBJ];
 
 // The index into that body: t_level[L] counts the kinds at level L or shallower,
 // so level L's band runs from t_level[L - 1] up to t_level[L] - 1.
-extern int16_t t_level[MAX_OBJ_LEVEL + 1];
+//
+// Starting out as zeroes means nothing at all until object_levels_init() runs,
+// which is why main() calls it before the first cave is generated.
+static int16_t t_level[MAX_OBJ_LEVEL + 1];
 
 void object_levels_init(void) {
     for (int i = 0; i <= MAX_OBJ_LEVEL; i++) {
