@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """ファミコン向けダンジョンタイルセットを作る。
 
-初代ゼルダのダンジョン（黒地・盛り上がった石組み・レンガの壁・扉のアーチ）を
-手本にした 16x16 のメタタイルと、全体マップ用の 8x8 罫線タイルを、NES の
-制約（8x8 タイル 1 枚 4 色、16x16 ごとに BG パレット 1 本、BG パレット 4 本）
-の中で組み立て、次のファイルを assets/famicom/ に書き出す。
+参考画像（初代ゼルダの地上: 砂地と岩山）のやりかたをダンジョンに移した
+16x16 のメタタイルと、全体マップ用の 8x8 罫線タイルを、NES の制約
+（8x8 タイル 1 枚 4 色、16x16 ごとに BG パレット 1 本、BG パレット 4 本、
+共通の背景色 1 色）の中で組み立て、次のファイルを assets/famicom/ に書き出す。
 
   dungeon_bg.chr        NES の 2bpp CHR（重複を除いた 8x8 タイル）
   dungeon_metatiles.inc ca65 の表（メタタイル名・パレット・4 枚のタイル番号）
-  dungeon_tiles.png     タイル一覧（3 倍）
-  dungeon_depths.png    深さごとの地形パレット（3 倍）
+  dungeon_tiles.png     タイル一覧（2 倍）
+  dungeon_depths.png    深さごとの配色（2 倍）
   mock_screen.png       ダンジョン画面のモック（256x240 を 3 倍）
   minimap_tiles.png     全体マップ用 8x8 タイル一覧（3 倍）
   mock_minimap.png      全体マップ画面のモック（256x240 を 3 倍）
@@ -38,33 +38,12 @@ NES_RGB = {
     0x1A: 0x00A800, 0x1B: 0x00A844, 0x1C: 0x008888,
     0x20: 0xF8F8F8, 0x21: 0x3CBCFC, 0x22: 0x6888FC, 0x23: 0x9878F8, 0x24: 0xF878F8,
     0x25: 0xF85898, 0x26: 0xF87858, 0x27: 0xFCA044, 0x28: 0xF8B800, 0x29: 0xB8F818,
-    0x2A: 0x58D854, 0x2B: 0x58F898, 0x2C: 0x00E8D8,
+    0x2A: 0x58D854, 0x2B: 0x58F898, 0x2C: 0x00E8D8, 0x2D: 0x787878,
     0x30: 0xFCFCFC, 0x31: 0xA4E4FC, 0x32: 0xB8B8F8, 0x33: 0xD8B8F8, 0x34: 0xF8B8F8,
     0x35: 0xF8A4C0, 0x36: 0xF0D0B0, 0x37: 0xFCE0A8, 0x38: 0xF8D878,
+    0x39: 0xD8F878, 0x3A: 0xB8F8B8, 0x3B: 0xB8F8D8, 0x3C: 0x00FCFC, 0x3D: 0xF8D8F8,
 }
 
-# BG パレット 4 本。0 番は全パレット共通の背景（黒）。
-# 1 番はどのパレットでも「暗い色」にする。床の目地をこの色で描くので、
-# モンスターやアイテムのタイルにも同じ位置に目地を描ける（規則 R2）。
-PALETTES = {
-    "P0": [0x0F, 0x0C, 0x1C, 0x2C],  # 石組み（深さで入れかえる）: 暗い青緑・青緑・明るい水色
-    "P1": [0x0F, 0x07, 0x17, 0x27],  # 暖色: 扉の木・溶岩の鉱脈・金・火・守りのルーン
-    "P2": [0x0F, 0x00, 0x10, 0x30],  # 白と灰: 石英の鉱脈・金属の罠・薬瓶・文字
-    "P3": [0x0F, 0x0A, 0x1A, 0x2A],  # 生き物（緑）: モンスターの既定・酸の罠
-}
-
-# 深さ帯ごとの P0（ゼルダの各レベルが色を変えるのにならう）
-DEPTH_P0 = [
-    ("B1-10", [0x0F, 0x0C, 0x1C, 0x2C]),
-    ("B11-20", [0x0F, 0x02, 0x12, 0x22]),
-    ("B21-30", [0x0F, 0x0B, 0x1B, 0x2B]),
-    ("B31-40", [0x0F, 0x04, 0x14, 0x24]),
-    ("B41-", [0x0F, 0x00, 0x10, 0x20]),
-]
-
-# スプライトパレット（プレイヤー・全体マップの現在地）
-SPRITE_PAL = [0x0F, 0x0F, 0x12, 0x37]
-MARKER_PAL = [0x0F, 0x30, 0x30, 0x30]
 
 
 def blank(h=16, w=16):
@@ -84,15 +63,6 @@ def transpose(g):
     return [list(row) for row in zip(*g)]
 
 
-def grid_lines(g):
-    """床の目地: 右端の列と下端の行を 1 番で描く（空いている所だけ）。"""
-    for i in range(16):
-        if g[15][i] == 0:
-            g[15][i] = 1
-        if g[i][15] == 0:
-            g[i][15] = 1
-    return g
-
 
 def ellipse(g, cy, cx, ry, rx, fill=2, edge=1, hi=3):
     """楕円の岩・塊を描く。縁 edge、中 fill、左上に明かり hi。"""
@@ -109,98 +79,174 @@ def ellipse(g, cy, cx, ry, rx, fill=2, edge=1, hi=3):
     return g
 
 
+
+
 # ---------------------------------------------------------------------------
-# 壁
+# パレット
+#
+# 共通の背景色（各パレットの 0 番）を「床の色」にする。黒ではない。
+# こうすると壁のタイルが自分のパレットのまま床の色を含められるので、
+# 岩の縁を床に食いこませたり、岩のすき間から床をのぞかせたりできる
+# （参考画像の岩山と砂地の境目のやりかた）。
+#
+#   P0 床    : 床 / 影 / 明るい床（敷石）/ 黒
+#   P1 岩    : 床 / 黒 / 岩（中）/ 岩（明）  … 花崗岩・溶岩・瓦礫・扉
+#   P2 灰と白: 床 / 黒 / 灰 / 白            … 石英・金属の罠・薬瓶・文字
+#   P3 生き物: 床 / 黒 / 緑 / 明るい緑      … モンスターの既定・酸
+#
+# 未探索の闇は P0 の 3 番（黒）で塗る。
 # ---------------------------------------------------------------------------
-def block(face=2, top=3, shadow=1, recess=True):
-    """ゼルダの押せるブロックのような、盛り上がった 16x16 の石。"""
+SCHEMES = [
+    # 名前, 床, 影, 明るい床, 岩（中）, 岩（明）
+    ("B1-10", 0x36, 0x35, 0x38, 0x17, 0x27),   # 砂岩: 参考画像の配色
+    ("B11-20", 0x10, 0x00, 0x37, 0x08, 0x18),  # 石灰岩: 灰の床に黄土色の岩、敷石は淡い黄
+    ("B21-30", 0x3B, 0x2B, 0x3A, 0x0B, 0x1A),  # 苔: 薄緑の床に深緑の岩
+    ("B31-40", 0x31, 0x21, 0x32, 0x02, 0x12),  # 氷: 水色の床に青い岩
+    ("B41-", 0x06, 0x07, 0x08, 0x00, 0x10),    # 火山: 赤黒い床に灰の岩、敷石は玄武岩色
+]
+
+
+def palettes(scheme=0):
+    _, bg, sh, lt, rm, rl = SCHEMES[scheme]
+    return {
+        "P0": [bg, sh, lt, 0x0F],
+        "P1": [bg, 0x0F, rm, rl],
+        "P2": [bg, 0x0F, 0x00, 0x30],
+        "P3": [bg, 0x0F, 0x1A, 0x2A],
+    }
+
+
+PALETTES = palettes(0)
+
+# スプライトパレット（プレイヤー）と、全体マップ画面のパレット（黒地）
+SPRITE_PAL = [0x0F, 0x0F, 0x12, 0x37]
+MINIMAP_PAL = [0x0F, 0x0C, 0x1C, 0x2C]
+MM_TEXT_PAL = [0x0F, 0x0F, 0x00, 0x30]
+STAIRS_PAL = [0x0F, 0x0F, 0x28, 0x28]
+
+
+def noise(t, salt, lo, hi):
+    """座標から決まる小さな揺らぎ（乱数ではなく毎回同じ値）。"""
+    v = (t * 73 + salt * 151 + (t * t * 17) % 97) % 1009
+    return lo + v % (hi - lo + 1)
+
+
+def overlay(g, rows, mapping=None, only_on=None):
+    for r, row in enumerate(rows):
+        row = row.ljust(16, ".")
+        for c, ch in enumerate(row[:16]):
+            if ch in ". ":
+                continue
+            v = int(ch) if mapping is None else mapping[ch]
+            if only_on is None or g[r][c] in only_on:
+                g[r][c] = v
+    return g
+
+
+def from_art(rows, mapping=None):
     g = blank()
-    for r in range(16):
-        for c in range(16):
-            if r < 2 and r <= 15 - c:
-                v = top
-            elif c < 2 and c <= 15 - r:
-                v = top
-            elif r > 13 or c > 13:
-                v = shadow
-            else:
-                v = face
-            g[r][c] = v
-    if recess:
-        # 中央のくぼみ（上・左が影、下・右が明かり）
-        for i in range(5, 11):
-            g[5][i] = shadow
-            g[i][5] = shadow
-            g[10][i] = top
-            g[i][10] = top
-        g[5][10] = shadow
-        g[10][5] = shadow
-    return g
+    return overlay(g, rows, mapping)
 
 
-def bricks():
-    """床に面した壁の正面（レンガ積み）。下 2 行は足元の影。"""
-    g = blank()
-    for r in range(16):
-        band = r // 4
-        rr = r % 4
-        for c in range(16):
-            off = 0 if band % 2 == 0 else 4
-            if rr == 3:
-                v = 1
-            elif (c + off) % 8 == 7:
-                v = 1
-            elif rr == 0:
-                v = 3
-            else:
-                v = 2
-            g[r][c] = v
-    for c in range(16):
-        g[14][c] = 1
-        g[15][c] = 0
-    return g
+# ---------------------------------------------------------------------------
+# 岩の壁
+#
+# 16x16 に岩の塊を 4 つ重ね、すき間は黒。床に面した辺（N E S W）だけ、
+# ぎざぎざに削って床の色を出し、辺の近くのすき間も床の色にする。
+# 削るのは辺から 7 ドット以内なので、8x8 の 1/4 ごとに影響する辺は 2 つ
+# だけになり、16 通りの面しかたを 1 種類あたり 8x8 タイル 16 枚で作れる。
+# ---------------------------------------------------------------------------
+N, E, S, W = 1, 2, 4, 8
+
+CLUMPS = [
+    # 中心 y, x, 半径 y, x。奥（上）から順に描き、手前の岩が奥の岩に重なる
+    (4.0, 4.5, 4.6, 4.2),
+    (4.5, 12.0, 5.0, 3.6),
+    (12.5, 0.5, 3.6, 2.2),
+    (12.0, 15.5, 3.8, 2.4),
+    (11.0, 7.5, 4.8, 4.6),
+]
 
 
-def boundary_block():
-    """外周の壊せない壁: 暗い面に鋲を打った鉄張りの石。"""
-    g = block(face=1, top=2, shadow=1, recess=False)
-    for (y, x) in [(3, 3), (3, 11), (11, 3), (11, 11)]:
-        g[y][x] = 3
-        g[y][x + 1] = 2
-        g[y + 1][x] = 2
-    for i in range(4, 12):
-        g[7][i] = 2 if i % 2 else 1
-        g[i][7] = 2 if i % 2 else 1
-    return g
+def rock_base(body=2, hi=3, edge=1, crack=None, crack_on=None, mirror=False):
+    g = [[1] * 16 for _ in range(16)]
+    rock = [[False] * 16 for _ in range(16)]
+    for (cy, cx, ry, rx) in CLUMPS:
+        if mirror:
+            cx = 15 - cx
+            cy = (cy + 7) % 16 if cy < 12 else cy - 9
+        for y in range(16):
+            for x in range(16):
+                d = ((y - cy) / ry) ** 2 + ((x - cx) / rx) ** 2
+                if d > 1.0:
+                    continue
+                rock[y][x] = True
+                inner = ((y - cy) / (ry - 1)) ** 2 + ((x - cx) / (rx - 1)) ** 2
+                if inner > 1.0:
+                    g[y][x] = edge
+                    continue
+                # 左の縁から 1〜2 ドット内側に縦の明かり（参考画像の岩の筋）
+                half = rx * (1 - ((y - cy) / ry) ** 2) ** 0.5
+                from_left = x - (cx - half)
+                if 1 <= from_left < 2.2 and y < cy + ry * 0.3:
+                    g[y][x] = hi
+                elif abs(x - (cx + rx * 0.3)) < 0.5 and y > cy + ry * 0.2:
+                    # 岩の下半分を縦に割る暗い筋
+                    g[y][x] = edge
+                else:
+                    g[y][x] = body
+    if crack:
+        paint_on_rock(g, rock, crack, crack_on)
+    return g, rock
 
 
-def boundary_face():
-    g = bricks()
-    for r in range(14):
-        for c in range(16):
-            if g[r][c] == 2:
-                g[r][c] = 1
-            elif g[r][c] == 3:
-                g[r][c] = 2
-    for (y, x) in [(1, 3), (5, 11), (9, 3)]:
-        g[y][x] = 3
-    return g
+def paint_on_rock(g, rock, art, only_on=None):
+    """岩の上だけに描く（すき間の黒には描かない）。"""
+    for r, row in enumerate(art):
+        for c, ch in enumerate(row.ljust(16, ".")[:16]):
+            if ch not in ". " and rock[r][c] and (only_on is None or g[r][c] in only_on):
+                g[r][c] = int(ch)
+
+
+def erode(g, rock, mask, salt):
+    """床に面した辺を削る。"""
+    g = [row[:] for row in g]
+    for y in range(16):
+        for x in range(16):
+            for side, dist, t in ((N, y, x), (S, 15 - y, x), (W, x, y), (E, 15 - x, y)):
+                if not mask & side:
+                    continue
+                # 削る深さは 4 ドットごとに変える（細かく揺らすと毛羽立つ）
+                cut = noise(t // 4, salt + side, 1, 3)
+                if dist < cut or (not rock[y][x] and dist < 7):
+                    g[y][x] = 0
+    # 削った所に接する岩は黒い輪郭にする
+    out = [row[:] for row in g]
+    for y in range(16):
+        for x in range(16):
+            if g[y][x] in (0, 1):
+                continue
+            for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < 16 and 0 <= nx < 16 and g[ny][nx] == 0:
+                    out[y][x] = 1
+    return out
 
 
 MAGMA_CRACK = [
     "................",
+    "..........3.....",
+    "...3......3.....",
+    "....3....33.....",
+    "....33....3.....",
+    ".....3.......3..",
     "................",
-    "....3...........",
-    ".....3......3...",
-    ".....33....3....",
-    "......3...33....",
-    "......33.3......",
-    ".......33.......",
-    "........3.......",
-    "........33......",
-    ".........3...3..",
-    "..3.......3.3...",
-    "...3.......3....",
+    "...........33...",
+    "..3.........3...",
+    "...33.......3...",
+    ".....3..........",
+    "....33......3...",
+    "....3......33...",
     "................",
     "................",
     "................",
@@ -208,156 +254,169 @@ MAGMA_CRACK = [
 
 QUARTZ_SHARD = [
     "................",
+    "..........3.....",
+    "...3.....333....",
+    "..333....313....",
+    "..313...3113....",
+    "..3113..........",
     "................",
     "................",
-    "....3......3....",
-    "...333....313...",
-    "...3313...3113..",
-    "..33113...33113.",
-    "..3311.....311..",
-    "...31..3.......",
-    ".......33.......",
-    "......3313......",
-    "......33113.....",
-    ".......311......",
+    "...........3....",
+    "....3.....313...",
+    "...333....3113..",
+    "...3113.........",
+    "..31113.........",
+    "................",
+    "................",
+    "................",
+]
+
+TREASURE = [
+    "................",
+    "................",
+    "................",
+    "......3.........",
+    ".....333........",
+    "......3.........",
+    "................",
+    "................",
+    "..........33....",
+    ".........3331...",
+    ".........3311...",
+    "..........11....",
+    "................",
     "................",
     "................",
     "................",
 ]
 
 
-def overlay(g, rows, only_on=None):
-    for r, row in enumerate(rows):
-        row = row.ljust(16, ".")
-        for c, ch in enumerate(row[:16]):
-            if ch not in ". ":
-                if only_on is None or g[r][c] in only_on:
-                    g[r][c] = int(ch)
-    return g
+def wall_kinds():
+    granite = rock_base()
+    granite2 = rock_base(mirror=True)
+    magma = rock_base(body=1, hi=2, edge=1, crack=MAGMA_CRACK)
+    quartz = rock_base(body=2, hi=3, edge=1, crack=QUARTZ_SHARD, crack_on=(2, 3))
+    kinds = [("granite", "P1", granite, "花崗岩の壁。外周の壁と隠し扉も同じ絵"),
+             ("granite2", "P1", granite2, "花崗岩の壁（模様 2。位置で交互に使う）"),
+             ("magma", "P1", magma, "溶岩の鉱脈（黒い岩に光る筋）"),
+             ("quartz", "P2", quartz, "石英の鉱脈（灰色の岩に結晶）")]
+    for base, name in (("magma", "溶岩"), ("quartz", "石英")):
+        g, rock = dict((k[0], k[2]) for k in kinds)[base]
+        g = [row[:] for row in g]
+        paint_on_rock(g, rock, TREASURE)
+        pal = "P1" if base == "magma" else "P2"
+        kinds.append((base + "_t", pal, (g, rock), name + "の鉱脈＋宝"))
+    return kinds
 
 
-def magma_top():
-    g = block(face=1, top=2, shadow=1, recess=False)
-    return overlay(g, MAGMA_CRACK, only_on=(1,))
-
-
-def quartz_top():
-    g = block(face=2, top=3, shadow=1, recess=False)
-    return overlay(g, QUARTZ_SHARD, only_on=(2,))
-
-
-def vein_face(kind):
-    g = bricks()
-    if kind == "magma":
-        # 暗いレンガにひびの光
-        for r in range(14):
-            for c in range(16):
-                if g[r][c] == 2:
-                    g[r][c] = 1
-                elif g[r][c] == 3:
-                    g[r][c] = 2
-        overlay(g, MAGMA_CRACK[:14], only_on=(1, 2))
-    else:
-        overlay(g, QUARTZ_SHARD[:14], only_on=(2,))
-    return g
-
-
-NUGGETS = [
+# ---------------------------------------------------------------------------
+# 床（P0: 0 床・1 影・2 明るい床・3 黒）
+# ---------------------------------------------------------------------------
+RIPPLE_A = [
     "................",
     "................",
+    "..11............",
+    "....111.........",
+    "................",
+    "..........11....",
+    "............111.",
     "................",
     "................",
+    "....11..........",
+    "......111.......",
+    "................",
+    "...........11...",
+    ".............11.",
     "................",
     "................",
+]
+
+RIPPLE_B = [
     "................",
-    "...........33...",
-    "..........3331..",
-    "...33.....3311..",
-    "..3331.....11...",
-    "..3311..........",
+    ".........11.....",
+    "...........111..",
+    "................",
+    "................",
+    "..11............",
+    "....11..........",
+    "................",
+    "..........11....",
+    "............11..",
+    "................",
+    "................",
     "...11...........",
-    "................",
-    "................",
-    "................",
-]
-
-SPARKLE = [
-    "................",
-    "................",
-    "..........3.....",
-    "..........3.....",
-    "........33333...",
-    "..........3.....",
-    "..........3.....",
-    "................",
-    "................",
-    "...3............",
-    "..333...........",
-    "...3............",
-    "................",
-    "................",
+    ".....111........",
     "................",
     "................",
 ]
 
 
-def with_treasure(g):
-    g = [row[:] for row in g]
-    overlay(g, NUGGETS)
-    overlay(g, SPARKLE)
+def paved(squares):
+    g = blank()
+    for (sy, sx) in squares:
+        for y in range(sy + 1, sy + 7):
+            for x in range(sx + 1, sx + 7):
+                g[y][x] = 2
+    return g
+
+
+def floor_variants():
+    # 小石は岩のパレット（P1: 床・黒・岩・明）。参考画像の茶色い小石
+    pebble = from_art([
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "......111.......",
+        ".....13221......",
+        ".....132221.....",
+        ".....122221.....",
+        "......11111.....",
+        "................",
+        "................",
+        "................",
+        "................",
+    ])
+    part = paved([(0, 0), (8, 8)])
+    overlay(part, RIPPLE_A[8:] + ["." * 16] * 8, only_on=(0,))
+    return [
+        ("floor_a", from_art(RIPPLE_A), "床（さざ波 A）"),
+        ("floor_b", from_art(RIPPLE_B), "床（さざ波 B）"),
+        ("floor_paved", paved([(0, 0), (0, 8), (8, 0), (8, 8)]), "床（敷石）。部屋に多め"),
+        ("floor_paved2", part, "床（敷石が欠けた所）"),
+        ("floor_pebble", pebble, "床（小石）。P1"),
+    ]
+
+
+# 部屋と通路で使う床の組み合わせ（位置から決める）
+ROOM_FLOORS = ["floor_a", "floor_paved", "floor_b", "floor_paved", "floor_paved2", "floor_a", "floor_pebble"]
+CORR_FLOORS = ["floor_a", "floor_b", "floor_a", "floor_pebble"]
+
+
+def floor_name(y, x, room):
+    lst = ROOM_FLOORS if room else CORR_FLOORS
+    return lst[noise(x * 31 + y * 17, 9, 0, len(lst) - 1)]
+
+
+def shadowed(top, left, corner):
+    """壁の右・下の床に落ちる影（光は左上から）。"""
+    g = from_art(RIPPLE_A)
+    for y in range(16):
+        for x in range(16):
+            if top and y < noise(x, 3, 2, 4):
+                g[y][x] = 1
+            if left and x < noise(y, 5, 2, 4):
+                g[y][x] = 1
+            if corner and x + y < 4:
+                g[y][x] = 1
     return g
 
 
 # ---------------------------------------------------------------------------
-# 床・階段・瓦礫
-# ---------------------------------------------------------------------------
-def floor_room():
-    g = blank()
-    for (y, x) in [(3, 3), (3, 11), (11, 3), (11, 11)]:
-        g[y][x] = 1
-    return grid_lines(g)
-
-
-def floor_corridor():
-    g = blank()
-    for (y, x, v) in [(2, 4, 1), (3, 4, 1), (3, 5, 1), (9, 10, 1), (9, 11, 2), (10, 10, 1),
-                      (12, 3, 1), (6, 12, 1), (13, 8, 1)]:
-        g[y][x] = v
-    return grid_lines(g)
-
-
-def stairs(down):
-    g = blank()
-    widths = [14, 12, 10, 8] if down else [8, 10, 12, 14]
-    for i, w in enumerate(widths):
-        top = 1 + i * 3 + (1 if not down else 0)
-        left = (16 - w) // 2
-        for k, v in enumerate([3, 2, 1]):
-            r = top + k
-            for c in range(left, left + w):
-                g[r][c] = v
-            g[r][left] = 1
-            g[r][left + w - 1] = 1
-    if down:
-        # いちばん下は闇へ落ちる
-        for c in range(5, 11):
-            g[13][c] = 0
-    else:
-        # 上り: てっぺんに光
-        for c in range(6, 10):
-            g[1][c] = 3
-    return grid_lines(g)
-
-
-def rubble():
-    g = blank()
-    for (cy, cx, ry, rx) in [(10.5, 4.5, 3.2, 3.6), (11, 11, 3, 3.5), (6.5, 8, 3.2, 3.8), (12.5, 7.5, 2.4, 2.8)]:
-        ellipse(g, cy, cx, ry, rx)
-    return grid_lines(g)
-
-
-# ---------------------------------------------------------------------------
-# 扉（P1）。H は左右が壁の扉。V は H を転置して作る
+# 扉（P1: 0 床・1 黒・2 岩色の木・3 明かり）。H は左右が壁の扉
 # ---------------------------------------------------------------------------
 def door_closed_h():
     g = blank()
@@ -395,36 +454,95 @@ def door_open_h():
         g[r][1] = 2
         g[r][14] = 2
         g[r][15] = 1
-        # 開いた扉の板（左の枠に寄せて立つ）
+        for c in range(5, 14):
+            g[r][c] = 1  # 奥の暗がり
         g[r][2] = 3
         g[r][3] = 2
         g[r][4] = 1
     for r in (4, 11):
         g[r][3] = 1
-    return grid_lines(g)
+    # 敷居の先に床がのぞく
+    for c in range(5, 14):
+        g[15][c] = 0
+    return g
 
 
 # ---------------------------------------------------------------------------
-# 罠
+# 階段（P0）
+# ---------------------------------------------------------------------------
+def stairs(down):
+    g = blank()
+    for y in range(1, 15):
+        for x in range(1, 15):
+            g[y][x] = 3
+    for x in range(1, 15):
+        g[1][x] = 2
+    for y in range(1, 15):
+        g[y][1] = 2
+    if down:
+        for i in range(4):
+            r = 3 + i * 3
+            w = 12 - i * 3
+            left = 2 + i
+            for c in range(left, min(left + w, 15)):
+                g[r][c] = 2
+                g[r + 1][c] = 1
+    else:
+        for i in range(4):
+            r = 3 + i * 3
+            w = 3 + i * 3
+            left = 14 - w
+            for c in range(left, 14):
+                g[r][c] = 2
+                g[r + 1][c] = 1
+                g[r + 2][c] = 0 if i == 3 else g[r + 2][c]
+    # 右と下は床に落ちる影
+    for y in range(2, 16):
+        g[y][15] = 1
+    for x in range(2, 16):
+        g[15][x] = 1
+    return g
+
+
+# ---------------------------------------------------------------------------
+# 瓦礫・落石（P1）
+# ---------------------------------------------------------------------------
+def boulders(spec):
+    g = blank()
+    for (cy, cx, ry, rx) in spec:
+        ellipse(g, cy, cx, ry, rx, fill=2, edge=1, hi=3)
+    return g
+
+
+def rubble():
+    return boulders([(6.5, 8, 3.2, 3.8), (10.5, 4.5, 3.2, 3.6), (11, 11, 3, 3.5), (12.5, 7.5, 2.4, 2.8)])
+
+
+def trap_rock():
+    g = boulders([(8, 8, 4.5, 5.5)])
+    for (y, x) in [(7, 9), (8, 8), (9, 8), (10, 9), (6, 10)]:
+        g[y][x] = 1
+    for (y, x) in [(14, 2), (13, 3), (2, 13), (13, 13)]:
+        g[y][x] = 1
+    return g
+
+
+# ---------------------------------------------------------------------------
+# 罠（ほとんど P0。床の色の上に、影・明るい床・黒で描く）
 # ---------------------------------------------------------------------------
 def trap_pit():
-    """石で縁どった穴。奥（上側）の壁だけ暗く見える。"""
     g = blank()
     cy = cx = 7.5
     for y in range(16):
         for x in range(16):
             d = ((y - cy) ** 2 + (x - cx) ** 2) ** 0.5
             if d <= 7.0:
-                if d > 5.0:
-                    # 縁の石: 左上側は明るく、継ぎ目を少し入れる
-                    v = 3 if (x + y) < 13 else 2
-                    if (x * 3 + y * 5) % 11 == 0:
-                        v = 1
-                    g[y][x] = v
+                if d > 5.2:
+                    g[y][x] = 2 if (x + y) < 14 else 1
                 else:
                     d2 = ((y - (cy + 2.2)) ** 2 + (x - cx) ** 2) ** 0.5
-                    g[y][x] = 1 if d2 > 5.0 else 0
-    return grid_lines(g)
+                    g[y][x] = 1 if d2 > 5.0 else 3
+    return g
 
 
 def trap_door():
@@ -432,49 +550,40 @@ def trap_door():
     for r in range(2, 14):
         for c in range(2, 14):
             if r in (2, 13) or c in (2, 13):
-                g[r][c] = 1
+                g[r][c] = 3
+            elif (r - 2) % 3 == 0:
+                g[r][c] = 3
             else:
-                g[r][c] = 3 if (r - 3) % 3 == 0 else 2
+                g[r][c] = 2 if (r - 2) % 3 == 1 else 1
     for r in (4, 5, 10, 11):
-        g[r][3] = 1
-        g[r][4] = 1
-    g[8][11] = 1
-    return grid_lines(g)
+        g[r][3] = 3
+    return g
 
 
-def trap_plate(holes=True):
+def trap_dart():
     g = blank()
     for r in range(2, 14):
         for c in range(2, 14):
-            if r == 2 or c == 2:
-                g[r][c] = 3
-            elif r == 13 or c == 13:
-                g[r][c] = 1
-            else:
-                g[r][c] = 2
-    if holes:
-        for y in (4, 7, 10):
-            for x in (4, 7, 10):
-                g[y][x] = 1
-                g[y][x + 1] = 1
-                g[y + 1][x] = 1
-                g[y + 1][x + 1] = 0
-    return grid_lines(g)
+            g[r][c] = 1 if (r == 13 or c == 13) else 2
+    for y in (4, 7, 10):
+        for x in (4, 7, 10):
+            g[y][x] = 3
+            g[y][x + 1] = 3
+            g[y + 1][x] = 3
+            g[y + 1][x + 1] = 1
+    return g
 
 
 def trap_gas():
     g = blank()
-    ellipse(g, 7.5, 7.5, 5.5, 5.5, fill=1, edge=2, hi=0)
-    for r in (5, 7, 9):
+    ellipse(g, 8.5, 7.5, 5.5, 5.5, fill=3, edge=2, hi=0)
+    for r in (6, 8, 10):
         for c in range(4, 12):
-            if g[r][c] == 1:
-                g[r][c] = 0
-    for (y, x) in [(2, 6), (2, 7), (3, 4)]:
-        g[y][x] = 3
-    # もれ出るガス
-    for (y, x) in [(1, 11), (0, 12), (1, 13), (3, 13)]:
-        g[y][x] = 3
-    return grid_lines(g)
+            if g[r][c] == 3:
+                g[r][c] = 1
+    for (y, x) in [(1, 11), (0, 12), (1, 13), (2, 12), (3, 13)]:
+        g[y][x] = 1
+    return g
 
 
 RUNE = [
@@ -554,37 +663,21 @@ ACID = [
 ]
 
 
-def from_art(rows):
-    g = from_ascii([r.ljust(16, ".")[:16] for r in rows])
-    return grid_lines(g)
-
-
-def trap_rock():
-    g = blank()
-    ellipse(g, 8, 8, 4.5, 5.5)
-    for (y, x) in [(8, 6), (9, 7), (9, 8), (10, 9), (7, 9), (6, 10)]:
-        g[y][x] = 1
-    for (y, x) in [(14, 2), (13, 3), (2, 13), (3, 12), (13, 13)]:
-        g[y][x] = 2
-    return grid_lines(g)
-
-
 # ---------------------------------------------------------------------------
-# モンスター・アイテムの見本（地形の上に BG で重ねる規則を確かめる）
+# モンスター・アイテムの見本（BG で描く。背景は床の色のまま）
 # ---------------------------------------------------------------------------
 def jelly():
     g = blank()
     ellipse(g, 9.5, 7.5, 5.5, 6.8)
     for (y, x) in [(8, 5), (8, 9)]:
-        g[y][x] = 0
-        g[y + 1][x] = 0
-        g[y][x + 1] = 0
-        g[y + 1][x + 1] = 0
-    return grid_lines(g)
+        g[y][x] = 3
+        g[y][x + 1] = 3
+        g[y + 1][x] = 3
+        g[y + 1][x + 1] = 1
+    return g
 
 
 def gold_pile():
-    """硬貨の山。奥から順に重ね、硬貨の面は 3、側面は 2。"""
     g = blank()
     for (cy, cx) in [(7, 7), (9, 4.5), (9, 10), (11, 7.5), (12, 3.5), (12.5, 11.5)]:
         for y in range(16):
@@ -595,7 +688,7 @@ def gold_pile():
                     g[y][x] = 1 if top > 0.55 else 3
                 elif side:
                     g[y][x] = 2
-    return grid_lines(g)
+    return g
 
 
 POTION = [
@@ -636,6 +729,7 @@ PLAYER = [
     "...1111..1111...",
 ]
 
+
 # ---------------------------------------------------------------------------
 # メタタイル一覧（名前, パレット, 絵, 説明）
 # ---------------------------------------------------------------------------
@@ -646,47 +740,49 @@ def mt(name, pal, g, note):
     METATILES.append((name, pal, g, note))
 
 
-mt("void", "P0", blank(), "未探索・闇")
-mt("floor_room", "P0", floor_room(), "部屋の床（目地つき）")
-mt("floor_corr", "P0", floor_corridor(), "通路の床（小石）")
-mt("wall_top", "P0", block(), "花崗岩の壁（上面・ブロック）。隠し扉も同じ絵")
-mt("wall_face", "P0", bricks(), "花崗岩の壁（床に面した正面・レンガ）")
-mt("perm_top", "P0", boundary_block(), "外周の壁（上面）")
-mt("perm_face", "P0", boundary_face(), "外周の壁（正面）")
-mt("magma_top", "P1", magma_top(), "溶岩の鉱脈（上面）")
-mt("magma_face", "P1", vein_face("magma"), "溶岩の鉱脈（正面）")
-mt("magma_top_t", "P1", with_treasure(magma_top()), "溶岩の鉱脈＋宝（上面）")
-mt("magma_face_t", "P1", with_treasure(vein_face("magma")), "溶岩の鉱脈＋宝（正面）")
-mt("quartz_top", "P2", quartz_top(), "石英の鉱脈（上面）")
-mt("quartz_face", "P2", vein_face("quartz"), "石英の鉱脈（正面）")
-mt("quartz_top_t", "P2", with_treasure(quartz_top()), "石英の鉱脈＋宝（上面）")
-mt("quartz_face_t", "P2", with_treasure(vein_face("quartz")), "石英の鉱脈＋宝（正面）")
+def mask_name(m):
+    return "".join(ch for bit, ch in ((N, "n"), (E, "e"), (S, "s"), (W, "w")) if m & bit) or "0"
+
+
+WALL_KINDS = wall_kinds()
+for kind, pal, (g, rock), note in WALL_KINDS:
+    for m in range(16):
+        mt("%s_%s" % (kind, mask_name(m)), pal, erode(g, rock, m, salt=len(kind)),
+           "%s（床に面した辺: %s）" % (note, mask_name(m)))
+
+mt("void", "P0", [[3] * 16 for _ in range(16)], "未探索・闇（P0 の黒）")
+for name, g, note in floor_variants():
+    mt(name, "P1" if name == "floor_pebble" else "P0", g, note)
+mt("shadow_n", "P0", shadowed(True, False, False), "床＋上の壁の影")
+mt("shadow_w", "P0", shadowed(False, True, False), "床＋左の壁の影")
+mt("shadow_nw", "P0", shadowed(True, True, False), "床＋上と左の壁の影")
+mt("shadow_c", "P0", shadowed(False, False, True), "床＋左上の角の影")
 mt("door_closed_h", "P1", door_closed_h(), "閉じた扉（横の壁）。鍵・つっかえも同じ")
 mt("door_closed_v", "P1", transpose(door_closed_h()), "閉じた扉（縦の壁）")
 mt("door_open_h", "P1", door_open_h(), "開いた扉・壊れた扉（横の壁）")
 mt("door_open_v", "P1", transpose(door_open_h()), "開いた扉・壊れた扉（縦の壁）")
 mt("stairs_up", "P0", stairs(False), "上り階段 <")
 mt("stairs_down", "P0", stairs(True), "下り階段 >")
-mt("rubble", "P0", rubble(), "瓦礫 :")
+mt("rubble", "P1", rubble(), "瓦礫 :")
 mt("trap_pit", "P0", trap_pit(), "落とし穴（開いた・覆われた）")
-mt("trap_door", "P1", trap_door(), "落とし戸")
-mt("trap_dart", "P2", trap_plate(True), "矢・吹き矢の罠（穴の空いた板）")
-mt("trap_gas", "P2", trap_gas(), "ガスの罠（通気口）")
-mt("trap_rune", "P2", from_art(RUNE), "不思議なルーン（テレポート・召喚）")
-mt("trap_fire", "P1", from_art(SCORCH), "焦げ跡（火炎の罠）")
-mt("trap_rock", "P0", trap_rock(), "落石の罠（ゆるんだ岩）")
+mt("trap_door", "P0", trap_door(), "落とし戸")
+mt("trap_dart", "P0", trap_dart(), "矢・吹き矢の罠（穴の空いた板）")
+mt("trap_gas", "P0", trap_gas(), "ガスの罠（通気口）")
+mt("trap_rune", "P0", from_art(RUNE, {"3": 3, "2": 1}), "不思議なルーン（テレポート・召喚）")
+mt("trap_fire", "P0", from_art(SCORCH, {"1": 3, "2": 1, "3": 2}), "焦げ跡（火炎の罠）")
+mt("trap_rock", "P1", trap_rock(), "落石の罠（ゆるんだ岩）")
 mt("trap_acid", "P3", from_art(ACID), "酸の罠（腐食した岩）")
 mt("glyph", "P1", from_art(GLYPH), "守りのルーン（Scare Monster）")
-mt("ex_jelly", "P3", jelly(), "見本: ゼリー J（モンスターも BG・目地つき）")
+mt("ex_jelly", "P3", jelly(), "見本: ゼリー J")
 mt("ex_gold", "P1", gold_pile(), "見本: 金貨の山 $（這う硬貨と共用）")
 mt("ex_potion", "P2", from_art(POTION), "見本: 薬瓶 !")
 
 MT_INDEX = {m[0]: i for i, m in enumerate(METATILES)}
 
+
 # ---------------------------------------------------------------------------
 # 全体マップ用 8x8 タイル（4x4 マス = 1 タイル、正方形の区画）
 # ---------------------------------------------------------------------------
-N, E, S, W = 1, 2, 4, 8
 
 
 def mm_corridor(mask):
@@ -795,7 +891,7 @@ MM_INDEX = {m[0]: i for i, m in enumerate(MINIMAP)}
 
 # 全体マップのスプライト（BG の 256 枚とは別のパターンテーブル）
 MM_SPRITES = [("mm_up", mm_stairs(False)), ("mm_down", mm_stairs(True))]
-STAIRS_PAL = [0x0F, 0x0F, 0x28, 0x28]
+
 
 # ---------------------------------------------------------------------------
 # 8x8 の文字（モックに要る分だけ。5x7 字形）
@@ -826,7 +922,8 @@ FONT5 = {
 
 
 def glyph8(ch):
-    g = blank(8, 8)
+    """黒地（1 番）に白（3 番）の文字。"""
+    g = [[1] * 8 for _ in range(8)]
     for r, row in enumerate(FONT5[ch]):
         for c, px in enumerate(row):
             if px == "#":
@@ -921,63 +1018,10 @@ class Canvas:
 
 
 def text(cv, s, x, y, pal=None):
-    pal = pal or PALETTES["P2"]
+    pal = pal or MM_TEXT_PAL
     for i, ch in enumerate(s):
         cv.draw(glyph8(ch), x + i * 8, y, pal)
 
-
-# ---------------------------------------------------------------------------
-# モック画面（16x11 マスの地図＋状態 2 行）
-# ---------------------------------------------------------------------------
-MOCK = [
-    "XXXXXXXXXXXXXXXX",
-    "X##mmM####qqQ###",
-    "X#.....#.......#",
-    "X#.<...+...j...#",
-    "X#..@..#.^.....#",
-    "X#..*..#.....!.#",
-    "X##'####..W....#",
-    "X #,#  ###'#####",
-    "X #,,,T,,,,,,,>#",
-    "X ########:#####",
-    "X        #,#    ",
-]
-WALLS = {"#": ("wall_top", "wall_face"), "X": ("perm_top", "perm_face"),
-         "m": ("magma_top", "magma_face"), "M": ("magma_top_t", "magma_face_t"),
-         "q": ("quartz_top", "quartz_face"), "Q": ("quartz_top_t", "quartz_face_t")}
-SIMPLE = {".": "floor_room", ",": "floor_corr", "<": "stairs_up", ">": "stairs_down",
-          ":": "rubble", "^": "trap_pit", "T": "trap_door", "W": "glyph", "j": "ex_jelly",
-          "*": "ex_gold", "!": "ex_potion", "@": "floor_room", " ": "void"}
-
-
-def mock_metatile(rows, y, x):
-    ch = rows[y][x]
-    below = rows[y + 1][x] if y + 1 < len(rows) else " "
-    if ch in WALLS:
-        top, face = WALLS[ch]
-        return face if (below not in WALLS and below != " ") else top
-    if ch in "+'":
-        left = rows[y][x - 1] if x > 0 else " "
-        horiz = left in WALLS
-        base = "door_closed" if ch == "+" else "door_open"
-        return base + ("_h" if horiz else "_v")
-    return SIMPLE[ch]
-
-
-def render_mock():
-    cv = Canvas(256, 240)
-    text(cv, "B5F", 16, 8)
-    for y, row in enumerate(MOCK):
-        assert len(row) == 16, row
-        for x in range(16):
-            name = mock_metatile(MOCK, y, x)
-            _, pal, g, _ = METATILES[MT_INDEX[name]]
-            cv.draw(g, x * 16, 16 + y * 16, PALETTES[pal])
-            if MOCK[y][x] == "@":
-                cv.draw(from_ascii(PLAYER), x * 16, 16 + y * 16, SPRITE_PAL, transparent0=True)
-    text(cv, "LV12 HP 45/ 60 MP  8/12", 16, 200)
-    text(cv, "AU 1234", 16, 208)
-    return cv
 
 
 # ---------------------------------------------------------------------------
@@ -1133,10 +1177,10 @@ def render_minimap_mock():
     known = explore(g, rooms, start)
     tiles = minimap_tiles(g, known)
     cv = Canvas(256, 240)
-    pal = PALETTES["P0"]
+    pal = MINIMAP_PAL
     ox, oy = 4, 5  # 地図の左上（タイル単位）
     th, tw = len(tiles), len(tiles[0])
-    text(cv, "MAP  B5F", ox * 8, 2 * 8, PALETTES["P2"])
+    text(cv, "MAP  B5F", ox * 8, 2 * 8, MM_TEXT_PAL)
     fr = {k: MINIMAP[MM_INDEX["mm_frame_" + k]][1] for k in ("tl", "tr", "bl", "br", "h", "v")}
     cv.draw(fr["tl"], (ox - 1) * 8, (oy - 1) * 8, pal)
     cv.draw(fr["tr"], (ox + tw) * 8, (oy - 1) * 8, pal)
@@ -1161,41 +1205,130 @@ def render_minimap_mock():
     return cv, tiles, g, known
 
 
-# ---------------------------------------------------------------------------
-# 一覧画像
-# ---------------------------------------------------------------------------
-def num_label(cv, n, x, y):
-    text(cv, "%02d" % n, x, y, PALETTES["P2"])
 
 
-def render_sheet():
-    cols = 8
-    cw, ch = 24, 28
-    rows = (len(METATILES) + cols - 1) // cols
-    cv = Canvas(cols * cw + 8, rows * ch + 8, bg=0x202020)
-    for i, (name, pal, g, _) in enumerate(METATILES):
-        x = 8 + (i % cols) * cw
-        y = 4 + (i // cols) * ch
-        cv.draw(g, x, y, PALETTES[pal])
-        num_label(cv, i, x, y + 17)
+# ---------------------------------------------------------------------------
+# モック画面（16x11 マスの地図。上下の黒帯に文字）
+# ---------------------------------------------------------------------------
+MOCK = [
+    "################",
+    "###mmM####qqQ###",
+    "##.....#.......#",
+    "##.<...+...j...#",
+    "##..@..#.^.....#",
+    "##..*..#.....!.#",
+    "###'####..W....#",
+    "# #,#  ###'#####",
+    "# #,,,T,,,,,,,>#",
+    "# ########:#####",
+    "#        #,#    ",
+]
+WALL_CH = {"#": "granite", "m": "magma", "M": "magma_t", "q": "quartz", "Q": "quartz_t"}
+ROOM_CH = set(".<>@*!j^W")
+SIMPLE = {"<": "stairs_up", ">": "stairs_down", ":": "rubble", "^": "trap_pit",
+          "T": "trap_door", "W": "glyph", "j": "ex_jelly", "*": "ex_gold", "!": "ex_potion"}
+
+
+def cell(rows, y, x):
+    if 0 <= y < len(rows) and 0 <= x < len(rows[0]):
+        return rows[y][x]
+    return "#"
+
+
+def is_wall(ch):
+    return ch in WALL_CH
+
+
+def is_open(ch):
+    """床として扱うマス（壁でも未探索でもない）。"""
+    return not is_wall(ch) and ch != " "
+
+
+def mock_metatile(rows, y, x):
+    ch = rows[y][x]
+    if is_wall(ch):
+        m = 0
+        m |= N if is_open(cell(rows, y - 1, x)) else 0
+        m |= S if is_open(cell(rows, y + 1, x)) else 0
+        m |= W if is_open(cell(rows, y, x - 1)) else 0
+        m |= E if is_open(cell(rows, y, x + 1)) else 0
+        kind = WALL_CH[ch]
+        if kind == "granite" and (x + y * 3) % 4 in (1, 2):
+            kind = "granite2"
+        return "%s_%s" % (kind, mask_name(m))
+    if ch == " ":
+        return "void"
+    if ch in "+'":
+        horiz = is_wall(cell(rows, y, x - 1))
+        return ("door_closed" if ch == "+" else "door_open") + ("_h" if horiz else "_v")
+    if ch in SIMPLE:
+        return SIMPLE[ch]
+    # 床: 上・左の壁の影を先に、なければ位置で決めた模様
+    top = is_wall(cell(rows, y - 1, x))
+    left = is_wall(cell(rows, y, x - 1))
+    if top and left:
+        return "shadow_nw"
+    if top:
+        return "shadow_n"
+    if left:
+        return "shadow_w"
+    if is_wall(cell(rows, y - 1, x - 1)):
+        return "shadow_c"
+    return floor_name(y, x, ch in ROOM_CH)
+
+
+def draw_map(cv, rows, pals, x0=0, y0=0, player=True):
+    for y, row in enumerate(rows):
+        assert len(row) == len(rows[0]), row
+        for x in range(len(row)):
+            name = mock_metatile(rows, y, x)
+            _, pal, g, _ = METATILES[MT_INDEX[name]]
+            cv.draw(g, x0 + x * 16, y0 + y * 16, pals[pal])
+            if player and rows[y][x] == "@":
+                cv.draw(from_ascii(PLAYER), x0 + x * 16, y0 + y * 16, SPRITE_PAL, transparent0=True)
+
+
+def render_mock(scheme=0):
+    pals = palettes(scheme)
+    cv = Canvas(256, 240)
+    # 上下の帯は黒で塗ったタイル（P2 の 1 番）で作る
+    text(cv, "B5F", 16, 4, pals["P2"])
+    draw_map(cv, MOCK, pals, 0, 16)
+    text(cv, "LV12 HP 45/ 60 MP  8/12", 16, 200, pals["P2"])
+    text(cv, "AU 1234", 16, 208, pals["P2"])
     return cv
 
 
 def render_depths():
-    names = ["wall_top", "wall_face", "floor_room", "floor_corr", "stairs_down", "rubble"]
-    cv = Canvas(len(names) * 16 + 8, len(DEPTH_P0) * 20 + 4, bg=0x202020)
-    for j, (label, pal) in enumerate(DEPTH_P0):
-        for i, n in enumerate(names):
-            g = METATILES[MT_INDEX[n]][2]
-            cv.draw(g, 4 + i * 16, 2 + j * 20, pal)
+    rows = MOCK[:7]
+    cv = Canvas(256, len(SCHEMES) * (len(rows) * 16 + 4))
+    for j in range(len(SCHEMES)):
+        draw_map(cv, rows, palettes(j), 0, j * (len(rows) * 16 + 4))
+    return cv
+
+
+# ---------------------------------------------------------------------------
+# 一覧画像
+# ---------------------------------------------------------------------------
+def render_sheet():
+    cols = 16
+    cw, ch = 28, 28
+    rows = (len(METATILES) + cols - 1) // cols
+    cv = Canvas(cols * cw + 8, rows * ch + 8, bg=0x202020)
+    pals = palettes(0)
+    for i, (name, pal, g, _) in enumerate(METATILES):
+        x = 8 + (i % cols) * cw
+        y = 4 + (i // cols) * ch
+        cv.draw(g, x, y, pals[pal])
+        text(cv, "%03d" % i, x - 4, y + 17, MM_TEXT_PAL)
     return cv
 
 
 def render_minimap_sheet():
     cols = 16
-    cv = Canvas(cols * 12 + 4, ((len(MINIMAP) + cols - 1) // cols) * 12 + 4, bg=0x202020)
+    cv = Canvas(cols * 12 + 4, ((len(MINIMAP) + 2 + cols - 1) // cols) * 12 + 4, bg=0x202020)
     for i, (_, g) in enumerate(MINIMAP):
-        cv.draw(g, 4 + (i % cols) * 12, 4 + (i // cols) * 12, PALETTES["P0"])
+        cv.draw(g, 4 + (i % cols) * 12, 4 + (i // cols) * 12, MINIMAP_PAL)
     base = len(MINIMAP) + 2
     for j, (_, g) in enumerate(MM_SPRITES):
         i = base + j
@@ -1206,7 +1339,7 @@ def render_minimap_sheet():
 def main():
     os.makedirs(OUT, exist_ok=True)
     chr_ = Chr()
-    chr_.add(blank(8, 8))  # 0 番は空白
+    chr_.add(blank(8, 8))  # 0 番は床の色の無地
     table = []
     for name, pal, g, note in METATILES:
         check_colors(g, name)
@@ -1230,8 +1363,13 @@ def main():
     with open(os.path.join(OUT, "dungeon_metatiles.inc"), "w", encoding="utf-8") as f:
         f.write("; scripts/famicom/make_dungeon_tiles.py が生成。手で直さないこと\n")
         f.write("; メタタイル: 左上・右上・左下・右下のタイル番号, 属性（パレット番号）\n")
-        f.write("; パレット: " + "  ".join(
-            "%s=%s" % (k, ",".join("$%02X" % c for c in v)) for k, v in PALETTES.items()) + "\n\n")
+        f.write("; 壁の _nesw は床に面した辺（n 上・e 右・s 下・w 左、0 は面していない）\n")
+        f.write("; パレット（深さ帯ごと。各行の先頭が共通の背景色＝床）:\n")
+        for j, sch in enumerate(SCHEMES):
+            p = palettes(j)
+            f.write(";   %-7s " % sch[0] + "  ".join(
+                "%s=%s" % (k, ",".join("$%02X" % c for c in v)) for k, v in p.items()) + "\n")
+        f.write("\n")
         for i, (name, pal, idx, note) in enumerate(table):
             f.write("MT_%s = %d  ; %s\n" % (name.upper(), i, note))
         f.write("\nmetatile_tiles:\n")
@@ -1240,17 +1378,17 @@ def main():
         f.write("\nmetatile_attr:\n")
         for name, pal, idx, note in table:
             f.write("    .byte %d  ; %s\n" % (int(pal[1]), name))
-        f.write("\n; 全体マップ用 8x8（パレット P0）\n")
+        f.write("\n; 全体マップ用 8x8（全体マップ画面では黒地のパレットに入れかえる）\n")
         for name, _ in MINIMAP:
             f.write("MM_%s = $%02X\n" % (name[3:].upper(), mm_idx[name]))
         f.write("; 全体マップのスプライト（階段）は BG とは別に持つ\n")
-        f.write("\n; 文字（パレット P2）\n")
+        f.write("\n; 文字（黒地に白。パレット P2）\n")
         for chn in sorted(FONT5):
             label = {"/": "SLASH", " ": "SPACE"}.get(chn, chn)
             f.write("CH_%s = $%02X\n" % (label, font_idx[chn]))
 
-    render_sheet().save(os.path.join(OUT, "dungeon_tiles.png"))
-    render_depths().save(os.path.join(OUT, "dungeon_depths.png"))
+    render_sheet().save(os.path.join(OUT, "dungeon_tiles.png"), scale=2)
+    render_depths().save(os.path.join(OUT, "dungeon_depths.png"), scale=2)
     render_mock().save(os.path.join(OUT, "mock_screen.png"))
     render_minimap_sheet().save(os.path.join(OUT, "minimap_tiles.png"))
     cv, tiles, g, known = render_minimap_mock()
