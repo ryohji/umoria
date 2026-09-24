@@ -226,7 +226,7 @@ $ cd data && TERM=xterm ../umoria
 | 15 | **完了** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | **完了** | 理解しづらいロジック | io.c:207-224 | `wait_for_more_confirmation` が `goto inkey` + switch。**読みにくさの原因は `case` の列挙ではなく、ラベル名（関数 `inkey()` と同名）と `default` の位置だった。** ラベルを `retry` に改め、`default` を後置してコメントを補った。`case` で受理文字を並べる形は「集合の宣言」として読めるので残した | ラベル改名 + 分岐の並べ替え | Medium | Low |
 | 17 | **検証済み** | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
-| 18 | データの散在 | `externs.h` の 62 個（着手時 112。misc3.c:369-540, dungeon.c:580-780 ほか） | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 に分散。**2026-09-09 に全体像を計測 → [GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)** | 区分ごとに分割して着手（下記）。**9 区分のうち 8 つ完了** —— オプション 11 個・メッセージ 4 個・パネル 10 個・店 2 個・**持ち物・アイテム 6 個（2026-09-24 に `object_ident` → `src/item_ident.c`（#18-9）、`sorted_objects` ＋ `t_level` → `src/object_levels.c`（#18-10）で区分ごと閉じた。後者は台帳の区分をまたいだ 1 つの表だった）**・セーブ／スコア／進行メタ 13 個（区分に残るのは `highscore_fp` 1 個。**その 1 個も 2026-09-16 に `death.c` の 2 関数の局所変数にしたが、`init_scorefile()` のために `externs.h` には残る** → バグ候補 B19）。7 区分目「プレイヤー状態 13 個」に着手し、**2026-09-23 に居場所 2 個（`char_row` `char_col`）を `src/player_pos.c` へ**（→ #18-6）、**2026-09-24 に 4 群 6 個**（勝ちと最高得点 → `score_death.c`、レベルごとの HP 表 → `hp_table.c`、明かりの有無 → `player_light.c`、重さ 2 個 → `burden.c`。→ #18-7）、**同日に呪文 4 個を `src/spells_known.c` へ**（→ #18-8）。**区分に残るのは `py` 1 個**（552 参照。1 本の module にはならず、問い単位の窓口で別に進める）。8 区分目「コマンド入力・実行中のフラグ 13 個」に着手し、**2026-09-25 に `light_flag` を `src/player_light.c` へ**（13 → 12 個。→ #18-11-1）、**同日に `missile_ctr` を新設 `src/missile_serial.c` へ**（12 → 11 個。折りかえしの計算を窓口の内側に隠した。→ #18-11-2） | High | 区分ごと |
+| 18 | データの散在 | `externs.h` の 60 個（着手時 112。misc3.c:369-540, dungeon.c:580-780 ほか） | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 に分散。**2026-09-09 に全体像を計測 → [GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)** | 区分ごとに分割して着手（下記）。**9 区分のうち 8 つ完了** —— オプション 11 個・メッセージ 4 個・パネル 10 個・店 2 個・**持ち物・アイテム 6 個（2026-09-24 に `object_ident` → `src/item_ident.c`（#18-9）、`sorted_objects` ＋ `t_level` → `src/object_levels.c`（#18-10）で区分ごと閉じた。後者は台帳の区分をまたいだ 1 つの表だった）**・セーブ／スコア／進行メタ 13 個（区分に残るのは `highscore_fp` 1 個。**その 1 個も 2026-09-16 に `death.c` の 2 関数の局所変数にしたが、`init_scorefile()` のために `externs.h` には残る** → バグ候補 B19）。7 区分目「プレイヤー状態 13 個」に着手し、**2026-09-23 に居場所 2 個（`char_row` `char_col`）を `src/player_pos.c` へ**（→ #18-6）、**2026-09-24 に 4 群 6 個**（勝ちと最高得点 → `score_death.c`、レベルごとの HP 表 → `hp_table.c`、明かりの有無 → `player_light.c`、重さ 2 個 → `burden.c`。→ #18-7）、**同日に呪文 4 個を `src/spells_known.c` へ**（→ #18-8）。**区分に残るのは `py` 1 個**（552 参照。1 本の module にはならず、問い単位の窓口で別に進める）。8 区分目「コマンド入力・実行中のフラグ 13 個」に着手し、**2026-09-25 に `light_flag` を `src/player_light.c` へ**（13 → 12 個。→ #18-11-1）、**同日に `missile_ctr` を新設 `src/missile_serial.c` へ**（12 → 11 個。折りかえしの計算を窓口の内側に隠した。→ #18-11-2）、**同日に `doing_inven` ＋ `screen_change` を新設 `src/inven_command_state.c` と `src/screen_touched.c` へ**（11 → 9 個。読み手で 2 本に分け、「中断」という 1 つの行いだけ 1 本の窓口に隠した。→ #18-11-3） | High | 区分ごと |
 | 42 | 未着手 | 肥大化クラス／モジュール | misc3.c の残る **10 塊**（→ 上記「#33 の精査」） | 配置 161 行／描画 475 行／能力値の変更 115 行／名前 50 行／持ち物 210 行／呪文 525 行／経験値 82 行／wizard 18 行／戦闘 120 行／移動 118 行 | モジュール分割（1 塊 1 コミット。終点は misc3.c が無くなるところ） | High | High |
 
 ### #18 の全体像（2026-09-09 に計測）
@@ -1177,6 +1177,68 @@ P3 #49（セーブの並びを見るテストが無い）そのもので、#19B4
 並びを動かしていないことは目で確かめた（`wr_short` 1 回・`rd_short` 1 回、
 位置も同じ）。C は #18-8-C の教訓どおり**実体の幅**を狙い（`int16_t` →
 `int8_t`）、6 件 RED。`nm` で局所記号（`b`）であることも確認した。
+
+### #18-11-3 中断した持ち物コマンドを 2 本の module に分けた（2026-09-25 完了）
+
+`doing_inven`（11 参照）＋ `screen_change`（8 参照）。同じ区分の安い順で
+3 番目（ユーザーの順では C）。2 個で 1 つの約束を持つ単位で、元の説明が
+`moria1.c:529-556` に -CJS- の英語で書かれている。**module を 2 本に分けるのも、
+「中断」を 1 本の窓口に隠すのも、ユーザーが決めた。**
+
+| | 着手前 | 完了後 |
+|---|---:|---:|
+| `externs.h` の global | 62 | **60** |
+| 区分「コマンド入力・実行中のフラグ」 | 11 個・参照 224 | **9 個・参照 199** |
+| テスト | 746 件・32 実行形式 | **760 件・34 実行形式**（新設 2 本。6 件＋8 件） |
+| リンク構成の変化 | —— | **2 本**（`movement_rate_test` ＋1、`haggle_comment_test` ＋2 単位） |
+
+| 段 | 何をしたか |
+|---|---|
+| A `90294bc` | `src/inven_command_state.{c,h}` と `src/screen_touched.{c,h}`、窓口 5 つ、テスト 14 件。ビルド定義 3 つ。足場 2 つ |
+| B `de9e4df` | 11 か所を窓口越しに（`moria1.c` 5・`dungeon.c` 2・`store2.c` 1・`io.c` 1・`creature.c` 2、`game_state.c` の写しとり 2）。`moria1.c` の -CJS- の説明も窓口の名前に合わせた |
+| C `83ebf3b` | 実体を 2 本の `static` へ（`pending_command` / `screen_flushed`）。`externs.h` から 2 行、足場 2 つと代役 2 つも消えた |
+
+**読み手で分けたが、1 つの行いは 1 本の窓口に残した。** 「再開する文字」を
+訊くのは `dungeon.c`（毎 turn）と `store2.c`（値切りの途中でも持ち物コマンドが
+使えるように 0 になるまで回す）、「画面が流されたか」を立てるのは `io.c` の
+`put_qio()` と `creature.c`（モンスターが見えた／見えなくなった。1 マスだけ
+描きなおすので `put_qio()` を通らない）で、読むのは `moria1.c` だけ ——
+きれいに分かれている。**それでも「中断」は 2 つを同時に動かす**ので
+`suspend_inven_command()` が両方をやる（→ 台帳の所見 22）。代償として
+`inven_command_state.c` が `screen_touched.h` を呼ぶ（module 間の依存が 1 本）。
+
+**変更前の 6 行が 4 行になり、順序の理由がコードに入った。**
+
+```c
+if (selecting) { doing_inven = command; }
+else { doing_inven = ' '; /* A dummy command to recover screen. */ }
+msg_print(CNIL);
+screen_change = false;
+  ↓
+char resume = selecting ? command : ' ';
+msg_print(CNIL);            // 先に flush する（message を出すと旗が立つ）
+suspend_inven_command(resume);
+```
+
+**順序を 1 か所入れかえた。** 窓口が 2 つを同時に動かすので、呼ぶのは
+`msg_print(CNIL)` の後でなければならない。`doing_inven` を先に置くか後に置くかは
+効かない —— 読み手は 3 ファイルだけで、`io.c` も `messages.c` も読まないことを
+`grep` で確かめた。
+
+**リンクの税は 2 本。** どちらも「テストが `.c` を丸ごと `#include` する」形で、
+#18-11-2B で踏んだ落とし穴を**こちらでは先に数えてから**着手した ——
+`movement_rate_test`（`creature.c` を取りこむ）に `screen_touched.c`、
+`haggle_comment_test`（`store2.c` を取りこむ）に `inven_command_state.c` と
+`screen_touched.c`。
+
+**変異は 5 通り**（A で 1・B で 3・C で 2）。B の 3 つのうち 2 つは**落ちなかった**
+——`creature.c` の通知と `store2.c` の再開を落としても 1 件も RED にならない
+（どちらも丸ごと取りこまれてはいるが、この経路は 1 件も通っていない。#18-11-2B の
+`save.c` と同じ P3 #49 の形）。C の 1 つめは**型の狭めかたが新しい** ——
+`pending_command` を `char` → `bool` にすると 4 件 RED。これは `variable.c` に
+残っていた FIXME（"was a `bool`, but also holds an ASCII character"）そのもので、
+**その FIXME もこの単位で片づいた**（答えは「`char` のままでよい。0 が
+『待っていない』」で、`inven_command_state.h` に書いた）。
 
 ### #16 で浮上した課題：`wait_for_more` グローバルフラグ（2026-08-28）
 
@@ -2190,3 +2252,6 @@ comment3a（売却・最終）: "I'll pay no more than %A1; take it or leave it.
 | 2026-09-25 | #18-11-2A | **変更**：`missile_ctr`（飛び道具の束を区別する通し番号。9 参照）に `src/missile_serial.{c,h}` を新設し、窓口 3 つとテスト 10 件を足した（`e89e21c`。新しい実行形式 `missile_serial_test`、全体 736 → 746・31 → 32 本）。安い順で 2 番目（ユーザーの順の G）。**置き場を新設にするのはユーザーの判断**。この番号は数でも順序でもなく「別の束か」だけが意味を持つ（`items_can_stack()` が `p1` を見る）。**折りかえしの計算を窓口の内側に隠すのもユーザーが決めた** —— `misc2.c:814-819` の 6 行（`MAX_SHORT` なら `-MAX_SHORT - 1`、でなければ `++`）が内側に入り、外は「次の番号」しか聞かなくなる（#18-8 でビット演算を隠したのと同じ判断）。テストの要は 3 つ（毎回ちがう番号／上限で下端へ折りかえす・境界の両側／セーブから戻した値の続き）。足場 `tests/missile_serial_fixture.c` は**1 規則だけ**（`missile_serial.c` をリンクする実行形式がこの 1 本）。ビルド定義は 3 つとも足した。変異は折りかえし先を `-MAX_SHORT` に 1 つずらす → **2 件レッド** | 746 | GREEN |
 | 2026-09-25 | #18-11-2B | **変更**：直に触っていた 4 か所を窓口越しに（`12952f6`）。`misc2.c` 1（6 行 → `t_ptr->p1 = next_missile_serial();` の 1 行）・`save.c` 2・`game_state.c` 1。**`save.c` の読みで別名が 1 つ消えた** —— `rd_short((uint16_t *)&missile_ctr)` を #19B4 と同じく局所変数で受ける形にしたので、この区分の別名 2 個が 1 個になった。**リンク構成の見落としを 1 つ踏んだ** —— `grep -n '^\t.*src/save.c' makefile.test`（HANDOVER 第 7 節のやりかた）では `save_bool_test` と `store_save_test` が見つからない。**この 2 本は `src/save.c` を丸ごと `#include` する**形なので recipe 行に現れず、undefined reference 2 件で落ちた。2 規則に足し、落とし穴を `makefile.test` のコメントに書いた（→ HANDOVER 第 7 節）。変異は 2 通り —— 進める前の値を配る形は **7 件レッド**、しかし**`save.c` の読みから `set_missile_serial()` を落としても 1 件も落ちない**（P3 #49。#19B4・#18-6B1 と同じ。並びは `wr_short`/`rd_short` 1 回ずつで動かしていないことを目で確かめた） | 746 | GREEN |
 | 2026-09-25 | #18-11-2C | **変更**：実体を `variable.c` から `missile_serial.c` の `static` へ移し、`externs.h` の宣言を消した（`9352bed`。名前は外から見えないので `missile_ctr` のまま、初期値 0 も持ってきたまま）。**12 → 11 個・参照 233 → 224、全体は 63 → 62 個・参照 1770 → 1761**。足場を消して `makefile.test` の 1 規則から外し、`missile_serial_test` は **2 単位・代役 0**（`str_insert.c` `inventory.c` `player_light.c` と同じ最小形）。`game_state.h:102` の項目名はそのまま（#35 の領分。写しとる側は窓口越し）。変異は #18-8-C の教訓どおり**実体の幅**（`int16_t` → `int8_t`）→ **6 件レッド**（#18-11-1C の `bool` と違い狭める幅がある）。`nm` で局所記号（`b`）であることを確認した | 746 | GREEN |
+| 2026-09-25 | #18-11-3A | **変更**：中断した持ち物コマンドの 2 個（`doing_inven` 11 参照・`screen_change` 8 参照）に **module 2 本**を新設し、窓口 5 つとテスト 14 件を足した（`90294bc`。新しい実行形式 `screen_touched_test` 6 件と `inven_command_state_test` 8 件、全体 746 → 760・32 → 34 本）。安い順で 3 番目（ユーザーの順の C）。**2 本に分けるのはユーザーの判断** —— 読み手が違う（「再開する文字」は `dungeon.c` と `store2.c` が訊く、「画面が流されたか」は `io.c` と `creature.c` が立てて `moria1.c` が読む）。**ただし「中断」は 2 つで 1 つの行いなので、そこだけ 1 本の窓口に隠すのもユーザーが決めた** —— `suspend_inven_command()` が「再開する文字を覚える」と「画面の旗を忘れる」の両方をやる。片方だけ起きたときの事故が反対向きに 2 つあり（旗を消し忘れると何も起きていない画面について player に訊く／別の場所で消すと視界に入ったモンスターを見のがす）、それがこの窓口の存在理由。代償は **module 間の依存 1 本**（`inven_command_state.c` → `screen_touched.h`）で、テストもその形（`inven_command_state_test` は `screen_touched.c` もリンクする）。テストの要は 3 つ（0 だけが「待っていない」—— `' '` は dummy command という立派な答えで C では真／中断は 2 つで 1 つ／終わりは画面について何も言わない）。足場 2 つ、ビルド定義 3 つとも足した。変異は `suspend` から `forget_screen_flushed()` を落とす → **2 件レッド**（不変条件を見る 2 件だけ） | 760 | GREEN |
+| 2026-09-25 | #18-11-3B | **変更**：直に触っていた 11 か所を窓口越しに（`de9e4df`）。`moria1.c` 5・`dungeon.c` 2・`store2.c` 1・`io.c` 1・`creature.c` 2 と `game_state.c` の写しとり 2。**いちばん大きい変化は `moria1.c:1138-1144`** —— 2 つの旗を別々に動かす 6 行が、順序の理由つき 4 行になった。**順序を 1 か所入れかえた**：窓口が 2 つを同時に動かすので `msg_print(CNIL)` の**後**に呼ぶ（message を出すこと自体が「画面が流された」を立てる。変更前のコメントも "flush last message before clearing screen_change" と言っていた）。`doing_inven` を先に置くか後かは効かないことを `grep` で確かめた（読み手は 3 ファイルだけ）。`moria1.c:529-556` の -CJS- の説明も窓口の名前に書きなおした —— 「中断と再開の約束」が唯一書かれている場所なので、global の名前のまま残すと嘘になる。**リンク構成は 2 本動いた**（`movement_rate_test` に `screen_touched.c`、`haggle_comment_test` に `inven_command_state.c` ＋ `screen_touched.c`）。どちらも「テストが `.c` を丸ごと `#include` する」形で、**#18-11-2B で踏んだ落とし穴をこちらでは先に数えてから着手した**。変異は 3 通り —— `note_screen_flushed()` を no-op にすると **5 件レッド**、しかし `creature.c` の通知を落としても `store2.c` の再開を落としても **1 件も落ちない**（P3 #49。丸ごと取りこまれてはいるが、この経路は 1 件も通っていない） | 760 | GREEN |
+| 2026-09-25 | #18-11-3C | **変更**：実体 2 つを `variable.c` から 2 本の `static` へ移し、`externs.h` の宣言 2 行を消した（`83ebf3b`。名前は窓口に合わせて `pending_command` / `screen_flushed`）。**11 → 9 個・参照 224 → 199、全体は 62 → 60 個・参照 1761 → 1736**。足場 2 つと**代役 2 つ**（`creature_stubs.c` の `screen_change`・`haggle_comment_test.c` の `doing_inven`）も消した。`screen_touched_test` は **2 単位・代役 0**、`inven_command_state_test` は 3 単位（増えた 1 本は代役ではなく `screen_touched.c` 自身）。**`variable.c` の FIXME も片づいた** —— "was a `bool`, but also holds an ASCII character. Is this the best solution?" の答えは「`char` のままでよい。0 が『待っていない』、それ以外は再開するコマンド」で、`inven_command_state.h` に書いた。型に迷いが出ていたのは置き場と意味が離れていたから。変異は 2 通り —— `pending_command` を `char` → `bool` に狭めると **4 件レッド**（FIXME が言っていた話そのものが押さえられている）、`screen_flushed` の初期値を `true` にすると **1 件レッド**（`bool` は狭める幅が無いので #18-11-1C と同じ手）。`nm` で局所記号（どちらも `b`）であること、および古い 2 つの名前が実行形式に**1 つも残っていない**ことを確認した | 760 | GREEN |
