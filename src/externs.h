@@ -31,7 +31,8 @@ extern bool display_counts;    // Display rest/repeat counts
 // global flags
 // eof_flag moved to input_ended.c: whether the input has run out, and how many
 // EOFs it took (#18-11-5C). The windows are in input_ended.h
-extern int find_flag;       // Used in MORIA
+// find_flag moved to running.c: whether the player is running, and how many
+// steps in (#18-11-6C). The windows are in running.h
 extern bool free_turn_flag; // Used in MORIA
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 extern int command_count;           // Repetition of commands. -CJS-

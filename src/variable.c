@@ -67,7 +67,9 @@ int16_t dun_level = 0;            // Cur dungeon level
 // msg_flag, old_msg and last_msg (the top line: whether its message has been
 // seen, and the history ring) moved to messages.c, next to the code that uses
 // them
-int find_flag; // Used in MORIA for .(dir)
+// Whether the player is running moved to running.c (find_flag, #18-11-6C).
+// It was a count as well as a flag -- zero meant "not running" -- and the
+// hundred-step cut-off went in with it, so the number never leaves the module
 
 bool free_turn_flag;       // Used in MORIA, do not move creatures
 int command_count;         // Gives repetition of commands. -CJS-
