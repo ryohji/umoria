@@ -10,11 +10,12 @@
  * に並んでいる（帯）。t_level は「どこからどこまでが レベル L か」を引くための
  * 目次で、sorted_objects がその本体。
  *
- * 読むのは get_obj_num()（misc3.c:78）だけで、組みたてるのは
- * init_t_level()（main.c:279）だけ。ただし init_t_level() は main.c の static
- * なので、**テストからは届かない**（main() があるので main.c はリンクできない）。
- * だから #18-10-A1 で押さえられるのは読む側だけ。組みたてる側は module に
- * 移してから保護する（→ #18-10-A2）。
+ * 読むのは get_obj_num()（misc3.c:78）だけで、組みたてるのは 1 箇所だけ。
+ * その組みたてる側は main.c の static な init_t_level() で、**テストからは
+ * 届かなかった**（main() があるので main.c はリンクできない）。だから
+ * #18-10-A1 で押さえたのは読む側だけ（第 1〜3 節）。#18-10-A2 で
+ * src/object_levels.c の object_levels_init() に移したことで、数え上げの
+ * ソートが初めて届くようになった（第 4 節）。
  *
  * ここで押さえたいことのうち、いちばん大事なのは
  * **get_obj_num() が返すのは sorted_objects の中の位置で、品物の番号ではない**
@@ -35,6 +36,8 @@
 #include "types.h"
 
 #include "fixture.h"
+
+#include "object_levels.h"
 
 /* 検証する本物（src/misc3.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
@@ -224,6 +227,141 @@ TEST(asking_for_a_small_object_changes_nothing_when_nothing_is_large)
     ASSERT_EQ_INT(with_limit, without_limit);
 }
 
+/* ------------------------------------------------------------------
+ * 4. 表を組みたてる側（#18-10-A2 で main.c の static から module へ移した）
+ *
+ * ここから下は**本物の object_list（344 品・51 レベル）**で動かす。上の節が
+ * 小さな表に組みかえるのに対して、こちらは組みたてかたそのものを見るので
+ * 実際のデータでなければ意味がない。
+ *
+ * 数え上げのソート（counting sort）で、レベルごとの個数を数えて累計に変え、
+ * それを後ろから詰めていく。O(n) で並べかえる代わりに、t_level を**途中で
+ * 目次として使う**ので、順番を 1 つ入れかえると静かに壊れる。
+ *
+ * どれも「表全体が満たすべき性質」なので、テスト本体から分岐と繰りかえしを
+ * 追いだすために、数えるのは補助関数にして違反の件数を 0 と比べる。
+ * ------------------------------------------------------------------ */
+
+/* object_list を直に数えなおす、実装と独立した照合用の数えかた。 */
+static int count_objects_at_level_in_the_definitions(int level)
+{
+    int count = 0;
+    for (int i = 0; i < MAX_DUNGEON_OBJ; i++) {
+        if (object_list[i].level == level) {
+            count++;
+        }
+    }
+    return count;
+}
+
+/* 同じ品物が 2 つの位置に現れている件数。表は object_list の並べかえなので
+ * 0 でなければならない。 */
+static int count_objects_appearing_twice(void)
+{
+    static bool seen[MAX_OBJECTS];
+    int duplicates = 0;
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        seen[i] = false;
+    }
+    for (int position = 0; position < MAX_DUNGEON_OBJ; position++) {
+        int16_t object = object_at_level_position(position);
+        if (seen[object]) {
+            duplicates++;
+        }
+        seen[object] = true;
+    }
+    return duplicates;
+}
+
+/* 前の位置より浅い品物が来ている件数。昇順に並んでいれば 0。 */
+static int count_positions_that_go_backwards(void)
+{
+    int backwards = 0;
+    for (int position = 1; position < MAX_DUNGEON_OBJ; position++) {
+        int previous = object_list[object_at_level_position(position - 1)].level;
+        int current = object_list[object_at_level_position(position)].level;
+        if (current < previous) {
+            backwards++;
+        }
+    }
+    return backwards;
+}
+
+/* 帯の中にそのレベル以外の品物が混じっている件数。 */
+static int count_objects_outside_their_band(void)
+{
+    int strays = 0;
+    for (int level = 1; level <= MAX_OBJ_LEVEL; level++) {
+        int first = first_position_at_level(level);
+        for (int i = 0; i < objects_at_level(level); i++) {
+            if (object_list[object_at_level_position(first + i)].level != level) {
+                strays++;
+            }
+        }
+    }
+    return strays;
+}
+
+/* 表は object_list の全品目を並べかえたもの。いちばん深いレベルまでの累計が
+ * 全体の数と一致する。ここが足りないと、選ばれない品物が生まれる。 */
+TEST(building_the_table_covers_every_dungeon_object)
+{
+    object_levels_init();
+    ASSERT_EQ_INT(objects_up_to_level(MAX_OBJ_LEVEL), MAX_DUNGEON_OBJ);
+}
+
+/* 並べかえなので、同じ品物が 2 度現れてはいけない（詰める位置の計算を
+ * 1 つ間違えると、ある品物が 2 度出て別の品物が消える）。 */
+TEST(every_position_holds_a_different_object)
+{
+    object_levels_init();
+    ASSERT_EQ_INT(count_objects_appearing_twice(), 0);
+}
+
+/* 位置の順に見ていくと、レベルは下がらない。 */
+TEST(the_positions_run_from_shallow_to_deep)
+{
+    object_levels_init();
+    ASSERT_EQ_INT(count_positions_that_go_backwards(), 0);
+}
+
+/* 帯の中身はそのレベルの品物だけ。get_obj_num() がレベル別に選びなおすとき
+ * （misc3.c:118）、この性質だけを頼りにしている。 */
+TEST(the_band_of_a_level_holds_only_objects_of_that_level)
+{
+    object_levels_init();
+    ASSERT_EQ_INT(count_objects_outside_their_band(), 0);
+}
+
+/* レベルごとの個数は object_list を数えなおしたものと一致する。 */
+TEST(the_count_at_a_level_matches_the_object_definitions)
+{
+    object_levels_init();
+    ASSERT_EQ_INT(objects_at_level(1), count_objects_at_level_in_the_definitions(1));
+    ASSERT_EQ_INT(objects_at_level(2), count_objects_at_level_in_the_definitions(2));
+}
+
+/* 本物のデータがリンクされていることの目印。レベル 0 の品物は 24 品で、
+ * その帯は位置 0 から始まる。数が変わったら object_list が変わったとき。 */
+TEST(the_shallowest_band_starts_at_the_beginning_and_holds_twenty_four)
+{
+    object_levels_init();
+    ASSERT_EQ_INT(objects_up_to_level(0), 24);
+    ASSERT_EQ_INT(first_position_at_level(1), 24);
+}
+
+/* 2 度組みたてても同じ表になる。累計を取る前に 0 に戻しているからで、
+ * その 1 行を落とすと 2 度目から数が倍になる。 */
+TEST(building_the_table_twice_gives_the_same_table)
+{
+    object_levels_init();
+    int first_time = objects_up_to_level(MAX_OBJ_LEVEL);
+    int16_t first_object = object_at_level_position(0);
+    object_levels_init();
+    ASSERT_EQ_INT(objects_up_to_level(MAX_OBJ_LEVEL), first_time);
+    ASSERT_EQ_INT(object_at_level_position(0), first_object);
+}
+
 int main(void)
 {
     RUN_TEST(the_fixture_really_holds_objects_of_the_levels_it_claims);
@@ -240,5 +378,13 @@ int main(void)
     RUN_TEST(landing_on_a_deeper_object_re_rolls_inside_that_levels_band);
 
     RUN_TEST(asking_for_a_small_object_changes_nothing_when_nothing_is_large);
+
+    RUN_TEST(building_the_table_covers_every_dungeon_object);
+    RUN_TEST(every_position_holds_a_different_object);
+    RUN_TEST(the_positions_run_from_shallow_to_deep);
+    RUN_TEST(the_band_of_a_level_holds_only_objects_of_that_level);
+    RUN_TEST(the_count_at_a_level_matches_the_object_definitions);
+    RUN_TEST(the_shallowest_band_starts_at_the_beginning_and_holds_twenty_four);
+    RUN_TEST(building_the_table_twice_gives_the_same_table);
     return TEST_SUMMARY();
 }

@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "object_levels.h"
 #include "options.h"
 #include "progress.h"
 #include "save_state.h"
@@ -23,7 +24,6 @@
 
 static void char_inven_init(void);
 static void init_m_level(void);
-static void init_t_level(void);
 
 #if (COST_ADJ != 100)
 static void price_adjust();
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 
     // Init monster and treasure levels for allocate
     init_m_level();
-    init_t_level();
+    object_levels_init();
 
     // Init the store inventories
     store_init();
@@ -272,36 +272,6 @@ static void init_m_level(void) {
 
     for (int i = 1; i <= MAX_MONS_LEVEL; i++) {
         m_level[i] += m_level[i - 1];
-    }
-}
-
-// Initializes T_LEVEL array for use with PLACE_OBJECT -RAK-
-static void init_t_level(void) {
-    for (int i = 0; i <= MAX_OBJ_LEVEL; i++) {
-        t_level[i] = 0;
-    }
-
-    for (int i = 0; i < MAX_DUNGEON_OBJ; i++) {
-        t_level[object_list[i].level]++;
-    }
-
-    for (int i = 1; i <= MAX_OBJ_LEVEL; i++) {
-        t_level[i] += t_level[i - 1];
-    }
-
-    // now produce an array with object indexes sorted by level,
-    // by using the info in t_level, this is an O(n) sort!
-    // this is not a stable sort, but that does not matter
-    int tmp[MAX_OBJ_LEVEL + 1];
-
-    for (int i = 0; i <= MAX_OBJ_LEVEL; i++) {
-        tmp[i] = 1;
-    }
-
-    for (int i = 0; i < MAX_DUNGEON_OBJ; i++) {
-        int l = object_list[i].level;
-        sorted_objects[t_level[l] - tmp[l]] = i;
-        tmp[l]++;
     }
 }
 
