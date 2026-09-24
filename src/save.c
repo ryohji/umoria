@@ -25,6 +25,7 @@
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
+#include "spells_known.h"
 #include "stores.h"
 
 // For debugging the savefile code on systems with broken compilers.
@@ -215,10 +216,10 @@ static bool sv_write(void) {
     }
     wr_short((uint16_t)inventory_weight());
     wr_short((uint16_t)equipment_count());
-    wr_long(spell_learned);
-    wr_long(spell_worked);
-    wr_long(spell_forgotten);
-    wr_bytes(spell_order, 32);
+    wr_long(spells_learned_bits());
+    wr_long(spells_worked_bits());
+    wr_long(spells_forgotten_bits());
+    wr_bytes(spell_order_bytes(), 32);
     wr_bytes(object_ident, OBJECT_IDENT_SIZE);
     wr_long(progress_color_seed());
     wr_long(progress_town_seed());
@@ -684,10 +685,16 @@ bool get_char(bool *generate) {
             uint16_t equip_count;
             rd_short(&equip_count);
             equipment_set_count((int16_t)equip_count);
-            rd_long(&spell_learned);
-            rd_long(&spell_worked);
-            rd_long(&spell_forgotten);
-            rd_bytes(spell_order, 32);
+            uint32_t saved_spells_learned;
+            rd_long(&saved_spells_learned);
+            spells_set_learned_bits(saved_spells_learned);
+            uint32_t saved_spells_worked;
+            rd_long(&saved_spells_worked);
+            spells_set_worked_bits(saved_spells_worked);
+            uint32_t saved_spells_forgotten;
+            rd_long(&saved_spells_forgotten);
+            spells_set_forgotten_bits(saved_spells_forgotten);
+            rd_bytes(spell_order_bytes(), 32);
             rd_bytes(object_ident, OBJECT_IDENT_SIZE);
             uint32_t saved_color_seed;
             rd_long(&saved_color_seed);

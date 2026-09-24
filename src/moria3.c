@@ -18,6 +18,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_pos.h"
+#include "spells_known.h"
 #include "stats.h"
 
 // Player hit a trap.  (Chuckle) -RAK-
@@ -222,7 +223,7 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     uint32_t j = inventory_at(item_val)->flags;
     int first_spell = bit_pos(&j);
     // set j again, since bit_pos modified it
-    j = inventory_at(item_val)->flags & spell_learned;
+    j = spells_learned_among(inventory_at(item_val)->flags);
 
     spell_type *s_ptr = magic_spell[py.misc.pclass - 1];
 
