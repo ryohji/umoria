@@ -91,11 +91,10 @@ bool find_ignore_doors;
 bool sound_beep_flag;
 bool display_counts;
 
-// FIXME: was a `bool`, but also holds an ASCII character. Is this the best solution?
-char doing_inven = 0; // Track inventory commands. -CJS-
-
-bool screen_change = false; // Track screen updates for inven_commands.
-char last_command = ' ';    // Memory of previous command.
+// doing_inven and screen_change have moved out (#18-11-3C): the command waiting
+// to be resumed lives in inven_command_state.c and the "has the screen been
+// flushed" flag in screen_touched.c, both static.
+char last_command = ' '; // Memory of previous command.
 
 // these used to be in dungeon.c
 bool new_level_flag;     // Next level when true

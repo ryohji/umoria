@@ -54,7 +54,8 @@ int hack_monptr;
  * ようになったので、実体は src/score_death.c の static である。 */
 /* player_light もここに無い。#18-7-3C1 で src/player_light.c が static で
  * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
-bool screen_change;
+/* screen_change もここに無い。#18-11-3C で src/screen_touched.c が static で
+ * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 /* total_winner と max_score もここに無い。#18-7-1C1 で src/score_death.c が
  * static で持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 

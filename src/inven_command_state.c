@@ -18,18 +18,20 @@
 // player_light.c and missile_serial.c. The one thing this module needs from
 // elsewhere is the screen flag, and it asks for that through its window.
 
-// In this step the character is still the global doing_inven (variable.c), so
-// that exactly one copy of it exists while moria1.c, dungeon.c and store2.c move
-// over to the windows; #18-11-3C brings the storage in here and makes it static.
-// Declared here rather than through externs.h for the reason given above.
-extern char doing_inven;
+// The character is owned here and is static: the only way in is through the three
+// windows below. It came over from variable.c (#18-11-3C) with its initial value,
+// so a new game starts with nothing waiting. The FIXME that sat on the old global
+// (doing_inven: "was a bool, but also holds an ASCII character") is answered by
+// the type being what it always was, a command character, with 0 for "none" --
+// see the header.
+static char pending_command = 0;
 
 char pending_inven_command(void) {
-    return doing_inven;
+    return pending_command;
 }
 
 void suspend_inven_command(char command) {
-    doing_inven = command;
+    pending_command = command;
 
     // Both halves of suspending, in one place: see the header for what goes
     // wrong when only one of them happens.
@@ -37,5 +39,5 @@ void suspend_inven_command(char command) {
 }
 
 void finish_inven_command(void) {
-    doing_inven = 0;
+    pending_command = 0;
 }

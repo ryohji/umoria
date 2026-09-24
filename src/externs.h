@@ -34,9 +34,6 @@ extern bool teleport_flag;  // Handle teleport traps
 extern int eof_flag;        // Used to handle eof/HANGUP
 extern int find_flag;       // Used in MORIA
 extern bool free_turn_flag; // Used in MORIA
-extern char doing_inven;    // Track inventory commands
-extern bool screen_change;  // Screen changes (used in inven_commands)
-
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 extern int command_count;           // Repetition of commands. -CJS-
 extern bool default_dir;            // Use last direction in repeated commands

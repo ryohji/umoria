@@ -254,10 +254,10 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
 # なったので src/inven_command_state.c を足した。その窓口の中断側が
 # screen_touched.h を呼ぶので src/screen_touched.c も付いてくる（中断は 2 つで
 # 1 つの行いなので、module を 2 本に分けてもリンクは 2 本で 1 組）。実体はまだ
-# variable.c にあり、このテストは variable.c をリンクしないので:
-# doing_inven は haggle_comment_test.c:47 が持っているそのままを使い、
-# screen_change だけ足場（tests/screen_touched_fixture.c）で埋める。
-# **#18-11-3C で実体が入ったら、その足場と :47 の定義の両方を消す。**
+# variable.c にあったが、**#18-11-3C で 2 本の static になったので足場も代役も
+# 要らなくなった** —— haggle_comment_test.c の doing_inven の定義と、足場
+# tests/screen_touched_fixture.c の両方を消した（残すと窓口越しの読み書きが
+# 届かない別の器になる）。この 2 本が窓口と置き場の両方になっている。
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -274,16 +274,14 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                             src/object_levels.c src/object_levels.h \
                                  src/inven_command_state.c \
                                  src/inven_command_state.h \
-                                 src/screen_touched.c src/screen_touched.h \
-                                 $(TESTDIR)/screen_touched_fixture.c | $(BUILDDIR)
+                                 src/screen_touched.c src/screen_touched.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
-	    src/inven_command_state.c src/screen_touched.c \
-	    $(TESTDIR)/screen_touched_fixture.c
+	    src/inven_command_state.c src/screen_touched.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -325,10 +323,10 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # player_pos.c・inventory.c と同じ）。この 1 本が窓口と置き場の両方になっている。
 #
 # #18-11-3B で creature.c が「画面が流された」を窓口越しに知らせるように
-# なったので src/screen_touched.c もリンクする（5 → 6 コンパイル単位）。実体は
-# まだ variable.c なので、screen_change の器は creature_stubs.c:57 にある
-# そのままを使う。**#18-11-3C で実体が入ったら、その代役を消す**（残すと
-# 窓口越しの読み書きが届かない別の器になる。上の 3 件と同じ）。
+# なったので src/screen_touched.c もリンクする（5 → 6 コンパイル単位）。
+# #18-11-3C で実体も screen_touched.c の static になったので、creature_stubs.c
+# から代役 1 個（screen_change）を消した（残すと窓口越しの読み書きが届かない
+# 別の器になる。上の 3 件と同じ）。この 1 本が窓口と置き場の両方になっている。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -703,27 +701,23 @@ $(BUILDDIR)/missile_serial_test: $(TESTDIR)/missile_serial_test.c \
 # screen_touched.h の窓口を呼ぶ。だから inven_command_state_test は
 # screen_touched.c もリンクする（このテストの要は、その 2 つが一緒に動くこと）。
 #
-# **実体はまだ variable.c の doing_inven / screen_change** なので足場が要る
-# （tests/inven_command_state_fixture.c と tests/screen_touched_fixture.c。
-# #18-11-3C で実体が入ったら消す）。
+# #18-11-3C で実体（pending_command / screen_flushed）も 2 本の static になった
+# ので、足場も代役も 1 つも要らない。screen_touched_test は **2 単位・代役 0**
+# （str_insert.c・inventory.c・player_light.c・missile_serial.c と同じ最小形）。
+# inven_command_state_test は 3 単位で、増えた 1 本は代役ではなく
+# src/screen_touched.c 自身 —— 中断が 2 つで 1 つであることを見るため。
 $(BUILDDIR)/screen_touched_test: $(TESTDIR)/screen_touched_test.c \
-                                 $(TESTDIR)/screen_touched_fixture.c \
                                  $(TESTDIR)/minunit.h \
                                  src/screen_touched.c src/screen_touched.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/screen_touched_test.c src/screen_touched.c \
-	    $(TESTDIR)/screen_touched_fixture.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/screen_touched_test.c src/screen_touched.c
 
 $(BUILDDIR)/inven_command_state_test: $(TESTDIR)/inven_command_state_test.c \
-                                      $(TESTDIR)/inven_command_state_fixture.c \
-                                      $(TESTDIR)/screen_touched_fixture.c \
                                       $(TESTDIR)/minunit.h \
                                       src/inven_command_state.c \
                                       src/inven_command_state.h \
                                       src/screen_touched.c src/screen_touched.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_command_state_test.c \
-	    src/inven_command_state.c src/screen_touched.c \
-	    $(TESTDIR)/inven_command_state_fixture.c \
-	    $(TESTDIR)/screen_touched_fixture.c
+	    src/inven_command_state.c src/screen_touched.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて
