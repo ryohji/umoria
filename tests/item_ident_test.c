@@ -34,6 +34,8 @@ extern uint8_t object_ident[];
 int known1_p(inven_type *i_ptr);
 void identify(int *item);
 void sample(inven_type *i_ptr);
+void known1(inven_type *i_ptr);
+void store_bought(inven_type *i_ptr);
 
 /* fixture.c のスタブ */
 void prt_experience(void);
@@ -66,6 +68,24 @@ static void given_unknown_item(int item_level, int player_level)
     inventory_set_count(1);
     py.misc.lev = (uint16_t)player_level;
     py.misc.expfact = 100;
+}
+
+/* 枠の選びかた（第 4 節）を見るための条件づくり。品目の種類（tval）と
+ * 番号（subval）を指定して、持ち物の指定の枠に未鑑定のまま置く。
+ * given_unknown_item() は巻物の subval 64 に決めうちなので、種類と番号を
+ * 変えて枠の対応を見るにはこちらを使う。 */
+static inven_type *given_a_kind_of_item(int slot, int tval, int subval)
+{
+    inven_type *i_ptr = inventory_at(slot);
+    i_ptr->tval = (uint8_t)tval;
+    i_ptr->subval = (uint8_t)subval;
+    i_ptr->number = 1;
+    i_ptr->level = 5;
+    i_ptr->ident = 0;
+    if (inventory_count() <= slot) {
+        inventory_set_count(slot + 1);
+    }
+    return i_ptr;
 }
 
 /* prt_experience() は fixture.c のスタブ。本物（misc3.c:1838）は
@@ -281,6 +301,105 @@ TEST(already_known_item_is_not_marked_tried_when_effect_is_not_identified)
     ASSERT_EQ_INT(object_ident[4 << 6] & OD_TRIED, 0);
 }
 
+/* ------------------------------------------------------------------
+ * 4. 品目ごとの枠の選びかた
+ *
+ * object_ident[448] は「品目の種類ごとに 64 枠」を 7 並べた表で、枠の
+ * 選びかたは desc.c の 6 か所が同じ 3 行を繰りかえして計算している
+ * （object_offset() の 0〜6 を 6 ビット左へ、番号の下 6 ビットを足す）。
+ * #18-9 でこの計算を窓口の内側に入れるので、その前に対応を押さえる。
+ *
+ * ここで見るのは「別の品目が別の枠を使う」ことと「枠を持たない品目は
+ * 常に既知になる」こと。どちらも崩れると、ある薬を鑑定したら別の巻物まで
+ * 鑑定済みになる／未鑑定の指輪が鑑定済みに見えるという形で出る。
+ * ------------------------------------------------------------------ */
+
+/* 同じ種類でも番号が違えば別の枠。巻物 64 を「試した」にしても巻物 65 は
+ * 試していない。 */
+TEST(two_kinds_of_the_same_sort_keep_separate_records)
+{
+    inven_type *tried = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    inven_type *untried = given_a_kind_of_item(1, TV_SCROLL1, ITEM_SINGLE_STACK_MIN + 1);
+    sample(tried);
+    ASSERT_EQ_INT(object_ident[(4 << 6) + 1] & OD_TRIED, 0);
+    ASSERT_EQ_INT(known1_p(untried), 0);
+}
+
+/* 種類が違えば、同じ番号でも別の枠（6 ビット左へずらすのがこのため）。
+ * 巻物は offset 4、薬は offset 5。 */
+TEST(the_same_number_in_different_sorts_keeps_separate_records)
+{
+    inven_type *scroll = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    given_a_kind_of_item(1, TV_POTION1, ITEM_SINGLE_STACK_MIN);
+    known1(scroll);
+    ASSERT_EQ_INT(object_ident[4 << 6] & OD_KNOWN1, OD_KNOWN1);
+    ASSERT_EQ_INT(object_ident[5 << 6] & OD_KNOWN1, 0);
+}
+
+/* 番号の上のビットは枠を選ばない。64 は「単品でスタックする」という別の
+ * 意味を持つビットで、下 6 ビットだけが品目を指す。**64 と 0 は同じ枠**。 */
+TEST(the_stacking_bit_of_the_number_does_not_choose_the_record)
+{
+    inven_type *stacking = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    inven_type *plain = given_a_kind_of_item(1, TV_SCROLL1, 0);
+    known1(stacking);
+    ASSERT_EQ_INT(known1_p(plain), OD_KNOWN1);
+}
+
+/* 表の 7 並びのいちばん上（食べ物、offset 6）も枠を持つ。ここが落ちると
+ * キノコだけ鑑定を覚えない表になる。384 = 6 << 6。 */
+TEST(the_last_sort_of_the_table_has_records_of_its_own)
+{
+    inven_type *mushroom = given_a_kind_of_item(0, TV_FOOD, 0);
+    known1(mushroom);
+    ASSERT_EQ_INT(object_ident[6 << 6] & OD_KNOWN1, OD_KNOWN1);
+}
+
+/* 枠を持たない種類（剣など、色や銘のない品目）は**表を引かずに**常に既知。
+ * 持ち物の並び順を保つためで、object_offset() が -1 を返す側。 */
+TEST(a_sort_with_no_record_is_always_known)
+{
+    inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);
+    ASSERT_EQ_INT(known1_p(sword), OD_KNOWN1);
+}
+
+/* 食べ物は番号で分かれる。MAX_MUSH（22）以上はキノコではないので枠を
+ * 持たず、常に既知。表の 384〜405 の 22 枠だけが使われる。 */
+TEST(food_above_the_mushroom_range_has_no_record_and_is_always_known)
+{
+    inven_type *bread = given_a_kind_of_item(0, TV_FOOD, MAX_MUSH);
+    ASSERT_EQ_INT(known1_p(bread), OD_KNOWN1);
+}
+
+/* 三角測量：同じ食べ物でも MAX_MUSH の 1 つ下なら枠を持つので未鑑定。 */
+TEST(food_inside_the_mushroom_range_has_a_record_and_starts_unknown)
+{
+    inven_type *mushroom = given_a_kind_of_item(0, TV_FOOD, MAX_MUSH - 1);
+    ASSERT_EQ_INT(known1_p(mushroom), 0);
+}
+
+/* 店で買った品は**表を引かずに**既知（店は品名を言うので）。枠は未鑑定の
+ * ままなので、同じ品目をダンジョンで拾えばまだ未鑑定に見える。 */
+TEST(a_store_bought_item_is_known_without_marking_its_record)
+{
+    inven_type *bought = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    inven_type *found = given_a_kind_of_item(1, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    store_bought(bought);
+    ASSERT_EQ_INT(known1_p(bought), OD_KNOWN1);
+    ASSERT_EQ_INT(known1_p(found), 0);
+}
+
+/* 鑑定は「試した」を落とす（両方の印が同じ枠の別のビットにある）。
+ * desc.c:142-144 が 2 行で 1 つの枠を書きかえるところ。 */
+TEST(marking_a_kind_known_clears_that_it_was_tried)
+{
+    inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    sample(i_ptr);
+    known1(i_ptr);
+    ASSERT_EQ_INT(object_ident[4 << 6] & OD_TRIED, 0);
+    ASSERT_EQ_INT(object_ident[4 << 6] & OD_KNOWN1, OD_KNOWN1);
+}
+
 int main(void)
 {
     RUN_TEST(experience_gain_is_item_level_when_player_level_is_one);
@@ -304,5 +423,15 @@ int main(void)
     RUN_TEST(no_experience_is_gained_when_effect_is_not_identified);
     RUN_TEST(item_stays_unknown_when_effect_is_not_identified);
     RUN_TEST(already_known_item_is_not_marked_tried_when_effect_is_not_identified);
+
+    RUN_TEST(two_kinds_of_the_same_sort_keep_separate_records);
+    RUN_TEST(the_same_number_in_different_sorts_keeps_separate_records);
+    RUN_TEST(the_stacking_bit_of_the_number_does_not_choose_the_record);
+    RUN_TEST(the_last_sort_of_the_table_has_records_of_its_own);
+    RUN_TEST(a_sort_with_no_record_is_always_known);
+    RUN_TEST(food_above_the_mushroom_range_has_no_record_and_is_always_known);
+    RUN_TEST(food_inside_the_mushroom_range_has_a_record_and_starts_unknown);
+    RUN_TEST(a_store_bought_item_is_known_without_marking_its_record);
+    RUN_TEST(marking_a_kind_known_clears_that_it_was_tried);
     return TEST_SUMMARY();
 }
