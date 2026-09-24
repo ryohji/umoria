@@ -29,8 +29,6 @@ extern bool sound_beep_flag;   // Beep for invalid character
 extern bool display_counts;    // Display rest/repeat counts
 
 // global flags
-extern bool new_level_flag; // Next level when true
-extern bool teleport_flag;  // Handle teleport traps
 extern int eof_flag;        // Used to handle eof/HANGUP
 extern int find_flag;       // Used in MORIA
 extern bool free_turn_flag; // Used in MORIA

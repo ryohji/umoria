@@ -18,24 +18,24 @@
 // one bit needs nothing from the rest of the game. In particular this module does
 // not know how to teleport anybody -- it only holds the note.
 
-// In this step the flag is still the global teleport_flag (variable.c), so that
-// exactly one copy of it exists while dungeon.c, moria3.c and misc3.c move over
-// to the windows; #18-11-4C brings the storage in here and makes it static.
-// Declared here rather than through externs.h for the reason given above.
-extern bool teleport_flag;
+// The flag is owned here and is static: the only way in is through the four
+// windows below. It came over from variable.c (#18-11-4C) with its initial value
+// -- the old global had no initializer, so it started out false, and a new game
+// begins with no teleport waiting.
+static bool teleport_pending = false;
 
 void schedule_teleport(void) {
-    teleport_flag = true;
+    teleport_pending = true;
 }
 
 bool teleport_is_pending(void) {
-    return teleport_flag;
+    return teleport_pending;
 }
 
 void teleport_done(void) {
-    teleport_flag = false;
+    teleport_pending = false;
 }
 
 void forget_pending_teleport(void) {
-    teleport_flag = false;
+    teleport_pending = false;
 }

@@ -146,8 +146,8 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # #18-11-4B で misc3.c の teleport() が出口で src/pending_teleport.h の窓口を
 # 呼ぶようになったので src/pending_teleport.c もリンクする。**misc3.c を
 # リンクする 9 本すべてに同じ 1 行が要る**（この註はその 1 本目にだけ書いて
-# ある）。実体はまだ misc3_stubs.c:53 にあり、窓口はそれを指す
-# （#18-11-4C で実体が pending_teleport.c の static に移ったら代役を消す）。
+# ある）。#18-11-4C で実体が pending_teleport.c の static になったので、
+# misc3_stubs.c:53 の代役は消した。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -741,10 +741,15 @@ $(BUILDDIR)/inven_command_state_test: $(TESTDIR)/inven_command_state_test.c \
 # leave_for_level(n) がその両方をやる。だから level_exit_test は dun_level を
 # 足場に持つ。
 #
-# **実体はまだ variable.c の new_level_flag / teleport_flag** なので足場が要る
-# （tests/level_exit_fixture.c と tests/pending_teleport_fixture.c。#18-11-4C で
-# 実体が入ったら pending_teleport のほうは消し、level_exit のほうは dun_level
-# だけ残す —— あちらは別の区分の global なので）。
+# #18-11-4C で実体（level_over / teleport_pending）も 2 本の static になったので、
+# pending_teleport_test は **2 単位・代役 0**（str_insert.c・inventory.c・
+# player_light.c・missile_serial.c・screen_touched.c と同じ最小形。足場
+# tests/pending_teleport_fixture.c は実体が入ったときに消した）。
+#
+# level_exit_test に残っている tests/level_exit_fixture.c は **旗の足場ではない**。
+# 中身は dun_level 1 つだけで、これは別の区分（地下そのもの）の global ——
+# leave_for_level() が対で書きかえる相手なので要る。dun_level を閉じる人が
+# このファイルを消す。
 $(BUILDDIR)/level_exit_test: $(TESTDIR)/level_exit_test.c \
                              $(TESTDIR)/level_exit_fixture.c \
                              $(TESTDIR)/minunit.h \
@@ -753,11 +758,9 @@ $(BUILDDIR)/level_exit_test: $(TESTDIR)/level_exit_test.c \
 	    $(TESTDIR)/level_exit_fixture.c
 
 $(BUILDDIR)/pending_teleport_test: $(TESTDIR)/pending_teleport_test.c \
-                                   $(TESTDIR)/pending_teleport_fixture.c \
                                    $(TESTDIR)/minunit.h \
                                    src/pending_teleport.c src/pending_teleport.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/pending_teleport_test.c src/pending_teleport.c \
-	    $(TESTDIR)/pending_teleport_fixture.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/pending_teleport_test.c src/pending_teleport.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて

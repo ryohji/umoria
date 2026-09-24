@@ -97,8 +97,6 @@ bool display_counts;
 char last_command = ' '; // Memory of previous command.
 
 // these used to be in dungeon.c
-bool new_level_flag;     // Next level when true
-bool teleport_flag;      // Handle teleport traps
 // The two flags about the character's light moved to player_light.c: whether a
 // light is burning (player_light, #18-7-3C1) and whether its glow is currently
 // drawn on the map (light_flag, #18-11-1C). The windows are in player_light.h

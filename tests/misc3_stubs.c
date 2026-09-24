@@ -50,7 +50,10 @@ int command_count;
  * src/save_state.c の static である。 */
 bool display_counts;
 bool free_turn_flag;
-bool teleport_flag;
+/* teleport_flag もここに無い。#18-11-4B で misc3.c の teleport() が出口で
+ * teleport_done() を呼ぶようになり、#18-11-4C で実体が
+ * src/pending_teleport.c の static になった
+ * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* total_winner と max_score はここに無い。#18-7-1B で misc3.c が
  * player_has_won() 越しに読むようになり、#18-7-1C1 で実体が
  * src/score_death.c の static になった。 */

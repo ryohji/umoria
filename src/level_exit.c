@@ -20,11 +20,13 @@
 // global header (which pulls ncurses along with it) for two lines -- the same
 // choice as stats.c and object_levels.c.
 
-// In this step the flag is still the global new_level_flag (variable.c), so that
-// exactly one copy of it exists while dungeon.c, moria1.c, moria3.c and
-// scrolls.c move over to the windows; #18-11-4C brings the storage in here and
-// makes it static.
-extern bool new_level_flag;
+// The flag is owned here and is static: the only way in is through the four
+// windows below. It came over from variable.c (#18-11-4C) with its initial value
+// -- the old global had no initializer, so it started out false, and a new game
+// begins with the level it is on unfinished. The name follows the windows rather
+// than the old global (new_level_flag), which said "next level" where two of its
+// eight setters meant "no next level, this one is simply over".
+static bool level_over = false;
 
 // The current depth stays a global for now: it is in another group (the dungeon
 // itself, 44 references) and is not what this unit is about. It is here because
@@ -33,7 +35,7 @@ extern bool new_level_flag;
 extern int16_t dun_level;
 
 bool level_is_over(void) {
-    return new_level_flag;
+    return level_over;
 }
 
 void leave_for_level(int level) {
@@ -45,9 +47,9 @@ void leave_for_level(int level) {
 }
 
 void end_level(void) {
-    new_level_flag = true;
+    level_over = true;
 }
 
 void begin_level(void) {
-    new_level_flag = false;
+    level_over = false;
 }

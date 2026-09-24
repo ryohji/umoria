@@ -128,7 +128,7 @@ GROUPS = {
     # 消えた記録は GLOBALS_INVENTORY.md 側に残す。
     "コマンド入力・実行中のフラグ": """
         command_count default_dir last_command find_flag
-        free_turn_flag new_level_flag teleport_flag eof_flag closing_flag""",
+        free_turn_flag eof_flag closing_flag""",
     # セーブ／スコア／進行メタの 14 個のうち 13 個は #19C1 で 3 つの module の
     # static になり、externs.h から外れた（progress.c に turn randes_seed
     # town_seed wizard to_be_wizard、score_death.c に death died_from
