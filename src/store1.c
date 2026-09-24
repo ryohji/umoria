@@ -316,7 +316,7 @@ static void store_create(int store_num) {
             if ((t_ptr->cost > 0) && // Item must be good
                 (t_ptr->cost < owners[s_ptr->owner].max_cost)) {
                 // equivalent to calling ident_spell(),
-                // except will not change the object_ident array.
+                // except will not change the per-kind records.
                 store_bought(t_ptr);
 
                 int dummy;

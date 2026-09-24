@@ -16,9 +16,9 @@
 // rule can be tested without pulling in the item effect switches.
 //
 // It also holds the records of what the player has learned about each kind of
-// object (see item_ident.h). During step A of #18-9 the table itself is still
-// the global object_ident in treasure.c and the windows below point at it;
-// step C moves it in here.
+// object (see item_ident.h), reachable only through the windows below. The
+// table used to be a global in treasure.c, declared in externs.h, and eight
+// lines in three files read or wrote it directly.
 
 #include "config.h"
 #include "constant.h"
@@ -28,6 +28,12 @@
 
 #include "inventory.h"
 #include "item_ident.h"
+
+// One record per kind of secret object: seven groups of sixty-four. Starting
+// out as zeroes says "nothing known, nothing tried", which is what a new
+// character should have; loading a save file reads the whole table back byte
+// for byte.
+static uint8_t object_ident[OBJECT_IDENT_SIZE];
 
 // Which of the seven groups of secret kinds an item belongs to, or -1 for a
 // kind that is never secret. Moved here from desc.c in #18-9-B: the five places

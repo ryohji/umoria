@@ -94,7 +94,6 @@ extern bool (*store_buy[MAX_STORES])(int);
 
 // Following are treasure arrays  and variables
 extern treasure_type object_list[MAX_OBJECTS];
-extern uint8_t object_ident[OBJECT_IDENT_SIZE];
 extern int16_t t_level[MAX_OBJ_LEVEL + 1];
 extern inven_type t_list[MAX_TALLOC];
 extern const char *special_names[SN_ARRAY_SIZE];

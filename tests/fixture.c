@@ -8,6 +8,7 @@
 #include "types.h"
 
 #include "inventory.h"
+#include "item_ident.h"
 
 player_type py;         /* 本体では player.c（530行の巨大データと同居） */
 /* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
@@ -21,8 +22,9 @@ static void fixture_clear_randint_record(void);
 
 void fixture_reset(void)
 {
-    extern uint8_t object_ident[];
-    memset(object_ident, 0, OBJECT_IDENT_SIZE);
+    /* 品目ごとの覚えは #18-9-C で src/item_ident.c が static で持つように
+     * なったので、セーブファイル用の生の窓口越しに消す。 */
+    memset(item_kind_record_bytes(), 0, (size_t)item_kind_record_count());
     /* 持ち物と装備は 1 本の配列なので、跨ぎの窓口で全域を消す。 */
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());

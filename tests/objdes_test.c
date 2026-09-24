@@ -6,9 +6,9 @@
  * （-Wformat-nonliteral）。差しこみを自分で書く形へ変えるので、その前後で
  * 出力が 1 文字も変わらないことをここで押さえる。
  *
- * 未鑑定（object_ident のビットが立っていない）だと objdes() の modify が
- * 真になり、雛形を使う経路に入る。fixture_reset() が object_ident を全消し
- * するので、各テストは未鑑定から始まる。
+ * 未鑑定（品目ごとの覚えのビットが立っていない）だと objdes() の modify が
+ * 真になり、雛形を使う経路に入る。fixture_reset() が覚えを全消しするので、
+ * 各テストは未鑑定から始まる。
  *
  * 差しこむ語（amulets[] や colors[] のどれになるか）は magic_init() が
  * randint() で並べかえて決める。randint() は代役が固定値を返すので、
@@ -33,7 +33,7 @@ void sample(inven_type *);
 void store_bought(inven_type *);
 void magic_init(void);
 
-/* 各テストの前に必ず呼ばれる。object_ident が毎回まっさらに戻る。 */
+/* 各テストの前に必ず呼ばれる。品目ごとの覚えが毎回まっさらに戻る。 */
 #define MU_SETUP() fixture_reset()
 
 #include "minunit.h"
@@ -92,7 +92,7 @@ static const char *name_of_first_known(int tval)
 }
 
 
-/* 「試した」の表示を見るための条件づくり。desc.c:583-591 が object_ident を
+/* 「試した」の表示を見るための条件づくり。desc.c:583-591 が品目ごとの覚えを
  * 引くのは冠詞つき（pref != 0）の経路だけなので、上の 2 つと違って pref に
  * 1 を渡す。marks に渡した関数で品物に印をつけてから名前を作る
  * （分岐をテスト本体に持ちこまないため、印のつけかたを引数にする）。 */
@@ -237,10 +237,10 @@ TEST(known_food_uses_its_real_name)
 }
 
 
-/* --- 「試した」の表示（object_ident の OD_TRIED を引く 6 か所めの添字計算）--- */
+/* --- 「試した」の表示（品目ごとの覚えの OD_TRIED を引く 6 か所め）--- */
 
-/* 試した品物は説明に "tried" が出る。desc.c:583-591 が object_offset() から
- * 添字を組みたてて表を引く、最後の 1 か所。 */
+/* 試した品物は説明に "tried" が出る。desc.c:583-591 は #18-9-B より前は
+ * object_offset() から添字を組みたてて表を引いていた、最後の 1 か所。 */
 TEST(a_tried_item_says_tried_in_its_description)
 {
     ASSERT_EQ_STR(full_name_of_first(TV_POTION1, sample),

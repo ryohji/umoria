@@ -10,7 +10,7 @@
  * グローバルな py / inventory にしか依存しないので、desc.c の本物と
  * fixture.c の代役だけでリンクできる。
  *
- * グローバル状態（inventory, object_ident, py）に依存するので
+ * グローバル状態（inventory, 品目ごとの覚え, py）に依存するので
  * MU_SETUP で fixture_reset() を呼ぶ。これがないと実行順で結果が変わる。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、
@@ -27,7 +27,6 @@
 #include "inventory.h"
 
 extern player_type py;
-extern uint8_t object_ident[];
 
 /* 検証に使う本物（src/desc.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
@@ -55,7 +54,7 @@ static void apply_ident(bool ident, int item_val)
 
 /* テストの条件づくり。分岐やループをテスト本体に持ちこまないため、
  * 「未鑑定の巻物を持ったプレイヤー」をここで組みたてる。
- * 巻物（TV_SCROLL1）を選んだ理由は object_offset() が 4 を返し、
+ * 巻物（TV_SCROLL1）を選んだ理由は 7 群のうち 5 番めの群（添字 4）に入り、
  * subval が ITEM_SINGLE_STACK_MIN 以上なら known1_p の判定対象に
  * なること。store_bought フラグは立てないので未鑑定から始まる。 */
 static void given_unknown_item(int item_level, int player_level)
@@ -257,12 +256,13 @@ TEST(already_known_item_stays_known_after_identifying_effect)
 
 /* sample() は object_ident に OD_TRIED を立てる。効果が判明しなかった
  * 未知のアイテムは「試した」と記録され、説明に反映される。
- * 巻物（object_offset() == 4）の subval 64 は object_ident[4<<6] を使う。 */
+ * 表を直に読んでいたが、#18-9-C で実体が item_ident.c の static に移った
+ * ので窓口で訊く。見ている枠は同じ（巻物の枠、以前の object_ident[4<<6]）。 */
 TEST(unknown_item_is_marked_tried_when_effect_is_not_identified)
 {
     given_unknown_item(5, 1);
     apply_ident(false, 0);
-    ASSERT_EQ_INT(object_ident[4 << 6] & OD_TRIED, OD_TRIED);
+    ASSERT_TRUE(item_kind_was_tried(inventory_at(0)));
 }
 
 /* 三角測量：ident が真なら「試した」ではなく鑑定済みになる。
@@ -271,7 +271,7 @@ TEST(identified_item_is_not_marked_tried)
 {
     given_unknown_item(5, 1);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(object_ident[4 << 6] & OD_TRIED, 0);
+    ASSERT_FALSE(item_kind_was_tried(inventory_at(0)));
 }
 
 /* ident が偽なら経験値はつかない。効果が判明していないので当然。 */
@@ -298,16 +298,16 @@ TEST(already_known_item_is_not_marked_tried_when_effect_is_not_identified)
     given_unknown_item(5, 1);
     identify(&(int){0});
     apply_ident(false, 0);
-    ASSERT_EQ_INT(object_ident[4 << 6] & OD_TRIED, 0);
+    ASSERT_FALSE(item_kind_was_tried(inventory_at(0)));
 }
 
 /* ------------------------------------------------------------------
  * 4. 品目ごとの枠の選びかた
  *
- * object_ident[448] は「品目の種類ごとに 64 枠」を 7 並べた表で、枠の
- * 選びかたは desc.c の 6 か所が同じ 3 行を繰りかえして計算している
- * （object_offset() の 0〜6 を 6 ビット左へ、番号の下 6 ビットを足す）。
- * #18-9 でこの計算を窓口の内側に入れるので、その前に対応を押さえる。
+ * 品目ごとの覚えは「種類ごとに 64 枠」を 7 並べた 448 枠の表で、枠の
+ * 選びかたは desc.c の 6 か所が同じ 3 行を繰りかえして計算していた
+ * （群の番号 0〜6 を 6 ビット左へ、番号の下 6 ビットを足す）。#18-9 で
+ * この計算は窓口の内側（item_ident.c の record_of()）に入った。
  *
  * ここで見るのは「別の品目が別の枠を使う」ことと「枠を持たない品目は
  * 常に既知になる」こと。どちらも崩れると、ある薬を鑑定したら別の巻物まで
@@ -321,7 +321,7 @@ TEST(two_kinds_of_the_same_sort_keep_separate_records)
     inven_type *tried = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
     inven_type *untried = given_a_kind_of_item(1, TV_SCROLL1, ITEM_SINGLE_STACK_MIN + 1);
     sample(tried);
-    ASSERT_EQ_INT(object_ident[(4 << 6) + 1] & OD_TRIED, 0);
+    ASSERT_FALSE(item_kind_was_tried(untried));
     ASSERT_EQ_INT(known1_p(untried), 0);
 }
 
@@ -330,10 +330,10 @@ TEST(two_kinds_of_the_same_sort_keep_separate_records)
 TEST(the_same_number_in_different_sorts_keeps_separate_records)
 {
     inven_type *scroll = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
-    given_a_kind_of_item(1, TV_POTION1, ITEM_SINGLE_STACK_MIN);
+    inven_type *potion = given_a_kind_of_item(1, TV_POTION1, ITEM_SINGLE_STACK_MIN);
     known1(scroll);
-    ASSERT_EQ_INT(object_ident[4 << 6] & OD_KNOWN1, OD_KNOWN1);
-    ASSERT_EQ_INT(object_ident[5 << 6] & OD_KNOWN1, 0);
+    ASSERT_TRUE(item_kind_is_known(scroll));
+    ASSERT_FALSE(item_kind_is_known(potion));
 }
 
 /* 番号の上のビットは枠を選ばない。64 は「単品でスタックする」という別の
@@ -346,17 +346,17 @@ TEST(the_stacking_bit_of_the_number_does_not_choose_the_record)
     ASSERT_EQ_INT(known1_p(plain), OD_KNOWN1);
 }
 
-/* 表の 7 並びのいちばん上（食べ物、offset 6）も枠を持つ。ここが落ちると
- * キノコだけ鑑定を覚えない表になる。384 = 6 << 6。 */
+/* 表の 7 並びのいちばん上（食べ物、7 つめの群）も枠を持つ。ここが落ちると
+ * キノコだけ鑑定を覚えない表になる。 */
 TEST(the_last_sort_of_the_table_has_records_of_its_own)
 {
     inven_type *mushroom = given_a_kind_of_item(0, TV_FOOD, 0);
     known1(mushroom);
-    ASSERT_EQ_INT(object_ident[6 << 6] & OD_KNOWN1, OD_KNOWN1);
+    ASSERT_TRUE(item_kind_is_known(mushroom));
 }
 
 /* 枠を持たない種類（剣など、色や銘のない品目）は**表を引かずに**常に既知。
- * 持ち物の並び順を保つためで、object_offset() が -1 を返す側。 */
+ * 持ち物の並び順を保つためで、群の番号が -1 になる側。 */
 TEST(a_sort_with_no_record_is_always_known)
 {
     inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);
@@ -390,22 +390,22 @@ TEST(a_store_bought_item_is_known_without_marking_its_record)
 }
 
 /* 鑑定は「試した」を落とす（両方の印が同じ枠の別のビットにある）。
- * desc.c:142-144 が 2 行で 1 つの枠を書きかえるところ。 */
+ * desc.c が 2 行で 1 つの枠を書きかえていたところ（#18-9-B で窓口 1 つに）。 */
 TEST(marking_a_kind_known_clears_that_it_was_tried)
 {
     inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
     sample(i_ptr);
     known1(i_ptr);
-    ASSERT_EQ_INT(object_ident[4 << 6] & OD_TRIED, 0);
-    ASSERT_EQ_INT(object_ident[4 << 6] & OD_KNOWN1, OD_KNOWN1);
+    ASSERT_FALSE(item_kind_was_tried(i_ptr));
+    ASSERT_TRUE(item_kind_is_known(i_ptr));
 }
 
 /* ------------------------------------------------------------------
  * 5. 品目ごとの覚えの窓口（#18-9-A2 で足した src/item_ident.c の側）
  *
- * ステップ A なので表そのものはまだ treasure.c の global で、窓口はそれを
- * 指している。ここで見るのは「窓口が desc.c と同じ表を見ていること」と
- * 「枠を持たない品目を訊かれても答えが定まること」。
+ * #18-9-C で表そのものが item_ident.c の static になった。ここで見るのは
+ * 「窓口が desc.c と同じ表を見ていること」と「枠を持たない品目を訊かれても
+ * 答えが定まること」。
  *
  * 別の表の複製になっていれば、上の第 4 節はグリーンのまま窓口だけが
  * 嘘をつく。だから**片方で書いて他方で読む**形で確かめる。
@@ -463,7 +463,7 @@ TEST(trying_a_kind_does_not_make_it_known)
 }
 
 /* 枠を持たない品目（剣）。known1_p が表を引かずに既知と答える側で、
- * misc3.c:1025 も object_offset() == -1 でこれを訊いている。 */
+ * misc3.c:1025 も #18-9-B より前は object_offset() == -1 でこれを訊いていた。 */
 TEST(a_kind_with_no_record_is_reported_as_having_none)
 {
     inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);
