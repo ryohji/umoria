@@ -14,6 +14,7 @@
 
 #include "externs.h"
 
+#include "command_state.h"
 #include "equipment.h"
 #include "player_light.h"
 #include "player_pos.h"
@@ -278,7 +279,7 @@ void find_init(int dir) {
 
     move_char(dir, true);
     if (!player_is_running()) {
-        command_count = 0;
+        cancel_command_count();
     }
 }
 

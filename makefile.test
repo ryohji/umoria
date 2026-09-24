@@ -149,10 +149,16 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # リンクする 9 本すべてに同じ 1 行が要る**（この註はその 1 本目にだけ書いて
 # ある）。#18-11-4C で実体が pending_teleport.c の static になったので、
 # misc3_stubs.c:53 の代役は消した。
+#
+# #18-11-7B で misc3.c の prt_state() が「繰りかえしの回数」を
+# src/command_state.h の窓口越しに読むようになったので src/command_state.c も
+# リンクする。**これも misc3.c をリンクする 9 本すべてに同じ 1 行が要る。**
+# 実体はまだ src/variable.c にあり、代役 3 個（command_count・default_dir・
+# last_command）は misc3_stubs.c にある（#18-11-7C で消す）。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                              src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                              src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                               src/pending_teleport.c src/pending_teleport.h \
                               src/tables.c src/inventory.c \
                               src/treasure.c src/player.c src/abilities.c \
@@ -163,7 +169,7 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
                             src/object_levels.c src/object_levels.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -188,7 +194,7 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -200,7 +206,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
                             src/object_levels.c src/object_levels.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -213,7 +219,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -226,7 +232,7 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
                             src/object_levels.c src/object_levels.h \
                             src/item_ident.c src/item_ident.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/object_levels_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -272,7 +278,7 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                                 src/store2.c src/misc3.c src/stats.c \
+                                 src/store2.c src/command_state.c src/misc3.c src/stats.c \
                                  src/pending_teleport.c src/pending_teleport.h \
                                  src/str_insert.c src/desc.c \
                                  src/tables.c src/inventory.c \
@@ -288,7 +294,7 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/inven_command_state.h \
                                  src/screen_touched.c src/screen_touched.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
@@ -388,7 +394,7 @@ $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
 $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          $(TESTDIR)/misc3_stubs.c \
                          $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                         src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                         src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                          src/pending_teleport.c src/pending_teleport.h \
                          src/tables.c src/inventory.c \
                          src/treasure.c src/player.c \
@@ -399,7 +405,7 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
                             src/object_levels.c src/object_levels.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -690,7 +696,7 @@ $(BUILDDIR)/hp_table_test: $(TESTDIR)/hp_table_test.c \
 $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -702,7 +708,7 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
                             src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
                             src/object_levels.c src/object_levels.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_hitpoints_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -825,8 +831,8 @@ $(BUILDDIR)/running_test: $(TESTDIR)/running_test.c \
 # held_counts_can_nest がそれを押さえている。
 #
 # 足場 tests/command_state_fixture.c は実体がまだ variable.c にあるあいだだけ
-# 要る。#18-11-7C で消す（**そのとき tests/misc3_stubs.c:43 の代役
-# command_count も消す** —— misc3.c を引く 9 本がそれを使っている）。
+# 要る。#18-11-7C で消す（**そのとき tests/misc3_stubs.c の代役 3 個も消す**
+# —— misc3.c を引く 9 本が src/command_state.c をリンクし、その 3 つを使う）。
 $(BUILDDIR)/command_state_test: $(TESTDIR)/command_state_test.c \
                                 $(TESTDIR)/command_state_fixture.c \
                                 $(TESTDIR)/minunit.h \
@@ -859,7 +865,7 @@ $(BUILDDIR)/player_light_test: $(TESTDIR)/player_light_test.c \
 $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -871,7 +877,7 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
                             src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
                             src/object_levels.c src/object_levels.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/check_strength_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -900,7 +906,7 @@ $(BUILDDIR)/burden_test: $(TESTDIR)/burden_test.c \
 $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -912,7 +918,7 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
                             src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
                             src/object_levels.c src/object_levels.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_spells_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -931,7 +937,7 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
 $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -943,7 +949,7 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
                             src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
                             src/object_levels.c src/object_levels.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/gain_spells_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \

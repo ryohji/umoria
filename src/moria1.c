@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "burden.h"
+#include "command_state.h"
 #include "equipment.h"
 #include "externs.h"
 #include "score_death.h"
@@ -1413,7 +1414,7 @@ bool get_dir(const char *prompt, int *dir) {
     static char prev_dir; // Direction memory. -CJS-
 
     // used in counted commands. -CJS-
-    if (default_dir) {
+    if (direction_is_remembered()) {
         *dir = prev_dir;
         return true;
     }
@@ -1426,14 +1427,14 @@ bool get_dir(const char *prompt, int *dir) {
         char command;
 
         // Don't end a counted command. -CJS-
-        int save = command_count;
+        int save = hold_command_count();
 
         if (!get_com(prompt, &command)) {
             free_turn_flag = true;
             return false;
         }
 
-        command_count = save;
+        resume_command_count(save);
 
         if (rogue_like_commands) {
             command = map_roguedir(command);
@@ -1614,7 +1615,7 @@ void move_light(int y1, int x1, int y2, int x2) {
 // The first arg indicates a major disturbance, which affects search.
 // The second arg indicates a light change.
 void disturb(int s, int l) {
-    command_count = 0;
+    cancel_command_count();
     if (s && (py.flags.status & PY_SEARCH)) {
         search_off();
     }
@@ -1652,9 +1653,8 @@ void search_off(void) {
 void rest(void) {
     int rest_num;
 
-    if (command_count > 0) {
-        rest_num = command_count;
-        command_count = 0;
+    if (command_is_repeating()) {
+        rest_num = take_command_count();
     } else {
         prt("Rest for how long? ", 0, 0);
         rest_num = 0;

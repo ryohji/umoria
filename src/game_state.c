@@ -9,6 +9,7 @@
 #include "game_state.h"
 
 #include "burden.h"
+#include "command_state.h"
 #include "constant.h"
 #include "externs.h"
 #include "input_ended.h"
@@ -67,8 +68,8 @@ GameState *game_state_init(void) {
     state->character_saved = character_is_saved();
 
     // Command state
-    state->command_count = command_count;
-    state->default_dir = default_dir;
+    state->command_count = command_count_remaining();
+    state->default_dir = direction_is_remembered();
 
     // Message system
     state->msg_flag = msg_pending();

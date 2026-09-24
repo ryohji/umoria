@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "command_state.h"
 #include "panel.h"
 #include "input.h"
 #include "input_ended.h"
@@ -58,8 +59,8 @@ void shell_out(void) {
 // terminal, so that this operation can always be performed at
 // any input prompt. inkey() never returns ^R.
 char inkey(void) {
-    put_qio();         // Dump IO buffer
-    command_count = 0; // Just to be safe -CJS-
+    put_qio();              // Dump IO buffer
+    cancel_command_count(); // Just to be safe -CJS-
 
     while (true) {
         int i = input_get_key();
@@ -147,9 +148,9 @@ void move_cursor_relative(int row, int col) {
 
 // Print a message so as not to interrupt a counted command. -CJS-
 void count_msg_print(const char *p) {
-    int i = command_count;
+    int i = hold_command_count();
     msg_print(p);
-    command_count = i;
+    resume_command_count(i);
 }
 
 // Outputs a line to a given y, x position -RAK-
@@ -185,13 +186,13 @@ void msg_print(const char *str_buff) {
         render_erase_line(MSG_LINE, 0);
 
         if (msg_pending()) {
-            command_count = 0;
+            cancel_command_count();
 
             put_buffer(str_buff, MSG_LINE, 0);
             msg_history_push(str_buff);
         }
     } else {
-        command_count = 0;
+        cancel_command_count();
 
         // If the new message and the old message are short enough,
         // display them together on the same line.

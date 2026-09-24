@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "command_state.h"
 #include "equipment.h"
 #include "input_ended.h"
 #include "inven_command_state.h"
@@ -67,7 +68,7 @@ void dungeon(void) {
 
     // Reset flags and initialize variables
     int find_count = 0;
-    command_count = 0;
+    cancel_command_count();
     begin_level();
     forget_run();
     forget_pending_teleport();
@@ -428,7 +429,7 @@ void dungeon(void) {
         }
 
         // Check for interrupts to find or rest.
-        if ((command_count > 0 || player_is_running() || f_ptr->rest != 0) &&
+        if ((command_is_repeating() || player_is_running() || f_ptr->rest != 0) &&
             (check_input(player_is_running() ? 0 : 10000))) {
             disturb(0, 0);
         }
@@ -682,7 +683,7 @@ void dungeon(void) {
                     prt_state();
                 }
 
-                default_dir = false;
+                ask_for_direction_again();
                 free_turn_flag = false;
 
                 if (player_is_running()) {
@@ -698,9 +699,9 @@ void dungeon(void) {
                     // move the cursor to the players character
                     move_cursor_relative(player_row(), player_col());
 
-                    if (command_count > 0) {
+                    if (command_is_repeating()) {
                         msg_set_pending(false);
-                        default_dir = true;
+                        reuse_remembered_direction();
                     } else {
                         msg_set_pending(false);
                         command = inkey();
@@ -756,7 +757,7 @@ void dungeon(void) {
 
                         // Another way of typing control codes -CJS-
                         if (command == '^') {
-                            if (command_count > 0) {
+                            if (command_is_repeating()) {
                                 prt_state();
                             }
                             if (get_com("Control-", &command)) {
@@ -787,7 +788,7 @@ void dungeon(void) {
                                 msg_print("Invalid command with a count.");
                                 command = ' ';
                             } else {
-                                command_count = i;
+                                begin_command_count(i);
                                 prt_state();
                             }
                         }
@@ -802,12 +803,11 @@ void dungeon(void) {
 
                     // Find is counted differently, as the command changes.
                     if (player_is_running()) {
-                        find_count = command_count - 1;
-                        command_count = 0;
+                        find_count = take_command_count() - 1;
                     } else if (free_turn_flag) {
-                        command_count = 0;
-                    } else if (command_count) {
-                        command_count--;
+                        cancel_command_count();
+                    } else if (command_is_repeating()) {
+                        consume_command_count();
                     }
                 }
                 // End of commands
@@ -1068,10 +1068,10 @@ static void do_command(char com_val) {
     // hack for move without pickup.  Map '-' to a movement command.
     if (com_val == '-') {
         do_pickup = false;
-        i = command_count;
+        i = hold_command_count();
 
         if (get_dir(CNIL, &dir_val)) {
-            command_count = i;
+            resume_command_count(i);
             switch (dir_val) {
             case 1:
                 com_val = 'b';
@@ -1119,13 +1119,12 @@ static void do_command(char com_val) {
         free_turn_flag = true;
         break;
     case CTRL_KEY('P'): // (^P)revious message.
-        if (command_count > 0) {
-            i = command_count;
+        if (command_is_repeating()) {
+            i = take_command_count();
             if (i > MAX_SAVE_MSG) {
                 i = MAX_SAVE_MSG;
             }
-            command_count = 0;
-        } else if (last_command != CTRL_KEY('P')) {
+        } else if (!previous_command_was(CTRL_KEY('P'))) {
             i = 1;
         } else {
             i = MAX_SAVE_MSG;
@@ -1263,8 +1262,8 @@ static void do_command(char com_val) {
         break;
     case '.': // (.) stay in one place (5)
         move_char(5, do_pickup);
-        if (command_count > 1) {
-            command_count--;
+        if (command_count_remaining() > 1) {
+            consume_command_count();
             rest();
         }
         break;
@@ -1304,7 +1303,7 @@ static void do_command(char com_val) {
         gain_spells();
         break;
     case 'V': // (V)iew scores
-        if (last_command != 'V') {
+        if (!previous_command_was('V')) {
             do_diplay_scores = true;
         } else {
             do_diplay_scores = false;
@@ -1503,9 +1502,8 @@ static void do_command(char com_val) {
                 (void)mass_genocide();
                 break;
             case CTRL_KEY('G'): // ^G = treasure
-                if (command_count > 0) {
-                    i = command_count;
-                    command_count = 0;
+                if (command_is_repeating()) {
+                    i = take_command_count();
                 } else {
                     i = 1;
                 }
@@ -1513,13 +1511,11 @@ static void do_command(char com_val) {
                 prt_map();
                 break;
             case CTRL_KEY('D'): // ^D = up/down
-                if (command_count > 0) {
-                    if (command_count > 99) {
+                if (command_is_repeating()) {
+                    i = take_command_count();
+                    if (i > 99) {
                         i = 0;
-                    } else {
-                        i = command_count;
                     }
-                    command_count = 0;
                 } else {
                     prt("Go to which level (0-99) ? ", 0, 0);
                     i = -1;
@@ -1561,9 +1557,8 @@ static void do_command(char com_val) {
                 teleport(100);
                 break;
             case '+':
-                if (command_count > 0) {
-                    py.misc.exp = command_count;
-                    command_count = 0;
+                if (command_is_repeating()) {
+                    py.misc.exp = take_command_count();
                 } else if (py.misc.exp == 0) {
                     py.misc.exp = 1;
                 } else {
@@ -1592,7 +1587,7 @@ static void do_command(char com_val) {
             free_turn_flag = true;
         }
     }
-    last_command = com_val;
+    note_command(com_val);
 }
 
 // Check whether this command will accept a count. -CJS-

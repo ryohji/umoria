@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "command_state.h"
 #include "score_death.h"
 #include "equipment.h"
 #include "inventory.h"
@@ -891,7 +892,7 @@ void openobject(void) {
                     invcopy(&t_list[c_ptr->tptr], OBJ_OPEN_DOOR);
                     c_ptr->fval = CORR_FLOOR;
                     lite_spot(y, x);
-                    command_count = 0;
+                    cancel_command_count();
                 }
             } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
                 // Open a closed chest.
