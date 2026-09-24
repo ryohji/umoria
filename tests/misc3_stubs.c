@@ -40,15 +40,10 @@ int16_t cur_width;
 int16_t dun_level;
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
  * 読み書きするようになったので、実体は src/score_death.c の static である。 */
-/* 打っているコマンドの覚え 3 個。#18-11-7B で misc3.c の prt_state() が
- * src/command_state.h の窓口越しに読むようになったので、この 9 本は
- * src/command_state.c もリンクする。実体はまだ src/variable.c にあり、
- * 窓口はこの 3 つを代役として使う。**#18-11-7C で実体が
- * src/command_state.c の static に入ったら 3 つとも消す**（残すと窓口越しの
- * 読み書きがこちらの器に当たってすり抜ける）。 */
-int command_count;
-bool default_dir = false;
-char last_command = ' ';
+/* 打っているコマンドの覚え 3 個（command_count・default_dir・last_command）は
+ * ここに無い。#18-11-7B で misc3.c の prt_state() が src/command_state.h の
+ * 窓口越しに読むようになり、#18-11-7C で実体が src/command_state.c の static に
+ * なった（ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* pack_heavy と weapon_heavy はここに無い。#18-7-4B で misc3.c が
  * pack_speed_penalty() / weapon_is_too_heavy() 越しに読み書きするように
  * なり、#18-7-4C1 で実体が src/burden.c の static になった

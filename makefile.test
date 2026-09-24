@@ -830,15 +830,15 @@ $(BUILDDIR)/running_test: $(TESTDIR)/running_test.c \
 # module の中に置き場を 1 つ持つと内側の戻しが外側を上書きする。テストの
 # held_counts_can_nest がそれを押さえている。
 #
-# 足場 tests/command_state_fixture.c は実体がまだ variable.c にあるあいだだけ
-# 要る。#18-11-7C で消す（**そのとき tests/misc3_stubs.c の代役 3 個も消す**
-# —— misc3.c を引く 9 本が src/command_state.c をリンクし、その 3 つを使う）。
+# #18-11-7C で実体が src/command_state.c の static に入ったので、リンクは
+# **テスト＋ module の 2 本だけ**になった（足場 tests/command_state_fixture.c と
+# tests/misc3_stubs.c の代役 3 個は消した）。misc3.c を引く 9 本が
+# src/command_state.c をリンクする行はそのまま要る —— prt_state() が窓口を呼び、
+# 実体はいまその中にある。
 $(BUILDDIR)/command_state_test: $(TESTDIR)/command_state_test.c \
-                                $(TESTDIR)/command_state_fixture.c \
                                 $(TESTDIR)/minunit.h \
                                 src/command_state.c src/command_state.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/command_state_test.c src/command_state.c \
-	    $(TESTDIR)/command_state_fixture.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/command_state_test.c src/command_state.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて

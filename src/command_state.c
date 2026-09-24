@@ -21,64 +21,69 @@
 // not know which commands accept a count (dungeon.c decides that), and does not
 // know which direction is remembered (get_dir() keeps that itself).
 
-// The three still live in variable.c at this step (#18-11-7A); they move in here
-// as statics in #18-11-7C. Declared rather than included, so that this module
-// does not pull in the global header -- the same choice as stats.c,
-// object_levels.c and running.c.
-extern int command_count;
-extern bool default_dir;
-extern char last_command;
+// All three are owned here and are static: the only way in is through the
+// thirteen windows below. They came over from variable.c (#18-11-7C) with their
+// initial values -- the old globals were written "int command_count" with no
+// initializer, "bool default_dir = false" and "char last_command = ' '", and a
+// game begins with no count typed, no direction remembered and no command yet.
+//
+// The names follow the windows. The count is a number of repeats left, not a
+// count of anything else; the direction answer is about remembering, not about a
+// default; and the character is the command before this one.
+static int repeats_left = 0;
+static bool direction_remembered = false;
+static char previous_command = ' ';
 
 void begin_command_count(int count) {
-    command_count = count;
+    repeats_left = count;
 }
 
 bool command_is_repeating(void) {
-    return command_count > 0;
+    return repeats_left > 0;
 }
 
 int command_count_remaining(void) {
-    return command_count;
+    return repeats_left;
 }
 
 int take_command_count(void) {
-    int count = command_count;
-    command_count = 0;
+    int count = repeats_left;
+    repeats_left = 0;
     return count;
 }
 
 void consume_command_count(void) {
-    command_count--;
+    repeats_left--;
 }
 
 void cancel_command_count(void) {
-    command_count = 0;
+    repeats_left = 0;
 }
 
 int hold_command_count(void) {
-    return command_count;
+    return repeats_left;
 }
 
 void resume_command_count(int held) {
-    command_count = held;
+    repeats_left = held;
 }
 
 bool direction_is_remembered(void) {
-    return default_dir;
+    return direction_remembered;
 }
 
 void reuse_remembered_direction(void) {
-    default_dir = true;
+    direction_remembered = true;
 }
 
 void ask_for_direction_again(void) {
-    default_dir = false;
+    direction_remembered = false;
 }
 
 void note_command(char command) {
-    last_command = command;
+    previous_command = command;
 }
 
 bool previous_command_was(char command) {
-    return last_command == command;
+    return previous_command == command;
 }

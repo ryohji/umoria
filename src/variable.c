@@ -71,9 +71,11 @@ int16_t dun_level = 0;            // Cur dungeon level
 // It was a count as well as a flag -- zero meant "not running" -- and the
 // hundred-step cut-off went in with it, so the number never leaves the module
 
-bool free_turn_flag;       // Used in MORIA, do not move creatures
-int command_count;         // Gives repetition of commands. -CJS-
-bool default_dir = false;  // Use last direction for repeated command
+bool free_turn_flag; // Used in MORIA, do not move creatures
+// What the game remembers about the command being typed moved to
+// command_state.c (command_count and default_dir, #18-11-7C; last_command went
+// with them from further down this file). All three exist because a command can
+// be given a repeat count, so they went into one module
 
 // options set via the '=' command
 //
@@ -96,7 +98,9 @@ bool display_counts;
 // doing_inven and screen_change have moved out (#18-11-3C): the command waiting
 // to be resumed lives in inven_command_state.c and the "has the screen been
 // flushed" flag in screen_touched.c, both static.
-char last_command = ' '; // Memory of previous command.
+//
+// The command before this one moved to command_state.c as well (last_command,
+// #18-11-7C), next to the repeat count it belongs with
 
 // these used to be in dungeon.c
 // The two flags about the character's light moved to player_light.c: whether a
