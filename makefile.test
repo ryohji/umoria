@@ -40,7 +40,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         str_insert_test inventory_test progress_test score_death_test \
         save_state_test player_pos_test hp_table_test \
         calc_hitpoints_test player_light_test burden_test \
-        check_strength_test calc_spells_test gain_spells_test
+        check_strength_test calc_spells_test gain_spells_test \
+        spells_known_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -673,13 +674,14 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
 	    src/progress.c src/score_death.c src/save_state.c \
 	    src/player_pos.c src/hp_table.c src/burden.c
 
-# 覚えている呪文の出し入れ（misc3.c:1220 の calc_spells）。#18-8 で窓口に
-# 預ける 4 個のうち 3 個を書きかえるのはこの関数だけなのに、単体テストが
-# 1 件も届いていなかった。戻り値が無く、結果は覚えた／忘れた印・メッセージ・
-# py.flags.new_spells にしか現れないので、misc3_stubs.c の代役が記録した
-# メッセージを fixture.h の窓口で読みとる。
+# 呪文を覚えるとき（misc3.c:1374 の gain_spells）。#18-8 で窓口に預ける 4 個の
+# うち、覚えた印（spell_learned）と覚えた順（spell_order）に書き足すのはこの
+# 関数だけなのに、単体テストが 1 件も届いていなかった。戻り値が無く、結果は
+# 覚えた印と覚えた順・メッセージ・py.flags.new_spells・魔力にしか現れないので、
+# misc3_stubs.c の代役が記録したメッセージを fixture.h の窓口で読みとる。
+# どれを覚えるかは代役の get_com に返させる（fixture_set_get_com_keys）。
 #
-# リンク構成は check_strength_test と同じ（misc3.c の未解決シンボルを代役で
+# リンク構成は calc_spells_test と同じ（misc3.c の未解決シンボルを代役で
 # 埋め、呪文の段の表 magic_spell と呪文名 spell_names・py は player.c の
 # 本物を使う）。呪文の 4 個の実体も player.c にあるので足場は要らない。
 $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
@@ -699,6 +701,20 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
 	    src/player_pos.c src/hp_table.c src/burden.c
+
+# 覚えている呪文の置き場（spell_learned・spell_worked・spell_forgotten・
+# spell_order）。ステップ A のあいだ実体は src/player.c にあり、窓口はそれを
+# 指す。player.c をそのままリンクすると呪文の 4 個だけでなく段の表・名前の表・
+# キャラクタ作成の初期値まで付いてくるので、対象 1 本を見るテストには
+# tests/spells_known_fixture.c で 4 つだけ置いた足場を使う（hp_table_test と
+# burden_test がステップ A のあいだ取っていた形と同じ）。ステップ C で実体が
+# src/spells_known.c の static に移ったら、この足場は消える。
+$(BUILDDIR)/spells_known_test: $(TESTDIR)/spells_known_test.c \
+                        $(TESTDIR)/spells_known_fixture.c \
+                        $(TESTDIR)/minunit.h \
+                        src/spells_known.c src/spells_known.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/spells_known_test.c \
+	    $(TESTDIR)/spells_known_fixture.c src/spells_known.c
 
 clean:
 	rm -rf $(BUILDDIR)
