@@ -17,7 +17,7 @@
 
 | | |
 |---|---|
-| ブランチ | **`develop` にいる。作業ブランチは無い。** `refactor/18-8-spells-known`（7 コミット）は `f991144` で `--no-ff` マージ済み、**ユーザーの指示でブランチも削除した**。`refactor/18-7-player-rest`（26 コミット、`85e6b51` でマージ済み）と `docs/18-7-mergelog` は残っている（削除の指示は出ていない）。それ以前のブランチはすべてマージ済み・削除済み。**`origin/develop` は `2db44bd`（最後の fetch 時点）で、そこから `develop` が大きく先行している。push はしていない** |
+| ブランチ | **`develop` にいる。作業ブランチは無い。** `refactor/18-8-spells-known`（7 コミット）は `f991144` で `--no-ff` マージ済み、**ユーザーの指示でブランチも削除した**。`refactor/18-7-player-rest`（26 コミット、`85e6b51`）と `docs/18-7-mergelog` も同じ指示で削除した。**ローカルに残っているブランチは `develop` だけ**。**`origin/develop` は `2db44bd`（最後の fetch 時点）で、そこから `develop` が大きく先行している。push はしていない** |
 | 警告 | **0 件**（`make clean && make`） |
 | テスト | **685 件グリーン**（30 実行形式。`calc_spells_test` 17・`gain_spells_test` 13・`spells_known_test` 43 を追加） |
 | `externs.h` の global | **67 個・参照 1808**（着手時 112・3147。2026-09-24 に呪文 4 個が `src/spells_known.c` の `static` になった） |
