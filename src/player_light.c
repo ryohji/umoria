@@ -4,8 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Whether the character is carrying a light that is still burning: where the
-// answer lives
+// What is remembered about the character's light: where the answers live
 
 #include "config.h"
 #include "constant.h"
@@ -29,4 +28,19 @@ bool player_has_light(void) {
 
 void set_player_has_light(bool lit) {
     player_light = lit;
+}
+
+// Whether the glow is on the map. In this step the flag is still the global
+// light_flag (variable.c), so that exactly one copy of it exists while the eight
+// places in moria1.c and moria2.c move over to the windows one at a time;
+// #18-11-1C brings the storage in here and makes it static. Declared here rather
+// than through externs.h for the reason given above.
+extern bool light_flag;
+
+bool player_light_is_drawn(void) {
+    return light_flag;
+}
+
+void set_player_light_drawn(bool drawn) {
+    light_flag = drawn;
 }

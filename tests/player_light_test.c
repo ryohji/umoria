@@ -1,4 +1,9 @@
-/* 明かりを持っているかどうかの置き場のテスト -- 現在のふるまいを保護する
+/* 明かりについて覚えている 2 つの答えの置き場のテスト -- 現在のふるまいを保護する
+ *
+ * 2 つとは「明かりが燃えているか」（player_has_light）と「その輪がいま地図に
+ * 描かれているか」（player_light_is_drawn。#18-11-1 で足した）。**別の問い**で、
+ * 読む場所（move_light、moria1.c）が同じなので 1 本の module に同居している。
+ * 食いちがう場合が 2 つあることは第 3 節で固定する。
  *
  * ここにも計算は無い。player_light は旗 1 本で、保護するのは「置き場としての
  * ふるまい」に尽きる。それでも固定しておきたい性質が 3 つある。
@@ -88,9 +93,65 @@ TEST(setting_the_dark_twice_leaves_it_dark) {
     ASSERT_TRUE(!player_has_light());
 }
 
+/* --- 明かりの輪が地図に描かれているか（#18-11-1）----------------------- */
+
+/* 走りだしは「描かれていない」。変更前の bool light_flag（variable.c:105）も
+ * 初期値を書いていないので false から始まる。この 1 件も main() の先頭。 */
+TEST(the_glow_starts_out_undrawn) {
+    ASSERT_TRUE(!player_light_is_drawn());
+}
+
+TEST(a_drawn_glow_is_remembered) {
+    set_player_light_drawn(true);
+    ASSERT_TRUE(player_light_is_drawn());
+}
+
+TEST(an_erased_glow_is_remembered) {
+    set_player_light_drawn(true);
+    set_player_light_drawn(false);
+    ASSERT_TRUE(!player_light_is_drawn());
+}
+
+/* 輪は描きなおされる（歩くたびに前の位置から消して新しい位置に置く）。 */
+TEST(the_glow_can_be_drawn_again_after_being_erased) {
+    set_player_light_drawn(false);
+    set_player_light_drawn(true);
+    ASSERT_TRUE(player_light_is_drawn());
+}
+
+/* 読んでも消えない。sub1_move_light() は 1 度の呼びだしの中で 2 度読む
+ * （前の位置を消すときと、新しい位置に置くとき）。 */
+TEST(asking_twice_gives_the_same_glow) {
+    set_player_light_drawn(true);
+    (void)player_light_is_drawn();
+    ASSERT_TRUE(player_light_is_drawn());
+}
+
+/* --- 2 つの答えは別物 --------------------------------------------------- */
+
+/* **ここがこの節の要**。2 つの窓口が同じ置き場を指していたら（書きまちがい
+ * でも、あとの整理でうっかり片方を消しても）、以下の 2 件が落ちる。 */
+
+/* 明かりは燃えているのに輪は描かれていない —— 走っているとき
+ * （find_prself が偽なら、輪が画面を横切ってちらつかないように置かない）。 */
+TEST(a_burning_light_can_leave_no_glow_on_the_map) {
+    set_player_has_light(true);
+    set_player_light_drawn(false);
+    ASSERT_TRUE(player_has_light());
+}
+
+/* 逆向き。明かりが消えた（または目が見えなくなった）直後は、前の turn に
+ * 置いた輪がまだ地図にあり、それを消すのは sub3_move_light() の仕事。 */
+TEST(a_glow_can_outlive_the_light_that_made_it) {
+    set_player_light_drawn(true);
+    set_player_has_light(false);
+    ASSERT_TRUE(player_light_is_drawn());
+}
+
 int main(void) {
-    /* 走りだしの状態を見る 1 件を最初に。以降のテストが書きこむ。 */
+    /* 走りだしの状態を見る 2 件を最初に。以降のテストが書きこむ。 */
     RUN_TEST(the_character_starts_out_without_a_light);
+    RUN_TEST(the_glow_starts_out_undrawn);
 
     RUN_TEST(a_burning_light_is_remembered);
     RUN_TEST(a_light_that_has_gone_out_is_remembered);
@@ -99,6 +160,14 @@ int main(void) {
 
     RUN_TEST(setting_the_light_twice_leaves_it_lit);
     RUN_TEST(setting_the_dark_twice_leaves_it_dark);
+
+    RUN_TEST(a_drawn_glow_is_remembered);
+    RUN_TEST(an_erased_glow_is_remembered);
+    RUN_TEST(the_glow_can_be_drawn_again_after_being_erased);
+    RUN_TEST(asking_twice_gives_the_same_glow);
+
+    RUN_TEST(a_burning_light_can_leave_no_glow_on_the_map);
+    RUN_TEST(a_glow_can_outlive_the_light_that_made_it);
 
     return TEST_SUMMARY();
 }

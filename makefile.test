@@ -307,8 +307,13 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # #18-7-3C1 で実体も player_light.c の static になったので、creature_stubs.c から
 # 代役 1 個を消した（残すと窓口越しの読み書きが届かない別の器になる。
 # player_pos.c・inventory.c と同じ）。この 1 本が窓口と置き場の両方になっている。
+#
+# #18-11-1 で player_light.c が 2 つめの旗（明かりの輪が描かれているか）の窓口を
+# 持ち、その実体がまだ variable.c の light_flag なので、足場
+# （tests/lamp_glow_fixture.c）も要る。**#18-11-1C で実体が入ったら消す。**
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
+                                $(TESTDIR)/lamp_glow_fixture.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                 src/creature.c src/inventory.c \
                                 src/equipment.h src/inventory.h \
@@ -316,7 +321,8 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/player_pos.c src/player_light.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
-	    src/score_death.c src/player_pos.c src/player_light.c
+	    src/score_death.c src/player_pos.c src/player_light.c \
+	    $(TESTDIR)/lamp_glow_fixture.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -640,15 +646,19 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
 	    src/progress.c src/score_death.c src/save_state.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c
 
-# 明かりを持っているかどうかの置き場（player_light）。#18-7-3C1 で実体が
-# src/player_light.c の static になったので、ステップ A のあいだ要った足場
-# （tests/player_light_fixture.c）は消えた。窓口は誰も呼ばないので代役も 1 つも
-# 要らず、リンクは対象 1 本＋テスト 1 本の 2 コンパイル単位で足りる
-# （progress_test・score_death_test・player_pos_test・hp_table_test と同じ形）。
+# 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
+# （明かりが燃えているか）は #18-7-3C1 で実体が src/player_light.c の static に
+# なったので、そのとき要った足場（tests/player_light_fixture.c）は消えた。
+# 2 つめ（明かりの輪が地図に描かれているか）は #18-11-1 で足したところで、
+# **実体はまだ variable.c の light_flag** なので足場が 1 つ要る
+# （tests/lamp_glow_fixture.c。#18-11-1C で実体が入ったら消す）。
+# 代役は 1 つも要らない。
 $(BUILDDIR)/player_light_test: $(TESTDIR)/player_light_test.c \
                                $(TESTDIR)/minunit.h \
+                               $(TESTDIR)/lamp_glow_fixture.c \
                                src/player_light.c src/player_light.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_light_test.c src/player_light.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_light_test.c src/player_light.c \
+	    $(TESTDIR)/lamp_glow_fixture.c
 
 # 重さに負けているかどうかの判定（misc3.c:975 の check_strength と
 # misc3.c:957 の inven_check_weight）。2 つの答えを書く唯一の場所で、
