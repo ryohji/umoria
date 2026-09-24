@@ -226,7 +226,7 @@ $ cd data && TERM=xterm ../umoria
 | 15 | **完了** | 重複コード | render_ncurses.h, input_ncurses.h, backend_ncurses.h | 同じ2関数宣言を持つヘッダが3つ。実利用者 platform.c は backend_ncurses.h のみ使う | 宣言の一元化 | Medium | Low |
 | 16 | **完了** | 理解しづらいロジック | io.c:207-224 | `wait_for_more_confirmation` が `goto inkey` + switch。**読みにくさの原因は `case` の列挙ではなく、ラベル名（関数 `inkey()` と同名）と `default` の位置だった。** ラベルを `retry` に改め、`default` を後置してコメントを補った。`case` で受理文字を並べる形は「集合の宣言」として読めるので残した | ラベル改名 + 分岐の並べ替え | Medium | Low |
 | 17 | **検証済み** | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
-| 18 | データの散在 | `externs.h` の 56 個（着手時 112。misc3.c:369-540, dungeon.c:580-780 ほか） | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 に分散。**2026-09-09 に全体像を計測 → [GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)** | 区分ごとに分割して着手（下記）。**9 区分のうち 8 つ完了** —— オプション 11 個・メッセージ 4 個・パネル 10 個・店 2 個・**持ち物・アイテム 6 個（2026-09-24 に `object_ident` → `src/item_ident.c`（#18-9）、`sorted_objects` ＋ `t_level` → `src/object_levels.c`（#18-10）で区分ごと閉じた。後者は台帳の区分をまたいだ 1 つの表だった）**・セーブ／スコア／進行メタ 13 個（区分に残るのは `highscore_fp` 1 個。**その 1 個も 2026-09-16 に `death.c` の 2 関数の局所変数にしたが、`init_scorefile()` のために `externs.h` には残る** → バグ候補 B19）。7 区分目「プレイヤー状態 13 個」に着手し、**2026-09-23 に居場所 2 個（`char_row` `char_col`）を `src/player_pos.c` へ**（→ #18-6）、**2026-09-24 に 4 群 6 個**（勝ちと最高得点 → `score_death.c`、レベルごとの HP 表 → `hp_table.c`、明かりの有無 → `player_light.c`、重さ 2 個 → `burden.c`。→ #18-7）、**同日に呪文 4 個を `src/spells_known.c` へ**（→ #18-8）。**区分に残るのは `py` 1 個**（552 参照。1 本の module にはならず、問い単位の窓口で別に進める）。8 区分目「コマンド入力・実行中のフラグ 13 個」に着手し、**2026-09-25 に `light_flag` を `src/player_light.c` へ**（13 → 12 個。→ #18-11-1）、**同日に `missile_ctr` を新設 `src/missile_serial.c` へ**（12 → 11 個。折りかえしの計算を窓口の内側に隠した。→ #18-11-2）、**同日に `doing_inven` ＋ `screen_change` を新設 `src/inven_command_state.c` と `src/screen_touched.c` へ**（11 → 9 個。読み手で 2 本に分け、「中断」という 1 つの行いだけ 1 本の窓口に隠した。→ #18-11-3）、**同日に `new_level_flag` ＋ `teleport_flag` を新設 `src/level_exit.c` と `src/pending_teleport.c` へ**（9 → 7 個。`dun_level` と対で動く形を窓口にし、上限・下限は呼ぶ側に残した。→ #18-11-4）、**同日に `eof_flag` を新設 `src/input_ended.c` へ**（7 → 6 個。「100 回まで我慢する」という数の規則を窓口の内側に隠した。→ #18-11-5）、**同日に `find_flag` を新設 `src/running.c` へ**（6 → 5 個。この区分でいちばん参照が多かった 1 個。25 参照・6 ファイルが同じ 1 つの問いを訊いていた。「100 歩で息切れ」は内側に、止めたあとの画面の後始末は呼ぶ側に残した。→ #18-11-6） | High | 区分ごと |
+| 18 | データの散在 | `externs.h` の 53 個（着手時 112。misc3.c:369-540, dungeon.c:580-780 ほか） | プレイヤー状態値が py.misc / PY_* ビット / 画面座標 に分散。**2026-09-09 に全体像を計測 → [GLOBALS_INVENTORY.md](GLOBALS_INVENTORY.md)** | 区分ごとに分割して着手（下記）。**9 区分のうち 8 つ完了** —— オプション 11 個・メッセージ 4 個・パネル 10 個・店 2 個・**持ち物・アイテム 6 個（2026-09-24 に `object_ident` → `src/item_ident.c`（#18-9）、`sorted_objects` ＋ `t_level` → `src/object_levels.c`（#18-10）で区分ごと閉じた。後者は台帳の区分をまたいだ 1 つの表だった）**・セーブ／スコア／進行メタ 13 個（区分に残るのは `highscore_fp` 1 個。**その 1 個も 2026-09-16 に `death.c` の 2 関数の局所変数にしたが、`init_scorefile()` のために `externs.h` には残る** → バグ候補 B19）。7 区分目「プレイヤー状態 13 個」に着手し、**2026-09-23 に居場所 2 個（`char_row` `char_col`）を `src/player_pos.c` へ**（→ #18-6）、**2026-09-24 に 4 群 6 個**（勝ちと最高得点 → `score_death.c`、レベルごとの HP 表 → `hp_table.c`、明かりの有無 → `player_light.c`、重さ 2 個 → `burden.c`。→ #18-7）、**同日に呪文 4 個を `src/spells_known.c` へ**（→ #18-8）。**区分に残るのは `py` 1 個**（552 参照。1 本の module にはならず、問い単位の窓口で別に進める）。8 区分目「コマンド入力・実行中のフラグ 13 個」に着手し、**2026-09-25 に `light_flag` を `src/player_light.c` へ**（13 → 12 個。→ #18-11-1）、**同日に `missile_ctr` を新設 `src/missile_serial.c` へ**（12 → 11 個。折りかえしの計算を窓口の内側に隠した。→ #18-11-2）、**同日に `doing_inven` ＋ `screen_change` を新設 `src/inven_command_state.c` と `src/screen_touched.c` へ**（11 → 9 個。読み手で 2 本に分け、「中断」という 1 つの行いだけ 1 本の窓口に隠した。→ #18-11-3）、**同日に `new_level_flag` ＋ `teleport_flag` を新設 `src/level_exit.c` と `src/pending_teleport.c` へ**（9 → 7 個。`dun_level` と対で動く形を窓口にし、上限・下限は呼ぶ側に残した。→ #18-11-4）、**同日に `eof_flag` を新設 `src/input_ended.c` へ**（7 → 6 個。「100 回まで我慢する」という数の規則を窓口の内側に隠した。→ #18-11-5）、**同日に `find_flag` を新設 `src/running.c` へ**（6 → 5 個。この区分でいちばん参照が多かった 1 個。25 参照・6 ファイルが同じ 1 つの問いを訊いていた。「100 歩で息切れ」は内側に、止めたあとの画面の後始末は呼ぶ側に残した。→ #18-11-6）、**同日に `command_count` ＋ `default_dir` ＋ `last_command` を新設 `src/command_state.c` へ**（5 → 2 個。この区分でいちばん参照が多い単位。57 参照・8 ファイル。3 個とも「コマンドに繰りかえしの回数を付けられる」ことから出ているので 1 本にまとめ、「数を受けとって終わりにする」5 か所と「退避して戻す」3 か所を窓口の内側に入れた。→ #18-11-7）。**この区分は 13 個のうち 11 個が閉じ、残る 2 個（`free_turn_flag`・`closing_flag`）はふるまいの判断が要る** | High | 区分ごと |
 | 42 | 未着手 | 肥大化クラス／モジュール | misc3.c の残る **10 塊**（→ 上記「#33 の精査」） | 配置 161 行／描画 475 行／能力値の変更 115 行／名前 50 行／持ち物 210 行／呪文 525 行／経験値 82 行／wizard 18 行／戦闘 120 行／移動 118 行 | モジュール分割（1 塊 1 コミット。終点は misc3.c が無くなるところ） | High | High |
 
 ### #18 の全体像（2026-09-09 に計測）
@@ -1439,6 +1439,98 @@ state->find_flag         →  running_steps();     // 写しとりだけが生�
 緑のまま** —— 「暗くても隣のモンスターに気づく」を見るテストが 1 本も無いから
 （#18-11-5B の `io.c` と同じ形。この単位で埋めるものではない）。
 
+### #18-11-7 打っているコマンドの覚え 3 個を module に入れた（2026-09-25 完了）
+
+`command_count`（41 参照）・`default_dir`（4 参照）・`last_command`（3 参照）の
+**3 個で 1 単位**。同じ区分の 7 番目で、**この区分でいちばん参照が多い単位**
+（57 か所・8 ファイル。`free_turn_flag` を除けば最大）。**3 個を 1 本の module に
+まとめるかと、くりかえし出てくる 2 つの言いまわしを窓口の内側に入れるかは
+ユーザーが決めた。**
+
+| | 着手前 | 完了後 |
+|---|---:|---:|
+| `externs.h` の global | 56 | **53** |
+| 区分「コマンド入力・実行中のフラグ」 | 5 個・参照 140 | **2 個・参照 83** |
+| テスト | 796 件・38 実行形式 | **811 件・39 実行形式**（新設 1 本。15 件） |
+| リンク構成の変化 | —— | **9 本**（`misc3.c` を引く規則すべて） |
+
+| 段 | 何をしたか |
+|---|---|
+| A `e137308` | `src/command_state.{c,h}`、窓口 13 個、テスト 15 件。ビルド定義 3 つ。足場 1 つ |
+| B `24de461` | 57 か所を窓口越しに（`dungeon.c` 27・`moria1.c` 6・`io.c` 5・`misc3.c` 3・`game_state.c` 2・`moria2.c` 1・`moria3.c` 1・`moria4.c` 1）。`misc3.c` を引く 9 本に 1 単位ずつ足し、代役が 2 つ増えた |
+| C `56383f7` | 実体を `static` 3 つ（`repeats_left` `direction_remembered` `previous_command`）へ。`externs.h` から 3 行、足場 1 つと代役 3 つも消えた |
+
+**3 個を 1 本にした根拠は「1 つのことから出ている」。** #18-11-3 と #18-11-4 は
+読み手が違うので module を 2 本に分けたが、この 3 個は**どれも「コマンドに
+繰りかえしの回数を付けられる」という仕組みの部品**だった —— 回数、その回数で
+2 周目以降を回すときに向きを訊きなおさないための答え、そして直前に打った
+コマンド（`^P` と `V` が「2 回続けて押されたか」を見る）。3 つ全部を回すのは
+`dungeon.c` の main loop だけで、ほかの 7 ファイルはどれか 1 つを訊く。
+
+**窓口は 13 個。** 回数 8・向き 3・前のコマンド 2。
+
+```c
+command_count = i;         →  begin_command_count(i);
+if (command_count > 0)     →  if (command_is_repeating());
+command_count              →  command_count_remaining();   // 表示・写しとり
+i = command_count;         →  i = take_command_count();     // 受けとって終わり
+command_count = 0;            （5 か所が書いていた 2 行）
+command_count--;           →  consume_command_count();
+command_count = 0;         →  cancel_command_count();
+int save = command_count;  →  int save = hold_command_count();
+command_count = save;      →  resume_command_count(save);
+if (default_dir)           →  if (direction_is_remembered());
+default_dir = true;        →  reuse_remembered_direction();
+default_dir = false;       →  ask_for_direction_again();
+last_command = com_val;    →  note_command(com_val);
+last_command != 'V'        →  !previous_command_was('V');
+```
+
+**「数を受けとって終わりにする」を 1 本にした。** `^P`・`^G`・`^D`・`'+'`・
+`rest()` の 5 か所が同じ 2 行（読んで 0 に戻す）を書いていた。この 5 つは回数を
+「繰りかえす回数」ではなく**数として**使う —— いくつ前の message まで見るか、
+いくつ物を出すか、どの階へ行くか、経験値をいくつにするか、何 turn 休むか。
+`take_command_count()` の 1 行になった。**clamp は呼び手に残した**（`^P` の
+`MAX_SAVE_MSG`、`^D` の「99 超は 0」。理由が窓口の外にある → 所見 24）。
+副産物として `^D` の分岐が 1 つ減った（`if-else` で `i` を 2 通りに置いていたのが
+「受けとってから 99 超なら 0」になった）。
+
+**「退避して戻す」は値を呼び手に返す形にした。** 3 か所（`io.c` の
+`count_msg_print()`、`moria1.c` の `get_dir()`、`dungeon.c` の `-` の hack）が
+同じ形を書いていたが、**外側の 2 つは入れ子になる** —— `-` が回数を抱えたまま
+`get_dir()` を呼び、その `get_dir()` がまた抱える。module の中に置き場を 1 つ
+持つ形にすると内側の戻しが外側を上書きして壊れる（→ 台帳の所見 27）。テストの
+`held_counts_can_nest` がそれを押さえている。
+
+**`running.c` と違って「忘れる」窓口は作らなかった。** `find_flag` では階の
+始まりの 0 埋めを `forget_run()` として分けたが（誰も走っていないので打ち切りでは
+ない）、回数のほうは**階段を越えて生きのびられる** —— `dungeon()` の先頭の
+`command_count = 0` は、前の階から持ちこまれた繰りかえしを本当に取り消している。
+だから `cancel_command_count()` と同じもので、窓口は分けていない。**似た形を
+見たら「変更前に打ち切られる何かがあったか」で決める。**
+
+**持ちこまなかったものが 2 つ。** 覚えた向きそのもの（`get_dir()` の
+`static prev_dir`）は、それを読む prompt の隣に残した —— 歩数を数える module が
+`find_direction` を引きとらなかったのと同じ（→ 所見 26）。前のコマンドの
+**文字も窓口の外に出ない** —— 読み手 2 つはどちらも「自分と同じキーだったか」しか
+訊かないので、`previous_command_was(char)` だけを開けた。
+
+**リンクの税は 9 本**で、すべて `src/misc3.c` を引く規則（`prt_state()` が
+"Repeat N" を出すために回数を読む）。この区分ではいちばん重い税だが、税が
+かかる本数と**テストが届いている度合いは別**で、9 本のどれも `prt_state()` を
+呼んでいない（P3 #49 の形）。
+
+**変異は 7 通り**（A で 2・B で 2・C で 3）。`take_command_count()` が 0 に
+戻さないようにすると 1 件 RED、退避を module の中の 1 つの置き場にすると 1 件 RED、
+`command_is_repeating()` を常に真にすると 5 件 RED、`ask_for_direction_again()` が
+覚えたままにすると 2 件 RED、実体を狭めると `repeats_left` → `bool` で 5 件・
+`previous_command` → `bool` で 3 件 RED、向きの初期値を反対にすると 1 件 RED。
+
+**これで「コマンド入力・実行中のフラグ」13 個のうち 11 個が閉じた。** 残る 2 個は
+どちらも #18 では触らない —— `free_turn_flag`（80 参照）は `do_command()` が
+「turn を使ったか」を呼び手に返していないという**戻り値の問題**で、`closing_flag`
+は誰も読んでいない（バグ候補 B20）。
+
 ### #16 で浮上した課題：`wait_for_more` グローバルフラグ（2026-08-28）
 
 `wait_for_more`（`variable.c:102`）は「`-more-` プロンプト表示中に `^C` が押されたら、
@@ -2464,3 +2556,6 @@ comment3a（売却・最終）: "I'll pay no more than %A1; take it or leave it.
 | 2026-09-25 | #18-11-6A | **変更**：走っているか／何歩走ったか（`find_flag` 25 参照・6 ファイル）に **module 1 本**を新設し、窓口 6 つとテスト 10 件を足した（`d7b8107`。新しい実行形式 `running_test`、全体 786 → 796・37 → 38 本）。安い順では最後だが、**この区分でいちばん参照が多かった 1 個**（ユーザーの順の D）。`eof_flag` と同じ「旗と名のついた `int`」で、0 が「走っていない」・それ以外が歩数という二役。窓口は問いごとに 6 つ（`begin_run` / `player_is_running` / `stop_running` / `forget_run` / `keep_running` / 写しとり用の `running_steps`）。**「階の始まりに忘れる」を「止める」と分けた** —— 後者では走りが打ち切られておらず、画面の後始末も続かない（`begin_level()`・`forget_pending_teleport()` の隣に並ぶ 3 行目）。**息切れの 100 歩は窓口の内側**（ユーザーが決めた。読み手 1 つ、数える唯一の理由がこれ。#18-11-5 と同じ判断 → 所見 25）。**「もう走れない」と言うだけで止めはしない**（止めると message の無い止まりかたが生まれる）。**止めたあとの画面の後始末も窓口に入れない**（`end_find()` の `move_light()` と `disturb()` の `check_view()`）。足場 1 つ、ビルド定義 3 つとも足した。変異は 2 通り —— 境目を 1 つずらすと **2 件レッド**、走りだしを 2 歩目からにすると **4 件レッド** | 796 | GREEN |
 | 2026-09-25 | #18-11-6B | **変更**：直に触っていた 25 か所を窓口越しに（`bb595b1`）。`moria2.c` 6・`moria1.c` 5・`dungeon.c` 5・`moria3.c` 4・`creature.c` 1・`misc1.c` 1・`game_state.c` の写しとり 1。**100 という数は `src/running.c` の中だけになった**（`find_run()` は「まだ走れるか」を訊くだけ）。**止めかたが 2 通りあるのはそのまま残した** —— 形は字面まで同じでも続きが違う（片方は光の輪、片方は視界。どちらも画面の話で走りの話ではない → 所見 26）。**別名 1 件が名前つきの局所変数になった** —— `moria3.c` の `int old_find_flag` は真偽しか読んでいなかったので `bool was_running`。**リンク構成は 1 本だけ動いた** —— `moria1.c`・`moria2.c`・`moria3.c`・`dungeon.c`・`misc1.c`・`game_state.c` はどの実行形式もリンクしていないので、税がかかったのは `creature.c` を丸ごと `#include` する `movement_rate_test` の 1 本。#18-11-2B・#18-11-5B と同じ形なので**先に数えてから足した**。変異は 1 通り —— `player_is_running()` を常に真にすると **3 件レッド**。いっぽう `creature.c` の「暗くても隣のモンスターに気づく」を壊しても **`movement_rate_test` は緑のまま**（P3 #49。`creature.c` はリンクされているがこの経路を通るテストが 1 件も無い） | 796 | GREEN |
 | 2026-09-25 | #18-11-6C | **変更**：実体を `variable.c` から `static int run_steps` へ移し、`externs.h` の宣言 1 行を消した（`8b2f432`。名前は窓口に合わせた —— 旗ではなく歩数）。**6 → 5 個・参照 165 → 140、全体は 57 → 56 個・参照 1698 → 1673**。足場 `tests/running_fixture.c` と**代役 1 つ**（`creature_stubs.c:51`）も消した。`running_test` は **2 単位・代役 0** の最小形。`scripts/globals.py` の区分一覧に残るのは `free_turn_flag` と `closing_flag` の 2 つで、**どちらも #18 では触らない**（前者は戻り値の問題、後者はバグ候補 B20）。**「コマンド入力・実行中のフラグ」は 13 個から 5 個になり、包める 8 個は全部包んだ。** 変異は**幅を狭める手が効かない**（使う数は 101 までなので `int8_t` でも足りる）ので初期値を 1 にする 1 通りで **1 件レッド**。`nm` で `b run_steps`（局所）であること、`find_flag` が実行形式に**1 つも残っていない**ことを確認した | 796 | GREEN |
+| 2026-09-25 | #18-11-7A | **変更**：打っているコマンドについて覚えていること 3 個（`command_count` 41 参照・`default_dir` 4・`last_command` 3。計 57 か所・8 ファイル）に **module 1 本**を新設し、窓口 13 個とテスト 15 件を足した（`e137308`。新しい実行形式 `command_state_test`、全体 796 → 811・38 → 39 本）。**3 個を 1 本にまとめるのはユーザーの判断** —— どれも「コマンドに繰りかえしの回数を付けられる」ことから出ていて、3 つ全部を回すのは `dungeon.c` の main loop だけ（ほかの 7 ファイルはどれか 1 つを訊く）。**くりかえし出てくる 2 つの言いまわしを窓口の内側に入れるのもユーザーが決めた** —— 「数を受けとって終わりにする」（5 か所が同じ 2 行を書いていた）と「退避して戻す」（3 か所）。後者は**値を呼び手に返す形**にした —— `dungeon.c` の `-` の hack と `get_dir()` が**入れ子で抱える**ので、module の中に置き場を 1 つ持つと内側の戻しが外側を壊す（→ 所見 27。テストの `held_counts_can_nest`）。**clamp は呼び手に残す**（`^P` の `MAX_SAVE_MSG`、`^D` の 99 → 所見 24）。**`running.c` と違って「忘れる」窓口は作らない** —— 回数は階段を越えて生きのびられるので、階の始まりの 0 埋めは本当の取り消し。覚えた向きそのもの（`get_dir()` の `static prev_dir`）と前のコマンドの文字は**窓口の外に出さない**。足場 1 つ、ビルド定義 3 つとも足した。変異は 2 通り —— 受けとっても 0 に戻さないと **1 件レッド**、退避を module の中の 1 つの置き場にすると **1 件レッド** | 811 | GREEN |
+| 2026-09-25 | #18-11-7B | **変更**：直に触っていた 57 か所を窓口越しに（`24de461`）。`dungeon.c` 27・`moria1.c` 6・`io.c` 5・`misc3.c` 3・`game_state.c` 2・`moria2.c` 1・`moria3.c` 1・`moria4.c` 1。**「受けとって 0 に戻す」2 行が 5 か所から消え**、`^D` は分岐が 1 つ減った（`if-else` で `i` を 2 通りに置いていたのが「受けとってから 99 超なら 0」に）。**`last_command` の文字を取りだす読み手は 1 つも無くなった**（`!previous_command_was(...)` 2 か所だけ）。`dungeon.c:809` の `else if (command_count)` だけ真偽の書きかたが違ったので `command_is_repeating()`（`> 0`）に寄せた —— 負の回数でしか差が出ず、回数は 0..999 を読む 1 か所から入り非 0 のときしか減らないので到達しない（`moria4.c` の `== 0` も同じ）。**リンク税は 9 本**で、すべて `src/misc3.c` を引く規則（`prt_state()` が "Repeat N" のために回数を読む）。この段では**代役が 2 つ増えた**（`misc3_stubs.c` に `default_dir` と `last_command`。`command_count` は前からある）。変異は 2 通り —— `command_is_repeating()` を常に真にすると **5 件レッド**、`ask_for_direction_again()` が覚えたままにすると **2 件レッド**。いっぽう `misc3.c` を引く 9 本は緑のまま（P3 #49。`prt_state()` の "Repeat" 表示を見るテストが 1 本も無い） | 811 | GREEN |
+| 2026-09-25 | #18-11-7C | **変更**：実体を `variable.c` から `static` 3 つへ移し、`externs.h` の宣言 3 行を消した（`56383f7`。名前は窓口に合わせた —— `repeats_left` `direction_remembered` `previous_command`）。**5 → 2 個・参照 140 → 83、全体は 56 → 53 個・参照 1673 → 1616**。足場 `tests/command_state_fixture.c` と**代役 3 つ**（`misc3_stubs.c`）も消した。`command_state_test` は **2 単位・代役 0** の最小形。`misc3.c` を引く 9 本が `src/command_state.c` をリンクする行はそのまま要る（実体がいまその中にある）。**「コマンド入力・実行中のフラグ」は 13 個から 2 個になり、包める 11 個は全部包んだ** —— 残る `free_turn_flag`（80 参照）は戻り値の問題、`closing_flag` はバグ候補 B20 で、どちらも #18 では触らない。変異は 3 通り（**実体の幅を狭める手が 2 つ効いた**）—— `repeats_left` → `bool` で **5 件レッド**、`previous_command` → `bool` で **3 件レッド**、向きの初期値を反対にして **1 件レッド**。`nm` で 3 つが局所（`b`/`d`）であること、古い名前が実行形式に**1 つも残っていない**ことを確認した | 811 | GREEN |
