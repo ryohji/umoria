@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "equipment.h"
+#include "inven_command_state.h"
 #include "inventory.h"
 #include "panel.h"
 #include "player_light.h"
@@ -682,8 +683,8 @@ void dungeon(void) {
                         end_find();
                     }
                     put_qio();
-                } else if (doing_inven) {
-                    inven_command(doing_inven);
+                } else if (pending_inven_command()) {
+                    inven_command(pending_inven_command());
                 } else {
                     // move the cursor to the players character
                     move_cursor_relative(player_row(), player_col());

@@ -18,6 +18,7 @@
 #include "messages.h"
 #include "render.h"
 #include "save_state.h"
+#include "screen_touched.h"
 #include "score_death.h"
 
 #define use_value2
@@ -41,7 +42,7 @@ void put_buffer(const char *out_str, int row, int col) {
 // Dump the IO buffer to terminal -RAK-
 void put_qio(void) {
     // Let inven_command know something has changed.
-    screen_change = true;
+    note_screen_flushed();
 
     render_refresh();
 }

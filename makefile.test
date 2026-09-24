@@ -249,6 +249,15 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
 # 店の記録も src/stores.c 越しになった。こちらも依存が無いので本物をリンクする
 # （値切りは s_ptr の中身を読むだけで、記録の置き場には関心が無い）。
 # 居場所の窓口 src/player_pos.c も同じ（#18-6B5。misc3.c が呼ぶ）。
+#
+# #18-11-3B で store2.c が「再開する持ち物コマンド」を窓口越しに読むように
+# なったので src/inven_command_state.c を足した。その窓口の中断側が
+# screen_touched.h を呼ぶので src/screen_touched.c も付いてくる（中断は 2 つで
+# 1 つの行いなので、module を 2 本に分けてもリンクは 2 本で 1 組）。実体はまだ
+# variable.c にあり、このテストは variable.c をリンクしないので:
+# doing_inven は haggle_comment_test.c:47 が持っているそのままを使い、
+# screen_change だけ足場（tests/screen_touched_fixture.c）で埋める。
+# **#18-11-3C で実体が入ったら、その足場と :47 の定義の両方を消す。**
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -262,13 +271,19 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/player_pos.c src/hp_table.c \
                                  src/burden.c src/burden.h \
                                  src/spells_known.c src/spells_known.h src/item_ident.c src/item_ident.h \
-                            src/object_levels.c src/object_levels.h | $(BUILDDIR)
+                            src/object_levels.c src/object_levels.h \
+                                 src/inven_command_state.c \
+                                 src/inven_command_state.h \
+                                 src/screen_touched.c src/screen_touched.h \
+                                 $(TESTDIR)/screen_touched_fixture.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
+	    src/inven_command_state.c src/screen_touched.c \
+	    $(TESTDIR)/screen_touched_fixture.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -308,16 +323,24 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # #18-7-3C1 で実体も player_light.c の static になったので、creature_stubs.c から
 # 代役 1 個を消した（残すと窓口越しの読み書きが届かない別の器になる。
 # player_pos.c・inventory.c と同じ）。この 1 本が窓口と置き場の両方になっている。
+#
+# #18-11-3B で creature.c が「画面が流された」を窓口越しに知らせるように
+# なったので src/screen_touched.c もリンクする（5 → 6 コンパイル単位）。実体は
+# まだ variable.c なので、screen_change の器は creature_stubs.c:57 にある
+# そのままを使う。**#18-11-3C で実体が入ったら、その代役を消す**（残すと
+# 窓口越しの読み書きが届かない別の器になる。上の 3 件と同じ）。
 $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 $(TESTDIR)/creature_stubs.c \
                                 $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
                                 src/creature.c src/inventory.c \
                                 src/equipment.h src/inventory.h \
                                 src/progress.c src/score_death.c \
-                                src/player_pos.c src/player_light.c | $(BUILDDIR)
+                                src/player_pos.c src/player_light.c \
+                                src/screen_touched.c src/screen_touched.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/inventory.c src/progress.c \
-	    src/score_death.c src/player_pos.c src/player_light.c
+	    src/score_death.c src/player_pos.c src/player_light.c \
+	    src/screen_touched.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部

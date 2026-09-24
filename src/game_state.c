@@ -11,12 +11,14 @@
 #include "burden.h"
 #include "constant.h"
 #include "externs.h"
+#include "inven_command_state.h"
 #include "inventory.h"
 #include "missile_serial.h"
 #include "panel.h"
 #include "player_light.h"
 #include "progress.h"
 #include "save_state.h"
+#include "screen_touched.h"
 #include "score_death.h"
 #include "stores.h"
 #include "messages.h"
@@ -101,8 +103,8 @@ GameState *game_state_init(void) {
     state->free_turn_flag = free_turn_flag;
     state->weapon_heavy = weapon_is_too_heavy();
     state->pack_heavy = pack_speed_penalty();
-    state->doing_inven = doing_inven;
-    state->screen_change = screen_change;
+    state->doing_inven = pending_inven_command();
+    state->screen_change = screen_was_flushed();
     state->eof_flag = eof_flag;
     state->noscore = score_disqualifications();
     state->panic_save = is_panic_save();

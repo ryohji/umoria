@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "inven_command_state.h"
 #include "inventory.h"
 #include "stores.h"
 #include "messages.h"
@@ -1047,7 +1048,7 @@ void enter_store(int store_num) {
 
                     do {
                         inven_command(command);
-                        command = doing_inven;
+                        command = pending_inven_command();
                     } while (command);
 
                     // redisplay store prices if charisma changes
