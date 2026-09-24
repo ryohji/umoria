@@ -23,6 +23,7 @@
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
+#include "spells_known.h"
 #include "stats.h"
 
 static const char *stat_names[] = {
@@ -1107,11 +1108,11 @@ void print_spells(int *spell, int num, int comment, int nonconsec) {
         const char *p;
         if (comment == false) {
             p = "";
-        } else if ((spell_forgotten & (1L << j)) != 0) {
+        } else if (spell_is_forgotten(j)) {
             p = " forgotten";
-        } else if ((spell_learned & (1L << j)) == 0) {
+        } else if (!spell_is_learned(j)) {
             p = " unknown";
-        } else if ((spell_worked & (1L << j)) == 0) {
+        } else if (!spell_has_worked(j)) {
             p = " untried";
         } else {
             p = "";
@@ -1233,13 +1234,10 @@ void calc_spells(int stat) {
     }
 
     // check to see if know any spells greater than level, eliminate them
-    int i;
-    uint32_t mask;
-    for (i = 31, mask = 0x80000000L; mask; mask >>= 1, i--) {
-        if (mask & spell_learned) {
+    for (int i = 31; i >= 0; i--) {
+        if (spell_is_learned(i)) {
             if (msp_ptr[i].slevel > p_ptr->lev) {
-                spell_learned &= ~mask;
-                spell_forgotten |= mask;
+                spell_forget(i);
 
                 vtype tmp_str;
                 (void)sprintf(tmp_str, "You have forgotten the %s of %s.", p, spell_names[i + offset]);
@@ -1274,33 +1272,19 @@ void calc_spells(int stat) {
         break;
     }
 
-    int num_known = 0;
-    for (mask = 0x1; mask; mask <<= 1) {
-        if (mask & spell_learned) {
-            num_known++;
-        }
-    }
-    int new_spells = num_allowed - num_known;
+    int new_spells = num_allowed - learned_spell_count();
 
     if (new_spells > 0) {
         // remember forgotten spells while forgotten spells exist of new_spells
         // positive, remember the spells in the order that they were learned
-        for (int n = 0; (spell_forgotten && new_spells && (n < num_allowed) && (n < 32)); n++) {
+        for (int n = 0; (any_spell_forgotten() && new_spells && (n < num_allowed) && (n < 32)); n++) {
             // j is (i+1)th spell learned
-            int j = spell_order[n];
+            int j = spell_learned_nth(n);
 
-            // shifting by amounts greater than number of bits in long gives
-            // an undefined result, so don't shift for unknown spells
-            if (j == 99) {
-                mask = 0x0;
-            } else {
-                mask = (uint32_t)(1L << j);
-            }
-            if (mask & spell_forgotten) {
+            if (spell_is_forgotten(j)) {
                 if (msp_ptr[j].slevel <= p_ptr->lev) {
                     new_spells--;
-                    spell_forgotten &= ~mask;
-                    spell_learned |= mask;
+                    spell_remember(j);
 
                     vtype tmp_str;
                     (void)sprintf(tmp_str, "You have remembered the %s of %s.", p, spell_names[j + offset]);
@@ -1314,10 +1298,11 @@ void calc_spells(int stat) {
         if (new_spells > 0) {
             // determine which spells player can learn must check all spells here,
             // in gain_spell() we actually check if the books are present
-            uint32_t spell_flag = 0x7FFFFFFFL & ~spell_learned;
+            uint32_t spell_flag = spells_not_learned_among(0x7FFFFFFFL);
 
             int j;
             int id = 0;
+            uint32_t mask;
             for (j = 0, mask = 0x1; spell_flag; mask <<= 1, j++) {
                 if (spell_flag & mask) {
                     spell_flag &= ~mask;
@@ -1334,19 +1319,11 @@ void calc_spells(int stat) {
     } else if (new_spells < 0) {
         // forget spells until new_spells zero or no more spells know, spells
         // are forgotten in the opposite order that they were learned
-        for (i = 31; new_spells && spell_learned; i--) {
+        for (int i = 31; new_spells && any_spell_learned(); i--) {
             // j is the (i+1)th spell learned
-            int j = spell_order[i];
-            // shifting by amounts greater than number of bits in long gives
-            // an undefined result, so don't shift for unknown spells
-            if (j == 99) {
-                mask = 0x0;
-            } else {
-                mask = (uint32_t)(1L << j);
-            }
-            if (mask & spell_learned) {
-                spell_learned &= ~mask;
-                spell_forgotten |= mask;
+            int j = spell_learned_nth(i);
+            if (spell_is_learned(j)) {
+                spell_forget(j);
                 new_spells++;
 
                 vtype tmp_str;
@@ -1405,13 +1382,6 @@ void gain_spells(void) {
         offset = PRAYER_OFFSET;
     }
 
-    int last_known;
-    for (last_known = 0; last_known < 32; last_known++) {
-        if (spell_order[last_known] == 99) {
-            break;
-        }
-    }
-
     if (!new_spells) {
         vtype tmp_str;
         (void)sprintf(tmp_str, "You can't learn any new %ss!", (stat == A_INT ? "spell" : "prayer"));
@@ -1432,7 +1402,7 @@ void gain_spells(void) {
         }
 
         // clear bits for spells already learned
-        spell_flag &= ~spell_learned;
+        spell_flag = spells_not_learned_among(spell_flag);
 
         int i = 0;
         int spells[31];
@@ -1469,8 +1439,7 @@ void gain_spells(void) {
                 // are actually shown on the screen, so limit choice to those
                 if (c >= 0 && c < i && c < 22) {
                     new_spells--;
-                    spell_learned |= 1L << spells[c];
-                    spell_order[last_known++] = spells[c];
+                    spell_learn(spells[c]);
                     for (; c <= i - 1; c++) {
                         spells[c] = spells[c + 1];
                     }
@@ -1486,8 +1455,7 @@ void gain_spells(void) {
             // pick a prayer at random
             while (new_spells) {
                 int s = randint(i) - 1;
-                spell_learned |= 1L << spells[s];
-                spell_order[last_known++] = spells[s];
+                spell_learn(spells[s]);
 
                 vtype tmp_str;
                 (void)sprintf(tmp_str, "You have learned the prayer of %s.", spell_names[spells[s] + offset]);
@@ -1517,7 +1485,7 @@ void gain_spells(void) {
 void calc_mana(int stat) {
     struct misc *p_ptr = &py.misc;
 
-    if (spell_learned != 0) {
+    if (any_spell_learned()) {
         int new_mana = 0;
         int levels = p_ptr->lev - class[p_ptr->pclass].first_spell_lev + 1;
         switch (stat_adj(stat)) {

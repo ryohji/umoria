@@ -1,10 +1,10 @@
 /* 呪文を覚えるとき（misc3.c:1374 の gain_spells）のテスト
  *
  * プレイヤーが学ぶ（`G` コマンド、dungeon.c:1294）と呼ばれる。#18-8 で窓口
- * `src/spells_known.h` に預ける 4 個のうち、**覚えた印（`spell_learned`）と
+ * `src/spells_known.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
  * 覚えた順（`spell_order`）に書き足すのはここだけ**なのに、単体テストが
- * 1 件も届いていなかった。窓口を通す書きかえ（ステップ B）の前に押さえる。
- * この 1 本は**本体を変えずに**足す。
+ * 1 件も届いていなかった。窓口を通す書きかえ（ステップ B）の前に押さえた。
+ * いまは読み書きとも窓口越し（#18-8-B2）。
  *
  * 戻り値は無く、結果は
  *
@@ -43,12 +43,9 @@
 
 #include "fixture.h"
 #include "inventory.h"
+#include "spells_known.h"
 
 extern player_type py;
-extern uint32_t spell_learned;
-extern uint32_t spell_worked;
-extern uint32_t spell_forgotten;
-extern uint8_t spell_order[32];
 extern bool free_turn_flag;
 
 /* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
@@ -64,15 +61,14 @@ void gain_spells(void);
  * ------------------------------------------------------------------ */
 
 /* fixture_reset() は py を 0 で埋めるが、呪文の 4 個は消さない
- * （実体は player.c で、代役の管轄ではない）。99 は main.c:256 が入れる
- * 「まだ覚えていない」印。free_turn_flag も代役側の器なので自分で戻す。 */
+ * （置き場は src/spells_known.c で、代役の管轄ではない）。覚えた順を
+ * SPELL_NONE で埋めるのは main.c:256 がゲーム開始時にするのと同じこと。
+ * free_turn_flag も代役側の器なので自分で戻す。 */
 static void given_no_spells_known(void) {
-    spell_learned = 0;
-    spell_worked = 0;
-    spell_forgotten = 0;
-    for (int i = 0; i < 32; i++) {
-        spell_order[i] = 99;
-    }
+    spells_set_learned_bits(0);
+    spells_set_worked_bits(0);
+    spells_set_forgotten_bits(0);
+    spell_order_forget_all();
     free_turn_flag = false;
 }
 
@@ -96,6 +92,10 @@ static void given_a_priest_who_can_learn(int spells_to_learn) {
 }
 
 /* 持ち物に魔法書 1 冊。flags のビットが「この本に載っている呪文」。 */
+/* すでに覚えている呪文を 1 つ足す（覚えた順の末尾に積むところまで窓口が
+ * やる。gain_spells が「印だけ立てて順に積み忘れない」ことの前提になる）。 */
+static void given_a_learned_spell(int spell) { spell_learn(spell); }
+
 static void given_a_spell_book_containing(uint32_t spells) {
     inven_type *i_ptr = inventory_at(0);
     i_ptr->tval = TV_MAGIC_BOOK;
@@ -104,12 +104,10 @@ static void given_a_spell_book_containing(uint32_t spells) {
     inventory_set_count(1);
 }
 
-static bool the_spell_is_learned(int spell) {
-    return (spell_learned & (uint32_t)(1L << spell)) != 0;
-}
+static bool the_spell_is_learned(int spell) { return spell_is_learned(spell); }
 
-/* 覚えた順の n 番目。99 なら「まだ」。 */
-static int the_nth_spell_learned(int n) { return spell_order[n]; }
+/* 覚えた順の n 番目。SPELL_NONE なら「まだ」。 */
+static int the_nth_spell_learned(int n) { return spell_learned_nth(n); }
 
 /* ------------------------------------------------------------------
  * 断るとき
@@ -124,7 +122,7 @@ TEST(a_character_with_nothing_left_to_learn_is_refused) {
 
     ASSERT_EQ_STR("You can't learn any new spells!", fixture_message_text(0));
     ASSERT_TRUE(free_turn_flag);
-    ASSERT_EQ_INT(0, (int)spell_learned);
+    ASSERT_TRUE(!any_spell_learned());
 }
 
 /* 僧侶には "prayer" で断る。 */
@@ -147,7 +145,7 @@ TEST(a_confused_character_cannot_learn) {
     gain_spells();
 
     ASSERT_EQ_STR("You are too confused.", fixture_message_text(0));
-    ASSERT_EQ_INT(0, (int)spell_learned);
+    ASSERT_TRUE(!any_spell_learned());
 }
 
 /* MAGE 系は本を読むので、盲だと学べない。**僧侶は神から授かるので盲でも
@@ -161,7 +159,7 @@ TEST(a_blind_mage_cannot_read_their_book) {
 
     ASSERT_EQ_STR("You can't see to read your spell book!",
                   fixture_message_text(0));
-    ASSERT_EQ_INT(0, (int)spell_learned);
+    ASSERT_TRUE(!any_spell_learned());
 }
 
 /* ------------------------------------------------------------------
@@ -200,7 +198,7 @@ TEST(two_prayers_are_appended_in_the_order_they_were_granted) {
     ASSERT_TRUE(the_spell_is_learned(1));
     ASSERT_EQ_INT(0, the_nth_spell_learned(0));
     ASSERT_EQ_INT(1, the_nth_spell_learned(1));
-    ASSERT_EQ_INT(99, the_nth_spell_learned(2));
+    ASSERT_EQ_INT(SPELL_NONE, the_nth_spell_learned(2));
 }
 
 /* 魔力が 0 のときだけ、覚えたあとに魔力を計算する（レベル 1 の 1 つめ）。 */
@@ -244,8 +242,7 @@ TEST(a_mage_learns_the_spell_they_choose_from_their_book) {
 TEST(a_new_spell_is_appended_after_the_ones_already_known) {
     given_no_spells_known();
     given_a_mage_who_can_learn(1);
-    spell_learned = (uint32_t)(1L << 5);
-    spell_order[0] = 5;
+    given_a_learned_spell(5);
     given_a_spell_book_containing(0xF);
     fixture_set_get_com_keys("a");
 
@@ -253,7 +250,7 @@ TEST(a_new_spell_is_appended_after_the_ones_already_known) {
 
     ASSERT_EQ_INT(5, the_nth_spell_learned(0));
     ASSERT_EQ_INT(0, the_nth_spell_learned(1));
-    ASSERT_EQ_INT(99, the_nth_spell_learned(2));
+    ASSERT_EQ_INT(SPELL_NONE, the_nth_spell_learned(2));
 }
 
 /* すでに覚えた呪文は候補から外す。番号 0 を覚えている魔法使いが 0〜3 の載った
@@ -262,8 +259,7 @@ TEST(a_new_spell_is_appended_after_the_ones_already_known) {
 TEST(a_spell_already_known_is_left_out_of_the_choices) {
     given_no_spells_known();
     given_a_mage_who_can_learn(1);
-    spell_learned = (uint32_t)(1L << 0);
-    spell_order[0] = 0;
+    given_a_learned_spell(0);
     given_a_spell_book_containing(0xF);
     fixture_set_get_com_keys("a");
 
@@ -299,7 +295,7 @@ TEST(a_mage_without_a_book_learns_nothing) {
     gain_spells();
 
     ASSERT_EQ_STR("You seem to be missing a book.", fixture_message_text(0));
-    ASSERT_EQ_INT(0, (int)spell_learned);
+    ASSERT_TRUE(!any_spell_learned());
     ASSERT_EQ_INT(1, (int)py.flags.new_spells);
 }
 
@@ -313,7 +309,7 @@ TEST(a_key_outside_the_list_learns_nothing) {
 
     gain_spells();
 
-    ASSERT_EQ_INT(0, (int)spell_learned);
+    ASSERT_TRUE(!any_spell_learned());
     ASSERT_EQ_INT(1, (int)py.flags.new_spells);
 }
 

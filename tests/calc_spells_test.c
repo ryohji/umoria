@@ -2,10 +2,10 @@
  *
  * calc_spells() は「いまのレベルと能力値で覚えていられる呪文の数」を数えなおし、
  * 多すぎれば忘れさせ、余裕ができれば忘れた呪文を思いださせる唯一の場所。
- * #18-8 で窓口（`src/spells_known.h`）に預ける 4 つの global
+ * #18-8 で窓口（`src/spells_known.h`）に預けた 4 つの global
  * （`spell_learned` `spell_worked` `spell_forgotten` `spell_order`）のうち
  * 3 つを書きかえるのはここだけなので、窓口を通す書きかえ（ステップ B）の前に
- * ここで押さえる。この 1 本は**本体を変えずに**足す。
+ * ここで押さえた。いまは読み書きとも窓口越し（#18-8-B2）。
  *
  * 戻り値は無く、結果は
  *
@@ -27,8 +27,9 @@
  *   3. **思いだす順は覚えた順、忘れる順はその逆。** `spell_order` が覚えた順の
  *      並びで、思いだすときは先頭から、忘れるときは末尾（添字 31）から見る。
  *
- *   4. **`spell_order` の 99 は「まだ覚えていない」印。** 99 のまま `1L << 99`
- *      を計算すると結果が決まらないので、本体は 99 を見つけたら遮蔽を 0 にする。
+ *   4. **覚えた順に残る SPELL_NONE（99）は「まだ覚えていない」印。** 99 のまま
+ *      `1L << 99` を計算すると結果が決まらない。#18-8-B2 からはその判断が
+ *      窓口の内側にあり、ここは「印を渡しても答えが定まる」ことだけを見る。
  *
  *   5. **職業で言いかたが変わる。** MAGE 系は "spell"、PRIEST 系は "prayer"。
  *
@@ -40,12 +41,9 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "spells_known.h"
 
 extern player_type py;
-extern uint32_t spell_learned;
-extern uint32_t spell_worked;
-extern uint32_t spell_forgotten;
-extern uint8_t spell_order[32];
 
 /* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
@@ -71,16 +69,14 @@ void calc_spells(int stat);
  * ------------------------------------------------------------------ */
 
 /* fixture_reset() は py を 0 で埋めるが、呪文の 4 個は消さない
- * （実体は player.c で、代役の管轄ではない）。どのテストも同じ地点から
- * 始まるように、ここで 4 個とも自分で初期化する。99 は main.c:256 が
- * ゲーム開始時に入れる「まだ覚えていない」印。 */
+ * （置き場は src/spells_known.c で、代役の管轄ではない）。どのテストも同じ
+ * 地点から始まるように、ここで 4 個とも自分で初期化する。覚えた順を
+ * SPELL_NONE で埋めるのは main.c:256 がゲーム開始時にするのと同じこと。 */
 static void given_no_spells_known(void) {
-    spell_learned = 0;
-    spell_worked = 0;
-    spell_forgotten = 0;
-    for (int i = 0; i < 32; i++) {
-        spell_order[i] = 99;
-    }
+    spells_set_learned_bits(0);
+    spells_set_worked_bits(0);
+    spells_set_forgotten_bits(0);
+    spell_order_forget_all();
 }
 
 /* 知力 18（段 3 = 1 倍）の魔法使い。レベル n なら n 個まで覚えていられる。 */
@@ -97,38 +93,22 @@ static void given_a_priest_of_level(int level) {
     py.stats.use_stat[A_WIS] = 18;
 }
 
-/* 覚えている呪文を 1 つ足す。覚えた順の末尾に積むところまでやるのが
- * 本体（gain_spells）の形なので、ここでも同じにする。 */
-static void given_a_learned_spell(int spell) {
-    spell_learned |= (uint32_t)(1L << spell);
-    for (int i = 0; i < 32; i++) {
-        if (spell_order[i] == 99) {
-            spell_order[i] = (uint8_t)spell;
-            return;
-        }
-    }
-}
+/* 覚えている呪文を 1 つ足す（覚えた順の末尾に積むところまで窓口がやる）。 */
+static void given_a_learned_spell(int spell) { spell_learn(spell); }
 
-/* 忘れている呪文を 1 つ足す。忘れた呪文も**覚えた順には残る**
- * （だから思いだすときに順番が分かる）。 */
+/* 忘れている呪文を 1 つ足す。**一度覚えてから忘れる**のがゲームでの唯一の
+ * 道すじで、忘れた呪文も覚えた順には残る（だから思いだすときに順番が分かる）。 */
 static void given_a_forgotten_spell(int spell) {
-    spell_forgotten |= (uint32_t)(1L << spell);
-    for (int i = 0; i < 32; i++) {
-        if (spell_order[i] == 99) {
-            spell_order[i] = (uint8_t)spell;
-            return;
-        }
-    }
+    spell_learn(spell);
+    spell_forget(spell);
 }
 
 /* 覚えている印が立っているか。 */
-static bool the_spell_is_learned(int spell) {
-    return (spell_learned & (uint32_t)(1L << spell)) != 0;
-}
+static bool the_spell_is_learned(int spell) { return spell_is_learned(spell); }
 
 /* 忘れた印が立っているか。 */
 static bool the_spell_is_forgotten(int spell) {
-    return (spell_forgotten & (uint32_t)(1L << spell)) != 0;
+    return spell_is_forgotten(spell);
 }
 
 /* ------------------------------------------------------------------
@@ -300,9 +280,8 @@ TEST(a_forgotten_spell_still_out_of_reach_does_not_block_the_next_one) {
 TEST(the_not_yet_learned_marker_uses_up_one_turn_of_the_scan) {
     given_no_spells_known();
     given_a_mage_of_level(1);
-    spell_forgotten = (uint32_t)(1L << 0);
-    spell_order[0] = 99;
-    spell_order[1] = 0;
+    spells_set_forgotten_bits((uint32_t)(1L << 0));
+    spell_order_bytes()[1] = 0;
 
     calc_spells(A_INT);
 
@@ -320,7 +299,7 @@ TEST(the_not_yet_learned_marker_uses_up_one_turn_of_the_scan) {
 TEST(the_marker_does_not_stand_in_for_the_spell_its_low_bits_name) {
     given_no_spells_known();
     given_a_mage_of_level(7);
-    spell_forgotten = (uint32_t)(1L << 3); /* 99 & 31 == 3 */
+    spells_set_forgotten_bits((uint32_t)(1L << 3)); /* 99 & 31 == 3 */
 
     calc_spells(A_INT);
 
@@ -336,9 +315,8 @@ TEST(the_marker_does_not_stand_in_for_the_spell_its_low_bits_name) {
 TEST(a_forgotten_spell_after_the_marker_is_reached_when_the_scan_is_longer) {
     given_no_spells_known();
     given_a_mage_of_level(2);
-    spell_forgotten = (uint32_t)(1L << 0);
-    spell_order[0] = 99;
-    spell_order[1] = 0;
+    spells_set_forgotten_bits((uint32_t)(1L << 0));
+    spell_order_bytes()[1] = 0;
 
     calc_spells(A_INT);
 

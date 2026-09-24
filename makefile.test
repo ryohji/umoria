@@ -149,13 +149,14 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               src/progress.c src/score_death.c \
                               src/save_state.c \
                               src/player_pos.c src/hp_table.c \
-                              src/burden.c src/burden.h | $(BUILDDIR)
+                              src/burden.c src/burden.h \
+                              src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -183,13 +184,14 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
                             src/player_pos.c src/hp_table.c \
-                            src/burden.c src/burden.h | $(BUILDDIR)
+                            src/burden.c src/burden.h \
+                            src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -229,13 +231,14 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/progress.c src/score_death.c \
                                  src/save_state.c \
                                  src/player_pos.c src/hp_table.c \
-                                 src/burden.c src/burden.h | $(BUILDDIR)
+                                 src/burden.c src/burden.h \
+                                 src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -321,13 +324,14 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          src/abilities.c src/progress.c \
                          src/score_death.c src/save_state.c \
                          src/player_pos.c src/hp_table.c \
-                         src/burden.c src/burden.h | $(BUILDDIR)
+                         src/burden.c src/burden.h \
+                         src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
@@ -596,13 +600,14 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
                             src/player_pos.c src/hp_table.c \
-                            src/burden.c src/burden.h | $(BUILDDIR)
+                            src/burden.c src/burden.h \
+                            src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_hitpoints_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # 明かりを持っているかどうかの置き場（player_light）。#18-7-3C1 で実体が
 # src/player_light.c の static になったので、ステップ A のあいだ要った足場
@@ -635,13 +640,14 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
                             src/player_pos.c src/hp_table.c \
-                            src/burden.c src/burden.h | $(BUILDDIR)
+                            src/burden.c src/burden.h \
+                            src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/check_strength_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # 重さに負けているかどうかの置き場（weapon_heavy と pack_heavy）。#18-7-4C1 で
 # 実体が src/burden.c の static になったので、ステップ A のあいだ要った足場
@@ -673,13 +679,14 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
                             src/player_pos.c src/hp_table.c \
-                            src/burden.c src/burden.h | $(BUILDDIR)
+                            src/burden.c src/burden.h \
+                            src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_spells_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # 呪文を覚えるとき（misc3.c:1374 の gain_spells）。#18-8 で窓口に預ける 4 個の
 # うち、覚えた印（spell_learned）と覚えた順（spell_order）に書き足すのはこの
@@ -701,13 +708,14 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
                             src/progress.c src/score_death.c \
                             src/save_state.c \
                             src/player_pos.c src/hp_table.c \
-                            src/burden.c src/burden.h | $(BUILDDIR)
+                            src/burden.c src/burden.h \
+                            src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/gain_spells_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
-	    src/player_pos.c src/hp_table.c src/burden.c
+	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c
 
 # 覚えている呪文の置き場（spell_learned・spell_worked・spell_forgotten・
 # spell_order）。ステップ A のあいだ実体は src/player.c にあり、窓口はそれを
