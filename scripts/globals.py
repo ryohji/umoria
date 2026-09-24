@@ -93,13 +93,27 @@ GROUPS = {
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
         cave dun_level cur_height cur_width m_list m_level mfptr mon_tot_mult
-        t_list tcptr t_level hack_monptr""",
-    "持ち物・アイテム": """
-        object_ident sorted_objects""",
+        t_list tcptr hack_monptr""",
+    # レベルごとに並べたダンジョンの品物表（sorted_objects と t_level）は
+    # #18-10-C で object_levels.c の static になり、externs.h から外れた。窓口は
+    # src/object_levels.h（object_levels_init / object_at_level_position /
+    # objects_up_to_level / objects_at_level / first_position_at_level）。
+    # **この 2 個は台帳では別の区分に分かれていた**（sorted_objects は
+    # 「持ち物・アイテム」、t_level は「ダンジョンとその中身」）が、実測すると
+    # 1 つの表の目次と本体で、片方だけでは意味をなさない。区分は参照の多さで
+    # 分けたものなので、module の切れ目とは一致しない。
+    # **これで「持ち物・アイテム」の区分は空になった**（行ごと消した。記録は
+    # GLOBALS_INVENTORY.md 側）。
+    # 品目ごとの覚え（object_ident）は #18-9-C で item_ident.c の static になり、
+    # externs.h から外れた。窓口は src/item_ident.h（item_kind_is_known /
+    # item_kind_was_tried / item_kind_mark_known / item_kind_mark_tried /
+    # item_kind_clear_tried / item_kind_has_record、セーブ用に
+    # item_kind_record_bytes / item_kind_record_count）。持ち物の中身から
+    # 導出する形にはしていない —— 覚えは**品目ごと**で、持っていない品目や
+    # まだダンジョンにある品目についても覚えているから。
     # 持ち物の 4 個（inventory inven_ctr inven_weight equip_ctr）は #18-5 で
     # inventory.c の static になり、externs.h から外れた。窓口は
-    # src/inventory.h（持ち物・跨ぎ）と src/equipment.h（装備）。同じ区分に
-    # 残る object_ident sorted_objects は持ち物とは独立なので残す。
+    # src/inventory.h（持ち物・跨ぎ）と src/equipment.h（装備）。
     # 片づいた名前は行から消える（消えた記録は GLOBALS_INVENTORY.md 側）。
     # 店の区分（store last_store_inc の 2 個）は #18-4 で externs.h から
     # 全部外れた。6 軒の記録は stores.c、値切りの途中の入力は store2.c の
@@ -158,7 +172,8 @@ def declared_globals(header="src/externs.h"):
 
 
 # 名前のあとに続く添字・メンバ参照。py.misc.exp や cave[y][x].fval を拾う。
-# 添字の中の添字（sorted_objects[t_level[l] - tmp[l]]）も 1 段だけ許す。
+# 添字の中の添字（#18-10 より前の sorted_objects[t_level[l] - tmp[l]]）も
+# 1 段だけ許す。
 INDEX = r"\[(?:[^\[\]]|\[[^\[\]]*\])*\]"
 SUFFIX = r"(?:\s*(?:%s|\.\w+|->\w+))*" % INDEX
 # 代入・複合代入・増減。== != <= >= と紛れないようにする。

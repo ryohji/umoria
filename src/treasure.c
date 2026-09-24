@@ -549,11 +549,6 @@ const char *special_names[SN_ARRAY_SIZE] = {
     "(Unlocked)",        "of Slay Animal"
 };
 
-int16_t sorted_objects[MAX_DUNGEON_OBJ];
-
-// Identified objects flags
-uint8_t object_ident[OBJECT_IDENT_SIZE];
-int16_t t_level[MAX_OBJ_LEVEL + 1];
 inven_type t_list[MAX_TALLOC];
 
 // What the player carries and wears used to live here as well

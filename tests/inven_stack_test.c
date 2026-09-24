@@ -15,7 +15,7 @@
  * 写しにしなかった理由: ステップ B で条件を 1 箇所に抽出するとき、
  * 写しでは抽出後の実体を検証できず保護にならない。
  *
- * グローバル状態（inventory, object_ident, py, inven_ctr）に依存するので
+ * グローバル状態（inventory, 品目ごとの覚え, py, inven_ctr）に依存するので
  * MU_SETUP で fixture_reset() を呼ぶ。これがないと実行順で結果が変わる。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、
@@ -52,7 +52,7 @@ void known1(inven_type *i_ptr);
  * しなければならない。以下の関数はその条件を作る。
  * ------------------------------------------------------------------ */
 
-/* 巻物（TV_SCROLL1）を選んだ理由は object_offset() が 4 を返し、
+/* 巻物（TV_SCROLL1）を選んだ理由は 7 群のうち 5 番めの群（添字 4）に入り、
  * subval が ITEM_SINGLE_STACK_MIN 以上なら known1_p() の判定対象に
  * なること。ID_STOREBOUGHT は立てないので未鑑定から始まる。 */
 static void set_item(inven_type *i_ptr, int tval, int subval, int number,
@@ -317,7 +317,7 @@ TEST(items_stack_with_different_p1_at_single_stack_min)
  * 条件 6: known1_p(t) == known1_p(n)  鑑定状態が一致
  *
  * 鑑定済みと未鑑定を重ねると、どちらの状態なのか表示できなくなる。
- * known1_p() は object_ident[] を引くので、鑑定状態は
+ * known1_p() は品目ごとの覚えを引くので、鑑定状態は
  * 「同じ tval・subval の全アイテム」で共有されている。
  * そのため片方だけ鑑定するには ID_STOREBOUGHT を使う（store_bought_p()
  * が真なら known1_p は無条件に OD_KNOWN1 を返す）。
@@ -331,7 +331,7 @@ TEST(items_stack_when_both_are_unidentified)
         inven_check_num(incoming_item(TV_SCROLL1, ITEM_SINGLE_STACK_MIN, 1, 0)));
 }
 
-/* 両方が鑑定済みならスタックする。known1() は object_ident[] を
+/* 両方が鑑定済みならスタックする。known1() は品目ごとの覚えを
  * 立てるので、同じ tval・subval の両方に一度で効く。 */
 TEST(items_stack_when_both_are_identified)
 {
@@ -343,7 +343,7 @@ TEST(items_stack_when_both_are_identified)
 
 /* 新規側だけが鑑定済み（店で買ったもの）ならスタックしない。
  * ID_STOREBOUGHT が立つと known1_p は OD_KNOWN1 を返すので、
- * object_ident[] を共有していても鑑定状態が食いちがう。 */
+ * 品目ごとの覚えを共有していても鑑定状態が食いちがう。 */
 TEST(items_do_not_stack_when_only_incoming_item_is_identified)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);

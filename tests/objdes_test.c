@@ -6,9 +6,9 @@
  * （-Wformat-nonliteral）。差しこみを自分で書く形へ変えるので、その前後で
  * 出力が 1 文字も変わらないことをここで押さえる。
  *
- * 未鑑定（object_ident のビットが立っていない）だと objdes() の modify が
- * 真になり、雛形を使う経路に入る。fixture_reset() が object_ident を全消し
- * するので、各テストは未鑑定から始まる。
+ * 未鑑定（品目ごとの覚えのビットが立っていない）だと objdes() の modify が
+ * 真になり、雛形を使う経路に入る。fixture_reset() が覚えを全消しするので、
+ * 各テストは未鑑定から始まる。
  *
  * 差しこむ語（amulets[] や colors[] のどれになるか）は magic_init() が
  * randint() で並べかえて決める。randint() は代役が固定値を返すので、
@@ -29,9 +29,11 @@ extern treasure_type object_list[];
 void invcopy(inven_type *, int);
 void objdes(char *, inven_type *, int);
 void known1(inven_type *);
+void sample(inven_type *);
+void store_bought(inven_type *);
 void magic_init(void);
 
-/* 各テストの前に必ず呼ばれる。object_ident が毎回まっさらに戻る。 */
+/* 各テストの前に必ず呼ばれる。品目ごとの覚えが毎回まっさらに戻る。 */
 #define MU_SETUP() fixture_reset()
 
 #include "minunit.h"
@@ -85,6 +87,58 @@ static const char *name_of_first_known(int tval)
     invcopy(&item, index);
     known1(&item);
     objdes(name, &item, 0);
+
+    return name;
+}
+
+
+/* 「試した」の表示を見るための条件づくり。desc.c:583-591 が品目ごとの覚えを
+ * 引くのは冠詞つき（pref != 0）の経路だけなので、上の 2 つと違って pref に
+ * 1 を渡す。marks に渡した関数で品物に印をつけてから名前を作る
+ * （分岐をテスト本体に持ちこまないため、印のつけかたを引数にする）。 */
+static const char *full_name_of_first(int tval, void (*mark)(inven_type *))
+{
+    static bigvtype name;
+    name[0] = '\0';
+
+    int index = first_object_of_tval(tval);
+    if (index < 0) {
+        return name;
+    }
+
+    inven_type item;
+    invcopy(&item, index);
+    if (mark != NULL) {
+        mark(&item);
+    }
+    objdes(name, &item, 1);
+
+    return name;
+}
+
+
+/* 同じ品目を 2 つ作り、1 つめを店で買った品にしたあと 2 つめを試す。
+ * 枠は品目ごとに 1 つなので「試した」印は 2 つに共通で立つ。返すのは
+ * 店で買ったほう（1 つめ）の名前。 */
+static const char *name_of_store_bought_after_trying_the_same_kind(int tval)
+{
+    static bigvtype name;
+    name[0] = '\0';
+
+    int index = first_object_of_tval(tval);
+    if (index < 0) {
+        return name;
+    }
+
+    inven_type bought;
+    invcopy(&bought, index);
+    store_bought(&bought);
+
+    inven_type found;
+    invcopy(&found, index);
+    sample(&found);
+
+    objdes(name, &bought, 1);
 
     return name;
 }
@@ -182,6 +236,52 @@ TEST(known_food_uses_its_real_name)
     ASSERT_EQ_STR(name_of_first_known(TV_FOOD), "Mushroom of Poison");
 }
 
+
+/* --- 「試した」の表示（品目ごとの覚えの OD_TRIED を引く 6 か所め）--- */
+
+/* 試した品物は説明に "tried" が出る。desc.c:583-591 は #18-9-B より前は
+ * object_offset() から添字を組みたてて表を引いていた、最後の 1 か所。 */
+TEST(a_tried_item_says_tried_in_its_description)
+{
+    ASSERT_EQ_STR(full_name_of_first(TV_POTION1, sample),
+                  "an Icky Green Potion {tried}.");
+}
+
+/* 三角測量：印をつけなければ出ない。上との差は sample() を呼んだかだけ。 */
+TEST(an_untried_item_does_not_say_tried)
+{
+    ASSERT_EQ_STR(full_name_of_first(TV_POTION1, NULL),
+                  "an Icky Green Potion.");
+}
+
+/* 鑑定すると "tried" は消える（known1 が同じ枠の OD_TRIED を落とすので、
+ * 本当の名前で呼ばれるうえに印も残らない）。 */
+TEST(a_known_item_does_not_say_tried)
+{
+    ASSERT_EQ_STR(full_name_of_first(TV_POTION1, known1),
+                  "a Potion of Slime Mold Juice.");
+}
+
+/* 店で買うと「試した」印そのものが落ちる。store_bought() は known2() を
+ * 呼び、その中の unsample() が枠の OD_TRIED を降ろすため（品名を言って
+ * 売るので「試した」を覚えておく意味がない）。 */
+TEST(buying_an_item_in_a_store_clears_that_the_kind_was_tried)
+{
+    ASSERT_EQ_STR(full_name_of_first(TV_POTION1, store_bought),
+                  "a Potion of Slime Mold Juice.");
+}
+
+/* 店で買った品物は、**そのあとで同じ品目を試しても** "tried" と言わない
+ * ——desc.c:589 が表の印と store_bought_p() を併せて見るのがこのため。
+ * 枠は品目ごとに 1 つなので、ダンジョンで拾った同じ薬を飲んでみると印は
+ * 店で買ったほうにも立つ。上のテストだけでは**この併せ見を観測できない**
+ * （店で買った時点で印が落ちるので、印が立った店買いの品を作れない）。 */
+TEST(a_store_bought_item_does_not_say_tried_even_after_the_kind_is_tried)
+{
+    ASSERT_EQ_STR(name_of_store_bought_after_trying_the_same_kind(TV_POTION1),
+                  "a Potion of Slime Mold Juice.");
+}
+
 int main(void)
 {
     /* 巻物の題名と薬の色の割りあてはここで 1 度だけ決まる。 */
@@ -203,5 +303,11 @@ int main(void)
     RUN_TEST(known_scroll_uses_its_real_name);
     RUN_TEST(known_potion_uses_its_real_name);
     RUN_TEST(known_food_uses_its_real_name);
+
+    RUN_TEST(a_tried_item_says_tried_in_its_description);
+    RUN_TEST(an_untried_item_does_not_say_tried);
+    RUN_TEST(a_known_item_does_not_say_tried);
+    RUN_TEST(buying_an_item_in_a_store_clears_that_the_kind_was_tried);
+    RUN_TEST(a_store_bought_item_does_not_say_tried_even_after_the_kind_is_tried);
     return TEST_SUMMARY();
 }

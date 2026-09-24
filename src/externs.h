@@ -94,16 +94,22 @@ extern bool (*store_buy[MAX_STORES])(int);
 
 // Following are treasure arrays  and variables
 extern treasure_type object_list[MAX_OBJECTS];
-extern uint8_t object_ident[OBJECT_IDENT_SIZE];
-extern int16_t t_level[MAX_OBJ_LEVEL + 1];
 extern inven_type t_list[MAX_TALLOC];
 extern const char *special_names[SN_ARRAY_SIZE];
-extern int16_t sorted_objects[MAX_DUNGEON_OBJ];
 extern int16_t tcptr; // Cur treasure heap ptr
 
 // What the player carries and wears (inventory[], inven_ctr, inven_weight,
 // equip_ctr) is not declared here. It is private to inventory.c and is
 // reached through src/inventory.h and src/equipment.h.
+
+// What the player has learned about each kind of object (object_ident[]) is not
+// declared here either. It is private to item_ident.c, reached through
+// src/item_ident.h.
+
+// Which kinds of object the dungeon can produce, in order of depth
+// (sorted_objects[], t_level[]) is private to object_levels.c, reached through
+// src/object_levels.h. The two were always one table -- an index and a body --
+// and every reader wanted a band out of them, never the raw arrays.
 
 // Following are creature arrays and variables
 extern monster_type m_list[MAX_MALLOC];
@@ -165,7 +171,6 @@ _Noreturn void exit_game(void);
 // desc.c
 bool is_a_vowel(char);
 void magic_init(void);
-int16_t object_offset(inven_type *);
 void known1(inven_type *);
 int known1_p(inven_type *);
 void known2(inven_type *);

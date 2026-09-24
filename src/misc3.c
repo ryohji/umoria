@@ -19,6 +19,8 @@
 #include "equipment.h"
 #include "hp_table.h"
 #include "inventory.h"
+#include "item_ident.h"
+#include "object_levels.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "save_state.h"
@@ -79,7 +81,7 @@ int get_obj_num(int level, bool must_be_small) {
     int i;
 
     if (level == 0) {
-        i = randint(t_level[0]) - 1;
+        i = randint(objects_up_to_level(0)) - 1;
     } else {
         if (level >= MAX_OBJ_LEVEL) {
             level = MAX_OBJ_LEVEL;
@@ -97,28 +99,28 @@ int get_obj_num(int level, bool must_be_small) {
         // and 1/2n are 0th level.
         do {
             if (randint(2) == 1) {
-                i = randint(t_level[level]) - 1;
+                i = randint(objects_up_to_level(level)) - 1;
             } else {
                 // Choose three objects, pick the highest level.
 
-                i = randint(t_level[level]) - 1;
-                int j = randint(t_level[level]) - 1;
+                i = randint(objects_up_to_level(level)) - 1;
+                int j = randint(objects_up_to_level(level)) - 1;
                 if (i < j) {
                     i = j;
                 }
-                j = randint(t_level[level]) - 1;
+                j = randint(objects_up_to_level(level)) - 1;
                 if (i < j) {
                     i = j;
                 }
-                j = object_list[sorted_objects[i]].level;
+                j = object_list[object_at_level_position(i)].level;
                 if (j == 0) {
-                    i = randint(t_level[0]) - 1;
+                    i = randint(objects_up_to_level(0)) - 1;
                 } else {
-                    i = randint(t_level[j] - t_level[j - 1]) - 1 +
-                        t_level[j - 1];
+                    // re-roll inside that level's band alone
+                    i = randint(objects_at_level(j)) - 1 + first_position_at_level(j);
                 }
             }
-        } while ((must_be_small) && (set_large(&object_list[sorted_objects[i]])));
+        } while ((must_be_small) && (set_large(&object_list[object_at_level_position(i)])));
     }
     return i;
 }
@@ -130,7 +132,7 @@ void place_object(int y, int x, bool must_be_small) {
 
     // split this line up to avoid a reported compiler bug
     int tmp = get_obj_num(dun_level, must_be_small);
-    invcopy(&t_list[cur_pos], sorted_objects[tmp]);
+    invcopy(&t_list[cur_pos], object_at_level_position(tmp));
     magic_treasure(cur_pos, dun_level);
     if (cave[y][x].cptr == 1) {
         msg_print("You feel something roll beneath your feet."); // -CJS-
@@ -1022,7 +1024,9 @@ void check_strength(void) {
 int inven_carry(inven_type *i_ptr) {
     int typ = i_ptr->tval;
     int subt = i_ptr->subval;
-    int always_known1p = (object_offset(i_ptr) == -1);
+    // Kinds with no record of their own are always known by name, so they can
+    // be carried in order; see item_ident.h.
+    int always_known1p = !item_kind_has_record(i_ptr);
 
     int locn;
 

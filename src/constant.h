@@ -95,7 +95,7 @@
 #define OBJ_NOTHING             417
 #define OBJ_RUINED_CHEST        418
 #define OBJ_WIZARD              419
-#define OBJECT_IDENT_SIZE       448   // 7*64, see object_offset() in desc.c, could be MAX_OBJECTS o_o() rewritten
+#define OBJECT_IDENT_SIZE       448   // 7 groups of 64 secret kinds; see item_ident.h
 #define MAX_GOLD                 18   // Number of different types of gold
 
 // with MAX_TALLOC 150, it is possible to get compacting objects during
@@ -444,7 +444,8 @@
 // but only stack with others of same subval if have the same
 // p1 value, only used for torches.
 
-// id's used for object description, stored in object_ident
+// id's used for object description, stored in the per-kind records; see
+// item_ident.h
 #define OD_TRIED        0x1
 #define OD_KNOWN1       0x2
 

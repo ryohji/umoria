@@ -19,6 +19,7 @@
 #include "abilities.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "object_levels.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later
@@ -133,7 +134,7 @@ void print_objects(void) {
 
                 inven_type *i_ptr;
                 for (int i = 0; i < nobj; i++) {
-                    invcopy(&t_list[j], sorted_objects[get_obj_num(level, small_object)]);
+                    invcopy(&t_list[j], object_at_level_position(get_obj_num(level, small_object)));
                     magic_treasure(j, level);
                     i_ptr = &t_list[j];
                     store_bought(i_ptr);

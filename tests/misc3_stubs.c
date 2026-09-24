@@ -31,6 +31,7 @@
 
 #include "fixture.h"
 #include "inventory.h"
+#include "item_ident.h"
 
 /* --- グローバル状態 --- */
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
@@ -294,15 +295,16 @@ bool magic_shop(int t) { (void)t; return false; }
 
 /* --- テスト専用の初期化。本体（src/）には存在しない。
  * MU_SETUP から呼ぶことで、先行テストの影響を受けない条件を作る。
- * py は player.c の本物、object_ident は treasure.c の本物を指しているので、
- * そのまま消去する。持ち物は #18-5C で src/inventory.c が static で持つ
- * ようになったので、窓口（src/inventory.h）越しに消す。 --- */
+ * py は player.c の本物なのでそのまま消去する。持ち物は #18-5C で
+ * src/inventory.c、品目ごとの覚えは #18-9-C で src/item_ident.c が static で
+ * 持つようになったので、どちらも窓口越しに消す。 --- */
 void fixture_reset(void)
 {
-    extern uint8_t object_ident[];
     extern player_type py;
 
-    memset(object_ident, 0, OBJECT_IDENT_SIZE);
+    /* 品目ごとの覚えは #18-9-C で src/item_ident.c が static で持つように
+     * なったので、セーブファイル用の生の窓口越しに消す。 */
+    memset(item_kind_record_bytes(), 0, (size_t)item_kind_record_count());
     /* 持ち物と装備は 1 本の配列なので、跨ぎの窓口で全域を消す。 */
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
