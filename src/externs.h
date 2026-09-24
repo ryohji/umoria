@@ -41,7 +41,6 @@ extern FILE *highscore_fp;          // High score file pointer (init_scorefile o
 extern int command_count;           // Repetition of commands. -CJS-
 extern bool default_dir;            // Use last direction in repeated commands
 extern int16_t dun_level;           // Cur dungeon level
-extern int16_t missile_ctr;         // Counter for missiles
 // The top line (was: msg_flag, old_msg[MAX_SAVE_MSG], last_msg and
 // wait_for_more) is private to messages.c now, together with the code that
 // walks the ring and the -more- prompt; see messages.h.

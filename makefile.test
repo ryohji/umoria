@@ -661,15 +661,14 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
 # 束に 1 つずつ違う番号を配る（p1 に入り、items_can_stack() が「同じ束か」の
 # 判定に使う）。依存は無く、MAX_SHORT を constant.h から取るだけ。
 #
-# **実体はまだ variable.c の missile_ctr** なので足場が 1 つ要る
-# （tests/missile_serial_fixture.c。#18-11-2C で実体が入ったら消す）。
-# missile_serial.c をリンクする実行形式はこの 1 本だけなので、消すのも 1 箇所。
+# #18-11-2C で実体（missile_ctr）も missile_serial.c の static になったので、
+# この 1 本が窓口と置き場の両方になっている。足場も代役も 1 つも要らない
+# （ステップ A で要った tests/missile_serial_fixture.c は実体が入ったときに
+# 消した）。str_insert.c・inventory.c・player_light.c と同じ 2 単位。
 $(BUILDDIR)/missile_serial_test: $(TESTDIR)/missile_serial_test.c \
-                                 $(TESTDIR)/missile_serial_fixture.c \
                                  $(TESTDIR)/minunit.h \
                                  src/missile_serial.c src/missile_serial.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/missile_serial_test.c src/missile_serial.c \
-	    $(TESTDIR)/missile_serial_fixture.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/missile_serial_test.c src/missile_serial.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて

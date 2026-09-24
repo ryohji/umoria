@@ -18,11 +18,11 @@
 // player_light.c: a counter needs nothing from the rest of the game. MAX_SHORT
 // comes from constant.h.
 
-// In this step the counter is still the global missile_ctr (variable.c), so that
-// exactly one copy of it exists while misc2.c and save.c move over to the
-// windows; #18-11-2C brings the storage in here and makes it static. Declared
-// here rather than through externs.h for the reason given above.
-extern int16_t missile_ctr;
+// The counter is owned here and is static: the only way in is through the three
+// windows below. It came over from variable.c (#18-11-2C) with its comment
+// ("Counter for missiles") and its initial value, so the first batch of a new
+// game is still stamped 1.
+static int16_t missile_ctr = 0;
 
 int16_t next_missile_serial(void) {
     // Step first, hand out afterwards, which is the order the old code used: the

@@ -61,7 +61,9 @@ int hack_monptr = -1;
 FILE *highscore_fp;               // File pointer to high score file
 int16_t cur_height, cur_width;    // Cur dungeon size
 int16_t dun_level = 0;            // Cur dungeon level
-int16_t missile_ctr = 0;          // Counter for missiles
+// The serial number that tells one batch of missiles from another moved to
+// missile_serial.c (#18-11-2C). The window is in missile_serial.h
+//
 // msg_flag, old_msg and last_msg (the top line: whether its message has been
 // seen, and the history ring) moved to messages.c, next to the code that uses
 // them
