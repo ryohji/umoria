@@ -400,6 +400,118 @@ TEST(marking_a_kind_known_clears_that_it_was_tried)
     ASSERT_EQ_INT(object_ident[4 << 6] & OD_KNOWN1, OD_KNOWN1);
 }
 
+/* ------------------------------------------------------------------
+ * 5. 品目ごとの覚えの窓口（#18-9-A2 で足した src/item_ident.c の側）
+ *
+ * ステップ A なので表そのものはまだ treasure.c の global で、窓口はそれを
+ * 指している。ここで見るのは「窓口が desc.c と同じ表を見ていること」と
+ * 「枠を持たない品目を訊かれても答えが定まること」。
+ *
+ * 別の表の複製になっていれば、上の第 4 節はグリーンのまま窓口だけが
+ * 嘘をつく。だから**片方で書いて他方で読む**形で確かめる。
+ * ------------------------------------------------------------------ */
+
+/* 窓口で鑑定済みにすると、desc.c の古い読み手からも既知に見える。 */
+TEST(marking_a_kind_known_through_the_window_is_seen_by_the_old_reader)
+{
+    inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    item_kind_mark_known(i_ptr);
+    ASSERT_EQ_INT(known1_p(i_ptr), OD_KNOWN1);
+}
+
+/* 逆向き：desc.c が立てた「試した」印が窓口からも見える。 */
+TEST(the_window_sees_the_tried_mark_that_desc_set)
+{
+    inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    sample(i_ptr);
+    ASSERT_TRUE(item_kind_was_tried(i_ptr));
+}
+
+/* 窓口も同じ枠の対応を使う。番号が違えば別の枠。 */
+TEST(the_window_keeps_separate_records_for_separate_kinds)
+{
+    inven_type *marked = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    inven_type *other = given_a_kind_of_item(1, TV_SCROLL1, ITEM_SINGLE_STACK_MIN + 1);
+    item_kind_mark_known(marked);
+    ASSERT_FALSE(item_kind_is_known(other));
+}
+
+/* 鑑定は「試した」を落とす（2 行が 1 つの窓口になったところ）。 */
+TEST(marking_a_kind_known_through_the_window_clears_the_tried_mark)
+{
+    inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    item_kind_mark_tried(i_ptr);
+    item_kind_mark_known(i_ptr);
+    ASSERT_FALSE(item_kind_was_tried(i_ptr));
+}
+
+/* 三角測量：印を落とすだけの窓口は鑑定の印に触らない（unsample の側）。 */
+TEST(clearing_the_tried_mark_leaves_the_kind_known)
+{
+    inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    item_kind_mark_known(i_ptr);
+    item_kind_clear_tried(i_ptr);
+    ASSERT_TRUE(item_kind_is_known(i_ptr));
+}
+
+/* 2 つの印は別のビット。試しただけでは既知にならない。 */
+TEST(trying_a_kind_does_not_make_it_known)
+{
+    inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    item_kind_mark_tried(i_ptr);
+    ASSERT_FALSE(item_kind_is_known(i_ptr));
+}
+
+/* 枠を持たない品目（剣）。known1_p が表を引かずに既知と答える側で、
+ * misc3.c:1025 も object_offset() == -1 でこれを訊いている。 */
+TEST(a_kind_with_no_record_is_reported_as_having_none)
+{
+    inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);
+    ASSERT_FALSE(item_kind_has_record(sword));
+}
+
+/* 三角測量：枠を持つ品目は持つと答える。 */
+TEST(a_kind_with_a_record_is_reported_as_having_one)
+{
+    inven_type *scroll = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    ASSERT_TRUE(item_kind_has_record(scroll));
+}
+
+/* 枠を持たない品目を訊かれたら「知らない・試していない」と答える
+ * （表の外を読まない）。 */
+TEST(a_kind_with_no_record_is_neither_known_nor_tried)
+{
+    inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);
+    ASSERT_FALSE(item_kind_is_known(sword));
+    ASSERT_FALSE(item_kind_was_tried(sword));
+}
+
+/* 枠を持たない品目に印をつけても何も起きない（表の外へ書かない）。
+ * 古い形は 5 か所それぞれで offset < 0 を検査して return していた。 */
+TEST(marking_a_kind_with_no_record_changes_nothing)
+{
+    inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);
+    item_kind_mark_known(sword);
+    item_kind_mark_tried(sword);
+    ASSERT_FALSE(item_kind_was_tried(sword));
+}
+
+/* セーブ用の生の窓口は本物の表を渡す。別の配列の複製だと、読みこんだ
+ * 鑑定の記録が誰にも見えない。 */
+TEST(the_record_bytes_are_the_table_itself)
+{
+    inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
+    item_kind_record_bytes()[4 << 6] |= OD_KNOWN1;
+    ASSERT_TRUE(item_kind_is_known(i_ptr));
+}
+
+/* 書きだす長さは表の全体。ここが短いと、セーブファイルが上のほうの種類
+ * （薬・キノコ）の記録を落とす。 */
+TEST(the_record_count_covers_the_whole_table)
+{
+    ASSERT_EQ_INT(item_kind_record_count(), OBJECT_IDENT_SIZE);
+}
+
 int main(void)
 {
     RUN_TEST(experience_gain_is_item_level_when_player_level_is_one);
@@ -433,5 +545,18 @@ int main(void)
     RUN_TEST(food_inside_the_mushroom_range_has_a_record_and_starts_unknown);
     RUN_TEST(a_store_bought_item_is_known_without_marking_its_record);
     RUN_TEST(marking_a_kind_known_clears_that_it_was_tried);
+
+    RUN_TEST(marking_a_kind_known_through_the_window_is_seen_by_the_old_reader);
+    RUN_TEST(the_window_sees_the_tried_mark_that_desc_set);
+    RUN_TEST(the_window_keeps_separate_records_for_separate_kinds);
+    RUN_TEST(marking_a_kind_known_through_the_window_clears_the_tried_mark);
+    RUN_TEST(clearing_the_tried_mark_leaves_the_kind_known);
+    RUN_TEST(trying_a_kind_does_not_make_it_known);
+    RUN_TEST(a_kind_with_no_record_is_reported_as_having_none);
+    RUN_TEST(a_kind_with_a_record_is_reported_as_having_one);
+    RUN_TEST(a_kind_with_no_record_is_neither_known_nor_tried);
+    RUN_TEST(marking_a_kind_with_no_record_changes_nothing);
+    RUN_TEST(the_record_bytes_are_the_table_itself);
+    RUN_TEST(the_record_count_covers_the_whole_table);
     return TEST_SUMMARY();
 }
