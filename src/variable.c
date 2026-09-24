@@ -100,7 +100,9 @@ char last_command = ' '; // Memory of previous command.
 // The two flags about the character's light moved to player_light.c: whether a
 // light is burning (player_light, #18-7-3C1) and whether its glow is currently
 // drawn on the map (light_flag, #18-11-1C). The windows are in player_light.h
-int eof_flag = 0;        // Used to signal EOF/HANGUP condition
+// Whether the input has run out moved to input_ended.c (eof_flag, #18-11-5C).
+// It counted EOFs, and the count mattered in one place -- the 100 tries io.c
+// puts up with before it panic-saves -- so the counting went in with it
 
 // wait_for_more moved to messages.c as well; it is the -more- prompt's own
 // state, read by the interrupt handler

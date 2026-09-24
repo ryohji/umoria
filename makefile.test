@@ -778,14 +778,14 @@ $(BUILDDIR)/pending_teleport_test: $(TESTDIR)/pending_teleport_test.c \
 # 境目を見るテストはここにしか無い。**尽きた状態を戻す窓口は無い** ので、
 # テストは 1 本道として並んでいる（tests/input_ended_test.c の頭に書いてある）。
 #
-# 足場 tests/input_ended_fixture.c は実体がまだ variable.c にあるあいだだけ要る。
-# #18-11-5C で消す。
+# #18-11-5C で実体（eof_count）も input_ended.c の static になったので、これは
+# **2 単位・代役 0**（str_insert.c・inventory.c・player_light.c・
+# missile_serial.c・screen_touched.c・pending_teleport.c と同じ最小形。足場
+# tests/input_ended_fixture.c は実体が入ったときに消した）。
 $(BUILDDIR)/input_ended_test: $(TESTDIR)/input_ended_test.c \
-                              $(TESTDIR)/input_ended_fixture.c \
                               $(TESTDIR)/minunit.h \
                               src/input_ended.c src/input_ended.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/input_ended_test.c src/input_ended.c \
-	    $(TESTDIR)/input_ended_fixture.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/input_ended_test.c src/input_ended.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて

@@ -19,11 +19,11 @@
 // of the game. In particular this module does not read the terminal -- it only
 // keeps the tally io.c hands it.
 
-// The count still lives in variable.c at this step (#18-11-5A); it moves in here
-// as a static in #18-11-5C. Declared rather than included, so that this module
-// does not pull in the global header -- the same choice as stats.c and
-// object_levels.c.
-extern int eof_flag;
+// The count is owned here and is static: the only way in is through the four
+// windows below. It came over from variable.c (#18-11-5C) with its initial value
+// -- the old global was written "int eof_flag = 0", and a game begins with input
+// that is still coming.
+static int eof_count = 0;
 
 // The number of EOFs io.c has put up with before it panic-saves and dies. Stated
 // once, here, and nowhere else: see input_ended.h for why it is not at the call
@@ -31,17 +31,17 @@ extern int eof_flag;
 #define EOF_TRIES_ALLOWED 100
 
 void note_input_ended(void) {
-    eof_flag++;
+    eof_count++;
 }
 
 bool input_has_ended(void) {
-    return eof_flag != 0;
+    return eof_count != 0;
 }
 
 bool input_end_is_hopeless(void) {
-    return eof_flag > EOF_TRIES_ALLOWED;
+    return eof_count > EOF_TRIES_ALLOWED;
 }
 
 int input_end_count(void) {
-    return eof_flag;
+    return eof_count;
 }
