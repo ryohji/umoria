@@ -16,7 +16,9 @@
 #include "score_death.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "level_exit.h"
 #include "panel.h"
+#include "pending_teleport.h"
 #include "player_pos.h"
 #include "spells_known.h"
 #include "stats.h"
@@ -64,8 +66,7 @@ static void hit_trap(int y, int x) {
         break;
     case 4: // Trap door
         msg_print("You fell through a trap door!");
-        new_level_flag = true;
-        dun_level++;
+        leave_for_level(dun_level + 1);
         if (py.flags.ffall) {
             msg_print("You gently float down.");
         } else {
@@ -106,7 +107,7 @@ static void hit_trap(int y, int x) {
         }
         break;
     case 8: // Teleport
-        teleport_flag = true;
+        schedule_teleport();
         msg_print("You hit a teleport trap!");
 
         // Light up the teleport trap, before we teleport away.

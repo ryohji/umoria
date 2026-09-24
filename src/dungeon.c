@@ -16,7 +16,9 @@
 #include "equipment.h"
 #include "inven_command_state.h"
 #include "inventory.h"
+#include "level_exit.h"
 #include "panel.h"
+#include "pending_teleport.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -64,9 +66,9 @@ void dungeon(void) {
     // Reset flags and initialize variables
     int find_count = 0;
     command_count = 0;
-    new_level_flag = false;
+    begin_level();
     find_flag = 0;
-    teleport_flag = false;
+    forget_pending_teleport();
     mon_tot_mult = 0;
     cave[player_row()][player_col()].cptr = 1;
 
@@ -558,15 +560,19 @@ void dungeon(void) {
         // Word-of-Recall  Note: Word-of-Recall is a delayed action
         if (f_ptr->word_recall > 0) {
             if (f_ptr->word_recall == 1) {
-                new_level_flag = true;
                 f_ptr->paralysis++;
                 f_ptr->word_recall = 0;
                 if (dun_level > 0) {
-                    dun_level = 0;
+                    leave_for_level(0);
                     msg_print("You feel yourself yanked upwards!");
                 } else if (py.misc.max_dlv != 0) {
-                    dun_level = py.misc.max_dlv;
+                    leave_for_level(py.misc.max_dlv);
                     msg_print("You feel yourself yanked downwards!");
+                } else {
+                    // In town, and no depth recorded yet, so there is nowhere to
+                    // be yanked to. The level still ends, as it always did: the
+                    // town is built again.
+                    end_level();
                 }
             } else {
                 f_ptr->word_recall--;
@@ -803,7 +809,7 @@ void dungeon(void) {
                 }
                 // End of commands
 
-            } while (free_turn_flag && !new_level_flag && !eof_flag);
+            } while (free_turn_flag && !level_is_over() && !eof_flag);
         } else {
             // if paralyzed, resting, or dead, flush output
             // but first move the cursor onto the player, for aesthetics
@@ -812,17 +818,17 @@ void dungeon(void) {
         }
 
         // Teleport?
-        if (teleport_flag) {
+        if (teleport_is_pending()) {
             teleport(100);
         }
 
         // Move the creatures
-        if (!new_level_flag) {
+        if (!level_is_over()) {
             creatures(true);
         }
 
-        // Exit when new_level_flag is set
-    } while (!new_level_flag && !eof_flag);
+        // Exit when this level is finished
+    } while (!level_is_over() && !eof_flag);
 }
 
 static char original_commands(char com_val) {
@@ -1103,7 +1109,7 @@ static void do_command(char com_val) {
     case 'Q': // (Q)uit    (^K)ill
         flush();
         if (get_check("Do you really want to quit?")) {
-            new_level_flag = true;
+            end_level();
             set_player_dead(true);
             (void)strcpy(death_cause(), "Quitting");
         }
@@ -1519,11 +1525,12 @@ static void do_command(char com_val) {
                     }
                 }
                 if (i > -1) {
-                    dun_level = i;
-                    if (dun_level > 99) {
-                        dun_level = 99;
+                    // 0-99 because that is what the prompt above says, not
+                    // because leaving a level has a limit of its own.
+                    if (i > 99) {
+                        i = 99;
                     }
-                    new_level_flag = true;
+                    leave_for_level(i);
                 } else {
                     erase_line(MSG_LINE, 0);
                 }
@@ -1831,8 +1838,7 @@ static void go_up(void) {
 
     if (c_ptr->tptr != 0) {
         if (t_list[c_ptr->tptr].tval == TV_UP_STAIR) {
-            dun_level--;
-            new_level_flag = true;
+            leave_for_level(dun_level - 1);
             msg_print("You enter a maze of up staircases.");
             msg_print("You pass through a one-way door.");
         } else {
@@ -1853,8 +1859,7 @@ static void go_down(void) {
     const uint8_t tptr = cave[player_row()][player_col()].tptr;
 
     if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
-        dun_level++;
-        new_level_flag = true;
+        leave_for_level(dun_level + 1);
         msg_print("You enter a maze of down staircases.");
         msg_print("You pass through a one-way door.");
     } else {

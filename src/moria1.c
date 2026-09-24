@@ -18,6 +18,7 @@
 #include "score_death.h"
 #include "inven_command_state.h"
 #include "inventory.h"
+#include "level_exit.h"
 #include "panel.h"
 #include "player_light.h"
 #include "player_pos.h"
@@ -1729,7 +1730,7 @@ void take_hit(int damage, const char *hit_from) {
             (void)strcpy(death_cause(), hit_from);
             set_player_has_won(false);
         }
-        new_level_flag = true;
+        end_level();
     } else {
         prt_chp();
     }

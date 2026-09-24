@@ -13,8 +13,10 @@
 #include "externs.h"
 #include "inven_command_state.h"
 #include "inventory.h"
+#include "level_exit.h"
 #include "missile_serial.h"
 #include "panel.h"
+#include "pending_teleport.h"
 #include "player_light.h"
 #include "progress.h"
 #include "save_state.h"
@@ -57,8 +59,8 @@ GameState *game_state_init(void) {
     state->wizard_mode = progress_wizard_mode();
 
     // Flags
-    state->new_level_flag = new_level_flag;
-    state->teleport_flag = teleport_flag;
+    state->new_level_flag = level_is_over();
+    state->teleport_flag = teleport_is_pending();
     state->character_generated = character_is_generated();
     state->character_saved = character_is_saved();
 

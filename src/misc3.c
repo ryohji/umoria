@@ -21,6 +21,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "object_levels.h"
+#include "pending_teleport.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "save_state.h"
@@ -1883,5 +1884,5 @@ void teleport(int dis) {
     player_place(y, x);
     check_view();
     creatures(false);
-    teleport_flag = false;
+    teleport_done();
 }
