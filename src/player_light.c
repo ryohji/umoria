@@ -4,8 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Whether the character is carrying a light that is still burning: where the
-// answer lives
+// What is remembered about the character's light: where the answers live
 
 #include "config.h"
 #include "constant.h"
@@ -29,4 +28,18 @@ bool player_has_light(void) {
 
 void set_player_has_light(bool lit) {
     player_light = lit;
+}
+
+// Whether the glow is on the map, owned here and static as well. It came over
+// from variable.c (#18-11-1C) with its comment ("Track if temporary light about
+// player") and its initial value: the first move_light() of a game finds no glow
+// drawn, because nothing has been drawn yet.
+static bool player_light_drawn = false;
+
+bool player_light_is_drawn(void) {
+    return player_light_drawn;
+}
+
+void set_player_light_drawn(bool drawn) {
+    player_light_drawn = drawn;
 }

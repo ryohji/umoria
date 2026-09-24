@@ -14,9 +14,11 @@
 
 #include "externs.h"
 
+#include "command_state.h"
 #include "equipment.h"
 #include "player_light.h"
 #include "player_pos.h"
+#include "running.h"
 
 static bool see_wall(int, int, int);
 
@@ -210,10 +212,10 @@ void find_init(int dir) {
     int col = player_col();
 
     if (!mmove(dir, &row, &col)) {
-        find_flag = 0;
+        stop_running();
     } else {
         find_direction = dir;
-        find_flag = 1;
+        begin_run();
         find_breakright = find_breakleft = false;
         find_prevdir = dir;
         if (py.flags.blind < 1) {
@@ -271,19 +273,19 @@ void find_init(int dir) {
     // in this case while moving, so the only problem is on the first turn
     // of find mode, when the initial position of the character must be erased.
     // Hence we must do the erasure here.
-    if (!light_flag && !find_prself) {
+    if (!player_light_is_drawn() && !find_prself) {
         print(loc_symbol(player_row(), player_col()), player_row(), player_col());
     }
 
     move_char(dir, true);
-    if (find_flag == 0) {
-        command_count = 0;
+    if (!player_is_running()) {
+        cancel_command_count();
     }
 }
 
 void find_run(void) {
     // prevent infinite loops in find mode, will stop after moving 100 times
-    if (find_flag++ > 100) {
+    if (!keep_running()) {
         msg_print("You stop running to catch your breath.");
         end_find();
     } else {
@@ -293,8 +295,8 @@ void find_run(void) {
 
 // Switch off the run flag - and get the light correct. -CJS-
 void end_find(void) {
-    if (find_flag) {
-        find_flag = 0;
+    if (player_is_running()) {
+        stop_running();
         move_light(player_row(), player_col(), player_row(), player_col());
     }
 }

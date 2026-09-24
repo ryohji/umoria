@@ -48,13 +48,17 @@ inven_type t_list[MAX_TALLOC];
  * 読み書きが別の場所に当たる）。 */
 int16_t mfptr;
 int16_t mon_tot_mult;
-int find_flag;
+/* find_flag もここに無い。#18-11-6C で src/running.c が static で持つように
+ * なったので、代役を置くと窓口に届かない別の器になる（movement_rate_test は
+ * その running.c をリンクしている）。creature.c は player_is_running() 越しに
+ * 訊く。 */
 int hack_monptr;
 /* death もここに無い。#19B2 で creature.c が player_is_dead() 越しに読む
  * ようになったので、実体は src/score_death.c の static である。 */
 /* player_light もここに無い。#18-7-3C1 で src/player_light.c が static で
  * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
-bool screen_change;
+/* screen_change もここに無い。#18-11-3C で src/screen_touched.c が static で
+ * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 /* total_winner と max_score もここに無い。#18-7-1C1 で src/score_death.c が
  * static で持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 

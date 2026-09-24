@@ -17,6 +17,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "level_exit.h"
 #include "player_pos.h"
 
 // Scrolls for the reading -RAK-
@@ -189,14 +190,17 @@ void read_scroll(void) {
                 teleport(100);
                 ident = true;
                 break;
-            case 10:
-                dun_level += (-3) + 2 * randint(2);
-                if (dun_level < 1) {
-                    dun_level = 1;
+            case 10: {
+                int deeper = dun_level + (-3) + 2 * randint(2);
+                // The scroll may not push the player above the town; that is a
+                // rule of this scroll, not of leaving a level.
+                if (deeper < 1) {
+                    deeper = 1;
                 }
-                new_level_flag = true;
+                leave_for_level(deeper);
                 ident = true;
                 break;
+            }
             case 11:
                 if (py.flags.confuse_monster == 0) {
                     msg_print("Your hands begin to glow.");

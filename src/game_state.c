@@ -9,13 +9,21 @@
 #include "game_state.h"
 
 #include "burden.h"
+#include "command_state.h"
 #include "constant.h"
 #include "externs.h"
+#include "input_ended.h"
+#include "inven_command_state.h"
 #include "inventory.h"
+#include "level_exit.h"
+#include "missile_serial.h"
 #include "panel.h"
+#include "pending_teleport.h"
 #include "player_light.h"
 #include "progress.h"
+#include "running.h"
 #include "save_state.h"
+#include "screen_touched.h"
 #include "score_death.h"
 #include "stores.h"
 #include "messages.h"
@@ -54,14 +62,14 @@ GameState *game_state_init(void) {
     state->wizard_mode = progress_wizard_mode();
 
     // Flags
-    state->new_level_flag = new_level_flag;
-    state->teleport_flag = teleport_flag;
+    state->new_level_flag = level_is_over();
+    state->teleport_flag = teleport_is_pending();
     state->character_generated = character_is_generated();
     state->character_saved = character_is_saved();
 
     // Command state
-    state->command_count = command_count;
-    state->default_dir = default_dir;
+    state->command_count = command_count_remaining();
+    state->default_dir = direction_is_remembered();
 
     // Message system
     state->msg_flag = msg_pending();
@@ -96,13 +104,13 @@ GameState *game_state_init(void) {
 
     // Runtime state
     state->player_light = player_has_light();
-    state->find_flag = find_flag;
+    state->find_flag = running_steps();
     state->free_turn_flag = free_turn_flag;
     state->weapon_heavy = weapon_is_too_heavy();
     state->pack_heavy = pack_speed_penalty();
-    state->doing_inven = doing_inven;
-    state->screen_change = screen_change;
-    state->eof_flag = eof_flag;
+    state->doing_inven = pending_inven_command();
+    state->screen_change = screen_was_flushed();
+    state->eof_flag = input_end_count();
     state->noscore = score_disqualifications();
     state->panic_save = is_panic_save();
     state->wait_for_more = msg_at_more_prompt();
@@ -116,7 +124,7 @@ GameState *game_state_init(void) {
 
     // Temporary
     state->hack_monptr = hack_monptr;
-    state->missile_ctr = missile_ctr;
+    state->missile_ctr = missile_serial_value();
 
     // Set global instance
     g_game_state = state;

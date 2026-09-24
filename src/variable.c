@@ -61,15 +61,21 @@ int hack_monptr = -1;
 FILE *highscore_fp;               // File pointer to high score file
 int16_t cur_height, cur_width;    // Cur dungeon size
 int16_t dun_level = 0;            // Cur dungeon level
-int16_t missile_ctr = 0;          // Counter for missiles
+// The serial number that tells one batch of missiles from another moved to
+// missile_serial.c (#18-11-2C). The window is in missile_serial.h
+//
 // msg_flag, old_msg and last_msg (the top line: whether its message has been
 // seen, and the history ring) moved to messages.c, next to the code that uses
 // them
-int find_flag; // Used in MORIA for .(dir)
+// Whether the player is running moved to running.c (find_flag, #18-11-6C).
+// It was a count as well as a flag -- zero meant "not running" -- and the
+// hundred-step cut-off went in with it, so the number never leaves the module
 
-bool free_turn_flag;       // Used in MORIA, do not move creatures
-int command_count;         // Gives repetition of commands. -CJS-
-bool default_dir = false;  // Use last direction for repeated command
+bool free_turn_flag; // Used in MORIA, do not move creatures
+// What the game remembers about the command being typed moved to
+// command_state.c (command_count and default_dir, #18-11-7C; last_command went
+// with them from further down this file). All three exist because a command can
+// be given a repeat count, so they went into one module
 
 // options set via the '=' command
 //
@@ -89,20 +95,20 @@ bool find_ignore_doors;
 bool sound_beep_flag;
 bool display_counts;
 
-// FIXME: was a `bool`, but also holds an ASCII character. Is this the best solution?
-char doing_inven = 0; // Track inventory commands. -CJS-
-
-bool screen_change = false; // Track screen updates for inven_commands.
-char last_command = ' ';    // Memory of previous command.
+// doing_inven and screen_change have moved out (#18-11-3C): the command waiting
+// to be resumed lives in inven_command_state.c and the "has the screen been
+// flushed" flag in screen_touched.c, both static.
+//
+// The command before this one moved to command_state.c as well (last_command,
+// #18-11-7C), next to the repeat count it belongs with
 
 // these used to be in dungeon.c
-bool new_level_flag;     // Next level when true
-bool teleport_flag;      // Handle teleport traps
-// player_light（明かりを持っているか）はここに無い。#18-7-3C1 で
-// src/player_light.c の static になった。窓口は src/player_light.h
-// （player_has_light / set_player_has_light）。
-int eof_flag = 0;        // Used to signal EOF/HANGUP condition
-bool light_flag = false; // Track if temporary light about player.
+// The two flags about the character's light moved to player_light.c: whether a
+// light is burning (player_light, #18-7-3C1) and whether its glow is currently
+// drawn on the map (light_flag, #18-11-1C). The windows are in player_light.h
+// Whether the input has run out moved to input_ended.c (eof_flag, #18-11-5C).
+// It counted EOFs, and the count mattered in one place -- the 100 tries io.c
+// puts up with before it panic-saves -- so the counting went in with it
 
 // wait_for_more moved to messages.c as well; it is the -more- prompt's own
 // state, read by the interrupt handler

@@ -126,10 +126,12 @@ GROUPS = {
     # #18-2 で messages.c の static になり、externs.h から全部外れた。この一覧は
     # externs.h にあるものを数える道具なので、片づいた区分は行ごと消える。
     # 消えた記録は GLOBALS_INVENTORY.md 側に残す。
+    # 打っているコマンドについて覚えていること 3 個（command_count default_dir
+    # last_command）は #18-11-7C で src/command_state.c の static になった。
+    # どれも「コマンドに繰りかえしの回数を付けられる」ことから出ているので
+    # 1 本の module にまとめた。
     "コマンド入力・実行中のフラグ": """
-        command_count default_dir last_command doing_inven screen_change find_flag
-        free_turn_flag new_level_flag teleport_flag eof_flag light_flag closing_flag
-        missile_ctr""",
+        free_turn_flag closing_flag""",
     # セーブ／スコア／進行メタの 14 個のうち 13 個は #19C1 で 3 つの module の
     # static になり、externs.h から外れた（progress.c に turn randes_seed
     # town_seed wizard to_be_wizard、score_death.c に death died_from

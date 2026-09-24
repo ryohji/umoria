@@ -13,11 +13,15 @@
 #include "types.h"
 
 #include "externs.h"
+#include "command_state.h"
 #include "score_death.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "level_exit.h"
 #include "panel.h"
+#include "pending_teleport.h"
 #include "player_pos.h"
+#include "running.h"
 #include "spells_known.h"
 #include "stats.h"
 
@@ -64,8 +68,7 @@ static void hit_trap(int y, int x) {
         break;
     case 4: // Trap door
         msg_print("You fell through a trap door!");
-        new_level_flag = true;
-        dun_level++;
+        leave_for_level(dun_level + 1);
         if (py.flags.ffall) {
             msg_print("You gently float down.");
         } else {
@@ -106,7 +109,7 @@ static void hit_trap(int y, int x) {
         }
         break;
     case 8: // Teleport
-        teleport_flag = true;
+        schedule_teleport();
         msg_print("You hit a teleport trap!");
 
         // Light up the teleport trap, before we teleport away.
@@ -711,7 +714,7 @@ void move_char(int dir, bool do_pickup) {
                 }
 
                 // Check to see if he should stop
-                if (find_flag) {
+                if (player_is_running()) {
                     area_affect(dir, player_row(), player_col());
                 }
 
@@ -771,7 +774,7 @@ void move_char(int dir, bool do_pickup) {
             } else {
                 // Can't move onto floor space
 
-                if (!find_flag && (c_ptr->tptr != 0)) {
+                if (!player_is_running() && (c_ptr->tptr != 0)) {
                     if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
                         msg_print("There is rubble blocking your way.");
                     } else if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
@@ -785,11 +788,11 @@ void move_char(int dir, bool do_pickup) {
         } else {
             // Attacking a creature!
 
-            int old_find_flag = find_flag;
+            bool was_running = player_is_running();
             end_find();
 
             // if player can see monster, and was in find mode, then nothing
-            if (m_list[c_ptr->cptr].ml && old_find_flag) {
+            if (m_list[c_ptr->cptr].ml && was_running) {
                 // did not do anything this turn
                 free_turn_flag = true;
             } else {
@@ -889,7 +892,7 @@ void openobject(void) {
                     invcopy(&t_list[c_ptr->tptr], OBJ_OPEN_DOOR);
                     c_ptr->fval = CORR_FLOOR;
                     lite_spot(y, x);
-                    command_count = 0;
+                    cancel_command_count();
                 }
             } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
                 // Open a closed chest.

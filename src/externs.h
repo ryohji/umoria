@@ -29,19 +29,16 @@ extern bool sound_beep_flag;   // Beep for invalid character
 extern bool display_counts;    // Display rest/repeat counts
 
 // global flags
-extern bool new_level_flag; // Next level when true
-extern bool teleport_flag;  // Handle teleport traps
-extern int eof_flag;        // Used to handle eof/HANGUP
-extern int find_flag;       // Used in MORIA
+// eof_flag moved to input_ended.c: whether the input has run out, and how many
+// EOFs it took (#18-11-5C). The windows are in input_ended.h
+// find_flag moved to running.c: whether the player is running, and how many
+// steps in (#18-11-6C). The windows are in running.h
 extern bool free_turn_flag; // Used in MORIA
-extern char doing_inven;    // Track inventory commands
-extern bool screen_change;  // Screen changes (used in inven_commands)
-
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
-extern int command_count;           // Repetition of commands. -CJS-
-extern bool default_dir;            // Use last direction in repeated commands
+// command_count and default_dir moved to command_state.c, together with
+// last_command: how many repeats are left and whether the direction is taken
+// from memory (#18-11-7C). The windows are in command_state.h
 extern int16_t dun_level;           // Cur dungeon level
-extern int16_t missile_ctr;         // Counter for missiles
 // The top line (was: msg_flag, old_msg[MAX_SAVE_MSG], last_msg and
 // wait_for_more) is private to messages.c now, together with the code that
 // walks the ring and the -more- prompt; see messages.h.
@@ -131,14 +128,10 @@ extern uint8_t blows_table[7][6];
 
 extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 
-// Initialized data which had to be moved from some other file
-// Since these get modified, macrsrc.c must be able to access
-// them Otherwise, game cannot be made restartable dungeon.c.
-extern char last_command; // Memory of previous command.
-
-// moria1.c
-// Track if temporary light about player.
-extern bool light_flag;
+// The command before this one moved to command_state.c (last_command,
+// #18-11-7C), beside the repeat count that is the reason it is remembered. Only
+// "was the previous command this key?" is asked, so the character itself no
+// longer leaves the module; the windows are in command_state.h
 
 // function return values
 

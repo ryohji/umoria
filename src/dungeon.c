@@ -13,12 +13,18 @@
 #include "types.h"
 
 #include "externs.h"
+#include "command_state.h"
 #include "equipment.h"
+#include "input_ended.h"
+#include "inven_command_state.h"
 #include "inventory.h"
+#include "level_exit.h"
 #include "panel.h"
+#include "pending_teleport.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "progress.h"
+#include "running.h"
 #include "score_death.h"
 #include "messages.h"
 #include "stats.h"
@@ -62,10 +68,10 @@ void dungeon(void) {
 
     // Reset flags and initialize variables
     int find_count = 0;
-    command_count = 0;
-    new_level_flag = false;
-    find_flag = 0;
-    teleport_flag = false;
+    cancel_command_count();
+    begin_level();
+    forget_run();
+    forget_pending_teleport();
     mon_tot_mult = 0;
     cave[player_row()][player_col()].cptr = 1;
 
@@ -423,7 +429,8 @@ void dungeon(void) {
         }
 
         // Check for interrupts to find or rest.
-        if ((command_count > 0 || find_flag || f_ptr->rest != 0) && (check_input(find_flag ? 0 : 10000))) {
+        if ((command_is_repeating() || player_is_running() || f_ptr->rest != 0) &&
+            (check_input(player_is_running() ? 0 : 10000))) {
             disturb(0, 0);
         }
 
@@ -557,15 +564,19 @@ void dungeon(void) {
         // Word-of-Recall  Note: Word-of-Recall is a delayed action
         if (f_ptr->word_recall > 0) {
             if (f_ptr->word_recall == 1) {
-                new_level_flag = true;
                 f_ptr->paralysis++;
                 f_ptr->word_recall = 0;
                 if (dun_level > 0) {
-                    dun_level = 0;
+                    leave_for_level(0);
                     msg_print("You feel yourself yanked upwards!");
                 } else if (py.misc.max_dlv != 0) {
-                    dun_level = py.misc.max_dlv;
+                    leave_for_level(py.misc.max_dlv);
                     msg_print("You feel yourself yanked downwards!");
+                } else {
+                    // In town, and no depth recorded yet, so there is nowhere to
+                    // be yanked to. The level still ends, as it always did: the
+                    // town is built again.
+                    end_level();
                 }
             } else {
                 f_ptr->word_recall--;
@@ -672,25 +683,25 @@ void dungeon(void) {
                     prt_state();
                 }
 
-                default_dir = false;
+                ask_for_direction_again();
                 free_turn_flag = false;
 
-                if (find_flag) {
+                if (player_is_running()) {
                     find_run();
                     find_count--;
                     if (find_count == 0) {
                         end_find();
                     }
                     put_qio();
-                } else if (doing_inven) {
-                    inven_command(doing_inven);
+                } else if (pending_inven_command()) {
+                    inven_command(pending_inven_command());
                 } else {
                     // move the cursor to the players character
                     move_cursor_relative(player_row(), player_col());
 
-                    if (command_count > 0) {
+                    if (command_is_repeating()) {
                         msg_set_pending(false);
-                        default_dir = true;
+                        reuse_remembered_direction();
                     } else {
                         msg_set_pending(false);
                         command = inkey();
@@ -746,7 +757,7 @@ void dungeon(void) {
 
                         // Another way of typing control codes -CJS-
                         if (command == '^') {
-                            if (command_count > 0) {
+                            if (command_is_repeating()) {
                                 prt_state();
                             }
                             if (get_com("Control-", &command)) {
@@ -777,7 +788,7 @@ void dungeon(void) {
                                 msg_print("Invalid command with a count.");
                                 command = ' ';
                             } else {
-                                command_count = i;
+                                begin_command_count(i);
                                 prt_state();
                             }
                         }
@@ -791,18 +802,17 @@ void dungeon(void) {
                     do_command(command);
 
                     // Find is counted differently, as the command changes.
-                    if (find_flag) {
-                        find_count = command_count - 1;
-                        command_count = 0;
+                    if (player_is_running()) {
+                        find_count = take_command_count() - 1;
                     } else if (free_turn_flag) {
-                        command_count = 0;
-                    } else if (command_count) {
-                        command_count--;
+                        cancel_command_count();
+                    } else if (command_is_repeating()) {
+                        consume_command_count();
                     }
                 }
                 // End of commands
 
-            } while (free_turn_flag && !new_level_flag && !eof_flag);
+            } while (free_turn_flag && !level_is_over() && !input_has_ended());
         } else {
             // if paralyzed, resting, or dead, flush output
             // but first move the cursor onto the player, for aesthetics
@@ -811,17 +821,17 @@ void dungeon(void) {
         }
 
         // Teleport?
-        if (teleport_flag) {
+        if (teleport_is_pending()) {
             teleport(100);
         }
 
         // Move the creatures
-        if (!new_level_flag) {
+        if (!level_is_over()) {
             creatures(true);
         }
 
-        // Exit when new_level_flag is set
-    } while (!new_level_flag && !eof_flag);
+        // Exit when this level is finished
+    } while (!level_is_over() && !input_has_ended());
 }
 
 static char original_commands(char com_val) {
@@ -1058,10 +1068,10 @@ static void do_command(char com_val) {
     // hack for move without pickup.  Map '-' to a movement command.
     if (com_val == '-') {
         do_pickup = false;
-        i = command_count;
+        i = hold_command_count();
 
         if (get_dir(CNIL, &dir_val)) {
-            command_count = i;
+            resume_command_count(i);
             switch (dir_val) {
             case 1:
                 com_val = 'b';
@@ -1102,20 +1112,19 @@ static void do_command(char com_val) {
     case 'Q': // (Q)uit    (^K)ill
         flush();
         if (get_check("Do you really want to quit?")) {
-            new_level_flag = true;
+            end_level();
             set_player_dead(true);
             (void)strcpy(death_cause(), "Quitting");
         }
         free_turn_flag = true;
         break;
     case CTRL_KEY('P'): // (^P)revious message.
-        if (command_count > 0) {
-            i = command_count;
+        if (command_is_repeating()) {
+            i = take_command_count();
             if (i > MAX_SAVE_MSG) {
                 i = MAX_SAVE_MSG;
             }
-            command_count = 0;
-        } else if (last_command != CTRL_KEY('P')) {
+        } else if (!previous_command_was(CTRL_KEY('P'))) {
             i = 1;
         } else {
             i = MAX_SAVE_MSG;
@@ -1253,8 +1262,8 @@ static void do_command(char com_val) {
         break;
     case '.': // (.) stay in one place (5)
         move_char(5, do_pickup);
-        if (command_count > 1) {
-            command_count--;
+        if (command_count_remaining() > 1) {
+            consume_command_count();
             rest();
         }
         break;
@@ -1294,7 +1303,7 @@ static void do_command(char com_val) {
         gain_spells();
         break;
     case 'V': // (V)iew scores
-        if (last_command != 'V') {
+        if (!previous_command_was('V')) {
             do_diplay_scores = true;
         } else {
             do_diplay_scores = false;
@@ -1493,9 +1502,8 @@ static void do_command(char com_val) {
                 (void)mass_genocide();
                 break;
             case CTRL_KEY('G'): // ^G = treasure
-                if (command_count > 0) {
-                    i = command_count;
-                    command_count = 0;
+                if (command_is_repeating()) {
+                    i = take_command_count();
                 } else {
                     i = 1;
                 }
@@ -1503,13 +1511,11 @@ static void do_command(char com_val) {
                 prt_map();
                 break;
             case CTRL_KEY('D'): // ^D = up/down
-                if (command_count > 0) {
-                    if (command_count > 99) {
+                if (command_is_repeating()) {
+                    i = take_command_count();
+                    if (i > 99) {
                         i = 0;
-                    } else {
-                        i = command_count;
                     }
-                    command_count = 0;
                 } else {
                     prt("Go to which level (0-99) ? ", 0, 0);
                     i = -1;
@@ -1518,11 +1524,12 @@ static void do_command(char com_val) {
                     }
                 }
                 if (i > -1) {
-                    dun_level = i;
-                    if (dun_level > 99) {
-                        dun_level = 99;
+                    // 0-99 because that is what the prompt above says, not
+                    // because leaving a level has a limit of its own.
+                    if (i > 99) {
+                        i = 99;
                     }
-                    new_level_flag = true;
+                    leave_for_level(i);
                 } else {
                     erase_line(MSG_LINE, 0);
                 }
@@ -1550,9 +1557,8 @@ static void do_command(char com_val) {
                 teleport(100);
                 break;
             case '+':
-                if (command_count > 0) {
-                    py.misc.exp = command_count;
-                    command_count = 0;
+                if (command_is_repeating()) {
+                    py.misc.exp = take_command_count();
                 } else if (py.misc.exp == 0) {
                     py.misc.exp = 1;
                 } else {
@@ -1581,7 +1587,7 @@ static void do_command(char com_val) {
             free_turn_flag = true;
         }
     }
-    last_command = com_val;
+    note_command(com_val);
 }
 
 // Check whether this command will accept a count. -CJS-
@@ -1830,8 +1836,7 @@ static void go_up(void) {
 
     if (c_ptr->tptr != 0) {
         if (t_list[c_ptr->tptr].tval == TV_UP_STAIR) {
-            dun_level--;
-            new_level_flag = true;
+            leave_for_level(dun_level - 1);
             msg_print("You enter a maze of up staircases.");
             msg_print("You pass through a one-way door.");
         } else {
@@ -1852,8 +1857,7 @@ static void go_down(void) {
     const uint8_t tptr = cave[player_row()][player_col()].tptr;
 
     if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
-        dun_level++;
-        new_level_flag = true;
+        leave_for_level(dun_level + 1);
         msg_print("You enter a maze of down staircases.");
         msg_print("You pass through a one-way door.");
     } else {

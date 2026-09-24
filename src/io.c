@@ -13,11 +13,14 @@
 #include "types.h"
 
 #include "externs.h"
+#include "command_state.h"
 #include "panel.h"
 #include "input.h"
+#include "input_ended.h"
 #include "messages.h"
 #include "render.h"
 #include "save_state.h"
+#include "screen_touched.h"
 #include "score_death.h"
 
 #define use_value2
@@ -41,7 +44,7 @@ void put_buffer(const char *out_str, int row, int col) {
 // Dump the IO buffer to terminal -RAK-
 void put_qio(void) {
     // Let inven_command know something has changed.
-    screen_change = true;
+    note_screen_flushed();
 
     render_refresh();
 }
@@ -56,8 +59,8 @@ void shell_out(void) {
 // terminal, so that this operation can always be performed at
 // any input prompt. inkey() never returns ^R.
 char inkey(void) {
-    put_qio();         // Dump IO buffer
-    command_count = 0; // Just to be safe -CJS-
+    put_qio();              // Dump IO buffer
+    cancel_command_count(); // Just to be safe -CJS-
 
     while (true) {
         int i = input_get_key();
@@ -67,7 +70,7 @@ char inkey(void) {
             // avoid infinite loops while trying to call inkey() for a -more- prompt.
             msg_set_pending(false);
 
-            eof_flag++;
+            note_input_ended();
 
             render_refresh();
 
@@ -77,7 +80,7 @@ char inkey(void) {
 
             disturb(1, 0);
 
-            if (eof_flag > 100) {
+            if (input_end_is_hopeless()) {
                 // just in case, to make sure that the process eventually dies
                 set_panic_save(true);
 
@@ -103,7 +106,7 @@ char inkey(void) {
 
 // Flush the buffer -RAK-
 void flush(void) {
-    if (!eof_flag) {
+    if (!input_has_ended()) {
         input_flush();
     }
 }
@@ -145,9 +148,9 @@ void move_cursor_relative(int row, int col) {
 
 // Print a message so as not to interrupt a counted command. -CJS-
 void count_msg_print(const char *p) {
-    int i = command_count;
+    int i = hold_command_count();
     msg_print(p);
-    command_count = i;
+    resume_command_count(i);
 }
 
 // Outputs a line to a given y, x position -RAK-
@@ -183,13 +186,13 @@ void msg_print(const char *str_buff) {
         render_erase_line(MSG_LINE, 0);
 
         if (msg_pending()) {
-            command_count = 0;
+            cancel_command_count();
 
             put_buffer(str_buff, MSG_LINE, 0);
             msg_history_push(str_buff);
         }
     } else {
-        command_count = 0;
+        cancel_command_count();
 
         // If the new message and the old message are short enough,
         // display them together on the same line.
@@ -501,7 +504,7 @@ bool check_input(int microsec) {
         int ch = input_get_key();
         // check for EOF errors here
         if (ch == -1) {
-            eof_flag++;
+            note_input_ended();
             return false;
         }
         return true;

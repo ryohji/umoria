@@ -40,7 +40,10 @@ int16_t cur_width;
 int16_t dun_level;
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
  * 読み書きするようになったので、実体は src/score_death.c の static である。 */
-int command_count;
+/* 打っているコマンドの覚え 3 個（command_count・default_dir・last_command）は
+ * ここに無い。#18-11-7B で misc3.c の prt_state() が src/command_state.h の
+ * 窓口越しに読むようになり、#18-11-7C で実体が src/command_state.c の static に
+ * なった（ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* pack_heavy と weapon_heavy はここに無い。#18-7-4B で misc3.c が
  * pack_speed_penalty() / weapon_is_too_heavy() 越しに読み書きするように
  * なり、#18-7-4C1 で実体が src/burden.c の static になった
@@ -50,7 +53,10 @@ int command_count;
  * src/save_state.c の static である。 */
 bool display_counts;
 bool free_turn_flag;
-bool teleport_flag;
+/* teleport_flag もここに無い。#18-11-4B で misc3.c の teleport() が出口で
+ * teleport_done() を呼ぶようになり、#18-11-4C で実体が
+ * src/pending_teleport.c の static になった
+ * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* total_winner と max_score はここに無い。#18-7-1B で misc3.c が
  * player_has_won() 越しに読むようになり、#18-7-1C1 で実体が
  * src/score_death.c の static になった。 */

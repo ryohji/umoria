@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "missile_serial.h"
 #include "options.h"
 
 // Chance of treasure having magic abilities -RAK-
@@ -811,12 +812,7 @@ void magic_treasure(int x, int level) {
         for (int i = 0; i < 7; i++) {
             t_ptr->number += randint(6);
         }
-        if (missile_ctr == MAX_SHORT) {
-            missile_ctr = -MAX_SHORT - 1;
-        } else {
-            missile_ctr++;
-        }
-        t_ptr->p1 = missile_ctr;
+        t_ptr->p1 = next_missile_serial();
         break;
     case TV_FOOD:
         if (t_ptr->subval == 90) {

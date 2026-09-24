@@ -13,13 +13,18 @@
 #include "types.h"
 
 #include "burden.h"
+#include "command_state.h"
 #include "equipment.h"
 #include "externs.h"
 #include "score_death.h"
+#include "inven_command_state.h"
 #include "inventory.h"
+#include "level_exit.h"
 #include "panel.h"
 #include "player_light.h"
 #include "player_pos.h"
+#include "running.h"
+#include "screen_touched.h"
 #include "stats.h"
 
 // Changes speed of monsters relative to player -RAK-
@@ -530,11 +535,11 @@ int verify(const char *prompt, int item) {
 //
 // It is intended that this function be called several times in succession,
 // as some commands take up a turn, and the rest of moria must proceed in the
-// interim. A global variable is provided, doing_inven, which is normally
-// zero; however if on return from inven_command it is expected that
-// inven_command should be called *again*, (being still in inventory command
-// input mode), then doing_inven is set to the inventory command character
-// which should be used in the next call to inven_command.
+// interim. pending_inven_command() (inven_command_state.h) is normally zero;
+// however if on return from inven_command it is expected that inven_command
+// should be called *again*, (being still in inventory command input mode), then
+// suspend_inven_command() has been given the inventory command character which
+// should be used in the next call to inven_command.
 //
 // On return, the screen is restored, but not flushed. Provided no flush of
 // the screen takes place before the next call to inven_command, the inventory
@@ -543,9 +548,10 @@ int verify(const char *prompt, int item) {
 // prompted to see if we should continue. This allows the player to see any
 // changes that take place on the screen during inventory command input.
 //
-// The global variable, screen_change, is cleared by inven_command, and set
-// when the screen is flushed. This is the means by which inven_command tell
-// if the screen has been flushed.
+// screen_was_flushed() (screen_touched.h) answers the question that prompt turns
+// on. Suspending clears it and a flush sets it, which is how inven_command tells
+// whether the screen it saved is still the one in front of the player. The two
+// go together, so suspend_inven_command() does both (#18-11-3).
 //
 // The display of inventory items is kept to the right of the screen to
 // minimize the work done to restore the screen afterwards. -CJS-
@@ -622,14 +628,14 @@ void inven_command(char command) {
     save_screen();
 
     // Take up where we left off after a previous inventory command. -CJS-
-    if (doing_inven) {
+    if (pending_inven_command()) {
         // If the screen has been flushed, we need to redraw. If the command
         // is a simple ' ' to recover the screen, just quit. Otherwise, check
         // and see what the user wants.
-        if (screen_change) {
+        if (screen_was_flushed()) {
             if (command == ' ' ||
                 !get_check("Continuing with inventory command?")) {
-                doing_inven = 0;
+                finish_inven_command();
                 return;
             }
             scr_left = 50;
@@ -675,7 +681,8 @@ void inven_command(char command) {
                 msg_print("You are not using any equipment.");
                 // don't print message restarting inven command after taking off
                 // something, it is confusing
-            } else if (inventory_count() >= inventory_slot_count() && !doing_inven) {
+            } else if (inventory_count() >= inventory_slot_count() &&
+                       !pending_inven_command()) {
                 msg_print("You will have to drop something first.");
             } else {
                 if (scr_state != BLANK_SCR) {
@@ -767,9 +774,9 @@ void inven_command(char command) {
             break;
         }
 
-        // Clear the doing_inven flag here, instead of at beginning, so that
-        // can use it to control when messages above appear.
-        doing_inven = 0;
+        // Say we are done here, instead of at the beginning, so that the
+        // messages above can use "are we resuming?" to decide what to print.
+        finish_inven_command();
 
         // Keep looking for objects to drop/wear/take off/throw off
         char which = 'z';
@@ -1134,14 +1141,14 @@ void inven_command(char command) {
             command = ESCAPE;
         } else if (!free_turn_flag) {
             // Save state for recovery if they want to call us again next turn.
-            if (selecting) {
-                doing_inven = command;
-            } else {
-                doing_inven = ' '; // A dummy command to recover screen.
-                // flush last message before clearing screen_change and exiting
-            }
+            // A ' ' is a dummy command, just to recover the screen.
+            char resume = selecting ? command : ' ';
+
+            // Flush the last message before suspending: putting text on the
+            // screen notes a flush of its own, and suspending is what starts
+            // the count of "has the world changed since?" over again.
             msg_print(CNIL);
-            screen_change = false; // This lets us know if the world changes
+            suspend_inven_command(resume);
             command = ESCAPE;
         } else {
             // Put an appropriate header.
@@ -1407,7 +1414,7 @@ bool get_dir(const char *prompt, int *dir) {
     static char prev_dir; // Direction memory. -CJS-
 
     // used in counted commands. -CJS-
-    if (default_dir) {
+    if (direction_is_remembered()) {
         *dir = prev_dir;
         return true;
     }
@@ -1420,14 +1427,14 @@ bool get_dir(const char *prompt, int *dir) {
         char command;
 
         // Don't end a counted command. -CJS-
-        int save = command_count;
+        int save = hold_command_count();
 
         if (!get_com(prompt, &command)) {
             free_turn_flag = true;
             return false;
         }
 
-        command_count = save;
+        resume_command_count(save);
 
         if (rogue_like_commands) {
             command = map_roguedir(command);
@@ -1516,18 +1523,18 @@ void lite_spot(int y, int x) {
 // Normal movement
 // When FIND_FLAG,  light only permanent features
 static void sub1_move_light(int y1, int x1, int y2, int x2) {
-    if (light_flag) {
+    if (player_light_is_drawn()) {
         // Turn off lamp light
         for (int i = y1 - 1; i <= y1 + 1; i++) {
             for (int j = x1 - 1; j <= x1 + 1; j++) {
                 cave[i][j].tl = false;
             }
         }
-        if (find_flag && !find_prself) {
-            light_flag = false;
+        if (player_is_running() && !find_prself) {
+            set_player_light_drawn(false);
         }
-    } else if (!find_flag || find_prself) {
-        light_flag = true;
+    } else if (!player_is_running() || find_prself) {
+        set_player_light_drawn(true);
     }
 
     for (int i = y2 - 1; i <= y2 + 1; i++) {
@@ -1535,7 +1542,7 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
             cave_type *c_ptr = &cave[i][j];
 
             // only light up if normal movement
-            if (light_flag) {
+            if (player_light_is_drawn()) {
                 c_ptr->tl = true;
             }
             if (c_ptr->fval >= MIN_CAVE_WALL) {
@@ -1577,19 +1584,19 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
 // When blinded,  move only the player symbol.
 // With no light,  movement becomes involved.
 static void sub3_move_light(int y1, int x1, int y2, int x2) {
-    if (light_flag) {
+    if (player_light_is_drawn()) {
         for (int i = y1 - 1; i <= y1 + 1; i++) {
             for (int j = x1 - 1; j <= x1 + 1; j++) {
                 cave[i][j].tl = false;
                 print(loc_symbol(i, j), i, j);
             }
         }
-        light_flag = false;
-    } else if (!find_flag || find_prself) {
+        set_player_light_drawn(false);
+    } else if (!player_is_running() || find_prself) {
         print(loc_symbol(y1, x1), y1, x1);
     }
 
-    if (!find_flag || find_prself) {
+    if (!player_is_running() || find_prself) {
         print('@', y2, x2);
     }
 }
@@ -1608,15 +1615,15 @@ void move_light(int y1, int x1, int y2, int x2) {
 // The first arg indicates a major disturbance, which affects search.
 // The second arg indicates a light change.
 void disturb(int s, int l) {
-    command_count = 0;
+    cancel_command_count();
     if (s && (py.flags.status & PY_SEARCH)) {
         search_off();
     }
     if (py.flags.rest != 0) {
         rest_off();
     }
-    if (l || find_flag) {
-        find_flag = 0;
+    if (l || player_is_running()) {
+        stop_running();
         check_view();
     }
     flush();
@@ -1646,9 +1653,8 @@ void search_off(void) {
 void rest(void) {
     int rest_num;
 
-    if (command_count > 0) {
-        rest_num = command_count;
-        command_count = 0;
+    if (command_is_repeating()) {
+        rest_num = take_command_count();
     } else {
         prt("Rest for how long? ", 0, 0);
         rest_num = 0;
@@ -1725,7 +1731,7 @@ void take_hit(int damage, const char *hit_from) {
             (void)strcpy(death_cause(), hit_from);
             set_player_has_won(false);
         }
-        new_level_flag = true;
+        end_level();
     } else {
         prt_chp();
     }

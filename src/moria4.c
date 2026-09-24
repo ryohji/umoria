@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "burden.h"
+#include "command_state.h"
 #include "externs.h"
 #include "equipment.h"
 #include "inventory.h"
@@ -1002,7 +1003,7 @@ void bash(void) {
                 } else if (randint(150) > py.stats.use_stat[A_DEX]) {
                     msg_print("You are off-balance.");
                     py.flags.paralysis = 1 + randint(2);
-                } else if (command_count == 0) {
+                } else if (!command_is_repeating()) {
                     msg_print("The door holds firm.");
                 }
             } else if (t_ptr->tval == TV_CHEST) {
