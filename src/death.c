@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "player_gold.h"
 #include "score_death.h"
 #include "platform.h"
 #include "save_state.h"
@@ -159,7 +160,7 @@ static void print_tomb(void) {
     (void)sprintf(str, "%d Exp", py.misc.exp);
     (void)sprintf(str, "| %s |          :    :", center_string(tmp_str, str));
     put_buffer(str, 12, 9);
-    (void)sprintf(str, "%d Au", py.misc.au);
+    (void)sprintf(str, "%d Au", player_gold());
     (void)sprintf(str, "| %s |          :    :", center_string(tmp_str, str));
     put_buffer(str, 13, 9);
     (void)sprintf(str, "Died on Level : %d", dun_level);
@@ -227,7 +228,7 @@ retry:
 // Calculates the total number of points earned -JWT-
 int32_t total_points(void) {
     int32_t total = py.misc.max_exp + (100 * py.misc.max_dlv);
-    total += py.misc.au / 100;
+    total += player_gold() / 100;
 
     for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
         total += item_value(inventory_and_equipment_at(i));
@@ -423,7 +424,7 @@ static void kingly(void) {
     (void)restore_level();
 
     p_ptr->lev += MAX_PLAYER_LEVEL;
-    p_ptr->au += 250000L;
+    player_gain_gold(250000L);
     p_ptr->max_exp += 5000000L;
     p_ptr->exp = p_ptr->max_exp;
 

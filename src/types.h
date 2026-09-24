@@ -165,7 +165,10 @@ typedef struct player_type {
     struct misc {
         char name[PLAYER_NAME_SIZE]; // Name of character
         uint8_t male;                // Sex of character
-        int32_t au;                  // Gold
+        // The purse moved to player_gold.c (au, #18-12-1C). How much gold is
+        // carried is the first question to leave this struct: the windows are
+        // in player_gold.h, and no caller needs the number's address any more
+        // (the save file's reader takes it through a local).
         int32_t max_exp;             // Max experience
         int32_t exp;                 // Cur experience
         uint16_t exp_frac;           // Cur exp fraction * 2^16

@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "stores.h"
 #include "messages.h"
+#include "player_gold.h"
 #include "progress.h"
 #include "stats.h"
 #include "str_insert.h"
@@ -272,7 +273,7 @@ static void display_cost(int store_num, int pos) {
 // Displays players gold -RAK-
 static void store_prt_gold(void) {
     vtype out_val;
-    (void)sprintf(out_val, "Gold Remaining : %d", py.misc.au);
+    (void)sprintf(out_val, "Gold Remaining : %d", player_gold());
     prt(out_val, 18, 17);
 }
 
@@ -851,10 +852,10 @@ static bool store_purchase(int store_num, int *cur_top) {
             }
 
             if (choice == 0) {
-                if (py.misc.au >= price) {
+                if (player_gold() >= price) {
                     prt_comment1();
                     decrease_insults(store_num);
-                    py.misc.au -= price;
+                    player_pay_gold(price);
 
                     int item_new = inven_carry(&sell_obj);
                     i = s_ptr->store_ctr;
@@ -951,7 +952,7 @@ static bool store_sell(int store_num, int *cur_top) {
             if (choice == 0) {
                 prt_comment1();
                 decrease_insults(store_num);
-                py.misc.au += price;
+                player_gain_gold(price);
 
                 // identify object in inventory to set the per-kind record
                 identify(&item_val);

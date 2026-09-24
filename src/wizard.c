@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "player_gold.h"
 #include "player_pos.h"
 
 // Light up the dungeon -RAK-
@@ -146,13 +147,13 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  Gold = ", m_ptr->au);
+    (void)sprintf(tmp_str, "Current=%d  Gold = ", player_gold());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 7)) {
         int32_t tmp_lval = (int32_t)atol(tmp_str);
         if (tmp_lval > -1 && (*tmp_str != '\0')) {
-            m_ptr->au = tmp_lval;
+            player_set_gold(tmp_lval);
             prt_gold();
         }
     } else {

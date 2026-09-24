@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "hp_table.h"
+#include "player_gold.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -438,7 +439,7 @@ static void get_money(void) {
         gold = 80;
     }
 
-    py.misc.au = gold;
+    player_set_gold(gold);
 }
 
 // -----------------------------------------------------
