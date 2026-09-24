@@ -42,7 +42,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         calc_hitpoints_test player_light_test burden_test \
         check_strength_test calc_spells_test gain_spells_test \
         spells_known_test object_levels_test missile_serial_test \
-        screen_touched_test inven_command_state_test
+        screen_touched_test inven_command_state_test \
+        level_exit_test pending_teleport_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -718,6 +719,33 @@ $(BUILDDIR)/inven_command_state_test: $(TESTDIR)/inven_command_state_test.c \
                                       src/screen_touched.c src/screen_touched.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_command_state_test.c \
 	    src/inven_command_state.c src/screen_touched.c
+
+# turn を途中で切りあげる 2 つの理由（#18-11-4）。ユーザーの判断で module を
+# 2 本に分けた —— 「この階は終わったか」（level_exit）と「teleport が待っているか」
+# （pending_teleport）は起きる場所も読まれかたも違う。
+#
+# level_exit のほうは **dun_level と対で動く形を窓口にした**（これもユーザーが
+# 決めた）。8 か所のうち 6 か所が深さの置きかえと並んでいたので、
+# leave_for_level(n) がその両方をやる。だから level_exit_test は dun_level を
+# 足場に持つ。
+#
+# **実体はまだ variable.c の new_level_flag / teleport_flag** なので足場が要る
+# （tests/level_exit_fixture.c と tests/pending_teleport_fixture.c。#18-11-4C で
+# 実体が入ったら pending_teleport のほうは消し、level_exit のほうは dun_level
+# だけ残す —— あちらは別の区分の global なので）。
+$(BUILDDIR)/level_exit_test: $(TESTDIR)/level_exit_test.c \
+                             $(TESTDIR)/level_exit_fixture.c \
+                             $(TESTDIR)/minunit.h \
+                             src/level_exit.c src/level_exit.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/level_exit_test.c src/level_exit.c \
+	    $(TESTDIR)/level_exit_fixture.c
+
+$(BUILDDIR)/pending_teleport_test: $(TESTDIR)/pending_teleport_test.c \
+                                   $(TESTDIR)/pending_teleport_fixture.c \
+                                   $(TESTDIR)/minunit.h \
+                                   src/pending_teleport.c src/pending_teleport.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/pending_teleport_test.c src/pending_teleport.c \
+	    $(TESTDIR)/pending_teleport_fixture.c
 
 # 明かりについて覚えている 2 つの答えの置き場（player_light）。1 つめ
 # （明かりが燃えているか）は #18-7-3C1、2 つめ（明かりの輪が地図に描かれて

@@ -56,6 +56,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	inventory.c progress.c score_death.c save_state.c player_pos.c \
 	hp_table.c player_light.c burden.c spells_known.c object_levels.c \
 	missile_serial.c inven_command_state.c screen_touched.c \
+	level_exit.c pending_teleport.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -69,6 +70,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	inventory.o progress.o score_death.o save_state.o player_pos.o \
 	hp_table.o player_light.o burden.o spells_known.o object_levels.o \
 	missile_serial.o inven_command_state.o screen_touched.o \
+	level_exit.o pending_teleport.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -189,6 +191,12 @@ missile_serial.o: $(SRCDIR)/missile_serial.h $(HEADERS_COMMON)
 # suspending is one act that touches both.
 inven_command_state.o: $(SRCDIR)/inven_command_state.h $(SRCDIR)/screen_touched.h $(HEADERS_COMMON)
 screen_touched.o: $(SRCDIR)/screen_touched.h $(HEADERS_COMMON)
+# The two ways a turn can be cut short (#18-11-4): this level is finished, and a
+# teleport is waiting. Neither includes externs.h; level_exit.c declares the two
+# symbols it touches itself (its own flag and dun_level, which belongs to another
+# group and stays a global for now).
+level_exit.o: $(SRCDIR)/level_exit.h $(HEADERS_COMMON)
+pending_teleport.o: $(SRCDIR)/pending_teleport.h $(HEADERS_COMMON)
 monsters.o: $(HEADERS_COMMON)
 # object_levels.c does not include externs.h (it declares the three things it
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.
