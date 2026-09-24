@@ -20,24 +20,26 @@
 // game. In particular this module does not know prices, does not know what a
 // thief can reach, and does not print anything.
 
-// The amount still lives in py.misc.au (player.c:17). It comes in here at
-// #18-12-1C, where this declaration becomes a static of its own and the field
-// leaves the struct. Declared here rather than taken from externs.h so that
-// what this module touches is one line long and visible.
-extern player_type py;
+// Owned here and static: the only way in is through the four windows below.
+// It came over from py.misc.au (#18-12-1C) with its initial value -- the field
+// was inside a struct with no initializer, so an empty purse is what a program
+// starts with, and character creation puts the starting money in at the end.
+//
+// The name follows the window rather than the old field: "au" was aurum.
+static int32_t gold = 0;
 
 int32_t player_gold(void) {
-    return py.misc.au;
+    return gold;
 }
 
 void player_gain_gold(int32_t amount) {
-    py.misc.au += amount;
+    gold += amount;
 }
 
 void player_pay_gold(int32_t amount) {
-    py.misc.au -= amount;
+    gold -= amount;
 }
 
 void player_set_gold(int32_t amount) {
-    py.misc.au = amount;
+    gold = amount;
 }
