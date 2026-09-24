@@ -44,7 +44,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         spells_known_test object_levels_test missile_serial_test \
         screen_touched_test inven_command_state_test \
         level_exit_test pending_teleport_test input_ended_test \
-        running_test command_state_test
+        running_test command_state_test player_gold_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -965,6 +965,21 @@ $(BUILDDIR)/spells_known_test: $(TESTDIR)/spells_known_test.c \
                         $(TESTDIR)/minunit.h \
                         src/spells_known.c src/spells_known.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/spells_known_test.c src/spells_known.c
+
+# 財布の中身（py.misc.au）。py の 86 個のフィールドのうち、いちばん独立した
+# 問いを 1 本目として出したもの（#18-12-1A）。**py 全体は module にならない**
+# —— 問いごとに出す方式で、これがその 1 つめ。
+#
+# 実体はまだ src/player.c:17 の py の中なので、足場
+# tests/player_gold_fixture.c が同じ形の py を 1 つ置く（player.c 本物は
+# 大きな表が丸ごと付いてくるのでリンクしない）。#18-12-1C で置き場が
+# src/player_gold.c の static に入ったら足場は消える。
+$(BUILDDIR)/player_gold_test: $(TESTDIR)/player_gold_test.c \
+                              $(TESTDIR)/player_gold_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/player_gold.c src/player_gold.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_gold_test.c \
+	    $(TESTDIR)/player_gold_fixture.c src/player_gold.c
 
 clean:
 	rm -rf $(BUILDDIR)
