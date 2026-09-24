@@ -40,7 +40,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         str_insert_test inventory_test progress_test score_death_test \
         save_state_test player_pos_test hp_table_test \
         calc_hitpoints_test player_light_test burden_test \
-        check_strength_test
+        check_strength_test calc_spells_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -645,6 +645,33 @@ $(BUILDDIR)/burden_test: $(TESTDIR)/burden_test.c \
                         $(TESTDIR)/minunit.h \
                         src/burden.c src/burden.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/burden_test.c src/burden.c
+
+# 覚えている呪文の出し入れ（misc3.c:1220 の calc_spells）。#18-8 で窓口に
+# 預ける 4 個のうち 3 個を書きかえるのはこの関数だけなのに、単体テストが
+# 1 件も届いていなかった。戻り値が無く、結果は覚えた／忘れた印・メッセージ・
+# py.flags.new_spells にしか現れないので、misc3_stubs.c の代役が記録した
+# メッセージを fixture.h の窓口で読みとる。
+#
+# リンク構成は check_strength_test と同じ（misc3.c の未解決シンボルを代役で
+# 埋め、呪文の段の表 magic_spell と呪文名 spell_names・py は player.c の
+# 本物を使う）。呪文の 4 個の実体も player.c にあるので足場は要らない。
+$(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
+                            $(TESTDIR)/misc3_stubs.c \
+                            $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
+                            src/misc3.c src/stats.c src/str_insert.c src/desc.c \
+                            src/tables.c src/inventory.c \
+                            src/treasure.c src/player.c \
+                            src/abilities.c src/abilities.h \
+                            src/progress.c src/score_death.c \
+                            src/save_state.c \
+                            src/player_pos.c src/hp_table.c \
+                            src/burden.c src/burden.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_spells_test.c \
+	    $(TESTDIR)/misc3_stubs.c src/misc3.c src/stats.c src/str_insert.c \
+	    src/desc.c src/tables.c src/inventory.c \
+	    src/treasure.c src/player.c src/abilities.c \
+	    src/progress.c src/score_death.c src/save_state.c \
+	    src/player_pos.c src/hp_table.c src/burden.c
 
 clean:
 	rm -rf $(BUILDDIR)
