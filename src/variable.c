@@ -98,11 +98,10 @@ char last_command = ' ';    // Memory of previous command.
 // these used to be in dungeon.c
 bool new_level_flag;     // Next level when true
 bool teleport_flag;      // Handle teleport traps
-// player_light（明かりを持っているか）はここに無い。#18-7-3C1 で
-// src/player_light.c の static になった。窓口は src/player_light.h
-// （player_has_light / set_player_has_light）。
+// The two flags about the character's light moved to player_light.c: whether a
+// light is burning (player_light, #18-7-3C1) and whether its glow is currently
+// drawn on the map (light_flag, #18-11-1C). The windows are in player_light.h
 int eof_flag = 0;        // Used to signal EOF/HANGUP condition
-bool light_flag = false; // Track if temporary light about player.
 
 // wait_for_more moved to messages.c as well; it is the -more- prompt's own
 // state, read by the interrupt handler

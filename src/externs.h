@@ -136,10 +136,6 @@ extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 // them Otherwise, game cannot be made restartable dungeon.c.
 extern char last_command; // Memory of previous command.
 
-// moria1.c
-// Track if temporary light about player.
-extern bool light_flag;
-
 // function return values
 
 // only extern functions declared here, static functions

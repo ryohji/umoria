@@ -95,8 +95,8 @@ TEST(setting_the_dark_twice_leaves_it_dark) {
 
 /* --- 明かりの輪が地図に描かれているか（#18-11-1）----------------------- */
 
-/* 走りだしは「描かれていない」。変更前の light_flag（variable.c:105）は
- * = false と書いてある（明かりの有無の旗と違って、こちらは明示されている）。
+/* 走りだしは「描かれていない」。変更前の light_flag（variable.c にあった）は
+ * = false と明示されていたので、その初期値をそのまま持ってきている。
  * この 1 件も main() の先頭。 */
 TEST(the_glow_starts_out_undrawn) {
     ASSERT_TRUE(!player_light_is_drawn());
