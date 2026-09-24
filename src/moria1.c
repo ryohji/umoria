@@ -1516,7 +1516,7 @@ void lite_spot(int y, int x) {
 // Normal movement
 // When FIND_FLAG,  light only permanent features
 static void sub1_move_light(int y1, int x1, int y2, int x2) {
-    if (light_flag) {
+    if (player_light_is_drawn()) {
         // Turn off lamp light
         for (int i = y1 - 1; i <= y1 + 1; i++) {
             for (int j = x1 - 1; j <= x1 + 1; j++) {
@@ -1524,10 +1524,10 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
             }
         }
         if (find_flag && !find_prself) {
-            light_flag = false;
+            set_player_light_drawn(false);
         }
     } else if (!find_flag || find_prself) {
-        light_flag = true;
+        set_player_light_drawn(true);
     }
 
     for (int i = y2 - 1; i <= y2 + 1; i++) {
@@ -1535,7 +1535,7 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
             cave_type *c_ptr = &cave[i][j];
 
             // only light up if normal movement
-            if (light_flag) {
+            if (player_light_is_drawn()) {
                 c_ptr->tl = true;
             }
             if (c_ptr->fval >= MIN_CAVE_WALL) {
@@ -1577,14 +1577,14 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
 // When blinded,  move only the player symbol.
 // With no light,  movement becomes involved.
 static void sub3_move_light(int y1, int x1, int y2, int x2) {
-    if (light_flag) {
+    if (player_light_is_drawn()) {
         for (int i = y1 - 1; i <= y1 + 1; i++) {
             for (int j = x1 - 1; j <= x1 + 1; j++) {
                 cave[i][j].tl = false;
                 print(loc_symbol(i, j), i, j);
             }
         }
-        light_flag = false;
+        set_player_light_drawn(false);
     } else if (!find_flag || find_prself) {
         print(loc_symbol(y1, x1), y1, x1);
     }

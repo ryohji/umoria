@@ -271,7 +271,7 @@ void find_init(int dir) {
     // in this case while moving, so the only problem is on the first turn
     // of find mode, when the initial position of the character must be erased.
     // Hence we must do the erasure here.
-    if (!light_flag && !find_prself) {
+    if (!player_light_is_drawn() && !find_prself) {
         print(loc_symbol(player_row(), player_col()), player_row(), player_col());
     }
 

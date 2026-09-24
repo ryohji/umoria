@@ -14,6 +14,5 @@
 #include "constant.h"
 #include "types.h"
 
-/* 初期値は書かない。variable.c の light_flag も書いていない（false から
- * 始まり、最初の move_light() が入れなおす）。 */
-bool light_flag;
+/* 初期値は variable.c:105 に合わせる（あちらは = false と書いてある）。 */
+bool light_flag = false;
