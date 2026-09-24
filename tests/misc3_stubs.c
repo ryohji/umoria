@@ -135,7 +135,34 @@ void bell(void) {}
 
 /* --- 入力 --- */
 char inkey(void) { return ' '; }
-int get_com(const char *p, char *c) { (void)p; (void)c; return 0; }
+
+/* get_com は「押されなかった」を返すだけでは足りない。gain_spells()
+ * （misc3.c:1374）の MAGE の側は get_com が真を返すあいだ「どの呪文を学ぶ？」
+ * を繰りかえすので、キーを返さないと**繰りかえしに 1 度も入らない**。
+ * テストから並びを渡せるようにして、使いきったら 0（押されなかった）に戻す
+ * （msg_print・change_speed と同じリンクシーム）。並びは fixture_reset() で
+ * 空になるので、テスト間で漏れない。 */
+#define FIXTURE_KEYS_MAX 16
+static char fixture_keys[FIXTURE_KEYS_MAX + 1];
+static int fixture_keys_next;
+
+void fixture_set_get_com_keys(const char *keys) {
+    strncpy(fixture_keys, keys == NULL ? "" : keys, FIXTURE_KEYS_MAX);
+    fixture_keys[FIXTURE_KEYS_MAX] = '\0';
+    fixture_keys_next = 0;
+}
+
+int get_com(const char *p, char *c) {
+    (void)p;
+    if (fixture_keys[fixture_keys_next] == '\0') {
+        return 0;
+    }
+    if (c != NULL) {
+        *c = fixture_keys[fixture_keys_next];
+    }
+    fixture_keys_next++;
+    return 1;
+}
 bool get_check(const char *p) { (void)p; return false; }
 bool get_string(char *s, int r, int c, int l) {
     (void)s; (void)r; (void)c; (void)l;
@@ -290,4 +317,6 @@ void fixture_reset(void)
     fixture_speed_change_last = 0;
     fixture_speed_change_calls = 0;
     fixture_bonuses_calls = 0;
+    fixture_keys[0] = '\0';
+    fixture_keys_next = 0;
 }

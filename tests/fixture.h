@@ -56,4 +56,11 @@ int fixture_speed_change_count(void);
  * 能力の再計算が走ることを見る。misc3_stubs.c だけが提供する。 */
 int fixture_calc_bonuses_count(void);
 
+/* get_com() が返すキーを前もって並べておく。misc3_stubs.c だけが提供する
+ * （fixture.c にはない）。既定では get_com() は「押されなかった」（0）を返す
+ * ので、キーを待つ繰りかえし（gain_spells の「どの呪文を学ぶ？」）に入れない。
+ * 並べたキーを使いきると 0 に戻るので、繰りかえしはそこで終わる。
+ * fixture_reset() で並びは空になる。 */
+void fixture_set_get_com_keys(const char *keys);
+
 #endif /* FIXTURE_H */
