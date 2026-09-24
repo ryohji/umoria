@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "externs.h"
 #include "inventory.h"
+#include "missile_serial.h"
 #include "panel.h"
 #include "player_light.h"
 #include "progress.h"
@@ -116,7 +117,7 @@ GameState *game_state_init(void) {
 
     // Temporary
     state->hack_monptr = hack_monptr;
-    state->missile_ctr = missile_ctr;
+    state->missile_ctr = missile_serial_value();
 
     // Set global instance
     g_game_state = state;

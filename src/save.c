@@ -19,6 +19,7 @@
 #include "hp_table.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "missile_serial.h"
 #include "panel.h"
 #include "messages.h"
 #include "player_pos.h"
@@ -206,7 +207,7 @@ static bool sv_write(void) {
     wr_byte(f_ptr->confuse_monster);
     wr_byte(f_ptr->new_spells);
 
-    wr_short((uint16_t)missile_ctr);
+    wr_short((uint16_t)missile_serial_value());
     wr_long((uint32_t)progress_turn());
     wr_short((uint16_t)inventory_count());
     for (int i = 0; i < inventory_count(); i++) {
@@ -664,7 +665,9 @@ bool get_char(bool *generate) {
             rd_byte(&f_ptr->confuse_monster);
             rd_byte(&f_ptr->new_spells);
 
-            rd_short((uint16_t *)&missile_ctr);
+            uint16_t saved_missile_serial;
+            rd_short(&saved_missile_serial);
+            set_missile_serial((int16_t)saved_missile_serial);
             uint32_t saved_turn;
             rd_long(&saved_turn);
             progress_set_turn((int32_t)saved_turn);
