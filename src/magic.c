@@ -15,6 +15,7 @@
 #include "equipment.h"
 #include "externs.h"
 #include "player_pos.h"
+#include "spells_known.h"
 
 // Throw a magic spell -RAK-
 void cast(void) {
@@ -181,9 +182,9 @@ void cast(void) {
 
                 if (!free_turn_flag) {
                     struct misc *p_ptr = &py.misc;
-                    if ((spell_worked & (1L << choice)) == 0) {
+                    if (!spell_has_worked(choice)) {
                         p_ptr->exp += m_ptr->sexp << 2;
-                        spell_worked |= (1L << choice);
+                        spell_mark_worked(choice);
                         prt_experience();
                     }
                 }

@@ -405,6 +405,10 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # 窓口越しに読み書きするようになったので src/burden.c もリンクする（実体は
 # まだ variable.c にあり、その variable.c を本物でリンクしているので足場は
 # 要らない。player_pos.c・hp_table.c と同じ）。
+#
+# #18-8-B1 で save.c が覚えている呪文の 4 個も src/spells_known.h の窓口越しに
+# 読み書きするようになったので src/spells_known.c もリンクする（実体はまだ
+# player.c にあり、その player.c を本物でリンクしているので足場は要らない）。
 
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
@@ -414,13 +418,14 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/stores.c src/inventory.c \
                             src/progress.c src/score_death.c \
                             src/save_state.c src/player_pos.c \
-                            src/hp_table.c src/burden.c | $(BUILDDIR)
+                            src/hp_table.c src/burden.c \
+                            src/spells_known.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
 	    src/messages.c src/panel.c src/stores.c src/inventory.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
-	    src/hp_table.c src/burden.c
+	    src/hp_table.c src/burden.c src/spells_known.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -432,7 +437,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 #
 # save.c が持ち物と装備の窓口を呼ぶので src/inventory.c もリンクする
 # （save_bool_test と同じ理由）。居場所 2 個の窓口 src/player_pos.c、レベル
-# ごとの HP 表の窓口 src/hp_table.c も同じ。
+# ごとの HP 表の窓口 src/hp_table.c、覚えている呪文の窓口
+# src/spells_known.c も同じ。
 $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
                              src/save.c src/variable.c src/tables.c \
@@ -441,13 +447,14 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/stores.c src/inventory.c \
                              src/progress.c src/score_death.c \
                              src/save_state.c src/player_pos.c \
-                             src/hp_table.c src/burden.c | $(BUILDDIR)
+                             src/hp_table.c src/burden.c \
+                             src/spells_known.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
 	    src/messages.c src/panel.c src/stores.c src/inventory.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
-	    src/hp_table.c src/burden.c
+	    src/hp_table.c src/burden.c src/spells_known.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。

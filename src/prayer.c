@@ -15,6 +15,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "player_pos.h"
+#include "spells_known.h"
 
 // Pray like HELL. -RAK-
 void pray(void) {
@@ -178,10 +179,10 @@ void pray(void) {
                 // End of prayers.
                 if (!free_turn_flag) {
                     struct misc *m_ptr = &py.misc;
-                    if ((spell_worked & (1L << choice)) == 0) {
+                    if (!spell_has_worked(choice)) {
                         m_ptr->exp += s_ptr->sexp << 2;
                         prt_experience();
-                        spell_worked |= (1L << choice);
+                        spell_mark_worked(choice);
                     }
                 }
             }

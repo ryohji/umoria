@@ -18,6 +18,7 @@
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
+#include "spells_known.h"
 #include "platform.h"
 
 static void char_inven_init(void);
@@ -252,9 +253,7 @@ static void char_inven_init(void) {
     }
 
     // wierd place for it, but why not?
-    for (i = 0; i < 32; i++) {
-        spell_order[i] = 99;
-    }
+    spell_order_forget_all();
 }
 
 // Initializes M_LEVEL array for use with PLACE_MONSTER -RAK-
