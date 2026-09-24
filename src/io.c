@@ -15,6 +15,7 @@
 #include "externs.h"
 #include "panel.h"
 #include "input.h"
+#include "input_ended.h"
 #include "messages.h"
 #include "render.h"
 #include "save_state.h"
@@ -68,7 +69,7 @@ char inkey(void) {
             // avoid infinite loops while trying to call inkey() for a -more- prompt.
             msg_set_pending(false);
 
-            eof_flag++;
+            note_input_ended();
 
             render_refresh();
 
@@ -78,7 +79,7 @@ char inkey(void) {
 
             disturb(1, 0);
 
-            if (eof_flag > 100) {
+            if (input_end_is_hopeless()) {
                 // just in case, to make sure that the process eventually dies
                 set_panic_save(true);
 
@@ -104,7 +105,7 @@ char inkey(void) {
 
 // Flush the buffer -RAK-
 void flush(void) {
-    if (!eof_flag) {
+    if (!input_has_ended()) {
         input_flush();
     }
 }
@@ -502,7 +503,7 @@ bool check_input(int microsec) {
         int ch = input_get_key();
         // check for EOF errors here
         if (ch == -1) {
-            eof_flag++;
+            note_input_ended();
             return false;
         }
         return true;

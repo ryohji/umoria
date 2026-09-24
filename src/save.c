@@ -17,6 +17,7 @@
 #include "externs.h"
 #include "equipment.h"
 #include "hp_table.h"
+#include "input_ended.h"
 #include "inventory.h"
 #include "item_ident.h"
 #include "missile_serial.h"
@@ -74,7 +75,7 @@ static uint32_t start_time; // time that play started
 static bool sv_write(void) {
     // clear the death flag when creating a HANGUP save file,
     // so that player can see tombstone when restart
-    if (eof_flag) {
+    if (input_has_ended()) {
         set_player_dead(false);
     }
 

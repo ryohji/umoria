@@ -11,6 +11,7 @@
 #include "burden.h"
 #include "constant.h"
 #include "externs.h"
+#include "input_ended.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "level_exit.h"
@@ -107,7 +108,7 @@ GameState *game_state_init(void) {
     state->pack_heavy = pack_speed_penalty();
     state->doing_inven = pending_inven_command();
     state->screen_change = screen_was_flushed();
-    state->eof_flag = eof_flag;
+    state->eof_flag = input_end_count();
     state->noscore = score_disqualifications();
     state->panic_save = is_panic_save();
     state->wait_for_more = msg_at_more_prompt();

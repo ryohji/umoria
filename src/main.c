@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "input_ended.h"
 #include "inventory.h"
 #include "object_levels.h"
 #include "options.h"
@@ -208,7 +209,7 @@ int main(int argc, char *argv[]) {
 
         // check for eof here, see inkey() in io.c
         // eof can occur if the process gets a HANGUP signal
-        if (eof_flag) {
+        if (input_has_ended()) {
             (void)strcpy(death_cause(), "(end of input: saved)");
             if (!save_char()) {
                 (void)strcpy(death_cause(), "unexpected eof");

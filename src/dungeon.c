@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "equipment.h"
+#include "input_ended.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "level_exit.h"
@@ -809,7 +810,7 @@ void dungeon(void) {
                 }
                 // End of commands
 
-            } while (free_turn_flag && !level_is_over() && !eof_flag);
+            } while (free_turn_flag && !level_is_over() && !input_has_ended());
         } else {
             // if paralyzed, resting, or dead, flush output
             // but first move the cursor onto the player, for aesthetics
@@ -828,7 +829,7 @@ void dungeon(void) {
         }
 
         // Exit when this level is finished
-    } while (!level_is_over() && !eof_flag);
+    } while (!level_is_over() && !input_has_ended());
 }
 
 static char original_commands(char com_val) {
