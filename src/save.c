@@ -18,6 +18,7 @@
 #include "equipment.h"
 #include "hp_table.h"
 #include "inventory.h"
+#include "item_ident.h"
 #include "panel.h"
 #include "messages.h"
 #include "player_pos.h"
@@ -220,7 +221,7 @@ static bool sv_write(void) {
     wr_long(spells_worked_bits());
     wr_long(spells_forgotten_bits());
     wr_bytes(spell_order_bytes(), 32);
-    wr_bytes(object_ident, OBJECT_IDENT_SIZE);
+    wr_bytes(item_kind_record_bytes(), item_kind_record_count());
     wr_long(progress_color_seed());
     wr_long(progress_town_seed());
     // The file format is the raw ring: the index of the newest message, then
@@ -695,7 +696,7 @@ bool get_char(bool *generate) {
             rd_long(&saved_spells_forgotten);
             spells_set_forgotten_bits(saved_spells_forgotten);
             rd_bytes(spell_order_bytes(), 32);
-            rd_bytes(object_ident, OBJECT_IDENT_SIZE);
+            rd_bytes(item_kind_record_bytes(), item_kind_record_count());
             uint32_t saved_color_seed;
             rd_long(&saved_color_seed);
             progress_set_color_seed(saved_color_seed);

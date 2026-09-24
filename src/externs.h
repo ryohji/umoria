@@ -165,7 +165,6 @@ _Noreturn void exit_game(void);
 // desc.c
 bool is_a_vowel(char);
 void magic_init(void);
-int16_t object_offset(inven_type *);
 void known1(inven_type *);
 int known1_p(inven_type *);
 void known2(inven_type *);

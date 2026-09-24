@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "inventory.h"
+#include "item_ident.h"
 #include "progress.h"
 #include "str_insert.h"
 
@@ -103,62 +104,22 @@ void magic_init(void) {
     reset_seed();
 }
 
-int16_t object_offset(inven_type *t_ptr) {
-    switch (t_ptr->tval) {
-    case TV_AMULET:
-        return 0;
-    case TV_RING:
-        return 1;
-    case TV_STAFF:
-        return 2;
-    case TV_WAND:
-        return 3;
-    case TV_SCROLL1:
-    case TV_SCROLL2:
-        return 4;
-    case TV_POTION1:
-    case TV_POTION2:
-        return 5;
-    case TV_FOOD:
-        if ((t_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1)) < MAX_MUSH) {
-            return 6;
-        }
-        return -1;
-    default:
-        return -1;
-    }
-}
-
 // Remove "Secret" symbol for identity of object
 void known1(inven_type *i_ptr) {
-    int16_t offset = object_offset(i_ptr);
-    if (offset < 0) {
-        return;
-    }
-    offset <<= 6;
-
-    uint8_t indexx = i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1);
-
-    object_ident[offset + indexx] |= OD_KNOWN1;
-    // clear the tried flag, since it is now known
-    object_ident[offset + indexx] &= ~OD_TRIED;
+    item_kind_mark_known(i_ptr);
 }
 
 int known1_p(inven_type *i_ptr) {
     // Items which don't have a 'color' are always known1,
     // so that they can be carried in order in the inventory.
-    int16_t offset = object_offset(i_ptr);
-    if (offset < 0) {
+    if (!item_kind_has_record(i_ptr)) {
         return OD_KNOWN1;
     }
     if (store_bought_p(i_ptr)) {
         return OD_KNOWN1;
     }
-    offset <<= 6;
 
-    uint8_t indexx = i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1);
-
-    return (object_ident[offset + indexx] & OD_KNOWN1);
+    return item_kind_is_known(i_ptr) ? OD_KNOWN1 : 0;
 }
 
 // Remove "Secret" symbol for identity of plusses
@@ -193,26 +154,12 @@ static void unsample(inven_type *i_ptr) {
     // used to clear ID_DAMD flag, but I think it should remain set
     i_ptr->ident &= ~(ID_MAGIK | ID_EMPTY);
 
-    int16_t offset = object_offset(i_ptr);
-    if (offset < 0) {
-        return;
-    }
-    offset <<= 6;
-
-    uint8_t indexx = i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1);
-    object_ident[offset + indexx] &= ~OD_TRIED;
+    item_kind_clear_tried(i_ptr);
 }
 
 // Somethings been sampled -CJS-
 void sample(inven_type *i_ptr) {
-    int16_t offset = object_offset(i_ptr);
-    if (offset < 0) {
-        return;
-    }
-    offset <<= 6;
-
-    uint8_t indexx = i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1);
-    object_ident[offset + indexx] |= OD_TRIED;
+    item_kind_mark_tried(i_ptr);
 }
 
 // Somethings been identified.
@@ -581,14 +528,9 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
 
         tmp_str[0] = '\0';
 
-        if ((indexx = object_offset(i_ptr)) >= 0) {
-            indexx <<= 6;
-            indexx = indexx + (i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1));
-
-            // don't print tried string for store bought items
-            if ((object_ident[indexx] & OD_TRIED) && !store_bought_p(i_ptr)) {
-                (void)strcat(tmp_str, "tried ");
-            }
+        // don't print tried string for store bought items
+        if (item_kind_was_tried(i_ptr) && !store_bought_p(i_ptr)) {
+            (void)strcat(tmp_str, "tried ");
         }
         if (i_ptr->ident & (ID_MAGIK | ID_EMPTY | ID_DAMD)) {
             if (i_ptr->ident & ID_MAGIK) {

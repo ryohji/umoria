@@ -29,17 +29,44 @@
 #include "inventory.h"
 #include "item_ident.h"
 
+// Which of the seven groups of secret kinds an item belongs to, or -1 for a
+// kind that is never secret. Moved here from desc.c in #18-9-B: the five places
+// there that called it were all working out which record to use, and this is
+// the only caller left.
+static int16_t group_of(inven_type *t_ptr) {
+    switch (t_ptr->tval) {
+    case TV_AMULET:
+        return 0;
+    case TV_RING:
+        return 1;
+    case TV_STAFF:
+        return 2;
+    case TV_WAND:
+        return 3;
+    case TV_SCROLL1:
+    case TV_SCROLL2:
+        return 4;
+    case TV_POTION1:
+    case TV_POTION2:
+        return 5;
+    case TV_FOOD:
+        if ((t_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1)) < MAX_MUSH) {
+            return 6;
+        }
+        return -1;
+    default:
+        return -1;
+    }
+}
+
 // The record for one kind of object, or NULL for a kind that has none.
 //
-// object_offset() answers which of the seven groups the kind belongs to
-// (amulets, rings, staves, wands, scrolls, potions, mushrooms) or -1 for a kind
-// that is never secret. Sixty-four records to a group, so the group number
-// shifts up six places; the low six bits of subval say which kind inside the
-// group. The bit above those six means "stacks as a single item" and is no part
-// of the kind's number, which is why it is masked off -- kind 64 and kind 0
-// share one record.
+// Sixty-four records to a group, so the group number shifts up six places; the
+// low six bits of subval say which kind inside the group. The bit above those
+// six means "stacks as a single item" and is no part of the kind's number,
+// which is why it is masked off -- kind 64 and kind 0 share one record.
 static uint8_t *record_of(inven_type *i_ptr) {
-    int16_t group = object_offset(i_ptr);
+    int16_t group = group_of(i_ptr);
     if (group < 0) {
         return NULL;
     }

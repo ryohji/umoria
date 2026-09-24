@@ -60,3 +60,16 @@ int randint(int maxval) { return maxval; }
 /* 名前に付ける冠詞の判定（desc.c）。monsters.c が求めるだけで、desc.c を
  * リンクすると定数表とインベントリまで芋づるで付いてくるので代役を置く。 */
 bool is_a_vowel(char ch) { (void)ch; return false; }
+
+/* item_ident.c は「使ったあとに何を学ぶか」（learn_item_effect）と「品目ごとに
+ * 何を覚えているか」（品目ごとの覚えの表）の 2 つを持つ。save.c が要るのは
+ * 後者の生の窓口 2 つだけだが、リンクは翻訳単位ごとなので前者の行き先も
+ * 埋めなければならない。どれもセーブファイルとは関わりがないので代役。
+ *
+ * 中身を要らないので struct の前方宣言だけ置く（types.h は引かない）。 */
+typedef struct inven_type inven_type;
+
+int known1_p(inven_type *i_ptr) { (void)i_ptr; return 0; }
+void identify(int *item) { (void)item; }
+void sample(inven_type *i_ptr) { (void)i_ptr; }
+void prt_experience(void) {}

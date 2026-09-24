@@ -19,6 +19,7 @@
 #include "equipment.h"
 #include "hp_table.h"
 #include "inventory.h"
+#include "item_ident.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "save_state.h"
@@ -1022,7 +1023,9 @@ void check_strength(void) {
 int inven_carry(inven_type *i_ptr) {
     int typ = i_ptr->tval;
     int subt = i_ptr->subval;
-    int always_known1p = (object_offset(i_ptr) == -1);
+    // Kinds with no record of their own are always known by name, so they can
+    // be carried in order; see item_ident.h.
+    int always_known1p = !item_kind_has_record(i_ptr);
 
     int locn;
 
