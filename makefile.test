@@ -1041,13 +1041,13 @@ $(BUILDDIR)/player_mana_test: $(TESTDIR)/player_mana_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_mana_test.c src/player_mana.c
 
 # 体力（#18-12-5）。魔力と同じ「端数つきの数」だが、負の値が「死んでいる」
-# 印を兼ねているところが違う。置き場は A の時点ではまだ py.misc なので、
-# 足場 tests/player_hp_fixture.c が py を 1 つ置く（#18-12-5C で消す）。
+# 印を兼ねているところが違う。実体は #18-12-5C で src/player_hp.c の static に
+# 入った。足場 tests/player_hp_fixture.c はそこで消えたので、依存は module
+# 1 本だけ。
 $(BUILDDIR)/player_hp_test: $(TESTDIR)/player_hp_test.c \
-                            $(TESTDIR)/player_hp_fixture.c $(TESTDIR)/minunit.h \
+                            $(TESTDIR)/minunit.h \
                             src/player_hp.c src/player_hp.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_hp_test.c \
-	    $(TESTDIR)/player_hp_fixture.c src/player_hp.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_hp_test.c src/player_hp.c
 
 clean:
 	rm -rf $(BUILDDIR)

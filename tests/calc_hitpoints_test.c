@@ -26,6 +26,7 @@
 
 #include "fixture.h"
 #include "hp_table.h"
+#include "player_hp.h"
 
 extern player_type py;
 
@@ -52,14 +53,19 @@ static void given_constitution_adding_two_per_level(void) {
     py.stats.use_stat[A_CON] = 18;
 }
 
-/* いまのレベルと、0 でない mhp。mhp が 0 だと calc_hitpoints() は
+/* いまのレベルと、0 でない上限。上限が 0 だと calc_hitpoints() は
  * 何も書かないので、レベルを決めるときに一緒に埋める。
- * chp も入れておく（mhp が動くと chp は割合で追従する）。 */
+ * 残りも入れておく（上限が動くと残りは割合で追従する）。
+ *
+ * **体力 3 つの置き場は #18-12-5C で src/player_hp.c の static に入ったので、
+ * fixture_reset() の memset では消えない。** どのテストもここを通るから
+ * 前のテストの値は残らないが、新しいテストを足すときは必ずここで足場を
+ * 作ること（窓口を通さずに読み書きする道はもう無い）。 */
 static void given_level_with_hitpoints(int level, int mhp) {
     py.misc.lev = (uint16_t)level;
-    py.misc.mhp = (int16_t)mhp;
-    py.misc.chp = (int16_t)mhp;
-    py.misc.chp_frac = 0;
+    player_set_max_hp((int16_t)mhp);
+    player_set_hp((int16_t)mhp);
+    player_set_hp_fraction(0);
 }
 
 /* 表を 1 段ずつ埋める。level 1 が先頭。 */
@@ -76,7 +82,7 @@ TEST(the_maximum_is_the_table_entry_for_the_current_level) {
     given_hp_table_entry(1, 19);
     given_level_with_hitpoints(1, 1);
     calc_hitpoints();
-    ASSERT_EQ_INT(19, py.misc.mhp);
+    ASSERT_EQ_INT(19, player_max_hp());
 }
 
 /* 1 段ずれを捕まえる。レベル 2 なら表の 2 段目で、1 段目でも 3 段目でもない。 */
@@ -87,7 +93,7 @@ TEST(level_two_reads_the_second_entry_not_the_first) {
     given_hp_table_entry(3, 41);
     given_level_with_hitpoints(2, 1);
     calc_hitpoints();
-    ASSERT_EQ_INT(30, py.misc.mhp);
+    ASSERT_EQ_INT(30, player_max_hp());
 }
 
 TEST(the_last_level_reads_the_last_entry) {
@@ -96,7 +102,7 @@ TEST(the_last_level_reads_the_last_entry) {
     given_hp_table_entry(MAX_PLAYER_LEVEL, 409);
     given_level_with_hitpoints(MAX_PLAYER_LEVEL, 1);
     calc_hitpoints();
-    ASSERT_EQ_INT(409, py.misc.mhp);
+    ASSERT_EQ_INT(409, player_max_hp());
 }
 
 /* ------------------------------------------------------------------
@@ -108,7 +114,7 @@ TEST(the_constitution_bonus_is_added_once_per_level) {
     given_hp_table_entry(3, 41);
     given_level_with_hitpoints(3, 1);
     calc_hitpoints();
-    ASSERT_EQ_INT(41 + 2 * 3, py.misc.mhp);
+    ASSERT_EQ_INT(41 + 2 * 3, player_max_hp());
 }
 
 TEST(a_neutral_constitution_adds_nothing) {
@@ -116,7 +122,7 @@ TEST(a_neutral_constitution_adds_nothing) {
     given_hp_table_entry(3, 41);
     given_level_with_hitpoints(3, 1);
     calc_hitpoints();
-    ASSERT_EQ_INT(41, py.misc.mhp);
+    ASSERT_EQ_INT(41, player_max_hp());
 }
 
 /* ------------------------------------------------------------------
@@ -129,7 +135,7 @@ TEST(the_maximum_never_falls_below_the_level_plus_one) {
     given_hp_table_entry(5, 0);
     given_level_with_hitpoints(5, 1);
     calc_hitpoints();
-    ASSERT_EQ_INT(6, py.misc.mhp);
+    ASSERT_EQ_INT(6, player_max_hp());
 }
 
 TEST(heroism_adds_ten) {
@@ -138,7 +144,7 @@ TEST(heroism_adds_ten) {
     given_level_with_hitpoints(2, 1);
     py.flags.status |= PY_HERO;
     calc_hitpoints();
-    ASSERT_EQ_INT(40, py.misc.mhp);
+    ASSERT_EQ_INT(40, player_max_hp());
 }
 
 TEST(super_heroism_adds_twenty) {
@@ -147,7 +153,7 @@ TEST(super_heroism_adds_twenty) {
     given_level_with_hitpoints(2, 1);
     py.flags.status |= PY_SHERO;
     calc_hitpoints();
-    ASSERT_EQ_INT(50, py.misc.mhp);
+    ASSERT_EQ_INT(50, player_max_hp());
 }
 
 /* 両方かかっているときは足し合わせる（どちらかを選ぶのではない）。 */
@@ -157,7 +163,7 @@ TEST(both_kinds_of_heroism_add_thirty) {
     given_level_with_hitpoints(2, 1);
     py.flags.status |= PY_HERO | PY_SHERO;
     calc_hitpoints();
-    ASSERT_EQ_INT(60, py.misc.mhp);
+    ASSERT_EQ_INT(60, player_max_hp());
 }
 
 /* ------------------------------------------------------------------
@@ -170,7 +176,7 @@ TEST(nothing_is_written_while_the_maximum_is_still_zero) {
     given_hp_table_entry(1, 19);
     given_level_with_hitpoints(1, 0);
     calc_hitpoints();
-    ASSERT_EQ_INT(0, py.misc.mhp);
+    ASSERT_EQ_INT(0, player_max_hp());
 }
 
 /* 最大が動いたら、いまの HP は割合で追従する（半分なら半分のまま）。 */
@@ -178,9 +184,9 @@ TEST(the_current_hitpoints_follow_the_maximum_in_proportion) {
     given_neutral_constitution();
     given_hp_table_entry(1, 40);
     given_level_with_hitpoints(1, 20);
-    py.misc.chp = 10; /* 半分 */
+    player_set_hp(10); /* 半分 */
     calc_hitpoints();
-    ASSERT_EQ_INT(20, py.misc.chp);
+    ASSERT_EQ_INT(20, player_hp());
 }
 
 /* 最大が動いたことは PY_HP で知らせる（画面はここでは書けない）。 */
