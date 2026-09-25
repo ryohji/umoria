@@ -21,6 +21,7 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_gold.h"
+#include "player_mana.h"
 #include "player_pos.h"
 #include "running.h"
 #include "spells_known.h"
@@ -243,7 +244,7 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     if (i > 0) {
         result = get_spell(spell, i, sn, sc, prompt, first_spell);
         if (result &&
-            magic_spell[py.misc.pclass - 1][*sn].smana > py.misc.cmana) {
+            magic_spell[py.misc.pclass - 1][*sn].smana > player_mana()) {
             if (class[py.misc.pclass].spell == MAGE) {
                 result = (int)get_check("You summon your limited strength to cast this one! Confirm?");
             } else {

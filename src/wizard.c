@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "player_gold.h"
+#include "player_mana.h"
 #include "player_pos.h"
 
 // Light up the dungeon -RAK-
@@ -138,9 +139,9 @@ void change_character(void) {
     if (get_string(tmp_str, 0, 25, 5)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val <= MAX_SHORT) && (*tmp_str != '\0')) {
-            m_ptr->mana = tmp_val;
-            m_ptr->cmana = tmp_val;
-            m_ptr->cmana_frac = 0;
+            player_set_max_mana((int16_t)tmp_val);
+            player_set_mana((int16_t)tmp_val);
+            player_set_mana_fraction(0);
             prt_cmana();
         }
     } else {

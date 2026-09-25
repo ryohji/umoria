@@ -18,6 +18,7 @@
 #include "panel.h"
 #include "player_gold.h"
 #include "player_light.h"
+#include "player_mana.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "running.h"
@@ -1212,7 +1213,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             }
             break;
         case 17: // Drain Mana
-            if (py.misc.cmana > 0) {
+            if (player_mana() > 0) {
                 disturb(1, 0);
                 msg_print(CONCAT(cdesc, " draws psychic energy from you!"));
                 if (m_ptr->ml) {
@@ -1220,15 +1221,12 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
                 }
 
                 int r1 = (randint((int)r_ptr->level) >> 1) + 1;
-                if (r1 > py.misc.cmana) {
-                    r1 = py.misc.cmana;
-                    py.misc.cmana = 0;
-                    py.misc.cmana_frac = 0;
-                } else {
-                    py.misc.cmana -= r1;
-                }
+
+                // The monster is fed by what it actually got, which is less
+                // than it drew for when the store runs dry.
+                int drained = player_spend_mana(r1);
                 prt_cmana();
-                m_ptr->hp += 6 * (r1);
+                m_ptr->hp += 6 * drained;
             }
             break;
         case 20: // Breath Light

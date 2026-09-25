@@ -14,6 +14,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "player_mana.h"
 #include "player_pos.h"
 #include "spells_known.h"
 
@@ -190,20 +191,18 @@ void cast(void) {
                 }
             }
 
-            struct misc *p_ptr = &py.misc;
             if (!free_turn_flag) {
-                if (m_ptr->smana > p_ptr->cmana) {
+                // Paying less than the spell costs is what makes the caster
+                // faint -- five turns of it for every point that was missing.
+                int spent = player_spend_mana(m_ptr->smana);
+                if (spent < m_ptr->smana) {
                     msg_print("You faint from the effort!");
                     py.flags.paralysis =
-                        randint((int)(5 * (m_ptr->smana - p_ptr->cmana)));
-                    p_ptr->cmana = 0;
-                    p_ptr->cmana_frac = 0;
+                        randint((int)(5 * (m_ptr->smana - spent)));
                     if (randint(3) == 1) {
                         msg_print("You have damaged your health!");
                         (void)dec_stat(A_CON);
                     }
-                } else {
-                    p_ptr->cmana -= m_ptr->smana;
                 }
                 prt_cmana();
             }

@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "player_mana.h"
 #include "player_pos.h"
 #include "spells_known.h"
 
@@ -187,20 +188,17 @@ void pray(void) {
                 }
             }
 
-            struct misc *m_ptr = &py.misc;
-
             if (!free_turn_flag) {
-                if (s_ptr->smana > m_ptr->cmana) {
+                // The same arrangement as casting a spell (magic.c): what
+                // could not be paid for is what the fatigue lasts on.
+                int spent = player_spend_mana(s_ptr->smana);
+                if (spent < s_ptr->smana) {
                     msg_print("You faint from fatigue!");
-                    py.flags.paralysis = randint((int)(5 * (s_ptr->smana - m_ptr->cmana)));
-                    m_ptr->cmana = 0;
-                    m_ptr->cmana_frac = 0;
+                    py.flags.paralysis = randint((int)(5 * (s_ptr->smana - spent)));
                     if (randint(3) == 1) {
                         msg_print("You have damaged your health!");
                         (void)dec_stat(A_CON);
                     }
-                } else {
-                    m_ptr->cmana -= s_ptr->smana;
                 }
                 prt_cmana();
             }
