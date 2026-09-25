@@ -21,6 +21,7 @@
 #include "types.h"
 
 #include "item_ident.h"
+#include "player_level.h"
 
 #include "fixture.h"
 
@@ -57,7 +58,7 @@ static void apply_ident(bool ident, int item_val)
  * 巻物（TV_SCROLL1）を選んだ理由は 7 群のうち 5 番めの群（添字 4）に入り、
  * subval が ITEM_SINGLE_STACK_MIN 以上なら known1_p の判定対象に
  * なること。store_bought フラグは立てないので未鑑定から始まる。 */
-static void given_unknown_item(int item_level, int player_level)
+static void given_unknown_item(int item_level, int level_reached)
 {
     inven_type *i_ptr = inventory_at(0);
     i_ptr->tval = TV_SCROLL1;
@@ -65,8 +66,8 @@ static void given_unknown_item(int item_level, int player_level)
     i_ptr->number = 1;
     i_ptr->level = (uint8_t)item_level;
     inventory_set_count(1);
-    py.misc.lev = (uint16_t)player_level;
-    py.misc.expfact = 100;
+    player_set_level((uint16_t)level_reached);
+    player_set_experience_factor(100);
 }
 
 /* 枠の選びかた（第 4 節）を見るための条件づくり。品目の種類（tval）と
@@ -93,7 +94,7 @@ static inven_type *given_a_kind_of_item(int slot, int tval, int subval)
  * そのまま観測できる。 */
 
 /* ------------------------------------------------------------------
- * 1. 経験値の加算式  (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev
+ * 1. 経験値の加算式  (i_ptr->level + (player_level() >> 1)) / player_level()
  * ------------------------------------------------------------------ */
 
 /* 代表値：プレイヤーレベル 1 では (level + 0) / 1 なのでアイテムの
@@ -102,7 +103,7 @@ TEST(experience_gain_is_item_level_when_player_level_is_one)
 {
     given_unknown_item(5, 1);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 5);
+    ASSERT_EQ_INT(player_experience(), 5);
 }
 
 /* 三角測量：アイテムのレベルが変わればそのまま反映される。 */
@@ -110,7 +111,7 @@ TEST(experience_gain_follows_item_level_when_player_level_is_one)
 {
     given_unknown_item(12, 1);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 12);
+    ASSERT_EQ_INT(player_experience(), 12);
 }
 
 /* プレイヤーレベルが上がると 1 件あたりの経験値は減る。
@@ -119,7 +120,7 @@ TEST(experience_gain_is_divided_by_player_level)
 {
     given_unknown_item(10, 4);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 3);
+    ASSERT_EQ_INT(player_experience(), 3);
 }
 
 /* 三角測量：レベルが偶数なら lev>>1 は正確に半分。
@@ -128,7 +129,7 @@ TEST(experience_gain_truncates_division_at_even_player_level)
 {
     given_unknown_item(10, 2);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 5);
+    ASSERT_EQ_INT(player_experience(), 5);
 }
 
 /* 三角測量：レベルが奇数の場合。lev>>1 は切り捨てられるが、
@@ -140,7 +141,7 @@ TEST(experience_gain_shifts_odd_player_level_down_before_dividing)
 {
     given_unknown_item(10, 3);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 3);
+    ASSERT_EQ_INT(player_experience(), 3);
 }
 
 /* 端数の切りあげが効く境界：真の商が .5 のとき 1 つ上に丸まる。
@@ -149,7 +150,7 @@ TEST(experience_gain_rounds_half_way_case_up_at_even_player_level)
 {
     given_unknown_item(5, 2);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 3);
+    ASSERT_EQ_INT(player_experience(), 3);
 }
 
 /* アイテムのレベルがプレイヤーレベルの半分未満だと経験値は 0 になる。
@@ -158,7 +159,7 @@ TEST(experience_gain_is_zero_when_item_level_far_below_player_level)
 {
     given_unknown_item(1, 4);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 0);
+    ASSERT_EQ_INT(player_experience(), 0);
 }
 
 /* アイテムのレベルが 0 なら、lev>>1 の項だけでは商に届かず 0 のまま。
@@ -167,7 +168,7 @@ TEST(experience_gain_is_zero_for_item_level_zero_at_player_level_two)
 {
     given_unknown_item(0, 2);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 0);
+    ASSERT_EQ_INT(player_experience(), 0);
 }
 
 /* 三角測量：レベル 0 のアイテムでもプレイヤーレベル 1 なら 0/1 = 0。 */
@@ -175,13 +176,13 @@ TEST(experience_gain_is_zero_for_item_level_zero_at_player_level_one)
 {
     given_unknown_item(0, 1);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 0);
+    ASSERT_EQ_INT(player_experience(), 0);
 }
 
-/* TODO: 仕様確認 -- m_ptr->lev が 0 だと 0 除算でクラッシュする。
+/* TODO: 仕様確認 -- 階級が 0 だと 0 除算でクラッシュする。
  * 通常の遊びかたでは到達しない。create.c:86 が 1 で初期化し、経験値を
  * 失う lose_exp()（spells.c:1956）も i を 1 から数えなおすので 1 が下限。
- * ただし m_ptr->lev はセーブファイルから読みこまれる（save.c:655）ので、
+ * ただし階級はセーブファイルから読みこまれる（save.c）ので、
  * 壊れた／改変されたセーブでは 0 になりうる。この式には防御がない。
  * ここでは実装を変えないので、0 を渡すテストは書かない（クラッシュする）。
  *
@@ -191,16 +192,16 @@ TEST(experience_gain_is_one_when_item_level_equals_player_level)
 {
     given_unknown_item(40, 40);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 1);
+    ASSERT_EQ_INT(player_experience(), 1);
 }
 
 /* 経験値は上書きではなく加算される。既存の 100 に 5 が足される。 */
 TEST(experience_gain_is_added_to_existing_experience)
 {
     given_unknown_item(5, 1);
-    py.misc.exp = 100;
+    player_set_experience(100);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 105);
+    ASSERT_EQ_INT(player_experience(), 105);
 }
 
 /* ------------------------------------------------------------------
@@ -229,7 +230,7 @@ TEST(no_experience_is_gained_when_item_is_already_known)
     given_unknown_item(5, 1);
     identify(&(int){0});
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 0);
+    ASSERT_EQ_INT(player_experience(), 0);
 }
 
 /* 三角測量：既知でなければ同じ条件で経験値がつく。
@@ -238,7 +239,7 @@ TEST(experience_is_gained_when_item_is_not_yet_known)
 {
     given_unknown_item(5, 1);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(py.misc.exp, 5);
+    ASSERT_EQ_INT(player_experience(), 5);
 }
 
 /* 既知のアイテムは identify() も走らないので、既知のまま変わらない。 */
@@ -279,7 +280,7 @@ TEST(no_experience_is_gained_when_effect_is_not_identified)
 {
     given_unknown_item(5, 1);
     apply_ident(false, 0);
-    ASSERT_EQ_INT(py.misc.exp, 0);
+    ASSERT_EQ_INT(player_experience(), 0);
 }
 
 /* ident が偽なら鑑定もされない。未知のまま。 */

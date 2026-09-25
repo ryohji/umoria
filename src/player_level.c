@@ -16,36 +16,50 @@
 // nothing about what a level is worth, about messages, about the hit points, the
 // spells or the mana, and it draws nothing. It works out what the experience has
 // paid for; the caller decides what that buys.
-extern player_type py;
+//
+// The five numbers are owned here and are static (#18-12-6C): they came out of
+// py.misc, which is one field shorter for each of them, and the only way in is
+// through the windows in player_level.h. Their initial value is nothing, the same
+// as it was inside the uninitialised struct -- a level of zero means no character
+// exists yet, and neither the price (player_exp[lev - 1]) nor the share of a
+// kill (divided by lev) means anything until creation writes a level of one.
+static uint16_t player_level_reached;
+static int32_t player_experience_held;
+static int32_t player_experience_high_water_mark;
+static uint16_t player_experience_remainder;
+static uint8_t player_experience_percentage;
 
-// The price list. It belongs to another global for now (src/player.c) and is one
-// of the fifty-three left in externs.h -- the five readers of it are all inside
-// this question, so it could come in here later, the way the hit-point table
-// came into hp_table.c. Until then this declaration is the one line that reaches
-// out, the same arrangement stats.c and level_exit.c have.
+// The price list stays where it is. It is one of the twenty read-only constant
+// tables in externs.h (with player_title, race, class and class_level_adj), and
+// those are out of scope for #18 -- the inventory's own line for them says
+// "const-ification only" (GLOBALS_INVENTORY.md:748). Bringing it in here would
+// take the ledger from fifty-three to fifty-two, but it would also need a setter
+// that no caller in the game would ever use, because unlike the hit-point table
+// in hp_table.c nothing ever writes this one. So this declaration is the one line
+// that reaches out, the same arrangement stats.c and level_exit.c have.
 extern uint32_t player_exp[MAX_PLAYER_LEVEL];
 
 // The remainder is kept in 65536ths, so this is a whole point of experience.
 #define EXPERIENCE_FRACTION_FULL 0x10000L
 
 uint16_t player_level(void) {
-    return py.misc.lev;
+    return player_level_reached;
 }
 
 int32_t player_experience(void) {
-    return py.misc.exp;
+    return player_experience_held;
 }
 
 int32_t player_max_experience(void) {
-    return py.misc.max_exp;
+    return player_experience_high_water_mark;
 }
 
 uint16_t player_experience_fraction(void) {
-    return py.misc.exp_frac;
+    return player_experience_remainder;
 }
 
 uint8_t player_experience_factor(void) {
-    return py.misc.expfact;
+    return player_experience_percentage;
 }
 
 // The table entry is unsigned and so is the factor, so the multiplication and
@@ -57,15 +71,15 @@ uint8_t player_experience_factor(void) {
 // thirty-two-bit number. A factor above about 214 would turn the last few levels
 // negative and the character would climb for ever.
 int32_t player_experience_to_advance_from(uint16_t level) {
-    return (int32_t)(player_exp[level - 1] * py.misc.expfact / 100);
+    return (int32_t)(player_exp[level - 1] * player_experience_percentage / 100);
 }
 
 int32_t player_experience_needed_to_advance(void) {
-    return player_experience_to_advance_from(py.misc.lev);
+    return player_experience_to_advance_from(player_level_reached);
 }
 
 void player_gain_experience(int32_t amount) {
-    py.misc.exp += amount;
+    player_experience_held += amount;
 }
 
 // A dead monster is worth mexp * its level, shared out by how far the character
@@ -76,32 +90,32 @@ void player_gain_experience(int32_t amount) {
 // The divisor is the level, so this must not be called with a level of nothing.
 // The one caller (mon_take_hit) cannot be reached before a character exists.
 void player_gain_shared_experience(int32_t total) {
-    int32_t whole = total / py.misc.lev;
-    int32_t fraction = (total % py.misc.lev) * EXPERIENCE_FRACTION_FULL / py.misc.lev + py.misc.exp_frac;
+    int32_t whole = total / player_level_reached;
+    int32_t fraction = (total % player_level_reached) * EXPERIENCE_FRACTION_FULL / player_level_reached + player_experience_remainder;
 
     if (fraction >= EXPERIENCE_FRACTION_FULL) {
         whole++;
-        py.misc.exp_frac = (uint16_t)(fraction - EXPERIENCE_FRACTION_FULL);
+        player_experience_remainder = (uint16_t)(fraction - EXPERIENCE_FRACTION_FULL);
     } else {
-        py.misc.exp_frac = (uint16_t)fraction;
+        player_experience_remainder = (uint16_t)fraction;
     }
 
-    py.misc.exp += whole;
+    player_experience_held += whole;
 }
 
 // Nothing is the floor, and the fraction is left alone: losing experience does
 // not throw away the part of a point that has been collected.
 void player_lose_experience(int32_t amount) {
-    if (amount > py.misc.exp) {
-        py.misc.exp = 0;
+    if (amount > player_experience_held) {
+        player_experience_held = 0;
     } else {
-        py.misc.exp -= amount;
+        player_experience_held -= amount;
     }
 }
 
 bool player_cap_experience(void) {
-    if (py.misc.exp > MAX_EXP) {
-        py.misc.exp = MAX_EXP;
+    if (player_experience_held > MAX_EXP) {
+        player_experience_held = MAX_EXP;
         return true;
     }
 
@@ -109,32 +123,32 @@ bool player_cap_experience(void) {
 }
 
 bool player_deserves_next_level(void) {
-    if (py.misc.lev >= MAX_PLAYER_LEVEL) {
+    if (player_level_reached >= MAX_PLAYER_LEVEL) {
         return false;
     }
 
-    return player_experience_to_advance_from(py.misc.lev) <= py.misc.exp;
+    return player_experience_to_advance_from(player_level_reached) <= player_experience_held;
 }
 
 void player_advance_level(void) {
-    py.misc.lev++;
+    player_level_reached++;
 }
 
 // Arriving at a level with more experience than it costs means several levels
 // were paid for at once (or the level was handed over by something other than
 // the experience). Half of the surplus goes.
 void player_trim_surplus_experience(void) {
-    int32_t need_exp = player_experience_to_advance_from(py.misc.lev);
+    int32_t need_exp = player_experience_to_advance_from(player_level_reached);
 
-    if (py.misc.exp > need_exp) {
-        int32_t dif_exp = py.misc.exp - need_exp;
-        py.misc.exp = need_exp + (dif_exp / 2);
+    if (player_experience_held > need_exp) {
+        int32_t dif_exp = player_experience_held - need_exp;
+        player_experience_held = need_exp + (dif_exp / 2);
     }
 }
 
 bool player_record_max_experience(void) {
-    if (py.misc.exp > py.misc.max_exp) {
-        py.misc.max_exp = py.misc.exp;
+    if (player_experience_held > player_experience_high_water_mark) {
+        player_experience_high_water_mark = player_experience_held;
         return true;
     }
 
@@ -142,8 +156,8 @@ bool player_record_max_experience(void) {
 }
 
 bool player_restore_experience(void) {
-    if (py.misc.max_exp > py.misc.exp) {
-        py.misc.exp = py.misc.max_exp;
+    if (player_experience_high_water_mark > player_experience_held) {
+        player_experience_held = player_experience_high_water_mark;
         return true;
     }
 
@@ -159,7 +173,7 @@ bool player_restore_experience(void) {
 uint16_t player_level_deserved_by_experience(void) {
     int level = 1;
 
-    while (player_experience_to_advance_from((uint16_t)level) <= py.misc.exp) {
+    while (player_experience_to_advance_from((uint16_t)level) <= player_experience_held) {
         level++;
     }
 
@@ -169,31 +183,31 @@ uint16_t player_level_deserved_by_experience(void) {
 bool player_recompute_level(void) {
     uint16_t deserved = player_level_deserved_by_experience();
 
-    if (py.misc.lev == deserved) {
+    if (player_level_reached == deserved) {
         return false;
     }
 
-    py.misc.lev = deserved;
+    player_level_reached = deserved;
 
     return true;
 }
 
 void player_set_level(uint16_t value) {
-    py.misc.lev = value;
+    player_level_reached = value;
 }
 
 void player_set_experience(int32_t value) {
-    py.misc.exp = value;
+    player_experience_held = value;
 }
 
 void player_set_max_experience(int32_t value) {
-    py.misc.max_exp = value;
+    player_experience_high_water_mark = value;
 }
 
 void player_set_experience_fraction(uint16_t value) {
-    py.misc.exp_frac = value;
+    player_experience_remainder = value;
 }
 
 void player_set_experience_factor(uint8_t value) {
-    py.misc.expfact = value;
+    player_experience_percentage = value;
 }

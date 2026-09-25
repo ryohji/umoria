@@ -169,13 +169,15 @@ typedef struct player_type {
         // carried is the first question to leave this struct: the windows are
         // in player_gold.h, and no caller needs the number's address any more
         // (the save file's reader takes it through a local).
-        int32_t max_exp;             // Max experience
-        int32_t exp;                 // Cur experience
-        uint16_t exp_frac;           // Cur exp fraction * 2^16
+        //
+        // How far the character has come moved to player_level.c (max_exp, exp,
+        // exp_frac, lev and expfact, #18-12-6C). Five fields answered one
+        // question -- the level is stored and yet it is fixed by the experience,
+        // so the promise between them now has one home. The windows are in
+        // player_level.h; the save file's reader takes all five through locals.
         uint16_t age;                // Characters age
         uint16_t ht;                 // Height
         uint16_t wt;                 // Weight
-        uint16_t lev;                // Level
         uint16_t max_dlv;            // Max level explored
         int16_t srh;                 // Chance in search
         int16_t fos;                 // Frenq of search
@@ -192,7 +194,6 @@ typedef struct player_type {
         uint8_t pclass;              // # of class
         uint8_t prace;               // # of race
         uint8_t hitdie;              // Char hit die
-        uint8_t expfact;             // Experience factor
         char history[4][60];         // History record
     } misc;
 

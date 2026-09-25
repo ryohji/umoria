@@ -102,6 +102,17 @@ TEST(the_five_numbers_start_at_nothing) {
     ASSERT_EQ_INT(0, player_experience_factor());
 }
 
+/* 階級の器は 1 バイトでは足りない。**セーブファイルは短整数で読み書きする**
+ * （save.c の wr_short / rd_short）ので、255 を越える値も往復できなければ
+ * ならない —— 実の上限は 40 だが、wizard の細工は MAX_PLAYER_LEVEL を
+ * 足すし、器の幅を狭める変異はこの 1 件でしか捕まらない
+ * （#18-12-6C の掃きで分かった）。 */
+TEST(the_level_holds_more_than_a_byte) {
+    player_set_level(300);
+
+    ASSERT_EQ_INT(300, player_level());
+}
+
 /* 5 つが別々の器であること。save.c の読みが取りちがえたら気づけるように
  * （5 つが続けて並んでいるので入れかえが起きやすい）。 */
 TEST(each_number_stands_on_its_own) {
@@ -615,6 +626,7 @@ TEST(a_bare_setter_can_break_the_promise_on_purpose) {
 
 int main(void) {
     RUN_TEST(the_five_numbers_start_at_nothing);
+    RUN_TEST(the_level_holds_more_than_a_byte);
     RUN_TEST(each_number_stands_on_its_own);
 
     RUN_TEST(a_factor_of_a_hundred_is_the_table_entry_itself);

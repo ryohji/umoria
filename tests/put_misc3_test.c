@@ -32,6 +32,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_level.h"
 
 extern player_type py;
 
@@ -74,7 +75,7 @@ void put_misc3(void);
 static void given_class_and_level(int pclass, int lev)
 {
     py.misc.pclass = (uint8_t)pclass;
-    py.misc.lev = (uint16_t)lev;
+    player_set_level((uint16_t)lev);
 }
 
 /* stat_adj() / todis_adj() が見る能力値。A_INT と A_WIS に違う値を

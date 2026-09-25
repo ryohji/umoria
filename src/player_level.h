@@ -13,7 +13,7 @@
 // One question, one module -- the sixth question to leave `py`, after the purse
 // (player_gold.c), the stomach (player_food.c), the four numbers the character
 // sheet shows (player_display_numbers.c), the mana (player_mana.c) and the hit
-// points (player_hp.c). Five numbers answer it together: py.misc.lev,
+// points (player_hp.c). Five numbers answer it together -- they were py.misc.lev,
 // py.misc.exp, py.misc.max_exp, py.misc.exp_frac and py.misc.expfact, touched
 // from a hundred and fifty-one places in eighteen files. It is the largest of
 // the questions so far -- roughly twice the hit points.

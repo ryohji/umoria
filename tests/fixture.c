@@ -9,6 +9,7 @@
 
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_level.h"
 
 player_type py;         /* 本体では player.c（530行の巨大データと同居） */
 /* 階級の値段表。#18-12-6A で src/player_level.c がリンクされる全ての実行形式に
@@ -34,6 +35,14 @@ void fixture_reset(void)
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     memset(&py, 0, sizeof py);
+    /* 階級と経験値の 5 つは #18-12-6C で src/player_level.c が static で
+     * 持つようになったので、py を消しても届かない。窓口越しに 0 へ戻す
+     * （実体は初期化子なしの static なので、走りだしの値は 0 のまま）。 */
+    player_set_level(0);
+    player_set_experience(0);
+    player_set_max_experience(0);
+    player_set_experience_fraction(0);
+    player_set_experience_factor(0);
     inventory_set_count(0);
     fixture_clear_randint_record();
 }
