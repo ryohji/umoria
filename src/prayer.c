@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "spells_known.h"
@@ -84,7 +85,7 @@ void pray(void) {
                     }
                     break;
                 case 10:
-                    teleport((py.misc.lev * 3));
+                    teleport((player_level() * 3));
                     break;
                 case 11:
                     (void)hp_player(damroll(4, 4));
@@ -120,7 +121,7 @@ void pray(void) {
                     break;
                 case 18:
                     if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_HOLY_ORB, dir, player_row(), player_col(), (damroll(3, 6) + py.misc.lev), "Black Sphere");
+                        fire_ball(GF_HOLY_ORB, dir, player_row(), player_col(), (damroll(3, 6) + player_level()), "Black Sphere");
                     }
                     break;
                 case 19:
@@ -148,13 +149,13 @@ void pray(void) {
                     bless(randint(48) + 48);
                     break;
                 case 27:
-                    (void)dispel_creature(CD_UNDEAD, (3 * py.misc.lev));
+                    (void)dispel_creature(CD_UNDEAD, (3 * player_level()));
                     break;
                 case 28:
                     (void)hp_player(200);
                     break;
                 case 29:
-                    (void)dispel_creature(CD_EVIL, (3 * py.misc.lev));
+                    (void)dispel_creature(CD_EVIL, (3 * player_level()));
                     break;
                 case 30:
                     warding_glyph();
@@ -166,7 +167,7 @@ void pray(void) {
                     for (i = A_STR; i <= A_CHR; i++) {
                         (void)res_stat(i);
                     }
-                    (void)dispel_creature(CD_EVIL, (4 * py.misc.lev));
+                    (void)dispel_creature(CD_EVIL, (4 * player_level()));
                     (void)turn_undead();
                     if (py.flags.invuln < 3) {
                         py.flags.invuln = 3;
@@ -179,9 +180,8 @@ void pray(void) {
                 }
                 // End of prayers.
                 if (!free_turn_flag) {
-                    struct misc *m_ptr = &py.misc;
                     if (!spell_has_worked(choice)) {
-                        m_ptr->exp += s_ptr->sexp << 2;
+                        player_gain_experience(s_ptr->sexp << 2);
                         prt_experience();
                         spell_mark_worked(choice);
                     }

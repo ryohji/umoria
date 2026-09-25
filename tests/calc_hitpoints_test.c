@@ -27,6 +27,7 @@
 #include "fixture.h"
 #include "hp_table.h"
 #include "player_hp.h"
+#include "player_level.h"
 
 extern player_type py;
 
@@ -62,7 +63,7 @@ static void given_constitution_adding_two_per_level(void) {
  * 前のテストの値は残らないが、新しいテストを足すときは必ずここで足場を
  * 作ること（窓口を通さずに読み書きする道はもう無い）。 */
 static void given_level_with_hitpoints(int level, int mhp) {
-    py.misc.lev = (uint16_t)level;
+    player_set_level((uint16_t)level);
     player_set_max_hp((int16_t)mhp);
     player_set_hp((int16_t)mhp);
     player_set_hp_fraction(0);

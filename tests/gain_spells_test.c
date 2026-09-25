@@ -43,6 +43,7 @@
 
 #include "fixture.h"
 #include "inventory.h"
+#include "player_level.h"
 #include "player_mana.h"
 #include "spells_known.h"
 
@@ -77,7 +78,7 @@ static void given_no_spells_known(void) {
  * （0 だと最初の 1 つで calc_mana が走るので、その仕掛けは別の件で見る）。 */
 static void given_a_mage_who_can_learn(int spells_to_learn) {
     py.misc.pclass = 1; /* class[1] は Mage（MAGE 系） */
-    py.misc.lev = 1;
+    player_set_level(1);
     py.stats.use_stat[A_INT] = 18;
     player_set_max_mana(1);
     py.flags.new_spells = (uint8_t)spells_to_learn;
@@ -86,7 +87,7 @@ static void given_a_mage_who_can_learn(int spells_to_learn) {
 /* 学べる数がある僧侶（レベル 1・賢さ 18）。 */
 static void given_a_priest_who_can_learn(int spells_to_learn) {
     py.misc.pclass = 2; /* class[2] は Priest（PRIEST 系） */
-    py.misc.lev = 1;
+    player_set_level(1);
     py.stats.use_stat[A_WIS] = 18;
     player_set_max_mana(1);
     py.flags.new_spells = (uint8_t)spells_to_learn;

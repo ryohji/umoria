@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_food.h"
+#include "player_level.h"
 #include "player_mana.h"
 
 // Potions for the quaffing -RAK-
@@ -45,7 +46,6 @@ void quaff(void) {
                 }
 
                 struct flags *f_ptr;
-                struct misc *m_ptr;
 
                 // Potions
                 switch (j) {
@@ -132,15 +132,14 @@ void quaff(void) {
                     }
                     break;
                 case 18:
-                    m_ptr = &py.misc;
-                    if (m_ptr->exp < MAX_EXP) {
-                        uint32_t l = (m_ptr->exp / 2) + 10;
+                    if (player_experience() < MAX_EXP) {
+                        uint32_t l = (uint32_t)(player_experience() / 2) + 10;
 
                         if (l > 100000L) {
                             l = 100000L;
                         }
 
-                        m_ptr->exp += l;
+                        player_gain_experience((int32_t)l);
                         msg_print("You feel more experienced.");
                         prt_experience();
                         ident = true;
@@ -220,17 +219,17 @@ void quaff(void) {
                     break;
                 // case 33: break; // this is no longer useful, now that there is a 'G'ain magic spells command
                 case 34:
-                    if (py.misc.exp > 0) {
+                    if (player_experience() > 0) {
                         int32_t m, scale;
                         msg_print("You feel your memories fade.");
                         // Lose between 1/5 and 2/5 of your experience
-                        m = py.misc.exp / 5;
-                        if (py.misc.exp > MAX_SHORT) {
-                            scale = MAX_LONG / py.misc.exp;
-                            m += (randint((int)scale) * py.misc.exp) /
+                        m = player_experience() / 5;
+                        if (player_experience() > MAX_SHORT) {
+                            scale = MAX_LONG / player_experience();
+                            m += (randint((int)scale) * player_experience()) /
                                  (scale * 5);
                         } else {
-                            m += randint((int)py.misc.exp) / 5;
+                            m += randint((int)player_experience()) / 5;
                         }
                         lose_exp(m);
                         ident = true;

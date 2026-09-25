@@ -18,6 +18,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_level.h"
 #include "player_pos.h"
 #include "stats.h"
 
@@ -175,7 +176,7 @@ void disarm_trap(void) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
-            int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * py.misc.lev / 3);
+            int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * player_level() / 3);
 
             if ((py.flags.blind > 0) || (no_light())) {
                 tot = tot / 10;
@@ -194,7 +195,7 @@ void disarm_trap(void) {
             if (i == TV_VIS_TRAP) { // Floor trap
                 if ((tot + 100 - level) > randint(100)) {
                     msg_print("You have disarmed the trap.");
-                    py.misc.exp += i_ptr->p1;
+                    player_gain_experience(i_ptr->p1);
                     (void)delete_object(y, x);
 
                     // make sure we move onto the trap even if confused
@@ -229,7 +230,7 @@ void disarm_trap(void) {
                         }
                         msg_print("You have disarmed the chest.");
                         known2(i_ptr);
-                        py.misc.exp += level;
+                        player_gain_experience(level);
                         prt_experience();
                     } else if ((tot > 5) && (randint(tot) > 5)) {
                         count_msg_print("You failed to disarm the chest.");
@@ -830,10 +831,10 @@ void throw_object(void) {
                         // if monster not lit, make it much more difficult to hit, subtract
                         // off most bonuses, and reduce bthb depending on distance.
                         if (!m_ptr->ml) {
-                            tbth = (tbth / (cur_dis + 2)) - (py.misc.lev * class_level_adj[py.misc.pclass][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
+                            tbth = (tbth / (cur_dis + 2)) - (player_level() * class_level_adj[py.misc.pclass][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
                         }
 
-                        if (test_hit(tbth, (int)py.misc.lev, tpth, (int)r_ptr->ac, CLA_BTHB)) {
+                        if (test_hit(tbth, (int)player_level(), tpth, (int)r_ptr->ac, CLA_BTHB)) {
                             bigvtype tmp_str;
                             objdes(tmp_str, &throw_obj, false);
 
@@ -900,10 +901,10 @@ static void py_bash(int y, int x) {
     int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + py.misc.wt / 10;
 
     if (!m_ptr->ml) {
-        base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (py.misc.lev * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
+        base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
     }
 
-    if (test_hit(base_tohit, (int)py.misc.lev, (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {
+    if (test_hit(base_tohit, (int)player_level(), (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {
         msg_print(CONCAT("You hit ", cdesc, "."));
         int k = pdamroll(equipment_at(INVEN_ARM)->damage);
         k = critical_blow((equipment_at(INVEN_ARM)->weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);

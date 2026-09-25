@@ -28,6 +28,7 @@
 
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_level.h"
 
 // One record per kind of secret object: seven groups of sixty-four. Starting
 // out as zeroes says "nothing known, nothing tried", which is what a new
@@ -135,10 +136,8 @@ inven_type *learn_item_effect(bool effect_identified, int *item_val) {
     if (effect_identified) {
         if (!known1_p(i_ptr)) {
             // use identified it, gain experience
-            struct misc *m_ptr = &py.misc;
-
             // round half-way case up
-            m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
+            player_gain_experience((i_ptr->level + (player_level() >> 1)) / player_level());
             prt_experience();
 
             identify(item_val);

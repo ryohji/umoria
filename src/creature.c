@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_gold.h"
+#include "player_level.h"
 #include "player_light.h"
 #include "player_mana.h"
 #include "player_pos.h"
@@ -296,7 +297,7 @@ static void make_attack(int monptr) {
 
         bool flag = false;
         if ((f_ptr->protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
-            ((p_ptr->lev + 1) > r_ptr->level)) {
+            ((player_level() + 1) > r_ptr->level)) {
             if (m_ptr->ml) {
                 recall_update_characteristics(m_ptr->creature, CD_EVIL);
             }
@@ -361,12 +362,12 @@ static void make_attack(int monptr) {
             }
             break;
         case 12: // Steal Money
-            if ((test_hit(5, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (player_gold() > 0)) {
+            if ((test_hit(5, (int)r_ptr->level, 0, (int)player_level(), CLA_MISC_HIT)) && (player_gold() > 0)) {
                 flag = true;
             }
             break;
         case 13: // Steal Object
-            if ((test_hit(2, (int)r_ptr->level, 0, (int)p_ptr->lev, CLA_MISC_HIT)) && (inventory_count() > 0)) {
+            if ((test_hit(2, (int)r_ptr->level, 0, (int)player_level(), CLA_MISC_HIT)) && (inventory_count() > 0)) {
                 flag = true;
             }
             break;
@@ -712,7 +713,7 @@ static void make_attack(int monptr) {
                 break;
             case 19: // Lose experience
                 msg_print("You feel your life draining away!");
-                lose_exp(damage + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+                lose_exp(damage + (player_experience() / 100) * MON_DRAIN_LIFE);
                 break;
             case 20: // Aggravate monster
                 (void)aggravate_monster(20);

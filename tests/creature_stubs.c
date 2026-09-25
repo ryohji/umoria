@@ -35,6 +35,10 @@
  * 別の器になるだけ）。テストは progress_set_turn() で turn を動かす。 */
 
 player_type py;
+/* 階級の値段表。#18-12-6A で src/player_level.c がリンクされる全ての実行形式に
+ * 要る。この足場は py を自分で定義する = src/player.c（本物の 40 個の持ち主）と
+ * 一緒にはリンクされないので、ここにも空の表を置く。 */
+uint32_t player_exp[MAX_PLAYER_LEVEL];
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 monster_type m_list[MAX_MALLOC];
 inven_type t_list[MAX_TALLOC];

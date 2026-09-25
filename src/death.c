@@ -16,6 +16,7 @@
 #include "inventory.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_level.h"
 #include "score_death.h"
 #include "platform.h"
 #include "save_state.h"
@@ -155,10 +156,10 @@ static void print_tomb(void) {
     }
     (void)sprintf(str, "| %s | _;,,,;_   ____", center_string(tmp_str, p));
     put_buffer(str, 10, 9);
-    (void)sprintf(str, "Level : %d", (int)py.misc.lev);
+    (void)sprintf(str, "Level : %d", (int)player_level());
     (void)sprintf(str, "| %s |          /    \\", center_string(tmp_str, str));
     put_buffer(str, 11, 9);
-    (void)sprintf(str, "%d Exp", py.misc.exp);
+    (void)sprintf(str, "%d Exp", player_experience());
     (void)sprintf(str, "| %s |          :    :", center_string(tmp_str, str));
     put_buffer(str, 12, 9);
     (void)sprintf(str, "%d Au", player_gold());
@@ -228,7 +229,7 @@ retry:
 
 // Calculates the total number of points earned -JWT-
 int32_t total_points(void) {
-    int32_t total = py.misc.max_exp + (100 * py.misc.max_dlv);
+    int32_t total = player_max_experience() + (100 * py.misc.max_dlv);
     total += player_gold() / 100;
 
     for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
@@ -265,7 +266,7 @@ static void highscores(void) {
     new_entry.mhp = player_max_hp();
     new_entry.chp = player_hp();
     new_entry.dun_level = (uint8_t)dun_level;
-    new_entry.lev = (uint8_t)py.misc.lev;
+    new_entry.lev = (uint8_t)player_level();
     new_entry.max_dlv = (uint8_t)py.misc.max_dlv;
     new_entry.sex = (py.misc.male ? 'M' : 'F');
     new_entry.race = py.misc.prace;
@@ -424,10 +425,12 @@ static void kingly(void) {
 
     (void)restore_level();
 
-    p_ptr->lev += MAX_PLAYER_LEVEL;
+    // 素の setter を使う。**わざと約束を壊している** —— 階級は経験値が
+    // 値する段ではなくなるが、wizard の細工はそれで良い（player_level.h）。
+    player_set_level((uint16_t)(player_level() + MAX_PLAYER_LEVEL));
     player_gain_gold(250000L);
-    p_ptr->max_exp += 5000000L;
-    p_ptr->exp = p_ptr->max_exp;
+    player_set_max_experience(player_max_experience() + 5000000L);
+    player_set_experience(player_max_experience());
 
     // Let the player know that he did good.
     clear_screen();

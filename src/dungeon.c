@@ -24,6 +24,7 @@
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
+#include "player_level.h"
 #include "player_light.h"
 #include "player_mana.h"
 #include "player_pos.h"
@@ -639,7 +640,7 @@ void dungeon(void) {
         // for 1st level char, check once every 2160 turns
         // for 40th level char, check once every 416 turns
         if (((progress_turn() & 0xF) == 0) && (f_ptr->confused == 0) &&
-            (randint((10 + 750 / (5 + py.misc.lev))) == 1)) {
+            (randint((10 + 750 / (5 + player_level()))) == 1)) {
 
             for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
                 if (i == inventory_count()) {
@@ -1553,12 +1554,15 @@ static void do_command(char com_val) {
                 teleport(100);
                 break;
             case '+':
+                // 素の setter を使う。**わざと約束を壊している** ——
+                // 経験値だけを動かすので、prt_experience() が数えなおすまで
+                // 階級と食いちがう（player_level.h）。
                 if (command_is_repeating()) {
-                    py.misc.exp = take_command_count();
-                } else if (py.misc.exp == 0) {
-                    py.misc.exp = 1;
+                    player_set_experience(take_command_count());
+                } else if (player_experience() == 0) {
+                    player_set_experience(1);
                 } else {
-                    py.misc.exp = py.misc.exp * 2;
+                    player_set_experience(player_experience() * 2);
                 }
                 prt_experience();
                 break;

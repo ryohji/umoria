@@ -14,6 +14,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "spells_known.h"
@@ -100,7 +101,7 @@ void cast(void) {
                     (void)cure_poison();
                     break;
                 case 13:
-                    teleport((py.misc.lev * 5));
+                    teleport((player_level() * 5));
                     break;
                 case 14:
                     for (int id = 22; id < equipment_end_slot(); id++) {
@@ -163,7 +164,7 @@ void cast(void) {
                     break;
                 case 28:
                     f_ptr = &py.flags;
-                    f_ptr->fast += randint(20) + py.misc.lev;
+                    f_ptr->fast += randint(20) + player_level();
                     break;
                 case 29:
                     if (get_dir(CNIL, &dir)) {
@@ -182,9 +183,8 @@ void cast(void) {
                 // End of spells.
 
                 if (!free_turn_flag) {
-                    struct misc *p_ptr = &py.misc;
                     if (!spell_has_worked(choice)) {
-                        p_ptr->exp += m_ptr->sexp << 2;
+                        player_gain_experience(m_ptr->sexp << 2);
                         spell_mark_worked(choice);
                         prt_experience();
                     }

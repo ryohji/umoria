@@ -17,6 +17,7 @@
 #include "device.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_level.h"
 #include "player_pos.h"
 #include "stats.h"
 
@@ -45,7 +46,7 @@ void aim(void) {
 
             struct misc *m_ptr = &py.misc;
 
-            int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[m_ptr->pclass][CLA_DEVICE], m_ptr->lev, py.flags.confused);
+            int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), py.flags.confused);
 
             if (!device_use_succeeds(chance)) {
                 msg_print("You failed to use the wand properly.");

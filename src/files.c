@@ -23,6 +23,7 @@
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_level.h"
 #include "player_mana.h"
 
 //  init_scorefile
@@ -221,19 +222,19 @@ bool file_character(char *filename1) {
         (void)fprintf(file1, "   CHR : %s\n\n", prt1);
 
         (void)fprintf(file1, " + To Hit    : %6d", player_display_to_hit());
-        (void)fprintf(file1, "%7sLevel      : %7d", blank, (int)py.misc.lev);
+        (void)fprintf(file1, "%7sLevel      : %7d", blank, (int)player_level());
         (void)fprintf(file1, "    Max Hit Points : %6d\n", player_max_hp());
         (void)fprintf(file1, " + To Damage : %6d", player_display_to_dam());
-        (void)fprintf(file1, "%7sExperience : %7d", blank, py.misc.exp);
+        (void)fprintf(file1, "%7sExperience : %7d", blank, player_experience());
         (void)fprintf(file1, "    Cur Hit Points : %6d\n", player_hp());
         (void)fprintf(file1, " + To AC     : %6d", player_display_to_ac());
-        (void)fprintf(file1, "%7sMax Exp    : %7d", blank, py.misc.max_exp);
+        (void)fprintf(file1, "%7sMax Exp    : %7d", blank, player_max_experience());
         (void)fprintf(file1, "    Max Mana%8s %6d\n", colon, player_max_mana());
         (void)fprintf(file1, "   Total AC  : %6d", player_display_ac());
-        if (py.misc.lev >= MAX_PLAYER_LEVEL) {
+        if (player_level() >= MAX_PLAYER_LEVEL) {
             (void)fprintf(file1, "%7sExp to Adv : *******", blank);
         } else {
-            (void)fprintf(file1, "%7sExp to Adv : %7d", blank, (int32_t)(player_exp[py.misc.lev - 1] * py.misc.expfact / 100));
+            (void)fprintf(file1, "%7sExp to Adv : %7d", blank, player_experience_needed_to_advance());
         }
         (void)fprintf(file1, "    Cur Mana%8s %6d\n", colon, player_mana());
         (void)fprintf(file1, "%28sGold%8s %7d\n\n", blank, colon, player_gold());

@@ -21,6 +21,7 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_gold.h"
+#include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "running.h"
@@ -235,7 +236,7 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     int spell[31];
     while (j) {
         int k = bit_pos(&j);
-        if (s_ptr[k].slevel <= py.misc.lev) {
+        if (s_ptr[k].slevel <= player_level()) {
             spell[i] = k;
             i++;
         }
@@ -538,23 +539,13 @@ int mon_take_hit(int monptr, int dam) {
             recall_increment_kill(m_ptr->creature);
         }
 
-        struct misc *p_ptr = &py.misc;
-
-        int32_t new_exp = ((int32_t)r_ptr->mexp * r_ptr->level) / p_ptr->lev;
-        int32_t new_exp_frac = ((((int32_t)r_ptr->mexp * r_ptr->level) % p_ptr->lev) *
-                                0x10000L / p_ptr->lev) +
-                               p_ptr->exp_frac;
-
-        if (new_exp_frac >= 0x10000L) {
-            new_exp++;
-            p_ptr->exp_frac = (uint16_t)(new_exp_frac - 0x10000L);
-        } else {
-            p_ptr->exp_frac = new_exp_frac;
-        }
-
+        // the monster is worth its experience times its level, shared out by how
+        // far the character has already come; what does not divide evenly is kept
+        // in 65536ths (player_level.c).
+        //
         // can't call prt_experience() here, as that would result in "new level"
         // message appearing before "monster dies" message.
-        p_ptr->exp += new_exp;
+        player_gain_shared_experience((int32_t)r_ptr->mexp * r_ptr->level);
 
         // in case this is called from within creatures(), this is a horrible
         // hack, the m_list/creatures() code needs to be rewritten.
@@ -602,14 +593,14 @@ void py_attack(int y, int x) {
     if (m_ptr->ml) {
         base_tohit = p_ptr->bth;
     } else {
-        base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
+        base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
     }
 
     int k;
 
     // Loop for number of blows,  trying to hit the critter.
     do {
-        if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit, (int)r_ptr->ac, CLA_BTH)) {
+        if (test_hit(base_tohit, (int)player_level(), tot_tohit, (int)r_ptr->ac, CLA_BTH)) {
             msg_print(CONCAT("You hit ", cdesc, "."));
             if (i_ptr->tval != TV_NOTHING) {
                 k = pdamroll(i_ptr->damage);
@@ -875,13 +866,13 @@ void openobject(void) {
                 // It's locked.
                 if (t_ptr->p1 > 0) {
                     struct misc *p_ptr = &py.misc;
-                    int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
+                    int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
 
                     if (py.flags.confused > 0) {
                         msg_print("You are too confused to pick the lock.");
                     } else if ((i - t_ptr->p1) > randint(100)) {
                         msg_print("You have picked the lock.");
-                        py.misc.exp++;
+                        player_gain_experience(1);
                         prt_experience();
                         t_ptr->p1 = 0;
                     } else {
@@ -900,7 +891,7 @@ void openobject(void) {
                 // Open a closed chest.
 
                 struct misc *p_ptr = &py.misc;
-                int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
+                int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
 
                 inven_type *t_ptr = &t_list[c_ptr->tptr];
 
@@ -912,7 +903,7 @@ void openobject(void) {
                     } else if ((i - (int)t_ptr->level) > randint(100)) {
                         msg_print("You have picked the lock.");
                         flag = true;
-                        py.misc.exp += t_ptr->level;
+                        player_gain_experience(t_ptr->level);
                         prt_experience();
                     } else {
                         count_msg_print("You failed to pick the lock.");

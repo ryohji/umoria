@@ -26,6 +26,7 @@
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -275,10 +276,10 @@ static void prt_int(int num, int row, int column) {
 const char *title_string(void) {
     const char *p;
 
-    if (py.misc.lev < 1) {
+    if (player_level() < 1) {
         p = "Babe in arms";
-    } else if (py.misc.lev <= MAX_PLAYER_LEVEL) {
-        p = player_title[py.misc.pclass][py.misc.lev - 1];
+    } else if (player_level() <= MAX_PLAYER_LEVEL) {
+        p = player_title[py.misc.pclass][player_level() - 1];
     } else if (py.misc.male) {
         p = "**KING**";
     } else {
@@ -295,7 +296,7 @@ void prt_title(void) {
 
 // Prints level -RAK-
 void prt_level(void) {
-    prt_int((int)py.misc.lev, 13, STAT_COLUMN + 6);
+    prt_int((int)player_level(), 13, STAT_COLUMN + 6);
 }
 
 // Prints players current mana points. -RAK-
@@ -603,7 +604,6 @@ void bst_stat(int stat, int amount) {
 
 // Prints character-screen info -RAK-
 void prt_stat_block(void) {
-    struct misc *m_ptr = &py.misc;
     prt_field(race[py.misc.prace].trace, 2, STAT_COLUMN);
     prt_field(class[py.misc.pclass].title, 3, STAT_COLUMN);
     prt_field(title_string(), 4, STAT_COLUMN);
@@ -612,8 +612,8 @@ void prt_stat_block(void) {
         prt_stat(i);
     }
 
-    prt_num("LEV ", (int)m_ptr->lev, 13, STAT_COLUMN);
-    prt_lnum("EXP ", m_ptr->exp, 14, STAT_COLUMN);
+    prt_num("LEV ", (int)player_level(), 13, STAT_COLUMN);
+    prt_lnum("EXP ", player_experience(), 14, STAT_COLUMN);
     prt_num("MANA", player_mana(), 15, STAT_COLUMN);
     prt_num("MHP ", player_max_hp(), 16, STAT_COLUMN);
     prt_num("CHP ", player_hp(), 17, STAT_COLUMN);
@@ -737,16 +737,14 @@ void put_misc1(void) {
 
 // Prints the following information on the screen. -JWT-
 void put_misc2(void) {
-    struct misc *m_ptr = &py.misc;
+    prt_7lnum("Level      ", (int32_t)player_level(), 9, 28);
+    prt_7lnum("Experience ", player_experience(), 10, 28);
+    prt_7lnum("Max Exp    ", player_max_experience(), 11, 28);
 
-    prt_7lnum("Level      ", (int32_t)m_ptr->lev, 9, 28);
-    prt_7lnum("Experience ", m_ptr->exp, 10, 28);
-    prt_7lnum("Max Exp    ", m_ptr->max_exp, 11, 28);
-
-    if (m_ptr->lev >= MAX_PLAYER_LEVEL) {
+    if (player_level() >= MAX_PLAYER_LEVEL) {
         prt("Exp to Adv.: *******", 12, 28);
     } else {
-        prt_7lnum("Exp to Adv.", (int32_t)(player_exp[m_ptr->lev - 1] * m_ptr->expfact / 100), 12, 28);
+        prt_7lnum("Exp to Adv.", player_experience_needed_to_advance(), 12, 28);
     }
 
     prt_7lnum("Gold       ", player_gold(), 13, 28);
@@ -1065,7 +1063,7 @@ int spell_chance(int spell) {
     spell_type *s_ptr = &magic_spell[py.misc.pclass - 1][spell];
 
     int stat;
-    int chance = s_ptr->sfail - 3 * (py.misc.lev - s_ptr->slevel);
+    int chance = s_ptr->sfail - 3 * (player_level() - s_ptr->slevel);
 
     if (class[py.misc.pclass].spell == MAGE) {
         stat = A_INT;
@@ -1244,7 +1242,7 @@ void calc_spells(int stat) {
     // check to see if know any spells greater than level, eliminate them
     for (int i = 31; i >= 0; i--) {
         if (spell_is_learned(i)) {
-            if (msp_ptr[i].slevel > p_ptr->lev) {
+            if (msp_ptr[i].slevel > player_level()) {
                 spell_forget(i);
 
                 vtype tmp_str;
@@ -1258,7 +1256,7 @@ void calc_spells(int stat) {
 
     // calc number of spells allowed
     int num_allowed = 0;
-    int levels = p_ptr->lev - class[p_ptr->pclass].first_spell_lev + 1;
+    int levels = player_level() - class[p_ptr->pclass].first_spell_lev + 1;
     switch (stat_adj(stat)) {
     case 0:
         num_allowed = 0;
@@ -1290,7 +1288,7 @@ void calc_spells(int stat) {
             int j = spell_learned_nth(n);
 
             if (spell_is_forgotten(j)) {
-                if (msp_ptr[j].slevel <= p_ptr->lev) {
+                if (msp_ptr[j].slevel <= player_level()) {
                     new_spells--;
                     spell_remember(j);
 
@@ -1314,7 +1312,7 @@ void calc_spells(int stat) {
             for (j = 0, mask = 0x1; spell_flag; mask <<= 1, j++) {
                 if (spell_flag & mask) {
                     spell_flag &= ~mask;
-                    if (msp_ptr[j].slevel <= p_ptr->lev) {
+                    if (msp_ptr[j].slevel <= player_level()) {
                         id++;
                     }
                 }
@@ -1420,7 +1418,7 @@ void gain_spells(void) {
         for (j = 0, mask = 0x1; spell_flag; mask <<= 1, j++) {
             if (spell_flag & mask) {
                 spell_flag &= ~mask;
-                if (msp_ptr[j].slevel <= p_ptr->lev) {
+                if (msp_ptr[j].slevel <= player_level()) {
                     spells[i] = j;
                     i++;
                 }
@@ -1495,7 +1493,7 @@ void calc_mana(int stat) {
 
     if (any_spell_learned()) {
         int new_mana = 0;
-        int levels = p_ptr->lev - class[p_ptr->pclass].first_spell_lev + 1;
+        int levels = player_level() - class[p_ptr->pclass].first_spell_lev + 1;
         switch (stat_adj(stat)) {
         case 0:
             new_mana = 0;
@@ -1540,19 +1538,15 @@ void calc_mana(int stat) {
 // Increases hit points and level -RAK-
 static void gain_level(void) {
     struct misc *p_ptr = &py.misc;
-    p_ptr->lev++;
+    player_advance_level();
 
     vtype out_val;
-    (void)sprintf(out_val, "Welcome to level %d.", (int)p_ptr->lev);
+    (void)sprintf(out_val, "Welcome to level %d.", (int)player_level());
     msg_print(out_val);
     calc_hitpoints();
 
-    int32_t need_exp = player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100;
-    if (p_ptr->exp > need_exp) {
-        // lose some of the 'extra' exp when gaining several levels at once
-        int32_t dif_exp = p_ptr->exp - need_exp;
-        p_ptr->exp = need_exp + (dif_exp / 2);
-    }
+    // lose some of the 'extra' exp when gaining several levels at once
+    player_trim_surplus_experience();
 
     prt_level();
     prt_title();
@@ -1570,31 +1564,24 @@ static void gain_level(void) {
 
 // Prints experience -RAK-
 void prt_experience(void) {
-    struct misc *p_ptr = &py.misc;
+    (void)player_cap_experience();
 
-    if (p_ptr->exp > MAX_EXP) {
-        p_ptr->exp = MAX_EXP;
-    }
-
-    while ((p_ptr->lev < MAX_PLAYER_LEVEL) && (signed)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100) <= p_ptr->exp) {
+    while (player_deserves_next_level()) {
         gain_level();
     }
 
-    if (p_ptr->exp > p_ptr->max_exp) {
-        p_ptr->max_exp = p_ptr->exp;
-    }
+    (void)player_record_max_experience();
 
-    prt_long(p_ptr->exp, 14, STAT_COLUMN + 6);
+    prt_long(player_experience(), 14, STAT_COLUMN + 6);
 }
 
 // Calculate the players hit points
 void calc_hitpoints(void) {
-    struct misc *p_ptr = &py.misc;
-    int hitpoints = hp_total_at_level(p_ptr->lev) + (con_adj() * p_ptr->lev);
+    int hitpoints = hp_total_at_level(player_level()) + (con_adj() * player_level());
 
     // always give at least one point per level + 1
-    if (hitpoints < (p_ptr->lev + 1)) {
-        hitpoints = p_ptr->lev + 1;
+    if (hitpoints < (player_level() + 1)) {
+        hitpoints = player_level() + 1;
     }
 
     if (py.flags.status & PY_HERO) {
@@ -1720,7 +1707,7 @@ int critical_blow(int weight, int plus, int dam, int attack_type) {
 
     // Weight of weapon, plusses to hit, and character level all
     // contribute to the chance of a critical
-    if (randint(5000) <= (weight + 5 * plus + (class_level_adj[py.misc.pclass][attack_type] * py.misc.lev))) {
+    if (randint(5000) <= (weight + 5 * plus + (class_level_adj[py.misc.pclass][attack_type] * player_level()))) {
         weight += randint(650);
 
         if (weight < 400) {
@@ -1801,7 +1788,7 @@ bool player_saves(void) {
     // MPW C couldn't handle the expression, so split it into two parts
     int16_t temp = class_level_adj[py.misc.pclass][CLA_SAVE];
 
-    if (randint(100) <= (py.misc.save + stat_adj(A_WIS) + (temp * py.misc.lev / 3))) {
+    if (randint(100) <= (py.misc.save + stat_adj(A_WIS) + (temp * player_level() / 3))) {
         return true;
     } else {
         return false;

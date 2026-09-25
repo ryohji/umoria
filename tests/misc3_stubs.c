@@ -32,6 +32,7 @@
 #include "fixture.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_level.h"
 
 /* --- グローバル状態 --- */
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
@@ -315,6 +316,13 @@ void fixture_reset(void)
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     memset(&py, 0, sizeof py);
+    /* 階級と経験値の 5 つは #18-12-6C で src/player_level.c が static で
+     * 持つようになったので、py を消しても届かない。窓口越しに 0 へ戻す。 */
+    player_set_level(0);
+    player_set_experience(0);
+    player_set_max_experience(0);
+    player_set_experience_fraction(0);
+    player_set_experience_factor(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);
