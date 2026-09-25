@@ -35,6 +35,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player_light.c burden.c spells_known.c object_levels.c \
 	missile_serial.c inven_command_state.c screen_touched.c \
 	level_exit.c pending_teleport.c input_ended.c running.c \
+	command_state.c player_gold.c player_food.c player_display_numbers.c \
 	player_mana.c \
 	moria1.c moria2.c \
 	moria3.c moria4.c monsters.c treasure.c variable.c rnd.c recall.c \
@@ -48,6 +49,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	player_light.o burden.o spells_known.o object_levels.o \
 	missile_serial.o inven_command_state.o screen_touched.o \
 	level_exit.o pending_teleport.o input_ended.o running.o \
+	command_state.o player_gold.o player_food.o player_display_numbers.o \
 	player_mana.o \
 	moria1.o moria2.o \
 	moria3.o moria4.o monsters.o treasure.o variable.o rnd.o recall.o \
@@ -84,6 +86,7 @@ clean:
 	@echo "Compilation files removed!"
 
 burden.o: burden.h constant.h types.h config.h
+command_state.o: command_state.h constant.h types.h config.h
 create.o: constant.h types.h externs.h config.h
 creature.o: constant.h types.h externs.h config.h
 death.o: constant.h types.h externs.h config.h
@@ -116,7 +119,11 @@ moria2.o: constant.h types.h externs.h config.h
 moria3.o: constant.h types.h externs.h config.h
 moria4.o: burden.h constant.h types.h externs.h config.h
 player.o: constant.h types.h config.h
+player_display_numbers.o: player_display_numbers.h constant.h types.h config.h
+player_food.o: player_food.h constant.h types.h config.h
+player_gold.o: player_gold.h constant.h types.h config.h
 player_light.o: player_light.h constant.h types.h config.h
+player_mana.o: player_mana.h constant.h types.h config.h
 player_pos.o: player_pos.h constant.h types.h config.h
 potions.o: constant.h types.h externs.h config.h
 prayer.o: constant.h types.h externs.h config.h
