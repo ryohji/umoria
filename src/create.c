@@ -17,6 +17,7 @@
 #include "hp_table.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
+#include "player_hp.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -378,9 +379,7 @@ static void get_class(void) {
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints
             m_ptr = &py.misc;
             m_ptr->hitdie += c_ptr->adj_hd;
-            m_ptr->mhp = con_adj() + m_ptr->hitdie;
-            m_ptr->chp = m_ptr->mhp;
-            m_ptr->chp_frac = 0;
+            player_reset_hp((int16_t)(con_adj() + m_ptr->hitdie));
 
             // Initialize hit_points array.
             // Put bounds on total possible hp, only succeed

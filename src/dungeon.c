@@ -23,6 +23,7 @@
 #include "pending_teleport.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
+#include "player_hp.h"
 #include "player_light.h"
 #include "player_mana.h"
 #include "player_pos.h"
@@ -158,8 +159,7 @@ void dungeon(void) {
             if ((PY_HERO & f_ptr->status) == 0) {
                 f_ptr->status |= PY_HERO;
                 disturb(0, 0);
-                p_ptr->mhp += 10;
-                p_ptr->chp += 10;
+                player_gain_temporary_max_hp(10);
                 p_ptr->bth += 12;
                 p_ptr->bthb += 12;
                 msg_print("You feel like a HERO!");
@@ -170,10 +170,7 @@ void dungeon(void) {
             if (f_ptr->hero == 0) {
                 f_ptr->status &= ~PY_HERO;
                 disturb(0, 0);
-                p_ptr->mhp -= 10;
-                if (p_ptr->chp > p_ptr->mhp) {
-                    p_ptr->chp = p_ptr->mhp;
-                    p_ptr->chp_frac = 0;
+                if (player_lose_temporary_max_hp(10)) {
                     prt_chp();
                 }
                 p_ptr->bth -= 12;
@@ -188,8 +185,7 @@ void dungeon(void) {
             if ((PY_SHERO & f_ptr->status) == 0) {
                 f_ptr->status |= PY_SHERO;
                 disturb(0, 0);
-                p_ptr->mhp += 20;
-                p_ptr->chp += 20;
+                player_gain_temporary_max_hp(20);
                 p_ptr->bth += 24;
                 p_ptr->bthb += 24;
                 msg_print("You feel like a SUPER HERO!");
@@ -200,10 +196,7 @@ void dungeon(void) {
             if (f_ptr->shero == 0) {
                 f_ptr->status &= ~PY_SHERO;
                 disturb(0, 0);
-                p_ptr->mhp -= 20;
-                if (p_ptr->chp > p_ptr->mhp) {
-                    p_ptr->chp = p_ptr->mhp;
-                    p_ptr->chp_frac = 0;
+                if (player_lose_temporary_max_hp(20)) {
                     prt_chp();
                 }
                 p_ptr->bth -= 24;
@@ -261,7 +254,7 @@ void dungeon(void) {
         if ((f_ptr->status & PY_SEARCH) || f_ptr->rest != 0) {
             regen_amount = regen_amount * 2;
         }
-        if ((f_ptr->poisoned < 1) && (p_ptr->chp < p_ptr->mhp)) {
+        if ((f_ptr->poisoned < 1) && (player_hp() < player_max_hp())) {
             regenhp(regen_amount);
         }
         if (player_mana() < player_max_mana()) {
@@ -425,7 +418,7 @@ void dungeon(void) {
         } else if (f_ptr->rest < 0) {
             // Rest until reach max mana and max hit points.
             f_ptr->rest++;
-            if ((p_ptr->chp == p_ptr->mhp && player_mana() == player_max_mana()) ||
+            if ((player_hp() == player_max_hp() && player_mana() == player_max_mana()) ||
                 f_ptr->rest == 0) {
                 rest_off();
             }
@@ -1685,35 +1678,16 @@ static bool valid_countcommand(char c) {
 }
 
 // Regenerate hit points -RAK-
+// All that is left here is working out the rate (above) and noticing that the
+// whole-point part moved, so the status line needs redrawing. The fixed-point
+// sum, the overflow guard, the carry and the stop at the top are all inside
+// player_regenerate_hp().
 static void regenhp(int percent) {
-    struct misc *p_ptr = &py.misc;
-    int old_chp = p_ptr->chp;
-    int32_t new_chp = ((int32_t)p_ptr->mhp) * percent + PLAYER_REGEN_HPBASE;
+    int16_t old_chp = player_hp();
 
-    // div 65536
-    p_ptr->chp += new_chp >> 16;
+    player_regenerate_hp(percent);
 
-    // check for overflow
-    if (p_ptr->chp < 0 && old_chp > 0) {
-        p_ptr->chp = MAX_SHORT;
-    }
-
-    // mod 65536
-    int32_t new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;
-
-    if (new_chp_frac >= 0x10000L) {
-        p_ptr->chp_frac = (uint16_t)(new_chp_frac - 0x10000L);
-        p_ptr->chp++;
-    } else {
-        p_ptr->chp_frac = new_chp_frac;
-    }
-
-    // must set frac to zero even if equal
-    if (p_ptr->chp >= p_ptr->mhp) {
-        p_ptr->chp = p_ptr->mhp;
-        p_ptr->chp_frac = 0;
-    }
-    if (old_chp != p_ptr->chp) {
+    if (old_chp != player_hp()) {
         prt_chp();
     }
 }

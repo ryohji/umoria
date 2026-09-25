@@ -26,6 +26,7 @@
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_gold.h"
+#include "player_hp.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "options.h"
@@ -135,7 +136,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)m_ptr->bth);
     wr_short((uint16_t)m_ptr->bthb);
     wr_short((uint16_t)player_max_mana());
-    wr_short((uint16_t)m_ptr->mhp);
+    wr_short((uint16_t)player_max_hp());
     wr_short((uint16_t)m_ptr->ptohit);
     wr_short((uint16_t)m_ptr->ptodam);
     wr_short((uint16_t)m_ptr->pac);
@@ -155,8 +156,8 @@ static bool sv_write(void) {
     wr_byte(m_ptr->expfact);
     wr_short((uint16_t)player_mana());
     wr_short(player_mana_fraction());
-    wr_short((uint16_t)m_ptr->chp);
-    wr_short(m_ptr->chp_frac);
+    wr_short((uint16_t)player_hp());
+    wr_short(player_hp_fraction());
     for (int i = 0; i < 4; i++) {
         wr_string(m_ptr->history[i]);
     }
@@ -602,7 +603,11 @@ bool get_char(bool *generate) {
             uint16_t max_mana;
             rd_short(&max_mana);
             player_set_max_mana((int16_t)max_mana);
-            rd_short((uint16_t *)&m_ptr->mhp);
+            // 体力も窓口へ（#18-12-5B）。並びは動かせないので位置はそのまま
+            // —— 上限はここ、残りと端数は階級・種族のあと。
+            uint16_t max_hp;
+            rd_short(&max_hp);
+            player_set_max_hp((int16_t)max_hp);
             rd_short((uint16_t *)&m_ptr->ptohit);
             rd_short((uint16_t *)&m_ptr->ptodam);
             rd_short((uint16_t *)&m_ptr->pac);
@@ -637,8 +642,12 @@ bool get_char(bool *generate) {
             uint16_t cur_mana_frac;
             rd_short(&cur_mana_frac);
             player_set_mana_fraction(cur_mana_frac);
-            rd_short((uint16_t *)&m_ptr->chp);
-            rd_short(&m_ptr->chp_frac);
+            uint16_t cur_hp;
+            rd_short(&cur_hp);
+            player_set_hp((int16_t)cur_hp);
+            uint16_t cur_hp_frac;
+            rd_short(&cur_hp_frac);
+            player_set_hp_fraction(cur_hp_frac);
             for (int i = 0; i < 4; i++) {
                 rd_string(m_ptr->history[i]);
             }
@@ -804,10 +813,7 @@ bool get_char(bool *generate) {
                     goto error;
                 }
                 prt("Attempting a resurrection!", 0, 0);
-                if (py.misc.chp < 0) {
-                    py.misc.chp = 0;
-                    py.misc.chp_frac = 0;
-                }
+                (void)player_resurrect_hp();
 
                 // don't let him starve to death immediately
                 if (player_food() < 0) {
@@ -957,7 +963,7 @@ bool get_char(bool *generate) {
             ok = false; // Assume bad data.
         } else {
             // don't overwrite the killed by string if character is dead
-            if (py.misc.chp >= 0) {
+            if (!player_hp_marks_death()) {
                 (void)strcpy(death_cause(), "(alive and well)");
             }
             set_character_generated(true);

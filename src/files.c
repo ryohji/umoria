@@ -22,6 +22,7 @@
 #include "object_levels.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
+#include "player_hp.h"
 #include "player_mana.h"
 
 //  init_scorefile
@@ -221,10 +222,10 @@ bool file_character(char *filename1) {
 
         (void)fprintf(file1, " + To Hit    : %6d", player_display_to_hit());
         (void)fprintf(file1, "%7sLevel      : %7d", blank, (int)py.misc.lev);
-        (void)fprintf(file1, "    Max Hit Points : %6d\n", py.misc.mhp);
+        (void)fprintf(file1, "    Max Hit Points : %6d\n", player_max_hp());
         (void)fprintf(file1, " + To Damage : %6d", player_display_to_dam());
         (void)fprintf(file1, "%7sExperience : %7d", blank, py.misc.exp);
-        (void)fprintf(file1, "    Cur Hit Points : %6d\n", py.misc.chp);
+        (void)fprintf(file1, "    Cur Hit Points : %6d\n", player_hp());
         (void)fprintf(file1, " + To AC     : %6d", player_display_to_ac());
         (void)fprintf(file1, "%7sMax Exp    : %7d", blank, py.misc.max_exp);
         (void)fprintf(file1, "    Max Mana%8s %6d\n", colon, player_max_mana());

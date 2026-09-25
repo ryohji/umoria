@@ -15,6 +15,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "player_gold.h"
+#include "player_hp.h"
 #include "score_death.h"
 #include "platform.h"
 #include "save_state.h"
@@ -261,8 +262,8 @@ static void highscores(void) {
     new_entry.points = total_points();
     new_entry.birth_date = character_birth_date();
     new_entry.uid = 0; // NOTE: do we not want to use `getuid()`? -MRC-
-    new_entry.mhp = py.misc.mhp;
-    new_entry.chp = py.misc.chp;
+    new_entry.mhp = player_max_hp();
+    new_entry.chp = player_hp();
     new_entry.dun_level = (uint8_t)dun_level;
     new_entry.lev = (uint8_t)py.misc.lev;
     new_entry.max_dlv = (uint8_t)py.misc.max_dlv;

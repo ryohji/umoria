@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "player_gold.h"
+#include "player_hp.h"
 #include "player_mana.h"
 #include "player_pos.h"
 
@@ -125,9 +126,7 @@ void change_character(void) {
     if (get_string(tmp_str, 0, 25, 5)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > 0) && (tmp_val <= MAX_SHORT)) {
-            m_ptr->mhp = tmp_val;
-            m_ptr->chp = tmp_val;
-            m_ptr->chp_frac = 0;
+            player_reset_hp((int16_t)tmp_val);
             prt_mhp();
             prt_chp();
         }
