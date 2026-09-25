@@ -1033,14 +1033,12 @@ $(BUILDDIR)/player_display_numbers_test: $(TESTDIR)/player_display_numbers_test.
 # 残り・上限・**まだ 1 点に届いていない端数**。端数があるのは再生が 1 ターンに
 # 65536 分の数百しか戻さないためで、置く場所が無ければ永久に 1 点も戻らない。
 #
-# 実体はまだ py の中（#18-12-4C で src/player_mana.c の static に入り、足場
-# tests/player_mana_fixture.c は消える）。なので依存は module ＋ 足場の 2 本。
+# 実体は #18-12-4C で src/player_mana.c の static に入った。足場
+# tests/player_mana_fixture.c はそこで消えたので、依存は module 1 本だけ。
 $(BUILDDIR)/player_mana_test: $(TESTDIR)/player_mana_test.c \
-                              $(TESTDIR)/player_mana_fixture.c \
                               $(TESTDIR)/minunit.h \
                               src/player_mana.c src/player_mana.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_mana_test.c \
-	    $(TESTDIR)/player_mana_fixture.c src/player_mana.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_mana_test.c src/player_mana.c
 
 clean:
 	rm -rf $(BUILDDIR)
