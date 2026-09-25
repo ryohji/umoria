@@ -21,6 +21,7 @@
 #include "level_exit.h"
 #include "panel.h"
 #include "pending_teleport.h"
+#include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_light.h"
 #include "player_pos.h"
@@ -465,7 +466,7 @@ void dungeon(void) {
                 f_ptr->status |= PY_INVULN;
                 disturb(0, 0);
                 py.misc.pac += 100;
-                py.misc.dis_ac += 100;
+                player_display_add_ac(100);
                 prt_pac();
                 msg_print("Your skin turns into steel!");
             }
@@ -474,7 +475,7 @@ void dungeon(void) {
                 f_ptr->status &= ~PY_INVULN;
                 disturb(0, 0);
                 py.misc.pac -= 100;
-                py.misc.dis_ac -= 100;
+                player_display_add_ac(-100);
                 prt_pac();
                 msg_print("Your skin returns to normal.");
             }
@@ -488,7 +489,7 @@ void dungeon(void) {
                 p_ptr->bth += 5;
                 p_ptr->bthb += 5;
                 p_ptr->pac += 2;
-                p_ptr->dis_ac += 2;
+                player_display_add_ac(2);
                 msg_print("You feel righteous!");
                 prt_pac();
             }
@@ -499,7 +500,7 @@ void dungeon(void) {
                 p_ptr->bth -= 5;
                 p_ptr->bthb -= 5;
                 p_ptr->pac -= 2;
-                p_ptr->dis_ac -= 2;
+                player_display_add_ac(-2);
                 msg_print("The prayer has expired.");
                 prt_pac();
             }

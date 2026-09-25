@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "hp_table.h"
+#include "player_display_numbers.h"
 #include "player_gold.h"
 #include "stats.h"
 
@@ -367,10 +368,12 @@ static void get_class(void) {
             p_ptr->misc.ptohit = tohit_adj();
             p_ptr->misc.ptoac = toac_adj();
             p_ptr->misc.pac = 0;
-            p_ptr->misc.dis_td = p_ptr->misc.ptodam; // Displayed values
-            p_ptr->misc.dis_th = p_ptr->misc.ptohit;
-            p_ptr->misc.dis_tac = p_ptr->misc.ptoac;
-            p_ptr->misc.dis_ac = p_ptr->misc.pac + p_ptr->misc.dis_tac;
+            // Displayed values: a copy of the real plusses, with the visible
+            // bonus folded into the visible total. Nothing is worn yet, so the
+            // armour the sheet shows is only what the bonus is worth (pac is 0
+            // on the line above).
+            player_display_start_from_real(p_ptr->misc.ptohit, p_ptr->misc.ptodam, p_ptr->misc.ptoac);
+            player_display_fold_to_ac();
 
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints
             m_ptr = &py.misc;

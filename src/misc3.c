@@ -23,6 +23,7 @@
 #include "item_ident.h"
 #include "object_levels.h"
 #include "pending_teleport.h"
+#include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -312,7 +313,7 @@ void prt_chp(void) {
 
 // prints current AC -RAK-
 void prt_pac(void) {
-    prt_int(py.misc.dis_ac, 19, STAT_COLUMN + 6);
+    prt_int(player_display_ac(), 19, STAT_COLUMN + 6);
 }
 
 // Prints current gold -RAK-
@@ -614,7 +615,7 @@ void prt_stat_block(void) {
     prt_num("MANA", m_ptr->cmana, 15, STAT_COLUMN);
     prt_num("MHP ", m_ptr->mhp, 16, STAT_COLUMN);
     prt_num("CHP ", m_ptr->chp, 17, STAT_COLUMN);
-    prt_num("AC  ", m_ptr->dis_ac, 19, STAT_COLUMN);
+    prt_num("AC  ", player_display_ac(), 19, STAT_COLUMN);
     prt_lnum("GOLD", player_gold(), 20, STAT_COLUMN);
     prt_winner();
 
@@ -677,8 +678,6 @@ void put_character(void) {
 
 // Prints the following information on the screen. -JWT-
 void put_stats(void) {
-    struct misc *m_ptr = &py.misc;
-
     for (int i = 0; i < 6; i++) {
         vtype buf;
 
@@ -691,10 +690,10 @@ void put_stats(void) {
         }
     }
 
-    prt_num("+ To Hit    ", m_ptr->dis_th, 9, 1);
-    prt_num("+ To Damage ", m_ptr->dis_td, 10, 1);
-    prt_num("+ To AC     ", m_ptr->dis_tac, 11, 1);
-    prt_num("  Total AC  ", m_ptr->dis_ac, 12, 1);
+    prt_num("+ To Hit    ", player_display_to_hit(), 9, 1);
+    prt_num("+ To Damage ", player_display_to_dam(), 10, 1);
+    prt_num("+ To AC     ", player_display_to_ac(), 11, 1);
+    prt_num("  Total AC  ", player_display_ac(), 12, 1);
 }
 
 // Returns a rating of x depending on y -JWT-
