@@ -25,6 +25,7 @@
 #include "pending_teleport.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
+#include "player_hp.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -304,12 +305,12 @@ void prt_cmana(void) {
 
 // Prints Max hit points -RAK-
 void prt_mhp(void) {
-    prt_int(py.misc.mhp, 16, STAT_COLUMN + 6);
+    prt_int(player_max_hp(), 16, STAT_COLUMN + 6);
 }
 
 // Prints players current hit points -RAK-
 void prt_chp(void) {
-    prt_int(py.misc.chp, 17, STAT_COLUMN + 6);
+    prt_int(player_hp(), 17, STAT_COLUMN + 6);
 }
 
 // prints current AC -RAK-
@@ -614,8 +615,8 @@ void prt_stat_block(void) {
     prt_num("LEV ", (int)m_ptr->lev, 13, STAT_COLUMN);
     prt_lnum("EXP ", m_ptr->exp, 14, STAT_COLUMN);
     prt_num("MANA", player_mana(), 15, STAT_COLUMN);
-    prt_num("MHP ", m_ptr->mhp, 16, STAT_COLUMN);
-    prt_num("CHP ", m_ptr->chp, 17, STAT_COLUMN);
+    prt_num("MHP ", player_max_hp(), 16, STAT_COLUMN);
+    prt_num("CHP ", player_hp(), 17, STAT_COLUMN);
     prt_num("AC  ", player_display_ac(), 19, STAT_COLUMN);
     prt_lnum("GOLD", player_gold(), 20, STAT_COLUMN);
     prt_winner();
@@ -749,8 +750,8 @@ void put_misc2(void) {
     }
 
     prt_7lnum("Gold       ", player_gold(), 13, 28);
-    prt_num("Max Hit Points ", m_ptr->mhp, 9, 52);
-    prt_num("Cur Hit Points ", m_ptr->chp, 10, 52);
+    prt_num("Max Hit Points ", player_max_hp(), 9, 52);
+    prt_num("Cur Hit Points ", player_hp(), 10, 52);
     prt_num("Max Mana       ", player_max_mana(), 11, 52);
     prt_num("Cur Mana       ", player_mana(), 12, 52);
 }
@@ -1604,15 +1605,11 @@ void calc_hitpoints(void) {
         hitpoints += 20;
     }
 
-    // mhp can equal zero while character is being created
-    if ((hitpoints != p_ptr->mhp) && (p_ptr->mhp != 0)) {
-        // change current hit points proportionately to change of mhp,
-        // divide first to avoid overflow, little loss of accuracy
-        int32_t value = (((int32_t)p_ptr->chp << 16) + p_ptr->chp_frac) / p_ptr->mhp * hitpoints;
-        p_ptr->chp = value >> 16;
-        p_ptr->chp_frac = value & 0xFFFF;
-        p_ptr->mhp = hitpoints;
-
+    // The window carries what is left across in proportion and says whether
+    // the maximum moved. A maximum of zero means the character is still being
+    // created, and the window leaves it completely alone -- so the flag is not
+    // raised then either.
+    if (player_change_max_hp((int16_t)hitpoints)) {
         // can't print hit points here, may be in store or inventory mode
         py.flags.status |= PY_HP;
     }

@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_hp.h"
 #include "player_pos.h"
 
 static void replace_spot(int, int, int);
@@ -1655,15 +1656,9 @@ int detect_evil(void) {
 int hp_player(int num) {
     bool res = false;
 
-    struct misc *m_ptr = &py.misc;
-
-    if (m_ptr->chp < m_ptr->mhp) {
-        m_ptr->chp += num;
-
-        if (m_ptr->chp > m_ptr->mhp) {
-            m_ptr->chp = m_ptr->mhp;
-            m_ptr->chp_frac = 0;
-        }
+    // The window refuses to heal a character already at the top, and that
+    // refusal is what decides whether anything is printed or said.
+    if (player_heal_hp(num)) {
         prt_chp();
 
         num = num / 5;

@@ -181,7 +181,6 @@ typedef struct player_type {
         int16_t fos;                 // Frenq of search
         int16_t bth;                 // Base to hit
         int16_t bthb;                // BTH with bows
-        int16_t mhp;                 // Max hit pts
         int16_t ptohit;              // Plusses to hit
         int16_t ptodam;              // Plusses to dam
         int16_t pac;                 // Total AC
@@ -194,8 +193,6 @@ typedef struct player_type {
         uint8_t prace;               // # of race
         uint8_t hitdie;              // Char hit die
         uint8_t expfact;             // Experience factor
-        int16_t chp;                 // Cur hit pts
-        uint16_t chp_frac;           // Cur hit fraction * 2^16
         char history[4][60];         // History record
     } misc;
 

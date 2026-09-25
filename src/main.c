@@ -18,6 +18,7 @@
 #include "object_levels.h"
 #include "options.h"
 #include "player_food.h"
+#include "player_hp.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
@@ -157,7 +158,7 @@ int main(int argc, char *argv[]) {
         change_name();
 
         // could be restoring a dead character after a signal or HANGUP
-        if (py.misc.chp < 0) {
+        if (player_hp_marks_death()) {
             set_player_dead(true);
         }
     } else { // Create character

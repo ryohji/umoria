@@ -23,6 +23,7 @@
 #include "panel.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
+#include "player_hp.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "running.h"
@@ -1725,8 +1726,9 @@ void take_hit(int damage, const char *hit_from) {
     if (py.flags.invuln > 0) {
         damage = 0;
     }
-    py.misc.chp -= damage;
-    if (py.misc.chp < 0) {
+    // Nothing clamps the number at zero: a fatal wound leaves it negative on
+    // purpose, because that is the only record of the death anyone keeps.
+    if (player_take_hp_damage(damage)) {
         if (!player_is_dead()) {
             set_player_dead(true);
             (void)strcpy(death_cause(), hit_from);
