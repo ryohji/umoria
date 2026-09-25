@@ -23,6 +23,7 @@
 #include "missile_serial.h"
 #include "panel.h"
 #include "messages.h"
+#include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_gold.h"
 #include "player_pos.h"
@@ -138,10 +139,11 @@ static bool sv_write(void) {
     wr_short((uint16_t)m_ptr->ptodam);
     wr_short((uint16_t)m_ptr->pac);
     wr_short((uint16_t)m_ptr->ptoac);
-    wr_short((uint16_t)m_ptr->dis_th);
-    wr_short((uint16_t)m_ptr->dis_td);
-    wr_short((uint16_t)m_ptr->dis_ac);
-    wr_short((uint16_t)m_ptr->dis_tac);
+    // The four numbers the sheet shows. Their place in the file cannot move.
+    wr_short((uint16_t)player_display_to_hit());
+    wr_short((uint16_t)player_display_to_dam());
+    wr_short((uint16_t)player_display_ac());
+    wr_short((uint16_t)player_display_to_ac());
     wr_short((uint16_t)m_ptr->disarm);
     wr_short((uint16_t)m_ptr->save);
     wr_short((uint16_t)m_ptr->sc);
@@ -600,10 +602,22 @@ bool get_char(bool *generate) {
             rd_short((uint16_t *)&m_ptr->ptodam);
             rd_short((uint16_t *)&m_ptr->pac);
             rd_short((uint16_t *)&m_ptr->ptoac);
-            rd_short((uint16_t *)&m_ptr->dis_th);
-            rd_short((uint16_t *)&m_ptr->dis_td);
-            rd_short((uint16_t *)&m_ptr->dis_ac);
-            rd_short((uint16_t *)&m_ptr->dis_tac);
+            // 画面に出す 4 つも窓口へ入れる。読みは器の番地を要るので、
+            // いったん受けてから 1 つずつ置く（セーブデータの並びは動かせない
+            // のでこの位置のまま。**書きだしと同じ順**で、AC の合計が修正より
+            // 先に来る）。
+            uint16_t dis_th;
+            rd_short(&dis_th);
+            player_display_set_to_hit((int16_t)dis_th);
+            uint16_t dis_td;
+            rd_short(&dis_td);
+            player_display_set_to_dam((int16_t)dis_td);
+            uint16_t dis_ac;
+            rd_short(&dis_ac);
+            player_display_set_ac((int16_t)dis_ac);
+            uint16_t dis_tac;
+            rd_short(&dis_tac);
+            player_display_set_to_ac((int16_t)dis_tac);
             rd_short((uint16_t *)&m_ptr->disarm);
             rd_short((uint16_t *)&m_ptr->save);
             rd_short((uint16_t *)&m_ptr->sc);

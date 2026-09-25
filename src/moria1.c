@@ -21,6 +21,7 @@
 #include "inventory.h"
 #include "level_exit.h"
 #include "panel.h"
+#include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_light.h"
 #include "player_pos.h"
@@ -108,16 +109,15 @@ void calc_bonuses(void) {
     p_ptr->lght_resist = false;
     p_ptr->ffall = false;
 
-    int old_dis_ac = m_ptr->dis_ac;
+    int old_dis_ac = player_display_ac();
 
-    m_ptr->ptohit = tohit_adj();   // Real To Hit
-    m_ptr->ptodam = todam_adj();   // Real To Dam
-    m_ptr->ptoac = toac_adj();     // Real To AC
-    m_ptr->pac = 0;                // Real AC
-    m_ptr->dis_th = m_ptr->ptohit; // Display To Hit
-    m_ptr->dis_td = m_ptr->ptodam; // Display To Dam
-    m_ptr->dis_ac = 0;             // Display AC
-    m_ptr->dis_tac = m_ptr->ptoac; // Display To AC
+    m_ptr->ptohit = tohit_adj(); // Real To Hit
+    m_ptr->ptodam = todam_adj(); // Real To Dam
+    m_ptr->ptoac = toac_adj();   // Real To AC
+    m_ptr->pac = 0;              // Real AC
+
+    // What the sheet says starts out as a copy of the real plusses
+    player_display_start_from_real(m_ptr->ptohit, m_ptr->ptodam, m_ptr->ptoac);
 
     for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
         inven_type *i_ptr = equipment_at(i);
@@ -132,41 +132,41 @@ void calc_bonuses(void) {
             m_ptr->ptoac += i_ptr->toac;
             m_ptr->pac += i_ptr->ac;
             if (known2_p(i_ptr)) {
-                m_ptr->dis_th += i_ptr->tohit;
+                player_display_add_to_hit(i_ptr->tohit);
                 if (i_ptr->tval != TV_BOW) {
                     // Bows can't damage. -CJS-
-                    m_ptr->dis_td += i_ptr->todam;
+                    player_display_add_to_dam(i_ptr->todam);
                 }
-                m_ptr->dis_tac += i_ptr->toac;
-                m_ptr->dis_ac += i_ptr->ac;
+                player_display_add_to_ac(i_ptr->toac);
+                player_display_add_ac(i_ptr->ac);
             } else if (!(TR_CURSED & i_ptr->flags)) {
                 // Base AC values should always be visible,
                 // as long as the item is not cursed.
-                m_ptr->dis_ac += i_ptr->ac;
+                player_display_add_ac(i_ptr->ac);
             }
         }
     }
-    m_ptr->dis_ac += m_ptr->dis_tac;
+    player_display_fold_to_ac();
 
     if (weapon_is_too_heavy()) {
-        m_ptr->dis_th += (py.stats.use_stat[A_STR] * 15 - equipment_at(INVEN_WIELD)->weight);
+        player_display_add_to_hit(py.stats.use_stat[A_STR] * 15 - equipment_at(INVEN_WIELD)->weight);
     }
 
     // Add in temporary spell increases
     if (p_ptr->invuln > 0) {
         m_ptr->pac += 100;
-        m_ptr->dis_ac += 100;
+        player_display_add_ac(100);
     }
     if (p_ptr->blessed > 0) {
         m_ptr->pac += 2;
-        m_ptr->dis_ac += 2;
+        player_display_add_ac(2);
     }
     if (p_ptr->detect_inv > 0) {
         p_ptr->see_inv = true;
     }
 
     // can't print AC here because might be in a store
-    if (old_dis_ac != m_ptr->dis_ac) {
+    if (old_dis_ac != player_display_ac()) {
         p_ptr->status |= PY_ARMOR;
     }
 
