@@ -44,7 +44,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         spells_known_test object_levels_test missile_serial_test \
         screen_touched_test inven_command_state_test \
         level_exit_test pending_teleport_test input_ended_test \
-        running_test command_state_test player_gold_test player_food_test
+        running_test command_state_test player_gold_test player_food_test \
+        player_display_numbers_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -1006,6 +1007,22 @@ $(BUILDDIR)/player_food_test: $(TESTDIR)/player_food_test.c \
                               $(TESTDIR)/minunit.h \
                               src/player_food.c src/player_food.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_food_test.c src/player_food.c
+
+# 画面に出す 4 つの数（py.misc.dis_th・dis_td・dis_tac・dis_ac）。py から出す
+# 3 つめの問い（#18-12-3A）。フィールドは 4 つあるが 1 つの問いに答えている ——
+# 人物画面に出る「+ To Hit」「+ To Damage」「+ To AC」「Total AC」で、
+# **戦いに使う本物の修正（ptohit ほか）とは別の数**。
+#
+# 実体はまだ src/player.c:17 の py の中なので、足場
+# tests/player_display_numbers_fixture.c が同じ形の py を 1 つ置く（player.c
+# 本物は大きな表が丸ごと付いてくるのでリンクしない）。#18-12-3C で置き場が
+# src/player_display_numbers.c の static に入ったら足場は消える。
+$(BUILDDIR)/player_display_numbers_test: $(TESTDIR)/player_display_numbers_test.c \
+                              $(TESTDIR)/player_display_numbers_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/player_display_numbers.c src/player_display_numbers.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_display_numbers_test.c \
+	    $(TESTDIR)/player_display_numbers_fixture.c src/player_display_numbers.c
 
 clean:
 	rm -rf $(BUILDDIR)
