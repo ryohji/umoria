@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_food.h"
+#include "player_mana.h"
 
 // Potions for the quaffing -RAK-
 void quaff(void) {
@@ -296,9 +297,7 @@ void quaff(void) {
                     ident = cure_poison();
                     break;
                 case 46:
-                    m_ptr = &py.misc;
-                    if (m_ptr->cmana < m_ptr->mana) {
-                        m_ptr->cmana = m_ptr->mana;
+                    if (player_restore_mana()) {
                         ident = true;
                         msg_print("Your feel your head clear.");
                         prt_cmana();

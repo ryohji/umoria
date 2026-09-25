@@ -25,6 +25,7 @@
 #include "pending_teleport.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
+#include "player_mana.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "save_state.h"
@@ -298,7 +299,7 @@ void prt_level(void) {
 
 // Prints players current mana points. -RAK-
 void prt_cmana(void) {
-    prt_int(py.misc.cmana, 15, STAT_COLUMN + 6);
+    prt_int(player_mana(), 15, STAT_COLUMN + 6);
 }
 
 // Prints Max hit points -RAK-
@@ -612,7 +613,7 @@ void prt_stat_block(void) {
 
     prt_num("LEV ", (int)m_ptr->lev, 13, STAT_COLUMN);
     prt_lnum("EXP ", m_ptr->exp, 14, STAT_COLUMN);
-    prt_num("MANA", m_ptr->cmana, 15, STAT_COLUMN);
+    prt_num("MANA", player_mana(), 15, STAT_COLUMN);
     prt_num("MHP ", m_ptr->mhp, 16, STAT_COLUMN);
     prt_num("CHP ", m_ptr->chp, 17, STAT_COLUMN);
     prt_num("AC  ", player_display_ac(), 19, STAT_COLUMN);
@@ -750,8 +751,8 @@ void put_misc2(void) {
     prt_7lnum("Gold       ", player_gold(), 13, 28);
     prt_num("Max Hit Points ", m_ptr->mhp, 9, 52);
     prt_num("Cur Hit Points ", m_ptr->chp, 10, 52);
-    prt_num("Max Mana       ", m_ptr->mana, 11, 52);
-    prt_num("Cur Mana       ", m_ptr->cmana, 12, 52);
+    prt_num("Max Mana       ", player_max_mana(), 11, 52);
+    prt_num("Cur Mana       ", player_mana(), 12, 52);
 }
 
 // Prints ratings on certain abilities -RAK-
@@ -1072,8 +1073,8 @@ int spell_chance(int spell) {
     }
 
     chance -= 3 * (stat_adj(stat) - 1);
-    if (s_ptr->smana > py.misc.cmana) {
-        chance += 5 * (s_ptr->smana - py.misc.cmana);
+    if (s_ptr->smana > player_mana()) {
+        chance += 5 * (s_ptr->smana - player_mana());
     }
 
     if (chance > 95) {
@@ -1481,7 +1482,7 @@ void gain_spells(void) {
         }
 
         // set the mana for first level characters when they learn their first spell.
-        if (py.misc.mana == 0) {
+        if (player_max_mana() == 0) {
             calc_mana(stat);
         }
     }
@@ -1525,26 +1526,11 @@ void calc_mana(int stat) {
         }
 
         // mana can be zero when creating character
-        if (p_ptr->mana != new_mana) {
-            if (p_ptr->mana != 0) {
-                // change current mana proportionately to change of max mana,
-                // divide first to avoid overflow, little loss of accuracy
-                int32_t value = (((int32_t)p_ptr->cmana << 16) + p_ptr->cmana_frac) / p_ptr->mana * new_mana;
-                p_ptr->cmana = value >> 16;
-                p_ptr->cmana_frac = value & 0xFFFF;
-            } else {
-                p_ptr->cmana = new_mana;
-                p_ptr->cmana_frac = 0;
-            }
-            p_ptr->mana = new_mana;
-
+        if (player_change_max_mana((int16_t)new_mana)) {
             // can't print mana here, may be in store or inventory mode
             py.flags.status |= PY_MANA;
         }
-    } else if (p_ptr->mana != 0) {
-        p_ptr->mana = 0;
-        p_ptr->cmana = 0;
-
+    } else if (player_lose_all_mana()) {
         // can't print mana here, may be in store or inventory mode
         py.flags.status |= PY_MANA;
     }

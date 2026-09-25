@@ -24,6 +24,7 @@
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_light.h"
+#include "player_mana.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "running.h"
@@ -263,7 +264,7 @@ void dungeon(void) {
         if ((f_ptr->poisoned < 1) && (p_ptr->chp < p_ptr->mhp)) {
             regenhp(regen_amount);
         }
-        if (p_ptr->cmana < p_ptr->mana) {
+        if (player_mana() < player_max_mana()) {
             regenmana(regen_amount);
         }
 
@@ -424,7 +425,7 @@ void dungeon(void) {
         } else if (f_ptr->rest < 0) {
             // Rest until reach max mana and max hit points.
             f_ptr->rest++;
-            if ((p_ptr->chp == p_ptr->mhp && p_ptr->cmana == p_ptr->mana) ||
+            if ((p_ptr->chp == p_ptr->mhp && player_mana() == player_max_mana()) ||
                 f_ptr->rest == 0) {
                 rest_off();
             }
@@ -1718,35 +1719,15 @@ static void regenhp(int percent) {
 }
 
 // Regenerate mana points -RAK-
+// All that is left here is working out the rate (above) and noticing that the
+// whole number moved, because the status line only shows that -- the sixteenths
+// of a point live in player_mana.c.
 static void regenmana(int percent) {
-    struct misc *p_ptr = &py.misc;
-    int old_cmana = p_ptr->cmana;
-    int32_t new_mana = ((int32_t)p_ptr->mana) * percent + PLAYER_REGEN_MNBASE;
+    int16_t old_cmana = player_mana();
 
-    // div 65536
-    p_ptr->cmana += new_mana >> 16;
+    player_regenerate_mana(percent);
 
-    // check for overflow
-    if (p_ptr->cmana < 0 && old_cmana > 0) {
-        p_ptr->cmana = MAX_SHORT;
-    }
-
-    // mod 65536
-    int32_t new_mana_frac = (new_mana & 0xFFFF) + p_ptr->cmana_frac;
-
-    if (new_mana_frac >= 0x10000L) {
-        p_ptr->cmana_frac = (uint16_t)(new_mana_frac - 0x10000L);
-        p_ptr->cmana++;
-    } else {
-        p_ptr->cmana_frac = new_mana_frac;
-    }
-
-    // must set frac to zero even if equal
-    if (p_ptr->cmana >= p_ptr->mana) {
-        p_ptr->cmana = p_ptr->mana;
-        p_ptr->cmana_frac = 0;
-    }
-    if (old_cmana != p_ptr->cmana) {
+    if (old_cmana != player_mana()) {
         prt_cmana();
     }
 }

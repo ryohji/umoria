@@ -26,6 +26,7 @@
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_gold.h"
+#include "player_mana.h"
 #include "player_pos.h"
 #include "options.h"
 #include "progress.h"
@@ -133,7 +134,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)m_ptr->fos);
     wr_short((uint16_t)m_ptr->bth);
     wr_short((uint16_t)m_ptr->bthb);
-    wr_short((uint16_t)m_ptr->mana);
+    wr_short((uint16_t)player_max_mana());
     wr_short((uint16_t)m_ptr->mhp);
     wr_short((uint16_t)m_ptr->ptohit);
     wr_short((uint16_t)m_ptr->ptodam);
@@ -152,8 +153,8 @@ static bool sv_write(void) {
     wr_byte(m_ptr->prace);
     wr_byte(m_ptr->hitdie);
     wr_byte(m_ptr->expfact);
-    wr_short((uint16_t)m_ptr->cmana);
-    wr_short(m_ptr->cmana_frac);
+    wr_short((uint16_t)player_mana());
+    wr_short(player_mana_fraction());
     wr_short((uint16_t)m_ptr->chp);
     wr_short(m_ptr->chp_frac);
     for (int i = 0; i < 4; i++) {
@@ -596,7 +597,11 @@ bool get_char(bool *generate) {
             rd_short((uint16_t *)&m_ptr->fos);
             rd_short((uint16_t *)&m_ptr->bth);
             rd_short((uint16_t *)&m_ptr->bthb);
-            rd_short((uint16_t *)&m_ptr->mana);
+            // 魔力の 3 つも窓口へ（#18-12-4B）。並びは動かせないので位置は
+            // そのまま —— 上限はここ、残りと端数は階級・種族のあと。
+            uint16_t max_mana;
+            rd_short(&max_mana);
+            player_set_max_mana((int16_t)max_mana);
             rd_short((uint16_t *)&m_ptr->mhp);
             rd_short((uint16_t *)&m_ptr->ptohit);
             rd_short((uint16_t *)&m_ptr->ptodam);
@@ -626,8 +631,12 @@ bool get_char(bool *generate) {
             rd_byte(&m_ptr->prace);
             rd_byte(&m_ptr->hitdie);
             rd_byte(&m_ptr->expfact);
-            rd_short((uint16_t *)&m_ptr->cmana);
-            rd_short(&m_ptr->cmana_frac);
+            uint16_t cur_mana;
+            rd_short(&cur_mana);
+            player_set_mana((int16_t)cur_mana);
+            uint16_t cur_mana_frac;
+            rd_short(&cur_mana_frac);
+            player_set_mana_fraction(cur_mana_frac);
             rd_short((uint16_t *)&m_ptr->chp);
             rd_short(&m_ptr->chp_frac);
             for (int i = 0; i < 4; i++) {

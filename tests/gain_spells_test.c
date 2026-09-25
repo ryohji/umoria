@@ -11,7 +11,7 @@
  *   ・覚えた印と覚えた順（`spell_learned` と `spell_order`）
  *   ・メッセージ（msg_print）
  *   ・`py.flags.new_spells`（まだ学べる数）と PY_STUDY
- *   ・魔力（`py.misc.mana`。最初の 1 つを覚えたときだけ計算される）
+ *   ・魔力の上限（player_max_mana()。最初の 1 つを覚えたときだけ計算される）
  *   ・断ったときの `free_turn_flag`（手番を使わない）
  *
  * にしか現れない。
@@ -31,7 +31,7 @@
  *
  *   4. **学べる数が 0 なら断る。** そのとき手番を使わない（free_turn_flag）。
  *
- *   5. **最初の 1 つで魔力が生える。** py.misc.mana が 0 のときだけ
+ *   5. **最初の 1 つで魔力が生える。** 魔力の上限が 0 のときだけ
  *      calc_mana を呼ぶ（レベル 1 のキャラクタが呪文を覚えた瞬間）。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、いまどう
@@ -43,6 +43,7 @@
 
 #include "fixture.h"
 #include "inventory.h"
+#include "player_mana.h"
 #include "spells_known.h"
 
 extern player_type py;
@@ -72,13 +73,13 @@ static void given_no_spells_known(void) {
     free_turn_flag = false;
 }
 
-/* 学べる数がある魔法使い（レベル 1・知力 18）。魔力は 1 にしておく
+/* 学べる数がある魔法使い（レベル 1・知力 18）。魔力の上限は 1 にしておく
  * （0 だと最初の 1 つで calc_mana が走るので、その仕掛けは別の件で見る）。 */
 static void given_a_mage_who_can_learn(int spells_to_learn) {
     py.misc.pclass = 1; /* class[1] は Mage（MAGE 系） */
     py.misc.lev = 1;
     py.stats.use_stat[A_INT] = 18;
-    py.misc.mana = 1;
+    player_set_max_mana(1);
     py.flags.new_spells = (uint8_t)spells_to_learn;
 }
 
@@ -87,7 +88,7 @@ static void given_a_priest_who_can_learn(int spells_to_learn) {
     py.misc.pclass = 2; /* class[2] は Priest（PRIEST 系） */
     py.misc.lev = 1;
     py.stats.use_stat[A_WIS] = 18;
-    py.misc.mana = 1;
+    player_set_max_mana(1);
     py.flags.new_spells = (uint8_t)spells_to_learn;
 }
 
@@ -205,12 +206,12 @@ TEST(two_prayers_are_appended_in_the_order_they_were_granted) {
 TEST(the_first_prayer_brings_the_mana_with_it) {
     given_no_spells_known();
     given_a_priest_who_can_learn(1);
-    py.misc.mana = 0;
+    player_set_max_mana(0);
     fixture_set_randint(1);
 
     gain_spells();
 
-    ASSERT_TRUE(py.misc.mana > 0);
+    ASSERT_TRUE(player_max_mana() > 0);
 }
 
 /* ------------------------------------------------------------------

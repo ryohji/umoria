@@ -22,6 +22,7 @@
 #include "object_levels.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
+#include "player_mana.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later
@@ -226,14 +227,14 @@ bool file_character(char *filename1) {
         (void)fprintf(file1, "    Cur Hit Points : %6d\n", py.misc.chp);
         (void)fprintf(file1, " + To AC     : %6d", player_display_to_ac());
         (void)fprintf(file1, "%7sMax Exp    : %7d", blank, py.misc.max_exp);
-        (void)fprintf(file1, "    Max Mana%8s %6d\n", colon, py.misc.mana);
+        (void)fprintf(file1, "    Max Mana%8s %6d\n", colon, player_max_mana());
         (void)fprintf(file1, "   Total AC  : %6d", player_display_ac());
         if (py.misc.lev >= MAX_PLAYER_LEVEL) {
             (void)fprintf(file1, "%7sExp to Adv : *******", blank);
         } else {
             (void)fprintf(file1, "%7sExp to Adv : %7d", blank, (int32_t)(player_exp[py.misc.lev - 1] * py.misc.expfact / 100));
         }
-        (void)fprintf(file1, "    Cur Mana%8s %6d\n", colon, py.misc.cmana);
+        (void)fprintf(file1, "    Cur Mana%8s %6d\n", colon, player_mana());
         (void)fprintf(file1, "%28sGold%8s %7d\n\n", blank, colon, player_gold());
 
         struct player_abilities a = calc_player_abilities();
