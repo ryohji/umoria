@@ -11,6 +11,11 @@
 #include "item_ident.h"
 
 player_type py;         /* 本体では player.c（530行の巨大データと同居） */
+/* 階級の値段表。#18-12-6A で src/player_level.c がリンクされる全ての実行形式に
+ * 要る。src/player.c をリンクする足場（tests/misc3_stubs.c を使う側）は本物の
+ * 40 個を持っているが、この足場は py を自分で定義する = player.c と一緒には
+ * リンクされないので、ここにも空の表を置く。 */
+uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
  * しない。#18-5C で src/inventory.c が static で持つようになったので、
  * 消しかたも窓口（src/inventory.h）越しになる。 */

@@ -58,7 +58,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	missile_serial.c inven_command_state.c screen_touched.c \
 	level_exit.c pending_teleport.c input_ended.c running.c \
 	command_state.c player_gold.c player_food.c player_display_numbers.c \
-	player_mana.c player_hp.c \
+	player_mana.c player_hp.c player_level.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -74,7 +74,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	missile_serial.o inven_command_state.o screen_touched.o \
 	level_exit.o pending_teleport.o input_ended.o running.o \
 	command_state.o player_gold.o player_food.o player_display_numbers.o \
-	player_mana.o player_hp.o \
+	player_mana.o player_hp.o player_level.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
