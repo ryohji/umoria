@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "panel.h"
+#include "player_food.h"
 #include "player_pos.h"
 #include "progress.h"
 #include "running.h"
@@ -504,17 +505,18 @@ bool compact_monsters(void) {
 // Add to the players food time -RAK-
 void add_food(int num) {
     struct flags *p_ptr = &py.flags;
-    if (p_ptr->food < 0) {
-        p_ptr->food = 0;
-    }
 
-    p_ptr->food += num;
-    if (p_ptr->food > PLAYER_FOOD_MAX) {
+    // 飢えの借金を消すのは窓口の中（#18-12-2A）。腹だけの規則で、ほかに
+    // 訊く人がいないので内側に入れた。ここに残るのは食べすぎの罰 ——
+    // 画面に言い、速さを落とす。どちらも腹の話ではない。
+    player_gain_food(num);
+
+    if (player_food() > PLAYER_FOOD_MAX) {
         msg_print("You are bloated from overeating.");
 
         // Calculate how much of num is responsible for the bloating. Give the
         // player food credit for 1/50, and slow him for that many turns also.
-        int extra = p_ptr->food - PLAYER_FOOD_MAX;
+        int extra = player_food() - PLAYER_FOOD_MAX;
         if (extra > num) {
             extra = num;
         }
@@ -522,11 +524,11 @@ void add_food(int num) {
 
         p_ptr->slow += penalty;
         if (extra == num) {
-            p_ptr->food = p_ptr->food - num + penalty;
+            player_set_food((int16_t)(player_food() - num + penalty));
         } else {
-            p_ptr->food = PLAYER_FOOD_MAX + penalty;
+            player_set_food((int16_t)(PLAYER_FOOD_MAX + penalty));
         }
-    } else if (p_ptr->food > PLAYER_FOOD_FULL) {
+    } else if (player_food() > PLAYER_FOOD_FULL) {
         msg_print("You are full.");
     }
 }

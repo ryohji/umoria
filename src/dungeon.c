@@ -21,6 +21,7 @@
 #include "level_exit.h"
 #include "panel.h"
 #include "pending_teleport.h"
+#include "player_food.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -212,13 +213,13 @@ void dungeon(void) {
 
         // Check food status
         int regen_amount = PLAYER_REGEN_NORMAL; // Regenerate hp and mana
-        if (f_ptr->food < PLAYER_FOOD_ALERT) {
-            if (f_ptr->food < PLAYER_FOOD_WEAK) {
-                if (f_ptr->food < 0) {
+        if (player_food() < PLAYER_FOOD_ALERT) {
+            if (player_food() < PLAYER_FOOD_WEAK) {
+                if (player_food() < 0) {
                     regen_amount = 0;
-                } else if (f_ptr->food < PLAYER_FOOD_FAINT) {
+                } else if (player_food() < PLAYER_FOOD_FAINT) {
                     regen_amount = PLAYER_REGEN_FAINT;
-                } else if (f_ptr->food < PLAYER_FOOD_WEAK) {
+                } else if (player_food() < PLAYER_FOOD_WEAK) {
                     regen_amount = PLAYER_REGEN_WEAK;
                 }
                 if ((PY_WEAK & f_ptr->status) == 0) {
@@ -227,7 +228,7 @@ void dungeon(void) {
                     disturb(0, 0);
                     prt_hunger();
                 }
-                if ((f_ptr->food < PLAYER_FOOD_FAINT) && (randint(8) == 1)) {
+                if ((player_food() < PLAYER_FOOD_FAINT) && (randint(8) == 1)) {
                     f_ptr->paralysis += randint(5);
                     msg_print("You faint from the lack of food.");
                     disturb(1, 0);
@@ -243,11 +244,11 @@ void dungeon(void) {
         // Food consumption
         // Note: Speeded up characters really burn up the food!
         if (f_ptr->speed < 0) {
-            f_ptr->food -= f_ptr->speed * f_ptr->speed;
+            player_burn_food(f_ptr->speed * f_ptr->speed);
         }
-        f_ptr->food -= f_ptr->food_digested;
-        if (f_ptr->food < 0) {
-            take_hit(-f_ptr->food / 16, "starvation"); // -CJS-
+        player_digest();
+        if (player_food() < 0) {
+            take_hit(-player_food() / 16, "starvation"); // -CJS-
             disturb(1, 0);
         }
 

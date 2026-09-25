@@ -44,7 +44,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         spells_known_test object_levels_test missile_serial_test \
         screen_touched_test inven_command_state_test \
         level_exit_test pending_teleport_test input_ended_test \
-        running_test command_state_test player_gold_test
+        running_test command_state_test player_gold_test player_food_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -498,12 +498,18 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # #18-11-5B で save.c が「入力が尽きたか」を src/input_ended.h の窓口越しに読む
 # ようになったので src/input_ended.c も同じ理由で付いてくる（HANGUP のセーブでは
 # 死亡旗を消す、という判断）。
+# #18-12-2B で save.c が「腹の具合」を src/player_food.h の窓口越しに読み書き
+# するようになったので src/player_food.c も付いてくる（実体はまだ py の中で、
+# その py は player.c 本物でリンクしているので足場は要らない）。
 # **この 2 本は src/save.c を「丸ごと #include」する形なので、リンク行を grep
 # しても出てこない。** タブ始まりの recipe だけを数えると見落とす（実際に
-# undefined reference 2 件で落ちた）。
+# undefined reference 2 件で落ちた）。**そのうえ軸の src/save.c は依存行に
+# だけあってコマンド行には無い**ので、新しい module は両方の行に別々に足す
+# （src/save.c の隣を真似ると依存行にしか入らない）。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
-                            src/save.c src/player_gold.c src/variable.c src/tables.c \
+                            src/save.c src/player_gold.c src/player_food.c \
+                            src/variable.c src/tables.c \
                             src/treasure.c src/player.c src/monsters.c \
                             src/options.c src/messages.c src/panel.c \
                             src/stores.c src/inventory.c \
@@ -514,7 +520,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/missile_serial.c src/missile_serial.h \
                             src/input_ended.c src/input_ended.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
-	    $(TESTDIR)/save_stubs.c src/player_gold.c src/variable.c src/tables.c \
+	    $(TESTDIR)/save_stubs.c src/player_gold.c src/player_food.c \
+	    src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
 	    src/messages.c src/panel.c src/stores.c src/inventory.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
@@ -540,12 +547,18 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 # #18-11-5B で save.c が「入力が尽きたか」を src/input_ended.h の窓口越しに読む
 # ようになったので src/input_ended.c も同じ理由で付いてくる（HANGUP のセーブでは
 # 死亡旗を消す、という判断）。
+# #18-12-2B で save.c が「腹の具合」を src/player_food.h の窓口越しに読み書き
+# するようになったので src/player_food.c も付いてくる（実体はまだ py の中で、
+# その py は player.c 本物でリンクしているので足場は要らない）。
 # **この 2 本は src/save.c を「丸ごと #include」する形なので、リンク行を grep
 # しても出てこない。** タブ始まりの recipe だけを数えると見落とす（実際に
-# undefined reference 2 件で落ちた）。
+# undefined reference 2 件で落ちた）。**そのうえ軸の src/save.c は依存行に
+# だけあってコマンド行には無い**ので、新しい module は両方の行に別々に足す
+# （src/save.c の隣を真似ると依存行にしか入らない）。
 $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
-                             src/save.c src/player_gold.c src/variable.c src/tables.c \
+                             src/save.c src/player_gold.c src/player_food.c \
+                             src/variable.c src/tables.c \
                              src/treasure.c src/player.c src/monsters.c \
                              src/options.c src/messages.c src/panel.c \
                              src/stores.c src/inventory.c \
@@ -556,7 +569,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/missile_serial.c src/missile_serial.h \
                              src/input_ended.c src/input_ended.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
-	    $(TESTDIR)/save_stubs.c src/player_gold.c src/variable.c src/tables.c \
+	    $(TESTDIR)/save_stubs.c src/player_gold.c src/player_food.c \
+	    src/variable.c src/tables.c \
 	    src/treasure.c src/player.c src/monsters.c src/options.c \
 	    src/messages.c src/panel.c src/stores.c src/inventory.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
@@ -979,6 +993,19 @@ $(BUILDDIR)/player_gold_test: $(TESTDIR)/player_gold_test.c \
                               $(TESTDIR)/minunit.h \
                               src/player_gold.c src/player_gold.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_gold_test.c src/player_gold.c
+
+# 腹の具合（py.flags.food と py.flags.food_digested）。py から出す 2 つめの
+# 問い（#18-12-2A）。フィールドは 2 つあるが 1 つの問いに答えている ——
+# 数と、その数が 1 ターンで減る速さ。
+#
+# 実体は #18-12-2C で src/player_food.c の static に入ったので、依存は
+# その 1 本だけ（足場 tests/player_food_fixture.c は消した。static に
+# したあとも同じ名前を定義する足場を残すと、窓口に届かない別の器が
+# 生き残る。HANDOVER 第 7 節）。
+$(BUILDDIR)/player_food_test: $(TESTDIR)/player_food_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/player_food.c src/player_food.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_food_test.c src/player_food.c
 
 clean:
 	rm -rf $(BUILDDIR)
