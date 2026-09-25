@@ -45,7 +45,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         screen_touched_test inven_command_state_test \
         level_exit_test pending_teleport_test input_ended_test \
         running_test command_state_test player_gold_test player_food_test \
-        player_display_numbers_test
+        player_display_numbers_test player_mana_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -1023,6 +1023,20 @@ $(BUILDDIR)/player_display_numbers_test: $(TESTDIR)/player_display_numbers_test.
                               $(TESTDIR)/minunit.h \
                               src/player_display_numbers.c src/player_display_numbers.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_display_numbers_test.c src/player_display_numbers.c
+
+# 魔力（もとの py.misc.cmana・mana・cmana_frac）。py から出す 4 つめの問い
+# （#18-12-4A）。フィールドは 3 つあるが 1 つの問いに答えている ——
+# 残り・上限・**まだ 1 点に届いていない端数**。端数があるのは再生が 1 ターンに
+# 65536 分の数百しか戻さないためで、置く場所が無ければ永久に 1 点も戻らない。
+#
+# 実体はまだ py の中（#18-12-4C で src/player_mana.c の static に入り、足場
+# tests/player_mana_fixture.c は消える）。なので依存は module ＋ 足場の 2 本。
+$(BUILDDIR)/player_mana_test: $(TESTDIR)/player_mana_test.c \
+                              $(TESTDIR)/player_mana_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/player_mana.c src/player_mana.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_mana_test.c \
+	    $(TESTDIR)/player_mana_fixture.c src/player_mana.c
 
 clean:
 	rm -rf $(BUILDDIR)
