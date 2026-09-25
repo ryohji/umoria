@@ -23,14 +23,15 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "player_level.h"
 #include "stats.h"
 
 struct player_abilities calc_player_abilities(void) {
     struct misc *p_ptr = &py.misc;
     struct player_abilities a;
 
-    a.bth = p_ptr->bth + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * p_ptr->lev);
-    a.bthb = p_ptr->bthb + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * p_ptr->lev);
+    a.bth = p_ptr->bth + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * player_level());
+    a.bthb = p_ptr->bthb + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * player_level());
 
     // 0 when fos >= 40; exceeds 29 when fos < 11 (search gear lowers fos, moria1.c:48)
     a.fos = 40 - p_ptr->fos;
@@ -43,12 +44,12 @@ struct player_abilities calc_player_abilities(void) {
     // stl + 1, so the minimum is 1 (not 0)
     a.stl = p_ptr->stl + 1;
 
-    a.dis = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
-    a.save = p_ptr->save + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * p_ptr->lev / 3);
+    a.dis = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+    a.save = p_ptr->save + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * player_level() / 3);
 
     // Based on `save`, not `disarm`. Preserved as it stands; the intent is
     // unclear but changing it would change the game's behaviour.
-    a.dev = p_ptr->save + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * p_ptr->lev / 3);
+    a.dev = p_ptr->save + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * player_level() / 3);
 
     (void)sprintf(a.infra, "%d feet", py.flags.see_infra * 10);
 

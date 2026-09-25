@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "player_level.h"
 #include "progress.h"
 
 static void roff(const char *);
@@ -321,19 +322,19 @@ int roff_recall(creature_type *cp) {
 
         // calculate the integer exp part, can be larger than 64K when first
         // level character looks at Balrog info, so must store in long
-        int32_t templong = (int32_t)cp->mexp * cp->level / py.misc.lev;
+        int32_t templong = (int32_t)cp->mexp * cp->level / player_level();
 
         // calculate the fractional exp part scaled by 100,
         // must use long arithmetic to avoid overflow
-        j = (((int32_t)cp->mexp * cp->level % py.misc.lev) * (int32_t)1000 / py.misc.lev + 5) / 10;
+        j = (((int32_t)cp->mexp * cp->level % player_level()) * (int32_t)1000 / player_level() + 5) / 10;
 
         (void)sprintf(temp, " creature is worth %d.%02d point%s", templong, j, (templong == 1 && j == 0 ? "" : "s"));
         roff(temp);
 
-        if (py.misc.lev / 10 == 1) {
+        if (player_level() / 10 == 1) {
             p = "th";
         } else {
-            int ord = py.misc.lev % 10;
+            int ord = player_level() % 10;
             if (ord == 1) {
                 p = "st";
             } else if (ord == 2) {
@@ -345,7 +346,7 @@ int roff_recall(creature_type *cp) {
             }
         }
 
-        int n = py.misc.lev;
+        int n = player_level();
         if (n == 8 || n == 11 || n == 18) {
             q = "n";
         } else {
