@@ -40,7 +40,9 @@
  *
  * 置き場は #18-12-3C で src/player_display_numbers.c の static になり、
  * 初期値もそこに入った（それまで要っていた足場
- * tests/player_display_numbers_fixture.c は消した）。テストは 1 プロセスで
+ * tests/player_display_numbers_fixture.c は消した。static にしたあとも同じ
+ * 名前の器を足場に残すと、窓口に届かない別の器が生き残ってテストが何も
+ * 検証しなくなる —— HANDOVER 第 7 節）。テストは 1 プロセスで
  * 状態を共有するので、走りだしを見る 1 件は main() の先頭に置き、以降は
  * 各件が最初に窓口で足場を作る。
  */

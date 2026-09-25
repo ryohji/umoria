@@ -20,70 +20,79 @@
 // PY_ARMOR when the AC moves (moria1.c still watches for that, because it cannot
 // print inside a store).
 
-// The four still live in py.misc (player.c:17). They come in here at
-// #18-12-3C, where these become statics of their own and the four fields leave
-// the struct. Declared here rather than taken from externs.h so that what this
-// module touches is one line long and visible.
-extern player_type py;
+// Owned here and static: the only way in is through the windows below. The four
+// came over from the four dis_* fields of py.misc (#18-12-3C) with
+// their initial values -- the fields were inside a struct with no initializer,
+// so a sheet that says nothing is what a program starts with, and create.c puts
+// the real numbers in once the character exists (or save.c puts back the ones
+// the file remembers).
+//
+// The names follow the windows rather than the old fields: "dis_tac" was the
+// bonus the sheet shows and "dis_ac" the total it shows, which the old pair of
+// names does not say.
+static int16_t shown_to_hit = 0;
+static int16_t shown_to_dam = 0;
+static int16_t shown_to_ac = 0;
+static int16_t shown_ac = 0;
 
 int16_t player_display_to_hit(void) {
-    return py.misc.dis_th;
+    return shown_to_hit;
 }
 
 int16_t player_display_to_dam(void) {
-    return py.misc.dis_td;
+    return shown_to_dam;
 }
 
 int16_t player_display_to_ac(void) {
-    return py.misc.dis_tac;
+    return shown_to_ac;
 }
 
 int16_t player_display_ac(void) {
-    return py.misc.dis_ac;
+    return shown_ac;
 }
 
 void player_display_start_from_real(int16_t to_hit, int16_t to_dam, int16_t to_ac) {
     // The sheet begins as a copy of the real plusses, with none of the armour
     // visible yet: what calc_bonuses() and create.c both spelled out.
-    py.misc.dis_th = to_hit;
-    py.misc.dis_td = to_dam;
-    py.misc.dis_tac = to_ac;
-    py.misc.dis_ac = 0;
+    shown_to_hit = to_hit;
+    shown_to_dam = to_dam;
+    shown_to_ac = to_ac;
+    shown_ac = 0;
 }
 
 void player_display_add_to_hit(int amount) {
-    py.misc.dis_th = (int16_t)(py.misc.dis_th + amount);
+    shown_to_hit = (int16_t)(shown_to_hit + amount);
 }
 
 void player_display_add_to_dam(int amount) {
-    py.misc.dis_td = (int16_t)(py.misc.dis_td + amount);
+    shown_to_dam = (int16_t)(shown_to_dam + amount);
 }
 
 void player_display_add_to_ac(int amount) {
-    py.misc.dis_tac = (int16_t)(py.misc.dis_tac + amount);
+    shown_to_ac = (int16_t)(shown_to_ac + amount);
 }
 
 void player_display_add_ac(int amount) {
-    py.misc.dis_ac = (int16_t)(py.misc.dis_ac + amount);
+    shown_ac = (int16_t)(shown_ac + amount);
 }
 
 void player_display_fold_to_ac(void) {
     // The bonus the sheet shows is part of the total the sheet shows.
-    py.misc.dis_ac = (int16_t)(py.misc.dis_ac + py.misc.dis_tac);
+    shown_ac = (int16_t)(shown_ac + shown_to_ac);
 }
 
 void player_display_set_to_hit(int16_t value) {
-    py.misc.dis_th = value;
+    shown_to_hit = value;
 }
 
 void player_display_set_to_dam(int16_t value) {
-    py.misc.dis_td = value;
+    shown_to_dam = value;
 }
 
 void player_display_set_to_ac(int16_t value) {
-    py.misc.dis_tac = value;
+    shown_to_ac = value;
 }
 
 void player_display_set_ac(int16_t value) {
-    py.misc.dis_ac = value;
+    shown_ac = value;
 }
