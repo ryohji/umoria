@@ -27,6 +27,7 @@
 #include "player_food.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "options.h"
@@ -123,13 +124,13 @@ static bool sv_write(void) {
     wr_string(m_ptr->name);
     wr_byte(m_ptr->male);
     wr_long((uint32_t)player_gold());
-    wr_long((uint32_t)m_ptr->max_exp);
-    wr_long((uint32_t)m_ptr->exp);
-    wr_short(m_ptr->exp_frac);
+    wr_long((uint32_t)player_max_experience());
+    wr_long((uint32_t)player_experience());
+    wr_short(player_experience_fraction());
     wr_short(m_ptr->age);
     wr_short(m_ptr->ht);
     wr_short(m_ptr->wt);
-    wr_short(m_ptr->lev);
+    wr_short(player_level());
     wr_short(m_ptr->max_dlv);
     wr_short((uint16_t)m_ptr->srh);
     wr_short((uint16_t)m_ptr->fos);
@@ -153,7 +154,7 @@ static bool sv_write(void) {
     wr_byte(m_ptr->pclass);
     wr_byte(m_ptr->prace);
     wr_byte(m_ptr->hitdie);
-    wr_byte(m_ptr->expfact);
+    wr_byte(player_experience_factor());
     wr_short((uint16_t)player_mana());
     wr_short(player_mana_fraction());
     wr_short((uint16_t)player_hp());
@@ -586,13 +587,24 @@ bool get_char(bool *generate) {
             uint32_t gold;
             rd_long(&gold);
             player_set_gold((int32_t)gold);
-            rd_long((uint32_t *)&m_ptr->max_exp);
-            rd_long((uint32_t *)&m_ptr->exp);
-            rd_short(&m_ptr->exp_frac);
+            // 階級と経験値の 5 つも窓口へ入れる。読みは器の番地を要るので、
+            // いったん受けてから置く（幅と符号の扱いは元のまま。並び順は
+            // ファイルの形なので動かせない）。
+            uint32_t max_exp;
+            rd_long(&max_exp);
+            player_set_max_experience((int32_t)max_exp);
+            uint32_t exp;
+            rd_long(&exp);
+            player_set_experience((int32_t)exp);
+            uint16_t exp_frac;
+            rd_short(&exp_frac);
+            player_set_experience_fraction(exp_frac);
             rd_short(&m_ptr->age);
             rd_short(&m_ptr->ht);
             rd_short(&m_ptr->wt);
-            rd_short(&m_ptr->lev);
+            uint16_t lev;
+            rd_short(&lev);
+            player_set_level(lev);
             rd_short(&m_ptr->max_dlv);
             rd_short((uint16_t *)&m_ptr->srh);
             rd_short((uint16_t *)&m_ptr->fos);
@@ -635,7 +647,9 @@ bool get_char(bool *generate) {
             rd_byte(&m_ptr->pclass);
             rd_byte(&m_ptr->prace);
             rd_byte(&m_ptr->hitdie);
-            rd_byte(&m_ptr->expfact);
+            uint8_t expfact;
+            rd_byte(&expfact);
+            player_set_experience_factor(expfact);
             uint16_t cur_mana;
             rd_short(&cur_mana);
             player_set_mana((int16_t)cur_mana);

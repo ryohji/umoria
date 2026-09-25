@@ -18,6 +18,7 @@
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_level.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -89,7 +90,7 @@ static void get_all_stats(void) {
     change_stat(A_CON, r_ptr->con_adj);
     change_stat(A_CHR, r_ptr->chr_adj);
 
-    p_ptr->misc.lev = 1;
+    player_set_level(1);
 
     for (int j = 0; j < 6; j++) {
         py.stats.cur_stat[j] = py.stats.max_stat[j];
@@ -107,7 +108,7 @@ static void get_all_stats(void) {
     p_ptr->misc.ptohit = tohit_adj();
     p_ptr->misc.ptoac = 0;
     p_ptr->misc.pac = toac_adj();
-    p_ptr->misc.expfact = r_ptr->b_exp;
+    player_set_experience_factor(r_ptr->b_exp);
     p_ptr->flags.see_infra = r_ptr->infra;
 }
 
@@ -404,7 +405,7 @@ static void get_class(void) {
             m_ptr->fos += c_ptr->mfos;
             m_ptr->stl += c_ptr->mstl;
             m_ptr->save += c_ptr->msav;
-            m_ptr->expfact += c_ptr->m_exp;
+            player_set_experience_factor((uint8_t)(player_experience_factor() + c_ptr->m_exp));
         } else if (s == '?') {
             helpfile(MORIA_WELCOME);
         } else {

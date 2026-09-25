@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_hp.h"
+#include "player_level.h"
 #include "player_pos.h"
 
 static void replace_spot(int, int, int);
@@ -1807,7 +1808,7 @@ int protect_evil(void) {
     } else {
         res = false;
     }
-    f_ptr->protevil += randint(25) + 3 * py.misc.lev;
+    f_ptr->protevil += randint(25) + 3 * player_level();
 
     return res;
 }
@@ -1866,11 +1867,11 @@ int turn_undead(void) {
 
         if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(player_row(), player_col(), m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
             const char *cdesc = monster_name((vtype){0}, m_ptr);
-            if (((py.misc.lev + 1) > r_ptr->level) || (randint(5) == 1)) {
+            if (((player_level() + 1) > r_ptr->level) || (randint(5) == 1)) {
                 msg_print(CONCAT(cdesc, " runs frantically!"));
                 turn_und = true;
                 recall_update_characteristics(m_ptr->creature, CD_UNDEAD);
-                m_ptr->confused = py.misc.lev;
+                m_ptr->confused = player_level();
             } else {
                 msg_print(CONCAT(cdesc, " is unaffected."));
             }
@@ -1955,25 +1956,13 @@ void lose_chr(void) {
 void lose_exp(int32_t amount) {
     struct misc *m_ptr = &py.misc;
 
-    if (amount > m_ptr->exp) {
-        m_ptr->exp = 0;
-    } else {
-        m_ptr->exp -= amount;
-    }
+    player_lose_experience(amount);
 
     prt_experience();
 
-    int i = 0;
-    while ((signed)(player_exp[i] * m_ptr->expfact / 100) <= m_ptr->exp) {
-        i++;
-    }
-
-    // increment i once more, because level 1 exp is stored in player_exp[0]
-    i++;
-
-    if (m_ptr->lev != i) {
-        m_ptr->lev = i;
-
+    // counted again from the bottom of the price list, which can put the level
+    // down as well as up
+    if (player_recompute_level()) {
         calc_hitpoints();
 
         class_type *c_ptr = &class[m_ptr->pclass];
@@ -2137,15 +2126,12 @@ int remove_curse(void) {
 int restore_level(void) {
     bool restore = false;
 
-    struct misc *m_ptr = &py.misc;
-
-    if (m_ptr->max_exp > m_ptr->exp) {
+    if (player_max_experience() > player_experience()) {
         restore = true;
         msg_print("You feel your life energies returning.");
 
         // this while loop is not redundant, ptr_exp may reduce the exp level
-        while (m_ptr->exp < m_ptr->max_exp) {
-            m_ptr->exp = m_ptr->max_exp;
+        while (player_restore_experience()) {
             prt_experience();
         }
     }
