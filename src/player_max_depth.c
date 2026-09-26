@@ -15,13 +15,19 @@
 // No externs.h here, the same as the fourteen questions before this one. This is
 // the first one out of `struct misc`.
 
-// THE RECORD IS STILL IN py.misc (step A). Every window goes through the pointer
-// below, so #18-12-16C has one place to change: the pointer becomes the number
-// itself and this comment goes away.
-extern player_type py;
+// THE RECORD ITSELF. It was py.misc.max_dlv until #18-12-16C; now this one short
+// is the only place it lives, and the windows below are the only way to reach it.
+//
+// Zero -- "has never gone below the town" -- is where every character starts, so
+// there is nothing to set up when a game begins.
+//
+// With this short moved, `struct misc` holds twenty-one fields. It is the first
+// question to leave that struct, the way the purse was the first to leave and
+// then twelve more followed out of `struct flags` until it was empty.
+static uint16_t the_deepest;
 
 static uint16_t *deepest(void) {
-    return &py.misc.max_dlv;
+    return &the_deepest;
 }
 
 int player_max_depth(void) {

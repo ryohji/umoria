@@ -1450,16 +1450,15 @@ $(BUILDDIR)/player_spells_to_learn_test: $(TESTDIR)/player_spells_to_learn_test.
 # **これまでの 14 問と違って、体でも腕でもなく「どこに行ったか」の記録。**
 # 単位は迷宮の階（dun_level と同じ）で町が 0 階、そして**この数は減らない**。
 #
-# 足場（$(TESTDIR)/player_max_depth_fixture.c）は py の器だけを置く。
-# **#18-12-16C で消える。** 得点の 1 階 100 点は death.c に、帰還の巻物の
-# 引きずり下ろしは dungeon.c に、セーブの位置は save.c に残るので、どれも要らない。
+# **#18-12-16C で足場は消えた**（15 回続けて同じ形）。リンクするのは本体 1 つだけ。
+# 得点の 1 階 100 点は death.c に、帰還の巻物の引きずり下ろしは dungeon.c に、
+# セーブの位置は save.c に残るので、どれも要らない。
 $(BUILDDIR)/player_max_depth_test: $(TESTDIR)/player_max_depth_test.c \
-                                   $(TESTDIR)/player_max_depth_fixture.c \
                                    $(TESTDIR)/minunit.h \
                                    src/player_max_depth.c \
                                    src/player_max_depth.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_max_depth_test.c \
-	    $(TESTDIR)/player_max_depth_fixture.c src/player_max_depth.c
+	    src/player_max_depth.c
 
 clean:
 	rm -rf $(BUILDDIR)

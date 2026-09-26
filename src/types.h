@@ -178,7 +178,14 @@ typedef struct player_type {
         uint16_t age;                // Characters age
         uint16_t ht;                 // Height
         uint16_t wt;                 // Weight
-        uint16_t max_dlv;            // Max level explored
+        // How deep the character has ever been moved to player_max_depth.c
+        // (max_dlv, #18-12-16C). The first question to leave this struct, and
+        // the first one on this road that is not about the body or a skill at
+        // all -- it records where the character has been. The comparison that
+        // kept the deeper of the two levels went in with it (it was dungeon.c's
+        // "Check for a maximum level"), so nothing outside can make the record
+        // shallower except the save file's reader. The windows are in
+        // player_max_depth.h.
         int16_t srh;                 // Chance in search
         int16_t fos;                 // Frenq of search
         int16_t bth;                 // Base to hit
