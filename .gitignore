@@ -76,3 +76,6 @@ tests/build/
 # build artifacts
 *.o
 umoria
+
+# ゲームが作る実行時のファイル（起動の当たりを見る手順で touch する）
+scores.dat
