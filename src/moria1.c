@@ -26,6 +26,7 @@
 #include "player_hp.h"
 #include "player_light.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "running.h"
 #include "screen_touched.h"
 #include "stats.h"
@@ -35,7 +36,7 @@
 // the speed of all the monsters. This greatly simplified the logic.
 void change_speed(int num) {
     py.flags.speed += num;
-    py.flags.status |= PY_SPEED;
+    player_request_speed_redraw();
 
     for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
         m_list[i].cspeed += num;
@@ -168,7 +169,7 @@ void calc_bonuses(void) {
 
     // can't print AC here because might be in a store
     if (old_dis_ac != player_display_ac()) {
-        p_ptr->status |= PY_ARMOR;
+        player_request_armor_redraw();
     }
 
     inven_type *i_ptr;
@@ -485,7 +486,7 @@ void takeoff(int item_val, int posn) {
     inven_type *t_ptr = equipment_at(item_val);
 
     inventory_set_weight(inventory_weight() - t_ptr->weight * t_ptr->number);
-    py.flags.status |= PY_STR_WGT;
+    player_request_strength_check();
 
     const char *p;
     if (item_val == INVEN_WIELD || item_val == INVEN_AUX) {
@@ -1618,7 +1619,7 @@ void move_light(int y1, int x1, int y2, int x2) {
 // The second arg indicates a light change.
 void disturb(int s, int l) {
     cancel_command_count();
-    if (s && (py.flags.status & PY_SEARCH)) {
+    if (s && player_is_searching()) {
         search_off();
     }
     if (py.flags.rest != 0) {
@@ -1634,7 +1635,7 @@ void disturb(int s, int l) {
 // Search Mode enhancement -RAK-
 void search_on(void) {
     change_speed(1);
-    py.flags.status |= PY_SEARCH;
+    player_start_searching();
     prt_state();
     prt_speed();
     player_adjust_digestion(1);
@@ -1644,7 +1645,7 @@ void search_off(void) {
     check_view();
     change_speed(-1);
 
-    py.flags.status &= ~PY_SEARCH;
+    player_stop_searching();
 
     prt_state();
     prt_speed();
@@ -1673,11 +1674,11 @@ void rest(void) {
     // check for reasonable value, must be positive number
     // in range of a short, or must be -MAX_SHORT
     if ( (rest_num == -MAX_SHORT) || ((rest_num > 0) && (rest_num < MAX_SHORT)) ) {
-        if (py.flags.status & PY_SEARCH) {
+        if (player_is_searching()) {
             search_off();
         }
         py.flags.rest = rest_num;
-        py.flags.status |= PY_REST;
+        player_start_resting();
         prt_state();
         player_adjust_digestion(-1);
         prt("Press any key to stop resting...", 0, 0);
@@ -1693,7 +1694,7 @@ void rest(void) {
 
 void rest_off(void) {
     py.flags.rest = 0;
-    py.flags.status &= ~PY_REST;
+    player_stop_resting();
 
     prt_state();
 

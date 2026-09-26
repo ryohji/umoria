@@ -26,9 +26,11 @@
 //
 // THE BIT LAYOUT IS THE SAVE FILE'S FORMAT. save.c writes and reads the whole
 // word with wr_long/rd_long, so the numbering cannot move. That is what
-// player_status_word() and player_set_status_word() are for, and they have three
-// callers between them -- the two halves of the save file and one function that
-// wants an unchanging copy for the length of a redraw.
+// player_status_word() and player_set_status_word() are for, and once the callers
+// were rewired THEY HAVE ONLY TWO CALLERS, both halves of the save file. The
+// third one was expected -- prt_stat_block() used to take a copy of the whole
+// word and read eight bits out of it -- but asking window by window turned out to
+// give the same answer, so the copy went away (#18-12-7B2).
 //
 // The thirty bits fall into four families, and telling them apart is most of
 // what this module is for. Reading the field alone does not reveal them: the
