@@ -225,14 +225,18 @@ typedef struct player_type {
         // character is moving, asked and answered from nine places, now behind
         // player_speed.h. It is NOT a clock -- nothing ticks it down; potions,
         // items and traps add to and subtract from it, and POSITIVE MEANS SLOW.
-        // The four below stayed: `protection` is never read outside the save
-        // file, `see_infra` is an amount rather than a clock, and the stomach's
-        // two belong to player_food.h (still here only because the save file
-        // keeps them in this run).
+        // `see_infra` left here in #18-12-12C: HOW FAR AWAY the character can
+        // make out a warm-blooded creature, IN SQUARES, asked and answered from
+        // nine places, now behind player_infra_range.h. It is not a clock
+        // either -- the race, the equipment and the potion put a number here and
+        // nothing ticks it down -- and it is the FIRST of these questions whose
+        // starting value is not zero.
+        // The three below stayed: `protection` is never read outside the save
+        // file, and the stomach's two belong to player_food.h (still here only
+        // because the save file keeps them in this run).
         int16_t food;            // Food counter
         int16_t food_digested;   // Food per round
         int16_t protection;      // Protection fr. evil
-        int16_t see_infra;       // See warm creatures
         // Seventeen one-byte fields left here in #18-12-8C: what the character
         // can do and resist because of what is being worn -- sees invisible,
         // never paralyzed, the four resistances and falling, slow digestion,

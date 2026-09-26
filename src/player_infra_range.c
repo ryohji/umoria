@@ -17,13 +17,17 @@
 // counts squares, and dungeon.c holds both ends (player_infra_range.h says why
 // they are not two halves of one fact).
 
-// THE NUMBER IS STILL IN py.flags (step A). Every window goes through the
-// pointer below, so #18-12-12C has one place to change: the pointer becomes the
-// number itself and this comment goes away.
-extern player_type py;
+// THE ANSWER ITSELF. It was py.flags.see_infra until #18-12-12C; now this one
+// short is the only place it lives, and the windows below are the only way to
+// reach it.
+//
+// No reset window: zero means "no infra-vision", which is where a Human starts.
+// The race writes its own distance through player_infra_range_set() when the
+// character is made (create.c), and so does loading a saved game (save.c).
+static int16_t the_squares;
 
 static int16_t *squares(void) {
-    return &py.flags.see_infra;
+    return &the_squares;
 }
 
 int player_infra_range(void) {

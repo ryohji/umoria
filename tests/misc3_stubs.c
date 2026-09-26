@@ -32,6 +32,7 @@
 #include "fixture.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 #include "player_speed.h"
 #include "player_status_flags.h"
@@ -344,6 +345,12 @@ void fixture_reset(void)
      * 速さを読まないので、外してもレッドにはならない** —— それでも足すのは、
      * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。 */
     player_speed_set(0);
+    /* 赤外視の距離も #18-12-12C で src/player_infra_range.c の static へ移った。
+     * put_misc3() は毎回 xinfra を書くが、**それを読むのは xinfra の 1 件だけで、
+     * その件は自分で 3 ます を置いてから読む**。だから外してもレッドにはならない
+     * （実際に外して確かめた）。それでも足すのは、上の約束（各件は 0 から
+     * 始まる）を黙って嘘にしないため —— 速さの 1 行と同じ理由。 */
+    player_infra_range_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

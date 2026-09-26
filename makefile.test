@@ -1341,16 +1341,15 @@ $(BUILDDIR)/player_speed_test: $(TESTDIR)/player_speed_test.c \
 # 「そのモンスターが温かいか（CD_INFRA）」は creature.c に、フィートへの
 # 10 倍は abilities.c に残るので、どちらも要らない（src/player_infra_range.h）。
 #
-# ステップ A のあいだ置き場は py.flags.see_infra なので、py を置く足場
-# tests/player_infra_range_fixture.c をリンクする（**#18-12-12C で消える** ——
-# #18-12-1C から 12 回めの同じ形）。
+# #18-12-12C で置き場が module の static に入ったので、py を置く足場
+# tests/player_infra_range_fixture.c は消えた（#18-12-1C から 12 回めの同じ形）。
+# **リンクするのは本体 1 本だけ。**
 $(BUILDDIR)/player_infra_range_test: $(TESTDIR)/player_infra_range_test.c \
-                                     $(TESTDIR)/player_infra_range_fixture.c \
                                      $(TESTDIR)/minunit.h \
                                      src/player_infra_range.c \
                                      src/player_infra_range.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_infra_range_test.c \
-	    $(TESTDIR)/player_infra_range_fixture.c src/player_infra_range.c
+	    src/player_infra_range.c
 
 clean:
 	rm -rf $(BUILDDIR)

@@ -28,6 +28,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_infra_range.h"
 #include "player_resting.h"
 #include "player_status_flags.h"
 
@@ -199,7 +200,13 @@ void fixture_reset(void)
      * **movement_rate_test の 3 件がこの 0 戻しに頼っている** —— 1 件が
      * player_rest_set(1) を置き、次の件は「休んでいない」前提で始まる
      * （py を memset しても module の static には届かない）。 */
-    player_rest_stop();
+    /* 赤外視の距離も #18-12-12C で src/player_infra_range.c の static へ移った。
+     * creature.c の update_mon() が「距離のうちで、しかも温かいか」でモンスターを
+     * 見せるかを決めるので、残った距離が次の件に漏れないように 0 に戻す
+     * （**0 は Human の走りだし** = 温かい血だけではモンスターは見えない）。
+     * 休息の 1 行とちがって**いまは頼っている件が無い**（外してもグリーンのまま。
+     * 実際に外して確かめた）。約束のために足しておく。 */
+    player_infra_range_set(0);
     memset(cave, 0, sizeof cave);
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;
