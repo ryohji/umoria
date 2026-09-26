@@ -21,6 +21,7 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
+#include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_level.h"
 #include "player_mana.h"
@@ -620,8 +621,8 @@ void py_attack(int y, int x) {
                 k = 0;
             }
 
-            if (py.flags.confuse_monster) {
-                py.flags.confuse_monster = false;
+            if (player_glowing_hands()) {
+                player_glowing_hands_spend();
                 msg_print("Your hands stop glowing.");
                 char *out_val;
                 if ((r_ptr->cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < r_ptr->level)) {

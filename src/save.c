@@ -26,6 +26,7 @@
 #include "player_abilities.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
+#include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_infra_range.h"
@@ -212,7 +213,7 @@ static bool sv_write(void) {
     for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
         wr_byte(player_abilities_saved_byte(i));
     }
-    wr_byte(f_ptr->confuse_monster);
+    wr_byte((uint8_t)player_glowing_hands());
     wr_byte(f_ptr->new_spells);
 
     wr_short((uint16_t)missile_serial_value());
@@ -735,7 +736,12 @@ bool get_char(bool *generate) {
                 rd_byte(&ability);
                 player_abilities_restore_byte(i, ability);
             }
-            rd_byte(&f_ptr->confuse_monster);
+            // 光る手は f_ptr ではなく窓口へ入れる。読みは器の番地を要るので
+            // いったん局所で受けて、そのまま窓口に渡す（0/1 に丸めない ——
+            // src/player_glowing_hands.h）。
+            uint8_t saved_glowing_hands;
+            rd_byte(&saved_glowing_hands);
+            player_glowing_hands_restore(saved_glowing_hands);
             rd_byte(&f_ptr->new_spells);
 
             uint16_t saved_missile_serial;

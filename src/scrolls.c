@@ -18,6 +18,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "level_exit.h"
+#include "player_glowing_hands.h"
 #include "player_pos.h"
 #include "player_timed_effects.h"
 
@@ -203,9 +204,9 @@ void read_scroll(void) {
                 break;
             }
             case 11:
-                if (py.flags.confuse_monster == 0) {
+                if (player_glowing_hands() == 0) {
                     msg_print("Your hands begin to glow.");
-                    py.flags.confuse_monster = true;
+                    player_glowing_hands_begin();
                     ident = true;
                 }
                 break;

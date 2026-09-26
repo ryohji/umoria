@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_abilities.h"
+#include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_infra_range.h"
 #include "player_level.h"
@@ -307,7 +308,6 @@ static void make_attack(int monptr) {
         const int asides = monster_attack_get_sides(*iter);
 
         struct misc *const p_ptr = &py.misc;
-        struct flags *const f_ptr = &py.flags;
 
         bool flag = false;
         if (player_timed_in_force(PLAYER_TIMED_PROTECTION_FROM_EVIL) && (r_ptr->cdefense & CD_EVIL) &&
@@ -844,9 +844,9 @@ static void make_attack(int monptr) {
             // Moved here from mon_move, so that monster only confused if it
             // actually hits. A monster that has been repelled has not hit
             // the player, so it should not be confused.
-            if (f_ptr->confuse_monster && adesc != 99) {
+            if (player_glowing_hands() && adesc != 99) {
                 msg_print("Your hands stop glowing.");
-                f_ptr->confuse_monster = false;
+                player_glowing_hands_spend();
                 const char *verb;
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
                     verb = "is unaffected.";
