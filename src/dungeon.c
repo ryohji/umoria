@@ -29,6 +29,7 @@
 #include "player_level.h"
 #include "player_light.h"
 #include "player_mana.h"
+#include "player_max_depth.h"
 #include "player_pos.h"
 #include "player_resting.h"
 #include "player_speed.h"
@@ -73,10 +74,10 @@ void dungeon(void) {
     inven_type *i_ptr = equipment_at(INVEN_LIGHT);
     set_player_has_light(i_ptr->p1 > 0);
 
-    // Check for a maximum level
-    if (dun_level > p_ptr->max_dlv) {
-        p_ptr->max_dlv = dun_level;
-    }
+    // Check for a maximum level. The comparison moved inside the window at
+    // #18-12-16B: the record only ever grows, so telling it where we are is
+    // enough (src/player_max_depth.h).
+    player_note_depth_reached(dun_level);
 
     // Reset flags and initialize variables
     int find_count = 0;
@@ -545,8 +546,8 @@ void dungeon(void) {
                 if (dun_level > 0) {
                     leave_for_level(0);
                     msg_print("You feel yourself yanked upwards!");
-                } else if (py.misc.max_dlv != 0) {
-                    leave_for_level(py.misc.max_dlv);
+                } else if (player_max_depth() != 0) {
+                    leave_for_level(player_max_depth());
                     msg_print("You feel yourself yanked downwards!");
                 } else {
                     // In town, and no depth recorded yet, so there is nowhere to

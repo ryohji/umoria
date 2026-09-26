@@ -17,6 +17,7 @@
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_level.h"
+#include "player_max_depth.h"
 #include "score_death.h"
 #include "platform.h"
 #include "save_state.h"
@@ -229,7 +230,7 @@ retry:
 
 // Calculates the total number of points earned -JWT-
 int32_t total_points(void) {
-    int32_t total = player_max_experience() + (100 * py.misc.max_dlv);
+    int32_t total = player_max_experience() + (100 * player_max_depth());
     total += player_gold() / 100;
 
     for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
@@ -267,7 +268,7 @@ static void highscores(void) {
     new_entry.chp = player_hp();
     new_entry.dun_level = (uint8_t)dun_level;
     new_entry.lev = (uint8_t)player_level();
-    new_entry.max_dlv = (uint8_t)py.misc.max_dlv;
+    new_entry.max_dlv = (uint8_t)player_max_depth();
     new_entry.sex = (py.misc.male ? 'M' : 'F');
     new_entry.race = py.misc.prace;
     new_entry.class = py.misc.pclass;

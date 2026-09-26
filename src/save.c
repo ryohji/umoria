@@ -32,6 +32,7 @@
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_mana.h"
+#include "player_max_depth.h"
 #include "player_pos.h"
 #include "player_resting.h"
 #include "player_speed.h"
@@ -154,7 +155,7 @@ static bool sv_write(void) {
     wr_short(m_ptr->ht);
     wr_short(m_ptr->wt);
     wr_short(player_level());
-    wr_short(m_ptr->max_dlv);
+    wr_short((uint16_t)player_max_depth());
     wr_short((uint16_t)m_ptr->srh);
     wr_short((uint16_t)m_ptr->fos);
     wr_short((uint16_t)m_ptr->bth);
@@ -622,7 +623,11 @@ bool get_char(bool *generate) {
             uint16_t lev;
             rd_short(&lev);
             player_set_level(lev);
-            rd_short(&m_ptr->max_dlv);
+            // どこまで潜ったかも窓口へ（#18-12-16B）。読みもどしは置きなおし
+            // なので player_max_depth_set() —— 深いほうを残す窓口ではない。
+            uint16_t max_depth;
+            rd_short(&max_depth);
+            player_max_depth_set(max_depth);
             rd_short((uint16_t *)&m_ptr->srh);
             rd_short((uint16_t *)&m_ptr->fos);
             rd_short((uint16_t *)&m_ptr->bth);
