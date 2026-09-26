@@ -46,7 +46,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         level_exit_test pending_teleport_test input_ended_test \
         running_test command_state_test player_gold_test player_food_test \
         player_display_numbers_test player_mana_test player_hp_test \
-        player_level_test player_status_flags_test
+        player_level_test player_status_flags_test player_abilities_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -181,6 +181,15 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 # リンクせず、後者は #18-12-2C で腹の置き場が module に入ったので py を
 # 持たない）。どちらも旗を触るファイルを持ちこんでいないので、足す必要も
 # 無かった。
+# #18-12-8A で src/player_abilities.c（装備で決まる耐性・能力 17 個）を足す。
+# **本体の呼び手はまだ 1 つも変えていないが、リンク代は A で先払いする**
+# （#18-12-6A・#18-12-7A と同じ段どり）。17 個を触るファイルは moria1.c・
+# save.c・creature.c・moria3.c・spells.c・moria2.c・dungeon.c・potions.c の
+# 8 本で、**税が要る規則は 3 本**（下調べの予測どおり）—— どれも
+# 「テスト自身が本体の .c を include している」形で、movement_rate_test が
+# creature.c、save_bool_test と store_save_test が save.c。**参照は 106 あるのに
+# 税は 3 本** で、misc3.c を引く 9 本には触らない（この 17 個は画面に出ない）。
+# #18-12-7 で税を払った 12 本のうちの 3 本なので、同じ行に 1 本足すだけ。
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
@@ -403,13 +412,14 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/screen_touched.c src/screen_touched.h \
                                 src/running.c src/running.h \
                                 src/player_level.c src/player_level.h \
-                                src/player_status_flags.c src/player_status_flags.h | $(BUILDDIR)
+                                src/player_status_flags.c src/player_status_flags.h \
+                                src/player_abilities.c src/player_abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
 	    src/screen_touched.c src/running.c \
 	    src/player_level.c \
-	    src/player_status_flags.c
+	    src/player_status_flags.c src/player_abilities.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -571,7 +581,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/missile_serial.c src/missile_serial.h \
                             src/input_ended.c src/input_ended.h \
                             src/player_level.c src/player_level.h \
-                            src/player_status_flags.c src/player_status_flags.h | $(BUILDDIR)
+                            src/player_status_flags.c src/player_status_flags.h \
+                            src/player_abilities.c src/player_abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -582,7 +593,7 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
 	    src/player_level.c \
-	    src/player_status_flags.c
+	    src/player_status_flags.c src/player_abilities.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -626,7 +637,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/missile_serial.c src/missile_serial.h \
                              src/input_ended.c src/input_ended.h \
                              src/player_level.c src/player_level.h \
-                             src/player_status_flags.c src/player_status_flags.h | $(BUILDDIR)
+                             src/player_status_flags.c src/player_status_flags.h \
+                             src/player_abilities.c src/player_abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -637,7 +649,7 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
 	    src/player_level.c \
-	    src/player_status_flags.c
+	    src/player_status_flags.c src/player_abilities.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -1153,6 +1165,24 @@ $(BUILDDIR)/player_status_flags_test: $(TESTDIR)/player_status_flags_test.c \
                                      src/player_status_flags.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_status_flags_test.c \
 	    src/player_status_flags.c
+
+# 「装備で決まる耐性・能力」（#18-12-8）。py から出す 8 つめの問いで、**17 個の
+# フィールドが 1 つの問いに答える** —— もとは py.flags.see_inv から
+# py.flags.sustain_chr までを 8 ファイル・106 か所が直に触っていた。ここまでの
+# 7 つと違って**答えは覚えてあるのではなく装備から毎回作りなおされる**ので、
+# テストの重心は「セーブファイルの 17 バイトの並び」「どの窓口も自分の 1 個
+#以外を触らない」「能力値の並びが品物側とゲーム側で 2 つあり 4 番と 5 番が
+# 入れちがっている」の 3 つ。
+#
+# A の段では置き場は py.flags のままなので、足場
+# tests/player_abilities_fixture.c が py を 1 つ置く（#18-12-8C で消える）。
+$(BUILDDIR)/player_abilities_test: $(TESTDIR)/player_abilities_test.c \
+                                   $(TESTDIR)/player_abilities_fixture.c \
+                                   $(TESTDIR)/minunit.h \
+                                   src/player_abilities.c \
+                                   src/player_abilities.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_abilities_test.c \
+	    $(TESTDIR)/player_abilities_fixture.c src/player_abilities.c
 
 clean:
 	rm -rf $(BUILDDIR)
