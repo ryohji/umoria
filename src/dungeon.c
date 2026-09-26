@@ -28,6 +28,7 @@
 #include "player_light.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "progress.h"
 #include "running.h"
 #include "score_death.h"
@@ -89,7 +90,7 @@ void dungeon(void) {
     // must do this after panel_forget_position(), because search_off() will
     // call check_view(), and so the panel must know where it is before
     // search_off() is called
-    if (f_ptr->status & PY_SEARCH) {
+    if (player_is_searching()) {
         search_off();
     }
 
@@ -157,8 +158,7 @@ void dungeon(void) {
 
         // Heroism (must precede anything that can damage player)
         if (f_ptr->hero > 0) {
-            if ((PY_HERO & f_ptr->status) == 0) {
-                f_ptr->status |= PY_HERO;
+            if (player_note_effect_started(PLAYER_EFFECT_HERO)) {
                 disturb(0, 0);
                 player_gain_temporary_max_hp(10);
                 p_ptr->bth += 12;
@@ -169,7 +169,7 @@ void dungeon(void) {
             }
             f_ptr->hero--;
             if (f_ptr->hero == 0) {
-                f_ptr->status &= ~PY_HERO;
+                player_note_effect_ended(PLAYER_EFFECT_HERO);
                 disturb(0, 0);
                 if (player_lose_temporary_max_hp(10)) {
                     prt_chp();
@@ -183,8 +183,7 @@ void dungeon(void) {
 
         // Super Heroism
         if (f_ptr->shero > 0) {
-            if ((PY_SHERO & f_ptr->status) == 0) {
-                f_ptr->status |= PY_SHERO;
+            if (player_note_effect_started(PLAYER_EFFECT_SUPER_HERO)) {
                 disturb(0, 0);
                 player_gain_temporary_max_hp(20);
                 p_ptr->bth += 24;
@@ -195,7 +194,7 @@ void dungeon(void) {
             }
             f_ptr->shero--;
             if (f_ptr->shero == 0) {
-                f_ptr->status &= ~PY_SHERO;
+                player_note_effect_ended(PLAYER_EFFECT_SUPER_HERO);
                 disturb(0, 0);
                 if (player_lose_temporary_max_hp(20)) {
                     prt_chp();
@@ -218,8 +217,7 @@ void dungeon(void) {
                 } else if (player_food() < PLAYER_FOOD_WEAK) {
                     regen_amount = PLAYER_REGEN_WEAK;
                 }
-                if ((PY_WEAK & f_ptr->status) == 0) {
-                    f_ptr->status |= PY_WEAK;
+                if (player_note_effect_started(PLAYER_EFFECT_WEAK)) {
                     msg_print("You are getting weak from hunger.");
                     disturb(0, 0);
                     prt_hunger();
@@ -229,8 +227,7 @@ void dungeon(void) {
                     msg_print("You faint from the lack of food.");
                     disturb(1, 0);
                 }
-            } else if ((PY_HUNGRY & f_ptr->status) == 0) {
-                f_ptr->status |= PY_HUNGRY;
+            } else if (player_note_effect_started(PLAYER_EFFECT_HUNGRY)) {
                 msg_print("You are getting hungry.");
                 disturb(0, 0);
                 prt_hunger();
@@ -252,7 +249,7 @@ void dungeon(void) {
         if (f_ptr->regenerate) {
             regen_amount = regen_amount * 3 / 2;
         }
-        if ((f_ptr->status & PY_SEARCH) || f_ptr->rest != 0) {
+        if (player_is_searching() || f_ptr->rest != 0) {
             regen_amount = regen_amount * 2;
         }
         if ((f_ptr->poisoned < 1) && (player_hp() < player_max_hp())) {
@@ -264,8 +261,7 @@ void dungeon(void) {
 
         // Blindness
         if (f_ptr->blind > 0) {
-            if ((PY_BLIND & f_ptr->status) == 0) {
-                f_ptr->status |= PY_BLIND;
+            if (player_note_effect_started(PLAYER_EFFECT_BLIND)) {
                 prt_map();
                 prt_blind();
                 disturb(0, 1);
@@ -275,7 +271,7 @@ void dungeon(void) {
             }
             f_ptr->blind--;
             if (f_ptr->blind == 0) {
-                f_ptr->status &= ~PY_BLIND;
+                player_note_effect_ended(PLAYER_EFFECT_BLIND);
                 prt_blind();
                 prt_map();
 
@@ -288,13 +284,12 @@ void dungeon(void) {
 
         // Confusion
         if (f_ptr->confused > 0) {
-            if ((PY_CONFUSED & f_ptr->status) == 0) {
-                f_ptr->status |= PY_CONFUSED;
+            if (player_note_effect_started(PLAYER_EFFECT_CONFUSED)) {
                 prt_confused();
             }
             f_ptr->confused--;
             if (f_ptr->confused == 0) {
-                f_ptr->status &= ~PY_CONFUSED;
+                player_note_effect_ended(PLAYER_EFFECT_CONFUSED);
                 prt_confused();
                 msg_print("You feel less confused now.");
                 if (f_ptr->rest != 0) {
@@ -305,11 +300,11 @@ void dungeon(void) {
 
         // Afraid
         if (f_ptr->afraid > 0) {
-            if ((PY_FEAR & f_ptr->status) == 0) {
+            if (!player_effect_in_force(PLAYER_EFFECT_AFRAID)) {
                 if ((f_ptr->shero + f_ptr->hero) > 0) {
                     f_ptr->afraid = 0;
                 } else {
-                    f_ptr->status |= PY_FEAR;
+                    (void)player_note_effect_started(PLAYER_EFFECT_AFRAID);
                     prt_afraid();
                 }
             } else if ((f_ptr->shero + f_ptr->hero) > 0) {
@@ -317,7 +312,7 @@ void dungeon(void) {
             }
             f_ptr->afraid--;
             if (f_ptr->afraid == 0) {
-                f_ptr->status &= ~PY_FEAR;
+                player_note_effect_ended(PLAYER_EFFECT_AFRAID);
                 prt_afraid();
                 msg_print("You feel bolder now.");
                 disturb(0, 0);
@@ -326,13 +321,12 @@ void dungeon(void) {
 
         // Poisoned
         if (f_ptr->poisoned > 0) {
-            if ((PY_POISONED & f_ptr->status) == 0) {
-                f_ptr->status |= PY_POISONED;
+            if (player_note_effect_started(PLAYER_EFFECT_POISONED)) {
                 prt_poisoned();
             }
             f_ptr->poisoned--;
             if (f_ptr->poisoned == 0) {
-                f_ptr->status &= ~PY_POISONED;
+                player_note_effect_ended(PLAYER_EFFECT_POISONED);
                 prt_poisoned();
                 msg_print("You feel better.");
                 disturb(0, 0);
@@ -376,15 +370,14 @@ void dungeon(void) {
 
         // Fast
         if (f_ptr->fast > 0) {
-            if ((PY_FAST & f_ptr->status) == 0) {
-                f_ptr->status |= PY_FAST;
+            if (player_note_effect_started(PLAYER_EFFECT_HASTED)) {
                 change_speed(-1);
                 msg_print("You feel yourself moving faster.");
                 disturb(0, 0);
             }
             f_ptr->fast--;
             if (f_ptr->fast == 0) {
-                f_ptr->status &= ~PY_FAST;
+                player_note_effect_ended(PLAYER_EFFECT_HASTED);
                 change_speed(1);
                 msg_print("You feel yourself slow down.");
                 disturb(0, 0);
@@ -393,15 +386,14 @@ void dungeon(void) {
 
         // Slow
         if (f_ptr->slow > 0) {
-            if ((PY_SLOW & f_ptr->status) == 0) {
-                f_ptr->status |= PY_SLOW;
+            if (player_note_effect_started(PLAYER_EFFECT_SLOWED)) {
                 change_speed(1);
                 msg_print("You feel yourself moving slower.");
                 disturb(0, 0);
             }
             f_ptr->slow--;
             if (f_ptr->slow == 0) {
-                f_ptr->status &= ~PY_SLOW;
+                player_note_effect_ended(PLAYER_EFFECT_SLOWED);
                 change_speed(-1);
                 msg_print("You feel yourself speed up.");
                 disturb(0, 0);
@@ -457,8 +449,7 @@ void dungeon(void) {
 
         // Invulnerability
         if (f_ptr->invuln > 0) {
-            if ((PY_INVULN & f_ptr->status) == 0) {
-                f_ptr->status |= PY_INVULN;
+            if (player_note_effect_started(PLAYER_EFFECT_INVULNERABLE)) {
                 disturb(0, 0);
                 py.misc.pac += 100;
                 player_display_add_ac(100);
@@ -467,7 +458,7 @@ void dungeon(void) {
             }
             f_ptr->invuln--;
             if (f_ptr->invuln == 0) {
-                f_ptr->status &= ~PY_INVULN;
+                player_note_effect_ended(PLAYER_EFFECT_INVULNERABLE);
                 disturb(0, 0);
                 py.misc.pac -= 100;
                 player_display_add_ac(-100);
@@ -478,8 +469,7 @@ void dungeon(void) {
 
         // Blessed
         if (f_ptr->blessed > 0) {
-            if ((PY_BLESSED & f_ptr->status) == 0) {
-                f_ptr->status |= PY_BLESSED;
+            if (player_note_effect_started(PLAYER_EFFECT_BLESSED)) {
                 disturb(0, 0);
                 p_ptr->bth += 5;
                 p_ptr->bthb += 5;
@@ -490,7 +480,7 @@ void dungeon(void) {
             }
             f_ptr->blessed--;
             if (f_ptr->blessed == 0) {
-                f_ptr->status &= ~PY_BLESSED;
+                player_note_effect_ended(PLAYER_EFFECT_BLESSED);
                 disturb(0, 0);
                 p_ptr->bth -= 5;
                 p_ptr->bthb -= 5;
@@ -519,8 +509,7 @@ void dungeon(void) {
 
         // Detect Invisible
         if (f_ptr->detect_inv > 0) {
-            if ((PY_DET_INV & f_ptr->status) == 0) {
-                f_ptr->status |= PY_DET_INV;
+            if (player_note_effect_started(PLAYER_EFFECT_SEE_INVISIBLE)) {
                 f_ptr->see_inv = true;
 
                 // light but don't move creatures
@@ -528,7 +517,7 @@ void dungeon(void) {
             }
             f_ptr->detect_inv--;
             if (f_ptr->detect_inv == 0) {
-                f_ptr->status &= ~PY_DET_INV;
+                player_note_effect_ended(PLAYER_EFFECT_SEE_INVISIBLE);
 
                 // may still be able to see_inv if wearing magic item
                 calc_bonuses();
@@ -540,8 +529,7 @@ void dungeon(void) {
 
         // Timed infra-vision
         if (f_ptr->tim_infra > 0) {
-            if ((PY_TIM_INFRA & f_ptr->status) == 0) {
-                f_ptr->status |= PY_TIM_INFRA;
+            if (player_note_effect_started(PLAYER_EFFECT_INFRA_VISION)) {
                 f_ptr->see_infra++;
 
                 // light but don't move creatures
@@ -550,7 +538,7 @@ void dungeon(void) {
             f_ptr->tim_infra--;
 
             if (f_ptr->tim_infra == 0) {
-                f_ptr->status &= ~PY_TIM_INFRA;
+                player_note_effect_ended(PLAYER_EFFECT_INFRA_VISION);
                 f_ptr->see_infra--;
 
                 // unlight but don't move creatures
@@ -587,53 +575,49 @@ void dungeon(void) {
         }
 
         // See if we are too weak to handle the weapon or pack. -CJS-
-        if (f_ptr->status & PY_STR_WGT) {
+        if (player_strength_check_requested()) {
             check_strength();
         }
 
-        if (f_ptr->status & PY_STUDY) {
+        if (player_study_redraw_requested()) {
             prt_study();
         }
 
-        if (f_ptr->status & PY_SPEED) {
-            f_ptr->status &= ~PY_SPEED;
+        if (player_take_speed_redraw_request()) {
             prt_speed();
         }
 
-        if ((f_ptr->status & PY_PARALYSED) && (f_ptr->paralysis < 1)) {
+        if (player_status_line_shows_paralysis() && (f_ptr->paralysis < 1)) {
             prt_state();
-            f_ptr->status &= ~PY_PARALYSED;
+            player_set_status_line_shows_paralysis(false);
         } else if (f_ptr->paralysis > 0) {
             prt_state();
-            f_ptr->status |= PY_PARALYSED;
+            player_set_status_line_shows_paralysis(true);
         } else if (f_ptr->rest != 0) {
             prt_state();
         }
 
-        if ((f_ptr->status & PY_ARMOR) != 0) {
+        if (player_take_armor_redraw_request()) {
             prt_pac();
-            f_ptr->status &= ~PY_ARMOR;
         }
 
-        if ((f_ptr->status & PY_STATS) != 0) {
+        if (player_any_stat_redraw_requested()) {
             for (int n = 0; n < 6; n++) {
-                if ((PY_STR << n) & f_ptr->status) {
+                if (player_stat_redraw_requested(n)) {
                     prt_stat(n);
                 }
             }
 
-            f_ptr->status &= ~PY_STATS;
+            player_clear_stat_redraw_requests();
         }
 
-        if (f_ptr->status & PY_HP) {
+        if (player_take_hp_redraw_request()) {
             prt_mhp();
             prt_chp();
-            f_ptr->status &= ~PY_HP;
         }
 
-        if (f_ptr->status & PY_MANA) {
+        if (player_take_mana_redraw_request()) {
             prt_cmana();
-            f_ptr->status &= ~PY_MANA;
         }
 
         // Allow for a slim chance of detect enchantment -CJS-
@@ -676,7 +660,7 @@ void dungeon(void) {
 
             // Accept a command and execute it
             do {
-                if (f_ptr->status & PY_REPEAT) {
+                if (player_status_line_shows_repeat()) {
                     prt_state();
                 }
 
@@ -1367,7 +1351,7 @@ static void do_command(char com_val) {
         rest();
         break;
     case '#': // (#) search toggle  (S)earch toggle
-        if (f_ptr->status & PY_SEARCH) {
+        if (player_is_searching()) {
             search_off();
         } else {
             search_on();
