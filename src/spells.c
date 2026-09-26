@@ -21,6 +21,7 @@
 #include "player_level.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 
 static void replace_spot(int, int, int);
 
@@ -180,7 +181,7 @@ int detect_invisible(void) {
 //     1.  If corridor  light immediate area
 //     2.  If room      light entire room plus immediate area.
 int light_area(int y, int x) {
-    if (py.flags.blind < 1) {
+    if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You are surrounded by a white light.");
     }
 
@@ -240,7 +241,7 @@ int unlight_area(int y, int x) {
         }
     }
 
-    if (unlight && py.flags.blind <= 0) {
+    if (unlight && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("Darkness surrounds you.");
     }
 
@@ -504,7 +505,7 @@ void light_line(int dir, int y, int x) {
 
 // Light line in all directions -RAK-
 void starlite(int y, int x) {
-    if (py.flags.blind < 1) {
+    if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("The end of the staff bursts into a blue shimmering light.");
     }
 
@@ -665,7 +666,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, const char *bolt_typ) {
                     out_val[0] = toupper(out_val[0]); // Capitalize
                     msg_print(out_val);
                 }
-            } else if (panel_contains(y, x) && (py.flags.blind < 1)) {
+            } else if (panel_contains(y, x) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                 print('*', y, x);
 
                 // show the bolt
@@ -752,7 +753,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                                         tkill++;
                                     }
                                     c_ptr->pl = tmp;
-                                } else if (panel_contains(i, j) && (py.flags.blind < 1)) {
+                                } else if (panel_contains(i, j) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                                     print('*', i, j);
                                 }
                             }
@@ -792,7 +793,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                     prt_experience();
                 }
                 // End ball hitting.
-            } else if (panel_contains(y, x) && (py.flags.blind < 1)) {
+            } else if (panel_contains(y, x) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                 print('*', y, x);
 
                 // show bolt
@@ -826,9 +827,10 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                 }
 
                 if (c_ptr->fval <= MAX_OPEN_SPACE) {
-                    // must test status bit, not py.flags.blind here, flag could have
-                    // been set by a previous monster, but the breath should still
-                    // be visible until the blindness takes effect
+                    // must ask for the MARK, not the clock, here: a previous
+                    // monster could have added turns of blindness that have not
+                    // been announced yet, and the breath should still be visible
+                    // until they take effect
                     if (panel_contains(i, j) && !player_effect_in_force(PLAYER_EFFECT_BLIND)) {
                         print('*', i, j);
                     }
@@ -1688,10 +1690,11 @@ int hp_player(int num) {
 int cure_confusion(void) {
     bool cure = false;
 
-    struct flags *f_ptr = &py.flags;
-
-    if (f_ptr->confused > 1) {
-        f_ptr->confused = 1;
+    // One turn is left on purpose: the message that the confusion has passed
+    // comes out of the count-down in dungeon.c, so putting zero here would
+    // cure the character in silence.
+    if (player_timed_turns(PLAYER_TIMED_CONFUSION) > 1) {
+        player_timed_shorten_to(PLAYER_TIMED_CONFUSION, 1);
         cure = true;
     }
     return cure;
@@ -1701,10 +1704,8 @@ int cure_confusion(void) {
 int cure_blindness(void) {
     bool cure = false;
 
-    struct flags *f_ptr = &py.flags;
-
-    if (f_ptr->blind > 1) {
-        f_ptr->blind = 1;
+    if (player_timed_turns(PLAYER_TIMED_BLINDNESS) > 1) {
+        player_timed_shorten_to(PLAYER_TIMED_BLINDNESS, 1);
         cure = true;
     }
     return cure;
@@ -1714,10 +1715,8 @@ int cure_blindness(void) {
 int cure_poison(void) {
     bool cure = false;
 
-    struct flags *f_ptr = &py.flags;
-
-    if (f_ptr->poisoned > 1) {
-        f_ptr->poisoned = 1;
+    if (player_timed_turns(PLAYER_TIMED_POISON) > 1) {
+        player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
         cure = true;
     }
     return cure;
@@ -1727,10 +1726,8 @@ int cure_poison(void) {
 int remove_fear(void) {
     bool result = false;
 
-    struct flags *f_ptr = &py.flags;
-
-    if (f_ptr->afraid > 1) {
-        f_ptr->afraid = 1;
+    if (player_timed_turns(PLAYER_TIMED_FEAR) > 1) {
+        player_timed_shorten_to(PLAYER_TIMED_FEAR, 1);
         result = true;
     }
     return result;
@@ -1803,14 +1800,12 @@ void earthquake(void) {
 int protect_evil(void) {
     bool res;
 
-    struct flags *f_ptr = &py.flags;
-
-    if (f_ptr->protevil == 0) {
+    if (!player_timed_in_force(PLAYER_TIMED_PROTECTION_FROM_EVIL)) {
         res = true;
     } else {
         res = false;
     }
-    f_ptr->protevil += randint(25) + 3 * player_level();
+    player_timed_add(PLAYER_TIMED_PROTECTION_FROM_EVIL, randint(25) + 3 * player_level());
 
     return res;
 }
@@ -1985,13 +1980,10 @@ void lose_exp(int32_t amount) {
 int slow_poison(void) {
     bool slow = false;
 
-    struct flags *f_ptr = &py.flags;
-
-    if (f_ptr->poisoned > 0) {
-        f_ptr->poisoned = f_ptr->poisoned / 2;
-        if (f_ptr->poisoned < 1) {
-            f_ptr->poisoned = 1;
-        }
+    if (player_timed_in_force(PLAYER_TIMED_POISON)) {
+        // Halved, but never down to nothing -- the same reason as the cures.
+        int halved = player_timed_turns(PLAYER_TIMED_POISON) / 2;
+        player_timed_set(PLAYER_TIMED_POISON, halved < 1 ? 1 : halved);
         slow = true;
         msg_print("The effect of the poison has been reduced.");
     }
@@ -2001,12 +1993,12 @@ int slow_poison(void) {
 
 // Bless -RAK-
 void bless(int amount) {
-    py.flags.blessed += amount;
+    player_timed_add(PLAYER_TIMED_BLESSING, amount);
 }
 
 // Detect Invisible for period of time -RAK-
 void detect_inv2(int amount) {
-    py.flags.detect_inv += amount;
+    player_timed_add(PLAYER_TIMED_SEEING_INVISIBLE, amount);
 }
 
 static void replace_spot(int y, int x, int typ) {
@@ -2072,7 +2064,7 @@ void destroy_area(int y, int x) {
         }
     }
     msg_print("There is a searing blast of light!");
-    py.flags.blind += 10 + randint(10);
+    player_timed_add(PLAYER_TIMED_BLINDNESS, 10 + randint(10));
 }
 
 // Enchants a plus onto an item. -RAK-

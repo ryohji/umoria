@@ -20,6 +20,7 @@
 #include "player_food.h"
 #include "player_level.h"
 #include "player_mana.h"
+#include "player_timed_effects.h"
 
 // Potions for the quaffing -RAK-
 void quaff(void) {
@@ -45,8 +46,6 @@ void quaff(void) {
                 if (i_ptr->tval == TV_POTION2) {
                     j += 32;
                 }
-
-                struct flags *f_ptr;
 
                 // Potions
                 switch (j) {
@@ -147,49 +146,45 @@ void quaff(void) {
                     }
                     break;
                 case 19:
-                    f_ptr = &py.flags;
                     if (!player_never_paralyzed()) {
                         // paralysis must == 0, otherwise could not drink potion
                         msg_print("You fall asleep.");
-                        f_ptr->paralysis += randint(4) + 4;
+                        player_timed_add(PLAYER_TIMED_PARALYSIS, randint(4) + 4);
                         ident = true;
                     }
                     break;
                 case 20:
-                    f_ptr = &py.flags;
-                    if (f_ptr->blind == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                         msg_print("You are covered by a veil of darkness.");
                         ident = true;
                     }
-                    f_ptr->blind += randint(100) + 100;
+                    player_timed_add(PLAYER_TIMED_BLINDNESS, randint(100) + 100);
                     break;
                 case 21:
-                    f_ptr = &py.flags;
-                    if (f_ptr->confused == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         msg_print("Hey!  This is good stuff!  * Hick! *");
                         ident = true;
                     }
-                    f_ptr->confused += randint(20) + 12;
+                    player_timed_add(PLAYER_TIMED_CONFUSION, randint(20) + 12);
                     break;
                 case 22:
-                    f_ptr = &py.flags;
-                    if (f_ptr->poisoned == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_POISON)) {
                         msg_print("You feel very sick.");
                         ident = true;
                     }
-                    f_ptr->poisoned += randint(15) + 10;
+                    player_timed_add(PLAYER_TIMED_POISON, randint(15) + 10);
                     break;
                 case 23:
-                    if (py.flags.fast == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_HASTE)) {
                         ident = true;
                     }
-                    py.flags.fast += randint(25) + 15;
+                    player_timed_add(PLAYER_TIMED_HASTE, randint(25) + 15);
                     break;
                 case 24:
-                    if (py.flags.slow == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
                         ident = true;
                     }
-                    py.flags.slow += randint(25) + 15;
+                    player_timed_add(PLAYER_TIMED_SLOWNESS, randint(25) + 15);
                     break;
                 case 26:
                     if (inc_stat(A_DEX)) {
@@ -237,32 +232,31 @@ void quaff(void) {
                     }
                     break;
                 case 35:
-                    f_ptr = &py.flags;
                     (void)cure_poison();
                     if (player_food() > 150) {
                         player_set_food(150);
                     }
-                    f_ptr->paralysis = 4;
+                    player_timed_set(PLAYER_TIMED_PARALYSIS, 4);
                     msg_print("The potion makes you vomit!");
                     ident = true;
                     break;
                 case 36:
-                    if (py.flags.invuln == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
                         ident = true;
                     }
-                    py.flags.invuln += randint(10) + 10;
+                    player_timed_add(PLAYER_TIMED_INVULNERABILITY, randint(10) + 10);
                     break;
                 case 37:
-                    if (py.flags.hero == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_HEROISM)) {
                         ident = true;
                     }
-                    py.flags.hero += randint(25) + 25;
+                    player_timed_add(PLAYER_TIMED_HEROISM, randint(25) + 25);
                     break;
                 case 38:
-                    if (py.flags.shero == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM)) {
                         ident = true;
                     }
-                    py.flags.shero += randint(25) + 25;
+                    player_timed_add(PLAYER_TIMED_SUPER_HEROISM, randint(25) + 25);
                     break;
                 case 39:
                     ident = remove_fear();
@@ -271,21 +265,19 @@ void quaff(void) {
                     ident = restore_level();
                     break;
                 case 41:
-                    f_ptr = &py.flags;
-                    if (f_ptr->resist_heat == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
                         ident = true;
                     }
-                    f_ptr->resist_heat += randint(10) + 10;
+                    player_timed_add(PLAYER_TIMED_HEAT_RESISTANCE, randint(10) + 10);
                     break;
                 case 42:
-                    f_ptr = &py.flags;
-                    if (f_ptr->resist_cold == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
                         ident = true;
                     }
-                    f_ptr->resist_cold += randint(10) + 10;
+                    player_timed_add(PLAYER_TIMED_COLD_RESISTANCE, randint(10) + 10);
                     break;
                 case 43:
-                    if (py.flags.detect_inv == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
                         ident = true;
                     }
                     detect_inv2(randint(12) + 12);
@@ -304,12 +296,11 @@ void quaff(void) {
                     }
                     break;
                 case 47:
-                    f_ptr = &py.flags;
-                    if (f_ptr->tim_infra == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_INFRA_VISION)) {
                         msg_print("Your eyes begin to tingle.");
                         ident = true;
                     }
-                    f_ptr->tim_infra += 100 + randint(100);
+                    player_timed_add(PLAYER_TIMED_INFRA_VISION, 100 + randint(100));
                     break;
                 default:
                     msg_print("Internal error in potion()");
