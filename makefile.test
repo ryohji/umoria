@@ -1262,15 +1262,15 @@ $(BUILDDIR)/player_timed_effects_test: $(TESTDIR)/player_timed_effects_test.c \
 # 2 行だけなので、**畳まずに印の呼び手をそのまま残した**（src/player_resting.h）。
 # だから player_status_flags.c は引かない。
 #
-# ステップ A の足場 tests/player_resting_fixture.c は py を 1 つ置くだけで、
-# **#18-12-10C で消える**（#18-12-1C から 10 回めの同じ形）。
+# #18-12-10C で置き場が module の static に入ったので、py を置く足場
+# tests/player_resting_fixture.c は消えた（#18-12-1C から 10 回めの同じ形）。
+# **リンクするのは本体 1 本だけ。**
 $(BUILDDIR)/player_resting_test: $(TESTDIR)/player_resting_test.c \
-                                 $(TESTDIR)/player_resting_fixture.c \
                                  $(TESTDIR)/minunit.h \
                                  src/player_resting.c \
                                  src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_resting_test.c \
-	    $(TESTDIR)/player_resting_fixture.c src/player_resting.c
+	    src/player_resting.c
 
 clean:
 	rm -rf $(BUILDDIR)

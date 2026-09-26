@@ -174,8 +174,9 @@ bool player_is_searching(void);
 void player_start_searching(void);
 void player_stop_searching(void);
 
-// Rest mode. The bit says the character is resting; how much longer is
-// py.flags.rest, which is a different question.
+// Rest mode. The bit says the character is resting; how much longer is behind
+// player_resting.h, which is a different question (and since #18-12-10 nothing
+// in this module touches it -- the two halves keep their own callers).
 bool player_is_resting(void);
 void player_start_resting(void);
 void player_stop_resting(void);

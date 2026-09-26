@@ -1,6 +1,7 @@
 /* creature.c をテストに取りこむための代役
  *
- * movement_rate() の依存は turn（src/progress.c）と py.flags.rest の 2 つだけだが、
+ * movement_rate() の依存は turn（src/progress.c）と休息の残りターン
+ * （src/player_resting.c。#18-12-10C）の 2 つだけだが、
  * static 関数なので外から呼べない。実体を検証するにはテスト側が
  * src/creature.c を #include して翻訳単位ごと取りこむしかなく、そうすると
  * creature.c 全体（1609 行、モンスターの移動・攻撃・呪文）が持ちこまれ、
@@ -27,6 +28,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_resting.h"
 #include "player_status_flags.h"
 
 /* --- グローバル状態 ---
@@ -193,6 +195,11 @@ void fixture_reset(void)
      * py を消しても届かない。セーブファイル用の窓口で 30 bit まとめて降ろす
      * （creature.c が読むのは PY_BLIND と PY_SEARCH あたり）。 */
     player_set_status_word(0);
+    /* 休息の残りターンも #18-12-10C で src/player_resting.c の static へ移った。
+     * **movement_rate_test の 3 件がこの 0 戻しに頼っている** —— 1 件が
+     * player_rest_set(1) を置き、次の件は「休んでいない」前提で始まる
+     * （py を memset しても module の static には届かない）。 */
+    player_rest_stop();
     memset(cave, 0, sizeof cave);
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;

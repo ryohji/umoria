@@ -214,12 +214,16 @@ typedef struct player_type {
         // temporary state lasts, asked and answered from two hundred and
         // eighty-one places, now behind player_timed_effects.h. Twelve of them
         // pair with a mark in the status word above, and that pairing is the
-        // reason they moved together. The six below stayed: `rest` is WHAT the
-        // character is doing rather than a state wearing off, `protection` is
-        // never read outside the save file, `speed` and `see_infra` are amounts
-        // rather than clocks, and the stomach's two belong to player_food.h
-        // (still here only because the save file keeps them in this run).
-        int16_t rest;            // Rest counter
+        // reason they moved together.
+        // `rest` left here in #18-12-10C: whether the character is resting and
+        // for how many more turns, asked and answered from twenty-one places,
+        // now behind player_resting.h. It went on its own because it is WHAT THE
+        // CHARACTER IS DOING rather than a state wearing off -- and because it
+        // moves towards zero FROM BOTH SIDES (a negative count is "until healed"
+        // and counts up). The five below stayed: `protection` is never read
+        // outside the save file, `speed` and `see_infra` are amounts rather than
+        // clocks, and the stomach's two belong to player_food.h (still here only
+        // because the save file keeps them in this run).
         int16_t food;            // Food counter
         int16_t food_digested;   // Food per round
         int16_t protection;      // Protection fr. evil

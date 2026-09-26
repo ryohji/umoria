@@ -17,13 +17,16 @@
 // keep it (player_resting.h says why this one does not fold the pair the way
 // player_timed_effects.c does).
 
-// THE COUNT IS STILL IN py.flags (step A). Every window goes through the pointer
-// below, so #18-12-10C has one place to change: the pointer becomes the count
-// itself and this comment goes away.
-extern player_type py;
+// THE ANSWER ITSELF. It was py.flags.rest until #18-12-10C; now this one short
+// is the only place it lives, and the windows below are the only way to reach it.
+//
+// No reset window: zero means "not resting", which is where a new character
+// starts, the same as the status word and the eighteen clocks. Loading a saved
+// game writes it through player_rest_set() (save.c).
+static int16_t turns_left;
 
 static int16_t *turns(void) {
-    return &py.flags.rest;
+    return &turns_left;
 }
 
 bool player_resting(void) {
