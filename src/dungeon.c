@@ -23,6 +23,7 @@
 #include "pending_teleport.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
+#include "player_base_to_hit.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -66,10 +67,11 @@ void dungeon(void) {
     // Main procedure for dungeon. -RAK-
     // Note: There is a lot of preliminary magic going on here at first
 
-    // init pointers. `struct flags` is gone from here: the timed infra-vision
-    // above was its last reader in this file, and the twelve questions before it
-    // had already taken the rest.
-    struct misc *const p_ptr = &py.misc;
+    // NO POINTERS INTO py ARE LEFT HERE. `struct flags` went first (the timed
+    // infra-vision was its last reader in this file), and `struct misc` follows at
+    // #18-12-19B: the base to-hit's twelve lines were the last thing this file
+    // asked py for. The second file in the game to lose a struct alias outright,
+    // after creature.c at #18-12-18B.
 
     // Check light status for setup
     inven_type *i_ptr = equipment_at(INVEN_LIGHT);
@@ -169,8 +171,9 @@ void dungeon(void) {
             if (player_timed_beginning(PLAYER_TIMED_HEROISM)) {
                 disturb(0, 0);
                 player_gain_temporary_max_hp(10);
-                p_ptr->bth += 12;
-                p_ptr->bthb += 12;
+                // 呪文は 2 つの数を同じだけ動かす（#18-12-19B）——
+                // 12 行が 6 呼びに畳まれた。
+                player_base_to_hit_adjust_both(12);
                 msg_print("You feel like a HERO!");
                 prt_mhp();
                 prt_chp();
@@ -180,8 +183,7 @@ void dungeon(void) {
                 if (player_lose_temporary_max_hp(10)) {
                     prt_chp();
                 }
-                p_ptr->bth -= 12;
-                p_ptr->bthb -= 12;
+                player_base_to_hit_adjust_both(-12);
                 msg_print("The heroism wears off.");
                 prt_mhp();
             }
@@ -192,8 +194,7 @@ void dungeon(void) {
             if (player_timed_beginning(PLAYER_TIMED_SUPER_HEROISM)) {
                 disturb(0, 0);
                 player_gain_temporary_max_hp(20);
-                p_ptr->bth += 24;
-                p_ptr->bthb += 24;
+                player_base_to_hit_adjust_both(24);
                 msg_print("You feel like a SUPER HERO!");
                 prt_mhp();
                 prt_chp();
@@ -203,8 +204,7 @@ void dungeon(void) {
                 if (player_lose_temporary_max_hp(20)) {
                     prt_chp();
                 }
-                p_ptr->bth -= 24;
-                p_ptr->bthb -= 24;
+                player_base_to_hit_adjust_both(-24);
                 msg_print("The super heroism wears off.");
                 prt_mhp();
             }
@@ -471,8 +471,7 @@ void dungeon(void) {
         if (player_timed_in_force(PLAYER_TIMED_BLESSING)) {
             if (player_timed_beginning(PLAYER_TIMED_BLESSING)) {
                 disturb(0, 0);
-                p_ptr->bth += 5;
-                p_ptr->bthb += 5;
+                player_base_to_hit_adjust_both(5);
                 player_armour_class_adjust(2);
                 player_display_add_ac(2);
                 msg_print("You feel righteous!");
@@ -480,8 +479,7 @@ void dungeon(void) {
             }
             if (player_timed_count_down(PLAYER_TIMED_BLESSING)) {
                 disturb(0, 0);
-                p_ptr->bth -= 5;
-                p_ptr->bthb -= 5;
+                player_base_to_hit_adjust_both(-5);
                 player_armour_class_adjust(-2);
                 player_display_add_ac(-2);
                 msg_print("The prayer has expired.");

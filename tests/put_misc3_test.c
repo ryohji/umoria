@@ -32,6 +32,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_base_to_hit.h"
 #include "player_infra_range.h"
 #include "player_level.h"
 
@@ -335,7 +336,7 @@ TEST(xdev_class_bonus_is_truncated_when_product_is_not_multiple_of_three)
 /* ptohit=0 なら bth がそのまま出る。次のテストの基準値。 */
 TEST(xbth_is_bth_itself_when_ptohit_is_zero)
 {
-    py.misc.bth = 24;
+    player_base_to_hit_set_melee(24); /* #18-12-19B で窓口へ */
     py.misc.ptohit = 0;
     put_misc3();
     ASSERT_EQ_STR(AT_FIGHTING, "Poor"); /* 24/12=2 */
@@ -344,7 +345,7 @@ TEST(xbth_is_bth_itself_when_ptohit_is_zero)
 /* ptohit=4 なら 4*3=12 が乗って 36。係数がなければ 28 で "Poor"。 */
 TEST(xbth_adds_three_times_ptohit)
 {
-    py.misc.bth = 24;
+    player_base_to_hit_set_melee(24); /* #18-12-19B で窓口へ */
     py.misc.ptohit = 4;
     put_misc3();
     ASSERT_EQ_STR(AT_FIGHTING, "Fair"); /* 36/12=3 */
@@ -353,7 +354,7 @@ TEST(xbth_adds_three_times_ptohit)
 /* xbthb も同じ係数を使う（基は bthb）。 */
 TEST(xbthb_adds_three_times_ptohit_to_bthb)
 {
-    py.misc.bthb = 24;
+    player_base_to_hit_set_with_bows(24); /* #18-12-19B で窓口へ */
     py.misc.ptohit = 4;
     put_misc3();
     ASSERT_EQ_STR(AT_BOWS, "Fair"); /* 36/12=3 */

@@ -18,6 +18,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_base_to_hit.h"
 #include "player_level.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
@@ -667,7 +668,9 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
 
     // Throwing objects
     *tdam = pdamroll(i_ptr->damage) + i_ptr->todam;
-    *tbth = py.misc.bthb * 75 / 100;
+    // 投げるだけなら 75 パーセント。**この割りかたはこの 1 行のもの**で、
+    // 窓口には入れない（#18-12-19B）。
+    *tbth = player_base_to_hit_with_bows() * 75 / 100;
     *tpth = py.misc.ptohit + i_ptr->tohit;
 
     // Add this back later if the correct throwing device. -CJS-
@@ -688,7 +691,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         switch (equipment_at(INVEN_WIELD)->p1) {
         case 1:
             if (i_ptr->tval == TV_SLING_AMMO) { // Sling and ammo
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 2;
@@ -697,7 +700,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 2:
             if (i_ptr->tval == TV_ARROW) { // Short Bow and Arrow
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 2;
@@ -706,7 +709,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 3:
             if (i_ptr->tval == TV_ARROW) { // Long Bow and Arrow
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 3;
@@ -715,7 +718,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 4:
             if (i_ptr->tval == TV_ARROW) { // Composite Bow and Arrow
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 4;
@@ -724,7 +727,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 5:
             if (i_ptr->tval == TV_BOLT) { // Light Crossbow and Bolt
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 3;
@@ -733,7 +736,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 6:
             if (i_ptr->tval == TV_BOLT) { // Heavy Crossbow and Bolt
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 4;

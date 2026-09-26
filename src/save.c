@@ -25,6 +25,7 @@
 #include "messages.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
+#include "player_base_to_hit.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_glowing_hands.h"
@@ -160,8 +161,10 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_max_depth());
     wr_short((uint16_t)m_ptr->srh);
     wr_short((uint16_t)m_ptr->fos);
-    wr_short((uint16_t)m_ptr->bth);
-    wr_short((uint16_t)m_ptr->bthb);
+    // 素の命中力も窓口へ（#18-12-19B）。**近接が先、弓があと** ——
+    // 並びは動かせない。
+    wr_short((uint16_t)player_base_to_hit());
+    wr_short((uint16_t)player_base_to_hit_with_bows());
     wr_short((uint16_t)player_max_mana());
     wr_short((uint16_t)player_max_hp());
     wr_short((uint16_t)m_ptr->ptohit);
@@ -634,8 +637,13 @@ bool get_char(bool *generate) {
             player_max_depth_set(max_depth);
             rd_short((uint16_t *)&m_ptr->srh);
             rd_short((uint16_t *)&m_ptr->fos);
-            rd_short((uint16_t *)&m_ptr->bth);
-            rd_short((uint16_t *)&m_ptr->bthb);
+            // 読みもどしは種族の土台と同じ文なので、置きなおしの窓口が
+            // 1 本で足りる（#18-12-19B。守りの点数だけが 2 本要った）。
+            uint16_t base_to_hit;
+            uint16_t base_to_hit_with_bows;
+            rd_short(&base_to_hit);
+            rd_short(&base_to_hit_with_bows);
+            player_base_to_hit_set((int16_t)base_to_hit, (int16_t)base_to_hit_with_bows);
             // 魔力の 3 つも窓口へ（#18-12-4B）。並びは動かせないので位置は
             // そのまま —— 上限はここ、残りと端数は階級・種族のあと。
             uint16_t max_mana;

@@ -22,6 +22,7 @@
 #include "pending_teleport.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
+#include "player_base_to_hit.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_level.h"
@@ -595,9 +596,11 @@ void py_attack(int y, int x) {
     // if creature not lit, make it more difficult to hit
     int base_tohit;
     if (m_ptr->ml) {
-        base_tohit = p_ptr->bth;
+        base_tohit = player_base_to_hit();
     } else {
-        base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
+        // 見えない相手は当てにくい。**半分にする式はこの 1 行のもの**で、
+        // 窓口には入れない（#18-12-19B）。
+        base_tohit = (player_base_to_hit() / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
     }
 
     int k;

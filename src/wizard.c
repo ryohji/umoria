@@ -13,6 +13,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "player_base_to_hit.h"
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_mana.h"
@@ -208,25 +209,27 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Base to hit = ", m_ptr->bth);
+    // 遊びのなかで唯一、2 つの数を片方ずつ置く場所（#18-12-19B）。
+    // **0〜200 の留めはこの画面のもの**で、窓口は持たない。
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Base to hit = ", player_base_to_hit());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->bth = tmp_val;
+            player_base_to_hit_set_melee(tmp_val);
         }
     } else {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Bows/Throwing = ", m_ptr->bthb);
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Bows/Throwing = ", player_base_to_hit_with_bows());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->bthb = tmp_val;
+            player_base_to_hit_set_with_bows(tmp_val);
         }
     } else {
         return;

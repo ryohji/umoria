@@ -16,6 +16,7 @@
 
 #include "hp_table.h"
 #include "player_armour_class.h"
+#include "player_base_to_hit.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hit_die.h"
@@ -101,8 +102,8 @@ static void get_all_stats(void) {
     }
 
     p_ptr->misc.srh = r_ptr->srh;
-    p_ptr->misc.bth = r_ptr->bth;
-    p_ptr->misc.bthb = r_ptr->bthb;
+    // 素の命中力の 2 本は 1 つの窓口で（#18-12-19B）。種族は必ず両方を書く。
+    player_base_to_hit_set(r_ptr->bth, r_ptr->bthb);
     p_ptr->misc.fos = r_ptr->fos;
     p_ptr->misc.stl = r_ptr->stl;
     p_ptr->misc.save = r_ptr->bsav;
@@ -406,8 +407,8 @@ static void get_class(void) {
             } while ((hp_total_at_level(MAX_PLAYER_LEVEL) < min_value) ||
                      (hp_total_at_level(MAX_PLAYER_LEVEL) > max_value));
 
-            m_ptr->bth += c_ptr->mbth;
-            m_ptr->bthb += c_ptr->mbthb; // RAK
+            // 階級ぶんは 2 つの数が別々（振るのと射るのは別の腕）。 // RAK
+            player_base_to_hit_adjust(c_ptr->mbth, c_ptr->mbthb);
             m_ptr->srh += c_ptr->msrh;
             m_ptr->disarm += c_ptr->mdis;
             m_ptr->fos += c_ptr->mfos;
