@@ -10,7 +10,8 @@
  *
  *   ・覚えた印と覚えた順（`spell_learned` と `spell_order`）
  *   ・メッセージ（msg_print）
- *   ・`py.flags.new_spells`（まだ学べる数）と PY_STUDY
+ *   ・まだ学べる数（`player_spells_to_learn()`。#18-12-14 までは
+ *     `py.flags.new_spells`）と PY_STUDY
  *   ・魔力の上限（player_max_mana()。最初の 1 つを覚えたときだけ計算される）
  *   ・断ったときの `free_turn_flag`（手番を使わない）
  *
@@ -24,7 +25,7 @@
  *
  *   2. **MAGE 系は本が要る。** 持っている魔法書の flags の論理和だけが候補で、
  *      足りなければ「本が見つからない」と言い、**学べる数を減らさない**
- *      （本を買ってから学べるように、差は py.flags.new_spells に残す）。
+ *      （本を買ってから学べるように、差は窓口の向こうに残す）。
  *
  *   3. **PRIEST 系は本が要らず、選べもしない。** 候補から randint で 1 つ
  *      引いて、覚えたことを告げる（MAGE 系は画面に出すだけで何も言わない）。
@@ -45,7 +46,9 @@
 #include "inventory.h"
 #include "player_level.h"
 #include "player_mana.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "spells_known.h"
 
 extern player_type py;
@@ -82,7 +85,7 @@ static void given_a_mage_who_can_learn(int spells_to_learn) {
     player_set_level(1);
     py.stats.use_stat[A_INT] = 18;
     player_set_max_mana(1);
-    py.flags.new_spells = (uint8_t)spells_to_learn;
+    player_spells_to_learn_set(spells_to_learn);
 }
 
 /* 学べる数がある僧侶（レベル 1・賢さ 18）。 */
@@ -91,7 +94,7 @@ static void given_a_priest_who_can_learn(int spells_to_learn) {
     player_set_level(1);
     py.stats.use_stat[A_WIS] = 18;
     player_set_max_mana(1);
-    py.flags.new_spells = (uint8_t)spells_to_learn;
+    player_spells_to_learn_set(spells_to_learn);
 }
 
 /* 持ち物に魔法書 1 冊。flags のビットが「この本に載っている呪文」。 */
@@ -143,7 +146,7 @@ TEST(a_priest_with_nothing_left_to_learn_is_refused_in_their_own_words) {
 TEST(a_confused_character_cannot_learn) {
     given_no_spells_known();
     given_a_priest_who_can_learn(1);
-    py.flags.confused = 1;
+    player_timed_set(PLAYER_TIMED_CONFUSION, 1);
 
     gain_spells();
 
@@ -156,7 +159,7 @@ TEST(a_confused_character_cannot_learn) {
 TEST(a_blind_mage_cannot_read_their_book) {
     given_no_spells_known();
     given_a_mage_who_can_learn(1);
-    py.flags.blind = 1;
+    player_timed_set(PLAYER_TIMED_BLINDNESS, 1);
 
     gain_spells();
 
@@ -184,7 +187,7 @@ TEST(a_priest_is_granted_a_prayer_at_random) {
     ASSERT_EQ_INT(0, the_nth_spell_learned(0));
     ASSERT_EQ_STR("You have learned the prayer of Detect Evil.",
                   fixture_message_text(0));
-    ASSERT_EQ_INT(0, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(0, player_spells_to_learn());
     ASSERT_TRUE(player_study_redraw_requested());
 }
 
@@ -236,7 +239,7 @@ TEST(a_mage_learns_the_spell_they_choose_from_their_book) {
     ASSERT_TRUE(the_spell_is_learned(0));
     ASSERT_EQ_INT(0, the_nth_spell_learned(0));
     ASSERT_EQ_INT(0, fixture_message_count());
-    ASSERT_EQ_INT(0, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(0, player_spells_to_learn());
 }
 
 /* 覚えた順は**すでに覚えた分の次**に積む（数えるための別の変数は無く、
@@ -275,7 +278,7 @@ TEST(a_spell_already_known_is_left_out_of_the_choices) {
 
 /* 本に載っている数が足りなければ「本が見つからない」と言い、**差を残す**。
  * 2 つ学べるのに 1 つしか載っていない本なら、1 つ覚えたあとも
- * py.flags.new_spells は 1 のまま（本を買えば残りを学べる）。 */
+ * 学べる数は 1 のまま（本を買えば残りを学べる）。 */
 TEST(a_mage_short_of_books_keeps_what_they_could_not_learn) {
     given_no_spells_known();
     given_a_mage_who_can_learn(2);
@@ -286,7 +289,7 @@ TEST(a_mage_short_of_books_keeps_what_they_could_not_learn) {
 
     ASSERT_EQ_STR("You seem to be missing a book.", fixture_message_text(0));
     ASSERT_TRUE(the_spell_is_learned(0));
-    ASSERT_EQ_INT(1, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(1, player_spells_to_learn());
 }
 
 /* 本を 1 冊も持っていなければ何も覚えられない（候補が 0 個）。 */
@@ -299,7 +302,7 @@ TEST(a_mage_without_a_book_learns_nothing) {
 
     ASSERT_EQ_STR("You seem to be missing a book.", fixture_message_text(0));
     ASSERT_TRUE(!any_spell_learned());
-    ASSERT_EQ_INT(1, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(1, player_spells_to_learn());
 }
 
 /* 一覧にない文字を押しても何も起きない（鈴を鳴らすだけ）。
@@ -313,7 +316,7 @@ TEST(a_key_outside_the_list_learns_nothing) {
     gain_spells();
 
     ASSERT_TRUE(!any_spell_learned());
-    ASSERT_EQ_INT(1, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(1, player_spells_to_learn());
 }
 
 int main(void) {

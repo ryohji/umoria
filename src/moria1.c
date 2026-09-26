@@ -25,9 +25,13 @@
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
+#include "player_infra_range.h"
 #include "player_light.h"
 #include "player_pos.h"
+#include "player_resting.h"
+#include "player_speed.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "running.h"
 #include "screen_touched.h"
 #include "stats.h"
@@ -36,7 +40,7 @@
 // Note: When the player is sped up or slowed down, I simply change
 // the speed of all the monsters. This greatly simplified the logic.
 void change_speed(int num) {
-    py.flags.speed += num;
+    player_speed_adjust(num);
     player_request_speed_redraw();
 
     for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
@@ -72,19 +76,20 @@ void py_bonuses(inven_type *t_ptr, int factor) {
         change_speed(-amount);
     }
     if ((TR_BLIND & t_ptr->flags) && (factor > 0)) {
-        py.flags.blind += 1000;
+        player_timed_add(PLAYER_TIMED_BLINDNESS, 1000);
     }
     if ((TR_TIMID & t_ptr->flags) && (factor > 0)) {
-        py.flags.afraid += 50;
+        player_timed_add(PLAYER_TIMED_FEAR, 50);
     }
     if (TR_INFRA & t_ptr->flags) {
-        py.flags.see_infra += amount;
+        // `amount` is already signed by the caller's factor, so this one line
+        // covers putting the item on and taking it off again.
+        player_infra_range_adjust(amount);
     }
 }
 
 // Recalculate the effect of all the stuff we use. -CJS-
 void calc_bonuses(void) {
-    struct flags *p_ptr = &py.flags;
     struct misc *m_ptr = &py.misc;
 
     // What the old answers were doing to the digestion has to be taken back
@@ -143,15 +148,15 @@ void calc_bonuses(void) {
     }
 
     // Add in temporary spell increases
-    if (p_ptr->invuln > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
         m_ptr->pac += 100;
         player_display_add_ac(100);
     }
-    if (p_ptr->blessed > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_BLESSING)) {
         m_ptr->pac += 2;
         player_display_add_ac(2);
     }
-    if (p_ptr->detect_inv > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
         player_grant_see_invisible();
     }
 
@@ -1547,7 +1552,7 @@ static void sub3_move_light(int y1, int x1, int y2, int x2) {
 // Package for moving the character's light about the screen
 // Four cases : Normal, Finding, Blind, and Nolight -RAK-
 void move_light(int y1, int x1, int y2, int x2) {
-    if (py.flags.blind > 0 || !player_has_light()) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || !player_has_light()) {
         sub3_move_light(y1, x1, y2, x2);
     } else {
         sub1_move_light(y1, x1, y2, x2);
@@ -1562,7 +1567,7 @@ void disturb(int s, int l) {
     if (s && player_is_searching()) {
         search_off();
     }
-    if (py.flags.rest != 0) {
+    if (player_resting()) {
         rest_off();
     }
     if (l || player_is_running()) {
@@ -1617,7 +1622,7 @@ void rest(void) {
         if (player_is_searching()) {
             search_off();
         }
-        py.flags.rest = rest_num;
+        player_rest_set(rest_num);
         player_start_resting();
         prt_state();
         player_adjust_digestion(-1);
@@ -1633,7 +1638,7 @@ void rest(void) {
 }
 
 void rest_off(void) {
-    py.flags.rest = 0;
+    player_rest_stop();
     player_stop_resting();
 
     prt_state();
@@ -1664,7 +1669,7 @@ bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
 
 // Decreases players hit points and sets death flag if necessary -RAK-
 void take_hit(int damage, const char *hit_from) {
-    if (py.flags.invuln > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
         damage = 0;
     }
     // Nothing clamps the number at zero: a fatal wound leaves it negative on

@@ -32,8 +32,12 @@
 #include "fixture.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_infra_range.h"
 #include "player_level.h"
+#include "player_speed.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 
 /* --- グローバル状態 --- */
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
@@ -329,6 +333,32 @@ void fixture_reset(void)
      * 人物の走りだし** —— 30 bit を 1 回で降ろせる窓口はセーブファイル用の
      * これだけ。 */
     player_set_status_word(0);
+    /* 一時的な状態の残り時間 18 個も #18-12-9C で src/player_timed_effects.c の
+     * static へ移ったので、py を消しても届かない。**どれも効いていないのが
+     * 人物の走りだし**で、1 件が置いた長さが次の 1 件に残らないように 18 個とも
+     * 0 へ戻す（印の 1 語と同じ理由）。 */
+    for (int effect = 0; effect < PLAYER_TIMED_COUNT; effect++) {
+        player_timed_clear((player_timed_effect)effect);
+    }
+    /* いまの速さも #18-12-11C で src/player_speed.c の static へ移ったので、
+     * py を消しても届かない。**ふつうの速さ（0 段）が人物の走りだし**で、
+     * 1 件が置いた段数が次の 1 件に残らないように窓口越しに戻す。**どのテストも
+     * 速さを読まないので、外してもレッドにはならない** —— それでも足すのは、
+     * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。 */
+    player_speed_set(0);
+    /* 赤外視の距離も #18-12-12C で src/player_infra_range.c の static へ移った。
+     * put_misc3() は毎回 xinfra を書くが、**それを読むのは xinfra の 1 件だけで、
+     * その件は自分で 3 ます を置いてから読む**。だから外してもレッドにはならない
+     * （実際に外して確かめた）。それでも足すのは、上の約束（各件は 0 から
+     * 始まる）を黙って嘘にしないため —— 速さの 1 行と同じ理由。 */
+    /* あと何個呪文を覚えられるかも #18-12-14C で
+     * src/player_spells_to_learn.c の static へ移った。**この 1 行は外すと
+     * 本当にレッドになる**（速さと赤外視の 2 行とは違う。実際に外して
+     * 2 件が落ちるのを確かめた）—— calc_spells() が「学べるようになった」と
+     * 告げるのは**前に置いた数が 0 だったとき**だけなので、前の件が置いた数が
+     * 残っていると message が出ず、それを読む 2 件が落ちる。
+     * **0 が人物の走りだし**（戦士はずっと 0）。 */
+    player_spells_to_learn_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

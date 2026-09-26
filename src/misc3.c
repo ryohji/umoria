@@ -29,7 +29,11 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_resting.h"
+#include "player_speed.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
@@ -391,15 +395,15 @@ void prt_poisoned(void) {
 void prt_state(void) {
     player_set_status_line_shows_repeat(false);
 
-    if (py.flags.paralysis > 1) {
+    if (player_timed_turns(PLAYER_TIMED_PARALYSIS) > 1) {
         put_buffer("Paralysed", 23, 38);
     } else if (player_is_resting()) {
         char tmp[16];
 
-        if (py.flags.rest < 0) {
+        if (player_rest_is_until_healed()) {
             (void)strcpy(tmp, "Rest *");
         } else if (display_counts) {
-            (void)sprintf(tmp, "Rest %-5d", py.flags.rest);
+            (void)sprintf(tmp, "Rest %-5d", player_rest_turns());
         } else {
             (void)strcpy(tmp, "Rest");
         }
@@ -432,7 +436,7 @@ void prt_state(void) {
 
 // Prints the speed of a character. -CJS-
 void prt_speed(void) {
-    int i = py.flags.speed;
+    int i = player_speed();
 
     // Search mode.
     if (player_is_searching()) {
@@ -455,7 +459,7 @@ void prt_speed(void) {
 void prt_study(void) {
     player_clear_study_redraw_request();
 
-    if (py.flags.new_spells == 0) {
+    if (player_spells_to_learn() == 0) {
         put_buffer(&blank_string[BLANK_LENGTH - 5], 23, 59);
     } else {
         put_buffer("Study", 23, 59);
@@ -648,8 +652,10 @@ void prt_stat_block(void) {
     // if speed non zero, print it, modify speed if Searching
     // もとは `py.flags.speed - ((PY_SEARCH & status) >> 8)` で、**ビットの
     // 位置（0x100）を知っていて 8 つずらして 1 を作っていた**。探索している
-    // なら 1 引くという意味で、prt_speed() の i-- と同じ。
-    if (py.flags.speed - (player_is_searching() ? 1 : 0) != 0) {
+    // なら 1 引くという意味で、prt_speed() の i-- と同じ。**同じ規則が 2 か所に
+    // 書かれているが畳まない** —— 探索と速さは別の問いで、片方が他方の半分では
+    // ない（src/player_speed.h）。
+    if (player_speed() - (player_is_searching() ? 1 : 0) != 0) {
         prt_speed();
     }
 
@@ -1347,14 +1353,16 @@ void calc_spells(int stat) {
         new_spells = 0;
     }
 
-    if (new_spells != py.flags.new_spells) {
-        if (new_spells > 0 && py.flags.new_spells == 0) {
+    // 局所の new_spells は「いま数えなおした答え」で、窓口の答えは「前に置いた
+    // 答え」。**違うときだけ置きなおす**（同じなら画面も書きなおさない）。
+    if (new_spells != player_spells_to_learn()) {
+        if (new_spells > 0 && player_spells_to_learn() == 0) {
             vtype tmp_str;
             (void)sprintf(tmp_str, "You can learn some new %ss now.", p);
             msg_print(tmp_str);
         }
 
-        py.flags.new_spells = new_spells;
+        player_spells_to_learn_set(new_spells);
         player_request_study_redraw();
     }
 }
@@ -1365,12 +1373,15 @@ void gain_spells(void) {
 
     // Priests don't need light because they get spells from their god, so only
     // fail when can't see if player has MAGE spells. This check is done below.
-    if (py.flags.confused > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
         return;
     }
 
-    int new_spells = py.flags.new_spells;
+    // 窓口から取って局所で減らし、最後に 1 度だけ置きなおす（下の
+    // player_spells_to_learn_set()）。途中で置かないのは、本が足りなくて
+    // 学べなかった差を足しもどすまで答えが決まらないから。
+    int new_spells = player_spells_to_learn();
     int diff_spells = 0;
 
     struct misc *p_ptr = &py.misc;
@@ -1382,7 +1393,7 @@ void gain_spells(void) {
         offset = SPELL_OFFSET;
 
         // People with MAGE spells can't learn spells if they can't read their books.
-        if (py.flags.blind > 0) {
+        if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
             msg_print("You can't see to read your spell book!");
             return;
         } else if (no_light()) {
@@ -1481,8 +1492,8 @@ void gain_spells(void) {
             }
         }
 
-        py.flags.new_spells = new_spells + diff_spells;
-        if (py.flags.new_spells == 0) {
+        player_spells_to_learn_set(new_spells + diff_spells);
+        if (player_spells_to_learn() == 0) {
             player_request_study_redraw();
         }
 

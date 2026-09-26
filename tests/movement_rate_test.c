@@ -23,7 +23,8 @@
  * テストがそれを検証する。先例は tests/haggle_comment_test.c。
  *
  * 依存はグローバル turn（int32_t、tests/creature_stubs.c が定義）と
- * py.flags.rest の 2 つだけ。turn は fixture_reset() の対象外なので、
+ * 休息の残りターン（#18-12-10C から src/player_resting.c の static。窓口は
+ * src/player_resting.h）の 2 つだけ。turn は fixture_reset() の対象外なので、
  * 各テストが明示的に代入する。
  *
  * 期待値はすべて現在の実装が返した実際の値。とくに負の turn に対する
@@ -37,7 +38,9 @@
 
 #include "fixture.h"
 
-/* 各テストの前に必ず呼ばれる。py がクリアされる（rest も 0 に戻る）。
+/* 各テストの前に必ず呼ばれる。py がクリアされ、休息の残りも窓口越しに 0 に
+ * 戻る（#18-12-10C。py の memset では module の static に届かないので、
+ * tests/creature_stubs.c が player_rest_stop() を呼ぶ）。
  * turn は意図的に触らないので、テストごとに代入して制御する。 */
 #define MU_SETUP() fixture_reset()
 
@@ -46,7 +49,7 @@
 /* ------------------------------------------------------------------
  * 速度が正のとき: 行動回数はそのまま speed
  *
- * ただし py.flags.rest != 0（休憩中）なら 1 回に抑えられる。
+ * ただし休憩中（残りターンが 0 でない）なら 1 回に抑えられる。
  * 本体のコメント（creature.c:73-74）が「プレイヤーは反復ごとに
  * 少なくとも 1 回動く。遅くなったプレイヤーはモンスターを速く動かして
  * 表現する」と書いているのがこの枝。
@@ -69,25 +72,25 @@ TEST(returns_five_moves_when_speed_is_five)
 TEST(returns_one_move_when_speed_is_five_and_player_is_resting)
 {
     progress_set_turn(0);
-    py.flags.rest = 1;
+    player_rest_set(1);
     ASSERT_EQ_INT(moves_this_turn(5), 1);
 }
 
-/* 上との対比。rest を 0 に戻せば speed 回に戻る。
- * rest の判定は != 0 なので、休憩の残りターン数がいくつでも 1 になる。 */
+/* 上との対比。休息をやめれば speed 回に戻る。
+ * 判定は != 0 なので、休憩の残りターン数がいくつでも 1 になる。 */
 TEST(returns_five_moves_again_when_resting_is_cleared)
 {
     progress_set_turn(0);
-    py.flags.rest = 0;
+    player_rest_stop();
     ASSERT_EQ_INT(moves_this_turn(5), 5);
 }
 
-/* rest は int16_t で負も入る。判定が != 0 なので負でも抑制される。
- * 本体では「休憩ターン数が -1 のとき無限休憩」という使い方がある。 */
+/* 残りターンは int16_t で負も入る。判定が != 0 なので負でも抑制される。
+ * 本体では負は「体力と魔力が満ちるまで」という使い方（player_resting.h）。 */
 TEST(returns_one_move_when_resting_count_is_negative)
 {
     progress_set_turn(0);
-    py.flags.rest = -1;
+    player_rest_set(-1);
     ASSERT_EQ_INT(moves_this_turn(5), 1);
 }
 
@@ -237,33 +240,33 @@ TEST(returns_exactly_zero_for_a_deeply_negative_speed_off_the_cycle)
 }
 
 /* ------------------------------------------------------------------
- * py.flags.rest が読まれるのは speed > 0 の枝だけ
+ * 休息が読まれるのは speed > 0 の枝だけ
  *
- * 速度が 0 以下のときは rest を見ない。ステップ B で 2 つの枝の対称性を
- * そろえるときに、rest の判定をうっかり外側へ引きあげるとふるまいが
+ * 速度が 0 以下のときは休息を見ない。ステップ B で 2 つの枝の対称性を
+ * そろえるときに、休息の判定をうっかり外側へ引きあげるとふるまいが
  * 変わる。休憩中でも周期の判定がそのまま残ることを固定する。
  * ------------------------------------------------------------------ */
 
 TEST(ignores_resting_when_speed_is_zero_and_the_turn_is_on_the_cycle)
 {
     progress_set_turn(0);
-    py.flags.rest = 1;
+    player_rest_set(1);
     ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
-/* ここが本質。rest != 0 でも「1 回」に持ちあげられず、0 のまま。
+/* ここが本質。休憩中でも「1 回」に持ちあげられず、0 のまま。
  * 判定を外側に出すと 1 が返ってレッドになる。 */
 TEST(ignores_resting_when_speed_is_zero_and_the_turn_is_off_the_cycle)
 {
     progress_set_turn(1);
-    py.flags.rest = 1;
+    player_rest_set(1);
     ASSERT_EQ_INT(moves_this_turn(0), 0);
 }
 
 TEST(ignores_resting_when_speed_is_negative_and_the_turn_is_off_the_cycle)
 {
     progress_set_turn(1);
-    py.flags.rest = 100;
+    player_rest_set(100);
     ASSERT_EQ_INT(moves_this_turn(-1), 0);
 }
 

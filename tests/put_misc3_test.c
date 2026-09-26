@@ -32,6 +32,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 
 extern player_type py;
@@ -179,7 +180,12 @@ TEST(xfos_exceeds_twenty_nine_when_fos_falls_below_eleven)
 
 TEST(xinfra_is_see_infra_times_ten_in_feet)
 {
-    py.flags.see_infra = 3;
+    /* #18-12-12C までは py.flags.see_infra に直に置いていた。置き場が
+     * src/player_infra_range.c の static へ移ったので窓口から置く。**この 1 件が
+     * この問いで唯一、呼び手の式を守っているテスト** —— abilities.c の 10 倍を
+     * 落とすとここが "3 feet" でレッドになる（#18-12-12B の壊し 5 通りのうち
+     * 捕まった 1 つ）。 */
+    player_infra_range_set(3);
     put_misc3();
     ASSERT_EQ_STR(AT_INFRA_VISION, "30 feet");
 }

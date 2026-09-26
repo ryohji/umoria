@@ -17,6 +17,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_timed_effects.h"
 #include "spells_known.h"
 
 // Pray like HELL. -RAK-
@@ -25,11 +26,11 @@ void pray(void) {
 
     free_turn_flag = true;
 
-    if (py.flags.blind > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see to read your prayer!");
     } else if (no_light()) {
         msg_print("You have no light to read by.");
-    } else if (py.flags.confused > 0) {
+    } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
     } else if (class[py.misc.pclass].spell != PRIEST) {
         msg_print("Pray hard enough and your prayers may be answered.");
@@ -51,8 +52,6 @@ void pray(void) {
             if (randint(100) < chance) {
                 msg_print("You lost your concentration!");
             } else {
-                struct flags *f_ptr;
-
                 // Prayers.
                 switch (choice + 1) {
                 case 1:
@@ -112,9 +111,8 @@ void pray(void) {
                     }
                     break;
                 case 16:
-                    f_ptr = &py.flags;
-                    f_ptr->resist_heat += randint(10) + 10;
-                    f_ptr->resist_cold += randint(10) + 10;
+                    player_timed_add(PLAYER_TIMED_HEAT_RESISTANCE, randint(10) + 10);
+                    player_timed_add(PLAYER_TIMED_COLD_RESISTANCE, randint(10) + 10);
                     break;
                 case 17:
                     (void)cure_poison();
@@ -169,10 +167,12 @@ void pray(void) {
                     }
                     (void)dispel_creature(CD_EVIL, (4 * player_level()));
                     (void)turn_undead();
-                    if (py.flags.invuln < 3) {
-                        py.flags.invuln = 3;
+                    // Topped up to three, or one more turn if it is already
+                    // there or beyond -- the only place a counter goes up by one.
+                    if (player_timed_turns(PLAYER_TIMED_INVULNERABILITY) < 3) {
+                        player_timed_set(PLAYER_TIMED_INVULNERABILITY, 3);
                     } else {
-                        py.flags.invuln++;
+                        player_timed_add(PLAYER_TIMED_INVULNERABILITY, 1);
                     }
                     break;
                 default:
@@ -194,7 +194,7 @@ void pray(void) {
                 int spent = player_spend_mana(s_ptr->smana);
                 if (spent < s_ptr->smana) {
                     msg_print("You faint from fatigue!");
-                    py.flags.paralysis = randint((int)(5 * (s_ptr->smana - spent)));
+                    player_timed_set(PLAYER_TIMED_PARALYSIS, randint((int)(5 * (s_ptr->smana - spent))));
                     if (randint(3) == 1) {
                         msg_print("You have damaged your health!");
                         (void)dec_stat(A_CON);

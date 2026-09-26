@@ -19,6 +19,7 @@
 #include "item_ident.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_timed_effects.h"
 #include "stats.h"
 
 // Use a staff. -RAK-
@@ -39,7 +40,7 @@ void use(void) {
 
         struct misc *m_ptr = &py.misc;
 
-        int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_STAFF, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), py.flags.confused);
+        int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_STAFF, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
 
         if (!device_use_succeeds(chance)) {
             msg_print("You failed to use the staff properly.");
@@ -109,23 +110,23 @@ void use(void) {
                     ident = detect_invisible();
                     break;
                 case 17:
-                    if (py.flags.fast == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_HASTE)) {
                         ident = true;
                     }
-                    py.flags.fast += randint(30) + 15;
+                    player_timed_add(PLAYER_TIMED_HASTE, randint(30) + 15);
                     break;
                 case 18:
-                    if (py.flags.slow == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
                         ident = true;
                     }
-                    py.flags.slow += randint(30) + 15;
+                    player_timed_add(PLAYER_TIMED_SLOWNESS, randint(30) + 15);
                     break;
                 case 19:
                     ident = mass_poly();
                     break;
                 case 20:
                     if (remove_curse()) {
-                        if (py.flags.blind < 1) {
+                        if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                             msg_print("The staff glows blue for a moment..");
                         }
                         ident = true;

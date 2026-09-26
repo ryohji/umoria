@@ -26,12 +26,18 @@
 #include "player_abilities.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
+#include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_resting.h"
+#include "player_speed.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "options.h"
 #include "progress.h"
 #include "save_state.h"
@@ -60,6 +66,7 @@ static void wr_monster(monster_type *);
 static void rd_byte(uint8_t *);
 static void rd_short(uint16_t *);
 static void rd_bool(bool *);
+static void rd_timed(player_timed_effect);
 static void rd_long(uint32_t *);
 static void rd_bytes(uint8_t *, int);
 static void rd_string(char *);
@@ -73,6 +80,20 @@ static FILE *fileptr;
 static uint8_t xor_byte;
 static int from_savefile;   // can overwrite old savefile when save
 static uint32_t start_time; // time that play started
+
+// セーブファイルの死んだ 2 バイト。#18-12-15 まで `py.flags.protection`
+// （"Protection fr. evil"）だったが、**ゲームはこの数を一度も見ない** ——
+// 読み手も書き手も下の 2 行だけで、悪からの守りそのものは
+// PLAYER_TIMED_PROTECTION_FROM_EVIL（別の数）が持っている。
+//
+// それでも 0 を書き捨てにせず読んだ値を覚えるのは、**この 2 バイトの位置が
+// ファイルの書式**だからで、他が書いたファイルを読んで書き戻すときに中身を
+// 落としたくない（前後の 23 個の short と同じ理由 —— player_timed_effects.h）。
+//
+// **新しい module を作らないのは、これが「問い」ではないから。** 窓口の向こうに
+// 置く値には必ず「誰が何を訊くか」があるが、これを訊く者はいない。ここにあるのは
+// 書式の穴で、穴はそれを読む 1 ファイルの中に置くのがいちばん小さい。
+static int16_t dead_protection_bytes;
 
 // This save package was brought to by                -JWT-
 // and                                                -RAK-
@@ -171,40 +192,45 @@ static bool sv_write(void) {
     wr_shorts((uint16_t *)s_ptr->mod_stat, 6);
     wr_bytes(s_ptr->use_stat, 6);
 
-    struct flags *f_ptr = &py.flags;
     wr_long(player_status_word());
-    wr_short((uint16_t)f_ptr->rest);
-    wr_short((uint16_t)f_ptr->blind);
-    wr_short((uint16_t)f_ptr->paralysis);
-    wr_short((uint16_t)f_ptr->confused);
+    // 一時的な状態の十八個も窓口へ。**この二十四個の並びがこのファイルの
+    // 書式**なので、能力の 17 バイトのように位置で訊くことはできない（十八個
+    // の間に rest・腹の具合の二つ・protection・speed・see_infra が挟まって
+    // いる）。だから一つずつ名前で書く。並びは元のまま。
+    wr_short((uint16_t)player_rest_turns());
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_BLINDNESS));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_PARALYSIS));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_CONFUSION));
     wr_short((uint16_t)player_food());
     wr_short((uint16_t)player_digestion());
-    wr_short((uint16_t)f_ptr->protection);
-    wr_short((uint16_t)f_ptr->speed);
-    wr_short((uint16_t)f_ptr->fast);
-    wr_short((uint16_t)f_ptr->slow);
-    wr_short((uint16_t)f_ptr->afraid);
-    wr_short((uint16_t)f_ptr->poisoned);
-    wr_short((uint16_t)f_ptr->image);
-    wr_short((uint16_t)f_ptr->protevil);
-    wr_short((uint16_t)f_ptr->invuln);
-    wr_short((uint16_t)f_ptr->hero);
-    wr_short((uint16_t)f_ptr->shero);
-    wr_short((uint16_t)f_ptr->blessed);
-    wr_short((uint16_t)f_ptr->resist_heat);
-    wr_short((uint16_t)f_ptr->resist_cold);
-    wr_short((uint16_t)f_ptr->detect_inv);
-    wr_short((uint16_t)f_ptr->word_recall);
-    wr_short((uint16_t)f_ptr->see_infra);
-    wr_short((uint16_t)f_ptr->tim_infra);
+    // 死んだ 2 バイトはこのファイルの static から（読んだ値をそのまま返す。
+    // 上の dead_protection_bytes に理由を書いた）。
+    wr_short((uint16_t)dead_protection_bytes);
+    wr_short((uint16_t)player_speed());
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HASTE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SLOWNESS));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_FEAR));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_POISON));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HALLUCINATION));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_PROTECTION_FROM_EVIL));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_INVULNERABILITY));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HEROISM));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SUPER_HEROISM));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_BLESSING));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HEAT_RESISTANCE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_COLD_RESISTANCE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SEEING_INVISIBLE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL));
+    wr_short((uint16_t)player_infra_range());
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_INFRA_VISION));
     // 装備で決まる耐性・能力 17 個も窓口へ。**この 17 バイトの並びがこの
     // ファイルの書式**なので、一つずつ名前で書くのをやめて、モジュールが
     // 持っている並び順に位置で 17 回訊く（旗の 1 語と同じ考え方）。
     for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
         wr_byte(player_abilities_saved_byte(i));
     }
-    wr_byte(f_ptr->confuse_monster);
-    wr_byte(f_ptr->new_spells);
+    wr_byte((uint8_t)player_glowing_hands());
+    wr_byte((uint8_t)player_spells_to_learn());
 
     wr_short((uint16_t)missile_serial_value());
     wr_long((uint32_t)progress_turn());
@@ -663,7 +689,6 @@ bool get_char(bool *generate) {
             rd_shorts((uint16_t *)s_ptr->mod_stat, 6);
             rd_bytes(s_ptr->use_stat, 6);
 
-            struct flags *f_ptr = &py.flags;
             // 旗の 1 語も窓口へ。**ビットの番号はこのファイルの書式**なので、
             // 30 の旗を 1 つずつではなく 1 語まるごと運ぶ窓口を使う。読みは
             // 器の番地を要るので、いったん受けてから置く（腹の具合と同じ形。
@@ -671,37 +696,56 @@ bool get_char(bool *generate) {
             uint32_t status;
             rd_long(&status);
             player_set_status_word(status);
-            rd_short((uint16_t *)&f_ptr->rest);
-            rd_short((uint16_t *)&f_ptr->blind);
-            rd_short((uint16_t *)&f_ptr->paralysis);
-            rd_short((uint16_t *)&f_ptr->confused);
-            // 腹の具合は f_ptr ではなく窓口へ入れる。読みは器の番地を要る
-            // ので、いったん受けてから置く（幅と符号の扱いは元のまま。
-            // 並びは動かせないのでこの位置のまま）。
+            // 休息の残りも窓口の向こうなので器の番地を渡せない。いったん
+            // 受けてから置く（十八個の rd_timed() と同じ形）。**符号のある数**
+            // なので、元の rd_short((uint16_t *)&f_ptr->rest) と同じく
+            // 16 ビットをそのまま移す。
+            uint16_t rest_turns;
+            rd_short(&rest_turns);
+            player_rest_set((int16_t)rest_turns);
+            // 一時的な状態の十八個も窓口へ。書くほうと同じ理由で位置ではなく
+            // 名前で、rd_timed() が受けてから置く（並びはこのまま）。
+            rd_timed(PLAYER_TIMED_BLINDNESS);
+            rd_timed(PLAYER_TIMED_PARALYSIS);
+            rd_timed(PLAYER_TIMED_CONFUSION);
+            // 腹の具合は（#18-12-2C まで f_ptr 越しだったが）窓口へ入れる。
+            // 読みは器の番地を要るので、いったん受けてから置く（幅と符号の
+            // 扱いは元のまま。並びは動かせないのでこの位置のまま）。
             uint16_t food;
             rd_short(&food);
             player_set_food((int16_t)food);
             uint16_t food_digested;
             rd_short(&food_digested);
             player_set_digestion((int16_t)food_digested);
-            rd_short((uint16_t *)&f_ptr->protection);
-            rd_short((uint16_t *)&f_ptr->speed);
-            rd_short((uint16_t *)&f_ptr->fast);
-            rd_short((uint16_t *)&f_ptr->slow);
-            rd_short((uint16_t *)&f_ptr->afraid);
-            rd_short((uint16_t *)&f_ptr->poisoned);
-            rd_short((uint16_t *)&f_ptr->image);
-            rd_short((uint16_t *)&f_ptr->protevil);
-            rd_short((uint16_t *)&f_ptr->invuln);
-            rd_short((uint16_t *)&f_ptr->hero);
-            rd_short((uint16_t *)&f_ptr->shero);
-            rd_short((uint16_t *)&f_ptr->blessed);
-            rd_short((uint16_t *)&f_ptr->resist_heat);
-            rd_short((uint16_t *)&f_ptr->resist_cold);
-            rd_short((uint16_t *)&f_ptr->detect_inv);
-            rd_short((uint16_t *)&f_ptr->word_recall);
-            rd_short((uint16_t *)&f_ptr->see_infra);
-            rd_short((uint16_t *)&f_ptr->tim_infra);
+            // 死んだ 2 バイトはこのファイルの static へ。**ここだけは窓口の
+            // 向こうではないので器の番地をそのまま渡せる**（上の
+            // dead_protection_bytes に、module を作らない理由を書いた）。
+            rd_short((uint16_t *)&dead_protection_bytes);
+            // 速さも器の番地が要るのでいったん受けてから置く（腹の具合と同じ。
+            // 並びは動かせないのでこの位置のまま）。
+            uint16_t speed;
+            rd_short(&speed);
+            player_speed_set((int16_t)speed);
+            rd_timed(PLAYER_TIMED_HASTE);
+            rd_timed(PLAYER_TIMED_SLOWNESS);
+            rd_timed(PLAYER_TIMED_FEAR);
+            rd_timed(PLAYER_TIMED_POISON);
+            rd_timed(PLAYER_TIMED_HALLUCINATION);
+            rd_timed(PLAYER_TIMED_PROTECTION_FROM_EVIL);
+            rd_timed(PLAYER_TIMED_INVULNERABILITY);
+            rd_timed(PLAYER_TIMED_HEROISM);
+            rd_timed(PLAYER_TIMED_SUPER_HEROISM);
+            rd_timed(PLAYER_TIMED_BLESSING);
+            rd_timed(PLAYER_TIMED_HEAT_RESISTANCE);
+            rd_timed(PLAYER_TIMED_COLD_RESISTANCE);
+            rd_timed(PLAYER_TIMED_SEEING_INVISIBLE);
+            rd_timed(PLAYER_TIMED_WORD_OF_RECALL);
+            // 赤外視の距離も器の番地が要るのでいったん受けてから置く
+            // （速さ・腹の具合と同じ。並びは動かせないのでこの位置のまま）。
+            uint16_t infra_range;
+            rd_short(&infra_range);
+            player_infra_range_set((int16_t)infra_range);
+            rd_timed(PLAYER_TIMED_INFRA_VISION);
             // 17 個も窓口へ。読みは器の番地を要るので、いったん受けてから
             // 位置で置く（腹の具合と旗の 1 語と同じ形。並びは動かせないので
             // この位置のまま）。
@@ -710,8 +754,18 @@ bool get_char(bool *generate) {
                 rd_byte(&ability);
                 player_abilities_restore_byte(i, ability);
             }
-            rd_byte(&f_ptr->confuse_monster);
-            rd_byte(&f_ptr->new_spells);
+            // 光る手も（#18-12-13C まで f_ptr 越しだったが）窓口へ。器の番地を要るので
+            // いったん局所で受けて、そのまま窓口に渡す（0/1 に丸めない ——
+            // src/player_glowing_hands.h）。
+            uint8_t saved_glowing_hands;
+            rd_byte(&saved_glowing_hands);
+            player_glowing_hands_restore(saved_glowing_hands);
+            // あと何個覚えられるかも窓口へ。光る手と同じ形 —— 読みは器の番地を
+            // 要るのでいったん局所で受け、そのまま渡す（0 も 255 もそのまま。
+            // 留めはもとから無い —— src/player_spells_to_learn.h）。
+            uint8_t saved_spells_to_learn;
+            rd_byte(&saved_spells_to_learn);
+            player_spells_to_learn_set(saved_spells_to_learn);
 
             uint16_t saved_missile_serial;
             rd_short(&saved_missile_serial);
@@ -823,9 +877,7 @@ bool get_char(bool *generate) {
                 }
 
                 // don't let him die of poison again immediately
-                if (py.flags.poisoned > 1) {
-                    py.flags.poisoned = 1;
-                }
+                player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
 
                 dun_level = 0; // Resurrect on the town level.
                 set_character_generated(true);
@@ -1211,6 +1263,16 @@ static void rd_bool(bool *ptr) {
     uint16_t value;
     rd_short(&value);
     *ptr = (value != 0);
+}
+
+// 一時的な状態の残り時間も窓口の向こうにあるので、器の番地を渡せない。
+// 十八回くり返すことになるので、腹の具合と同じ形（いったん受けてから置く）
+// をここに一つだけ書いておく。幅と符号の扱いは元の
+// rd_short((uint16_t *)&f_ptr->blind) と同じ、16 ビットをそのまま移すだけ。
+static void rd_timed(player_timed_effect effect) {
+    uint16_t turns;
+    rd_short(&turns);
+    player_timed_set(effect, (int16_t)turns);
 }
 
 static void rd_long(uint32_t *ptr) {

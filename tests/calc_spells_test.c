@@ -11,7 +11,8 @@
  *
  *   ・覚えた／忘れた印（`spell_learned` と `spell_forgotten`）
  *   ・メッセージ（msg_print で「忘れた」「思いだした」「学べる」）
- *   ・`py.flags.new_spells`（あと何個学べるか）と PY_STUDY
+ *   ・あと何個学べるか（`player_spells_to_learn()`。#18-12-14 までは
+ *     `py.flags.new_spells`）と PY_STUDY
  *
  * にしか現れない。
  *
@@ -42,6 +43,7 @@
 
 #include "fixture.h"
 #include "player_level.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
 #include "spells_known.h"
 
@@ -118,7 +120,7 @@ static bool the_spell_is_forgotten(int spell) {
  * ------------------------------------------------------------------ */
 
 /* レベル 5・知力 18 なら 5 個まで。1 個しか覚えていなければ何も忘れない。
- * 余裕の 4 個は「学べる数」として py.flags.new_spells に入り、
+ * 余裕の 4 個は「学べる数」として窓口の向こうに入り、
  * 「学べるようになった」と告げられる。 */
 TEST(a_character_with_room_to_spare_is_told_they_can_learn_more) {
     given_no_spells_known();
@@ -128,7 +130,7 @@ TEST(a_character_with_room_to_spare_is_told_they_can_learn_more) {
     calc_spells(A_INT);
 
     ASSERT_TRUE(the_spell_is_learned(0));
-    ASSERT_EQ_INT(4, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(4, player_spells_to_learn());
     ASSERT_EQ_INT(1, fixture_message_count());
     ASSERT_EQ_STR("You can learn some new spells now.", fixture_message_text(0));
     ASSERT_TRUE(player_study_redraw_requested());
@@ -145,7 +147,7 @@ TEST(a_character_at_the_limit_neither_learns_nor_forgets) {
 
     ASSERT_TRUE(the_spell_is_learned(0));
     ASSERT_TRUE(the_spell_is_learned(1));
-    ASSERT_EQ_INT(0, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(0, player_spells_to_learn());
     ASSERT_EQ_INT(0, fixture_message_count());
 }
 
@@ -160,7 +162,7 @@ TEST(a_character_without_the_wits_for_it_may_keep_no_spells) {
 
     ASSERT_TRUE(!the_spell_is_learned(0));
     ASSERT_TRUE(the_spell_is_forgotten(0));
-    ASSERT_EQ_INT(0, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(0, player_spells_to_learn());
 }
 
 /* 段が 4 以上だと 1.5 倍。レベル 4・知力 68 なら 6 個まで。 */
@@ -171,7 +173,7 @@ TEST(a_high_stat_allows_one_and_a_half_spells_per_level) {
 
     calc_spells(A_INT);
 
-    ASSERT_EQ_INT(6, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(6, player_spells_to_learn());
 }
 
 /* ------------------------------------------------------------------
@@ -336,7 +338,7 @@ TEST(the_number_to_learn_is_capped_by_the_spells_within_reach) {
 
     calc_spells(A_INT);
 
-    ASSERT_EQ_INT(4, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(4, player_spells_to_learn());
 }
 
 /* 学べる数が前と同じなら黙っている（PY_STUDY も立てない）。
@@ -345,11 +347,11 @@ TEST(the_number_to_learn_is_capped_by_the_spells_within_reach) {
 TEST(nothing_is_said_when_the_number_to_learn_has_not_changed) {
     given_no_spells_known();
     given_a_mage_of_level(1);
-    py.flags.new_spells = 1; /* すでに 1 つ学べると知っている */
+    player_spells_to_learn_set(1); /* すでに 1 つ学べると知っている */
 
     calc_spells(A_INT);
 
-    ASSERT_EQ_INT(1, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(1, player_spells_to_learn());
     ASSERT_EQ_INT(0, fixture_message_count());
     ASSERT_TRUE(!player_study_redraw_requested());
 }
@@ -379,7 +381,7 @@ TEST(a_priest_is_told_about_new_prayers) {
 
     calc_spells(A_WIS);
 
-    ASSERT_EQ_INT(1, (int)py.flags.new_spells);
+    ASSERT_EQ_INT(1, player_spells_to_learn());
     ASSERT_EQ_STR("You can learn some new prayers now.",
                   fixture_message_text(0));
 }

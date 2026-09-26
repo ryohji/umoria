@@ -21,11 +21,13 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
+#include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "running.h"
 #include "spells_known.h"
 #include "stats.h"
@@ -84,13 +86,13 @@ static void hit_trap(int y, int x) {
         msg_print(CNIL);
         break;
     case 5: // Sleep gas
-        if (py.flags.paralysis == 0) {
+        if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
             msg_print("A strange white mist surrounds you!");
             if (player_never_paralyzed()) {
                 msg_print("You are unaffected.");
             } else {
                 msg_print("You fall asleep.");
-                py.flags.paralysis += randint(10) + 4;
+                player_timed_add(PLAYER_TIMED_PARALYSIS, randint(10) + 4);
             }
         }
         break;
@@ -155,11 +157,11 @@ static void hit_trap(int y, int x) {
         break;
     case 15: // Blind Gas
         msg_print("A black gas surrounds you!");
-        py.flags.blind += randint(50) + 50;
+        player_timed_add(PLAYER_TIMED_BLINDNESS, randint(50) + 50);
         break;
     case 16: // Confuse Gas
         msg_print("A gas of scintillating colors surrounds you!");
-        py.flags.confused += randint(15) + 15;
+        player_timed_add(PLAYER_TIMED_CONFUSION, randint(15) + 15);
         break;
     case 17: // Slow Dart
         if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
@@ -169,7 +171,7 @@ static void hit_trap(int y, int x) {
             if (player_never_paralyzed()) {
                 msg_print("You are unaffected.");
             } else {
-                py.flags.slow += randint(20) + 10;
+                player_timed_add(PLAYER_TIMED_SLOWNESS, randint(20) + 10);
             }
         } else {
             msg_print("A small dart barely misses you.");
@@ -535,7 +537,7 @@ int mon_take_hit(int monptr, int dam) {
     if (m_dead) {
         uint32_t i = monster_death(m_ptr->fy, m_ptr->fx, r_ptr->cmove);
 
-        if ((py.flags.blind < 1 && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
+        if ((!player_timed_in_force(PLAYER_TIMED_BLINDNESS) && m_ptr->ml) || (r_ptr->cmove & CM_WIN)) {
             recall_update_move(m_ptr->creature, i & ~CM_TREASURE);
             recall_update_carry(m_ptr->creature, (i & CM_TREASURE) >> CM_TR_SHIFT);
             recall_increment_kill(m_ptr->creature);
@@ -619,8 +621,8 @@ void py_attack(int y, int x) {
                 k = 0;
             }
 
-            if (py.flags.confuse_monster) {
-                py.flags.confuse_monster = false;
+            if (player_glowing_hands()) {
+                player_glowing_hands_spend();
                 msg_print("Your hands stop glowing.");
                 char *out_val;
                 if ((r_ptr->cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < r_ptr->level)) {
@@ -671,7 +673,7 @@ void py_attack(int y, int x) {
 // Moves player from one space to another. -RAK-
 // Note: This routine has been pre-declared; see that for argument
 void move_char(int dir, bool do_pickup) {
-    if ((py.flags.confused > 0) && // Confused?
+    if (player_timed_in_force(PLAYER_TIMED_CONFUSION) && // Confused?
         (randint(4) > 1) &&        // 75% random movement
         (dir != 5))                // Never random if sitting
     {
@@ -722,13 +724,13 @@ void move_char(int dir, bool do_pickup) {
 
                 // A room of light should be lit.
                 if (c_ptr->fval == LIGHT_FLOOR) {
-                    if (!c_ptr->pl && !py.flags.blind) {
+                    if (!c_ptr->pl && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                         light_room(player_row(), player_col());
                     }
                 }
 
                 // In doorway of light-room?
-                else if (c_ptr->lr && (py.flags.blind < 1)) {
+                else if (c_ptr->lr && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                     for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {
                         for (int j = (player_col() - 1); j <= (player_col() + 1); j++) {
                             cave_type *d_ptr = &cave[i][j];
@@ -792,7 +794,7 @@ void move_char(int dir, bool do_pickup) {
                 free_turn_flag = true;
             } else {
                 // Coward?
-                if (py.flags.afraid < 1) {
+                if (!player_timed_in_force(PLAYER_TIMED_FEAR)) {
                     py_attack(y, x);
                 } else { // Coward!
                     msg_print("You are too afraid!");
@@ -820,7 +822,7 @@ void chest_trap(int y, int x) {
     if (CH_POISON & t_ptr->flags) {
         msg_print("A small needle has pricked you!");
         take_hit(damroll(1, 6), "a poison needle");
-        py.flags.poisoned += 10 + randint(20);
+        player_timed_add(PLAYER_TIMED_POISON, 10 + randint(20));
     }
     if (CH_PARALYSED & t_ptr->flags) {
         msg_print("A puff of yellow gas surrounds you!");
@@ -828,7 +830,7 @@ void chest_trap(int y, int x) {
             msg_print("You are unaffected.");
         } else {
             msg_print("You choke and pass out.");
-            py.flags.paralysis = 10 + randint(20);
+            player_timed_set(PLAYER_TIMED_PARALYSIS, 10 + randint(20));
         }
     }
     if (CH_SUMMON & t_ptr->flags) {
@@ -870,7 +872,7 @@ void openobject(void) {
                     struct misc *p_ptr = &py.misc;
                     int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
 
-                    if (py.flags.confused > 0) {
+                    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         msg_print("You are too confused to pick the lock.");
                     } else if ((i - t_ptr->p1) > randint(100)) {
                         msg_print("You have picked the lock.");
@@ -900,7 +902,7 @@ void openobject(void) {
                 bool flag = false;
 
                 if (CH_LOCKED & t_ptr->flags) {
-                    if (py.flags.confused > 0) {
+                    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         msg_print("You are too confused to pick the lock.");
                     } else if ((i - (int)t_ptr->level) > randint(100)) {
                         msg_print("You have picked the lock.");

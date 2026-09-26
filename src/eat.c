@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 
 // Eat some food. -RAK-
 void eat(void) {
@@ -31,8 +32,6 @@ void eat(void) {
     } else if (get_item(&item_val, "Eat what?", j, k, CNIL, CNIL)) {
         free_turn_flag = false;
 
-        struct flags *f_ptr;
-
         inven_type *i_ptr = inventory_at(item_val);
         bool ident = false;
 
@@ -42,32 +41,27 @@ void eat(void) {
             // Foods
             switch (j) {
             case 1:
-                f_ptr = &py.flags;
-                f_ptr->poisoned += randint(10) + i_ptr->level;
+                player_timed_add(PLAYER_TIMED_POISON, randint(10) + i_ptr->level);
                 ident = true;
                 break;
             case 2:
-                f_ptr = &py.flags;
-                f_ptr->blind += randint(250) + 10 * i_ptr->level + 100;
+                player_timed_add(PLAYER_TIMED_BLINDNESS, randint(250) + 10 * i_ptr->level + 100);
                 draw_cave();
                 msg_print("A veil of darkness surrounds you.");
                 ident = true;
                 break;
             case 3:
-                f_ptr = &py.flags;
-                f_ptr->afraid += randint(10) + i_ptr->level;
+                player_timed_add(PLAYER_TIMED_FEAR, randint(10) + i_ptr->level);
                 msg_print("You feel terrified!");
                 ident = true;
                 break;
             case 4:
-                f_ptr = &py.flags;
-                f_ptr->confused += randint(10) + i_ptr->level;
+                player_timed_add(PLAYER_TIMED_CONFUSION, randint(10) + i_ptr->level);
                 msg_print("You feel drugged.");
                 ident = true;
                 break;
             case 5:
-                f_ptr = &py.flags;
-                f_ptr->image += randint(200) + 25 * i_ptr->level + 200;
+                player_timed_add(PLAYER_TIMED_HALLUCINATION, randint(200) + 25 * i_ptr->level + 200);
                 msg_print("You feel drugged.");
                 ident = true;
                 break;
@@ -78,9 +72,8 @@ void eat(void) {
                 ident = cure_blindness();
                 break;
             case 8:
-                f_ptr = &py.flags;
-                if (f_ptr->afraid > 1) {
-                    f_ptr->afraid = 1;
+                if (player_timed_turns(PLAYER_TIMED_FEAR) > 1) {
+                    player_timed_shorten_to(PLAYER_TIMED_FEAR, 1);
                     ident = true;
                 }
                 break;

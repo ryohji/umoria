@@ -16,7 +16,9 @@
 #include "panel.h"
 #include "player_food.h"
 #include "player_pos.h"
+#include "player_speed.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "progress.h"
 #include "running.h"
 #include "score_death.h"
@@ -410,13 +412,12 @@ bool los(int fromY, int fromX, int toY, int toX) {
 // Returns symbol for given row, column -RAK-
 uint8_t loc_symbol(int y, int x) {
     cave_type *cave_ptr = &cave[y][x];
-    struct flags *f_ptr = &py.flags;
 
     if ((cave_ptr->cptr == 1) && (!player_is_running() || find_prself)) {
         return '@';
     } else if (player_effect_in_force(PLAYER_EFFECT_BLIND)) {
         return ' ';
-    } else if ((f_ptr->image > 0) && (randint(12) == 1)) {
+    } else if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION) && (randint(12) == 1)) {
         return randint(95) + 31;
     } else if ((cave_ptr->cptr > 1) && (m_list[cave_ptr->cptr].ml)) {
         return monster_get_creature(m_list[cave_ptr->cptr].creature)->cchar;
@@ -505,7 +506,6 @@ bool compact_monsters(void) {
 
 // Add to the players food time -RAK-
 void add_food(int num) {
-    struct flags *p_ptr = &py.flags;
 
     // 飢えの借金を消すのは窓口の中（#18-12-2A）。腹だけの規則で、ほかに
     // 訊く人がいないので内側に入れた。ここに残るのは食べすぎの罰 ——
@@ -523,7 +523,7 @@ void add_food(int num) {
         }
         int penalty = extra / 50;
 
-        p_ptr->slow += penalty;
+        player_timed_add(PLAYER_TIMED_SLOWNESS, penalty);
         if (extra == num) {
             player_set_food((int16_t)(player_food() - num + penalty));
         } else {
@@ -564,7 +564,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
         mon_ptr->creature = h;
         mon_ptr->hp = calc_hp(r_ptr->hd);
         // the creature speed value is 10 greater, so that it can be a uint8_t
-        mon_ptr->cspeed = r_ptr->speed - 10 + py.flags.speed;
+        mon_ptr->cspeed = r_ptr->speed - 10 + player_speed();
         mon_ptr->stunned = 0;
         mon_ptr->cdis = distance(player_row(), player_col(), y, x);
         mon_ptr->ml = false;
