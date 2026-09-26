@@ -220,14 +220,18 @@ typedef struct player_type {
         // now behind player_resting.h. It went on its own because it is WHAT THE
         // CHARACTER IS DOING rather than a state wearing off -- and because it
         // moves towards zero FROM BOTH SIDES (a negative count is "until healed"
-        // and counts up). The five below stayed: `protection` is never read
-        // outside the save file, `speed` and `see_infra` are amounts rather than
-        // clocks, and the stomach's two belong to player_food.h (still here only
-        // because the save file keeps them in this run).
+        // and counts up).
+        // `speed` left here in #18-12-11C: how many steps from normal speed the
+        // character is moving, asked and answered from nine places, now behind
+        // player_speed.h. It is NOT a clock -- nothing ticks it down; potions,
+        // items and traps add to and subtract from it, and POSITIVE MEANS SLOW.
+        // The four below stayed: `protection` is never read outside the save
+        // file, `see_infra` is an amount rather than a clock, and the stomach's
+        // two belong to player_food.h (still here only because the save file
+        // keeps them in this run).
         int16_t food;            // Food counter
         int16_t food_digested;   // Food per round
         int16_t protection;      // Protection fr. evil
-        int16_t speed;           // Cur speed adjust
         int16_t see_infra;       // See warm creatures
         // Seventeen one-byte fields left here in #18-12-8C: what the character
         // can do and resist because of what is being worn -- sees invisible,

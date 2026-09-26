@@ -1300,16 +1300,15 @@ $(BUILDDIR)/player_resting_test: $(TESTDIR)/player_resting_test.c \
 # cspeed を回すループも misc1.c の作りだしも呼び手に残るので、creature.c も
 # misc1.c も要らない。
 #
-# ステップ A のあいだ置き場は py.flags.speed なので、py を置く足場
-# tests/player_speed_fixture.c をリンクする（**#18-12-11C で消える** ——
-# #18-12-1C から 11 回めの同じ形）。
+# #18-12-11C で置き場が module の static に入ったので、py を置く足場
+# tests/player_speed_fixture.c は消えた（#18-12-1C から 11 回めの同じ形）。
+# **リンクするのは本体 1 本だけ。**
 $(BUILDDIR)/player_speed_test: $(TESTDIR)/player_speed_test.c \
-                               $(TESTDIR)/player_speed_fixture.c \
                                $(TESTDIR)/minunit.h \
                                src/player_speed.c \
                                src/player_speed.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_speed_test.c \
-	    $(TESTDIR)/player_speed_fixture.c src/player_speed.c
+	    src/player_speed.c
 
 clean:
 	rm -rf $(BUILDDIR)

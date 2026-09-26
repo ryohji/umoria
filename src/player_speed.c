@@ -17,13 +17,16 @@
 // and the state line keeps it (player_speed.h says why this one does not fold
 // the pair the way player_timed_effects.c does).
 
-// THE NUMBER IS STILL IN py.flags (step A). Every window goes through the
-// pointer below, so #18-12-11C has one place to change: the pointer becomes the
-// number itself and this comment goes away.
-extern player_type py;
+// THE ANSWER ITSELF. It was py.flags.speed until #18-12-11C; now this one short
+// is the only place it lives, and the windows below are the only way to reach it.
+//
+// No reset window: zero means "normal speed", which is where a new character
+// starts, the same as the status word, the eighteen clocks and the rest. Loading
+// a saved game writes it through player_speed_set() (save.c).
+static int16_t the_steps;
 
 static int16_t *steps(void) {
-    return &py.flags.speed;
+    return &the_steps;
 }
 
 int player_speed(void) {

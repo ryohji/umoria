@@ -33,6 +33,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_level.h"
+#include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 
@@ -337,6 +338,12 @@ void fixture_reset(void)
     for (int effect = 0; effect < PLAYER_TIMED_COUNT; effect++) {
         player_timed_clear((player_timed_effect)effect);
     }
+    /* いまの速さも #18-12-11C で src/player_speed.c の static へ移ったので、
+     * py を消しても届かない。**ふつうの速さ（0 段）が人物の走りだし**で、
+     * 1 件が置いた段数が次の 1 件に残らないように窓口越しに戻す。**どのテストも
+     * 速さを読まないので、外してもレッドにはならない** —— それでも足すのは、
+     * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。 */
+    player_speed_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);
