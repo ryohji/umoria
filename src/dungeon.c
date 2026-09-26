@@ -29,6 +29,7 @@
 #include "player_light.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_resting.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "progress.h"
@@ -247,7 +248,7 @@ void dungeon(void) {
         if (player_regenerates()) {
             regen_amount = regen_amount * 3 / 2;
         }
-        if (player_is_searching() || f_ptr->rest != 0) {
+        if (player_is_searching() || player_resting()) {
             regen_amount = regen_amount * 2;
         }
         if (!player_timed_in_force(PLAYER_TIMED_POISON) && (player_hp() < player_max_hp())) {
@@ -286,7 +287,7 @@ void dungeon(void) {
             if (player_timed_count_down(PLAYER_TIMED_CONFUSION)) {
                 prt_confused();
                 msg_print("You feel less confused now.");
-                if (f_ptr->rest != 0) {
+                if (player_resting()) {
                     rest_off();
                 }
             }
@@ -396,24 +397,25 @@ void dungeon(void) {
         }
 
         // Resting is over?
-        if (f_ptr->rest > 0) {
-            f_ptr->rest--;
+        if (player_resting()) {
+            // Asked before the turn passes: a count of minus one becomes zero
+            // below, and then it is no longer a "rest until healed".
+            bool until_healed = player_rest_is_until_healed();
 
-            // Resting over
-            if (f_ptr->rest == 0) {
-                rest_off();
-            }
-        } else if (f_ptr->rest < 0) {
-            // Rest until reach max mana and max hit points.
-            f_ptr->rest++;
-            if ((player_hp() == player_max_hp() && player_mana() == player_max_mana()) ||
-                f_ptr->rest == 0) {
+            bool ran_out = player_rest_count_down();
+
+            // Two ways for a rest to end. The second one only applies to a rest
+            // until reaching max mana and max hit points, and it reads two other
+            // questions, so it stays here.
+            if (ran_out ||
+                (until_healed && player_hp() == player_max_hp() &&
+                 player_mana() == player_max_mana())) {
                 rest_off();
             }
         }
 
         // Check for interrupts to find or rest.
-        if ((command_is_repeating() || player_is_running() || f_ptr->rest != 0) &&
+        if ((command_is_repeating() || player_is_running() || player_resting()) &&
             (check_input(player_is_running() ? 0 : 10000))) {
             disturb(0, 0);
         }
@@ -574,7 +576,7 @@ void dungeon(void) {
         } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
             prt_state();
             player_set_status_line_shows_paralysis(true);
-        } else if (f_ptr->rest != 0) {
+        } else if (player_resting()) {
             prt_state();
         }
 
@@ -636,7 +638,7 @@ void dungeon(void) {
         }
 
         // Accept a command?
-        if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) && (f_ptr->rest == 0) && (!player_is_dead())) {
+        if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) && !player_resting() && (!player_is_dead())) {
             char command; // Last command
 
             // Accept a command and execute it
