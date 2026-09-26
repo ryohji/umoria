@@ -28,6 +28,7 @@
 #include "player_food.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
@@ -203,7 +204,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_COLD_RESISTANCE));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SEEING_INVISIBLE));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL));
-    wr_short((uint16_t)f_ptr->see_infra);
+    wr_short((uint16_t)player_infra_range());
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_INFRA_VISION));
     // 装備で決まる耐性・能力 17 個も窓口へ。**この 17 バイトの並びがこの
     // ファイルの書式**なので、一つずつ名前で書くのをやめて、モジュールが
@@ -720,7 +721,11 @@ bool get_char(bool *generate) {
             rd_timed(PLAYER_TIMED_COLD_RESISTANCE);
             rd_timed(PLAYER_TIMED_SEEING_INVISIBLE);
             rd_timed(PLAYER_TIMED_WORD_OF_RECALL);
-            rd_short((uint16_t *)&f_ptr->see_infra);
+            // 赤外視の距離も器の番地が要るのでいったん受けてから置く
+            // （速さ・腹の具合と同じ。並びは動かせないのでこの位置のまま）。
+            uint16_t infra_range;
+            rd_short(&infra_range);
+            player_infra_range_set((int16_t)infra_range);
             rd_timed(PLAYER_TIMED_INFRA_VISION);
             // 17 個も窓口へ。読みは器の番地を要るので、いったん受けてから
             // 位置で置く（腹の具合と旗の 1 語と同じ形。並びは動かせないので

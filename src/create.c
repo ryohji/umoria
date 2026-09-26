@@ -18,6 +18,7 @@
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 #include "stats.h"
 
@@ -109,7 +110,10 @@ static void get_all_stats(void) {
     p_ptr->misc.ptoac = 0;
     p_ptr->misc.pac = toac_adj();
     player_set_experience_factor(r_ptr->b_exp);
-    p_ptr->flags.see_infra = r_ptr->infra;
+    // The only question so far whose starting value is not zero: Human 0,
+    // Dwarf 5, and five more in between. Deciding, not adding -- a character
+    // made twice must not see twice as far (player_infra_range.h).
+    player_infra_range_set(r_ptr->infra);
 }
 
 // Allows player to select a race -JWT-

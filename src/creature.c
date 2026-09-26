@@ -18,6 +18,7 @@
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_gold.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 #include "player_light.h"
 #include "player_mana.h"
@@ -38,6 +39,10 @@ void update_mon(int monptr) {
     bool flag = false;
     monster_type *m_ptr = &m_list[monptr];
 
+    // Asked once and held in one place: the condition below read the same
+    // number twice.
+    const int infra_range = player_infra_range();
+
     if ((m_ptr->cdis <= MAX_SIGHT) && !player_effect_in_force(PLAYER_EFFECT_BLIND) &&
         (panel_contains((int)m_ptr->fy, (int)m_ptr->fx))) {
         if (progress_wizard_mode()) {
@@ -54,8 +59,13 @@ void update_mon(int monptr) {
                     flag = true;
                     recall_update_move(m_ptr->creature, CM_INVISIBLE);
                 }
-            } else if ((py.flags.see_infra > 0) && (m_ptr->cdis <= py.flags.see_infra) && (CD_INFRA & r_ptr->cdefense)) {
-                // Infra vision.
+            } else if (infra_range > 0 && m_ptr->cdis <= infra_range && (CD_INFRA & r_ptr->cdefense)) {
+                // Infra vision. Two halves, and only the first one is about the
+                // character: how far the warm blood carries (this module) and
+                // whether THIS monster has any (CD_INFRA, which belongs to the
+                // monster). The `> 0` guard is redundant in practice -- a
+                // monster is never on the player's own square, so cdis is at
+                // least one -- but removing it would change behaviour.
 
                 flag = true;
                 recall_update_characteristics(m_ptr->creature, CD_INFRA);

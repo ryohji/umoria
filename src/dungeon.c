@@ -25,6 +25,7 @@
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 #include "player_light.h"
 #include "player_mana.h"
@@ -63,8 +64,9 @@ void dungeon(void) {
     // Main procedure for dungeon. -RAK-
     // Note: There is a lot of preliminary magic going on here at first
 
-    // init pointers.
-    struct flags *const f_ptr = &py.flags;
+    // init pointers. `struct flags` is gone from here: the timed infra-vision
+    // above was its last reader in this file, and the twelve questions before it
+    // had already taken the rest.
     struct misc *const p_ptr = &py.misc;
 
     // Check light status for setup
@@ -519,13 +521,16 @@ void dungeon(void) {
         // Timed infra-vision
         if (player_timed_in_force(PLAYER_TIMED_INFRA_VISION)) {
             if (player_timed_beginning(PLAYER_TIMED_INFRA_VISION)) {
-                f_ptr->see_infra++;
+                // The clock counts TURNS and lives in player_timed_effects.c;
+                // the one square it is worth is this file's to add, because this
+                // is where the two ends meet (player_infra_range.h).
+                player_infra_range_adjust(1);
 
                 // light but don't move creatures
                 creatures(false);
             }
             if (player_timed_count_down(PLAYER_TIMED_INFRA_VISION)) {
-                f_ptr->see_infra--;
+                player_infra_range_adjust(-1);
 
                 // unlight but don't move creatures
                 creatures(false);

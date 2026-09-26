@@ -25,6 +25,7 @@
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
+#include "player_infra_range.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "player_resting.h"
@@ -81,7 +82,9 @@ void py_bonuses(inven_type *t_ptr, int factor) {
         player_timed_add(PLAYER_TIMED_FEAR, 50);
     }
     if (TR_INFRA & t_ptr->flags) {
-        py.flags.see_infra += amount;
+        // `amount` is already signed by the caller's factor, so this one line
+        // covers putting the item on and taking it off again.
+        player_infra_range_adjust(amount);
     }
 }
 

@@ -23,6 +23,7 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "player_infra_range.h"
 #include "player_level.h"
 #include "stats.h"
 
@@ -51,7 +52,10 @@ struct player_abilities calc_player_abilities(void) {
     // unclear but changing it would change the game's behaviour.
     a.dev = p_ptr->save + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * player_level() / 3);
 
-    (void)sprintf(a.infra, "%d feet", py.flags.see_infra * 10);
+    // The window answers in SQUARES; the ten is this screen's own doing, one
+    // square being ten feet (player_infra_range.h). The multiplication stays
+    // here because it is how the number is shown, not what it is.
+    (void)sprintf(a.infra, "%d feet", player_infra_range() * 10);
 
     return a;
 }
