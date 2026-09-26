@@ -16,6 +16,7 @@
 #include "panel.h"
 #include "player_food.h"
 #include "player_pos.h"
+#include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "progress.h"
@@ -563,7 +564,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
         mon_ptr->creature = h;
         mon_ptr->hp = calc_hp(r_ptr->hd);
         // the creature speed value is 10 greater, so that it can be a uint8_t
-        mon_ptr->cspeed = r_ptr->speed - 10 + py.flags.speed;
+        mon_ptr->cspeed = r_ptr->speed - 10 + player_speed();
         mon_ptr->stunned = 0;
         mon_ptr->cdis = distance(player_row(), player_col(), y, x);
         mon_ptr->ml = false;

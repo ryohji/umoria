@@ -32,6 +32,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_resting.h"
+#include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "options.h"
@@ -187,7 +188,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_food());
     wr_short((uint16_t)player_digestion());
     wr_short((uint16_t)f_ptr->protection);
-    wr_short((uint16_t)f_ptr->speed);
+    wr_short((uint16_t)player_speed());
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HASTE));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SLOWNESS));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_FEAR));
@@ -700,7 +701,11 @@ bool get_char(bool *generate) {
             rd_short(&food_digested);
             player_set_digestion((int16_t)food_digested);
             rd_short((uint16_t *)&f_ptr->protection);
-            rd_short((uint16_t *)&f_ptr->speed);
+            // 速さも器の番地が要るのでいったん受けてから置く（腹の具合と同じ。
+            // 並びは動かせないのでこの位置のまま）。
+            uint16_t speed;
+            rd_short(&speed);
+            player_speed_set((int16_t)speed);
             rd_timed(PLAYER_TIMED_HASTE);
             rd_timed(PLAYER_TIMED_SLOWNESS);
             rd_timed(PLAYER_TIMED_FEAR);

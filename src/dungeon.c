@@ -30,6 +30,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_resting.h"
+#include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "progress.h"
@@ -235,8 +236,10 @@ void dungeon(void) {
 
         // Food consumption
         // Note: Speeded up characters really burn up the food!
-        if (f_ptr->speed < 0) {
-            player_burn_food(f_ptr->speed * f_ptr->speed);
+        // 2 乗はここに残す —— 速さを空腹に換える式で、窓口は段数だけを渡す。
+        const int speed_steps = player_speed();
+        if (speed_steps < 0) {
+            player_burn_food(speed_steps * speed_steps);
         }
         player_digest();
         if (player_food() < 0) {

@@ -28,6 +28,7 @@
 #include "player_light.h"
 #include "player_pos.h"
 #include "player_resting.h"
+#include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "running.h"
@@ -38,7 +39,7 @@
 // Note: When the player is sped up or slowed down, I simply change
 // the speed of all the monsters. This greatly simplified the logic.
 void change_speed(int num) {
-    py.flags.speed += num;
+    player_speed_adjust(num);
     player_request_speed_redraw();
 
     for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
