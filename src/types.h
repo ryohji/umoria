@@ -200,7 +200,11 @@ typedef struct player_type {
         int16_t stl;                 // Stealth factor
         uint8_t pclass;              // # of class
         uint8_t prace;               // # of race
-        uint8_t hitdie;              // Char hit die
+        // The hit die's number of faces left this struct in #18-12-17: it
+        // lives in player_hit_die.c now, as a static byte reached only through
+        // player_hit_die.h. The race's base and the class's adjustment still
+        // come from the `race` and `class` tables, and the hit point table is
+        // still rolled in create.c -- only the answer moved.
         char history[4][60];         // History record
     } misc;
 

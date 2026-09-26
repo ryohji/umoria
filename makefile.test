@@ -1483,17 +1483,14 @@ $(BUILDDIR)/player_max_depth_test: $(TESTDIR)/player_max_depth_test.c \
 # **遊んでいる間は誰も読まない** —— 読み手 5 つはぜんぶ create.c の
 # 体力を振る 20 行の中。
 #
-# A の段は足場（py の実体）を持ちこむ。**#18-12-17C で消える見こみ**
-# （15 回続けて同じ形なので 16 度め）。体力そのものは player_hp.c に、
-# 振りなおしの下限上限は create.c に、体力表は hp_table.c に、
-# 2 つの表は player.c に残るので、どれも要らない。
+# **#18-12-17C で足場は消えた**（16 回続けて同じ形）。リンクするのは本体 1 つだけ。
+# 体力そのものは player_hp.c に、振りなおしの下限上限は create.c に、
+# 体力表は hp_table.c に、2 つの表は player.c に残るので、どれも要らない。
 $(BUILDDIR)/player_hit_die_test: $(TESTDIR)/player_hit_die_test.c \
-                                 $(TESTDIR)/player_hit_die_fixture.c \
                                  $(TESTDIR)/minunit.h \
                                  src/player_hit_die.c \
                                  src/player_hit_die.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_hit_die_test.c \
-	    $(TESTDIR)/player_hit_die_fixture.c \
 	    src/player_hit_die.c
 
 clean:

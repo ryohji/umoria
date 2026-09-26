@@ -14,13 +14,17 @@
 
 // No externs.h here, the same as the fifteen questions before this one.
 
-// THE NUMBER IS STILL IN py.misc (step A). Every window goes through the pointer
-// below, so #18-12-17C has one place to change: the pointer becomes the number
-// itself and this comment goes away.
-extern player_type py;
+// THE NUMBER ITSELF. It was py.misc.hitdie until #18-12-17C; now this one byte
+// is the only place it lives, and the windows below are the only way to reach
+// it.
+//
+// Zero is not a die any character plays with -- create.c puts a 6 to a 12 here
+// as soon as a race is chosen. Zero only means "no race yet", which is where
+// the game starts. (`struct misc` is down to twenty fields.)
+static uint8_t the_faces;
 
 static uint8_t *faces_of_the_die(void) {
-    return &py.misc.hitdie;
+    return &the_faces;
 }
 
 int player_hit_die(void) {
