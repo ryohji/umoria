@@ -45,26 +45,25 @@ typedef enum {
 // a byte nobody reads back.
 _Static_assert(ABILITY_COUNT == PLAYER_ABILITIES_SAVED_BYTES, "the seventeen are seventeen bytes");
 
-// THE SEVENTEEN ARE STILL IN py.flags (step A). The windows go through this
-// table, so #18-12-8C has one place to change: the pointers become an array of
-// the answers themselves and this comment goes away.
-extern player_type py;
-
-static uint8_t *const ability_field[ABILITY_COUNT] = {
-    &py.flags.see_inv,     &py.flags.teleport,    &py.flags.free_act,
-    &py.flags.slow_digest, &py.flags.aggravate,   &py.flags.fire_resist,
-    &py.flags.cold_resist, &py.flags.acid_resist, &py.flags.regenerate,
-    &py.flags.lght_resist, &py.flags.ffall,       &py.flags.sustain_str,
-    &py.flags.sustain_int, &py.flags.sustain_wis, &py.flags.sustain_con,
-    &py.flags.sustain_dex, &py.flags.sustain_chr,
-};
+// THE SEVENTEEN ANSWERS THEMSELVES. They were py.flags.see_inv through
+// py.flags.sustain_chr until #18-12-8C; now this array is the only place they
+// live, and nothing outside this file can name one of them.
+//
+// All zero at the start, which is the same start the seventeen fields had: A
+// CHARACTER CAN DO NOTHING AND RESIST NOTHING until calc_bonuses() works the
+// answers out from the equipment, or the save file's seventeen bytes are read
+// back in.
+//
+// A byte, not a bool: a byte read out of a save file is written back unchanged
+// (a 5 stays a 5), and anything not zero counts as having the ability.
+static uint8_t ability_held[ABILITY_COUNT];
 
 static bool has(player_ability ability) {
-    return *ability_field[ability] != 0;
+    return ability_held[ability] != 0;
 }
 
 static void grant(player_ability ability) {
-    *ability_field[ability] = true;
+    ability_held[ability] = true;
 }
 
 // The eleven that a worn item can grant, each with the flag that grants it. THIS
@@ -171,7 +170,7 @@ bool player_stat_sustained(int stat) {
 
 void player_abilities_forget_all(void) {
     for (int i = 0; i < ABILITY_COUNT; i++) {
-        *ability_field[i] = false;
+        ability_held[i] = false;
     }
 }
 
@@ -200,7 +199,7 @@ uint8_t player_abilities_saved_byte(int position) {
         return 0;
     }
 
-    return *ability_field[position];
+    return ability_held[position];
 }
 
 void player_abilities_restore_byte(int position, uint8_t value) {
@@ -208,5 +207,5 @@ void player_abilities_restore_byte(int position, uint8_t value) {
         return;
     }
 
-    *ability_field[position] = value;
+    ability_held[position] = value;
 }

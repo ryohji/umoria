@@ -1174,15 +1174,15 @@ $(BUILDDIR)/player_status_flags_test: $(TESTDIR)/player_status_flags_test.c \
 #以外を触らない」「能力値の並びが品物側とゲーム側で 2 つあり 4 番と 5 番が
 # 入れちがっている」の 3 つ。
 #
-# A の段では置き場は py.flags のままなので、足場
-# tests/player_abilities_fixture.c が py を 1 つ置く（#18-12-8C で消える）。
+# #18-12-8C で置き場が module の中に入ったので、足場
+# tests/player_abilities_fixture.c（py を 1 つ置いていた）は消えた。**この規則が
+# 引くのは窓口 1 本だけ** —— #18-12-1C から 8 回続けて同じ形。
 $(BUILDDIR)/player_abilities_test: $(TESTDIR)/player_abilities_test.c \
-                                   $(TESTDIR)/player_abilities_fixture.c \
                                    $(TESTDIR)/minunit.h \
                                    src/player_abilities.c \
                                    src/player_abilities.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_abilities_test.c \
-	    $(TESTDIR)/player_abilities_fixture.c src/player_abilities.c
+	    src/player_abilities.c
 
 clean:
 	rm -rf $(BUILDDIR)

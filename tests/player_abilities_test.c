@@ -2,21 +2,21 @@
  *
  * py から出す 8 つめの問い（1 つめは持っている金、2 つめは腹の具合、3 つめは
  * 画面に出す数字、4 つめは魔力、5 つめは体力、6 つめは階級と経験値、7 つめは
- * 状態の旗）。フィールドは 17 個 —— もとは py.flags.see_inv から
- * py.flags.sustain_chr まで —— で、8 ファイルから 106 か所が触っていた。
+ * 状態の旗）。答えは 17 個 —— もとは py.flags.see_inv から py.flags.sustain_chr
+ * まで、8 ファイルから 106 か所が触っていた —— で、#18-12-8C からは
+ * src/player_abilities.c の中の配列 1 つだけが持っている。
  *
  * **この単位で新しいのは「答えが覚えてあるのではなく毎回導かれる」こと。**
  * ここまでの 7 つは何かを覚えていたが、この 17 個は calc_bonuses()
  * （moria1.c）が**装備から作りなおす**。だからテストの重心は 3 つ:
  *
  *   1. **バイトの並びはセーブファイルの書式**（save.c が 17 バイトを 1 続きで
- *      書く）。だから **どの位置がどの能力かを名指しで釘打つ** —— 表
- *      （src/player_abilities.c の ability_field[]）の 2 行を入れかえても、
- *      1 つずつ立てて 1 つずつ読むだけのテストでは気づけない。入れかえは
- *      「セーブファイルの読みちがえ」そのもの。
- *   2. **どの窓口も自分の 1 個以外を触らない。** 17 個は別々のフィールドだが
- *      表を通して触るので、添字の取りちがえは隣を巻きこむ。**1 個だけ立てて
- *      12 の読み窓口ぜんぶを見る**形をくりかえす。
+ *      書く）。だから **どの位置がどの能力かを名指しで釘打つ** —— module の
+ *      enum の 2 行を入れかえても、1 つずつ立てて 1 つずつ読むだけのテストでは
+ *      気づけない。入れかえは「セーブファイルの読みちがえ」そのもの。
+ *   2. **どの窓口も自分の 1 個以外を触らない。** 17 個は 1 つの配列に並んで
+ *      いるので、添字の取りちがえは隣を巻きこむ。**1 個だけ立てて 12 の
+ *      読み窓口ぜんぶを見る**形をくりかえす。
  *   3. **能力値の並びが 2 つある。** 品物の p1 は 1=str 2=int 3=wis **4=con
  *      5=dex** 6=chr、ゲームの側は A_STR A_INT A_WIS **A_DEX A_CON** A_CHR。
  *      **4 番と 5 番が入れちがっている**ので、`sustained[p1 - 1]` と書くと
@@ -179,37 +179,6 @@ static long answers_when_sustaining(int item_p1) {
     return what_the_windows_answer();
 }
 
-/* **A・B の段だけの釘（#18-12-8C で消す）。** 上の 17 件は「セーブの位置 ↔ 窓口」を
- * 留めるが、A の段ではその間に表がもう 1 枚ある —— src/player_abilities.c の
- * ability_field[] が位置を py.flags のフィールドに結びつけている。**その表の
- * 2 行を入れかえても上の 17 件は緑のまま**（窓口も同じ表を通るので、ずれが
- * 打ち消しあう）。B で呼び手を書きかえたあとなら、これは「別のフィールドに
- * 能力を書く」バグそのもの。だからここでもう 1 枚、同じ並びの表を持って
- * 突きあわせる。C の段では置き場が module の中の配列 1 つになり、位置と窓口の
- * 間に表は 1 枚も無くなるので、この件は要らなくなって消える。 */
-extern player_type py;
-
-static uint8_t *const field_of_position[PLAYER_ABILITIES_SAVED_BYTES] = {
-    &py.flags.see_inv,     &py.flags.teleport,    &py.flags.free_act,
-    &py.flags.slow_digest, &py.flags.aggravate,   &py.flags.fire_resist,
-    &py.flags.cold_resist, &py.flags.acid_resist, &py.flags.regenerate,
-    &py.flags.lght_resist, &py.flags.ffall,       &py.flags.sustain_str,
-    &py.flags.sustain_int, &py.flags.sustain_wis, &py.flags.sustain_con,
-    &py.flags.sustain_dex, &py.flags.sustain_chr,
-};
-
-static long what_py_flags_hold(void) {
-    long held = 0;
-
-    for (int position = 0; position < PLAYER_ABILITIES_SAVED_BYTES; position++) {
-        if (*field_of_position[position] != 0) {
-            held |= ONLY(position);
-        }
-    }
-
-    return held;
-}
-
 /* --- 位置 ↔ 能力（セーブファイルの書式） ------------------------------- */
 
 TEST(the_first_saved_byte_is_seeing_the_invisible) {
@@ -282,21 +251,6 @@ TEST(the_seventeenth_saved_byte_is_sustaining_the_charisma) {
     ASSERT_EQ_INT(answers_when_only(SAVED_SUSTAIN_CHR), ONLY(SAVED_SUSTAIN_CHR));
 }
 
-TEST(each_saved_position_is_still_the_field_it_was_in_py) {
-    long agreed = 0;
-
-    for (int position = 0; position < PLAYER_ABILITIES_SAVED_BYTES; position++) {
-        given_nothing_granted();
-        player_abilities_restore_byte(position, 1);
-
-        if (what_py_flags_hold() == ONLY(position)) {
-            agreed |= ONLY(position);
-        }
-    }
-
-    ASSERT_EQ_INT(agreed, ALL_SEVENTEEN);
-}
-
 /* --- セーブファイルの 17 バイト ---------------------------------------- */
 
 TEST(the_run_in_the_save_file_is_seventeen_bytes) {
@@ -313,7 +267,8 @@ TEST(what_the_windows_granted_is_what_the_save_file_gets) {
 }
 
 /* 壊れたファイルの 5 を 1 に丸めない。もとの save.c は wr_byte(f_ptr->free_act)
- * でフィールドの中身をそのまま書いていたので、読んで書けば同じ値が出る。 */
+ * でフィールドの中身をそのまま書いていた（だから置き場は bool ではなく
+ * 1 バイト）。読んで書けば同じ値が出る。 */
 TEST(a_restored_byte_comes_back_unchanged) {
     given_nothing_granted();
     player_abilities_restore_byte(SAVED_NEVER_PARALYZED, 5);
@@ -565,7 +520,6 @@ int main(void) {
     RUN_TEST(the_sixteenth_saved_byte_is_sustaining_the_dexterity);
     RUN_TEST(the_seventeenth_saved_byte_is_sustaining_the_charisma);
 
-    RUN_TEST(each_saved_position_is_still_the_field_it_was_in_py);
 
     RUN_TEST(the_run_in_the_save_file_is_seventeen_bytes);
     RUN_TEST(what_the_windows_granted_is_what_the_save_file_gets);

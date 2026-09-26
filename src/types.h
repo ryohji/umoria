@@ -234,23 +234,15 @@ typedef struct player_type {
         int16_t word_recall;     // Timed teleport level
         int16_t see_infra;       // See warm creatures
         int16_t tim_infra;       // Timed infra vision
-        uint8_t see_inv;         // Can see invisible
-        uint8_t teleport;        // Random teleportation
-        uint8_t free_act;        // Never paralyzed
-        uint8_t slow_digest;     // Lower food needs
-        uint8_t aggravate;       // Aggravate monsters
-        uint8_t fire_resist;     // Resistance to fire
-        uint8_t cold_resist;     // Resistance to cold
-        uint8_t acid_resist;     // Resistance to acid
-        uint8_t regenerate;      // Regenerate hit pts
-        uint8_t lght_resist;     // Resistance to light
-        uint8_t ffall;           // No damage falling
-        uint8_t sustain_str;     // Keep strength
-        uint8_t sustain_int;     // Keep intelligence
-        uint8_t sustain_wis;     // Keep wisdom
-        uint8_t sustain_con;     // Keep constitution
-        uint8_t sustain_dex;     // Keep dexterity
-        uint8_t sustain_chr;     // Keep charisma
+        // Seventeen one-byte fields left here in #18-12-8C: what the character
+        // can do and resist because of what is being worn -- sees invisible,
+        // never paralyzed, the four resistances and falling, slow digestion,
+        // regeneration, random teleportation, aggravation and the six sustained
+        // stats. They were asked and answered from a hundred and six places and
+        // are now behind player_abilities.h, which WORKS THEM OUT FROM THE
+        // EQUIPMENT rather than remembering them. The two bytes below stayed:
+        // neither is granted by equipment and calc_bonuses() does not touch
+        // either.
         uint8_t confuse_monster; // Glowing hands.
         uint8_t new_spells;      // Number of spells can learn.
     } flags;
