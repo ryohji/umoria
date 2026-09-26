@@ -45,6 +45,7 @@
 #include "inventory.h"
 #include "player_level.h"
 #include "player_mana.h"
+#include "player_status_flags.h"
 #include "spells_known.h"
 
 extern player_type py;
@@ -184,7 +185,7 @@ TEST(a_priest_is_granted_a_prayer_at_random) {
     ASSERT_EQ_STR("You have learned the prayer of Detect Evil.",
                   fixture_message_text(0));
     ASSERT_EQ_INT(0, (int)py.flags.new_spells);
-    ASSERT_TRUE((py.flags.status & PY_STUDY) != 0);
+    ASSERT_TRUE(player_study_redraw_requested());
 }
 
 /* 2 つ授かると、覚えた順に**積み重なる**。1 つめを候補から外すので、

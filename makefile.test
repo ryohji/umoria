@@ -1144,15 +1144,15 @@ $(BUILDDIR)/player_level_test: $(TESTDIR)/player_level_test.c \
 # テストの重心は「ビットの番号（= セーブファイルの書式）」と「どの窓口も自分の
 # ビット以外を触らない」の 2 つ。
 #
-# A の段では置き場は py.flags のままなので、足場
-# tests/player_status_flags_fixture.c が py を置く（#18-12-7C で消える）。
+# #18-12-7C で 1 語が src/player_status_flags.c の static に入ったので、足場は
+# 要らなくなった（A・B の段では tests/player_status_flags_fixture.c が py を
+# 置いていた）。**リンクするのは本体 1 つだけ** —— この形が 7 回めになる。
 $(BUILDDIR)/player_status_flags_test: $(TESTDIR)/player_status_flags_test.c \
-                                     $(TESTDIR)/player_status_flags_fixture.c \
                                      $(TESTDIR)/minunit.h \
                                      src/player_status_flags.c \
                                      src/player_status_flags.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_status_flags_test.c \
-	    $(TESTDIR)/player_status_flags_fixture.c src/player_status_flags.c
+	    src/player_status_flags.c
 
 clean:
 	rm -rf $(BUILDDIR)

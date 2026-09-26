@@ -42,6 +42,7 @@
 
 #include "fixture.h"
 #include "player_level.h"
+#include "player_status_flags.h"
 #include "spells_known.h"
 
 extern player_type py;
@@ -130,7 +131,7 @@ TEST(a_character_with_room_to_spare_is_told_they_can_learn_more) {
     ASSERT_EQ_INT(4, (int)py.flags.new_spells);
     ASSERT_EQ_INT(1, fixture_message_count());
     ASSERT_EQ_STR("You can learn some new spells now.", fixture_message_text(0));
-    ASSERT_TRUE((py.flags.status & PY_STUDY) != 0);
+    ASSERT_TRUE(player_study_redraw_requested());
 }
 
 /* 覚えていられる数ぴったりなら、忘れも学びも起きない。 */
@@ -350,7 +351,7 @@ TEST(nothing_is_said_when_the_number_to_learn_has_not_changed) {
 
     ASSERT_EQ_INT(1, (int)py.flags.new_spells);
     ASSERT_EQ_INT(0, fixture_message_count());
-    ASSERT_EQ_INT(0, (int)(py.flags.status & PY_STUDY));
+    ASSERT_TRUE(!player_study_redraw_requested());
 }
 
 /* ------------------------------------------------------------------

@@ -15,7 +15,14 @@
 // No externs.h here, the same as the six questions before this one. This module
 // knows nothing about what a mark means -- no messages, no counters, no drawing.
 // It keeps the set and hides the mask arithmetic.
-extern player_type py;
+
+// THE WORD ITSELF, and the only copy of it. It was a field in py.flags until
+// #18-12-7C; now the thirty bits live here and nothing outside this file can
+// name them. Zero is where a character starts -- no mark set, no request
+// waiting, not searching, not resting -- which is what py's own zero-initialised
+// storage used to give; create.c sets the real state when it makes a character,
+// and save.c puts the saved word back through player_set_status_word().
+static uint32_t status;
 
 // The fourteen marks, in the order of the enum. THE MAPPING IS THE ONLY PLACE
 // THE BIT VALUES ARE NAMED, which is what lets the callers speak of effects
@@ -28,15 +35,15 @@ static const uint32_t effect_marks[PLAYER_EFFECT_COUNT] = {
 };
 
 static bool is_set(uint32_t mask) {
-    return (py.flags.status & mask) != 0;
+    return (status & mask) != 0;
 }
 
 static void set_bits(uint32_t mask) {
-    py.flags.status |= mask;
+    status |= mask;
 }
 
 static void clear_bits(uint32_t mask) {
-    py.flags.status &= ~mask;
+    status &= ~mask;
 }
 
 // Sets the mask and says whether any of it was new. The callers of the marks and
@@ -207,9 +214,9 @@ void player_set_status_line_shows_repeat(bool shown) {
 }
 
 uint32_t player_status_word(void) {
-    return py.flags.status;
+    return status;
 }
 
 void player_set_status_word(uint32_t word) {
-    py.flags.status = word;
+    status = word;
 }

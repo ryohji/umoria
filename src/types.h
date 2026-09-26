@@ -206,7 +206,10 @@ typedef struct player_type {
     } stats;
 
     struct flags {
-        uint32_t status;         // Status of player
+        // The status word left here in #18-12-7C: thirty bits, asked and
+        // answered from a hundred and five places, now behind
+        // player_status_flags.h. The counters below are a different question --
+        // most of the marks that lived in the word pair with one of them.
         int16_t rest;            // Rest counter
         int16_t blind;           // Blindness counter
         int16_t paralysis;       // Paralysis counter
