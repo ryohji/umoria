@@ -21,6 +21,7 @@
 #include "level_exit.h"
 #include "panel.h"
 #include "pending_teleport.h"
+#include "player_abilities.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -246,7 +247,7 @@ void dungeon(void) {
         }
 
         // Regenerate
-        if (f_ptr->regenerate) {
+        if (player_regenerates()) {
             regen_amount = regen_amount * 3 / 2;
         }
         if (player_is_searching() || f_ptr->rest != 0) {
@@ -510,7 +511,7 @@ void dungeon(void) {
         // Detect Invisible
         if (f_ptr->detect_inv > 0) {
             if (player_note_effect_started(PLAYER_EFFECT_SEE_INVISIBLE)) {
-                f_ptr->see_inv = true;
+                player_grant_see_invisible();
 
                 // light but don't move creatures
                 creatures(false);
@@ -569,7 +570,7 @@ void dungeon(void) {
         }
 
         // Random teleportation
-        if ((f_ptr->teleport) && (randint(100) == 1)) {
+        if (player_teleports_randomly() && (randint(100) == 1)) {
             disturb(0, 0);
             teleport(40);
         }

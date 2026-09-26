@@ -16,6 +16,7 @@
 
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_abilities.h"
 #include "player_food.h"
 #include "player_level.h"
 #include "player_mana.h"
@@ -147,7 +148,7 @@ void quaff(void) {
                     break;
                 case 19:
                     f_ptr = &py.flags;
-                    if (!f_ptr->free_act) {
+                    if (!player_never_paralyzed()) {
                         // paralysis must == 0, otherwise could not drink potion
                         msg_print("You fall asleep.");
                         f_ptr->paralysis += randint(4) + 4;

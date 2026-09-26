@@ -16,6 +16,7 @@
 
 #include "command_state.h"
 #include "equipment.h"
+#include "player_abilities.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "running.h"
@@ -549,7 +550,7 @@ void poison_gas(int dam, const char *kb_str) {
 
 // Burn the fool up. -RAK-
 void fire_dam(int dam, const char *kb_str) {
-    if (py.flags.fire_resist) {
+    if (player_resists_fire()) {
         dam = dam / 3;
     }
     if (py.flags.resist_heat > 0) {
@@ -563,7 +564,7 @@ void fire_dam(int dam, const char *kb_str) {
 
 // Freeze him to death. -RAK-
 void cold_dam(int dam, char *kb_str) {
-    if (py.flags.cold_resist) {
+    if (player_resists_cold()) {
         dam = dam / 3;
     }
     if (py.flags.resist_cold > 0) {
@@ -577,7 +578,7 @@ void cold_dam(int dam, char *kb_str) {
 
 // Lightning bolt the sucker away. -RAK-
 void light_dam(int dam, char *kb_str) {
-    if (py.flags.lght_resist) {
+    if (player_resists_light()) {
         take_hit((dam / 3), kb_str);
     } else {
         take_hit(dam, kb_str);
@@ -593,7 +594,7 @@ void acid_dam(int dam, const char *kb_str) {
     if (minus_ac((uint32_t)TR_RES_ACID)) {
         flag = 1;
     }
-    if (py.flags.acid_resist) {
+    if (player_resists_acid()) {
         flag += 2;
     }
     take_hit(dam / (flag + 1), kb_str);

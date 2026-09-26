@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_abilities.h"
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_pos.h"
@@ -1895,7 +1896,7 @@ void warding_glyph(void) {
 
 // Lose a strength point. -RAK-
 void lose_str(void) {
-    if (!py.flags.sustain_str) {
+    if (!player_stat_sustained(A_STR)) {
         (void)dec_stat(A_STR);
         msg_print("You feel very sick.");
     } else {
@@ -1905,7 +1906,7 @@ void lose_str(void) {
 
 // Lose an intelligence point. -RAK-
 void lose_int(void) {
-    if (!py.flags.sustain_int) {
+    if (!player_stat_sustained(A_INT)) {
         (void)dec_stat(A_INT);
         msg_print("You become very dizzy.");
     } else {
@@ -1915,7 +1916,7 @@ void lose_int(void) {
 
 // Lose a wisdom point. -RAK-
 void lose_wis(void) {
-    if (!py.flags.sustain_wis) {
+    if (!player_stat_sustained(A_WIS)) {
         (void)dec_stat(A_WIS);
         msg_print("You feel very naive.");
     } else {
@@ -1925,7 +1926,7 @@ void lose_wis(void) {
 
 // Lose a dexterity point. -RAK-
 void lose_dex(void) {
-    if (!py.flags.sustain_dex) {
+    if (!player_stat_sustained(A_DEX)) {
         (void)dec_stat(A_DEX);
         msg_print("You feel very sore.");
     } else {
@@ -1935,7 +1936,7 @@ void lose_dex(void) {
 
 // Lose a constitution point. -RAK-
 void lose_con(void) {
-    if (!py.flags.sustain_con) {
+    if (!player_stat_sustained(A_CON)) {
         (void)dec_stat(A_CON);
         msg_print("You feel very sick.");
     } else {
@@ -1945,7 +1946,7 @@ void lose_con(void) {
 
 // Lose a charisma point. -RAK-
 void lose_chr(void) {
-    if (!py.flags.sustain_chr) {
+    if (!player_stat_sustained(A_CHR)) {
         (void)dec_stat(A_CHR);
         msg_print("Your skin starts to itch.");
     } else {

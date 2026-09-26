@@ -20,6 +20,7 @@
 #include "level_exit.h"
 #include "panel.h"
 #include "pending_teleport.h"
+#include "player_abilities.h"
 #include "player_gold.h"
 #include "player_level.h"
 #include "player_mana.h"
@@ -44,7 +45,7 @@ static void hit_trap(int y, int x) {
     switch (t_ptr->subval) {
     case 1: // Open pit
         msg_print("You fell into a pit!");
-        if (py.flags.ffall) {
+        if (player_takes_no_falling_damage()) {
             msg_print("You gently float down.");
         } else {
             objdes(tmp, t_ptr, true);
@@ -62,7 +63,7 @@ static void hit_trap(int y, int x) {
         break;
     case 3: // Covered pit
         msg_print("You fell into a covered pit.");
-        if (py.flags.ffall) {
+        if (player_takes_no_falling_damage()) {
             msg_print("You gently float down.");
         } else {
             objdes(tmp, t_ptr, true);
@@ -73,7 +74,7 @@ static void hit_trap(int y, int x) {
     case 4: // Trap door
         msg_print("You fell through a trap door!");
         leave_for_level(dun_level + 1);
-        if (py.flags.ffall) {
+        if (player_takes_no_falling_damage()) {
             msg_print("You gently float down.");
         } else {
             objdes(tmp, t_ptr, true);
@@ -85,7 +86,7 @@ static void hit_trap(int y, int x) {
     case 5: // Sleep gas
         if (py.flags.paralysis == 0) {
             msg_print("A strange white mist surrounds you!");
-            if (py.flags.free_act) {
+            if (player_never_paralyzed()) {
                 msg_print("You are unaffected.");
             } else {
                 msg_print("You fall asleep.");
@@ -100,7 +101,7 @@ static void hit_trap(int y, int x) {
         break;
     case 7: // STR Dart
         if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
-            if (!py.flags.sustain_str) {
+            if (!player_stat_sustained(A_STR)) {
                 (void)dec_stat(A_STR);
                 objdes(tmp, t_ptr, true);
                 take_hit(dam, tmp);
@@ -165,7 +166,7 @@ static void hit_trap(int y, int x) {
             objdes(tmp, t_ptr, true);
             take_hit(dam, tmp);
             msg_print("A small dart hits you!");
-            if (py.flags.free_act) {
+            if (player_never_paralyzed()) {
                 msg_print("You are unaffected.");
             } else {
                 py.flags.slow += randint(20) + 10;
@@ -176,7 +177,7 @@ static void hit_trap(int y, int x) {
         break;
     case 18: // CON Dart
         if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
-            if (!py.flags.sustain_con) {
+            if (!player_stat_sustained(A_CON)) {
                 (void)dec_stat(A_CON);
                 objdes(tmp, t_ptr, true);
                 take_hit(dam, tmp);
@@ -808,7 +809,7 @@ void chest_trap(int y, int x) {
 
     if (CH_LOSE_STR & t_ptr->flags) {
         msg_print("A small needle has pricked you!");
-        if (!py.flags.sustain_str) {
+        if (!player_stat_sustained(A_STR)) {
             (void)dec_stat(A_STR);
             take_hit(damroll(1, 4), "a poison needle");
             msg_print("You feel weakened!");
@@ -823,7 +824,7 @@ void chest_trap(int y, int x) {
     }
     if (CH_PARALYSED & t_ptr->flags) {
         msg_print("A puff of yellow gas surrounds you!");
-        if (py.flags.free_act) {
+        if (player_never_paralyzed()) {
             msg_print("You are unaffected.");
         } else {
             msg_print("You choke and pass out.");
