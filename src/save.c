@@ -23,6 +23,7 @@
 #include "missile_serial.h"
 #include "panel.h"
 #include "messages.h"
+#include "player_abilities.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_gold.h"
@@ -196,23 +197,12 @@ static bool sv_write(void) {
     wr_short((uint16_t)f_ptr->word_recall);
     wr_short((uint16_t)f_ptr->see_infra);
     wr_short((uint16_t)f_ptr->tim_infra);
-    wr_byte(f_ptr->see_inv);
-    wr_byte(f_ptr->teleport);
-    wr_byte(f_ptr->free_act);
-    wr_byte(f_ptr->slow_digest);
-    wr_byte(f_ptr->aggravate);
-    wr_byte(f_ptr->fire_resist);
-    wr_byte(f_ptr->cold_resist);
-    wr_byte(f_ptr->acid_resist);
-    wr_byte(f_ptr->regenerate);
-    wr_byte(f_ptr->lght_resist);
-    wr_byte(f_ptr->ffall);
-    wr_byte(f_ptr->sustain_str);
-    wr_byte(f_ptr->sustain_int);
-    wr_byte(f_ptr->sustain_wis);
-    wr_byte(f_ptr->sustain_con);
-    wr_byte(f_ptr->sustain_dex);
-    wr_byte(f_ptr->sustain_chr);
+    // 装備で決まる耐性・能力 17 個も窓口へ。**この 17 バイトの並びがこの
+    // ファイルの書式**なので、一つずつ名前で書くのをやめて、モジュールが
+    // 持っている並び順に位置で 17 回訊く（旗の 1 語と同じ考え方）。
+    for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
+        wr_byte(player_abilities_saved_byte(i));
+    }
     wr_byte(f_ptr->confuse_monster);
     wr_byte(f_ptr->new_spells);
 
@@ -712,23 +702,14 @@ bool get_char(bool *generate) {
             rd_short((uint16_t *)&f_ptr->word_recall);
             rd_short((uint16_t *)&f_ptr->see_infra);
             rd_short((uint16_t *)&f_ptr->tim_infra);
-            rd_byte(&f_ptr->see_inv);
-            rd_byte(&f_ptr->teleport);
-            rd_byte(&f_ptr->free_act);
-            rd_byte(&f_ptr->slow_digest);
-            rd_byte(&f_ptr->aggravate);
-            rd_byte(&f_ptr->fire_resist);
-            rd_byte(&f_ptr->cold_resist);
-            rd_byte(&f_ptr->acid_resist);
-            rd_byte(&f_ptr->regenerate);
-            rd_byte(&f_ptr->lght_resist);
-            rd_byte(&f_ptr->ffall);
-            rd_byte(&f_ptr->sustain_str);
-            rd_byte(&f_ptr->sustain_int);
-            rd_byte(&f_ptr->sustain_wis);
-            rd_byte(&f_ptr->sustain_con);
-            rd_byte(&f_ptr->sustain_dex);
-            rd_byte(&f_ptr->sustain_chr);
+            // 17 個も窓口へ。読みは器の番地を要るので、いったん受けてから
+            // 位置で置く（腹の具合と旗の 1 語と同じ形。並びは動かせないので
+            // この位置のまま）。
+            for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
+                uint8_t ability;
+                rd_byte(&ability);
+                player_abilities_restore_byte(i, ability);
+            }
             rd_byte(&f_ptr->confuse_monster);
             rd_byte(&f_ptr->new_spells);
 
