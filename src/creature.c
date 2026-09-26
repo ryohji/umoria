@@ -22,6 +22,7 @@
 #include "player_light.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_resting.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "progress.h"
@@ -94,7 +95,7 @@ void update_mon(int monptr) {
 // player is handled by moving monsters faster instead of the player slower.
 static int moves_this_turn(int16_t speed) {
     if (speed > 0) {
-        if (py.flags.rest != 0) {
+        if (player_resting()) {
             return 1;
         } else {
             return speed;
@@ -1343,7 +1344,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
 
     // Does the critter multiply?
     // rest could be negative, to be safe, only use mod with positive values.
-    int rest_val = abs(py.flags.rest);
+    int rest_val = abs(player_rest_turns());
 
     if ((r_ptr->cmove & CM_MULTIPLY) && (MAX_MON_MULT >= mon_tot_mult) && ((rest_val % MON_MULT_ADJ) == 0)) {
         k = 0;
@@ -1561,7 +1562,7 @@ void creatures(int attack) {
                         if (m_ptr->csleep > 0) {
                             if (player_aggravates_monsters()) {
                                 m_ptr->csleep = 0;
-                            } else if ((py.flags.rest == 0 && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) || (randint(50) == 1)) {
+                            } else if ((!player_resting() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) || (randint(50) == 1)) {
                                 notice = randint(1024);
                                 if (notice * notice * notice <= (1L << (29 - py.misc.stl))) {
                                     m_ptr->csleep -= (100 / m_ptr->cdis);

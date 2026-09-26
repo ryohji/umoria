@@ -31,6 +31,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_resting.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "options.h"
@@ -179,7 +180,7 @@ static bool sv_write(void) {
     // 書式**なので、能力の 17 バイトのように位置で訊くことはできない（十八個
     // の間に rest・腹の具合の二つ・protection・speed・see_infra が挟まって
     // いる）。だから一つずつ名前で書く。並びは元のまま。
-    wr_short((uint16_t)f_ptr->rest);
+    wr_short((uint16_t)player_rest_turns());
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_BLINDNESS));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_PARALYSIS));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_CONFUSION));
@@ -677,7 +678,13 @@ bool get_char(bool *generate) {
             uint32_t status;
             rd_long(&status);
             player_set_status_word(status);
-            rd_short((uint16_t *)&f_ptr->rest);
+            // 休息の残りも窓口の向こうなので器の番地を渡せない。いったん
+            // 受けてから置く（十八個の rd_timed() と同じ形）。**符号のある数**
+            // なので、元の rd_short((uint16_t *)&f_ptr->rest) と同じく
+            // 16 ビットをそのまま移す。
+            uint16_t rest_turns;
+            rd_short(&rest_turns);
+            player_rest_set((int16_t)rest_turns);
             // 一時的な状態の十八個も窓口へ。書くほうと同じ理由で位置ではなく
             // 名前で、rd_timed() が受けてから置く（並びはこのまま）。
             rd_timed(PLAYER_TIMED_BLINDNESS);

@@ -27,6 +27,7 @@
 #include "player_hp.h"
 #include "player_light.h"
 #include "player_pos.h"
+#include "player_resting.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "running.h"
@@ -1562,7 +1563,7 @@ void disturb(int s, int l) {
     if (s && player_is_searching()) {
         search_off();
     }
-    if (py.flags.rest != 0) {
+    if (player_resting()) {
         rest_off();
     }
     if (l || player_is_running()) {
@@ -1617,7 +1618,7 @@ void rest(void) {
         if (player_is_searching()) {
             search_off();
         }
-        py.flags.rest = rest_num;
+        player_rest_set(rest_num);
         player_start_resting();
         prt_state();
         player_adjust_digestion(-1);
@@ -1633,7 +1634,7 @@ void rest(void) {
 }
 
 void rest_off(void) {
-    py.flags.rest = 0;
+    player_rest_stop();
     player_stop_resting();
 
     prt_state();

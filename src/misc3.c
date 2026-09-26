@@ -29,6 +29,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_resting.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "progress.h"
@@ -397,10 +398,10 @@ void prt_state(void) {
     } else if (player_is_resting()) {
         char tmp[16];
 
-        if (py.flags.rest < 0) {
+        if (player_rest_is_until_healed()) {
             (void)strcpy(tmp, "Rest *");
         } else if (display_counts) {
-            (void)sprintf(tmp, "Rest %-5d", py.flags.rest);
+            (void)sprintf(tmp, "Rest %-5d", player_rest_turns());
         } else {
             (void)strcpy(tmp, "Rest");
         }
