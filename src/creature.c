@@ -23,6 +23,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "progress.h"
 #include "running.h"
 #include "score_death.h"
@@ -298,7 +299,7 @@ static void make_attack(int monptr) {
         struct flags *const f_ptr = &py.flags;
 
         bool flag = false;
-        if ((f_ptr->protevil > 0) && (r_ptr->cdefense & CD_EVIL) &&
+        if (player_timed_in_force(PLAYER_TIMED_PROTECTION_FROM_EVIL) && (r_ptr->cdefense & CD_EVIL) &&
             ((player_level() + 1) > r_ptr->level)) {
             if (m_ptr->ml) {
                 recall_update_characteristics(m_ptr->creature, CD_EVIL);
@@ -570,13 +571,13 @@ static void make_attack(int monptr) {
             case 3: // Confusion attack
                 take_hit(damage, ddesc);
                 if (randint(2) == 1) {
-                    if (f_ptr->confused < 1) {
+                    if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         msg_print("You feel confused.");
-                        f_ptr->confused += randint((int)r_ptr->level);
+                        player_timed_add(PLAYER_TIMED_CONFUSION, randint((int)r_ptr->level));
                     } else {
                         notice = false;
                     }
-                    f_ptr->confused += 3;
+                    player_timed_add(PLAYER_TIMED_CONFUSION, 3);
                 } else {
                     notice = false;
                 }
@@ -585,11 +586,11 @@ static void make_attack(int monptr) {
                 take_hit(damage, ddesc);
                 if (player_saves()) {
                     msg_print("You resist the effects!");
-                } else if (f_ptr->afraid < 1) {
+                } else if (!player_timed_in_force(PLAYER_TIMED_FEAR)) {
                     msg_print("You are suddenly afraid!");
-                    f_ptr->afraid += 3 + randint((int)r_ptr->level);
+                    player_timed_add(PLAYER_TIMED_FEAR, 3 + randint((int)r_ptr->level));
                 } else {
-                    f_ptr->afraid += 3;
+                    player_timed_add(PLAYER_TIMED_FEAR, 3);
                     notice = false;
                 }
                 break;
@@ -616,11 +617,11 @@ static void make_attack(int monptr) {
                 break;
             case 10: // Blindness attack
                 take_hit(damage, ddesc);
-                if (f_ptr->blind < 1) {
-                    f_ptr->blind += 10 + randint((int)r_ptr->level);
+                if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+                    player_timed_add(PLAYER_TIMED_BLINDNESS, 10 + randint((int)r_ptr->level));
                     msg_print("Your eyes begin to sting.");
                 } else {
-                    f_ptr->blind += 5;
+                    player_timed_add(PLAYER_TIMED_BLINDNESS, 5);
                     notice = false;
                 }
                 break;
@@ -628,11 +629,11 @@ static void make_attack(int monptr) {
                 take_hit(damage, ddesc);
                 if (player_saves()) {
                     msg_print("You resist the effects!");
-                } else if (f_ptr->paralysis < 1) {
+                } else if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
                     if (player_never_paralyzed()) {
                         msg_print("You are unaffected.");
                     } else {
-                        f_ptr->paralysis = randint((int)r_ptr->level) + 3;
+                        player_timed_set(PLAYER_TIMED_PARALYSIS, randint((int)r_ptr->level) + 3);
                         msg_print("You are paralyzed.");
                     }
                 } else {
@@ -640,7 +641,7 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 12: // Steal Money
-                if ((f_ptr->paralysis < 1) &&
+                if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) &&
                     (randint(124) < py.stats.use_stat[A_DEX])) {
                     msg_print("You quickly protect your money pouch!");
                 } else {
@@ -659,7 +660,7 @@ static void make_attack(int monptr) {
                 }
                 break;
             case 13: // Steal Object
-                if ((f_ptr->paralysis < 1) &&
+                if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) &&
                     (randint(124) < py.stats.use_stat[A_DEX])) {
                     msg_print("You grab hold of your backpack!");
                 } else {
@@ -675,7 +676,7 @@ static void make_attack(int monptr) {
             case 14: // Poison
                 take_hit(damage, ddesc);
                 msg_print("You feel very sick.");
-                f_ptr->poisoned += randint((int)r_ptr->level) + 5;
+                player_timed_add(PLAYER_TIMED_POISON, randint((int)r_ptr->level) + 5);
                 break;
             case 15: // Lose dexterity
                 take_hit(damage, ddesc);
@@ -796,7 +797,7 @@ static void make_attack(int monptr) {
                     if (i_ptr->p1 < 1) {
                         i_ptr->p1 = 1;
                     }
-                    if (f_ptr->blind < 1) {
+                    if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                         msg_print("Your light dims.");
                     } else {
                         notice = false;
@@ -1149,37 +1150,37 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
                 msg_print("You are unaffected.");
             } else if (player_saves()) {
                 msg_print("You resist the effects of the spell.");
-            } else if (py.flags.paralysis > 0) {
-                py.flags.paralysis += 2;
+            } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+                player_timed_add(PLAYER_TIMED_PARALYSIS, 2);
             } else {
-                py.flags.paralysis = randint(5) + 4;
+                player_timed_set(PLAYER_TIMED_PARALYSIS, randint(5) + 4);
             }
             break;
         case 11: // Cause Blindness
             if (player_saves()) {
                 msg_print("You resist the effects of the spell.");
-            } else if (py.flags.blind > 0) {
-                py.flags.blind += 6;
+            } else if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+                player_timed_add(PLAYER_TIMED_BLINDNESS, 6);
             } else {
-                py.flags.blind += 12 + randint(3);
+                player_timed_add(PLAYER_TIMED_BLINDNESS, 12 + randint(3));
             }
             break;
         case 12: // Cause Confuse
             if (player_saves()) {
                 msg_print("You resist the effects of the spell.");
-            } else if (py.flags.confused > 0) {
-                py.flags.confused += 2;
+            } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+                player_timed_add(PLAYER_TIMED_CONFUSION, 2);
             } else {
-                py.flags.confused = randint(5) + 3;
+                player_timed_set(PLAYER_TIMED_CONFUSION, randint(5) + 3);
             }
             break;
         case 13: // Cause Fear
             if (player_saves()) {
                 msg_print("You resist the effects of the spell.");
-            } else if (py.flags.afraid > 0) {
-                py.flags.afraid += 2;
+            } else if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
+                player_timed_add(PLAYER_TIMED_FEAR, 2);
             } else {
-                py.flags.afraid = randint(5) + 3;
+                player_timed_set(PLAYER_TIMED_FEAR, randint(5) + 3);
             }
             break;
         case 14: // Summon Monster
@@ -1209,10 +1210,10 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
                 msg_print("You are unaffected.");
             } else if (player_saves()) {
                 msg_print("You resist the effects of the spell.");
-            } else if (py.flags.slow > 0) {
-                py.flags.slow += 2;
+            } else if (player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
+                player_timed_add(PLAYER_TIMED_SLOWNESS, 2);
             } else {
-                py.flags.slow = randint(5) + 3;
+                player_timed_set(PLAYER_TIMED_SLOWNESS, randint(5) + 3);
             }
             break;
         case 17: // Drain Mana
@@ -1560,7 +1561,7 @@ void creatures(int attack) {
                         if (m_ptr->csleep > 0) {
                             if (player_aggravates_monsters()) {
                                 m_ptr->csleep = 0;
-                            } else if ((py.flags.rest == 0 && py.flags.paralysis < 1) || (randint(50) == 1)) {
+                            } else if ((py.flags.rest == 0 && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) || (randint(50) == 1)) {
                                 notice = randint(1024);
                                 if (notice * notice * notice <= (1L << (29 - py.misc.stl))) {
                                     m_ptr->csleep -= (100 / m_ptr->cdis);
