@@ -14,16 +14,23 @@
 
 // No externs.h here, the same as the sixteen questions before this one.
 
-// THE STORE IS STILL py.misc FOR NOW (#18-12-18A). Two halves, so there are two
-// entrances instead of one, and C has exactly two lines to change.
-extern player_type py;
+// THE TWO NUMBERS THEMSELVES. They were py.misc.pac and py.misc.ptoac until
+// #18-12-18C; now these two shorts are the only place the answer lives, and the
+// windows below are the only way to reach it.
+//
+// ZERO IS A REAL ANSWER HERE, which the two questions before this one could not
+// say: a character with nothing worn and a middling dexterity has no armour
+// class at all, and the game means it. (`struct misc` is down to eighteen
+// fields.)
+static int16_t worn_armour;
+static int16_t magical_plusses;
 
 static int16_t *the_armour_half(void) {
-    return &py.misc.pac;
+    return &worn_armour;
 }
 
 static int16_t *the_magical_half(void) {
-    return &py.misc.ptoac;
+    return &magical_plusses;
 }
 
 int player_armour_class(void) {

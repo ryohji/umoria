@@ -1508,23 +1508,19 @@ $(BUILDDIR)/player_hit_die_test: $(TESTDIR)/player_hit_die_test.c \
 	    src/player_hit_die.c
 
 # 「守りの点数はいくつか」（17 つめの問い・`struct misc` から出る 3 つめ）。
-# A の段では実体はまだ py.misc.pac と py.misc.ptoac の short 2 本なので、
-# **足場 tests/player_armour_class_fixture.c が py を定義する**（#18-12-1A から
-# 17 回続けて同じ形で、**C で消える**）。
 #
-# **半分が 2 つあるので窓口も置き場への入口も 2 つある** —— C で直すのは
-# src/player_armour_class.c の 2 行。
+# **#18-12-18C で足場は消えた**（17 回続けて同じ形）。リンクするのは本体 1 つだけ。
+# **半分が 2 つあるので置き場も 2 つ**だが、どちらも
+# src/player_armour_class.c の static。
 #
 # 当たり判定（misc1.c の test_hit）・打撃の減りかた（creature.c）・
 # 画面に出る数（player_display_numbers.c）・呪文の時計
 # （player_timed_effects.c）はどれもこの module の外なので、リンクしない。
 $(BUILDDIR)/player_armour_class_test: $(TESTDIR)/player_armour_class_test.c \
-                                      $(TESTDIR)/player_armour_class_fixture.c \
                                       $(TESTDIR)/minunit.h \
                                       src/player_armour_class.c \
                                       src/player_armour_class.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_armour_class_test.c \
-	    $(TESTDIR)/player_armour_class_fixture.c \
 	    src/player_armour_class.c
 
 clean:

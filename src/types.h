@@ -192,8 +192,15 @@ typedef struct player_type {
         int16_t bthb;                // BTH with bows
         int16_t ptohit;              // Plusses to hit
         int16_t ptodam;              // Plusses to dam
-        int16_t pac;                 // Total AC
-        int16_t ptoac;               // Magical AC
+        // The real armour class left this struct in #18-12-18: both halves of
+        // it, the worn armour (pac) and the plusses (ptoac), live in
+        // player_armour_class.c now as two statics reached only through
+        // player_armour_class.h. TWO FIELDS FOR ONE QUESTION -- not one reader
+        // ever looked at a half, they all added the two together, which is why
+        // create.c could fill them the other way round for a race than for a
+        // class without anything noticing. What the sheet shows is still a
+        // separate question (player_display_numbers.h), and the saved file
+        // still keeps two shorts, the worn armour first.
         int16_t disarm;              // % to Disarm
         int16_t save;                // Saving throw
         int16_t sc;                  // Social Class
