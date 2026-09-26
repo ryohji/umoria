@@ -49,7 +49,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_level_test player_status_flags_test player_abilities_test \
         player_timed_effects_test player_resting_test player_speed_test \
         player_infra_range_test player_glowing_hands_test \
-        player_spells_to_learn_test player_max_depth_test
+        player_spells_to_learn_test player_max_depth_test \
+        player_hit_die_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -284,6 +285,14 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 # 検証したいので misc3.c をそのままリンクする。リンク構成は
 # inven_stack_test と同じ（misc3.c の 57 個の未解決シンボルを
 # misc3_stubs.c の代役で埋め、定数表・インベントリ・py は本物を使う）。
+# #18-12-17A で src/player_hit_die.c（体力の骰子は何面か）を足す。**税は 2 本で、
+# 顔ぶれも 15 つめとまったく同じ** —— src/save.c を丸ごと取りこむ save_bool_test と
+# store_save_test。**9 参照のうち残る 7 つのうち 6 つは src/create.c** で、
+# **このファイルはどの recipe にも出てこない**（テストが 1 本もリンクしていない）。
+# 残る 1 つは src/player.c:105 の**コメント**だけで、src/player.c は 11 recipe に
+# 出てくるが窓口を呼ばないので `#include` も足す本体も要らない。
+# **これで直したパーサで数えたのは 2 度め** —— 15 つめは数えなおして 5 → 2、
+# 16 つめは最初から 2 と出た（→ 台帳の所見 34）。
 #
 # 9 式はローカル変数なので直接は見えないが、put_misc3() は結果を
 # put_buffer() で画面に書く。代役の put_buffer が記録した内容を
@@ -683,7 +692,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/player_infra_range.c src/player_infra_range.h \
                             src/player_glowing_hands.c src/player_glowing_hands.h \
                             src/player_spells_to_learn.c src/player_spells_to_learn.h \
-                            src/player_max_depth.c src/player_max_depth.h | $(BUILDDIR)
+                            src/player_max_depth.c src/player_max_depth.h \
+                            src/player_hit_die.c src/player_hit_die.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -696,7 +706,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
-	    src/player_max_depth.c
+	    src/player_max_depth.c \
+	    src/player_hit_die.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -748,7 +759,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/player_infra_range.c src/player_infra_range.h \
                              src/player_glowing_hands.c src/player_glowing_hands.h \
                              src/player_spells_to_learn.c src/player_spells_to_learn.h \
-                             src/player_max_depth.c src/player_max_depth.h | $(BUILDDIR)
+                             src/player_max_depth.c src/player_max_depth.h \
+                             src/player_hit_die.c src/player_hit_die.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -761,7 +773,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
-	    src/player_max_depth.c
+	    src/player_max_depth.c \
+	    src/player_hit_die.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -1459,6 +1472,29 @@ $(BUILDDIR)/player_max_depth_test: $(TESTDIR)/player_max_depth_test.c \
                                    src/player_max_depth.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_max_depth_test.c \
 	    src/player_max_depth.c
+
+# 「体力の骰子は何面か」（#18-12-17）。py から出す 16 つめの問いで、
+# **`struct misc` から出る 2 つめ**。1 バイトが 3 ファイル・9 か所から
+# 名ざされている（create.c が 7、save.c が 2、player.c が 1 —— ただし
+# player.c のはコメント）。
+#
+# **単位は面の数**で、種族の土台（6〜12）に階級ぶん（0〜9）を足して
+# 人物を作るときに 1 度決まり、そのあと二度と動かない。
+# **遊んでいる間は誰も読まない** —— 読み手 5 つはぜんぶ create.c の
+# 体力を振る 20 行の中。
+#
+# A の段は足場（py の実体）を持ちこむ。**#18-12-17C で消える見こみ**
+# （15 回続けて同じ形なので 16 度め）。体力そのものは player_hp.c に、
+# 振りなおしの下限上限は create.c に、体力表は hp_table.c に、
+# 2 つの表は player.c に残るので、どれも要らない。
+$(BUILDDIR)/player_hit_die_test: $(TESTDIR)/player_hit_die_test.c \
+                                 $(TESTDIR)/player_hit_die_fixture.c \
+                                 $(TESTDIR)/minunit.h \
+                                 src/player_hit_die.c \
+                                 src/player_hit_die.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_hit_die_test.c \
+	    $(TESTDIR)/player_hit_die_fixture.c \
+	    src/player_hit_die.c
 
 clean:
 	rm -rf $(BUILDDIR)

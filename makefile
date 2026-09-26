@@ -61,7 +61,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player_mana.c player_hp.c player_level.c player_status_flags.c \
 	player_abilities.c player_timed_effects.c player_resting.c \
 	player_speed.c player_infra_range.c player_glowing_hands.c \
-	player_spells_to_learn.c player_max_depth.c \
+	player_spells_to_learn.c player_max_depth.c player_hit_die.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -80,7 +80,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	player_mana.o player_hp.o player_level.o player_status_flags.o \
 	player_abilities.o player_timed_effects.o player_resting.o \
 	player_speed.o player_infra_range.o player_glowing_hands.o \
-	player_spells_to_learn.o player_max_depth.o \
+	player_spells_to_learn.o player_max_depth.o player_hit_die.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
