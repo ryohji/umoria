@@ -47,7 +47,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         running_test command_state_test player_gold_test player_food_test \
         player_display_numbers_test player_mana_test player_hp_test \
         player_level_test player_status_flags_test player_abilities_test \
-        player_timed_effects_test
+        player_timed_effects_test player_resting_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -215,7 +215,8 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                             src/object_levels.c src/object_levels.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
-                            src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                            src/player_timed_effects.c src/player_timed_effects.h \
+                            src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
@@ -224,7 +225,7 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -258,7 +259,8 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/object_levels.c src/object_levels.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
-                            src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                            src/player_timed_effects.c src/player_timed_effects.h \
+                            src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
@@ -267,7 +269,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # レベルごとに並べたダンジョンの品物表（sorted_objects と t_level）を読む側は
 # get_obj_num()（misc3.c:78）だけ。misc3.c 全体が要るので、リンクする一式は
@@ -290,7 +292,8 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
                             src/item_ident.c src/item_ident.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
-                            src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                            src/player_timed_effects.c src/player_timed_effects.h \
+                            src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/object_levels_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
@@ -300,7 +303,7 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
 	    src/object_levels.c src/item_ident.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -358,7 +361,8 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/screen_touched.c src/screen_touched.h \
                                  src/player_level.c src/player_level.h \
                                  src/player_status_flags.c src/player_status_flags.h \
-                                 src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                                 src/player_timed_effects.c src/player_timed_effects.h \
+                                 src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
@@ -368,7 +372,7 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 	    src/inven_command_state.c src/screen_touched.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -432,14 +436,15 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/player_level.c src/player_level.h \
                                 src/player_status_flags.c src/player_status_flags.h \
                                 src/player_abilities.c src/player_abilities.h \
-                                src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                                src/player_timed_effects.c src/player_timed_effects.h \
+                                src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
 	    src/screen_touched.c src/running.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -482,7 +487,8 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                             src/object_levels.c src/object_levels.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
-                            src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                            src/player_timed_effects.c src/player_timed_effects.h \
+                            src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
@@ -491,7 +497,7 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
@@ -605,7 +611,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
                             src/player_abilities.c src/player_abilities.h \
-                            src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                            src/player_timed_effects.c src/player_timed_effects.h \
+                            src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -617,7 +624,7 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/missile_serial.c src/input_ended.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -663,7 +670,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/player_level.c src/player_level.h \
                              src/player_status_flags.c src/player_status_flags.h \
                              src/player_abilities.c src/player_abilities.h \
-                             src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                             src/player_timed_effects.c src/player_timed_effects.h \
+                             src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -675,7 +683,7 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/missile_serial.c src/input_ended.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -800,7 +808,8 @@ $(BUILDDIR)/player_pos_test: $(TESTDIR)/player_pos_test.c \
 $(BUILDDIR)/hp_table_test: $(TESTDIR)/hp_table_test.c \
                            $(TESTDIR)/minunit.h \
                            src/hp_table.c src/hp_table.h \
-                           src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                           src/player_timed_effects.c src/player_timed_effects.h \
+                           src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/hp_table_test.c src/hp_table.c
 
 # 最大 HP の計算（misc3.c:1624 の calc_hitpoints）。レベルごとの HP 表を読む
@@ -832,7 +841,7 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 飛び道具の通し番号の置き場（missile_serial）。ダンジョンで作られた矢や石の
 # 束に 1 つずつ違う番号を配る（p1 に入り、items_can_stack() が「同じ束か」の
@@ -969,7 +978,8 @@ $(BUILDDIR)/command_state_test: $(TESTDIR)/command_state_test.c \
 $(BUILDDIR)/player_light_test: $(TESTDIR)/player_light_test.c \
                                $(TESTDIR)/minunit.h \
                                src/player_light.c src/player_light.h \
-                               src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                               src/player_timed_effects.c src/player_timed_effects.h \
+                               src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_light_test.c src/player_light.c
 
 # 重さに負けているかどうかの判定（misc3.c:975 の check_strength と
@@ -1007,7 +1017,7 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 重さに負けているかどうかの置き場（weapon_heavy と pack_heavy）。#18-7-4C1 で
 # 実体が src/burden.c の static になったので、ステップ A のあいだ要った足場
@@ -1018,7 +1028,8 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
 $(BUILDDIR)/burden_test: $(TESTDIR)/burden_test.c \
                         $(TESTDIR)/minunit.h \
                         src/burden.c src/burden.h \
-                        src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                        src/player_timed_effects.c src/player_timed_effects.h \
+                        src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/burden_test.c src/burden.c
 
 # 覚えている呪文の出し入れ（misc3.c:1220 の calc_spells）。#18-8 で窓口に
@@ -1046,7 +1057,8 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
                             src/object_levels.c src/object_levels.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
-                            src/player_timed_effects.c src/player_timed_effects.h | $(BUILDDIR)
+                            src/player_timed_effects.c src/player_timed_effects.h \
+                            src/player_resting.c src/player_resting.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_spells_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
@@ -1055,7 +1067,7 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 呪文を覚えるとき（misc3.c:1374 の gain_spells）。#18-8 で窓口に預ける 4 個の
 # うち、覚えた印（spell_learned）と覚えた順（spell_order）に書き足すのはこの
@@ -1091,7 +1103,7 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
 	    src/player_pos.c src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c src/object_levels.c \
 	    src/player_level.c \
 	    src/player_status_flags.c \
-	    src/player_timed_effects.c
+	    src/player_timed_effects.c src/player_resting.c
 
 # 覚えている呪文の置き場（spell_learned・spell_worked・spell_forgotten・
 # spell_order）。#18-8-C で実体が src/spells_known.c の static になったので、
@@ -1240,6 +1252,25 @@ $(BUILDDIR)/player_timed_effects_test: $(TESTDIR)/player_timed_effects_test.c \
                                        src/player_status_flags.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_timed_effects_test.c \
 	    src/player_timed_effects.c src/player_status_flags.c
+
+# 「休んでいるか、あと何ターン」（#18-12-10）。py から出す 10 つめの問いで、
+# **1 個のフィールドが 5 ファイル・21 か所から触られている**（dungeon.c が 12、
+# creature.c が 3、moria1.c が 3、misc3.c が 2、save.c が 2）。
+#
+# **9 つめとは逆で、リンクするのは本体 1 本だけ。** 数（この module）は族 3 の
+# 印 PY_REST と対だが、並んで書かれているのは moria1.c の 2 か所の隣りあう
+# 2 行だけなので、**畳まずに印の呼び手をそのまま残した**（src/player_resting.h）。
+# だから player_status_flags.c は引かない。
+#
+# ステップ A の足場 tests/player_resting_fixture.c は py を 1 つ置くだけで、
+# **#18-12-10C で消える**（#18-12-1C から 10 回めの同じ形）。
+$(BUILDDIR)/player_resting_test: $(TESTDIR)/player_resting_test.c \
+                                 $(TESTDIR)/player_resting_fixture.c \
+                                 $(TESTDIR)/minunit.h \
+                                 src/player_resting.c \
+                                 src/player_resting.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_resting_test.c \
+	    $(TESTDIR)/player_resting_fixture.c src/player_resting.c
 
 clean:
 	rm -rf $(BUILDDIR)
