@@ -205,63 +205,72 @@ typedef struct player_type {
         uint8_t use_stat[6]; // What is used
     } stats;
 
-    struct flags {
-        // The status word left here in #18-12-7C: thirty bits, asked and
-        // answered from a hundred and five places, now behind
-        // player_status_flags.h. The counters below are a different question --
-        // most of the marks that lived in the word pair with one of them.
-        // The eighteen counters left here in #18-12-9C: how much longer each
-        // temporary state lasts, asked and answered from two hundred and
-        // eighty-one places, now behind player_timed_effects.h. Twelve of them
-        // pair with a mark in the status word above, and that pairing is the
-        // reason they moved together.
-        // `rest` left here in #18-12-10C: whether the character is resting and
-        // for how many more turns, asked and answered from twenty-one places,
-        // now behind player_resting.h. It went on its own because it is WHAT THE
-        // CHARACTER IS DOING rather than a state wearing off -- and because it
-        // moves towards zero FROM BOTH SIDES (a negative count is "until healed"
-        // and counts up).
-        // `speed` left here in #18-12-11C: how many steps from normal speed the
-        // character is moving, asked and answered from nine places, now behind
-        // player_speed.h. It is NOT a clock -- nothing ticks it down; potions,
-        // items and traps add to and subtract from it, and POSITIVE MEANS SLOW.
-        // `see_infra` left here in #18-12-12C: HOW FAR AWAY the character can
-        // make out a warm-blooded creature, IN SQUARES, asked and answered from
-        // nine places, now behind player_infra_range.h. It is not a clock
-        // either -- the race, the equipment and the potion put a number here and
-        // nothing ticks it down -- and it is the FIRST of these questions whose
-        // starting value is not zero.
-        // `confuse_monster` left here in #18-12-13C: whether the character's
-        // hands are glowing, ready to confuse whatever they next touch, asked
-        // and answered from eight places, now behind player_glowing_hands.h.
-        // It is a CHARGE, not a clock -- scroll 11 lights the hands and they
-        // stay lit however many turns pass, until one blow actually connects.
-        // Its name was a lie about ownership (it named what happens to the
-        // monster, and collided with the unrelated spell confuse_monster() in
-        // spells.c), so the module is named after the hands the messages name.
-        // `new_spells` left here in #18-12-14C: how many more spells (or
-        // prayers) the character may still learn, asked and answered from nine
-        // places, now behind player_spells_to_learn.h. Its name was a lie about
-        // what it holds -- it is a COUNT, not a list of spells, and which spells
-        // are known lives in spells_known.h -- so the module is named after the
-        // question the tests were already asking (spells_to_learn).
-        // THE THREE BELOW ARE THE LAST, AND ALL THREE ARE DEAD: `protection` is
-        // never read outside the save file, and the stomach's two belong to
-        // player_food.h (still here only because the save file keeps them in this
-        // run). When they go, `struct flags` goes with them.
-        int16_t food;            // Food counter
-        int16_t food_digested;   // Food per round
-        int16_t protection;      // Protection fr. evil
-        // Seventeen one-byte fields left here in #18-12-8C: what the character
-        // can do and resist because of what is being worn -- sees invisible,
-        // never paralyzed, the four resistances and falling, slow digestion,
-        // regeneration, random teleportation, aggravation and the six sustained
-        // stats. They were asked and answered from a hundred and six places and
-        // are now behind player_abilities.h, which WORKS THEM OUT FROM THE
-        // EQUIPMENT rather than remembering them. The byte below stayed: it is
-        // not granted by equipment and calc_bonuses() does not touch it -- and it
-        // has now left too (see above).
-    } flags;
+    // `struct flags` STOOD HERE UNTIL #18-12-15B, and it is gone. Twenty-six
+    // fields left it, one question at a time, and the three that were left over
+    // answered no question at all. This is the record of where each went.
+    //
+    // The status word left in #18-12-7C: thirty bits, asked and answered from a
+    // hundred and five places, now behind player_status_flags.h. The eighteen
+    // counters were a different question -- most of the marks that lived in the
+    // word pair with one of them.
+    //
+    // Seventeen one-byte fields left in #18-12-8C: what the character can do and
+    // resist because of what is being worn -- sees invisible, never paralyzed,
+    // the four resistances and falling, slow digestion, regeneration, random
+    // teleportation, aggravation and the six sustained stats. They were asked and
+    // answered from a hundred and six places and are now behind
+    // player_abilities.h, which WORKS THEM OUT FROM THE EQUIPMENT rather than
+    // remembering them.
+    //
+    // The eighteen counters left in #18-12-9C: how much longer each temporary
+    // state lasts, asked and answered from two hundred and eighty-one places,
+    // now behind player_timed_effects.h. Twelve of them pair with a mark in the
+    // status word, and that pairing is the reason they moved together.
+    //
+    // `rest` left in #18-12-10C: whether the character is resting and for how
+    // many more turns, asked and answered from twenty-one places, now behind
+    // player_resting.h. It went on its own because it is WHAT THE CHARACTER IS
+    // DOING rather than a state wearing off -- and because it moves towards zero
+    // FROM BOTH SIDES (a negative count is "until healed" and counts up).
+    //
+    // `speed` left in #18-12-11C: how many steps from normal speed the character
+    // is moving, asked and answered from nine places, now behind player_speed.h.
+    // It is NOT a clock -- nothing ticks it down; potions, items and traps add to
+    // and subtract from it, and POSITIVE MEANS SLOW.
+    //
+    // `see_infra` left in #18-12-12C: HOW FAR AWAY the character can make out a
+    // warm-blooded creature, IN SQUARES, asked and answered from nine places, now
+    // behind player_infra_range.h. It is not a clock either -- the race, the
+    // equipment and the potion put a number there and nothing ticks it down --
+    // and it was the FIRST of these questions whose starting value is not zero.
+    //
+    // `confuse_monster` left in #18-12-13C: whether the character's hands are
+    // glowing, ready to confuse whatever they next touch, asked and answered from
+    // eight places, now behind player_glowing_hands.h. It is a CHARGE, not a
+    // clock -- scroll 11 lights the hands and they stay lit however many turns
+    // pass, until one blow actually connects. Its name was a lie about OWNERSHIP
+    // (it named what happens to the monster, and collided with the unrelated
+    // spell confuse_monster() in spells.c), so the module is named after the
+    // hands the messages name.
+    //
+    // `new_spells` left in #18-12-14C: how many more spells (or prayers) the
+    // character may still learn, asked and answered from nine places, now behind
+    // player_spells_to_learn.h. Its name was a lie about CONTENTS -- it is a
+    // COUNT, not a list of spells, and which spells are known lives in
+    // spells_known.h -- so the module is named after the question the tests were
+    // already asking (spells_to_learn).
+    //
+    // THE LAST THREE WERE NOT QUESTIONS, and #18-12-15 swept them out rather than
+    // giving them windows. `food` and `food_digested` had no reader and no writer
+    // left at all: the stomach moved to player_food.h in #18-12-2C and only these
+    // two declarations stayed behind, so #18-12-15B simply struck them out.
+    // `protection` ("Protection fr. evil") was written and read by save.c and by
+    // nowhere else -- the game never looked at the number, and protection from
+    // evil is itself a counter in player_timed_effects.h -- so #18-12-15A made it
+    // a `static int16_t` in save.c. It is a HOLE IN THE FILE FORMAT, not a
+    // question: two bytes kept at a fixed position so that a file written
+    // elsewhere survives being read and written back. A hole belongs inside the
+    // one file that reads it, and no module was made for it.
 } player_type;
 
 // spell name is stored in spell_names[] array at index i, +31 if priest
