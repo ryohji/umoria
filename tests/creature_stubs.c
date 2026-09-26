@@ -28,6 +28,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_glowing_hands.h"
 #include "player_infra_range.h"
 #include "player_resting.h"
 #include "player_status_flags.h"
@@ -207,6 +208,14 @@ void fixture_reset(void)
      * 休息の 1 行とちがって**いまは頼っている件が無い**（外してもグリーンのまま。
      * 実際に外して確かめた）。約束のために足しておく。 */
     player_infra_range_set(0);
+    /* 光る手も #18-12-13C で src/player_glowing_hands.c の static へ移った。
+     * creature.c の attack_player() が「手が光っていて、しかもはじかれて
+     * いない攻撃か」でモンスターを混乱させるかを決めるので、残った蓄えが
+     * 次の件に漏れないように 0 に戻す（**この蓄えはターンで減らない** ——
+     * 1 撃が当たるまで光ったままなので、消し忘れると次の件まで持ちこす）。
+     * 赤外視の 1 行と同じで**いまは頼っている件が無い**（外してもグリーンの
+     * まま。実際に外して確かめた）。約束のために足しておく。 */
+    player_glowing_hands_restore(0);
     memset(cave, 0, sizeof cave);
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;

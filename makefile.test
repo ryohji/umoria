@@ -1373,16 +1373,19 @@ $(BUILDDIR)/player_infra_range_test: $(TESTDIR)/player_infra_range_test.c \
 # 衝突するので、game の message に合わせて「手」を名前にした
 # （src/player_glowing_hands.h）。
 #
-# **リンクするのは本体 1 本＋足場 1 本。** 相手が混乱するかの判定は
-# creature.c と moria3.c に、message は呼び手に、鑑定の成否は scrolls.c に
-# 残るので、どれも要らない。
+# **リンクするのは本体 1 本だけ。** 相手が混乱するかの判定は creature.c と
+# moria3.c に、message は呼び手に、鑑定の成否は scrolls.c に残るので、どれも
+# 要らない。
+#
+# #18-12-13C で置き場が module の static に入ったので、py を置く足場
+# tests/player_glowing_hands_fixture.c は消えた（#18-12-1C から 13 回めの
+# 同じ形）。
 $(BUILDDIR)/player_glowing_hands_test: $(TESTDIR)/player_glowing_hands_test.c \
-                                       $(TESTDIR)/player_glowing_hands_fixture.c \
                                        $(TESTDIR)/minunit.h \
                                        src/player_glowing_hands.c \
                                        src/player_glowing_hands.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_glowing_hands_test.c \
-	    $(TESTDIR)/player_glowing_hands_fixture.c src/player_glowing_hands.c
+	    src/player_glowing_hands.c
 
 clean:
 	rm -rf $(BUILDDIR)

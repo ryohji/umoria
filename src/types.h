@@ -231,6 +231,14 @@ typedef struct player_type {
         // either -- the race, the equipment and the potion put a number here and
         // nothing ticks it down -- and it is the FIRST of these questions whose
         // starting value is not zero.
+        // `confuse_monster` left here in #18-12-13C: whether the character's
+        // hands are glowing, ready to confuse whatever they next touch, asked
+        // and answered from eight places, now behind player_glowing_hands.h.
+        // It is a CHARGE, not a clock -- scroll 11 lights the hands and they
+        // stay lit however many turns pass, until one blow actually connects.
+        // Its name was a lie about ownership (it named what happens to the
+        // monster, and collided with the unrelated spell confuse_monster() in
+        // spells.c), so the module is named after the hands the messages name.
         // The three below stayed: `protection` is never read outside the save
         // file, and the stomach's two belong to player_food.h (still here only
         // because the save file keeps them in this run).
@@ -243,10 +251,8 @@ typedef struct player_type {
         // regeneration, random teleportation, aggravation and the six sustained
         // stats. They were asked and answered from a hundred and six places and
         // are now behind player_abilities.h, which WORKS THEM OUT FROM THE
-        // EQUIPMENT rather than remembering them. The two bytes below stayed:
-        // neither is granted by equipment and calc_bonuses() does not touch
-        // either.
-        uint8_t confuse_monster; // Glowing hands.
+        // EQUIPMENT rather than remembering them. The byte below stayed: it is
+        // not granted by equipment and calc_bonuses() does not touch it.
         uint8_t new_spells;      // Number of spells can learn.
     } flags;
 } player_type;

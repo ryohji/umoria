@@ -17,13 +17,17 @@
 // function confuse_monster() is declared (player_glowing_hands.h says why the
 // names collide).
 
-// THE CHARGE IS STILL IN py.flags (step A). Every window goes through the
-// pointer below, so #18-12-13C has one place to change: the pointer becomes the
-// byte itself and this comment goes away.
-extern player_type py;
+// THE ANSWER ITSELF. It was py.flags.confuse_monster until #18-12-13C; now this
+// one byte is the only place it lives, and the windows below are the only way to
+// reach it.
+//
+// No reset window: zero means "the hands are not glowing", which is where every
+// character starts and where every blow that connects leaves them. Only scroll
+// 11 and a saved file ever put something else here.
+static uint8_t the_charge;
 
 static uint8_t *charge(void) {
-    return &py.flags.confuse_monster;
+    return &the_charge;
 }
 
 int player_glowing_hands(void) {
