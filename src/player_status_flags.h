@@ -55,9 +55,9 @@
 //      line as prt_experience()'s climb in player_level.c: a window can answer a
 //      question about the state, not decide what a turn does.
 //
-//   2. A REQUEST THAT SOMETHING BE WORKED OUT OR DRAWN AGAIN (thirteen bits).
+//   2. A REQUEST THAT SOMETHING BE WORKED OUT OR DRAWN AGAIN (twelve bits).
 //      Whoever changes a number sets the bit and walks away; one block in
-//      dungeon.c picks the requests up on the next turn. Six of the thirteen are
+//      dungeon.c picks the requests up on the next turn. Six of the twelve are
 //      the six stat bits, which the code shifts (`PY_STR << stat`) and masks
 //      (PY_STATS) -- constant.h says "these 6 stat flags must be adjacent" and
 //      three places depended on it. That dependence is now inside this module.
