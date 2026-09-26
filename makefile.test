@@ -50,7 +50,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_timed_effects_test player_resting_test player_speed_test \
         player_infra_range_test player_glowing_hands_test \
         player_spells_to_learn_test player_max_depth_test \
-        player_hit_die_test
+        player_hit_die_test player_armour_class_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -293,6 +293,14 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 # 出てくるが窓口を呼ばないので `#include` も足す本体も要らない。
 # **これで直したパーサで数えたのは 2 度め** —— 15 つめは数えなおして 5 → 2、
 # 16 つめは最初から 2 と出た（→ 台帳の所見 34）。
+# #18-12-18A で src/player_armour_class.c（守りの点数）を足す。**税は 3 本** ——
+# src/save.c を丸ごと取りこむ save_bool_test・store_save_test に、
+# **src/creature.c を丸ごと取りこむ movement_rate_test** が加わる（creature.c は
+# この数を 22 行で読む。攻撃 21 種の当たり判定と、当たった打撃の減りかた）。
+# **下調べの表の「7」は数えかたの誤りで、正しくは 3** —— 読み書きする
+# src/moria1.c・src/moria3.c・src/dungeon.c・src/create.c は**どの recipe にも
+# 出てこない**（テストが 1 本もリンクしていない）。**直したパーサで数えたのは
+# 3 度め**で、73 参照あっても税は 3 本にとどまる（→ 台帳の所見 34）。
 #
 # 9 式はローカル変数なので直接は見えないが、put_misc3() は結果を
 # put_buffer() で画面に書く。代役の put_buffer が記録した内容を
@@ -509,14 +517,16 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/player_timed_effects.c src/player_timed_effects.h \
                                 src/player_resting.c src/player_resting.h \
                                 src/player_infra_range.c src/player_infra_range.h \
-                                src/player_glowing_hands.c src/player_glowing_hands.h | $(BUILDDIR)
+                                src/player_glowing_hands.c src/player_glowing_hands.h \
+                                src/player_armour_class.c src/player_armour_class.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
 	    src/screen_touched.c src/running.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
-	    src/player_timed_effects.c src/player_resting.c src/player_infra_range.c src/player_glowing_hands.c
+	    src/player_timed_effects.c src/player_resting.c src/player_infra_range.c src/player_glowing_hands.c \
+	    src/player_armour_class.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
 # toac_adj / todis_adj / todam_adj）は src/stats.c にある。いずれも外部
@@ -693,7 +703,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/player_glowing_hands.c src/player_glowing_hands.h \
                             src/player_spells_to_learn.c src/player_spells_to_learn.h \
                             src/player_max_depth.c src/player_max_depth.h \
-                            src/player_hit_die.c src/player_hit_die.h | $(BUILDDIR)
+                            src/player_hit_die.c src/player_hit_die.h \
+                            src/player_armour_class.c src/player_armour_class.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -707,7 +718,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
 	    src/player_max_depth.c \
-	    src/player_hit_die.c
+	    src/player_hit_die.c \
+	    src/player_armour_class.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -760,7 +772,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/player_glowing_hands.c src/player_glowing_hands.h \
                              src/player_spells_to_learn.c src/player_spells_to_learn.h \
                              src/player_max_depth.c src/player_max_depth.h \
-                             src/player_hit_die.c src/player_hit_die.h | $(BUILDDIR)
+                             src/player_hit_die.c src/player_hit_die.h \
+                             src/player_armour_class.c src/player_armour_class.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
 	    src/player_mana.c src/player_hp.c \
@@ -774,7 +787,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
 	    src/player_max_depth.c \
-	    src/player_hit_die.c
+	    src/player_hit_die.c \
+	    src/player_armour_class.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -1492,6 +1506,26 @@ $(BUILDDIR)/player_hit_die_test: $(TESTDIR)/player_hit_die_test.c \
                                  src/player_hit_die.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_hit_die_test.c \
 	    src/player_hit_die.c
+
+# 「守りの点数はいくつか」（17 つめの問い・`struct misc` から出る 3 つめ）。
+# A の段では実体はまだ py.misc.pac と py.misc.ptoac の short 2 本なので、
+# **足場 tests/player_armour_class_fixture.c が py を定義する**（#18-12-1A から
+# 17 回続けて同じ形で、**C で消える**）。
+#
+# **半分が 2 つあるので窓口も置き場への入口も 2 つある** —— C で直すのは
+# src/player_armour_class.c の 2 行。
+#
+# 当たり判定（misc1.c の test_hit）・打撃の減りかた（creature.c）・
+# 画面に出る数（player_display_numbers.c）・呪文の時計
+# （player_timed_effects.c）はどれもこの module の外なので、リンクしない。
+$(BUILDDIR)/player_armour_class_test: $(TESTDIR)/player_armour_class_test.c \
+                                      $(TESTDIR)/player_armour_class_fixture.c \
+                                      $(TESTDIR)/minunit.h \
+                                      src/player_armour_class.c \
+                                      src/player_armour_class.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_armour_class_test.c \
+	    $(TESTDIR)/player_armour_class_fixture.c \
+	    src/player_armour_class.c
 
 clean:
 	rm -rf $(BUILDDIR)
