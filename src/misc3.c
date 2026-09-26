@@ -31,6 +31,7 @@
 #include "player_pos.h"
 #include "player_resting.h"
 #include "player_speed.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "progress.h"
@@ -458,7 +459,7 @@ void prt_speed(void) {
 void prt_study(void) {
     player_clear_study_redraw_request();
 
-    if (py.flags.new_spells == 0) {
+    if (player_spells_to_learn() == 0) {
         put_buffer(&blank_string[BLANK_LENGTH - 5], 23, 59);
     } else {
         put_buffer("Study", 23, 59);
@@ -1352,14 +1353,16 @@ void calc_spells(int stat) {
         new_spells = 0;
     }
 
-    if (new_spells != py.flags.new_spells) {
-        if (new_spells > 0 && py.flags.new_spells == 0) {
+    // 局所の new_spells は「いま数えなおした答え」で、窓口の答えは「前に置いた
+    // 答え」。**違うときだけ置きなおす**（同じなら画面も書きなおさない）。
+    if (new_spells != player_spells_to_learn()) {
+        if (new_spells > 0 && player_spells_to_learn() == 0) {
             vtype tmp_str;
             (void)sprintf(tmp_str, "You can learn some new %ss now.", p);
             msg_print(tmp_str);
         }
 
-        py.flags.new_spells = new_spells;
+        player_spells_to_learn_set(new_spells);
         player_request_study_redraw();
     }
 }
@@ -1375,7 +1378,10 @@ void gain_spells(void) {
         return;
     }
 
-    int new_spells = py.flags.new_spells;
+    // 窓口から取って局所で減らし、最後に 1 度だけ置きなおす（下の
+    // player_spells_to_learn_set()）。途中で置かないのは、本が足りなくて
+    // 学べなかった差を足しもどすまで答えが決まらないから。
+    int new_spells = player_spells_to_learn();
     int diff_spells = 0;
 
     struct misc *p_ptr = &py.misc;
@@ -1486,8 +1492,8 @@ void gain_spells(void) {
             }
         }
 
-        py.flags.new_spells = new_spells + diff_spells;
-        if (py.flags.new_spells == 0) {
+        player_spells_to_learn_set(new_spells + diff_spells);
+        if (player_spells_to_learn() == 0) {
             player_request_study_redraw();
         }
 

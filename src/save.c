@@ -35,6 +35,7 @@
 #include "player_pos.h"
 #include "player_resting.h"
 #include "player_speed.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "options.h"
@@ -214,7 +215,7 @@ static bool sv_write(void) {
         wr_byte(player_abilities_saved_byte(i));
     }
     wr_byte((uint8_t)player_glowing_hands());
-    wr_byte(f_ptr->new_spells);
+    wr_byte((uint8_t)player_spells_to_learn());
 
     wr_short((uint16_t)missile_serial_value());
     wr_long((uint32_t)progress_turn());
@@ -742,7 +743,12 @@ bool get_char(bool *generate) {
             uint8_t saved_glowing_hands;
             rd_byte(&saved_glowing_hands);
             player_glowing_hands_restore(saved_glowing_hands);
-            rd_byte(&f_ptr->new_spells);
+            // あと何個覚えられるかも窓口へ。光る手と同じ形 —— 読みは器の番地を
+            // 要るのでいったん局所で受け、そのまま渡す（0 も 255 もそのまま。
+            // 留めはもとから無い —— src/player_spells_to_learn.h）。
+            uint8_t saved_spells_to_learn;
+            rd_byte(&saved_spells_to_learn);
+            player_spells_to_learn_set(saved_spells_to_learn);
 
             uint16_t saved_missile_serial;
             rd_short(&saved_missile_serial);
