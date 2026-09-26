@@ -14,17 +14,22 @@
 
 // No externs.h here, the same as the seventeen questions before this one.
 
-// THE TWO NUMBERS THEMSELVES, still py.misc.bth and py.misc.bthb for one commit
-// more. Only this file names them; #18-12-19C moves them into two statics here and
-// deletes the fields, leaving `struct misc` with sixteen.
-extern player_type py;
+// THE TWO NUMBERS THEMSELVES. They were py.misc.bth and py.misc.bthb until
+// #18-12-19C; now these two shorts are the only place the answer lives, and the
+// windows below are the only way to reach it. (`struct misc` is down to sixteen
+// fields.)
+//
+// ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
+// until create.c picks a race, and a Human's racial base happens to be zero too.
+static int16_t the_melee;
+static int16_t the_bows;
 
 static int16_t *the_melee_number(void) {
-    return &py.misc.bth;
+    return &the_melee;
 }
 
 static int16_t *the_bows_number(void) {
-    return &py.misc.bthb;
+    return &the_bows;
 }
 
 int player_base_to_hit(void) {

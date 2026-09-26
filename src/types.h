@@ -188,8 +188,17 @@ typedef struct player_type {
         // player_max_depth.h.
         int16_t srh;                 // Chance in search
         int16_t fos;                 // Frenq of search
-        int16_t bth;                 // Base to hit
-        int16_t bthb;                // BTH with bows
+        // The base to-hit left this struct in #18-12-19: both numbers, the one
+        // for swinging (bth) and the one for shooting and throwing (bthb), live
+        // in player_base_to_hit.c now as two statics reached only through
+        // player_base_to_hit.h. TWO FIELDS AND TWO ANSWERS -- the mirror image of
+        // the armour class above: no reader ever added these two together, every
+        // reader already knew which of them it wanted. They share a module
+        // because they never change apart: heroism is worth twelve to each, a
+        // blessing five to each, and the twelve lines in dungeon.c that used to
+        // say so are six calls now. Beware of the four other things with these
+        // names -- race_type.bth, struct player_abilities.bth, class_type.mbth
+        // and test_hit()'s first argument are all different questions.
         int16_t ptohit;              // Plusses to hit
         int16_t ptodam;              // Plusses to dam
         // The real armour class left this struct in #18-12-18: both halves of

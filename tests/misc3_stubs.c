@@ -32,6 +32,7 @@
 #include "fixture.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_base_to_hit.h"
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_speed.h"
@@ -359,6 +360,14 @@ void fixture_reset(void)
      * 残っていると message が出ず、それを読む 2 件が落ちる。
      * **0 が人物の走りだし**（戦士はずっと 0）。 */
     player_spells_to_learn_set(0);
+    /* 素の命中力の 2 本も #18-12-19C で src/player_base_to_hit.c の static へ
+     * 移ったので、py を消しても届かない。**外してもレッドにはならない** ——
+     * この数を読む 3 件（xbth の 2 つと xbthb）はどれも自分で 24 を置いてから
+     * 読むので、前の件が残した数を見る件が無い（実際に外して確かめた。
+     * 速さと赤外視の 2 行と同じ側で、呪文の 1 行とは違う）。それでも足すのは、
+     * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。
+     * **2 本まとめて 0 へ**（どちらも種族を選ぶまで 0）。 */
+    player_base_to_hit_set(0, 0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

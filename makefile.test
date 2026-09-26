@@ -1561,9 +1561,9 @@ $(BUILDDIR)/player_armour_class_test: $(TESTDIR)/player_armour_class_test.c \
 
 # 「素の命中力はいくつか」（18 つめの問い・`struct misc` から出る 4 つめ）。
 #
-# **足場つき**（#18-12-19A）—— 置き場はまだ py.misc の short 2 本なので、
-# tests/player_base_to_hit_fixture.c が player_type の器を定義する。
-# **#18-12-19C で足場は消える**（18 回続けて同じ形になる）。
+# **#18-12-19C で足場は消えた**（18 回続けて同じ形）。リンクするのは本体 1 つだけ。
+# **答えが 2 つあるので置き場も 2 つ**だが、どちらも
+# src/player_base_to_hit.c の static。
 #
 # **答えが 2 つある問い** —— 振るときの数と射るときの数で、読み手はぜんぶ
 # 片方だけを読む。1 つの module なのは書きかたが共有されているから
@@ -1574,12 +1574,10 @@ $(BUILDDIR)/player_armour_class_test: $(TESTDIR)/player_armour_class_test.c \
 # 呪文の時計（player_timed_effects.c）はどれもこの module の外なので、
 # リンクしない。
 $(BUILDDIR)/player_base_to_hit_test: $(TESTDIR)/player_base_to_hit_test.c \
-                                     $(TESTDIR)/player_base_to_hit_fixture.c \
                                      $(TESTDIR)/minunit.h \
                                      src/player_base_to_hit.c \
                                      src/player_base_to_hit.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_base_to_hit_test.c \
-	    $(TESTDIR)/player_base_to_hit_fixture.c \
 	    src/player_base_to_hit.c
 
 clean:
