@@ -30,6 +30,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
@@ -391,7 +392,7 @@ void prt_poisoned(void) {
 void prt_state(void) {
     player_set_status_line_shows_repeat(false);
 
-    if (py.flags.paralysis > 1) {
+    if (player_timed_turns(PLAYER_TIMED_PARALYSIS) > 1) {
         put_buffer("Paralysed", 23, 38);
     } else if (player_is_resting()) {
         char tmp[16];
@@ -1365,7 +1366,7 @@ void gain_spells(void) {
 
     // Priests don't need light because they get spells from their god, so only
     // fail when can't see if player has MAGE spells. This check is done below.
-    if (py.flags.confused > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
         return;
     }
@@ -1382,7 +1383,7 @@ void gain_spells(void) {
         offset = SPELL_OFFSET;
 
         // People with MAGE spells can't learn spells if they can't read their books.
-        if (py.flags.blind > 0) {
+        if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
             msg_print("You can't see to read your spell book!");
             return;
         } else if (no_light()) {

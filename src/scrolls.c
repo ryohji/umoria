@@ -19,6 +19,7 @@
 #include "item_ident.h"
 #include "level_exit.h"
 #include "player_pos.h"
+#include "player_timed_effects.h"
 
 // Scrolls for the reading -RAK-
 void read_scroll(void) {
@@ -29,11 +30,11 @@ void read_scroll(void) {
 
     free_turn_flag = true;
 
-    if (py.flags.blind > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see to read the scroll.");
     } else if (no_light()) {
         msg_print("You have no light to read by.");
-    } else if (py.flags.confused > 0) {
+    } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused to read a scroll.");
     } else if (inventory_count() == 0) {
         msg_print("You are not carrying anything!");
@@ -454,8 +455,8 @@ void read_scroll(void) {
                 break;
             case 41:
                 ident = true;
-                if (py.flags.word_recall == 0) {
-                    py.flags.word_recall = 25 + randint(30);
+                if (!player_timed_in_force(PLAYER_TIMED_WORD_OF_RECALL)) {
+                    player_timed_set(PLAYER_TIMED_WORD_OF_RECALL, 25 + randint(30));
                 }
                 msg_print("The air about you becomes charged.");
                 break;

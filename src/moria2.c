@@ -19,6 +19,7 @@
 #include "player_abilities.h"
 #include "player_light.h"
 #include "player_pos.h"
+#include "player_timed_effects.h"
 #include "running.h"
 
 static bool see_wall(int, int, int);
@@ -43,15 +44,13 @@ void change_trap(int y, int x) {
 
 // Searches for hidden things. -RAK-
 void search(int y, int x, int chance) {
-    struct flags *p_ptr = &py.flags;
-
-    if (p_ptr->confused > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         chance = chance / 10;
     }
-    if ((p_ptr->blind > 0) || no_light()) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
         chance = chance / 10;
     }
-    if (p_ptr->image > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION)) {
         chance = chance / 10;
     }
     for (int i = (y - 1); i <= (y + 1); i++) {
@@ -219,7 +218,7 @@ void find_init(int dir) {
         begin_run();
         find_breakright = find_breakleft = false;
         find_prevdir = dir;
-        if (py.flags.blind < 1) {
+        if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
             int i = chome[dir];
 
             bool deepleft = false;
@@ -330,7 +329,7 @@ static bool see_nothing(int dir, int y, int x) {
 
 // Determine the next direction for a run, or if we should stop. -CJS-
 void area_affect(int dir, int y, int x) {
-    if (py.flags.blind < 1) {
+    if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         int check_dir = 0;
         int option = 0;
         int option2 = 0;
@@ -545,7 +544,7 @@ void corrode_gas(const char *kb_str) {
 // Poison gas the idiot. -RAK-
 void poison_gas(int dam, const char *kb_str) {
     take_hit(dam, kb_str);
-    py.flags.poisoned += 12 + randint(dam);
+    player_timed_add(PLAYER_TIMED_POISON, 12 + randint(dam));
 }
 
 // Burn the fool up. -RAK-
@@ -553,7 +552,7 @@ void fire_dam(int dam, const char *kb_str) {
     if (player_resists_fire()) {
         dam = dam / 3;
     }
-    if (py.flags.resist_heat > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
         dam = dam / 3;
     }
     take_hit(dam, kb_str);
@@ -567,7 +566,7 @@ void cold_dam(int dam, char *kb_str) {
     if (player_resists_cold()) {
         dam = dam / 3;
     }
-    if (py.flags.resist_cold > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
         dam = dam / 3;
     }
     take_hit(dam, kb_str);

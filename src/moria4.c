@@ -21,6 +21,7 @@
 #include "player_level.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "stats.h"
 
 static bool look_ray(int, int, int);
@@ -30,7 +31,7 @@ static bool look_see(int, int, bool *);
 // Must take into account: secret doors, special tools
 void tunnel(int dir) {
     // Confused?                    75% random movement
-    if ((py.flags.confused > 0) && (randint(4) > 1)) {
+    if (player_timed_in_force(PLAYER_TIMED_CONFUSION) && (randint(4) > 1)) {
         dir = randint(9);
     }
 
@@ -66,7 +67,7 @@ void tunnel(int dir) {
         msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
 
         // let the player attack the creature
-        if (py.flags.afraid < 1) {
+        if (!player_timed_in_force(PLAYER_TIMED_FEAR)) {
             py_attack(y, x);
         } else {
             msg_print("You are too afraid!");
@@ -179,13 +180,13 @@ void disarm_trap(void) {
         } else if (c_ptr->tptr != 0) {
             int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * player_level() / 3);
 
-            if ((py.flags.blind > 0) || (no_light())) {
+            if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || (no_light())) {
                 tot = tot / 10;
             }
-            if (py.flags.confused > 0) {
+            if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                 tot = tot / 10;
             }
-            if (py.flags.image > 0) {
+            if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION)) {
                 tot = tot / 10;
             }
 
@@ -200,10 +201,10 @@ void disarm_trap(void) {
                     (void)delete_object(y, x);
 
                     // make sure we move onto the trap even if confused
-                    int tmp = py.flags.confused;
-                    py.flags.confused = 0;
+                    int tmp = player_timed_turns(PLAYER_TIMED_CONFUSION);
+                    player_timed_clear(PLAYER_TIMED_CONFUSION);
                     move_char(dir, false);
-                    py.flags.confused = tmp;
+                    player_timed_set(PLAYER_TIMED_CONFUSION, tmp);
                     prt_experience();
                 } else if ((tot > 5) && (randint(tot) > 5)) {
                     // avoid randint(0) call
@@ -211,11 +212,14 @@ void disarm_trap(void) {
                 } else {
                     msg_print("You set the trap off!");
 
-                    // make sure we move onto the trap even if confused
-                    int tmp = py.flags.confused;
-                    py.flags.confused = 0;
+                    // make sure we move onto the trap even if confused. This
+                    // one ADDS the parked turns back where the one above puts
+                    // them back, so confusion the trap itself caused is kept;
+                    // that difference is how it has always been.
+                    int tmp = player_timed_turns(PLAYER_TIMED_CONFUSION);
+                    player_timed_clear(PLAYER_TIMED_CONFUSION);
                     move_char(dir, false);
-                    py.flags.confused += tmp;
+                    player_timed_add(PLAYER_TIMED_CONFUSION, tmp);
                 }
             } else if (i == TV_CHEST) {
                 if (!known2_p(i_ptr)) {
@@ -338,9 +342,9 @@ static int map_diag2[] = {2, 1, 0, 4, 3};
 void look(void) {
     int dir;
 
-    if (py.flags.blind > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see a damn thing!");
-    } else if (py.flags.image > 0) {
+    } else if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION)) {
         msg_print("You can't believe what you are seeing! It's like a dream!");
     } else if (get_alldir("Look which direction?", &dir)) {
         gl_nseen = 0;
@@ -791,7 +795,7 @@ void throw_object(void) {
         int dir;
         if (get_dir(CNIL, &dir)) {
             desc_remain(item_val);
-            if (py.flags.confused > 0) {
+            if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                 msg_print("You are confused.");
                 do {
                     dir = randint(9);
@@ -871,7 +875,7 @@ void throw_object(void) {
                     } else {
                         // do not test c_ptr->fm here
 
-                        if (panel_contains(y, x) && (py.flags.blind < 1) && (c_ptr->tl || c_ptr->pl)) {
+                        if (panel_contains(y, x) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS) && (c_ptr->tl || c_ptr->pl)) {
                             print(tchar, y, x);
                             put_qio(); // show object moving
                         }
@@ -940,7 +944,7 @@ static void py_bash(int y, int x) {
     }
     if (randint(150) > py.stats.use_stat[A_DEX]) {
         msg_print("You are off balance.");
-        py.flags.paralysis = 1 + randint(2);
+        player_timed_set(PLAYER_TIMED_PARALYSIS, 1 + randint(2));
     }
 }
 
@@ -969,7 +973,7 @@ void bash(void) {
 
     int dir;
     if (get_dir(CNIL, &dir)) {
-        if (py.flags.confused > 0) {
+        if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
             msg_print("You are confused.");
             do {
                 dir = randint(9);
@@ -979,7 +983,7 @@ void bash(void) {
 
         cave_type *c_ptr = &cave[y][x];
         if (c_ptr->cptr > 1) {
-            if (py.flags.afraid > 0) {
+            if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
                 msg_print("You are afraid!");
             } else {
                 py_bash(y, x);
@@ -997,14 +1001,14 @@ void bash(void) {
                     invcopy(&t_list[c_ptr->tptr], OBJ_OPEN_DOOR);
                     t_ptr->p1 = 1 - randint(2); // 50% chance of breaking door
                     c_ptr->fval = CORR_FLOOR;
-                    if (py.flags.confused == 0) {
+                    if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         move_char(dir, false);
                     } else {
                         lite_spot(y, x);
                     }
                 } else if (randint(150) > py.stats.use_stat[A_DEX]) {
                     msg_print("You are off-balance.");
-                    py.flags.paralysis = 1 + randint(2);
+                    player_timed_set(PLAYER_TIMED_PARALYSIS, 1 + randint(2));
                 } else if (!command_is_repeating()) {
                     msg_print("The door holds firm.");
                 }

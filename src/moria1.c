@@ -28,6 +28,7 @@
 #include "player_light.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "running.h"
 #include "screen_touched.h"
 #include "stats.h"
@@ -72,10 +73,10 @@ void py_bonuses(inven_type *t_ptr, int factor) {
         change_speed(-amount);
     }
     if ((TR_BLIND & t_ptr->flags) && (factor > 0)) {
-        py.flags.blind += 1000;
+        player_timed_add(PLAYER_TIMED_BLINDNESS, 1000);
     }
     if ((TR_TIMID & t_ptr->flags) && (factor > 0)) {
-        py.flags.afraid += 50;
+        player_timed_add(PLAYER_TIMED_FEAR, 50);
     }
     if (TR_INFRA & t_ptr->flags) {
         py.flags.see_infra += amount;
@@ -84,7 +85,6 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 
 // Recalculate the effect of all the stuff we use. -CJS-
 void calc_bonuses(void) {
-    struct flags *p_ptr = &py.flags;
     struct misc *m_ptr = &py.misc;
 
     // What the old answers were doing to the digestion has to be taken back
@@ -143,15 +143,15 @@ void calc_bonuses(void) {
     }
 
     // Add in temporary spell increases
-    if (p_ptr->invuln > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
         m_ptr->pac += 100;
         player_display_add_ac(100);
     }
-    if (p_ptr->blessed > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_BLESSING)) {
         m_ptr->pac += 2;
         player_display_add_ac(2);
     }
-    if (p_ptr->detect_inv > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
         player_grant_see_invisible();
     }
 
@@ -1547,7 +1547,7 @@ static void sub3_move_light(int y1, int x1, int y2, int x2) {
 // Package for moving the character's light about the screen
 // Four cases : Normal, Finding, Blind, and Nolight -RAK-
 void move_light(int y1, int x1, int y2, int x2) {
-    if (py.flags.blind > 0 || !player_has_light()) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || !player_has_light()) {
         sub3_move_light(y1, x1, y2, x2);
     } else {
         sub1_move_light(y1, x1, y2, x2);
@@ -1664,7 +1664,7 @@ bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
 
 // Decreases players hit points and sets death flag if necessary -RAK-
 void take_hit(int damage, const char *hit_from) {
-    if (py.flags.invuln > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
         damage = 0;
     }
     // Nothing clamps the number at zero: a fatal wound leaves it negative on

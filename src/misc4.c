@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "player_pos.h"
+#include "player_timed_effects.h"
 
 #include <stdarg.h>
 
@@ -76,10 +77,10 @@ void check_view(void) {
     if (c_ptr->fval == LIGHT_FLOOR) {
         // A room of light should be lit.
 
-        if ((py.flags.blind < 1) && !c_ptr->pl) {
+        if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS) && !c_ptr->pl) {
             light_room(player_row(), player_col());
         }
-    } else if (c_ptr->lr && (py.flags.blind < 1)) {
+    } else if (c_ptr->lr && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         // In doorway of light-room?
 
         for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {

@@ -19,6 +19,7 @@
 #include "item_ident.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_timed_effects.h"
 #include "stats.h"
 
 // Wands for the aiming.
@@ -36,7 +37,7 @@ void aim(void) {
 
         int dir;
         if (get_dir(CNIL, &dir)) {
-            if (py.flags.confused > 0) {
+            if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                 msg_print("You are confused.");
                 do {
                     dir = randint(9);
@@ -46,7 +47,7 @@ void aim(void) {
 
             struct misc *m_ptr = &py.misc;
 
-            int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), py.flags.confused);
+            int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
 
             if (!device_use_succeeds(chance)) {
                 msg_print("You failed to use the wand properly.");

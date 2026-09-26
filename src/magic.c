@@ -17,6 +17,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_timed_effects.h"
 #include "spells_known.h"
 
 // Throw a magic spell -RAK-
@@ -24,11 +25,11 @@ void cast(void) {
     int i, j, item_val;
 
     free_turn_flag = true;
-    if (py.flags.blind > 0) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see to read your spell book!");
     } else if (no_light()) {
         msg_print("You have no light to read by.");
-    } else if (py.flags.confused > 0) {
+    } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
     } else if (class[py.misc.pclass].spell != MAGE) {
         msg_print("You can't cast spells!");
@@ -49,7 +50,6 @@ void cast(void) {
                 msg_print("You failed to get the spell off!");
             } else {
                 int dir;
-                struct flags *f_ptr;
 
                 // Spells.
                 switch (choice + 1) {
@@ -163,8 +163,7 @@ void cast(void) {
                     }
                     break;
                 case 28:
-                    f_ptr = &py.flags;
-                    f_ptr->fast += randint(20) + player_level();
+                    player_timed_add(PLAYER_TIMED_HASTE, randint(20) + player_level());
                     break;
                 case 29:
                     if (get_dir(CNIL, &dir)) {
@@ -197,8 +196,8 @@ void cast(void) {
                 int spent = player_spend_mana(m_ptr->smana);
                 if (spent < m_ptr->smana) {
                     msg_print("You faint from the effort!");
-                    py.flags.paralysis =
-                        randint((int)(5 * (m_ptr->smana - spent)));
+                    player_timed_set(PLAYER_TIMED_PARALYSIS,
+                                     randint((int)(5 * (m_ptr->smana - spent))));
                     if (randint(3) == 1) {
                         msg_print("You have damaged your health!");
                         (void)dec_stat(A_CON);
