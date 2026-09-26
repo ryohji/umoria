@@ -30,6 +30,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "progress.h"
 #include "running.h"
 #include "score_death.h"
@@ -133,7 +134,7 @@ void dungeon(void) {
 
                     // unlight creatures
                     creatures(false);
-                } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && (f_ptr->blind < 1)) {
+                } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                     disturb(0, 0);
                     msg_print("Your light is growing faint.");
                 }
@@ -158,8 +159,8 @@ void dungeon(void) {
         //
 
         // Heroism (must precede anything that can damage player)
-        if (f_ptr->hero > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_HERO)) {
+        if (player_timed_in_force(PLAYER_TIMED_HEROISM)) {
+            if (player_timed_beginning(PLAYER_TIMED_HEROISM)) {
                 disturb(0, 0);
                 player_gain_temporary_max_hp(10);
                 p_ptr->bth += 12;
@@ -168,9 +169,7 @@ void dungeon(void) {
                 prt_mhp();
                 prt_chp();
             }
-            f_ptr->hero--;
-            if (f_ptr->hero == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_HERO);
+            if (player_timed_count_down(PLAYER_TIMED_HEROISM)) {
                 disturb(0, 0);
                 if (player_lose_temporary_max_hp(10)) {
                     prt_chp();
@@ -183,8 +182,8 @@ void dungeon(void) {
         }
 
         // Super Heroism
-        if (f_ptr->shero > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_SUPER_HERO)) {
+        if (player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM)) {
+            if (player_timed_beginning(PLAYER_TIMED_SUPER_HEROISM)) {
                 disturb(0, 0);
                 player_gain_temporary_max_hp(20);
                 p_ptr->bth += 24;
@@ -193,9 +192,7 @@ void dungeon(void) {
                 prt_mhp();
                 prt_chp();
             }
-            f_ptr->shero--;
-            if (f_ptr->shero == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_SUPER_HERO);
+            if (player_timed_count_down(PLAYER_TIMED_SUPER_HEROISM)) {
                 disturb(0, 0);
                 if (player_lose_temporary_max_hp(20)) {
                     prt_chp();
@@ -224,7 +221,7 @@ void dungeon(void) {
                     prt_hunger();
                 }
                 if ((player_food() < PLAYER_FOOD_FAINT) && (randint(8) == 1)) {
-                    f_ptr->paralysis += randint(5);
+                    player_timed_add(PLAYER_TIMED_PARALYSIS, randint(5));
                     msg_print("You faint from the lack of food.");
                     disturb(1, 0);
                 }
@@ -253,7 +250,7 @@ void dungeon(void) {
         if (player_is_searching() || f_ptr->rest != 0) {
             regen_amount = regen_amount * 2;
         }
-        if ((f_ptr->poisoned < 1) && (player_hp() < player_max_hp())) {
+        if (!player_timed_in_force(PLAYER_TIMED_POISON) && (player_hp() < player_max_hp())) {
             regenhp(regen_amount);
         }
         if (player_mana() < player_max_mana()) {
@@ -261,8 +258,8 @@ void dungeon(void) {
         }
 
         // Blindness
-        if (f_ptr->blind > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_BLIND)) {
+        if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+            if (player_timed_beginning(PLAYER_TIMED_BLINDNESS)) {
                 prt_map();
                 prt_blind();
                 disturb(0, 1);
@@ -270,9 +267,7 @@ void dungeon(void) {
                 // unlight creatures
                 creatures(false);
             }
-            f_ptr->blind--;
-            if (f_ptr->blind == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_BLIND);
+            if (player_timed_count_down(PLAYER_TIMED_BLINDNESS)) {
                 prt_blind();
                 prt_map();
 
@@ -284,13 +279,11 @@ void dungeon(void) {
         }
 
         // Confusion
-        if (f_ptr->confused > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_CONFUSED)) {
+        if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+            if (player_timed_beginning(PLAYER_TIMED_CONFUSION)) {
                 prt_confused();
             }
-            f_ptr->confused--;
-            if (f_ptr->confused == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_CONFUSED);
+            if (player_timed_count_down(PLAYER_TIMED_CONFUSION)) {
                 prt_confused();
                 msg_print("You feel less confused now.");
                 if (f_ptr->rest != 0) {
@@ -300,20 +293,27 @@ void dungeon(void) {
         }
 
         // Afraid
-        if (f_ptr->afraid > 0) {
+        if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
+            // The old test was (shero + hero) > 0. Neither counter is ever
+            // negative, so the sum is above zero exactly when one of the two is.
+            bool heroic = player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM) ||
+                          player_timed_in_force(PLAYER_TIMED_HEROISM);
+
             if (!player_effect_in_force(PLAYER_EFFECT_AFRAID)) {
-                if ((f_ptr->shero + f_ptr->hero) > 0) {
-                    f_ptr->afraid = 0;
+                if (heroic) {
+                    // Cleared, not ended: the count-down below then takes the
+                    // counter to minus one and no "bolder" message is given,
+                    // which is what the original did.
+                    player_timed_clear(PLAYER_TIMED_FEAR);
                 } else {
-                    (void)player_note_effect_started(PLAYER_EFFECT_AFRAID);
+                    (void)player_timed_beginning(PLAYER_TIMED_FEAR);
                     prt_afraid();
                 }
-            } else if ((f_ptr->shero + f_ptr->hero) > 0) {
-                f_ptr->afraid = 1;
+            } else if (heroic) {
+                // One turn left, so the count-down below ends it properly.
+                player_timed_set(PLAYER_TIMED_FEAR, 1);
             }
-            f_ptr->afraid--;
-            if (f_ptr->afraid == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_AFRAID);
+            if (player_timed_count_down(PLAYER_TIMED_FEAR)) {
                 prt_afraid();
                 msg_print("You feel bolder now.");
                 disturb(0, 0);
@@ -321,13 +321,11 @@ void dungeon(void) {
         }
 
         // Poisoned
-        if (f_ptr->poisoned > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_POISONED)) {
+        if (player_timed_in_force(PLAYER_TIMED_POISON)) {
+            if (player_timed_beginning(PLAYER_TIMED_POISON)) {
                 prt_poisoned();
             }
-            f_ptr->poisoned--;
-            if (f_ptr->poisoned == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_POISONED);
+            if (player_timed_count_down(PLAYER_TIMED_POISON)) {
                 prt_poisoned();
                 msg_print("You feel better.");
                 disturb(0, 0);
@@ -370,15 +368,13 @@ void dungeon(void) {
         }
 
         // Fast
-        if (f_ptr->fast > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_HASTED)) {
+        if (player_timed_in_force(PLAYER_TIMED_HASTE)) {
+            if (player_timed_beginning(PLAYER_TIMED_HASTE)) {
                 change_speed(-1);
                 msg_print("You feel yourself moving faster.");
                 disturb(0, 0);
             }
-            f_ptr->fast--;
-            if (f_ptr->fast == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_HASTED);
+            if (player_timed_count_down(PLAYER_TIMED_HASTE)) {
                 change_speed(1);
                 msg_print("You feel yourself slow down.");
                 disturb(0, 0);
@@ -386,15 +382,13 @@ void dungeon(void) {
         }
 
         // Slow
-        if (f_ptr->slow > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_SLOWED)) {
+        if (player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
+            if (player_timed_beginning(PLAYER_TIMED_SLOWNESS)) {
                 change_speed(1);
                 msg_print("You feel yourself moving slower.");
                 disturb(0, 0);
             }
-            f_ptr->slow--;
-            if (f_ptr->slow == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_SLOWED);
+            if (player_timed_count_down(PLAYER_TIMED_SLOWNESS)) {
                 change_speed(-1);
                 msg_print("You feel yourself speed up.");
                 disturb(0, 0);
@@ -425,41 +419,37 @@ void dungeon(void) {
         }
 
         // Hallucinating?   (Random characters appear!)
-        if (f_ptr->image > 0) {
+        if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION)) {
             end_find();
-            f_ptr->image--;
-            if (f_ptr->image == 0) {
+            if (player_timed_count_down(PLAYER_TIMED_HALLUCINATION)) {
                 prt_map(); // Used to draw entire screen! -CJS-
             }
         }
 
         // Paralysis
-        if (f_ptr->paralysis > 0) {
+        if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
             // when paralysis true, you can not see any movement that occurs
-            f_ptr->paralysis--;
+            (void)player_timed_count_down(PLAYER_TIMED_PARALYSIS);
             disturb(1, 0);
         }
 
         // Protection from evil counter
-        if (f_ptr->protevil > 0) {
-            f_ptr->protevil--;
-            if (f_ptr->protevil == 0) {
+        if (player_timed_in_force(PLAYER_TIMED_PROTECTION_FROM_EVIL)) {
+            if (player_timed_count_down(PLAYER_TIMED_PROTECTION_FROM_EVIL)) {
                 msg_print("You no longer feel safe from evil.");
             }
         }
 
         // Invulnerability
-        if (f_ptr->invuln > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_INVULNERABLE)) {
+        if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
+            if (player_timed_beginning(PLAYER_TIMED_INVULNERABILITY)) {
                 disturb(0, 0);
                 py.misc.pac += 100;
                 player_display_add_ac(100);
                 prt_pac();
                 msg_print("Your skin turns into steel!");
             }
-            f_ptr->invuln--;
-            if (f_ptr->invuln == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_INVULNERABLE);
+            if (player_timed_count_down(PLAYER_TIMED_INVULNERABILITY)) {
                 disturb(0, 0);
                 py.misc.pac -= 100;
                 player_display_add_ac(-100);
@@ -469,8 +459,8 @@ void dungeon(void) {
         }
 
         // Blessed
-        if (f_ptr->blessed > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_BLESSED)) {
+        if (player_timed_in_force(PLAYER_TIMED_BLESSING)) {
+            if (player_timed_beginning(PLAYER_TIMED_BLESSING)) {
                 disturb(0, 0);
                 p_ptr->bth += 5;
                 p_ptr->bthb += 5;
@@ -479,9 +469,7 @@ void dungeon(void) {
                 msg_print("You feel righteous!");
                 prt_pac();
             }
-            f_ptr->blessed--;
-            if (f_ptr->blessed == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_BLESSED);
+            if (player_timed_count_down(PLAYER_TIMED_BLESSING)) {
                 disturb(0, 0);
                 p_ptr->bth -= 5;
                 p_ptr->bthb -= 5;
@@ -493,33 +481,28 @@ void dungeon(void) {
         }
 
         // Resist Heat
-        if (f_ptr->resist_heat > 0) {
-            f_ptr->resist_heat--;
-            if (f_ptr->resist_heat == 0) {
+        if (player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
+            if (player_timed_count_down(PLAYER_TIMED_HEAT_RESISTANCE)) {
                 msg_print("You no longer feel safe from flame.");
             }
         }
 
         // Resist Cold
-        if (f_ptr->resist_cold > 0) {
-            f_ptr->resist_cold--;
-            if (f_ptr->resist_cold == 0) {
+        if (player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
+            if (player_timed_count_down(PLAYER_TIMED_COLD_RESISTANCE)) {
                 msg_print("You no longer feel safe from cold.");
             }
         }
 
         // Detect Invisible
-        if (f_ptr->detect_inv > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_SEE_INVISIBLE)) {
+        if (player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
+            if (player_timed_beginning(PLAYER_TIMED_SEEING_INVISIBLE)) {
                 player_grant_see_invisible();
 
                 // light but don't move creatures
                 creatures(false);
             }
-            f_ptr->detect_inv--;
-            if (f_ptr->detect_inv == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_SEE_INVISIBLE);
-
+            if (player_timed_count_down(PLAYER_TIMED_SEEING_INVISIBLE)) {
                 // may still be able to see_inv if wearing magic item
                 calc_bonuses();
 
@@ -529,17 +512,14 @@ void dungeon(void) {
         }
 
         // Timed infra-vision
-        if (f_ptr->tim_infra > 0) {
-            if (player_note_effect_started(PLAYER_EFFECT_INFRA_VISION)) {
+        if (player_timed_in_force(PLAYER_TIMED_INFRA_VISION)) {
+            if (player_timed_beginning(PLAYER_TIMED_INFRA_VISION)) {
                 f_ptr->see_infra++;
 
                 // light but don't move creatures
                 creatures(false);
             }
-            f_ptr->tim_infra--;
-
-            if (f_ptr->tim_infra == 0) {
-                player_note_effect_ended(PLAYER_EFFECT_INFRA_VISION);
+            if (player_timed_count_down(PLAYER_TIMED_INFRA_VISION)) {
                 f_ptr->see_infra--;
 
                 // unlight but don't move creatures
@@ -548,10 +528,10 @@ void dungeon(void) {
         }
 
         // Word-of-Recall  Note: Word-of-Recall is a delayed action
-        if (f_ptr->word_recall > 0) {
-            if (f_ptr->word_recall == 1) {
-                f_ptr->paralysis++;
-                f_ptr->word_recall = 0;
+        if (player_timed_in_force(PLAYER_TIMED_WORD_OF_RECALL)) {
+            if (player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL) == 1) {
+                player_timed_add(PLAYER_TIMED_PARALYSIS, 1);
+                player_timed_clear(PLAYER_TIMED_WORD_OF_RECALL);
                 if (dun_level > 0) {
                     leave_for_level(0);
                     msg_print("You feel yourself yanked upwards!");
@@ -565,7 +545,7 @@ void dungeon(void) {
                     end_level();
                 }
             } else {
-                f_ptr->word_recall--;
+                (void)player_timed_count_down(PLAYER_TIMED_WORD_OF_RECALL);
             }
         }
 
@@ -588,10 +568,10 @@ void dungeon(void) {
             prt_speed();
         }
 
-        if (player_status_line_shows_paralysis() && (f_ptr->paralysis < 1)) {
+        if (player_status_line_shows_paralysis() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
             prt_state();
             player_set_status_line_shows_paralysis(false);
-        } else if (f_ptr->paralysis > 0) {
+        } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
             prt_state();
             player_set_status_line_shows_paralysis(true);
         } else if (f_ptr->rest != 0) {
@@ -624,7 +604,7 @@ void dungeon(void) {
         // Allow for a slim chance of detect enchantment -CJS-
         // for 1st level char, check once every 2160 turns
         // for 40th level char, check once every 416 turns
-        if (((progress_turn() & 0xF) == 0) && (f_ptr->confused == 0) &&
+        if (((progress_turn() & 0xF) == 0) && !player_timed_in_force(PLAYER_TIMED_CONFUSION) &&
             (randint((10 + 750 / (5 + player_level()))) == 1)) {
 
             for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
@@ -656,7 +636,7 @@ void dungeon(void) {
         }
 
         // Accept a command?
-        if ((f_ptr->paralysis < 1) && (f_ptr->rest == 0) && (!player_is_dead())) {
+        if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) && (f_ptr->rest == 0) && (!player_is_dead())) {
             char command; // Last command
 
             // Accept a command and execute it
@@ -1045,7 +1025,6 @@ static void do_command(char com_val) {
     bool do_pickup, do_diplay_scores;
     int y, x, i;
     vtype out_val, tmp_str;
-    struct flags *const f_ptr = &py.flags;
 
     // hack for move without pickup.  Map '-' to a movement command.
     if (com_val == '-') {
@@ -1296,7 +1275,7 @@ static void do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'W': // (W)here are we on the map  (L)ocate on map
-        if ((f_ptr->blind > 0) || no_light()) {
+        if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
             msg_print("You can't see your map.");
         } else {
             int cy, cx, p_y, p_x;
@@ -1469,12 +1448,8 @@ static void do_command(char com_val) {
                 (void)res_stat(A_CON);
                 (void)res_stat(A_DEX);
                 (void)res_stat(A_CHR);
-                if (f_ptr->slow > 1) {
-                    f_ptr->slow = 1;
-                }
-                if (f_ptr->image > 1) {
-                    f_ptr->image = 1;
-                }
+                player_timed_shorten_to(PLAYER_TIMED_SLOWNESS, 1);
+                player_timed_shorten_to(PLAYER_TIMED_HALLUCINATION, 1);
                 break;
             case CTRL_KEY('E'): // ^E = wizchar
                 change_character();
@@ -1727,11 +1702,11 @@ static void examine_book(void) {
 
     if (!find_range(TV_MAGIC_BOOK, TV_PRAYER_BOOK, &i, &k)) {
         msg_print("You are not carrying any books.");
-    } else if (py.flags.blind > 0) {
+    } else if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see to read your spell book!");
     } else if (no_light()) {
         msg_print("You have no light to read by.");
-    } else if (py.flags.confused > 0) {
+    } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
     } else if (get_item(&item_val, "Which Book?", i, k, CNIL, CNIL)) {
         int spell_index[31];
