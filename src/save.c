@@ -30,6 +30,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "options.h"
 #include "progress.h"
 #include "save_state.h"
@@ -170,7 +171,7 @@ static bool sv_write(void) {
     wr_bytes(s_ptr->use_stat, 6);
 
     struct flags *f_ptr = &py.flags;
-    wr_long(f_ptr->status);
+    wr_long(player_status_word());
     wr_short((uint16_t)f_ptr->rest);
     wr_short((uint16_t)f_ptr->blind);
     wr_short((uint16_t)f_ptr->paralysis);
@@ -673,7 +674,13 @@ bool get_char(bool *generate) {
             rd_bytes(s_ptr->use_stat, 6);
 
             struct flags *f_ptr = &py.flags;
-            rd_long(&f_ptr->status);
+            // 旗の 1 語も窓口へ。**ビットの番号はこのファイルの書式**なので、
+            // 30 の旗を 1 つずつではなく 1 語まるごと運ぶ窓口を使う。読みは
+            // 器の番地を要るので、いったん受けてから置く（腹の具合と同じ形。
+            // 並びは動かせないのでこの位置のまま）。
+            uint32_t status;
+            rd_long(&status);
+            player_set_status_word(status);
             rd_short((uint16_t *)&f_ptr->rest);
             rd_short((uint16_t *)&f_ptr->blind);
             rd_short((uint16_t *)&f_ptr->paralysis);

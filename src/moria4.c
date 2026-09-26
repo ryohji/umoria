@@ -20,6 +20,7 @@
 #include "panel.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "stats.h"
 
 static bool look_ray(int, int, int);
@@ -645,7 +646,7 @@ static void inven_throw(int item_val, inven_type *t_ptr) {
         t_ptr->number = 1;
         i_ptr->number--;
         inventory_set_weight(inventory_weight() - i_ptr->weight);
-        py.flags.status |= PY_STR_WGT;
+        player_request_strength_check();
     } else {
         inven_destroy(item_val);
     }

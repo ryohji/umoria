@@ -16,6 +16,7 @@
 
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_status_flags.h"
 
 // Eat some food. -RAK-
 void eat(void) {
@@ -192,7 +193,7 @@ void eat(void) {
         i_ptr = learn_item_effect(ident, &item_val);
 
         add_food(i_ptr->p1);
-        py.flags.status &= ~(PY_WEAK | PY_HUNGRY);
+        player_note_hunger_satisfied();
         prt_hunger();
         desc_remain(item_val);
         inven_destroy(item_val);
