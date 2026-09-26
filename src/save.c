@@ -28,6 +28,7 @@
 #include "player_food.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
+#include "player_hit_die.h"
 #include "player_hp.h"
 #include "player_infra_range.h"
 #include "player_level.h"
@@ -177,7 +178,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)m_ptr->stl);
     wr_byte(m_ptr->pclass);
     wr_byte(m_ptr->prace);
-    wr_byte(m_ptr->hitdie);
+    wr_byte((uint8_t)player_hit_die());
     wr_byte(player_experience_factor());
     wr_short((uint16_t)player_mana());
     wr_short(player_mana_fraction());
@@ -668,7 +669,12 @@ bool get_char(bool *generate) {
             rd_short((uint16_t *)&m_ptr->stl);
             rd_byte(&m_ptr->pclass);
             rd_byte(&m_ptr->prace);
-            rd_byte(&m_ptr->hitdie);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す
+             * （置きなおしは種族の土台と同じ窓口 —— どちらもただの
+             * 置きかえ。player_hit_die.h）。 */
+            uint8_t hit_die;
+            rd_byte(&hit_die);
+            player_hit_die_set(hit_die);
             uint8_t expfact;
             rd_byte(&expfact);
             player_set_experience_factor(expfact);

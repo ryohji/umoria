@@ -17,6 +17,7 @@
 #include "hp_table.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
+#include "player_hit_die.h"
 #include "player_hp.h"
 #include "player_infra_range.h"
 #include "player_level.h"
@@ -104,7 +105,7 @@ static void get_all_stats(void) {
     p_ptr->misc.fos = r_ptr->fos;
     p_ptr->misc.stl = r_ptr->stl;
     p_ptr->misc.save = r_ptr->bsav;
-    p_ptr->misc.hitdie = r_ptr->bhitdie;
+    player_hit_die_set(r_ptr->bhitdie);
     p_ptr->misc.ptodam = todam_adj();
     p_ptr->misc.ptohit = tohit_adj();
     p_ptr->misc.ptoac = 0;
@@ -383,21 +384,21 @@ static void get_class(void) {
 
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints
             m_ptr = &py.misc;
-            m_ptr->hitdie += c_ptr->adj_hd;
-            player_reset_hp((int16_t)(con_adj() + m_ptr->hitdie));
+            player_hit_die_adjust(c_ptr->adj_hd);
+            player_reset_hp((int16_t)(con_adj() + player_hit_die()));
 
             // Initialize hit_points array.
             // Put bounds on total possible hp, only succeed
             // if it is within 1/8 of average value.
-            min_value = (MAX_PLAYER_LEVEL * 3 / 8 * (m_ptr->hitdie - 1)) + MAX_PLAYER_LEVEL;
-            max_value = (MAX_PLAYER_LEVEL * 5 / 8 * (m_ptr->hitdie - 1)) + MAX_PLAYER_LEVEL;
-            set_hp_total_at_level(1, m_ptr->hitdie);
+            min_value = (MAX_PLAYER_LEVEL * 3 / 8 * (player_hit_die() - 1)) + MAX_PLAYER_LEVEL;
+            max_value = (MAX_PLAYER_LEVEL * 5 / 8 * (player_hit_die() - 1)) + MAX_PLAYER_LEVEL;
+            set_hp_total_at_level(1, (uint16_t)player_hit_die());
             do {
                 // i は添字ではなくレベル - 1 のまま回す（振る回数と順番を
                 // 変えないため）。level i + 1 の合計は、その段の振りに
                 // 1 つ下の段までの合計を足したもの。
                 for (i = 1; i < MAX_PLAYER_LEVEL; i++) {
-                    set_hp_total_at_level(i + 1, (uint16_t)(randint((int)m_ptr->hitdie) + hp_total_at_level(i)));
+                    set_hp_total_at_level(i + 1, (uint16_t)(randint(player_hit_die()) + hp_total_at_level(i)));
                 }
             } while ((hp_total_at_level(MAX_PLAYER_LEVEL) < min_value) ||
                      (hp_total_at_level(MAX_PLAYER_LEVEL) > max_value));
