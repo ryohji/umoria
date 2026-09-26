@@ -46,6 +46,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "spells_known.h"
 
 extern player_type py;
@@ -143,7 +144,7 @@ TEST(a_priest_with_nothing_left_to_learn_is_refused_in_their_own_words) {
 TEST(a_confused_character_cannot_learn) {
     given_no_spells_known();
     given_a_priest_who_can_learn(1);
-    py.flags.confused = 1;
+    player_timed_set(PLAYER_TIMED_CONFUSION, 1);
 
     gain_spells();
 
@@ -156,7 +157,7 @@ TEST(a_confused_character_cannot_learn) {
 TEST(a_blind_mage_cannot_read_their_book) {
     given_no_spells_known();
     given_a_mage_who_can_learn(1);
-    py.flags.blind = 1;
+    player_timed_set(PLAYER_TIMED_BLINDNESS, 1);
 
     gain_spells();
 

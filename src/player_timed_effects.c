@@ -22,19 +22,16 @@
 // are two halves of one fact, and the table below is the only place in the
 // program that says which mark belongs to which clock.
 
-// THE EIGHTEEN ARE STILL IN py.flags (step A). The windows go through this table,
-// so #18-12-9C has one place to change: the pointers become an array of the
-// counters themselves and this comment goes away.
-extern player_type py;
-
-static int16_t *const turns_field[PLAYER_TIMED_COUNT] = {
-    &py.flags.blind,       &py.flags.paralysis,   &py.flags.confused,
-    &py.flags.fast,        &py.flags.slow,        &py.flags.afraid,
-    &py.flags.poisoned,    &py.flags.image,       &py.flags.protevil,
-    &py.flags.invuln,      &py.flags.hero,        &py.flags.shero,
-    &py.flags.blessed,     &py.flags.resist_heat, &py.flags.resist_cold,
-    &py.flags.detect_inv,  &py.flags.word_recall, &py.flags.tim_infra,
-};
+// THE EIGHTEEN ANSWERS THEMSELVES. They were py.flags.blind through
+// py.flags.tim_infra until #18-12-9C; now this array is the only place they
+// live, and the windows below are the only way to reach them. The order is the
+// save file's (player_timed_effects.h), but save.c names each one, so nothing
+// here depends on it.
+//
+// No reset window: a new character starts the program over, the same as the
+// status word and the seventeen abilities. Loading a saved game writes all
+// eighteen through player_timed_set() (save.c).
+static int16_t turns_left[PLAYER_TIMED_COUNT];
 
 // WHICH MARK PAIRS WITH WHICH CLOCK. Twelve of the fourteen marks in
 // player_status_flags.c pair with one of the eighteen counters; the other two
@@ -76,7 +73,7 @@ static bool has_mark(player_timed_effect effect) {
 }
 
 static int16_t *turns_of(player_timed_effect effect) {
-    return turns_field[effect];
+    return &turns_left[effect];
 }
 
 bool player_timed_in_force(player_timed_effect effect) {

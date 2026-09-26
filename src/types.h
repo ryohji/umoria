@@ -210,30 +210,21 @@ typedef struct player_type {
         // answered from a hundred and five places, now behind
         // player_status_flags.h. The counters below are a different question --
         // most of the marks that lived in the word pair with one of them.
+        // The eighteen counters left here in #18-12-9C: how much longer each
+        // temporary state lasts, asked and answered from two hundred and
+        // eighty-one places, now behind player_timed_effects.h. Twelve of them
+        // pair with a mark in the status word above, and that pairing is the
+        // reason they moved together. The six below stayed: `rest` is WHAT the
+        // character is doing rather than a state wearing off, `protection` is
+        // never read outside the save file, `speed` and `see_infra` are amounts
+        // rather than clocks, and the stomach's two belong to player_food.h
+        // (still here only because the save file keeps them in this run).
         int16_t rest;            // Rest counter
-        int16_t blind;           // Blindness counter
-        int16_t paralysis;       // Paralysis counter
-        int16_t confused;        // Confusion counter
         int16_t food;            // Food counter
         int16_t food_digested;   // Food per round
         int16_t protection;      // Protection fr. evil
         int16_t speed;           // Cur speed adjust
-        int16_t fast;            // Temp speed change
-        int16_t slow;            // Temp speed change
-        int16_t afraid;          // Fear
-        int16_t poisoned;        // Poisoned
-        int16_t image;           // Hallucinate
-        int16_t protevil;        // Protect VS evil
-        int16_t invuln;          // Increases AC
-        int16_t hero;            // Heroism
-        int16_t shero;           // Super Heroism
-        int16_t blessed;         // Blessed
-        int16_t resist_heat;     // Timed heat resist
-        int16_t resist_cold;     // Timed cold resist
-        int16_t detect_inv;      // Timed see invisible
-        int16_t word_recall;     // Timed teleport level
         int16_t see_infra;       // See warm creatures
-        int16_t tim_infra;       // Timed infra vision
         // Seventeen one-byte fields left here in #18-12-8C: what the character
         // can do and resist because of what is being worn -- sees invisible,
         // never paralyzed, the four resistances and falling, slow digestion,

@@ -14,10 +14,11 @@
 // sheet shows (player_display_numbers.c), the mana (player_mana.c), the hit
 // points (player_hp.c), how far the character has come (player_level.c), the
 // status word (player_status_flags.c) and what the equipment grants
-// (player_abilities.c). EIGHTEEN fields answer it -- py.flags.blind through
-// py.flags.tim_infra -- touched from two hundred and eighty-one places in
-// eighteen files (dungeon.c seventy-five of them, save.c thirty-eight,
-// creature.c thirty-two).
+// (player_abilities.c). EIGHTEEN fields answered it -- py.flags.blind through
+// py.flags.tim_infra, touched from two hundred and eighty-one places in eighteen
+// files (dungeon.c seventy-five of them, save.c thirty-eight, creature.c
+// thirty-two). Since #18-12-9C they are a static array in
+// player_timed_effects.c and the windows below are the only way to reach them.
 //
 // THE QUESTION IS "HOW MANY TURNS ARE LEFT". A cause adds turns (a potion, a
 // bite, a trap, a prayer), one block in dungeon.c takes one turn off every

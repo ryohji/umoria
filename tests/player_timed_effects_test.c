@@ -38,10 +38,6 @@
 
 #include "minunit.h"
 
-/* A の段だけ要る宣言。**C で置き場が static に入ったらこの 1 行と、これを使う
- * 1 件（下）が消える。** */
-extern player_type py;
-
 #define ONLY(effect) (1L << (effect))
 #define ALL_EIGHTEEN ((1L << PLAYER_TIMED_COUNT) - 1)
 
@@ -163,82 +159,33 @@ TEST(there_are_eighteen_clocks) {
     ASSERT_EQ_INT(PLAYER_TIMED_COUNT, 18);
 }
 
-/* --- 置き場との対応（A の段だけの釘） ----------------------------------- */
+/* --- 置き場との対応 ------------------------------------------------------ */
 
-/* **この 1 件は #18-12-9C で消える。** A の段では窓口と py.flags のフィールドの
- * 間に表（src/player_timed_effects.c の turns_field）が 1 枚あり、**表の 2 行を
- * 入れかえても窓口だけを見るテストでは気づけない**（読みも書きも同じ表を通るので
- * ずれが打ち消しあう）。18 個に**それぞれ違う長さ**を置いて、フィールドを名前で
- * 突きあわせる。C では表が 1 枚も無くなるので留めるものが無い。 */
-static long fields_holding_their_own_length(void) {
+/* A の段では py.flags のフィールドを名前で突きあわせていた（窓口と置き場の間に
+ * 表が 1 枚あり、2 行を入れかえても窓口だけを見るテストでは気づけなかった）。
+ * #18-12-9C で置き場が static な 18 個の並びになり、表は無くなったので、フィー
+ * ルドの名前はもう出てこない。**それでも 18 個にそれぞれ違う長さを置いて一度に
+ * 見る釘は残す**：番地の出しかたが 1 つずれれば、これだけが気づく。 */
+static long clocks_holding_their_own_length(void) {
     long right = 0;
 
-    if (py.flags.blind == 1 + PLAYER_TIMED_BLINDNESS) {
-        right |= ONLY(PLAYER_TIMED_BLINDNESS);
-    }
-    if (py.flags.paralysis == 1 + PLAYER_TIMED_PARALYSIS) {
-        right |= ONLY(PLAYER_TIMED_PARALYSIS);
-    }
-    if (py.flags.confused == 1 + PLAYER_TIMED_CONFUSION) {
-        right |= ONLY(PLAYER_TIMED_CONFUSION);
-    }
-    if (py.flags.fast == 1 + PLAYER_TIMED_HASTE) {
-        right |= ONLY(PLAYER_TIMED_HASTE);
-    }
-    if (py.flags.slow == 1 + PLAYER_TIMED_SLOWNESS) {
-        right |= ONLY(PLAYER_TIMED_SLOWNESS);
-    }
-    if (py.flags.afraid == 1 + PLAYER_TIMED_FEAR) {
-        right |= ONLY(PLAYER_TIMED_FEAR);
-    }
-    if (py.flags.poisoned == 1 + PLAYER_TIMED_POISON) {
-        right |= ONLY(PLAYER_TIMED_POISON);
-    }
-    if (py.flags.image == 1 + PLAYER_TIMED_HALLUCINATION) {
-        right |= ONLY(PLAYER_TIMED_HALLUCINATION);
-    }
-    if (py.flags.protevil == 1 + PLAYER_TIMED_PROTECTION_FROM_EVIL) {
-        right |= ONLY(PLAYER_TIMED_PROTECTION_FROM_EVIL);
-    }
-    if (py.flags.invuln == 1 + PLAYER_TIMED_INVULNERABILITY) {
-        right |= ONLY(PLAYER_TIMED_INVULNERABILITY);
-    }
-    if (py.flags.hero == 1 + PLAYER_TIMED_HEROISM) {
-        right |= ONLY(PLAYER_TIMED_HEROISM);
-    }
-    if (py.flags.shero == 1 + PLAYER_TIMED_SUPER_HEROISM) {
-        right |= ONLY(PLAYER_TIMED_SUPER_HEROISM);
-    }
-    if (py.flags.blessed == 1 + PLAYER_TIMED_BLESSING) {
-        right |= ONLY(PLAYER_TIMED_BLESSING);
-    }
-    if (py.flags.resist_heat == 1 + PLAYER_TIMED_HEAT_RESISTANCE) {
-        right |= ONLY(PLAYER_TIMED_HEAT_RESISTANCE);
-    }
-    if (py.flags.resist_cold == 1 + PLAYER_TIMED_COLD_RESISTANCE) {
-        right |= ONLY(PLAYER_TIMED_COLD_RESISTANCE);
-    }
-    if (py.flags.detect_inv == 1 + PLAYER_TIMED_SEEING_INVISIBLE) {
-        right |= ONLY(PLAYER_TIMED_SEEING_INVISIBLE);
-    }
-    if (py.flags.word_recall == 1 + PLAYER_TIMED_WORD_OF_RECALL) {
-        right |= ONLY(PLAYER_TIMED_WORD_OF_RECALL);
-    }
-    if (py.flags.tim_infra == 1 + PLAYER_TIMED_INFRA_VISION) {
-        right |= ONLY(PLAYER_TIMED_INFRA_VISION);
+    for (int effect = 0; effect < PLAYER_TIMED_COUNT; effect++) {
+        if (player_timed_turns((player_timed_effect)effect) == 1 + effect) {
+            right |= ONLY(effect);
+        }
     }
 
     return right;
 }
 
-TEST(each_window_moves_the_field_it_is_named_after) {
+TEST(each_clock_keeps_the_length_it_was_given) {
     given_no_state_at_all();
 
     for (int effect = 0; effect < PLAYER_TIMED_COUNT; effect++) {
         player_timed_set((player_timed_effect)effect, 1 + effect);
     }
 
-    ASSERT_EQ_INT(fields_holding_their_own_length(), ALL_EIGHTEEN);
+    ASSERT_EQ_INT(clocks_holding_their_own_length(), ALL_EIGHTEEN);
 }
 
 /* --- 数を読む ----------------------------------------------------------- */
@@ -672,7 +619,7 @@ int main(void) {
     RUN_TEST(the_infra_vision_clock_is_its_own);
     RUN_TEST(there_are_eighteen_clocks);
 
-    RUN_TEST(each_window_moves_the_field_it_is_named_after);
+    RUN_TEST(each_clock_keeps_the_length_it_was_given);
 
     RUN_TEST(a_clock_at_zero_is_not_in_force);
     RUN_TEST(a_clock_below_zero_is_not_in_force);

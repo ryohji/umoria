@@ -1229,17 +1229,16 @@ $(BUILDDIR)/player_abilities_test: $(TESTDIR)/player_abilities_test.c \
 # 両方を引いて「始まりで印が立ち、数え切りで印が下りる」を本物どうしで見る
 # （代役を置くと肝心の対応表が検証できない）。
 #
-# A の段なので足場 tests/player_timed_effects_fixture.c がまだ py を置いている
-# （**#18-12-9C で消える** —— #18-12-1C から 9 回めの同じ形）。
+# #18-12-9C で置き場が module の static に入ったので、py を置く足場
+# tests/player_timed_effects_fixture.c は消えた（#18-12-1C から 9 回めの同じ形）。
+# 残るのは本物 2 本だけ。
 $(BUILDDIR)/player_timed_effects_test: $(TESTDIR)/player_timed_effects_test.c \
-                                       $(TESTDIR)/player_timed_effects_fixture.c \
                                        $(TESTDIR)/minunit.h \
                                        src/player_timed_effects.c \
                                        src/player_timed_effects.h \
                                        src/player_status_flags.c \
                                        src/player_status_flags.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_timed_effects_test.c \
-	    $(TESTDIR)/player_timed_effects_fixture.c \
 	    src/player_timed_effects.c src/player_status_flags.c
 
 clean:
