@@ -24,6 +24,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "running.h"
 #include "spells_known.h"
 #include "stats.h"
@@ -650,7 +651,7 @@ void py_attack(int y, int x) {
             {
                 i_ptr->number--;
                 inventory_set_weight(inventory_weight() - i_ptr->weight);
-                py.flags.status |= PY_STR_WGT;
+                player_request_strength_check();
 
                 if (i_ptr->number == 0) {
                     equipment_set_count(equipment_count() - 1);
@@ -714,7 +715,7 @@ void move_char(int dir, bool do_pickup) {
                 // Check to see if he notices something
                 // fos may be negative if have good rings of searching
                 if ((py.misc.fos <= 1) || (randint(py.misc.fos) == 1) ||
-                    (py.flags.status & PY_SEARCH)) {
+                    player_is_searching()) {
                     search(player_row(), player_col(), py.misc.srh);
                 }
 

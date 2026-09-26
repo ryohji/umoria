@@ -33,6 +33,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_level.h"
+#include "player_status_flags.h"
 
 /* --- グローバル状態 --- */
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
@@ -323,6 +324,11 @@ void fixture_reset(void)
     player_set_max_experience(0);
     player_set_experience_fraction(0);
     player_set_experience_factor(0);
+    /* 状態の旗の 1 語も #18-12-7C で src/player_status_flags.c の static へ
+     * 移ったので、同じように窓口越しに消す。**旗が 1 つも立っていない状態が
+     * 人物の走りだし** —— 30 bit を 1 回で降ろせる窓口はセーブファイル用の
+     * これだけ。 */
+    player_set_status_word(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

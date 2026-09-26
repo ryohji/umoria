@@ -28,6 +28,7 @@
 #include "hp_table.h"
 #include "player_hp.h"
 #include "player_level.h"
+#include "player_status_flags.h"
 
 extern player_type py;
 
@@ -143,7 +144,7 @@ TEST(heroism_adds_ten) {
     given_neutral_constitution();
     given_hp_table_entry(2, 30);
     given_level_with_hitpoints(2, 1);
-    py.flags.status |= PY_HERO;
+    player_note_effect_started(PLAYER_EFFECT_HERO);
     calc_hitpoints();
     ASSERT_EQ_INT(40, player_max_hp());
 }
@@ -152,7 +153,7 @@ TEST(super_heroism_adds_twenty) {
     given_neutral_constitution();
     given_hp_table_entry(2, 30);
     given_level_with_hitpoints(2, 1);
-    py.flags.status |= PY_SHERO;
+    player_note_effect_started(PLAYER_EFFECT_SUPER_HERO);
     calc_hitpoints();
     ASSERT_EQ_INT(50, player_max_hp());
 }
@@ -162,7 +163,8 @@ TEST(both_kinds_of_heroism_add_thirty) {
     given_neutral_constitution();
     given_hp_table_entry(2, 30);
     given_level_with_hitpoints(2, 1);
-    py.flags.status |= PY_HERO | PY_SHERO;
+    player_note_effect_started(PLAYER_EFFECT_HERO);
+    player_note_effect_started(PLAYER_EFFECT_SUPER_HERO);
     calc_hitpoints();
     ASSERT_EQ_INT(60, player_max_hp());
 }
@@ -190,13 +192,14 @@ TEST(the_current_hitpoints_follow_the_maximum_in_proportion) {
     ASSERT_EQ_INT(20, player_hp());
 }
 
-/* 最大が動いたことは PY_HP で知らせる（画面はここでは書けない）。 */
+/* 最大が動いたことは「HP を書きなおして」の依頼で知らせる（画面はここでは
+ * 書けない）。依頼は読んだら消える窓口なので、1 回の確認で足りる。 */
 TEST(a_changed_maximum_is_announced_with_the_hitpoint_flag) {
     given_neutral_constitution();
     given_hp_table_entry(1, 19);
     given_level_with_hitpoints(1, 1);
     calc_hitpoints();
-    ASSERT_TRUE((py.flags.status & PY_HP) != 0);
+    ASSERT_TRUE(player_take_hp_redraw_request());
 }
 
 /* 動かなかったときは知らせない。 */
@@ -205,7 +208,7 @@ TEST(an_unchanged_maximum_is_not_announced) {
     given_hp_table_entry(1, 19);
     given_level_with_hitpoints(1, 19);
     calc_hitpoints();
-    ASSERT_TRUE((py.flags.status & PY_HP) == 0);
+    ASSERT_TRUE(!player_take_hp_redraw_request());
 }
 
 int main(void) {

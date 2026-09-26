@@ -44,6 +44,7 @@
 #include "equipment.h"
 #include "fixture.h"
 #include "inventory.h"
+#include "player_status_flags.h"
 
 extern player_type py;
 
@@ -359,18 +360,19 @@ TEST(a_heavy_weapon_does_not_touch_the_speed_the_pack_costs) {
     ASSERT_EQ_INT(0, fixture_speed_change_count());
 }
 
-/* 判定が済んだら「重さを見なおせ」の要求（PY_STR_WGT）を降ろす。
- * ほかの要求は残す（降ろすのはこの 1 bit だけ）。 */
+/* 判定が済んだら「重さを見なおせ」の要求を降ろす。ほかの旗は残す —— 窓口に
+ * なっても触るのは自分の 1 bit だけ、という確認（#18-12-7C）。 */
 TEST(checking_clears_only_the_request_to_look_at_the_weight) {
     given_a_character_of_average_strength();
     given_a_wielded_weapon_weighing(100);
     given_the_remembered_answers(false, 0);
-    py.flags.status = PY_STR_WGT | PY_HUNGRY;
+    player_request_strength_check();
+    player_note_effect_started(PLAYER_EFFECT_HUNGRY);
 
     check_strength();
 
-    ASSERT_EQ_INT(0, (int)(py.flags.status & PY_STR_WGT));
-    ASSERT_TRUE((py.flags.status & PY_HUNGRY) != 0);
+    ASSERT_TRUE(!player_strength_check_requested());
+    ASSERT_TRUE(player_effect_in_force(PLAYER_EFFECT_HUNGRY));
 }
 
 /* ------------------------------------------------------------------

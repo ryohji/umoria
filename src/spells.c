@@ -19,6 +19,7 @@
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 
 static void replace_spot(int, int, int);
 
@@ -827,7 +828,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                     // must test status bit, not py.flags.blind here, flag could have
                     // been set by a previous monster, but the breath should still
                     // be visible until the blindness takes effect
-                    if (panel_contains(i, j) && !(py.flags.status & PY_BLIND)) {
+                    if (panel_contains(i, j) && !player_effect_in_force(PLAYER_EFFECT_BLIND)) {
                         print('*', i, j);
                     }
 

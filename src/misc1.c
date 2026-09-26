@@ -16,6 +16,7 @@
 #include "panel.h"
 #include "player_food.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "progress.h"
 #include "running.h"
 #include "score_death.h"
@@ -413,7 +414,7 @@ uint8_t loc_symbol(int y, int x) {
 
     if ((cave_ptr->cptr == 1) && (!player_is_running() || find_prself)) {
         return '@';
-    } else if (f_ptr->status & PY_BLIND) {
+    } else if (player_effect_in_force(PLAYER_EFFECT_BLIND)) {
         return ' ';
     } else if ((f_ptr->image > 0) && (randint(12) == 1)) {
         return randint(95) + 31;

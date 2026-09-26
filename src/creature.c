@@ -21,6 +21,7 @@
 #include "player_light.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "progress.h"
 #include "running.h"
 #include "score_death.h"
@@ -34,7 +35,7 @@ void update_mon(int monptr) {
     bool flag = false;
     monster_type *m_ptr = &m_list[monptr];
 
-    if ((m_ptr->cdis <= MAX_SIGHT) && !(py.flags.status & PY_BLIND) &&
+    if ((m_ptr->cdis <= MAX_SIGHT) && !player_effect_in_force(PLAYER_EFFECT_BLIND) &&
         (panel_contains((int)m_ptr->fy, (int)m_ptr->fx))) {
         if (progress_wizard_mode()) {
             // Wizard sight.

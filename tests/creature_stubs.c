@@ -27,6 +27,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_status_flags.h"
 
 /* --- グローバル状態 ---
  * turn と wizard はここに無い。#19B で creature.c が progress_turn() /
@@ -188,6 +189,10 @@ char *concat(char *buffer, ...) { return buffer; }
 void fixture_reset(void)
 {
     memset(&py, 0, sizeof py);
+    /* 状態の旗は #18-12-7C で src/player_status_flags.c の static に入ったので、
+     * py を消しても届かない。セーブファイル用の窓口で 30 bit まとめて降ろす
+     * （creature.c が読むのは PY_BLIND と PY_SEARCH あたり）。 */
+    player_set_status_word(0);
     memset(cave, 0, sizeof cave);
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;

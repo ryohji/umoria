@@ -29,6 +29,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_status_flags.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
@@ -341,9 +342,9 @@ void prt_depth(void) {
 
 // Prints status of hunger -RAK-
 void prt_hunger(void) {
-    if (PY_WEAK & py.flags.status) {
+    if (player_effect_in_force(PLAYER_EFFECT_WEAK)) {
         put_buffer("Weak  ", 23, 0);
-    } else if (PY_HUNGRY & py.flags.status) {
+    } else if (player_effect_in_force(PLAYER_EFFECT_HUNGRY)) {
         put_buffer("Hungry", 23, 0);
     } else {
         put_buffer(&blank_string[BLANK_LENGTH - 6], 23, 0);
@@ -352,7 +353,7 @@ void prt_hunger(void) {
 
 // Prints Blind status -RAK-
 void prt_blind(void) {
-    if (PY_BLIND & py.flags.status) {
+    if (player_effect_in_force(PLAYER_EFFECT_BLIND)) {
         put_buffer("Blind", 23, 7);
     } else {
         put_buffer(&blank_string[BLANK_LENGTH - 5], 23, 7);
@@ -361,7 +362,7 @@ void prt_blind(void) {
 
 // Prints Confusion status -RAK-
 void prt_confused(void) {
-    if (PY_CONFUSED & py.flags.status) {
+    if (player_effect_in_force(PLAYER_EFFECT_CONFUSED)) {
         put_buffer("Confused", 23, 13);
     } else {
         put_buffer(&blank_string[BLANK_LENGTH - 8], 23, 13);
@@ -370,7 +371,7 @@ void prt_confused(void) {
 
 // Prints Fear status -RAK-
 void prt_afraid(void) {
-    if (PY_FEAR & py.flags.status) {
+    if (player_effect_in_force(PLAYER_EFFECT_AFRAID)) {
         put_buffer("Afraid", 23, 22);
     } else {
         put_buffer(&blank_string[BLANK_LENGTH - 6], 23, 22);
@@ -379,7 +380,7 @@ void prt_afraid(void) {
 
 // Prints Poisoned status -RAK-
 void prt_poisoned(void) {
-    if (PY_POISONED & py.flags.status) {
+    if (player_effect_in_force(PLAYER_EFFECT_POISONED)) {
         put_buffer("Poisoned", 23, 29);
     } else {
         put_buffer(&blank_string[BLANK_LENGTH - 8], 23, 29);
@@ -388,11 +389,11 @@ void prt_poisoned(void) {
 
 // Prints Searching, Resting, Paralysis, or 'count' status -RAK-
 void prt_state(void) {
-    py.flags.status &= ~PY_REPEAT;
+    player_set_status_line_shows_repeat(false);
 
     if (py.flags.paralysis > 1) {
         put_buffer("Paralysed", 23, 38);
-    } else if (PY_REST & py.flags.status) {
+    } else if (player_is_resting()) {
         char tmp[16];
 
         if (py.flags.rest < 0) {
@@ -415,13 +416,13 @@ void prt_state(void) {
             (void)strcpy(tmp, "Repeat");
         }
 
-        py.flags.status |= PY_REPEAT;
+        player_set_status_line_shows_repeat(true);
 
         put_buffer(tmp, 23, 38);
-        if (PY_SEARCH & py.flags.status) {
+        if (player_is_searching()) {
             put_buffer("Search", 23, 38);
         }
-    } else if (PY_SEARCH & py.flags.status) {
+    } else if (player_is_searching()) {
         put_buffer("Searching", 23, 38);
     } else {
         // "repeat 999" is 10 characters
@@ -434,7 +435,7 @@ void prt_speed(void) {
     int i = py.flags.speed;
 
     // Search mode.
-    if (PY_SEARCH & py.flags.status) {
+    if (player_is_searching()) {
         i--;
     }
 
@@ -452,7 +453,7 @@ void prt_speed(void) {
 }
 
 void prt_study(void) {
-    py.flags.status &= ~PY_STUDY;
+    player_clear_study_redraw_request();
 
     if (py.flags.new_spells == 0) {
         put_buffer(&blank_string[BLANK_LENGTH - 5], 23, 59);
@@ -510,7 +511,7 @@ void set_use_stat(int stat) {
     py.stats.use_stat[stat] = modify_stat(stat, py.stats.mod_stat[stat]);
 
     if (stat == A_STR) {
-        py.flags.status |= PY_STR_WGT;
+        player_request_strength_check();
         calc_bonuses();
     } else if (stat == A_DEX) {
         calc_bonuses();
@@ -599,7 +600,7 @@ void bst_stat(int stat, int amount) {
     set_use_stat(stat);
 
     // can not call prt_stat() here, may be in store, may be in inven_command
-    py.flags.status |= (PY_STR << stat);
+    player_request_stat_redraw(stat);
 }
 
 // Prints character-screen info -RAK-
@@ -621,29 +622,34 @@ void prt_stat_block(void) {
     prt_lnum("GOLD", player_gold(), 20, STAT_COLUMN);
     prt_winner();
 
-    uint32_t status = py.flags.status;
-
-    if ((PY_HUNGRY | PY_WEAK) & status) {
+    // もとは 1 語を控えてから 8 つのビットを見ていた。窓口ごとに引いても
+    // 答えは変わらない —— この下で状態を動かすのは prt_state()（Repeat の
+    // 控え）と prt_study()（Study の要求）だけで、どちらもここで見るビットを
+    // 触らない。
+    if (player_effect_in_force(PLAYER_EFFECT_HUNGRY) || player_effect_in_force(PLAYER_EFFECT_WEAK)) {
         prt_hunger();
     }
-    if (PY_BLIND & status) {
+    if (player_effect_in_force(PLAYER_EFFECT_BLIND)) {
         prt_blind();
     }
-    if (PY_CONFUSED & status) {
+    if (player_effect_in_force(PLAYER_EFFECT_CONFUSED)) {
         prt_confused();
     }
-    if (PY_FEAR & status) {
+    if (player_effect_in_force(PLAYER_EFFECT_AFRAID)) {
         prt_afraid();
     }
-    if (PY_POISONED & status) {
+    if (player_effect_in_force(PLAYER_EFFECT_POISONED)) {
         prt_poisoned();
     }
-    if ((PY_SEARCH | PY_REST) & status) {
+    if (player_is_searching() || player_is_resting()) {
         prt_state();
     }
 
     // if speed non zero, print it, modify speed if Searching
-    if (py.flags.speed - ((PY_SEARCH & status) >> 8) != 0) {
+    // もとは `py.flags.speed - ((PY_SEARCH & status) >> 8)` で、**ビットの
+    // 位置（0x100）を知っていて 8 つずらして 1 を作っていた**。探索している
+    // なら 1 引くという意味で、prt_speed() の i-- と同じ。
+    if (py.flags.speed - (player_is_searching() ? 1 : 0) != 0) {
         prt_speed();
     }
 
@@ -857,7 +863,7 @@ void inven_destroy(int item_val) {
         invcopy(inventory_at(inventory_count() - 1), OBJ_NOTHING);
         inventory_set_count(inventory_count() - 1);
     }
-    py.flags.status |= PY_STR_WGT;
+    player_request_strength_check();
 }
 
 // Copies the object in the second argument over the first argument.
@@ -904,7 +910,7 @@ void inven_drop(int item_val, int drop_all) {
         (void)snprintf(prt2, sizeof(prt2), "Dropped %s", prt1);
         msg_print(prt2);
     }
-    py.flags.status |= PY_STR_WGT;
+    player_request_strength_check();
 }
 
 // Destroys a type of item on a given percent chance -RAK-
@@ -1017,7 +1023,7 @@ void check_strength(void) {
         change_speed(i - remembered);
         set_pack_speed_penalty(i);
     }
-    py.flags.status &= ~PY_STR_WGT;
+    player_clear_strength_check_request();
 }
 
 // Add an item to players inventory.  Return the
@@ -1053,7 +1059,7 @@ int inven_carry(inven_type *i_ptr) {
     }
 
     inventory_set_weight(inventory_weight() + i_ptr->number * i_ptr->weight);
-    py.flags.status |= PY_STR_WGT;
+    player_request_strength_check();
 
     return locn;
 }
@@ -1349,7 +1355,7 @@ void calc_spells(int stat) {
         }
 
         py.flags.new_spells = new_spells;
-        py.flags.status |= PY_STUDY;
+        player_request_study_redraw();
     }
 }
 
@@ -1477,7 +1483,7 @@ void gain_spells(void) {
 
         py.flags.new_spells = new_spells + diff_spells;
         if (py.flags.new_spells == 0) {
-            py.flags.status |= PY_STUDY;
+            player_request_study_redraw();
         }
 
         // set the mana for first level characters when they learn their first spell.
@@ -1527,11 +1533,11 @@ void calc_mana(int stat) {
         // mana can be zero when creating character
         if (player_change_max_mana((int16_t)new_mana)) {
             // can't print mana here, may be in store or inventory mode
-            py.flags.status |= PY_MANA;
+            player_request_mana_redraw();
         }
     } else if (player_lose_all_mana()) {
         // can't print mana here, may be in store or inventory mode
-        py.flags.status |= PY_MANA;
+        player_request_mana_redraw();
     }
 }
 
@@ -1584,11 +1590,11 @@ void calc_hitpoints(void) {
         hitpoints = player_level() + 1;
     }
 
-    if (py.flags.status & PY_HERO) {
+    if (player_effect_in_force(PLAYER_EFFECT_HERO)) {
         hitpoints += 10;
     }
 
-    if (py.flags.status & PY_SHERO) {
+    if (player_effect_in_force(PLAYER_EFFECT_SUPER_HERO)) {
         hitpoints += 20;
     }
 
@@ -1598,7 +1604,7 @@ void calc_hitpoints(void) {
     // raised then either.
     if (player_change_max_hp((int16_t)hitpoints)) {
         // can't print hit points here, may be in store or inventory mode
-        py.flags.status |= PY_HP;
+        player_request_hp_redraw();
     }
 }
 
