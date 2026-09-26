@@ -32,6 +32,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "player_timed_effects.h"
 #include "options.h"
 #include "progress.h"
 #include "save_state.h"
@@ -60,6 +61,7 @@ static void wr_monster(monster_type *);
 static void rd_byte(uint8_t *);
 static void rd_short(uint16_t *);
 static void rd_bool(bool *);
+static void rd_timed(player_timed_effect);
 static void rd_long(uint32_t *);
 static void rd_bytes(uint8_t *, int);
 static void rd_string(char *);
@@ -173,30 +175,34 @@ static bool sv_write(void) {
 
     struct flags *f_ptr = &py.flags;
     wr_long(player_status_word());
+    // 一時的な状態の十八個も窓口へ。**この二十四個の並びがこのファイルの
+    // 書式**なので、能力の 17 バイトのように位置で訊くことはできない（十八個
+    // の間に rest・腹の具合の二つ・protection・speed・see_infra が挟まって
+    // いる）。だから一つずつ名前で書く。並びは元のまま。
     wr_short((uint16_t)f_ptr->rest);
-    wr_short((uint16_t)f_ptr->blind);
-    wr_short((uint16_t)f_ptr->paralysis);
-    wr_short((uint16_t)f_ptr->confused);
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_BLINDNESS));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_PARALYSIS));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_CONFUSION));
     wr_short((uint16_t)player_food());
     wr_short((uint16_t)player_digestion());
     wr_short((uint16_t)f_ptr->protection);
     wr_short((uint16_t)f_ptr->speed);
-    wr_short((uint16_t)f_ptr->fast);
-    wr_short((uint16_t)f_ptr->slow);
-    wr_short((uint16_t)f_ptr->afraid);
-    wr_short((uint16_t)f_ptr->poisoned);
-    wr_short((uint16_t)f_ptr->image);
-    wr_short((uint16_t)f_ptr->protevil);
-    wr_short((uint16_t)f_ptr->invuln);
-    wr_short((uint16_t)f_ptr->hero);
-    wr_short((uint16_t)f_ptr->shero);
-    wr_short((uint16_t)f_ptr->blessed);
-    wr_short((uint16_t)f_ptr->resist_heat);
-    wr_short((uint16_t)f_ptr->resist_cold);
-    wr_short((uint16_t)f_ptr->detect_inv);
-    wr_short((uint16_t)f_ptr->word_recall);
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HASTE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SLOWNESS));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_FEAR));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_POISON));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HALLUCINATION));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_PROTECTION_FROM_EVIL));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_INVULNERABILITY));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HEROISM));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SUPER_HEROISM));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_BLESSING));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HEAT_RESISTANCE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_COLD_RESISTANCE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SEEING_INVISIBLE));
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL));
     wr_short((uint16_t)f_ptr->see_infra);
-    wr_short((uint16_t)f_ptr->tim_infra);
+    wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_INFRA_VISION));
     // 装備で決まる耐性・能力 17 個も窓口へ。**この 17 バイトの並びがこの
     // ファイルの書式**なので、一つずつ名前で書くのをやめて、モジュールが
     // 持っている並び順に位置で 17 回訊く（旗の 1 語と同じ考え方）。
@@ -672,9 +678,11 @@ bool get_char(bool *generate) {
             rd_long(&status);
             player_set_status_word(status);
             rd_short((uint16_t *)&f_ptr->rest);
-            rd_short((uint16_t *)&f_ptr->blind);
-            rd_short((uint16_t *)&f_ptr->paralysis);
-            rd_short((uint16_t *)&f_ptr->confused);
+            // 一時的な状態の十八個も窓口へ。書くほうと同じ理由で位置ではなく
+            // 名前で、rd_timed() が受けてから置く（並びはこのまま）。
+            rd_timed(PLAYER_TIMED_BLINDNESS);
+            rd_timed(PLAYER_TIMED_PARALYSIS);
+            rd_timed(PLAYER_TIMED_CONFUSION);
             // 腹の具合は f_ptr ではなく窓口へ入れる。読みは器の番地を要る
             // ので、いったん受けてから置く（幅と符号の扱いは元のまま。
             // 並びは動かせないのでこの位置のまま）。
@@ -686,22 +694,22 @@ bool get_char(bool *generate) {
             player_set_digestion((int16_t)food_digested);
             rd_short((uint16_t *)&f_ptr->protection);
             rd_short((uint16_t *)&f_ptr->speed);
-            rd_short((uint16_t *)&f_ptr->fast);
-            rd_short((uint16_t *)&f_ptr->slow);
-            rd_short((uint16_t *)&f_ptr->afraid);
-            rd_short((uint16_t *)&f_ptr->poisoned);
-            rd_short((uint16_t *)&f_ptr->image);
-            rd_short((uint16_t *)&f_ptr->protevil);
-            rd_short((uint16_t *)&f_ptr->invuln);
-            rd_short((uint16_t *)&f_ptr->hero);
-            rd_short((uint16_t *)&f_ptr->shero);
-            rd_short((uint16_t *)&f_ptr->blessed);
-            rd_short((uint16_t *)&f_ptr->resist_heat);
-            rd_short((uint16_t *)&f_ptr->resist_cold);
-            rd_short((uint16_t *)&f_ptr->detect_inv);
-            rd_short((uint16_t *)&f_ptr->word_recall);
+            rd_timed(PLAYER_TIMED_HASTE);
+            rd_timed(PLAYER_TIMED_SLOWNESS);
+            rd_timed(PLAYER_TIMED_FEAR);
+            rd_timed(PLAYER_TIMED_POISON);
+            rd_timed(PLAYER_TIMED_HALLUCINATION);
+            rd_timed(PLAYER_TIMED_PROTECTION_FROM_EVIL);
+            rd_timed(PLAYER_TIMED_INVULNERABILITY);
+            rd_timed(PLAYER_TIMED_HEROISM);
+            rd_timed(PLAYER_TIMED_SUPER_HEROISM);
+            rd_timed(PLAYER_TIMED_BLESSING);
+            rd_timed(PLAYER_TIMED_HEAT_RESISTANCE);
+            rd_timed(PLAYER_TIMED_COLD_RESISTANCE);
+            rd_timed(PLAYER_TIMED_SEEING_INVISIBLE);
+            rd_timed(PLAYER_TIMED_WORD_OF_RECALL);
             rd_short((uint16_t *)&f_ptr->see_infra);
-            rd_short((uint16_t *)&f_ptr->tim_infra);
+            rd_timed(PLAYER_TIMED_INFRA_VISION);
             // 17 個も窓口へ。読みは器の番地を要るので、いったん受けてから
             // 位置で置く（腹の具合と旗の 1 語と同じ形。並びは動かせないので
             // この位置のまま）。
@@ -823,9 +831,7 @@ bool get_char(bool *generate) {
                 }
 
                 // don't let him die of poison again immediately
-                if (py.flags.poisoned > 1) {
-                    py.flags.poisoned = 1;
-                }
+                player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
 
                 dun_level = 0; // Resurrect on the town level.
                 set_character_generated(true);
@@ -1211,6 +1217,16 @@ static void rd_bool(bool *ptr) {
     uint16_t value;
     rd_short(&value);
     *ptr = (value != 0);
+}
+
+// 一時的な状態の残り時間も窓口の向こうにあるので、器の番地を渡せない。
+// 十八回くり返すことになるので、腹の具合と同じ形（いったん受けてから置く）
+// をここに一つだけ書いておく。幅と符号の扱いは元の
+// rd_short((uint16_t *)&f_ptr->blind) と同じ、16 ビットをそのまま移すだけ。
+static void rd_timed(player_timed_effect effect) {
+    uint16_t turns;
+    rd_short(&turns);
+    player_timed_set(effect, (int16_t)turns);
 }
 
 static void rd_long(uint32_t *ptr) {
