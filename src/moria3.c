@@ -21,6 +21,7 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
+#include "player_armour_class.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_level.h"
@@ -38,7 +39,6 @@ static void hit_trap(int y, int x) {
     change_trap(y, x);
 
     cave_type *c_ptr = &cave[y][x];
-    struct misc *p_ptr = &py.misc;
     inven_type *t_ptr = &t_list[c_ptr->tptr];
 
     int dam = pdamroll(t_ptr->damage);
@@ -55,7 +55,7 @@ static void hit_trap(int y, int x) {
         }
         break;
     case 2: // Arrow trap
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             objdes(tmp, t_ptr, true);
             take_hit(dam, tmp);
             msg_print("An arrow hits you.");
@@ -102,7 +102,7 @@ static void hit_trap(int y, int x) {
         msg_print("Hmmm, there was something under this rock.");
         break;
     case 7: // STR Dart
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             if (!player_stat_sustained(A_STR)) {
                 (void)dec_stat(A_STR);
                 objdes(tmp, t_ptr, true);
@@ -164,7 +164,7 @@ static void hit_trap(int y, int x) {
         player_timed_add(PLAYER_TIMED_CONFUSION, randint(15) + 15);
         break;
     case 17: // Slow Dart
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             objdes(tmp, t_ptr, true);
             take_hit(dam, tmp);
             msg_print("A small dart hits you!");
@@ -178,7 +178,7 @@ static void hit_trap(int y, int x) {
         }
         break;
     case 18: // CON Dart
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             if (!player_stat_sustained(A_CON)) {
                 (void)dec_stat(A_CON);
                 objdes(tmp, t_ptr, true);

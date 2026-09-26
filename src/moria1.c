@@ -22,6 +22,7 @@
 #include "level_exit.h"
 #include "panel.h"
 #include "player_abilities.h"
+#include "player_armour_class.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -108,11 +109,10 @@ void calc_bonuses(void) {
 
     m_ptr->ptohit = tohit_adj(); // Real To Hit
     m_ptr->ptodam = todam_adj(); // Real To Dam
-    m_ptr->ptoac = toac_adj();   // Real To AC
-    m_ptr->pac = 0;              // Real AC
+    player_armour_class_reset(toac_adj()); // Real AC: nothing worn yet
 
     // What the sheet says starts out as a copy of the real plusses
-    player_display_start_from_real(m_ptr->ptohit, m_ptr->ptodam, m_ptr->ptoac);
+    player_display_start_from_real(m_ptr->ptohit, m_ptr->ptodam, (int16_t)player_armour_class_magical());
 
     for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
         inven_type *i_ptr = equipment_at(i);
@@ -124,8 +124,7 @@ void calc_bonuses(void) {
                 m_ptr->ptodam += i_ptr->todam;
             }
 
-            m_ptr->ptoac += i_ptr->toac;
-            m_ptr->pac += i_ptr->ac;
+            player_armour_class_add_item(i_ptr->ac, i_ptr->toac);
             if (known2_p(i_ptr)) {
                 player_display_add_to_hit(i_ptr->tohit);
                 if (i_ptr->tval != TV_BOW) {
@@ -149,11 +148,11 @@ void calc_bonuses(void) {
 
     // Add in temporary spell increases
     if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
-        m_ptr->pac += 100;
+        player_armour_class_adjust(100);
         player_display_add_ac(100);
     }
     if (player_timed_in_force(PLAYER_TIMED_BLESSING)) {
-        m_ptr->pac += 2;
+        player_armour_class_adjust(2);
         player_display_add_ac(2);
     }
     if (player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {

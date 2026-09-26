@@ -24,6 +24,7 @@
 #include "panel.h"
 #include "messages.h"
 #include "player_abilities.h"
+#include "player_armour_class.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_glowing_hands.h"
@@ -165,8 +166,10 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_max_hp());
     wr_short((uint16_t)m_ptr->ptohit);
     wr_short((uint16_t)m_ptr->ptodam);
-    wr_short((uint16_t)m_ptr->pac);
-    wr_short((uint16_t)m_ptr->ptoac);
+    // 守りの点数も窓口へ（#18-12-18B）。**半分が 2 つあるのでファイルにも
+    // 2 本ある** —— 着ているものぶんが先、魔法ぶんがあと。並びは動かせない。
+    wr_short((uint16_t)player_armour_class_armour());
+    wr_short((uint16_t)player_armour_class_magical());
     // The four numbers the sheet shows. Their place in the file cannot move.
     wr_short((uint16_t)player_display_to_hit());
     wr_short((uint16_t)player_display_to_dam());
@@ -645,8 +648,15 @@ bool get_char(bool *generate) {
             player_set_max_hp((int16_t)max_hp);
             rd_short((uint16_t *)&m_ptr->ptohit);
             rd_short((uint16_t *)&m_ptr->ptodam);
-            rd_short((uint16_t *)&m_ptr->pac);
-            rd_short((uint16_t *)&m_ptr->ptoac);
+            // 守りの点数の 2 本。読みは器の番地を要るのでいったん受けてから
+            // 窓口へ渡す。**_reset() ではなく _set_parts()** —— ファイルの数は
+            // もう着ているものを含んでいるので、着ているものぶんを 0 に
+            // する規則には従えない（player_armour_class.h）。
+            uint16_t armour_class;
+            uint16_t magical_armour_class;
+            rd_short(&armour_class);
+            rd_short(&magical_armour_class);
+            player_armour_class_set_parts((int16_t)armour_class, (int16_t)magical_armour_class);
             // 画面に出す 4 つも窓口へ入れる。読みは器の番地を要るので、
             // いったん受けてから 1 つずつ置く（セーブデータの並びは動かせない
             // のでこの位置のまま。**書きだしと同じ順**で、AC の合計が修正より

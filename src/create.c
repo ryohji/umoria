@@ -15,6 +15,7 @@
 #include "externs.h"
 
 #include "hp_table.h"
+#include "player_armour_class.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hit_die.h"
@@ -108,8 +109,11 @@ static void get_all_stats(void) {
     player_hit_die_set(r_ptr->bhitdie);
     p_ptr->misc.ptodam = todam_adj();
     p_ptr->misc.ptohit = tohit_adj();
-    p_ptr->misc.ptoac = 0;
-    p_ptr->misc.pac = toac_adj();
+    // The one place that puts the dexterity bonus in the ARMOUR half rather
+    // than the magical one -- the class table below does it the other way
+    // round. Nothing can tell the two spellings apart, because every reader
+    // only ever asks for the sum (player_armour_class.h).
+    player_armour_class_set_parts(toac_adj(), 0);
     player_set_experience_factor(r_ptr->b_exp);
     // The only question so far whose starting value is not zero: Human 0,
     // Dwarf 5, and five more in between. Deciding, not adding -- a character
@@ -373,13 +377,12 @@ static void get_class(void) {
 
             p_ptr->misc.ptodam = todam_adj(); // Real values
             p_ptr->misc.ptohit = tohit_adj();
-            p_ptr->misc.ptoac = toac_adj();
-            p_ptr->misc.pac = 0;
+            player_armour_class_reset(toac_adj());
             // Displayed values: a copy of the real plusses, with the visible
             // bonus folded into the visible total. Nothing is worn yet, so the
-            // armour the sheet shows is only what the bonus is worth (pac is 0
-            // on the line above).
-            player_display_start_from_real(p_ptr->misc.ptohit, p_ptr->misc.ptodam, p_ptr->misc.ptoac);
+            // armour the sheet shows is only what the bonus is worth (the line
+            // above put the armour half at zero).
+            player_display_start_from_real(p_ptr->misc.ptohit, p_ptr->misc.ptodam, (int16_t)player_armour_class_magical());
             player_display_fold_to_ac();
 
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints

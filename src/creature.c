@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_abilities.h"
+#include "player_armour_class.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_infra_range.h"
@@ -307,8 +308,6 @@ static void make_attack(int monptr) {
         const int adice = monster_attack_get_dice(*iter);
         const int asides = monster_attack_get_sides(*iter);
 
-        struct misc *const p_ptr = &py.misc;
-
         bool flag = false;
         if (player_timed_in_force(PLAYER_TIMED_PROTECTION_FROM_EVIL) && (r_ptr->cdefense & CD_EVIL) &&
             ((player_level() + 1) > r_ptr->level)) {
@@ -321,57 +320,57 @@ static void make_attack(int monptr) {
 
         switch (attype) {
         case 1: // Normal attack
-            if (test_hit(60, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(60, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 2: // Lose Strength
-            if (test_hit(-3, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(-3, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 3: // Confusion attack
-            if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(10, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 4: // Fear attack
-            if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(10, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 5: // Fire attack
-            if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(10, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 6: // Acid attack
-            if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(0, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 7: // Cold attack
-            if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(10, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 8: // Lightning attack
-            if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(10, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 9: // Corrosion attack
-            if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(0, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 10: // Blindness attack
-            if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(2, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 11: // Paralysis attack
-            if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(2, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
@@ -386,32 +385,32 @@ static void make_attack(int monptr) {
             }
             break;
         case 14: // Poison
-            if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(5, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 15: // Lose dexterity
-            if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(0, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 16: // Lose constitution
-            if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(0, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 17: // Lose intelligence
-            if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(2, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 18: // Lose wisdom
-            if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(2, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 19: // Lose experience
-            if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(5, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
@@ -419,23 +418,23 @@ static void make_attack(int monptr) {
             flag = true;
             break;
         case 21: // Disenchant
-            if (test_hit(20, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(20, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 22: // Eat food
-            if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(5, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 23: // Eat light
-            if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+            if (test_hit(5, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) {
                 flag = true;
             }
             break;
         case 24: // Eat charges
             // check to make sure an object exists
-            if ((test_hit(15, (int)r_ptr->level, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) &&
+            if ((test_hit(15, (int)r_ptr->level, 0, player_armour_class(), CLA_MISC_HIT)) &&
                 (inventory_count() > 0)) {
                 flag = true;
             }
@@ -565,7 +564,7 @@ static void make_attack(int monptr) {
             switch (attype) {
             case 1: // Normal attack
                 // round half-way case down
-                damage -= ((p_ptr->pac + p_ptr->ptoac) * damage) / 200;
+                damage -= (player_armour_class() * damage) / 200;
                 take_hit(damage, ddesc);
                 break;
             case 2: // Lose Strength

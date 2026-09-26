@@ -22,6 +22,7 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
+#include "player_armour_class.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -452,14 +453,14 @@ void dungeon(void) {
         if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
             if (player_timed_beginning(PLAYER_TIMED_INVULNERABILITY)) {
                 disturb(0, 0);
-                py.misc.pac += 100;
+                player_armour_class_adjust(100);
                 player_display_add_ac(100);
                 prt_pac();
                 msg_print("Your skin turns into steel!");
             }
             if (player_timed_count_down(PLAYER_TIMED_INVULNERABILITY)) {
                 disturb(0, 0);
-                py.misc.pac -= 100;
+                player_armour_class_adjust(-100);
                 player_display_add_ac(-100);
                 prt_pac();
                 msg_print("Your skin returns to normal.");
@@ -472,7 +473,7 @@ void dungeon(void) {
                 disturb(0, 0);
                 p_ptr->bth += 5;
                 p_ptr->bthb += 5;
-                p_ptr->pac += 2;
+                player_armour_class_adjust(2);
                 player_display_add_ac(2);
                 msg_print("You feel righteous!");
                 prt_pac();
@@ -481,7 +482,7 @@ void dungeon(void) {
                 disturb(0, 0);
                 p_ptr->bth -= 5;
                 p_ptr->bthb -= 5;
-                p_ptr->pac -= 2;
+                player_armour_class_adjust(-2);
                 player_display_add_ac(-2);
                 msg_print("The prayer has expired.");
                 prt_pac();
