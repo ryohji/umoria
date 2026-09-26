@@ -81,6 +81,20 @@ static uint8_t xor_byte;
 static int from_savefile;   // can overwrite old savefile when save
 static uint32_t start_time; // time that play started
 
+// セーブファイルの死んだ 2 バイト。#18-12-15 まで `py.flags.protection`
+// （"Protection fr. evil"）だったが、**ゲームはこの数を一度も見ない** ——
+// 読み手も書き手も下の 2 行だけで、悪からの守りそのものは
+// PLAYER_TIMED_PROTECTION_FROM_EVIL（別の数）が持っている。
+//
+// それでも 0 を書き捨てにせず読んだ値を覚えるのは、**この 2 バイトの位置が
+// ファイルの書式**だからで、他が書いたファイルを読んで書き戻すときに中身を
+// 落としたくない（前後の 23 個の short と同じ理由 —— player_timed_effects.h）。
+//
+// **新しい module を作らないのは、これが「問い」ではないから。** 窓口の向こうに
+// 置く値には必ず「誰が何を訊くか」があるが、これを訊く者はいない。ここにあるのは
+// 書式の穴で、穴はそれを読む 1 ファイルの中に置くのがいちばん小さい。
+static int16_t dead_protection_bytes;
+
 // This save package was brought to by                -JWT-
 // and                                                -RAK-
 // and has been completely rewritten for UNIX by      -JEW-
@@ -178,7 +192,6 @@ static bool sv_write(void) {
     wr_shorts((uint16_t *)s_ptr->mod_stat, 6);
     wr_bytes(s_ptr->use_stat, 6);
 
-    struct flags *f_ptr = &py.flags;
     wr_long(player_status_word());
     // 一時的な状態の十八個も窓口へ。**この二十四個の並びがこのファイルの
     // 書式**なので、能力の 17 バイトのように位置で訊くことはできない（十八個
@@ -190,7 +203,9 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_CONFUSION));
     wr_short((uint16_t)player_food());
     wr_short((uint16_t)player_digestion());
-    wr_short((uint16_t)f_ptr->protection);
+    // 死んだ 2 バイトはこのファイルの static から（読んだ値をそのまま返す。
+    // 上の dead_protection_bytes に理由を書いた）。
+    wr_short((uint16_t)dead_protection_bytes);
     wr_short((uint16_t)player_speed());
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HASTE));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_SLOWNESS));
@@ -674,7 +689,6 @@ bool get_char(bool *generate) {
             rd_shorts((uint16_t *)s_ptr->mod_stat, 6);
             rd_bytes(s_ptr->use_stat, 6);
 
-            struct flags *f_ptr = &py.flags;
             // 旗の 1 語も窓口へ。**ビットの番号はこのファイルの書式**なので、
             // 30 の旗を 1 つずつではなく 1 語まるごと運ぶ窓口を使う。読みは
             // 器の番地を要るので、いったん受けてから置く（腹の具合と同じ形。
@@ -694,16 +708,19 @@ bool get_char(bool *generate) {
             rd_timed(PLAYER_TIMED_BLINDNESS);
             rd_timed(PLAYER_TIMED_PARALYSIS);
             rd_timed(PLAYER_TIMED_CONFUSION);
-            // 腹の具合は f_ptr ではなく窓口へ入れる。読みは器の番地を要る
-            // ので、いったん受けてから置く（幅と符号の扱いは元のまま。
-            // 並びは動かせないのでこの位置のまま）。
+            // 腹の具合は（#18-12-2C まで f_ptr 越しだったが）窓口へ入れる。
+            // 読みは器の番地を要るので、いったん受けてから置く（幅と符号の
+            // 扱いは元のまま。並びは動かせないのでこの位置のまま）。
             uint16_t food;
             rd_short(&food);
             player_set_food((int16_t)food);
             uint16_t food_digested;
             rd_short(&food_digested);
             player_set_digestion((int16_t)food_digested);
-            rd_short((uint16_t *)&f_ptr->protection);
+            // 死んだ 2 バイトはこのファイルの static へ。**ここだけは窓口の
+            // 向こうではないので器の番地をそのまま渡せる**（上の
+            // dead_protection_bytes に、module を作らない理由を書いた）。
+            rd_short((uint16_t *)&dead_protection_bytes);
             // 速さも器の番地が要るのでいったん受けてから置く（腹の具合と同じ。
             // 並びは動かせないのでこの位置のまま）。
             uint16_t speed;
@@ -737,7 +754,7 @@ bool get_char(bool *generate) {
                 rd_byte(&ability);
                 player_abilities_restore_byte(i, ability);
             }
-            // 光る手は f_ptr ではなく窓口へ入れる。読みは器の番地を要るので
+            // 光る手も（#18-12-13C まで f_ptr 越しだったが）窓口へ。器の番地を要るので
             // いったん局所で受けて、そのまま窓口に渡す（0/1 に丸めない ——
             // src/player_glowing_hands.h）。
             uint8_t saved_glowing_hands;
