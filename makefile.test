@@ -1415,16 +1415,15 @@ $(BUILDDIR)/player_glowing_hands_test: $(TESTDIR)/player_glowing_hands_test.c \
 # この module より前に書かれた tests/gain_spells_test.c がすでに
 # `spells_to_learn` と呼んでいたので、それに合わせた。
 #
-# **リンクするのは本体 1 本＋足場 1 本。** 9 式の許される数と本が足りない差は
-# misc3.c に、message 3 つは呼び手に、PY_STUDY の書きなおしは
+# **リンクするのは本体 1 本だけ**（#18-12-14C で足場が消えた）。9 式の許される数と
+# 本が足りない差は misc3.c に、message 3 つは呼び手に、PY_STUDY の書きなおしは
 # src/player_status_flags.c に残るので、どれも要らない。
 $(BUILDDIR)/player_spells_to_learn_test: $(TESTDIR)/player_spells_to_learn_test.c \
-                                         $(TESTDIR)/player_spells_to_learn_fixture.c \
                                          $(TESTDIR)/minunit.h \
                                          src/player_spells_to_learn.c \
                                          src/player_spells_to_learn.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_spells_to_learn_test.c \
-	    $(TESTDIR)/player_spells_to_learn_fixture.c src/player_spells_to_learn.c
+	    src/player_spells_to_learn.c
 
 clean:
 	rm -rf $(BUILDDIR)

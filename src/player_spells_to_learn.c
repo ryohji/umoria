@@ -17,13 +17,20 @@
 // known to make this count, but it does that once and remembers the answer
 // (player_spells_to_learn.h says why the two are not halves of one fact).
 
-// THE COUNT IS STILL IN py.flags (step A). Every window goes through the pointer
-// below, so #18-12-14C has one place to change: the pointer becomes the byte
-// itself and this comment goes away.
-extern player_type py;
+// THE ANSWER ITSELF. It was py.flags.new_spells until #18-12-14C; now this one
+// byte is the only place it lives, and the windows below are the only way to
+// reach it.
+//
+// No reset window: zero means "nothing may be learned right now", which is where
+// every character starts, where every fighter stays, and where gain_spells()
+// leaves a character who has studied everything the level allows.
+//
+// With this byte moved, py.flags holds only three fields, and all three are
+// dead (types.h says so).
+static uint8_t the_count;
 
 static uint8_t *count(void) {
-    return &py.flags.new_spells;
+    return &the_count;
 }
 
 int player_spells_to_learn(void) {

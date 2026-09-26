@@ -239,9 +239,16 @@ typedef struct player_type {
         // Its name was a lie about ownership (it named what happens to the
         // monster, and collided with the unrelated spell confuse_monster() in
         // spells.c), so the module is named after the hands the messages name.
-        // The three below stayed: `protection` is never read outside the save
-        // file, and the stomach's two belong to player_food.h (still here only
-        // because the save file keeps them in this run).
+        // `new_spells` left here in #18-12-14C: how many more spells (or
+        // prayers) the character may still learn, asked and answered from nine
+        // places, now behind player_spells_to_learn.h. Its name was a lie about
+        // what it holds -- it is a COUNT, not a list of spells, and which spells
+        // are known lives in spells_known.h -- so the module is named after the
+        // question the tests were already asking (spells_to_learn).
+        // THE THREE BELOW ARE THE LAST, AND ALL THREE ARE DEAD: `protection` is
+        // never read outside the save file, and the stomach's two belong to
+        // player_food.h (still here only because the save file keeps them in this
+        // run). When they go, `struct flags` goes with them.
         int16_t food;            // Food counter
         int16_t food_digested;   // Food per round
         int16_t protection;      // Protection fr. evil
@@ -252,8 +259,8 @@ typedef struct player_type {
         // stats. They were asked and answered from a hundred and six places and
         // are now behind player_abilities.h, which WORKS THEM OUT FROM THE
         // EQUIPMENT rather than remembering them. The byte below stayed: it is
-        // not granted by equipment and calc_bonuses() does not touch it.
-        uint8_t new_spells;      // Number of spells can learn.
+        // not granted by equipment and calc_bonuses() does not touch it -- and it
+        // has now left too (see above).
     } flags;
 } player_type;
 

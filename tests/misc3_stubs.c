@@ -35,6 +35,7 @@
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_speed.h"
+#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 
@@ -350,7 +351,14 @@ void fixture_reset(void)
      * その件は自分で 3 ます を置いてから読む**。だから外してもレッドにはならない
      * （実際に外して確かめた）。それでも足すのは、上の約束（各件は 0 から
      * 始まる）を黙って嘘にしないため —— 速さの 1 行と同じ理由。 */
-    player_infra_range_set(0);
+    /* あと何個呪文を覚えられるかも #18-12-14C で
+     * src/player_spells_to_learn.c の static へ移った。**この 1 行は外すと
+     * 本当にレッドになる**（速さと赤外視の 2 行とは違う。実際に外して
+     * 2 件が落ちるのを確かめた）—— calc_spells() が「学べるようになった」と
+     * 告げるのは**前に置いた数が 0 だったとき**だけなので、前の件が置いた数が
+     * 残っていると message が出ず、それを読む 2 件が落ちる。
+     * **0 が人物の走りだし**（戦士はずっと 0）。 */
+    player_spells_to_learn_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);
