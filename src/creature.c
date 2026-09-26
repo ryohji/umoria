@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_abilities.h"
 #include "player_gold.h"
 #include "player_level.h"
 #include "player_light.h"
@@ -47,7 +48,7 @@ void update_mon(int monptr) {
             if (c_ptr->pl || c_ptr->tl || (player_is_running() && m_ptr->cdis < 2 && player_has_light())) {
                 if ((CM_INVISIBLE & r_ptr->cmove) == 0) {
                     flag = true;
-                } else if (py.flags.see_inv) {
+                } else if (player_can_see_invisible()) {
                     flag = true;
                     recall_update_move(m_ptr->creature, CM_INVISIBLE);
                 }
@@ -557,7 +558,7 @@ static void make_attack(int monptr) {
                 break;
             case 2: // Lose Strength
                 take_hit(damage, ddesc);
-                if (f_ptr->sustain_str) {
+                if (player_stat_sustained(A_STR)) {
                     msg_print("You feel weaker for a moment, but it passes.");
                 } else if (randint(2) == 1) {
                     msg_print("You feel weaker.");
@@ -628,7 +629,7 @@ static void make_attack(int monptr) {
                 if (player_saves()) {
                     msg_print("You resist the effects!");
                 } else if (f_ptr->paralysis < 1) {
-                    if (f_ptr->free_act) {
+                    if (player_never_paralyzed()) {
                         msg_print("You are unaffected.");
                     } else {
                         f_ptr->paralysis = randint((int)r_ptr->level) + 3;
@@ -678,7 +679,7 @@ static void make_attack(int monptr) {
                 break;
             case 15: // Lose dexterity
                 take_hit(damage, ddesc);
-                if (f_ptr->sustain_dex) {
+                if (player_stat_sustained(A_DEX)) {
                     msg_print("You feel clumsy for a moment, but it passes.");
                 } else {
                     msg_print("You feel more clumsy.");
@@ -687,7 +688,7 @@ static void make_attack(int monptr) {
                 break;
             case 16: // Lose constitution
                 take_hit(damage, ddesc);
-                if (f_ptr->sustain_con) {
+                if (player_stat_sustained(A_CON)) {
                     msg_print("Your body resists the effects of the disease.");
                 } else {
                     msg_print("Your health is damaged!");
@@ -697,7 +698,7 @@ static void make_attack(int monptr) {
             case 17: // Lose intelligence
                 take_hit(damage, ddesc);
                 msg_print("You have trouble thinking clearly.");
-                if (f_ptr->sustain_int) {
+                if (player_stat_sustained(A_INT)) {
                     msg_print("But your mind quickly clears.");
                 } else {
                     (void)dec_stat(A_INT);
@@ -705,7 +706,7 @@ static void make_attack(int monptr) {
                 break;
             case 18: // Lose wisdom
                 take_hit(damage, ddesc);
-                if (f_ptr->sustain_wis) {
+                if (player_stat_sustained(A_WIS)) {
                     msg_print("Your wisdom is sustained.");
                 } else {
                     msg_print("Your wisdom is drained.");
@@ -1144,7 +1145,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             }
             break;
         case 10: // Hold Person
-            if (py.flags.free_act) {
+            if (player_never_paralyzed()) {
                 msg_print("You are unaffected.");
             } else if (player_saves()) {
                 msg_print("You resist the effects of the spell.");
@@ -1204,7 +1205,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             update_mon((int)cave[y][x].cptr);
             break;
         case 16: // Slow Person
-            if (py.flags.free_act) {
+            if (player_never_paralyzed()) {
                 msg_print("You are unaffected.");
             } else if (player_saves()) {
                 msg_print("You resist the effects of the spell.");
@@ -1557,7 +1558,7 @@ void creatures(int attack) {
                     // so that they will die/dig out immediately.
                     if (m_ptr->ml || (m_ptr->cdis <= monster_get_creature(m_ptr->creature)->aaf) || ((!(monster_get_creature(m_ptr->creature)->cmove & CM_PHASE)) && cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL)) {
                         if (m_ptr->csleep > 0) {
-                            if (py.flags.aggravate) {
+                            if (player_aggravates_monsters()) {
                                 m_ptr->csleep = 0;
                             } else if ((py.flags.rest == 0 && py.flags.paralysis < 1) || (randint(50) == 1)) {
                                 notice = randint(1024);

@@ -21,6 +21,7 @@
 #include "inventory.h"
 #include "level_exit.h"
 #include "panel.h"
+#include "player_abilities.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -86,30 +87,17 @@ void calc_bonuses(void) {
     struct flags *p_ptr = &py.flags;
     struct misc *m_ptr = &py.misc;
 
-    if (p_ptr->slow_digest) {
+    // What the old answers were doing to the digestion has to be taken back
+    // before they are forgotten -- that is why the asking comes first and why
+    // forgetting and deriving are two steps with work in between.
+    if (player_has_slow_digestion()) {
         player_adjust_digestion(1);
     }
-    if (p_ptr->regenerate) {
+    if (player_regenerates()) {
         player_adjust_digestion(-3);
     }
 
-    p_ptr->see_inv = false;
-    p_ptr->teleport = false;
-    p_ptr->free_act = false;
-    p_ptr->slow_digest = false;
-    p_ptr->aggravate = false;
-    p_ptr->sustain_str = false;
-    p_ptr->sustain_int = false;
-    p_ptr->sustain_wis = false;
-    p_ptr->sustain_con = false;
-    p_ptr->sustain_dex = false;
-    p_ptr->sustain_chr = false;
-    p_ptr->fire_resist = false;
-    p_ptr->acid_resist = false;
-    p_ptr->cold_resist = false;
-    p_ptr->regenerate = false;
-    p_ptr->lght_resist = false;
-    p_ptr->ffall = false;
+    player_abilities_forget_all();
 
     int old_dis_ac = player_display_ac();
 
@@ -164,7 +152,7 @@ void calc_bonuses(void) {
         player_display_add_ac(2);
     }
     if (p_ptr->detect_inv > 0) {
-        p_ptr->see_inv = true;
+        player_grant_see_invisible();
     }
 
     // can't print AC here because might be in a store
@@ -181,73 +169,25 @@ void calc_bonuses(void) {
         i_ptr++;
     }
 
-    if (TR_SLOW_DIGEST & item_flags) {
-        p_ptr->slow_digest = true;
-    }
-    if (TR_AGGRAVATE & item_flags) {
-        p_ptr->aggravate = true;
-    }
-    if (TR_TELEPORT & item_flags) {
-        p_ptr->teleport = true;
-    }
-    if (TR_REGEN & item_flags) {
-        p_ptr->regenerate = true;
-    }
-    if (TR_RES_FIRE & item_flags) {
-        p_ptr->fire_resist = true;
-    }
-    if (TR_RES_ACID & item_flags) {
-        p_ptr->acid_resist = true;
-    }
-    if (TR_RES_COLD & item_flags) {
-        p_ptr->cold_resist = true;
-    }
-    if (TR_FREE_ACT & item_flags) {
-        p_ptr->free_act = true;
-    }
-    if (TR_SEE_INVIS & item_flags) {
-        p_ptr->see_inv = true;
-    }
-    if (TR_RES_LIGHT & item_flags) {
-        p_ptr->lght_resist = true;
-    }
-    if (TR_FFALL & item_flags) {
-        p_ptr->ffall = true;
-    }
+    // Which flag grants which ability is player_abilities.c's business; this
+    // function only says what is being worn.
+    player_abilities_note_item_flags(item_flags);
 
+    // A sustain cannot be read off the flags of everything at once: WHICH stat
+    // an item keeps is in that item's own p1, so the slots are walked again and
+    // each item says its own. The numbering of the six stays in the module.
     i_ptr = equipment_at(equipment_first_slot());
     for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
         if (TR_SUST_STAT & i_ptr->flags) {
-            switch (i_ptr->p1) {
-            case 1:
-                p_ptr->sustain_str = true;
-                break;
-            case 2:
-                p_ptr->sustain_int = true;
-                break;
-            case 3:
-                p_ptr->sustain_wis = true;
-                break;
-            case 4:
-                p_ptr->sustain_con = true;
-                break;
-            case 5:
-                p_ptr->sustain_dex = true;
-                break;
-            case 6:
-                p_ptr->sustain_chr = true;
-                break;
-            default:
-                break;
-            }
+            player_abilities_note_sustain(i_ptr->p1);
         }
         i_ptr++;
     }
 
-    if (p_ptr->slow_digest) {
+    if (player_has_slow_digestion()) {
         player_adjust_digestion(-1);
     }
-    if (p_ptr->regenerate) {
+    if (player_regenerates()) {
         player_adjust_digestion(3);
     }
 }
