@@ -24,6 +24,7 @@
 #include "player_hp.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_saving_throw.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -107,7 +108,9 @@ static void get_all_stats(void) {
     player_base_to_hit_set(r_ptr->bth, r_ptr->bthb);
     p_ptr->misc.fos = r_ptr->fos;
     p_ptr->misc.stl = r_ptr->stl;
-    p_ptr->misc.save = r_ptr->bsav;
+    // 抵抗は種族の表の数そのまま（#18-12-21B）。**下駄は 1 つも混ざらない** ——
+    // 罠と鍵をはずす腕はここで DEX の下駄を焼きこむが、こちらは焼きこまない。
+    player_saving_throw_set(r_ptr->bsav);
     player_hit_die_set(r_ptr->bhitdie);
     p_ptr->misc.ptodam = todam_adj();
     p_ptr->misc.ptohit = tohit_adj();
@@ -414,7 +417,7 @@ static void get_class(void) {
             player_disarm_adjust(c_ptr->mdis);
             m_ptr->fos += c_ptr->mfos;
             m_ptr->stl += c_ptr->mstl;
-            m_ptr->save += c_ptr->msav;
+            player_saving_throw_adjust(c_ptr->msav);
             player_set_experience_factor((uint8_t)(player_experience_factor() + c_ptr->m_exp));
         } else if (s == '?') {
             helpfile(MORIA_WELCOME);

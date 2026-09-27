@@ -39,6 +39,7 @@
 #include "player_max_depth.h"
 #include "player_pos.h"
 #include "player_resting.h"
+#include "player_saving_throw.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
@@ -180,7 +181,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_display_ac());
     wr_short((uint16_t)player_display_to_ac());
     wr_short((uint16_t)player_disarm());
-    wr_short((uint16_t)m_ptr->save);
+    wr_short((uint16_t)player_saving_throw());
     wr_short((uint16_t)m_ptr->sc);
     wr_short((uint16_t)m_ptr->stl);
     wr_byte(m_ptr->pclass);
@@ -688,7 +689,12 @@ bool get_char(bool *generate) {
             uint16_t disarm;
             rd_short(&disarm);
             player_disarm_set((int16_t)disarm);
-            rd_short((uint16_t *)&m_ptr->save);
+            /* 抵抗も同じ形（#18-12-21B）。読みは器の番地を要るので受けて
+             * から窓口へ渡す。置きなおしは種族の土台と同じ 1 本
+             * （player_saving_throw.h）。 */
+            uint16_t saving_throw;
+            rd_short(&saving_throw);
+            player_saving_throw_set((int16_t)saving_throw);
             rd_short((uint16_t *)&m_ptr->sc);
             rd_short((uint16_t *)&m_ptr->stl);
             rd_byte(&m_ptr->pclass);

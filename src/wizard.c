@@ -19,6 +19,7 @@
 #include "player_hp.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_saving_throw.h"
 
 // Light up the dungeon -RAK-
 void wizard_light(void) {
@@ -198,13 +199,16 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-100) Save = ", m_ptr->save);
+    // **文と留めが食いちがっている** —— 「(0-100)」と出しておいて受けるのは
+    // 0〜200（上の罠と鍵をはずす腕とまったく同じ検査で、文だけが違う）。
+    // この食いちがいは画面のもので、窓口は何も留めない（→ 所見 24）。
+    (void)sprintf(tmp_str, "Current=%d  (0-100) Save = ", player_saving_throw());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->save = tmp_val;
+            player_saving_throw_set(tmp_val);
         }
     } else {
         return;

@@ -19,6 +19,7 @@
 #include "item_ident.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_saving_throw.h"
 #include "player_timed_effects.h"
 #include "stats.h"
 
@@ -38,9 +39,12 @@ void use(void) {
 
         inven_type *i_ptr = inventory_at(item_val);
 
+        // 別名はまだ要る —— 抵抗は窓口へ移ったが（#18-12-21B）、階級の番号が
+        // 残っているのでこの 1 行は #18-12-28 まで消えない。
         struct misc *m_ptr = &py.misc;
 
-        int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_STAFF, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
+        // **杖を使う腕の土台は抵抗と同じ 1 本**（足すのは A_INT のほう）。
+        int chance = device_use_chance(player_saving_throw(), stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_STAFF, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
 
         if (!device_use_succeeds(chance)) {
             msg_print("You failed to use the staff properly.");

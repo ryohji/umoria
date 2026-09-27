@@ -30,6 +30,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_resting.h"
+#include "player_saving_throw.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
@@ -1805,7 +1806,10 @@ bool player_saves(void) {
     // MPW C couldn't handle the expression, so split it into two parts
     int16_t temp = class_level_adj[py.misc.pclass][CLA_SAVE];
 
-    if (randint(100) <= (py.misc.save + stat_adj(A_WIS) + (temp * player_level() / 3))) {
+    // 数は窓口から、振るのはここ（#18-12-21B）。**窓口は「どれくらい強いか」を
+    // 返し、この関数は「今回こらえたか」を返す** —— 判定には randint と
+    // 上の temp（階級の段ごとの表）の両方が要るので、module へは入れない。
+    if (randint(100) <= (player_saving_throw() + stat_adj(A_WIS) + (temp * player_level() / 3))) {
         return true;
     } else {
         return false;

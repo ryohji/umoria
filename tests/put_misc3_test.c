@@ -36,6 +36,7 @@
 #include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_saving_throw.h"
 
 extern player_type py;
 
@@ -203,7 +204,7 @@ TEST(xinfra_is_see_infra_times_ten_in_feet)
  * 8 のままで "Bad" になるので判別できる。 */
 TEST(xsave_uses_wisdom_not_intelligence)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_wisdom_high_and_intelligence_low();
     put_misc3();
     ASSERT_EQ_STR(AT_SAVING_THROW, "Poor"); /* 12/6=2 */
@@ -212,16 +213,16 @@ TEST(xsave_uses_wisdom_not_intelligence)
 /* 逆向き。A_INT だけ高くても xsave は上がらない。 */
 TEST(xsave_is_unaffected_by_intelligence)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_intelligence_high_and_wisdom_low();
     put_misc3();
     ASSERT_EQ_STR(AT_SAVING_THROW, "Bad"); /* 8/6=1 */
 }
 
-/* xdev は xsave と同じ p_ptr->save を基にしつつ stat_adj は A_INT。 */
+/* xdev は xsave と同じ抵抗の 1 本を基にしつつ stat_adj は A_INT。 */
 TEST(xdev_uses_intelligence_not_wisdom)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_intelligence_high_and_wisdom_low();
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Poor"); /* 12/6=2 */
@@ -229,17 +230,18 @@ TEST(xdev_uses_intelligence_not_wisdom)
 
 TEST(xdev_is_unaffected_by_wisdom)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_wisdom_high_and_intelligence_low();
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Bad"); /* 8/6=1 */
 }
 
-/* SUSPICIOUS: xdev は disarm ではなく p_ptr->save を基にしている
- * （xsave と同じ）。意図的かどうかは判断できないので固定するだけ。 */
+/* SUSPICIOUS: xdev は disarm ではなく抵抗の 1 本を基にしている
+ * （xsave と同じ）。意図的かどうかは判断できないので固定するだけ。
+ * #18-12-21B でどちらも窓口ごしになり、同じ 1 本だとひと目で分かる。 */
 TEST(xdev_is_based_on_save_not_disarm)
 {
-    py.misc.save = 0;
+    player_saving_throw_set(0);
     player_disarm_set(40); /* #18-12-20B で窓口へ */
     given_intelligence_high_and_wisdom_low();
     put_misc3();
@@ -325,7 +327,7 @@ TEST(xdev_class_bonus_is_truncated_when_product_is_not_multiple_of_three)
 {
     given_class_and_level(1, 5);
     given_stat(A_INT, 7);
-    py.misc.save = 6;
+    player_saving_throw_set(6);
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Poor"); /* 6+6=12, 12/6=2 */
 }

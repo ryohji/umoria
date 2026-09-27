@@ -27,6 +27,7 @@
 #include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_saving_throw.h"
 #include "stats.h"
 
 struct player_abilities calc_player_abilities(void) {
@@ -51,11 +52,13 @@ struct player_abilities calc_player_abilities(void) {
     a.stl = p_ptr->stl + 1;
 
     a.dis = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
-    a.save = p_ptr->save + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * player_level() / 3);
+    // 抵抗は窓口へ（#18-12-21B）。**同じ 1 本が下の道具の腕にも答える** ——
+    // 足すものが違うだけ（A_WIS と CLA_SAVE ／ A_INT と CLA_DEVICE）。
+    a.save = player_saving_throw() + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * player_level() / 3);
 
-    // Based on `save`, not `disarm`. Preserved as it stands; the intent is
-    // unclear but changing it would change the game's behaviour.
-    a.dev = p_ptr->save + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * player_level() / 3);
+    // Based on the SAVING THROW, not `disarm`. Preserved as it stands; the
+    // intent is unclear but changing it would change the game's behaviour.
+    a.dev = player_saving_throw() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * player_level() / 3);
 
     // The window answers in SQUARES; the ten is this screen's own doing, one
     // square being ten feet (player_infra_range.h). The multiplication stays
