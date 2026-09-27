@@ -35,6 +35,7 @@
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_bio.h"
+#include "player_class.h"
 #include "player_stealth.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
@@ -469,6 +470,21 @@ void fixture_reset(void)
      * （player_stealth.h）。置く窓口 1 本なので 1 行（`_adjust` は足場の仕事では
      * ない）。 */
     player_stealth_set(0);
+    /* どの階級かも #18-12-28C で src/player_class.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにならない** —— この行番号を読む
+     * 既存の件（calc_spells の 17・gain_spells の 13・put_misc3 の 8）は
+     * **どれも B で自分で階級を置くように書きかえた**ので、走りだしの 0 に
+     * よりかかっていない。**確かめた** —— この 1 行を足さずに全 1517 件が
+     * グリーンになるのを見た（21・25・26 つめと同じ側）。
+     * **それでも足すのは、0 が「まだ階級を選んでいない」人物だから** ——
+     * get_class() がメニューの前に置くのと同じ 0 で（たまたま class[] の
+     * 0 行め Warrior でもある）、py を memset していたころの約束（各件は白紙の
+     * 人物から始まる）を、置き場が移ったせいで黙って嘘にしないため。
+     * 置く窓口 1 本なので 1 行（`_adjust` は無いし、これからも無い ——
+     * 人物はローグに「なっていく」ものではない。player_class.h）。
+     * **税は 0 本** —— この足場をリンクする 9 本は 9 本とも
+     * すでに src/player_class.c を張っている（所見 34・48）。 */
+    player_class_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);
