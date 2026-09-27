@@ -36,6 +36,7 @@
 #include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_saving_throw.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
@@ -378,6 +379,18 @@ void fixture_reset(void)
      * （C の段で実際にこの 1 件が落ちて気づいた）。
      * **0 が人物の走りだし**（Human は種族の土台も創成時の下駄も 0）。 */
     player_disarm_set(0);
+    /* 抵抗も #18-12-21C で src/player_saving_throw.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにはならない —— ただし今の並びの
+     * おかげでしかない**（下調べでは「外すと落ちる」と読んでいたが外れた）。
+     * 0 から始まることに頼っている件が 3 つある
+     * （xdev_uses_the_device_column_of_class_level_adj・
+     * xsave_uses_the_save_column_of_class_level_adj・
+     * xsave_class_bonus_divides_evenly_when_product_is_multiple_of_three）が、
+     * その前に数を置く 5 件の**最後が置くのがたまたま 0**（xdev_is_based_on_
+     * save_not_disarm）なので今は通る。そこを 30 に変えると 3 件とも落ちるのを
+     * 確かめた —— **並びが変わったら落ちる側**で、この 1 行がそれを止める。
+     * **0 が人物の走りだし**（Human は種族の土台が 0 で、焼きこむ下駄も無い）。 */
+    player_saving_throw_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

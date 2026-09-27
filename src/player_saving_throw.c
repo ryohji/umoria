@@ -12,15 +12,21 @@
 
 #include "player_saving_throw.h"
 
-// No externs.h here, the same as the nineteen questions before this one.
+// No externs.h here, the same as the twenty questions before this one.
 
-// THE NUMBER IS STILL IN py.misc (step A). Every window goes through the pointer
-// below, so #18-12-21C has one place to change: the pointer becomes the number
-// itself and this comment goes away.
-extern player_type py;
+// THE NUMBER ITSELF. It was py.misc.save until #18-12-21C; now this one short is
+// the only place the answer lives, and the windows below are the only way to
+// reach it. (`struct misc` is down to fourteen fields.)
+//
+// ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
+// until create.c picks a race, and a Human's racial base happens to be zero too.
+// Unlike the disarming skill next door, NOTHING IS BAKED IN at creation, so a
+// Human really does sit at exactly zero until a class is picked, whatever the
+// stats rolled.
+static int16_t the_chance_number;
 
 static int16_t *the_chance(void) {
-    return &py.misc.save;
+    return &the_chance_number;
 }
 
 int player_saving_throw(void) {

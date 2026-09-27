@@ -220,7 +220,17 @@ typedef struct player_type {
         // is actually rolled against is still written out four times over
         // (abilities.c, moria3.c twice, moria4.c) because it indexes
         // class_level_adj by pclass, which is still a field below.
-        int16_t save;                // Saving throw
+        // How well this character shrugs off a spell, a trap or a curse left in
+        // #18-12-21: player_saving_throw.c keeps the one short now, reached only
+        // through player_saving_throw.h. ONE FIELD, ONE QUESTION -- and simpler
+        // than the disarming skill above, because nothing is baked in at creation
+        // (the race's bsav goes in as it stands and the class's msav is added).
+        // ONE NUMBER, TWO RATINGS: the sheet's "Saving Throw" reads it with the
+        // wisdom and the CLA_SAVE column, its "Magic Device" with the intelligence
+        // and the CLA_DEVICE column, which is also the base of how well a staff or
+        // a wand is handled. Whether a particular attempt is resisted is still
+        // player_saves()' question (misc3.c), because the roll needs randint() and
+        // class_level_adj by pclass, which is still a field below.
         int16_t sc;                  // Social Class
         int16_t stl;                 // Stealth factor
         uint8_t pclass;              // # of class

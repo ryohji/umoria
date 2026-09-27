@@ -1647,8 +1647,8 @@ $(BUILDDIR)/player_disarm_test: $(TESTDIR)/player_disarm_test.c \
 
 # 「抵抗はいくつか」（20 つめの問い・`struct misc` から出る 6 つめ）。
 #
-# **足場（player_saving_throw_fixture.c）は #18-12-21C で消える** —— 置き場が
-# py.misc.save のままなので A ではまだ py の実体が要る（20 回続けて同じ形）。
+# **足場は #18-12-21C で消えた**（20 回続けて同じ形）—— 置き場が
+# src/player_saving_throw.c の static になったので、py の実体は要らない。
 #
 # **1 フィールド 1 つの答えで、19 つめと同じ素直な形**。窓口は 3 本 ——
 # 読み・置く（種族とセーブと wizard で 1 本）・階級ぶんを足す。
@@ -1663,11 +1663,9 @@ $(BUILDDIR)/player_disarm_test: $(TESTDIR)/player_disarm_test.c \
 # （player_saving_throw.h。所見 42 の 2 例め）。
 $(BUILDDIR)/player_saving_throw_test: $(TESTDIR)/player_saving_throw_test.c \
                                       $(TESTDIR)/minunit.h \
-                                      $(TESTDIR)/player_saving_throw_fixture.c \
                                       src/player_saving_throw.c \
                                       src/player_saving_throw.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_saving_throw_test.c \
-	    $(TESTDIR)/player_saving_throw_fixture.c \
 	    src/player_saving_throw.c
 
 clean:
