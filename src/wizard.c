@@ -22,6 +22,7 @@
 #include "player_pos.h"
 #include "player_saving_throw.h"
 #include "player_search_skill.h"
+#include "player_stealth.h"
 
 // Light up the dungeon -RAK-
 void wizard_light(void) {
@@ -125,8 +126,6 @@ void change_character(void) {
         return;
     }
 
-    struct misc *m_ptr = &py.misc;
-
     prt("(1 - 32767) Hit points = ", 0, 0);
     if (get_string(tmp_str, 0, 25, 5)) {
         tmp_val = atoi(tmp_str);
@@ -180,13 +179,17 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (-1-18) Stealth = ", m_ptr->stl);
+    // 足音の静かさも窓口へ（#18-12-27B）。**この入り口の「-1-18」は遊びが
+    // 届く幅とぴったり同じ**（種族 -2〜+4 ＋ 階級 +1〜+5 ＋ 装備 3 か所 × 1〜3）——
+    // 上の探索と罠の「0-200」はどちらも上端に届かないので、そこが違う。
+    (void)sprintf(tmp_str, "Current=%d  (-1-18) Stealth = ", player_stealth());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -2) && (tmp_val < 19) && (*tmp_str != '\0')) {
-            m_ptr->stl = tmp_val;
+            // -1〜18 に囲うのはこの入り口の規則で、窓口は何も断らない。
+            player_stealth_set(tmp_val);
         }
     } else {
         return;

@@ -30,6 +30,7 @@
 #include "player_level.h"
 #include "player_saving_throw.h"
 #include "player_search_skill.h"
+#include "player_stealth.h"
 #include "stats.h"
 
 struct player_abilities calc_player_abilities(void) {
@@ -60,8 +61,10 @@ struct player_abilities calc_player_abilities(void) {
     // 腕のほうは補正が 1 つも乗らない（下駄に 3 を掛ける命中力とは違う）。
     a.srh = player_search_chance();
 
-    // stl + 1, so the minimum is 1 (not 0)
-    a.stl = p_ptr->stl + 1;
+    // 足音の静かさも窓口へ（#18-12-27B）。**+1 はこの画面の規則**で、窓口には
+    // 入れない —— likert() の除数が 1 なので、この 1 つで語が 1 段動く
+    // （stl + 1, so the minimum is 1 (not 0)）。
+    a.stl = player_stealth() + 1;
 
     a.dis = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
     // 抵抗は窓口へ（#18-12-21B）。**同じ 1 本が下の道具の腕にも答える** ——

@@ -27,6 +27,7 @@
 #include "player_pos.h"
 #include "player_resting.h"
 #include "player_status_flags.h"
+#include "player_stealth.h"
 #include "player_timed_effects.h"
 #include "progress.h"
 #include "running.h"
@@ -1573,7 +1574,13 @@ void creatures(int attack) {
                                 m_ptr->csleep = 0;
                             } else if ((!player_resting() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) || (randint(50) == 1)) {
                                 notice = randint(1024);
-                                if (notice * notice * notice <= (1L << (29 - py.misc.stl))) {
+                                // 足音の静かさも窓口へ（#18-12-27B）。**遊びの中で
+                                // この数を使うのはここ 1 か所だけ** —— 1 点ごとに
+                                // 右辺が半分になるので、-1〜18 の 20 段で足りている。
+                                // ずらしの余裕もちょうど使いきっていて、stl = -1 の
+                                // 1L << 30 は randint(1024) の 3 乗の最大とぴったり
+                                // 同じ（つまり必ず気づかれる）。
+                                if (notice * notice * notice <= (1L << (29 - player_stealth()))) {
                                     m_ptr->csleep -= (100 / m_ptr->cdis);
                                     if (m_ptr->csleep > 0) {
                                         ignore = true;

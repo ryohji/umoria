@@ -34,6 +34,7 @@
 #include "player_search_skill.h"
 #include "player_speed.h"
 #include "player_status_flags.h"
+#include "player_stealth.h"
 #include "player_timed_effects.h"
 #include "running.h"
 #include "screen_touched.h"
@@ -78,7 +79,11 @@ void py_bonuses(inven_type *t_ptr, int factor) {
         player_search_skill_adjust(amount, -amount);
     }
     if (TR_STEALTH & t_ptr->flags) {
-        py.misc.stl += amount;
+        // 足音の静かさも足す 1 本へ（#18-12-27B）。`amount` は呼び手の factor で
+        // 符号がついているので、この 1 行が身につけるときと外すときの両方を
+        // 受けもつ（探索と赤外視と同じ形）。**負の p1 は 1 つも無い** ——
+        // 騒がしくする呪いは TR_AGGRAVATE という別の旗を立てる。
+        player_stealth_adjust(amount);
     }
     if (TR_SPEED & t_ptr->flags) {
         change_speed(-amount);
@@ -100,9 +105,9 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 void calc_bonuses(void) {
     // `struct misc *m_ptr` はここで死んだ（#18-12-24B）。**それを使っていた
     // 5 行（素の値 2・画面の写し 1・装備の輪 2）がぜんぶ窓口になった**ので、
-    // 装備を数えなおす仕事は問いの窓口だけで書けている。**#18-12-25B で
-    // 探索の 2 行も窓口になった**ので、この struct を名ざすのは py_bonuses()
-    // の stl 1 行と、階級を読む 1 行だけになった。
+    // 装備を数えなおす仕事は問いの窓口だけで書けている。**#18-12-27B で
+    // py_bonuses() の stl 1 行も窓口になったので、このファイルが `struct misc` を
+    // 名ざすのは階級を読む 1 行だけになった**（#18-12-28 で最後の 1 行も消える）。
 
     // What the old answers were doing to the digestion has to be taken back
     // before they are forgotten -- that is why the asking comes first and why

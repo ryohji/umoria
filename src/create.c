@@ -30,6 +30,7 @@
 #include "player_race.h"
 #include "player_saving_throw.h"
 #include "player_search_skill.h"
+#include "player_stealth.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -90,7 +91,6 @@ static void change_stat(int stat, int16_t amount) {
 // generate all stats and modify for race. needed in a separate
 // module so looping of character selection would be allowed -RGM-
 static void get_all_stats(void) {
-    player_type *p_ptr = &py;
     race_type *r_ptr = &race[player_race()];
 
     get_stats();
@@ -115,7 +115,10 @@ static void get_all_stats(void) {
     // 素の命中力の 2 本は 1 つの窓口で（#18-12-19B）。種族は必ず両方を書く。
     player_base_to_hit_set(r_ptr->bth, r_ptr->bthb);
     player_search_frequency_set(r_ptr->fos);
-    p_ptr->misc.stl = r_ptr->stl;
+    // 足音の静かさも窓口へ（#18-12-27B）。**この 1 行で `player_type *p_ptr`
+    // が死んだ** —— 種族の表から置く行がぜんぶ窓口になったので、この関数はもう
+    // 人物の器を名ざさない（能力値のほうは `py.stats` と直に書いてある）。
+    player_stealth_set(r_ptr->stl);
     // 抵抗は種族の表の数そのまま（#18-12-21B）。**下駄は 1 つも混ざらない** ——
     // 罠と鍵をはずす腕はここで DEX の下駄を焼きこむが、こちらは焼きこまない。
     player_saving_throw_set(r_ptr->bsav);
@@ -371,7 +374,6 @@ static void get_class(void) {
     py.misc.pclass = 0;
 
     int min_value, max_value;
-    struct misc *m_ptr;
     player_type *p_ptr;
     class_type *c_ptr;
     char s;
@@ -413,7 +415,6 @@ static void get_class(void) {
             player_display_fold_to_ac();
 
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints
-            m_ptr = &py.misc;
             player_hit_die_adjust(c_ptr->adj_hd);
             player_reset_hp((int16_t)(con_adj() + player_hit_die()));
 
@@ -439,7 +440,11 @@ static void get_class(void) {
             // 装備のほうは (amount, -amount) で呼ぶが、符号は呼び手のもの。
             player_search_skill_adjust(c_ptr->msrh, c_ptr->mfos);
             player_disarm_adjust(c_ptr->mdis);
-            m_ptr->stl += c_ptr->mstl;
+            // 階級ぶんは足す 1 本（#18-12-27B）。**引数は正** —— どの階級も
+            // 静かさを足すので、創成が置ける下端は -1（Half-Troll の Warrior）。
+            // **この 1 行で `struct misc *m_ptr` が死んだ**（残りは pclass を
+            // 読む 2 行だが、どちらも `py.misc.pclass` と直に書いてある）。
+            player_stealth_adjust(c_ptr->mstl);
             player_saving_throw_adjust(c_ptr->msav);
             player_set_experience_factor((uint8_t)(player_experience_factor() + c_ptr->m_exp));
         } else if (s == '?') {

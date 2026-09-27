@@ -39,6 +39,7 @@
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_saving_throw.h"
+#include "player_stealth.h"
 
 extern player_type py;
 
@@ -124,7 +125,7 @@ static void given_intelligence_high_and_wisdom_low(void)
 
 TEST(xstl_is_stl_plus_one)
 {
-    py.misc.stl = 1;
+    player_stealth_set(1);
     put_misc3();
     ASSERT_EQ_STR(AT_STEALTH, "Poor"); /* xstl=2 -> 2/1=2 */
 }
@@ -133,7 +134,7 @@ TEST(xstl_is_stl_plus_one)
  * +1 しているので成りたたない。stl=0 でも xstl は 1 になる。 */
 TEST(xstl_is_one_when_stl_is_zero)
 {
-    py.misc.stl = 0;
+    player_stealth_set(0);
     put_misc3();
     ASSERT_EQ_STR(AT_STEALTH, "Bad"); /* xstl=1 -> 1/1=1 */
 }

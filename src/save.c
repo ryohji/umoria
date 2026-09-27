@@ -48,6 +48,7 @@
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
+#include "player_stealth.h"
 #include "player_timed_effects.h"
 #include "options.h"
 #include "progress.h"
@@ -198,7 +199,10 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_disarm());
     wr_short((uint16_t)player_saving_throw());
     wr_short((uint16_t)player_social_class());
-    wr_short((uint16_t)m_ptr->stl);
+    // 足音の静かさも窓口へ（#18-12-27B）。**手前の階層と同じ幅で隣りあっている**
+    // ので、2 本を入れちがえてもテストは 1 件も落ちない（所見 46）—— 網は人物
+    // 画面のほうで、入れかわると Stealth が Superb に、Social Class が 1 桁になる。
+    wr_short((uint16_t)player_stealth());
     wr_byte(m_ptr->pclass);
     wr_byte((uint8_t)player_race());
     wr_byte((uint8_t)player_hit_die());
@@ -744,7 +748,12 @@ bool get_char(bool *generate) {
             uint16_t social_class;
             rd_short(&social_class);
             player_social_class_set((int16_t)social_class);
-            rd_short((uint16_t *)&m_ptr->stl);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す —— **符号なしで
+             * 読んで符号つきに戻すので、負の静かさもそのまま往復する**
+             * （Half-Troll の Warrior は -1）。 */
+            uint16_t stealth;
+            rd_short(&stealth);
+            player_stealth_set((int16_t)stealth);
             rd_byte(&m_ptr->pclass);
             /* 番地を渡していた 1 か所。読んでから窓口へ渡す
              * （置きなおしは種族のメニューと同じ窓口 —— どちらもただの
