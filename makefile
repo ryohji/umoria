@@ -62,7 +62,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player_abilities.c player_timed_effects.c player_resting.c \
 	player_speed.c player_infra_range.c player_glowing_hands.c \
 	player_spells_to_learn.c player_max_depth.c player_hit_die.c player_armour_class.c player_base_to_hit.c \
-	player_disarm.c player_saving_throw.c \
+	player_disarm.c player_saving_throw.c player_race.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
