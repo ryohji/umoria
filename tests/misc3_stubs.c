@@ -33,6 +33,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_base_to_hit.h"
+#include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
@@ -400,6 +401,15 @@ void fixture_reset(void)
      * それでも足すのは、上の約束（各件は 0 から始まる）を黙って嘘にしないため。
      * **0 が人物の走りだし**で、race[] の 0 行めはちょうど Human。 */
     player_race_set(0);
+    /* 体の重さも #18-12-23C で src/player_body_weight.c の static へ移った。
+     * **この 1 行は外してもレッドにならないが、0 は既存の件の期待値に
+     * 乗っている** —— check_strength_test の
+     * the_limit_for_an_average_character_is_thirteen_hundred が読み返す 1300 は
+     * 10 × PLAYER_WEIGHT_CAP ＋ **0** で、体重を置く件は 1 つも無い。
+     * **「外しても緑」と「0 が当てにされている」は別のこと**で、21 つめ
+     * （どちらも無し）とここで分かれる。だから必ず 0 に戻す。
+     * **0 が人物の走りだし**（創成が重さを振るまで体重は無い）。 */
+    player_body_weight_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

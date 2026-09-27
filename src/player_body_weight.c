@@ -14,15 +14,22 @@
 
 // No externs.h here, the same as the twenty-two questions before this one. This
 // one does not even need the read-only table the race reached for -- creation
-// looks up the race's weight columns itself and hands the result in.
+// looks up the race's weight columns itself and hands the result in, so from
+// #18-12-23C on this file reaches out to nothing at all.
 
-// THE STORE. Still the field in the character's record until #18-12-23C, when
-// these two lines become a `static uint16_t` and `struct misc` drops to twelve
-// fields.
-extern player_type py;
+// THE POUNDS THEMSELVES. It was the weight field of the character's record until
+// #18-12-23C; now this one short is the only place the answer lives, and the two
+// windows below are the only way to reach it. (`struct misc` is down to twelve
+// fields.)
+//
+// ZERO IS WHERE A CHARACTER STARTS and it is not a real answer -- a body with no
+// weight is a character that creation has not reached yet. THE TESTS LEAN ON THAT
+// ZERO: tests/check_strength_test.c:244 expects a carrying limit of 1300, which is
+// 10 * PLAYER_WEIGHT_CAP + 0.
+static uint16_t the_pounds_themselves;
 
 static uint16_t *the_pounds(void) {
-    return &py.misc.wt;
+    return &the_pounds_themselves;
 }
 
 int player_body_weight(void) {

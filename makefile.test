@@ -1747,21 +1747,20 @@ $(BUILDDIR)/player_race_test: $(TESTDIR)/player_race_test.c \
 # 体重は動かない（人物は太らない）。21 つめは「数でないから」足す窓口が
 # 無かったので、理由が違う 2 例めになる。
 #
-# **足場（player_body_weight_fixture.c）は #18-12-23C で消える** ——
+# **足場は #18-12-23C で消えた**（player_body_weight_fixture.c）——
 # 21 つめと違ってこの問いは定数表に届かない（創成のほうが race[] の重さの列を
-# 読んで、できた数を窓口に渡す）ので、20 回続いた「足場ごと消える」形に戻る。
+# 読んで、できた数を窓口に渡す）ので、20 回続いた「足場ごと消える」形に戻った。
+# **この recipe は module 1 本だけをリンクする** —— 足場も代役も無い最小の形で、
+# player_disarm_test・player_saving_throw_test と同じ。
 #
 # 持てる重さの上限（misc3.c:942。主語は腕力）・盾での打ちかかりと扉への
 # 体当たりの 3 つの式（moria4.c。割る数が /10・/60・/2 と違う）・画面と
-# 持ち出しファイルの見せかたはどれも module の外なので、リンクするのは
-# module 1 本と足場 1 本だけ。
+# 持ち出しファイルの見せかたはどれも module の外。
 $(BUILDDIR)/player_body_weight_test: $(TESTDIR)/player_body_weight_test.c \
                               $(TESTDIR)/minunit.h \
-                              $(TESTDIR)/player_body_weight_fixture.c \
                               src/player_body_weight.c \
                               src/player_body_weight.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_body_weight_test.c \
-	    $(TESTDIR)/player_body_weight_fixture.c \
 	    src/player_body_weight.c
 
 clean:

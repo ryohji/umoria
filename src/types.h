@@ -177,7 +177,15 @@ typedef struct player_type {
         // player_level.h; the save file's reader takes all five through locals.
         uint16_t age;                // Characters age
         uint16_t ht;                 // Height
-        uint16_t wt;                 // Weight
+        // The body's weight moved to player_body_weight.c (wt, #18-12-23C).
+        // A NUMBER THAT NOBODY ADDS TO -- the character does not put on weight,
+        // so the two windows in player_body_weight.h are the whole question and
+        // there is no `_adjust` beside the setter. THE FIRST QUESTION OUT OF THIS
+        // STRUCT WITH FEWER THAN THREE WINDOWS. Four of its six readers were
+        // rules rather than display (the carrying limit in misc3.c, the shield
+        // bash's to-hit and damage and the door bash in moria4.c) and all four
+        // stayed where they were: the weight is a term in their arithmetic, not
+        // their subject. (`struct misc` is down to twelve fields.)
         // How deep the character has ever been moved to player_max_depth.c
         // (max_dlv, #18-12-16C). The first question to leave this struct, and
         // the first one on this road that is not about the body or a skill at
