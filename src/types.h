@@ -320,7 +320,27 @@ typedef struct player_type {
         // a wand is handled. Whether a particular attempt is resisted is still
         // player_saves()' question (misc3.c), because the roll needs randint() and
         // class_level_adj by pclass, which is still a field below.
-        int16_t stl;                 // Stealth factor
+        // HOW QUIETLY THIS CHARACTER MOVES left in #18-12-27: player_stealth.c keeps
+        // the one short now, reached only through player_stealth.h. ONE FIELD, ONE
+        // QUESTION -- the same shape as the disarming skill and the saving throw
+        // above, and THE SMALLEST UNIT ON THIS ROAD: nine calls, where the six
+        // answers of the bio needed forty-four. THE UNIT IS A NUMBER OF HALVINGS,
+        // not a chance: `notice³ <= (1L << (29 - stl))` in creature.c is the ONLY
+        // PLACE IN THE GAME that uses it, and every point halves the chance that a
+        // sleeper stirs -- which is why twenty steps (-1 through 18) are enough
+        // where the disarming skill wanted two hundred. The shift has exactly as
+        // much room as it needs: at -1 it is `1L << 30`, the same number as 1024
+        // cubed, and one step lower would be undefined -- nothing can take that
+        // step, because the race and class tables cannot add up to less than -1 and
+        // NO ITEM LOWERS STEALTH (the noisy curse sets TR_AGGRAVATE, a flag of its
+        // own). The wizard screen's "-1-18" is the only fence, and it is the only
+        // prompt on that screen that admits to exactly the range the game reaches.
+        // The plus one and the word on the character sheet are the sheet's own
+        // (abilities.h), where likert() divides by ONE -- the finest divisor there,
+        // so every point moves the word.
+        // `struct misc *m_ptr` in wizard.c died with this field, and so did
+        // create.c's `p_ptr` in get_all_stats() and its `m_ptr` in get_class():
+        // THREE ALIASES FOR ONE FIELD, more than any unit before this one.
         uint8_t pclass;              // # of class
         // WHICH OF THE EIGHT RACES left in #18-12-22: player_race.c keeps the one
         // byte now, reached only through player_race.h. THE FIRST QUESTION OUT OF

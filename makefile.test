@@ -1958,19 +1958,19 @@ $(BUILDDIR)/player_bio_test: $(TESTDIR)/player_bio_test.c \
 # **wizard 画面の「(-1-18)」とぴったり同じ**。ずらしの余裕もちょうど使いきって
 # いる（-1 で `1L << 30` = 1024³）。
 #
-# **足場は #18-12-27C で消える見こみ**（player_stealth_fixture.c）——
-# 数のもとは種族と階級の表と装備だが、それを読むのはぜんぶ呼び手なので、
-# 24 回続いた「足場ごと消える」形になる。**A のあいだだけ 1 行ぶん長い。**
+# **足場は #18-12-27C で消えた**（player_stealth_fixture.c。置き場が module の
+# static になったので人物の器が要らない。**#18-12-1C から数えて 25 回め**の
+# 同じ形で、例外は 21 つめだけ）。**module 1 本だけをリンクする最小の形** ——
+# player_disarm_test・player_saving_throw_test・player_body_weight_test・
+# player_attack_bonuses_test・player_search_skill_test・player_bio_test と同じ。
 #
 # 寝ている者が動くかの判定・画面の +1 と等級・装備の符号・-1〜18 の囲い・
 # TR_AGGRAVATE はどれも module の外。
 $(BUILDDIR)/player_stealth_test: $(TESTDIR)/player_stealth_test.c \
-                              $(TESTDIR)/player_stealth_fixture.c \
                               $(TESTDIR)/minunit.h \
                               src/player_stealth.c \
                               src/player_stealth.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_stealth_test.c \
-	    $(TESTDIR)/player_stealth_fixture.c \
 	    src/player_stealth.c
 
 clean:

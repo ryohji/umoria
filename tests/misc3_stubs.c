@@ -35,6 +35,7 @@
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_bio.h"
+#include "player_stealth.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_infra_range.h"
@@ -456,6 +457,18 @@ void fixture_reset(void)
     player_height_set(0);
     player_social_class_set(0);
     player_history_clear();
+    /* 足音の静かさも #18-12-27C で src/player_stealth.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにならない** —— この数を読む既存の
+     * 2 件（xstl の語）は **B で自分で置くように書きかえた**ので、走りだしの 0 に
+     * よりかかっていない。**確かめた** —— この 1 行を足さずに全 1497 件が
+     * グリーンになるのを見た。
+     * **それでも足すのは、0 が「まだ種族を選んでいない」人物だから** ——
+     * py を memset していたころの約束（各件は白紙の人物から始まる）を、置き場が
+     * 移ったせいで黙って嘘にしないため。0 は Human の種族の土台でもあるが、
+     * **どの階級も 1 以上足すので、振りおわった人物が 0 で居ることはない**
+     * （player_stealth.h）。置く窓口 1 本なので 1 行（`_adjust` は足場の仕事では
+     * ない）。 */
+    player_stealth_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);
