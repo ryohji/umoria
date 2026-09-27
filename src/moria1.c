@@ -23,6 +23,7 @@
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
+#include "player_attack_bonuses.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -91,7 +92,10 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 
 // Recalculate the effect of all the stuff we use. -CJS-
 void calc_bonuses(void) {
-    struct misc *m_ptr = &py.misc;
+    // `struct misc *m_ptr` はここで死んだ（#18-12-24B）。**それを使っていた
+    // 5 行（素の値 2・画面の写し 1・装備の輪 2）がぜんぶ窓口になった**ので、
+    // 装備を数えなおす仕事は問いの窓口だけで書けている。この struct を
+    // 名ざす行は :71・:72・:75（srh／fos／stl）と :1665（pclass）に残る。
 
     // What the old answers were doing to the digestion has to be taken back
     // before they are forgotten -- that is why the asking comes first and why
@@ -107,21 +111,25 @@ void calc_bonuses(void) {
 
     int old_dis_ac = player_display_ac();
 
-    m_ptr->ptohit = tohit_adj(); // Real To Hit
-    m_ptr->ptodam = todam_adj(); // Real To Dam
+    // Real To Hit / Real To Dam（#18-12-24B）。**装備を数えなおす前に素の値へ
+    // 戻す 1 呼び** —— 下の輪が 1 つずつ足すので、ここで対を置きかえないと
+    // 前回ぶんが二重に乗る。
+    player_attack_bonuses_set(tohit_adj(), todam_adj());
     player_armour_class_reset(toac_adj()); // Real AC: nothing worn yet
 
     // What the sheet says starts out as a copy of the real plusses
-    player_display_start_from_real(m_ptr->ptohit, m_ptr->ptodam, (int16_t)player_armour_class_magical());
+    player_display_start_from_real((int16_t)player_to_hit_bonus(), (int16_t)player_to_damage_bonus(), (int16_t)player_armour_class_magical());
 
     for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
         inven_type *i_ptr = equipment_at(i);
         if (i_ptr->tval != TV_NOTHING) {
-            m_ptr->ptohit += i_ptr->tohit;
+            // 足すのが 2 本に分かれている唯一の理由がこの `if`（#18-12-24B）。
+            // **弓の条件は弓についての事実**なので呼び手に残す。
+            player_to_hit_bonus_adjust(i_ptr->tohit);
 
             // Bows can't damage. -CJS-
             if (i_ptr->tval != TV_BOW) {
-                m_ptr->ptodam += i_ptr->todam;
+                player_to_damage_bonus_adjust(i_ptr->todam);
             }
 
             player_armour_class_add_item(i_ptr->ac, i_ptr->toac);

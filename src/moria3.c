@@ -22,6 +22,7 @@
 #include "pending_teleport.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
+#include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_disarm.h"
 #include "player_glowing_hands.h"
@@ -592,7 +593,9 @@ void py_attack(int y, int x) {
     }
 
     struct misc *p_ptr = &py.misc;
-    tot_tohit += p_ptr->ptohit;
+    // 命中の下駄は窓口へ（#18-12-24B）。**そのまま足す** —— 3 を掛けるのは
+    // 人物画面だけの規則（abilities.c）。p_ptr は :607 の pclass のために残る。
+    tot_tohit += player_to_hit_bonus();
 
     // if creature not lit, make it more difficult to hit
     int base_tohit;
@@ -620,7 +623,9 @@ void py_attack(int y, int x) {
                 k = critical_blow(1, 0, k, CLA_BTH);
             }
 
-            k += p_ptr->ptodam;
+            // 打撃の下駄も窓口へ（#18-12-24B）。**0 で止めるのはこの行いの
+            // 規則**なので呼び手に残す（負の下駄で damage が負になりうる）。
+            k += player_to_damage_bonus();
             if (k < 0) {
                 k = 0;
             }

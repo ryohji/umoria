@@ -23,6 +23,7 @@
 #include "externs.h"
 
 #include "abilities.h"
+#include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_disarm.h"
 #include "player_infra_range.h"
@@ -36,9 +37,15 @@ struct player_abilities calc_player_abilities(void) {
 
     // 素の命中力は窓口へ（#18-12-19B）。**この 2 行が税 9 本の出どころ** ——
     // このファイルを 9 つの recipe がリンクしている。足している残りは
-    // この画面の問いのほう（武器の下駄と階級の段ごとの列）。
-    a.bth = player_base_to_hit() + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * player_level());
-    a.bthb = player_base_to_hit_with_bows() + p_ptr->ptohit * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * player_level());
+    // この画面の問いのほう（階級の段ごとの列）。
+    //
+    // 武器の下駄も窓口へ（#18-12-24B）。**2 行が同じ数を読むので入口で 1 度に
+    // 畳んだ** —— あいだに下駄を動かすものは無い（→ 所見 35 の 1 つめの形）。
+    // **BTH_PLUS_ADJ（3）を掛けるのはこの画面の規則**で、窓口には入れない ——
+    // 殴りと投げは下駄をそのまま足す（moria3.c:595・moria4.c:676）。
+    const int to_hit_bonus = player_to_hit_bonus();
+    a.bth = player_base_to_hit() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * player_level());
+    a.bthb = player_base_to_hit_with_bows() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * player_level());
 
     // 0 when fos >= 40; exceeds 29 when fos < 11 (search gear lowers fos, moria1.c:48)
     a.fos = 40 - p_ptr->fos;

@@ -32,6 +32,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_disarm.h"
 #include "player_infra_range.h"
@@ -333,23 +334,24 @@ TEST(xdev_class_bonus_is_truncated_when_product_is_not_multiple_of_three)
 }
 
 /* ------------------------------------------------------------------
- * xbth -- ptohit に BTH_PLUS_ADJ（3）が掛かる
+ * xbth -- 命中の下駄に BTH_PLUS_ADJ（3）が掛かる（#18-12-24 の窓口）
  * ------------------------------------------------------------------ */
 
-/* ptohit=0 なら bth がそのまま出る。次のテストの基準値。 */
+/* 命中の下駄が 0 なら bth がそのまま出る。次のテストの基準値。
+ * **打撃のほうは 0 で置きっぱなし** —— この画面は打撃の下駄を見ない。 */
 TEST(xbth_is_bth_itself_when_ptohit_is_zero)
 {
     player_base_to_hit_set_melee(24); /* #18-12-19B で窓口へ */
-    py.misc.ptohit = 0;
+    player_attack_bonuses_set(0, 0);  /* #18-12-24B で窓口へ（対で置く） */
     put_misc3();
     ASSERT_EQ_STR(AT_FIGHTING, "Poor"); /* 24/12=2 */
 }
 
-/* ptohit=4 なら 4*3=12 が乗って 36。係数がなければ 28 で "Poor"。 */
+/* 命中の下駄が 4 なら 4*3=12 が乗って 36。係数がなければ 28 で "Poor"。 */
 TEST(xbth_adds_three_times_ptohit)
 {
     player_base_to_hit_set_melee(24); /* #18-12-19B で窓口へ */
-    py.misc.ptohit = 4;
+    player_attack_bonuses_set(4, 0);  /* #18-12-24B で窓口へ（対で置く） */
     put_misc3();
     ASSERT_EQ_STR(AT_FIGHTING, "Fair"); /* 36/12=3 */
 }
@@ -358,7 +360,7 @@ TEST(xbth_adds_three_times_ptohit)
 TEST(xbthb_adds_three_times_ptohit_to_bthb)
 {
     player_base_to_hit_set_with_bows(24); /* #18-12-19B で窓口へ */
-    py.misc.ptohit = 4;
+    player_attack_bonuses_set(4, 0);      /* #18-12-24B で窓口へ（対で置く） */
     put_misc3();
     ASSERT_EQ_STR(AT_BOWS, "Fair"); /* 36/12=3 */
 }

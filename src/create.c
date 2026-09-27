@@ -16,6 +16,7 @@
 
 #include "hp_table.h"
 #include "player_armour_class.h"
+#include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
@@ -114,8 +115,11 @@ static void get_all_stats(void) {
     // 罠と鍵をはずす腕はここで DEX の下駄を焼きこむが、こちらは焼きこまない。
     player_saving_throw_set(r_ptr->bsav);
     player_hit_die_set(r_ptr->bhitdie);
-    p_ptr->misc.ptodam = todam_adj();
-    p_ptr->misc.ptohit = tohit_adj();
+    // 命中と打撃の下駄も 1 つの窓口で（#18-12-24B）。**種族の表は関係ない** ——
+    // どちらも DEX と STR の補正表から来る仮の値で、:397 が本物を置きなおす。
+    // **引数は命中・打撃の順**で、もとの 2 行は打撃が先だったが、どちらの
+    // `_adj()` も能力値を読むだけなので順は結果を変えない。
+    player_attack_bonuses_set(tohit_adj(), todam_adj());
     // The one place that puts the dexterity bonus in the ARMOUR half rather
     // than the magical one -- the class table below does it the other way
     // round. Nothing can tell the two spellings apart, because every reader
@@ -388,14 +392,15 @@ static void get_class(void) {
                 set_use_stat(i);
             }
 
-            p_ptr->misc.ptodam = todam_adj(); // Real values
-            p_ptr->misc.ptohit = tohit_adj();
+            // Real values（#18-12-24B）。:122 の仮の値を捨てて置きなおす ——
+            // 職業の madj_str / madj_dex がここまでに能力値を動かしているから。
+            player_attack_bonuses_set(tohit_adj(), todam_adj());
             player_armour_class_reset(toac_adj());
             // Displayed values: a copy of the real plusses, with the visible
             // bonus folded into the visible total. Nothing is worn yet, so the
             // armour the sheet shows is only what the bonus is worth (the line
             // above put the armour half at zero).
-            player_display_start_from_real(p_ptr->misc.ptohit, p_ptr->misc.ptodam, (int16_t)player_armour_class_magical());
+            player_display_start_from_real((int16_t)player_to_hit_bonus(), (int16_t)player_to_damage_bonus(), (int16_t)player_armour_class_magical());
             player_display_fold_to_ac();
 
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints

@@ -25,6 +25,7 @@
 #include "messages.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
+#include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
@@ -171,8 +172,10 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_base_to_hit_with_bows());
     wr_short((uint16_t)player_max_mana());
     wr_short((uint16_t)player_max_hp());
-    wr_short((uint16_t)m_ptr->ptohit);
-    wr_short((uint16_t)m_ptr->ptodam);
+    // 命中と打撃の下駄も窓口へ（#18-12-24B）。**命中が先、打撃があと** ——
+    // 並びは動かせない。読みは 2 本だが、置きなおす窓口は対で 1 本。
+    wr_short((uint16_t)player_to_hit_bonus());
+    wr_short((uint16_t)player_to_damage_bonus());
     // 守りの点数も窓口へ（#18-12-18B）。**半分が 2 つあるのでファイルにも
     // 2 本ある** —— 着ているものぶんが先、魔法ぶんがあと。並びは動かせない。
     wr_short((uint16_t)player_armour_class_armour());
@@ -662,8 +665,15 @@ bool get_char(bool *generate) {
             uint16_t max_hp;
             rd_short(&max_hp);
             player_set_max_hp((int16_t)max_hp);
-            rd_short((uint16_t *)&m_ptr->ptohit);
-            rd_short((uint16_t *)&m_ptr->ptodam);
+            // 下駄の 2 本。器の番地に読んでいたので局所に受けてから対で置く
+            // （#18-12-24B）。**ファイルの並びが命中・打撃なので窓口の引数の
+            // 並びもこれ** —— 15 つめが立てた問いへの 8 度めの答えで、
+            // 遊びのときと同じ窓口を使う側。
+            uint16_t to_hit_bonus;
+            uint16_t to_damage_bonus;
+            rd_short(&to_hit_bonus);
+            rd_short(&to_damage_bonus);
+            player_attack_bonuses_set((int16_t)to_hit_bonus, (int16_t)to_damage_bonus);
             // 守りの点数の 2 本。読みは器の番地を要るのでいったん受けてから
             // 窓口へ渡す。**_reset() ではなく _set_parts()** —— ファイルの数は
             // もう着ているものを含んでいるので、着ているものぶんを 0 に
