@@ -22,7 +22,8 @@
  *   0 Warrior   1 Mage   2 Priest   3 Rogue   4 Ranger   5 Paladin
  * （src/player.c:283 の class[MAX_CLASS]）
  *
- * **呼びは 55 で、この道でいちばん多い**（前の最多は 25 つめの身上書きの 44。
+ * **呼びは 57 で、この道でいちばん多い**（55 行のうち 2 行が 1 行で 2 度
+ * 呼ぶ。前の最多は 25 つめの身上書きの 44。
  * 前の単位は 9）。**答えが難しいからではなく、この 1 バイトで引く定数表が
  * 4 枚あるから** —— class[] そのもの・class_level_adj[][]・magic_spell[][]・
  * player_title[][]（＋起動時の player_init[][]）。

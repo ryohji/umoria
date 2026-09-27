@@ -124,7 +124,8 @@ const char *player_class_title(void);
 int player_class_spell_type(void);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- SIX things, more than any unit on this road,
-// and that is what fifty-five callers with six different questions buys:
+// and that is what fifty-seven calls (on fifty-five lines) with six different
+// questions buys:
 //
 //   1. WHAT THE CLASS IS WORTH IN A SKILL. class_level_adj[row][column] is read at
 //      sixteen sites and stays at all sixteen. It is a table about A PAIR (a class

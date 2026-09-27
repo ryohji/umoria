@@ -1981,8 +1981,8 @@ $(BUILDDIR)/player_bio_test: $(TESTDIR)/player_bio_test.c \
 # いる（-1 で `1L << 30` = 1024³）。
 #
 # **足場は #18-12-27C で消えた**（player_stealth_fixture.c。置き場が module の
-# static になったので人物の器が要らない。**#18-12-1C から数えて 25 回め**の
-# 同じ形で、例外は 21 つめだけ）。**module 1 本だけをリンクする最小の形** ——
+# static になったので人物の器が要らない。**#18-12-1C から数えて 24 回め**の
+# 同じ形で、例外は 6 つめと 21 つめ）。**module 1 本だけをリンクする最小の形** ——
 # player_disarm_test・player_saving_throw_test・player_body_weight_test・
 # player_attack_bonuses_test・player_search_skill_test・player_bio_test と同じ。
 #
@@ -1999,10 +1999,10 @@ $(BUILDDIR)/player_stealth_test: $(TESTDIR)/player_stealth_test.c \
 #
 # **足場（player_class_fixture.c）は 2 つのものを持っていて、#18-12-28C で
 # 片方だけが消えた** —— 21 つめ（どの種族か）とまったく同じ形で、この道で
-# 2 例め。py の器は C で消えたが **class[] の表は残る**（externs.h の
+# 3 例め（6 つめ・21 つめに続く）。py の器は C で消えたが **class[] の表は残る**（externs.h の
 # 定数表 20 個の 1 つで #18 の対象外。src/player_class.c が extern 1 行で引く。
 # 先例は src/player_race.c の race[] と src/player_level.c の player_exp[]）。
-# **#18-12-1C から 25 回続いた「足場ごと消える」形の、2 つめの例外。**
+# **#18-12-1C から 24 回あった「足場ごと消える」形の、3 つめの例外。**
 #
 # **この問いは「数」ではない**（21 つめと同じ）—— 中身は class[] の行番号
 # 0〜5 で、55 か所ぜんぶが添字かそのまま渡すバイト。だから窓口は 4 本で
