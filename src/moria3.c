@@ -24,6 +24,7 @@
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
+#include "player_class.h"
 #include "player_disarm.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
@@ -239,7 +240,10 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     // set j again, since bit_pos modified it
     j = spells_learned_among(inventory_at(item_val)->flags);
 
-    spell_type *s_ptr = magic_spell[py.misc.pclass - 1];
+    // **`- 1` は表の並びの知識**で、階級についての事実ではない —— 戦士に行が
+    // 無いので magic_spell は MAX_CLASS - 1 行（player_class.h の 2 つめ。
+    // src/player.c:307 のコメントがこの道より古い）。
+    spell_type *s_ptr = magic_spell[player_class() - 1];
 
     int spell[31];
     while (j) {
@@ -253,8 +257,8 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     if (i > 0) {
         result = get_spell(spell, i, sn, sc, prompt, first_spell);
         if (result &&
-            magic_spell[py.misc.pclass - 1][*sn].smana > player_mana()) {
-            if (class[py.misc.pclass].spell == MAGE) {
+            magic_spell[player_class() - 1][*sn].smana > player_mana()) {
+            if (player_class_spell_type() == MAGE) {
                 result = (int)get_check("You summon your limited strength to cast this one! Confirm?");
             } else {
                 result = (int)get_check("The gods may think you presumptuous for this! Confirm?");
@@ -593,9 +597,8 @@ void py_attack(int y, int x) {
         blows = 1;
     }
 
-    struct misc *p_ptr = &py.misc;
     // 命中の下駄は窓口へ（#18-12-24B）。**そのまま足す** —— 3 を掛けるのは
-    // 人物画面だけの規則（abilities.c）。p_ptr は :607 の pclass のために残る。
+    // 人物画面だけの規則（abilities.c）。
     tot_tohit += player_to_hit_bonus();
 
     // if creature not lit, make it more difficult to hit
@@ -605,7 +608,7 @@ void py_attack(int y, int x) {
     } else {
         // 見えない相手は当てにくい。**半分にする式はこの 1 行のもの**で、
         // 窓口には入れない（#18-12-19B）。
-        base_tohit = (player_base_to_hit() / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
+        base_tohit = (player_base_to_hit() / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[player_class()][CLA_BTH] / 2);
     }
 
     int k;
@@ -884,8 +887,7 @@ void openobject(void) {
 
                 // It's locked.
                 if (t_ptr->p1 > 0) {
-                    struct misc *p_ptr = &py.misc;
-                    int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+                    int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
                     if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         msg_print("You are too confused to pick the lock.");
@@ -909,8 +911,7 @@ void openobject(void) {
             } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
                 // Open a closed chest.
 
-                struct misc *p_ptr = &py.misc;
-                int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+                int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
                 inven_type *t_ptr = &t_list[c_ptr->tptr];
 

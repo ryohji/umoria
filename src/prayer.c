@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "player_class.h"
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
@@ -32,7 +33,7 @@ void pray(void) {
         msg_print("You have no light to read by.");
     } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
-    } else if (class[py.misc.pclass].spell != PRIEST) {
+    } else if (player_class_spell_type() != PRIEST) {
         msg_print("Pray hard enough and your prayers may be answered.");
     } else if (inventory_count() == 0) {
         msg_print("But you are not carrying anything!");
@@ -47,7 +48,7 @@ void pray(void) {
         } else if (result > 0) {
             free_turn_flag = false;
 
-            spell_type *s_ptr = &magic_spell[py.misc.pclass - 1][choice];
+            spell_type *s_ptr = &magic_spell[player_class() - 1][choice];
 
             if (randint(100) < chance) {
                 msg_print("You lost your concentration!");

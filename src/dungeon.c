@@ -24,6 +24,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_base_to_hit.h"
+#include "player_class.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -1728,11 +1729,11 @@ static void examine_book(void) {
         bool flag = true;
         inven_type *i_ptr = inventory_at(item_val);
 
-        if (class[py.misc.pclass].spell == MAGE) {
+        if (player_class_spell_type() == MAGE) {
             if (i_ptr->tval != TV_MAGIC_BOOK) {
                 flag = false;
             }
-        } else if (class[py.misc.pclass].spell == PRIEST) {
+        } else if (player_class_spell_type() == PRIEST) {
             if (i_ptr->tval != TV_PRAYER_BOOK) {
                 flag = false;
             }
@@ -1748,7 +1749,7 @@ static void examine_book(void) {
 
             while (j) {
                 k = bit_pos(&j);
-                s_ptr = &magic_spell[py.misc.pclass - 1][k];
+                s_ptr = &magic_spell[player_class() - 1][k];
                 if (s_ptr->slevel < 99) {
                     spell_index[i] = k;
                     i++;

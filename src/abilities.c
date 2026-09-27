@@ -25,6 +25,7 @@
 #include "abilities.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
+#include "player_class.h"
 #include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
@@ -34,7 +35,6 @@
 #include "stats.h"
 
 struct player_abilities calc_player_abilities(void) {
-    struct misc *p_ptr = &py.misc;
     struct player_abilities a;
 
     // 素の命中力は窓口へ（#18-12-19B）。**この 2 行が税 9 本の出どころ** ——
@@ -46,8 +46,8 @@ struct player_abilities calc_player_abilities(void) {
     // **BTH_PLUS_ADJ（3）を掛けるのはこの画面の規則**で、窓口には入れない ——
     // 殴りと投げは下駄をそのまま足す（moria3.c:595・moria4.c:676）。
     const int to_hit_bonus = player_to_hit_bonus();
-    a.bth = player_base_to_hit() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * player_level());
-    a.bthb = player_base_to_hit_with_bows() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * player_level());
+    a.bth = player_base_to_hit() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTH] * player_level());
+    a.bthb = player_base_to_hit_with_bows() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTHB] * player_level());
 
     // 探索の腕と頻度も窓口へ（#18-12-25B）。**逆さにするのと 0 で留めるのは
     // この画面の規則**で、窓口には入れない —— 自動探索は頻度をそのまま
@@ -66,14 +66,14 @@ struct player_abilities calc_player_abilities(void) {
     // （stl + 1, so the minimum is 1 (not 0)）。
     a.stl = player_stealth() + 1;
 
-    a.dis = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+    a.dis = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
     // 抵抗は窓口へ（#18-12-21B）。**同じ 1 本が下の道具の腕にも答える** ——
     // 足すものが違うだけ（A_WIS と CLA_SAVE ／ A_INT と CLA_DEVICE）。
-    a.save = player_saving_throw() + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * player_level() / 3);
+    a.save = player_saving_throw() + stat_adj(A_WIS) + (class_level_adj[player_class()][CLA_SAVE] * player_level() / 3);
 
     // Based on the SAVING THROW, not `disarm`. Preserved as it stands; the
     // intent is unclear but changing it would change the game's behaviour.
-    a.dev = player_saving_throw() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * player_level() / 3);
+    a.dev = player_saving_throw() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DEVICE] * player_level() / 3);
 
     // The window answers in SQUARES; the ten is this screen's own doing, one
     // square being ten feet (player_infra_range.h). The multiplication stays

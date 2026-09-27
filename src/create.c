@@ -20,6 +20,7 @@
 #include "player_base_to_hit.h"
 #include "player_bio.h"
 #include "player_body_weight.h"
+#include "player_class.h"
 #include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
@@ -371,7 +372,10 @@ static void get_class(void) {
         mask <<= 1;
     } while (j < MAX_CLASS);
 
-    py.misc.pclass = 0;
+    // **メニューの前の 0 は人物の答えにならない** —— このループは答えずには
+    // 出られないので、下の `player_class_set(cl[j])` がかならず上書きする
+    // （player_class.h の「一生で 2 回」）。
+    player_class_set(0);
 
     int min_value, max_value;
     player_type *p_ptr;
@@ -384,8 +388,11 @@ static void get_class(void) {
         s = inkey();
         j = s - 'a';
         if ((j < k) && (j >= 0)) {
-            py.misc.pclass = cl[j];
-            c_ptr = &class[py.misc.pclass];
+            player_class_set(cl[j]);
+            // **階級が何をくれるかは窓口の外**（player_class.h の 3 つめ）——
+            // 窓口が返すのは行番号だけで、この 1 行から下の 6 つの補正・体力の
+            // 骰子・静かさ・経験の倍率・称号はぜんぶ表の欄。
+            c_ptr = &class[player_class()];
             exit_flag = true;
             clear_from(20);
             put_buffer(c_ptr->title, 5, 15);
@@ -442,8 +449,7 @@ static void get_class(void) {
             player_disarm_adjust(c_ptr->mdis);
             // 階級ぶんは足す 1 本（#18-12-27B）。**引数は正** —— どの階級も
             // 静かさを足すので、創成が置ける下端は -1（Half-Troll の Warrior）。
-            // **この 1 行で `struct misc *m_ptr` が死んだ**（残りは pclass を
-            // 読む 2 行だが、どちらも `py.misc.pclass` と直に書いてある）。
+            // **この 1 行で `struct misc *m_ptr` が死んだ**。
             player_stealth_adjust(c_ptr->mstl);
             player_saving_throw_adjust(c_ptr->msav);
             player_set_experience_factor((uint8_t)(player_experience_factor() + c_ptr->m_exp));

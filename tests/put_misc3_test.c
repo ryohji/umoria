@@ -34,6 +34,7 @@
 #include "fixture.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
+#include "player_class.h"
 #include "player_disarm.h"
 #include "player_search_skill.h"
 #include "player_infra_range.h"
@@ -70,7 +71,7 @@ void put_misc3(void);
 /* ------------------------------------------------------------------
  * 条件づくりの補助関数
  *
- * fixture_reset() が py を丸ごと 0 にするので、pclass は 0（Warrior）、
+ * fixture_reset() が py を丸ごと 0 にするので階級は 0（Warrior）、
  * lev も 0 から始まる。lev が 0 なら class_level_adj の項が消えるので、
  * 素の式だけを見たいテストは lev を触らない。
  * ------------------------------------------------------------------ */
@@ -81,7 +82,7 @@ void put_misc3(void);
  * 行は 0 Warrior {4,4,2,2,3}, 1 Mage {2,2,4,3,3}, 3 Rogue {3,4,3,4,3}。 */
 static void given_class_and_level(int pclass, int lev)
 {
-    py.misc.pclass = (uint8_t)pclass;
+    player_class_set(pclass);
     player_set_level((uint16_t)lev);
 }
 

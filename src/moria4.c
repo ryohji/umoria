@@ -21,6 +21,7 @@
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
+#include "player_class.h"
 #include "player_disarm.h"
 #include "player_level.h"
 #include "player_pos.h"
@@ -184,7 +185,7 @@ void disarm_trap(void) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
-            int tot = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * player_level() / 3);
+            int tot = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
             if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || (no_light())) {
                 tot = tot / 10;
@@ -847,7 +848,7 @@ void throw_object(void) {
                         // if monster not lit, make it much more difficult to hit, subtract
                         // off most bonuses, and reduce bthb depending on distance.
                         if (!m_ptr->ml) {
-                            tbth = (tbth / (cur_dis + 2)) - (player_level() * class_level_adj[py.misc.pclass][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
+                            tbth = (tbth / (cur_dis + 2)) - (player_level() * class_level_adj[player_class()][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
                         }
 
                         if (test_hit(tbth, (int)player_level(), tpth, (int)r_ptr->ac, CLA_BTHB)) {
@@ -922,7 +923,7 @@ static void py_bash(int y, int x) {
     int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + body_weight / 10;
 
     if (!m_ptr->ml) {
-        base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
+        base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[player_class()][CLA_BTH] / 2);
     }
 
     if (test_hit(base_tohit, (int)player_level(), (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {

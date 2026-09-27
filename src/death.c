@@ -15,6 +15,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "player_bio.h"
+#include "player_class.h"
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_level.h"
@@ -151,7 +152,7 @@ static void print_tomb(void) {
     put_buffer("|", 9, 9);
     put_buffer("|  :   :", 9, 43);
     if (!player_has_won()) {
-        p = class[py.misc.pclass].title;
+        p = player_class_title();
     } else if (player_is_male()) {
         p = "*King*";
     } else {
@@ -273,7 +274,10 @@ static void highscores(void) {
     new_entry.max_dlv = (uint8_t)player_max_depth();
     new_entry.sex = (player_is_male() ? 'M' : 'F');
     new_entry.race = (uint8_t)player_race();
-    new_entry.class = py.misc.pclass;
+    // 得点表の `.class` はこの行番号を持つが、**この問いではない** ——
+    // 死んで終わった人物の記録で、得点表そのものが別の単位
+    // （player_class.h の 6 つめ）。
+    new_entry.class = (uint8_t)player_class();
     (void)strcpy(new_entry.name, player_name());
 
     char *tmp = death_cause();

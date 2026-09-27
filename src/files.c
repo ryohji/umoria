@@ -22,6 +22,7 @@
 #include "object_levels.h"
 #include "player_bio.h"
 #include "player_body_weight.h"
+#include "player_class.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
@@ -211,7 +212,7 @@ bool file_character(char *filename1) {
         (void)fprintf(file1, " Weight%8s %6d", colon, player_body_weight());
         cnv_stat(py.stats.use_stat[A_WIS], prt1);
         (void)fprintf(file1, "   WIS : %s\n", prt1);
-        (void)fprintf(file1, " Class%8s %-23s", colon, class[py.misc.pclass].title);
+        (void)fprintf(file1, " Class%8s %-23s", colon, player_class_title());
         (void)fprintf(file1, " Social Class : %6d", player_social_class());
         cnv_stat(py.stats.use_stat[A_DEX], prt1);
         (void)fprintf(file1, "   DEX : %s\n", prt1);

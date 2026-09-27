@@ -29,6 +29,7 @@
 #include "player_base_to_hit.h"
 #include "player_bio.h"
 #include "player_body_weight.h"
+#include "player_class.h"
 #include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
@@ -155,7 +156,6 @@ static bool sv_write(void) {
 
     wr_long(l);
 
-    struct misc *m_ptr = &py.misc;
     // 人物の身上書きも窓口へ（#18-12-26B）。**並びはファイルの形なので
     // 動かせない** —— 名前・性別がここ、年齢と身長が下、階層はさらに下、
     // 生い立ち 4 行がいちばんあと。
@@ -203,7 +203,12 @@ static bool sv_write(void) {
     // ので、2 本を入れちがえてもテストは 1 件も落ちない（所見 46）—— 網は人物
     // 画面のほうで、入れかわると Stealth が Superb に、Social Class が 1 桁になる。
     wr_short((uint16_t)player_stealth());
-    wr_byte(m_ptr->pclass);
+    // 階級も窓口へ（#18-12-28B）。**ここから byte が 4 本つづく** ——
+    // 階級・種族・体力の骰子・経験の倍率で、どの 2 本を入れちがえても幅では
+    // 気づけない（所見 46）。**4 本が 4 つの別の module にあるので、並びを
+    // 固定する 1 件はここには書けない** —— 網は人物画面のほうで、階級と種族が
+    // 入れかわると Class 行と Race 行が同時にずれる。
+    wr_byte((uint8_t)player_class());
     wr_byte((uint8_t)player_race());
     wr_byte((uint8_t)player_hit_die());
     wr_byte(player_experience_factor());
@@ -624,8 +629,6 @@ bool get_char(bool *generate) {
         }
 
         if ((l & 0x80000000L) == 0) {
-            struct misc *m_ptr = &py.misc;
-
             // 人物の身上書きも窓口へ（#18-12-26B）。読みは器の番地を要る
             // ので、名前は局所の器に受けてから置く。**並びはファイルの形
             // なので動かせない**。
@@ -637,7 +640,7 @@ bool get_char(bool *generate) {
             uint8_t male;
             rd_byte(&male);
             player_set_male(male != 0);
-            // 金は m_ptr->au ではなく窓口へ入れる。読みは器の番地を要る
+            // 金は py.misc.au ではなく窓口へ入れる。読みは器の番地を要る
             // ので、いったん受けてから置く（幅と符号の扱いは元のまま）。
             uint32_t gold;
             rd_long(&gold);
@@ -754,7 +757,13 @@ bool get_char(bool *generate) {
             uint16_t stealth;
             rd_short(&stealth);
             player_stealth_set((int16_t)stealth);
-            rd_byte(&m_ptr->pclass);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す —— **置きなおしは
+             * 階級のメニューと同じ窓口**（種族・体力の骰子・素の命中力・
+             * 罠と鍵をはずす腕・抵抗・足音の静かさと同じで、守りの点数だけが
+             * ちがう。player_class.h）。**ここから byte が 4 本つづく**（所見 46）。 */
+            uint8_t pclass;
+            rd_byte(&pclass);
+            player_class_set(pclass);
             /* 番地を渡していた 1 か所。読んでから窓口へ渡す
              * （置きなおしは種族のメニューと同じ窓口 —— どちらもただの
              * 置きかえ。player_race.h）。 */

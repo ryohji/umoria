@@ -25,6 +25,7 @@
 #include "pending_teleport.h"
 #include "player_bio.h"
 #include "player_body_weight.h"
+#include "player_class.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
@@ -288,7 +289,7 @@ const char *title_string(void) {
     if (player_level() < 1) {
         p = "Babe in arms";
     } else if (player_level() <= MAX_PLAYER_LEVEL) {
-        p = player_title[py.misc.pclass][player_level() - 1];
+        p = player_title[player_class()][player_level() - 1];
     } else if (player_is_male()) {
         p = "**KING**";
     } else {
@@ -523,10 +524,10 @@ void set_use_stat(int stat) {
         calc_bonuses();
     } else if (stat == A_DEX) {
         calc_bonuses();
-    } else if (stat == A_INT && class[py.misc.pclass].spell == MAGE) {
+    } else if (stat == A_INT && player_class_spell_type() == MAGE) {
         calc_spells(A_INT);
         calc_mana(A_INT);
-    } else if (stat == A_WIS && class[py.misc.pclass].spell == PRIEST) {
+    } else if (stat == A_WIS && player_class_spell_type() == PRIEST) {
         calc_spells(A_WIS);
         calc_mana(A_WIS);
     } else if (stat == A_CON) {
@@ -613,10 +614,10 @@ void bst_stat(int stat, int amount) {
 
 // Prints character-screen info -RAK-
 void prt_stat_block(void) {
-    // 種族の名前は窓口へ（#18-12-22B）。**すぐ下の行が階級の名前を同じ器から
-    // 引くので、このファイルの直書きは残る** —— 消えるのは #18-12-28。
+    // 種族と階級の名前がならんで窓口になった（#18-12-22B と #18-12-28B）——
+    // **この 3 行で `py` を名ざすものは 1 つも無くなった**。
     prt_field(player_race_name(), 2, STAT_COLUMN);
-    prt_field(class[py.misc.pclass].title, 3, STAT_COLUMN);
+    prt_field(player_class_title(), 3, STAT_COLUMN);
     prt_field(title_string(), 4, STAT_COLUMN);
 
     for (int i = 0; i < 6; i++) {
@@ -679,8 +680,6 @@ void draw_cave(void) {
 
 // Prints the following information on the screen. -JWT-
 void put_character(void) {
-    struct misc *m_ptr = &py.misc;
-
     clear_screen();
 
     put_buffer("Name        :", 2, 1);
@@ -692,7 +691,7 @@ void put_character(void) {
         put_buffer(player_name(), 2, 15);
         put_buffer(player_race_name(), 3, 15);
         put_buffer((player_is_male() ? "Male" : "Female"), 4, 15);
-        put_buffer(class[m_ptr->pclass].title, 5, 15);
+        put_buffer(player_class_title(), 5, 15);
     }
 }
 
@@ -1088,12 +1087,12 @@ int inven_carry(inven_type *i_ptr) {
 
 // Returns spell chance of failure for spell -RAK-
 int spell_chance(int spell) {
-    spell_type *s_ptr = &magic_spell[py.misc.pclass - 1][spell];
+    spell_type *s_ptr = &magic_spell[player_class() - 1][spell];
 
     int stat;
     int chance = s_ptr->sfail - 3 * (player_level() - s_ptr->slevel);
 
-    if (class[py.misc.pclass].spell == MAGE) {
+    if (player_class_spell_type() == MAGE) {
         stat = A_INT;
     } else {
         stat = A_WIS;
@@ -1124,7 +1123,7 @@ void print_spells(int *spell, int num, int comment, int nonconsec) {
         col = 31;
     }
 
-    int offset = (class[py.misc.pclass].spell == MAGE ? SPELL_OFFSET : PRAYER_OFFSET);
+    int offset = (player_class_spell_type() == MAGE ? SPELL_OFFSET : PRAYER_OFFSET);
 
     erase_line(1, col);
     put_buffer("Name", 1, col + 5);
@@ -1137,7 +1136,7 @@ void print_spells(int *spell, int num, int comment, int nonconsec) {
 
     for (int i = 0; i < num; i++) {
         int j = spell[i];
-        spell_type *s_ptr = &magic_spell[py.misc.pclass - 1][j];
+        spell_type *s_ptr = &magic_spell[player_class() - 1][j];
 
         const char *p;
         if (comment == false) {
@@ -1177,7 +1176,7 @@ int get_spell(int *spell, int num, int *sn, int *sc, const char *prompt, int fir
     bool flag = false;
     bool redraw = false;
 
-    int offset = (class[py.misc.pclass].spell == MAGE ? SPELL_OFFSET : PRAYER_OFFSET);
+    int offset = (player_class_spell_type() == MAGE ? SPELL_OFFSET : PRAYER_OFFSET);
 
     char choice;
     while (flag == false && get_com(out_str, &choice)) {
@@ -1194,7 +1193,7 @@ int get_spell(int *spell, int num, int *sn, int *sc, const char *prompt, int fir
             if (i == num) {
                 *sn = -2;
             } else {
-                spell_type *s_ptr = &magic_spell[py.misc.pclass - 1][*sn];
+                spell_type *s_ptr = &magic_spell[player_class() - 1][*sn];
 
                 vtype tmp_str;
                 (void)sprintf(tmp_str, "Cast %s (%d mana, %d%% fail)?", spell_names[*sn + offset], s_ptr->smana, spell_chance(*sn));
@@ -1254,8 +1253,7 @@ int get_spell(int *spell, int num, int *sn, int *sc, const char *prompt, int fir
 // learn forget spells until that number is met -JEW-
 void calc_spells(int stat) {
 
-    struct misc *p_ptr = &py.misc;
-    spell_type *msp_ptr = &magic_spell[p_ptr->pclass - 1][0];
+    spell_type *msp_ptr = &magic_spell[player_class() - 1][0];
 
     const char *p;
     int offset;
@@ -1284,7 +1282,9 @@ void calc_spells(int stat) {
 
     // calc number of spells allowed
     int num_allowed = 0;
-    int levels = player_level() - class[p_ptr->pclass].first_spell_lev + 1;
+    // **階級が何をくれるかは窓口の外**（player_class.h の 3 つめ）——
+    // first_spell_lev はこの 1 行と calc_mana() の 2 か所だけが読む。
+    int levels = player_level() - class[player_class()].first_spell_lev + 1;
     switch (stat_adj(stat)) {
     case 0:
         num_allowed = 0;
@@ -1400,11 +1400,13 @@ void gain_spells(void) {
     int new_spells = player_spells_to_learn();
     int diff_spells = 0;
 
-    struct misc *p_ptr = &py.misc;
-    spell_type *msp_ptr = &magic_spell[p_ptr->pclass - 1][0];
+    // **この番地は系を訊く前に作られる**（バグ候補 B22）—— 戦士なら
+    // `magic_spell[-1]` だが、下の if がどちらの系にも入らないので読まれない。
+    // **並びは動かさない** —— B はふるまいを 1 つも変えない。
+    spell_type *msp_ptr = &magic_spell[player_class() - 1][0];
 
     int stat, offset;
-    if (class[p_ptr->pclass].spell == MAGE) {
+    if (player_class_spell_type() == MAGE) {
         stat = A_INT;
         offset = SPELL_OFFSET;
 
@@ -1522,11 +1524,9 @@ void gain_spells(void) {
 
 // Gain some mana if you know at least one spell -RAK-
 void calc_mana(int stat) {
-    struct misc *p_ptr = &py.misc;
-
     if (any_spell_learned()) {
         int new_mana = 0;
-        int levels = player_level() - class[p_ptr->pclass].first_spell_lev + 1;
+        int levels = player_level() - class[player_class()].first_spell_lev + 1;
         switch (stat_adj(stat)) {
         case 0:
             new_mana = 0;
@@ -1570,7 +1570,6 @@ void calc_mana(int stat) {
 
 // Increases hit points and level -RAK-
 static void gain_level(void) {
-    struct misc *p_ptr = &py.misc;
     player_advance_level();
 
     vtype out_val;
@@ -1584,12 +1583,10 @@ static void gain_level(void) {
     prt_level();
     prt_title();
 
-    class_type *c_ptr = &class[p_ptr->pclass];
-
-    if (c_ptr->spell == MAGE) {
+    if (player_class_spell_type() == MAGE) {
         calc_spells(A_INT);
         calc_mana(A_INT);
-    } else if (c_ptr->spell == PRIEST) {
+    } else if (player_class_spell_type() == PRIEST) {
         calc_spells(A_WIS);
         calc_mana(A_WIS);
     }
@@ -1740,7 +1737,7 @@ int critical_blow(int weight, int plus, int dam, int attack_type) {
 
     // Weight of weapon, plusses to hit, and character level all
     // contribute to the chance of a critical
-    if (randint(5000) <= (weight + 5 * plus + (class_level_adj[py.misc.pclass][attack_type] * player_level()))) {
+    if (randint(5000) <= (weight + 5 * plus + (class_level_adj[player_class()][attack_type] * player_level()))) {
         weight += randint(650);
 
         if (weight < 400) {
@@ -1819,7 +1816,7 @@ int mmove(int dir, int *y, int *x) {
 // Saving throws for player character. -RAK-
 bool player_saves(void) {
     // MPW C couldn't handle the expression, so split it into two parts
-    int16_t temp = class_level_adj[py.misc.pclass][CLA_SAVE];
+    int16_t temp = class_level_adj[player_class()][CLA_SAVE];
 
     // 数は窓口から、振るのはここ（#18-12-21B）。**窓口は「どれくらい強いか」を
     // 返し、この関数は「今回こらえたか」を返す** —— 判定には randint と

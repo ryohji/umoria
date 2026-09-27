@@ -24,6 +24,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"
+#include "player_class.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_hp.h"
@@ -105,9 +106,9 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 void calc_bonuses(void) {
     // `struct misc *m_ptr` はここで死んだ（#18-12-24B）。**それを使っていた
     // 5 行（素の値 2・画面の写し 1・装備の輪 2）がぜんぶ窓口になった**ので、
-    // 装備を数えなおす仕事は問いの窓口だけで書けている。**#18-12-27B で
-    // py_bonuses() の stl 1 行も窓口になったので、このファイルが `struct misc` を
-    // 名ざすのは階級を読む 1 行だけになった**（#18-12-28 で最後の 1 行も消える）。
+    // 装備を数えなおす仕事は問いの窓口だけで書けている。**#18-12-28B で
+    // test_hit() の階級 1 行も窓口になったので、このファイルは `struct misc` を
+    // もう 1 か所も名ざしていない。**
 
     // What the old answers were doing to the digestion has to be taken back
     // before they are forgotten -- that is why the asking comes first and why
@@ -1673,7 +1674,7 @@ bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
     disturb(1, 0);
 
     // pth could be less than 0 if player wielding weapon too heavy for him
-    int i = bth + pth * BTH_PLUS_ADJ + (level * class_level_adj[py.misc.pclass][attack_type]);
+    int i = bth + pth * BTH_PLUS_ADJ + (level * class_level_adj[player_class()][attack_type]);
 
     // always miss 1 out of 20, always hit 1 out of 20
     int die = randint(20);
