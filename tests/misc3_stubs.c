@@ -33,6 +33,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_speed.h"
@@ -368,6 +369,15 @@ void fixture_reset(void)
      * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。
      * **2 本まとめて 0 へ**（どちらも種族を選ぶまで 0）。 */
     player_base_to_hit_set(0, 0);
+    /* 罠と鍵をはずす腕も #18-12-20C で src/player_disarm.c の static へ移った。
+     * **この 1 行は外すと本当にレッドになる**（呪文の 1 行と同じ側で、素の
+     * 命中力・速さ・赤外視の 3 行とは違う）—— class_level_adj の列を見る
+     * xdis_uses_the_disarm_column_of_class_level_adj は自分で腕を置かず、
+     * 階級の項だけを見たいので 0 から始まることに頼っている。前の 2 件が
+     * 置いた 40 と 32 が残ると "Fair" のはずが "Excellent" になる
+     * （C の段で実際にこの 1 件が落ちて気づいた）。
+     * **0 が人物の走りだし**（Human は種族の土台も創成時の下駄も 0）。 */
+    player_disarm_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

@@ -14,13 +14,18 @@
 
 // No externs.h here, the same as the eighteen questions before this one.
 
-// THE NUMBER IS STILL IN py.misc (step A). Every window goes through the pointer
-// below, so #18-12-20C has one place to change: the pointer becomes the number
-// itself and this comment goes away.
-extern player_type py;
+// THE NUMBER ITSELF. It was py.misc.disarm until #18-12-20C; now this one short
+// is the only place the answer lives, and the windows below are the only way to
+// reach it. (`struct misc` is down to fifteen fields.)
+//
+// ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
+// until create.c picks a race, and a Human's racial base happens to be zero too
+// -- with a dexterity of 8 through 12 the creation-time bonus is zero as well,
+// so a Human really does sit at zero until a class is picked.
+static int16_t the_chance_number;
 
 static int16_t *the_chance(void) {
-    return &py.misc.disarm;
+    return &the_chance_number;
 }
 
 int player_disarm(void) {

@@ -210,7 +210,16 @@ typedef struct player_type {
         // class without anything noticing. What the sheet shows is still a
         // separate question (player_display_numbers.h), and the saved file
         // still keeps two shorts, the worn armour first.
-        int16_t disarm;              // % to Disarm
+        // How good this character is at traps and locks left in #18-12-20:
+        // player_disarm.c keeps the one short now, reached only through
+        // player_disarm.h. ONE FIELD, ONE QUESTION -- the simplest shape on this
+        // road, and the first since the hit die. A trap and a lock were never
+        // separate skills here. One copy of the creation-time dexterity bonus is
+        // frozen inside the number while every reader adds two copies of the
+        // current one; that oddity is the game's, and it was kept. The total that
+        // is actually rolled against is still written out four times over
+        // (abilities.c, moria3.c twice, moria4.c) because it indexes
+        // class_level_adj by pclass, which is still a field below.
         int16_t save;                // Saving throw
         int16_t sc;                  // Social Class
         int16_t stl;                 // Stealth factor

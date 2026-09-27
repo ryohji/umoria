@@ -1604,9 +1604,9 @@ $(BUILDDIR)/player_base_to_hit_test: $(TESTDIR)/player_base_to_hit_test.c \
 
 # 「罠と鍵をはずす腕はいくつか」（19 つめの問い・`struct misc` から出る 5 つめ）。
 #
-# **A の段では足場（player_disarm_fixture.c）を一緒にリンクする** ——
-# 置き場はまだ py.misc.disarm で、py の実体がどこかに要るから。
-# **#18-12-20C で足場は消える**（19 回続けて同じ形になる）。
+# **#18-12-20C で足場（player_disarm_fixture.c）は消えた** —— 置き場が
+# src/player_disarm.c の static に入ったので、py の実体はもう要らない
+# （19 回続けて同じ形）。この test がリンクするのは module 1 本だけ。
 #
 # **1 フィールド 1 つの答えで、この道でいちばん素直な形**（16 つめと同じ）。
 # 窓口は 3 本 —— 読み・置く（種族とセーブと wizard で 1 本）・階級ぶんを足す。
@@ -1617,11 +1617,9 @@ $(BUILDDIR)/player_base_to_hit_test: $(TESTDIR)/player_base_to_hit_test.c \
 # `class_level_adj[pclass]` を引くため #18-12-28 待ち（player_disarm.h）。
 $(BUILDDIR)/player_disarm_test: $(TESTDIR)/player_disarm_test.c \
                                 $(TESTDIR)/minunit.h \
-                                $(TESTDIR)/player_disarm_fixture.c \
                                 src/player_disarm.c \
                                 src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_disarm_test.c \
-	    $(TESTDIR)/player_disarm_fixture.c \
 	    src/player_disarm.c
 
 clean:
