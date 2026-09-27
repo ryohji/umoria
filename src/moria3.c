@@ -30,6 +30,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_search_skill.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "running.h"
@@ -724,11 +725,16 @@ void move_char(int dir, bool do_pickup) {
                     area_affect(dir, player_row(), player_col());
                 }
 
-                // Check to see if he notices something
-                // fos may be negative if have good rings of searching
-                if ((py.misc.fos <= 1) || (randint(py.misc.fos) == 1) ||
+                // Check to see if he notices something.
+                //
+                // 探索の腕と頻度は窓口へ（#18-12-25B）。**頻度は 1 つの式で
+                // 2 度読むので入口の局所に畳んだ**（→ 所見 35 の 1 つめの形）。
+                // **1 以下なら毎回見るという規則も、負になりうるのも呼び手の側**
+                // —— the frequency may be negative if have good rings of searching.
+                const int how_often = player_search_frequency();
+                if ((how_often <= 1) || (randint(how_often) == 1) ||
                     player_is_searching()) {
-                    search(player_row(), player_col(), py.misc.srh);
+                    search(player_row(), player_col(), player_search_chance());
                 }
 
                 // A room of light should be lit.

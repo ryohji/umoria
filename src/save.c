@@ -43,6 +43,7 @@
 #include "player_race.h"
 #include "player_resting.h"
 #include "player_saving_throw.h"
+#include "player_search_skill.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
@@ -164,8 +165,10 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_body_weight());
     wr_short(player_level());
     wr_short((uint16_t)player_max_depth());
-    wr_short((uint16_t)m_ptr->srh);
-    wr_short((uint16_t)m_ptr->fos);
+    // 探索の腕と頻度も窓口へ（#18-12-25B）。**腕が先、頻度があと** ——
+    // 並びは動かせない。
+    wr_short((uint16_t)player_search_chance());
+    wr_short((uint16_t)player_search_frequency());
     // 素の命中力も窓口へ（#18-12-19B）。**近接が先、弓があと** ——
     // 並びは動かせない。
     wr_short((uint16_t)player_base_to_hit());
@@ -646,8 +649,14 @@ bool get_char(bool *generate) {
             uint16_t max_depth;
             rd_short(&max_depth);
             player_max_depth_set(max_depth);
-            rd_short((uint16_t *)&m_ptr->srh);
-            rd_short((uint16_t *)&m_ptr->fos);
+            // 読みもどしも置く窓口が 2 本（#18-12-25B）——
+            // wizard.c が腕だけを置きかえるので対にはできない。
+            uint16_t search_chance;
+            uint16_t search_frequency;
+            rd_short(&search_chance);
+            rd_short(&search_frequency);
+            player_search_chance_set((int16_t)search_chance);
+            player_search_frequency_set((int16_t)search_frequency);
             // 読みもどしは種族の土台と同じ文なので、置きなおしの窓口が
             // 1 本で足りる（#18-12-19B。守りの点数だけが 2 本要った）。
             uint16_t base_to_hit;

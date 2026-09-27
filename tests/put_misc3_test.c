@@ -35,6 +35,7 @@
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_disarm.h"
+#include "player_search_skill.h"
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_saving_throw.h"
@@ -143,14 +144,14 @@ TEST(xstl_is_one_when_stl_is_zero)
 
 TEST(xfos_is_forty_minus_fos_when_fos_is_below_forty)
 {
-    py.misc.fos = 22;
+    player_search_frequency_set(22); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Very Good"); /* xfos=18 -> 18/3=6 */
 }
 
 TEST(xfos_is_zero_when_fos_is_exactly_forty)
 {
-    py.misc.fos = 40;
+    player_search_frequency_set(40); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Bad"); /* xfos=0 -> 0/3=0 */
 }
@@ -159,7 +160,7 @@ TEST(xfos_is_zero_when_fos_is_exactly_forty)
  * likert の default に落ちて "Superb" になるので判別できる。 */
 TEST(xfos_is_clamped_to_zero_when_fos_exceeds_forty)
 {
-    py.misc.fos = 52;
+    player_search_frequency_set(52); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Bad");
 }
@@ -173,7 +174,7 @@ TEST(xfos_is_clamped_to_zero_when_fos_exceeds_forty)
  * このテストはそれを固定する。 */
 TEST(xfos_exceeds_twenty_nine_when_fos_falls_below_eleven)
 {
-    py.misc.fos = 2;
+    player_search_frequency_set(2); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Superb"); /* xfos=38 -> 38/3=12 */
 }
@@ -371,7 +372,7 @@ TEST(xbthb_adds_three_times_ptohit_to_bthb)
 
 TEST(xsrh_is_srh_without_any_adjustment)
 {
-    py.misc.srh = 32;
+    player_search_chance_set(32); /* #18-12-25B で窓口へ */
     given_class_and_level(1, 20); /* class の項が乗らないことも確かめる */
     put_misc3();
     ASSERT_EQ_STR(AT_SEARCHING, "Good"); /* 32/6=5 */

@@ -24,6 +24,7 @@
 #include "player_disarm.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_search_skill.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "stats.h"
@@ -151,7 +152,8 @@ void tunnel(int dir) {
                     // Secret doors.
 
                     count_msg_print("You tunnel into the granite wall.");
-                    search(player_row(), player_col(), py.misc.srh);
+                    // 探索の腕は窓口へ（#18-12-25B）。
+                    search(player_row(), player_col(), player_search_chance());
                 } else {
                     abort();
                 }

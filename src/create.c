@@ -28,6 +28,7 @@
 #include "player_level.h"
 #include "player_race.h"
 #include "player_saving_throw.h"
+#include "player_search_skill.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -106,10 +107,13 @@ static void get_all_stats(void) {
         set_use_stat(j);
     }
 
-    p_ptr->misc.srh = r_ptr->srh;
+    // 探索の腕と頻度は窓口が 2 本（#18-12-25B）。**素の命中力と違って対では
+    // 置かない** —— wizard.c が腕だけを置きかえるので、片方だけの窓口が要る。
+    // この 2 行が離れているのもそのため（あいだに別の問いが入っている）。
+    player_search_chance_set(r_ptr->srh);
     // 素の命中力の 2 本は 1 つの窓口で（#18-12-19B）。種族は必ず両方を書く。
     player_base_to_hit_set(r_ptr->bth, r_ptr->bthb);
-    p_ptr->misc.fos = r_ptr->fos;
+    player_search_frequency_set(r_ptr->fos);
     p_ptr->misc.stl = r_ptr->stl;
     // 抵抗は種族の表の数そのまま（#18-12-21B）。**下駄は 1 つも混ざらない** ——
     // 罠と鍵をはずす腕はここで DEX の下駄を焼きこむが、こちらは焼きこまない。
@@ -426,9 +430,10 @@ static void get_class(void) {
 
             // 階級ぶんは 2 つの数が別々（振るのと射るのは別の腕）。 // RAK
             player_base_to_hit_adjust(c_ptr->mbth, c_ptr->mbthb);
-            m_ptr->srh += c_ptr->msrh;
+            // 階級ぶんは対で足す 1 本（#18-12-25B）。**どちらの引数も正** ——
+            // 装備のほうは (amount, -amount) で呼ぶが、符号は呼び手のもの。
+            player_search_skill_adjust(c_ptr->msrh, c_ptr->mfos);
             player_disarm_adjust(c_ptr->mdis);
-            m_ptr->fos += c_ptr->mfos;
             m_ptr->stl += c_ptr->mstl;
             player_saving_throw_adjust(c_ptr->msav);
             player_set_experience_factor((uint8_t)(player_experience_factor() + c_ptr->m_exp));

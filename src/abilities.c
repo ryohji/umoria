@@ -29,6 +29,7 @@
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_saving_throw.h"
+#include "player_search_skill.h"
 #include "stats.h"
 
 struct player_abilities calc_player_abilities(void) {
@@ -47,13 +48,17 @@ struct player_abilities calc_player_abilities(void) {
     a.bth = player_base_to_hit() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTH] * player_level());
     a.bthb = player_base_to_hit_with_bows() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[p_ptr->pclass][CLA_BTHB] * player_level());
 
-    // 0 when fos >= 40; exceeds 29 when fos < 11 (search gear lowers fos, moria1.c:48)
-    a.fos = 40 - p_ptr->fos;
+    // 探索の腕と頻度も窓口へ（#18-12-25B）。**逆さにするのと 0 で留めるのは
+    // この画面の規則**で、窓口には入れない —— 自動探索は頻度をそのまま
+    // randint() に渡す（moria3.c:729）。0 when the frequency is >= 40; exceeds 29
+    // when it is < 11 (search gear lowers it, moria1.c:72)
+    a.fos = 40 - player_search_frequency();
     if (a.fos < 0) {
         a.fos = 0;
     }
 
-    a.srh = p_ptr->srh;
+    // 腕のほうは補正が 1 つも乗らない（下駄に 3 を掛ける命中力とは違う）。
+    a.srh = player_search_chance();
 
     // stl + 1, so the minimum is 1 (not 0)
     a.stl = p_ptr->stl + 1;

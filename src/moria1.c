@@ -31,6 +31,7 @@
 #include "player_light.h"
 #include "player_pos.h"
 #include "player_resting.h"
+#include "player_search_skill.h"
 #include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
@@ -68,8 +69,13 @@ void py_bonuses(inven_type *t_ptr, int factor) {
         }
     }
     if (TR_SEARCH & t_ptr->flags) {
-        py.misc.srh += amount;
-        py.misc.fos -= amount;
+        // 探索の腕と頻度は対で足す 1 本へ（#18-12-25B）。**逆向きはこちらに
+        // 残す** —— 探索の装備は「よく見つかり、より頻繁に見る」ので腕は上がり
+        // 頻度（1/n の n）は下がる。これは装備についての事実で、人物について
+        // の事実ではない（創成の階級ぶんは第 2 引数も正）。`amount` は呼び手の
+        // factor で符号がついているので、この 1 行が身につけるときと外すときの
+        // 両方を受けもつ。
+        player_search_skill_adjust(amount, -amount);
     }
     if (TR_STEALTH & t_ptr->flags) {
         py.misc.stl += amount;
@@ -94,8 +100,9 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 void calc_bonuses(void) {
     // `struct misc *m_ptr` はここで死んだ（#18-12-24B）。**それを使っていた
     // 5 行（素の値 2・画面の写し 1・装備の輪 2）がぜんぶ窓口になった**ので、
-    // 装備を数えなおす仕事は問いの窓口だけで書けている。この struct を
-    // 名ざす行は :71・:72・:75（srh／fos／stl）と :1665（pclass）に残る。
+    // 装備を数えなおす仕事は問いの窓口だけで書けている。**#18-12-25B で
+    // 探索の 2 行も窓口になった**ので、この struct を名ざすのは py_bonuses()
+    // の stl 1 行と、階級を読む 1 行だけになった。
 
     // What the old answers were doing to the digestion has to be taken back
     // before they are forgotten -- that is why the asking comes first and why

@@ -21,6 +21,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_saving_throw.h"
+#include "player_search_skill.h"
 
 // Light up the dungeon -RAK-
 void wizard_light(void) {
@@ -164,13 +165,16 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Searching = ", m_ptr->srh);
+    // 探索の腕は窓口へ（#18-12-25B）。**この入り口は頻度を訊かない** ——
+    // 片方だけ置く書き手はここだけで、それが置く窓口を 2 本に分けている。
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Searching = ", player_search_chance());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->srh = tmp_val;
+            // 0..200 に囲うのはこの入り口の規則で、窓口は何も断らない。
+            player_search_chance_set(tmp_val);
         }
     } else {
         return;

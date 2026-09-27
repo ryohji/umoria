@@ -34,6 +34,7 @@
 #include "player_max_depth.h"
 #include "player_pos.h"
 #include "player_resting.h"
+#include "player_search_skill.h"
 #include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
@@ -1422,7 +1423,9 @@ static void do_command(char com_val) {
         read_scroll();
         break;
     case 's': // (s)earch for a turn
-        search(player_row(), player_col(), py.misc.srh);
+        // 探索の腕は窓口へ（#18-12-25B）。頻度のほうは要らない ——
+        // (s) は「今 1 回見る」で、見るかどうかは人が決めている。
+        search(player_row(), player_col(), player_search_chance());
         break;
     case 'T': // (T)ake off something  (t)ake off
         inven_command('t');
