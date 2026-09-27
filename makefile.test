@@ -54,7 +54,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_base_to_hit_test player_disarm_test \
         player_saving_throw_test player_race_test player_body_weight_test \
         player_attack_bonuses_test player_search_skill_test \
-        player_bio_test
+        player_bio_test player_stealth_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -281,6 +281,7 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -298,7 +299,8 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # キャラクターの能力値算出（9 式）は misc3.c:967 の put_misc3() と
 # files.c:232 の file_character() に二重に書かれている。写しではなく実体を
@@ -373,6 +375,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -390,7 +393,8 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # レベルごとに並べたダンジョンの品物表（sorted_objects と t_level）を読む側は
 # get_obj_num()（misc3.c:78）だけ。misc3.c 全体が要るので、リンクする一式は
@@ -425,6 +429,7 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/object_levels_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -443,7 +448,8 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # 値切り交渉のコメント表示は store2.c:123 の prt_comment2() と
 # store2.c:137 の prt_comment3() に二重に書かれている。差異は配列名・要素数と
@@ -513,6 +519,7 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/player_attack_bonuses.c src/player_attack_bonuses.h \
                                  src/player_search_skill.c src/player_search_skill.h \
                                  src/player_bio.c src/player_bio.h \
+                                 src/player_stealth.c src/player_stealth.h \
                                  src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -531,7 +538,8 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # モンスターの行動回数計算は src/creature.c:75 の movement_rate() にある。
 # static なので外から呼べない。写しでは書きかえ後の実体を検証できず保護に
@@ -578,6 +586,11 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # から代役 1 個（screen_change）を消した（残すと窓口越しの読み書きが届かない
 # 別の器になる。上の 3 件と同じ）。この 1 本が窓口と置き場の両方になっている。
 #
+# #18-12-27B で creature.c が「足音はどれくらい静かか」を窓口越しに訊くように
+# なったので src/player_stealth.c もリンクする。**11 本の列に 12 本めとして
+# 戻ってくる 1 本** —— 25 つめまでの 8 単位はどれも払わせなかった（creature.c は
+# 人物の身上書きも探索の腕も読まない）。#18-12-27C で置き場も static に入る。
+#
 # #18-11-6B で creature.c が「走っているか」を窓口越しに訊くようになったので
 # src/running.c もリンクする（6 → 7 コンパイル単位）。この段では実体はまだ
 # variable.c にあり、running.c は extern 宣言で見にいく。その器は
@@ -599,6 +612,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/player_resting.c src/player_resting.h \
                                 src/player_infra_range.c src/player_infra_range.h \
                                 src/player_glowing_hands.c src/player_glowing_hands.h \
+                                src/player_stealth.c src/player_stealth.h \
                                 src/player_armour_class.c src/player_armour_class.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
@@ -607,6 +621,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_infra_range.c src/player_glowing_hands.c \
+	    src/player_stealth.c \
 	    src/player_armour_class.c
 
 # 能力値の補正値を返す 7 関数（stat_adj / chr_adj / con_adj / tohit_adj /
@@ -662,6 +677,7 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -679,7 +695,8 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # 文字列への差しこみ（insert_str / insert_lnum）は src/str_insert.c にある。
 # 外部リンケージなのでそのまま呼べる。写しではなく実体を検証したいので
@@ -809,6 +826,7 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/save_bool_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
@@ -832,7 +850,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # 店 6 軒のセーブデータの並びは save.c の 3 か所（書き 1・読み 2）に同じ
 # 項目の列が書かれていた。それを wr_store() / rd_store() にまとめる。実体は
@@ -894,6 +913,7 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/player_attack_bonuses.c src/player_attack_bonuses.h \
                              src/player_search_skill.c src/player_search_skill.h \
                              src/player_bio.c src/player_bio.h \
+                             src/player_stealth.c src/player_stealth.h \
                              src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/store_save_test.c \
 	    $(TESTDIR)/save_stubs.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
@@ -917,7 +937,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # オプション 11 個の表は src/options.c にある。外部リンケージなのでそのまま
 # 呼べる。値の置き場は本体のグローバル（variable.c）なので本物をリンクする。
@@ -1077,6 +1098,7 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_hitpoints_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -1094,7 +1116,8 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # 飛び道具の通し番号の置き場（missile_serial）。ダンジョンで作られた矢や石の
 # 束に 1 つずつ違う番号を配る（p1 に入り、items_can_stack() が「同じ束か」の
@@ -1272,6 +1295,7 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/check_strength_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -1289,7 +1313,8 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # 重さに負けているかどうかの置き場（weapon_heavy と pack_heavy）。#18-7-4C1 で
 # 実体が src/burden.c の static になったので、ステップ A のあいだ要った足場
@@ -1341,6 +1366,7 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_spells_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -1358,7 +1384,8 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # 呪文を覚えるとき（misc3.c:1374 の gain_spells）。#18-8 で窓口に預ける 4 個の
 # うち、覚えた印（spell_learned）と覚えた順（spell_order）に書き足すのはこの
@@ -1396,6 +1423,7 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
                             src/player_attack_bonuses.c src/player_attack_bonuses.h \
                             src/player_search_skill.c src/player_search_skill.h \
                             src/player_bio.c src/player_bio.h \
+                            src/player_stealth.c src/player_stealth.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/gain_spells_test.c \
 	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
@@ -1413,7 +1441,8 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
 	    src/player_body_weight.c \
 	    src/player_attack_bonuses.c \
 	    src/player_search_skill.c \
-	    src/player_bio.c
+	    src/player_bio.c \
+	    src/player_stealth.c
 
 # 覚えている呪文の置き場（spell_learned・spell_worked・spell_forgotten・
 # spell_order）。#18-8-C で実体が src/spells_known.c の static になったので、
@@ -1913,6 +1942,36 @@ $(BUILDDIR)/player_bio_test: $(TESTDIR)/player_bio_test.c \
                               src/player_bio.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_bio_test.c \
 	    src/player_bio.c
+
+# 「足音はどれくらい静かか」（26 つめの問い・`struct misc` から出る 12 つめ）。
+#
+# **1 フィールド 1 つの答えで、この道でいちばん素直な形**。25 つめが 6 つの
+# 答えを一度に出したあとの、いちばん小さな単位（**呼びは 9**。前の単位は 44）。
+# **残るフィールドは `pclass` 1 つだけ**（#18-12-28）。
+#
+# **窓口は 3 本** —— 読み 1 本（4 呼び）・置く 1 本（3 呼び）・足す 1 本（2 呼び）。
+# 足すのが要るのは 2 か所だけで、どちらも `+=` だった（創成の階級ぶんと装備）。
+#
+# **単位は「割る回数」で割合ではない** —— 遊びの中で使うのは creature.c:1576 の
+# `notice³ <= (1L << (29 - stl))` 1 か所だけで、**1 点ごとに気づかれる見こみが
+# 半分になる**。幅は -1〜18（種族 -2〜+4 ＋ 階級 +1〜+5 ＋ 装備 3 か所 × 1〜3）で、
+# **wizard 画面の「(-1-18)」とぴったり同じ**。ずらしの余裕もちょうど使いきって
+# いる（-1 で `1L << 30` = 1024³）。
+#
+# **足場は #18-12-27C で消える見こみ**（player_stealth_fixture.c）——
+# 数のもとは種族と階級の表と装備だが、それを読むのはぜんぶ呼び手なので、
+# 24 回続いた「足場ごと消える」形になる。**A のあいだだけ 1 行ぶん長い。**
+#
+# 寝ている者が動くかの判定・画面の +1 と等級・装備の符号・-1〜18 の囲い・
+# TR_AGGRAVATE はどれも module の外。
+$(BUILDDIR)/player_stealth_test: $(TESTDIR)/player_stealth_test.c \
+                              $(TESTDIR)/player_stealth_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/player_stealth.c \
+                              src/player_stealth.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_stealth_test.c \
+	    $(TESTDIR)/player_stealth_fixture.c \
+	    src/player_stealth.c
 
 clean:
 	rm -rf $(BUILDDIR)
