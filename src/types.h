@@ -307,7 +307,25 @@ typedef struct player_type {
         // player_hit_die.h. The race's base and the class's adjustment still
         // come from the `race` and `class` tables, and the hit point table is
         // still rolled in create.c -- only the answer moved.
-        char history[4][60];         // History record
+        // ONE BYTE WIDER THAN IT WAS, since #18-12-26A: `char history[4][60]`
+        // until then. Four lines of sixty characters and a terminator, which is
+        // sixty-one bytes and not sixty -- get_history() writes a line of exactly
+        // sixty characters and then writes the terminator one past it, and
+        // rd_string() puts such a line back the same way. Nothing reachable ever
+        // wrote past this array even so: all 330,984 life stories the background
+        // table can make were enumerated, and the sixty-character line is always
+        // the last line and never the fourth, so the stray terminator always
+        // landed on the next line's leading '\0' -- the same value in the same
+        // place (bug candidate B21, which is why it is not a bug). The extra byte
+        // is here so that player_bio.h can promise "sixty characters and a
+        // terminator" about a line that really holds them. The save file does not
+        // change: wr_string() writes a line up to its terminator.
+        //
+        // PLAYER_HISTORY_LINES and PLAYER_HISTORY_LINE_SIZE say these two numbers
+        // in player_bio.h, where they stay after #18-12-26C takes this field away;
+        // player_bio.c checks that they still add up to this array with a
+        // _Static_assert, so the two cannot drift apart while both exist.
+        char history[4][61];         // History record
     } misc;
 
     // Stats now kept in arrays, for more efficient access. -CJS-
