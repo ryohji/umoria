@@ -26,8 +26,8 @@
 // the disarming skill, the saving throw, the race, the body's weight, the attack
 // bonuses, the searching skill and the six answers of the bio. ONE FIELD WITH ONE
 // ANSWER -- the simplest shape there is, and the same shape as the hit die and the
-// disarming skill. `pclass` IS THE ONLY FIELD LEFT AFTER THIS ONE, and it leaves in
-// #18-12-28.
+// disarming skill. `pclass` WAS THE ONLY FIELD LEFT AFTER THIS ONE, and #18-12-28
+// took it and the struct together.
 //
 // WHERE THE NUMBER COMES FROM -- two tables at creation and then the gear:
 //

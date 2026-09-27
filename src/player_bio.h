@@ -19,7 +19,8 @@
 // has come, how deep they have been, the hit die, the armour class, the base
 // to-hit, the disarming skill, the saving throw, the race, the body's weight, the
 // attack bonuses and the searching skill. SIX FIELDS LEAVE AT ONCE, which is more
-// than any unit before this one, and they leave `stl` and `pclass` behind.
+// than any unit before this one, and they left `stl` and `pclass` behind -- those
+// two went in #18-12-27 and #18-12-28, and the second took the struct with it.
 //
 // SIX ANSWERS AND ONE MODULE, and the usual rule for splitting says nothing here.
 // The rule is "does anything read one without the other" -- and all six are read
@@ -171,8 +172,8 @@ void player_history_clear(void);
 //   4. WHAT THE CHARACTER SHEET LOOKS LIKE. put_character() and put_misc1() own
 //      the rows, the columns and the words "Male" and "Female"; file_character()
 //      owns the dump's layout.
-//   5. WHAT CLASS THIS CHARACTER IS. `pclass` is still a field of struct misc and
-//      it is still read beside the name and the sex in three of these places.
-//      It leaves in #18-12-28.
+//   5. WHAT CLASS THIS CHARACTER IS. It is read beside the name and the sex in
+//      three of these places and it is still not this question: `pclass` went to
+//      player_class.h in #18-12-28, the last of the thirteen.
 
 #endif // PLAYER_BIO_H

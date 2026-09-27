@@ -76,11 +76,11 @@ void player_disarm_adjust(int chance);
 //
 //      and they are identical down to the last character (abilities.c:52,
 //      moria3.c:876, moria3.c:901, moria4.c:182). FOLDING THE FOUR INTO ONE
-//      WINDOW HAS TO WAIT FOR #18-12-28, because the sum indexes
-//      class_level_adj by py.misc.pclass and that field is still a question of
-//      its own. Reaching the constant table itself would be fine (player_level.c
-//      does exactly that with one `extern` line for the price list); reaching
-//      `py` would not.
+//      WINDOW WAITED FOR #18-12-28 and that wait is over: the subscript is
+//      player_class() now, so the fold no longer means reaching `py`. IT IS STILL
+//      NOT MADE -- making it means player_disarm.c calling player_class.c, which
+//      is a unit of its own. #18-12-28 unlocked the fold and deliberately left it
+//      (ledger observation 42).
 //   2. WHETHER THE ATTEMPT SUCCEEDS. `(i - t_ptr->p1) > randint(100)` is the
 //      caller's, and so is the trap's own difficulty.
 //   3. BEING BLIND, CONFUSED OR HALLUCINATING. moria4.c divides the total by ten

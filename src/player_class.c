@@ -14,15 +14,15 @@
 
 // No externs.h here, the same as the twenty-seven questions before this one.
 
-// THE PLACE THE ANSWER LIVES, for the length of step A only: still `py.misc.pclass`,
-// reached through one door so that #18-12-28C can move it by changing this one
-// function and nothing else. THAT COMMIT DELETES `struct misc` OUTRIGHT, because
-// this is the last field in it.
-extern player_type py;
-
-static uint8_t *the_row(void) {
-    return &py.misc.pclass;
-}
+// THE PLACE THE ANSWER LIVES. A byte of its own since #18-12-28C, which is also the
+// commit that DELETED `struct misc` OUTRIGHT -- this was the last of its twenty-two
+// fields, so `py.misc` stopped existing rather than getting shorter. Nothing outside
+// this file can reach the row.
+//
+// No initialiser, so the row starts at 0: a Warrior, and also "no class picked yet".
+// Those are the same byte and always were (`py` was zeroed whole), which is why
+// get_class() can write a 0 before its menu loop without meaning anything by it.
+static uint8_t the_row;
 
 // THE TABLE STAYS WHERE IT IS. This is the one line that reaches out, the same
 // arrangement player_race.c has for the race table and player_level.c for the price
@@ -31,7 +31,7 @@ static uint8_t *the_row(void) {
 extern class_type class[MAX_CLASS];
 
 int player_class(void) {
-    return *the_row();
+    return the_row;
 }
 
 void player_class_set(int row) {
@@ -40,18 +40,18 @@ void player_class_set(int row) {
     //
     // The cast is the store's own width, not a rule this window adds: the field is a
     // uint8_t and `py.misc.pclass = cl[j];` truncated exactly like this.
-    *the_row() = (uint8_t)row;
+    the_row = (uint8_t)row;
 }
 
 const char *player_class_title(void) {
     // No bounds check on the row, the same as the four callers had none (ledger
     // observation 24). A row past the end of the table is a row past the end of the
     // table, exactly as `class[py.misc.pclass].title` was.
-    return class[*the_row()].title;
+    return class[the_row].title;
 }
 
 int player_class_spell_type(void) {
     // NONE, MAGE or PRIEST. The fifteen callers compare the answer themselves; this
     // window does not turn the number into a yes or a no (see the header).
-    return class[*the_row()].spell;
+    return class[the_row].spell;
 }

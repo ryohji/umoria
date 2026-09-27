@@ -305,8 +305,9 @@ int16_t class_level_adj[MAX_CLASS][MAX_LEV_ADJ] = {
 };
 
 // Warriors don't have spells, so there is no entry for them.
-// Note that this means you must always subtract one from the
-// py.misc.pclass before indexing into magic_spell[].
+// Note that this means you must always subtract one from the row
+// number before indexing into magic_spell[]. (The row number was
+// py.misc.pclass until #18-12-28; player_class() answers now.)
 spell_type magic_spell[MAX_CLASS - 1][31] = {
     {
         // Mage

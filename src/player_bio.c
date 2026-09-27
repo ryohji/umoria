@@ -28,8 +28,9 @@
 // THE PLACE THE SIX ANSWERS LIVE. They were six fields of the character's record
 // until #18-12-26C; now these six statics are the only place the answers live, and
 // the thirteen windows below are the only way to reach them. SIX FIELDS LEFT AT
-// ONCE, more than any unit before this one, and `struct misc` is down to two --
-// `stl` and `pclass`, which leave in #18-12-27 and #18-12-28.
+// ONCE, more than any unit before this one, and `struct misc` was down to two --
+// `stl` and `pclass`, which left in #18-12-27 and #18-12-28. THE STRUCT IS GONE
+// (types.h keeps the record of where its thirteen questions went).
 //
 // THE SIX ARE SIX STORES AND NOT ONE STRUCT. They sat in the same struct and they
 // are set in the same breath at creation, but nothing ever reads two of them

@@ -19,8 +19,8 @@
 
 // THE PLACE THE ANSWER LIVES. It was `py.misc.stl` until #18-12-27C; now this one
 // short is the only place the answer lives, and the three windows below are the only
-// way to reach it. `struct misc` IS DOWN TO ONE FIELD -- `pclass`, which leaves in
-// #18-12-28 and takes the struct with it.
+// way to reach it. `struct misc` WAS DOWN TO ONE FIELD -- `pclass`, which left in
+// #18-12-28 and took the struct with it, as promised.
 //
 // int16_t, WHICH IS THE FIELD'S OWN WIDTH and far more room than the answer needs:
 // the game can only reach -1 through 18. The width is kept because the saved file

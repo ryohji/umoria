@@ -162,225 +162,110 @@ typedef struct inven_type {
 #define PLAYER_NAME_SIZE 27
 
 typedef struct player_type {
-    struct misc {
-        // WHO THIS CHARACTER IS left this struct in #18-12-26: the name, the sex,
-        // the age, the height, the social class and the four lines of life story
-        // all live in player_bio.c now, as six statics reached only through
-        // player_bio.h. SIX FIELDS AT ONCE, more than any unit on this road, and
-        // they left `struct misc` with two.
-        //
-        // SIX ANSWERS AND ONE MODULE, against the usual rule for splitting. The
-        // rule is "does anything read one without the other", and all six are read
-        // apart, every time -- nothing adds two of them up, nothing compares two,
-        // nothing needs two at once. By that rule alone this would have been six
-        // modules. What put them together is that NOBODY EVER MOVES ANY OF THEM
-        // (creation sets each one once, so there is not a single `_adjust` window
-        // in the header -- six answers and not one of them can be nudged) and that
-        // THE SAME FOUR PLACES ASK FOR THEM (the character sheet, the character
-        // dump, and the save file's writer and reader). Split six ways, not one of
-        // the six would have stood on its own.
-        //
-        // THE SEX WAS A BYTE AND IS A bool NOW. Every one of its nine readers asked
-        // a yes-or-no question; the byte belonged to the save file, which still
-        // reads and writes one. The one thing that changes is invisible: a
-        // hand-edited 2 in a save file used to make the round trip as 2 and now
-        // comes back as 1, and 2 was already true.
-        //
-        // The three rules the sex carries all stayed with their callers, and they
-        // are THE SAME FORK WRITTEN FOUR TIMES WITH FOUR DIFFERENT ANSWERS --
-        // **KING**/**QUEEN** on the sheet, *King*/*Queen* on the tomb, "All Hail
-        // the Mighty King!" and the 'M'/'F' of a high score entry -- plus the fifty
-        // gold a woman starts with ("She charmed the banker into it! -CJS-") and
-        // which of the race table's two height columns to roll against. Where the
-        // answers come from (the race table, the background table), how the story
-        // is wrapped at sixty characters, and what the sheet and the dump look like
-        // are all creation's and the display's business.
-        //
-        // PLAYER_NAME_SIZE STAYED HERE, one line above: the high score table has a
-        // name field of its own that is exactly as wide, and that field is not this
-        // question. PLAYER_HISTORY_LINES and PLAYER_HISTORY_LINE_SIZE went into
-        // player_bio.h with the story.
-        // The purse moved to player_gold.c (au, #18-12-1C). How much gold is
-        // carried is the first question to leave this struct: the windows are
-        // in player_gold.h, and no caller needs the number's address any more
-        // (the save file's reader takes it through a local).
-        //
-        // How far the character has come moved to player_level.c (max_exp, exp,
-        // exp_frac, lev and expfact, #18-12-6C). Five fields answered one
-        // question -- the level is stored and yet it is fixed by the experience,
-        // so the promise between them now has one home. The windows are in
-        // player_level.h; the save file's reader takes all five through locals.
-        // The body's weight moved to player_body_weight.c (wt, #18-12-23C).
-        // A NUMBER THAT NOBODY ADDS TO -- the character does not put on weight,
-        // so the two windows in player_body_weight.h are the whole question and
-        // there is no `_adjust` beside the setter. THE FIRST QUESTION OUT OF THIS
-        // STRUCT WITH FEWER THAN THREE WINDOWS. Four of its six readers were
-        // rules rather than display (the carrying limit in misc3.c, the shield
-        // bash's to-hit and damage and the door bash in moria4.c) and all four
-        // stayed where they were: the weight is a term in their arithmetic, not
-        // their subject. (`struct misc` is down to twelve fields.)
-        // How deep the character has ever been moved to player_max_depth.c
-        // (max_dlv, #18-12-16C). The first question to leave this struct, and
-        // the first one on this road that is not about the body or a skill at
-        // all -- it records where the character has been. The comparison that
-        // kept the deeper of the two levels went in with it (it was dungeon.c's
-        // "Check for a maximum level"), so nothing outside can make the record
-        // shallower except the save file's reader. The windows are in
-        // player_max_depth.h.
-        // How well and how often this character looks for what is hidden left in
-        // #18-12-25: player_search_skill.c keeps the two shorts now (srh and fos),
-        // reached only through player_search_skill.h. TWO FIELDS AND TWO ANSWERS
-        // again, and here the two are not even the same KIND of number -- the
-        // chance is handed straight to search() and bigger is better, while the
-        // frequency is a one-in-n where SMALLER IS BETTER and a good ring of
-        // searching drives it below zero. Nothing ever added them up.
-        // ONE MODULE ANYWAY, because the class table adds to both and a piece of
-        // searching gear moves both -- in OPPOSITE DIRECTIONS by the same amount.
-        // THIS IS THE EXACT MIRROR OF THE QUESTION BELOW IT (#18-12-24): there the
-        // setter was paired and two `_adjust` windows were needed, here TWO SETTERS
-        // and ONE PAIRED `_adjust`. What splits the setters is one writer --
-        // wizard.c's editor walks Gold, Searching, Stealth and never asks for the
-        // frequency. What joins the adders is that no caller ever adds to one
-        // alone. The two tests are independent (ledger observation 40, steps 5a and
-        // 5b), and this pair of neighbouring units is the proof.
-        // The paired adder takes TWO amounts and not one, because THE CALLER OWNS
-        // THE SIGNS: py_bonuses() passes (amount, -amount) and creation passes
-        // (msrh, mfos), both positive. "Searching gear makes you find more and look
-        // more often" is a fact about the gear.
-        // Three things stayed with their callers: the character sheet's upside-down
-        // arithmetic (40 - frequency) and its floor at 0, the decision whether to
-        // look at all (randint() and the searching flag), and what a look finds
-        // (search() itself). The sheet's two ratings are COARSE in different
-        // degrees -- likert() divides the perception by 3 and the searching by 6, so
-        // the searching word cannot see a change of 1 at all (observation 41).
-        // NOT THE SAME QUESTION AS whether this character is searching right now:
-        // that flag has had its own window since #18-12-7 (player_is_searching() in
-        // player_status_flags.h), and the collision is why the module is called
-        // player_search_skill and not player_searching.
-        // The base to-hit left this struct in #18-12-19: both numbers, the one
-        // for swinging (bth) and the one for shooting and throwing (bthb), live
-        // in player_base_to_hit.c now as two statics reached only through
-        // player_base_to_hit.h. TWO FIELDS AND TWO ANSWERS -- the mirror image of
-        // the armour class above: no reader ever added these two together, every
-        // reader already knew which of them it wanted. They share a module
-        // because they never change apart: heroism is worth twelve to each, a
-        // blessing five to each, and the twelve lines in dungeon.c that used to
-        // say so are six calls now. Beware of the four other things with these
-        // names -- race_type.bth, struct player_abilities.bth, class_type.mbth
-        // and test_hit()'s first argument are all different questions.
-        // What this character adds to a blow's aim and to its force left in
-        // #18-12-24: player_attack_bonuses.c keeps the two shorts now, reached only
-        // through player_attack_bonuses.h. TWO FIELDS AND TWO ANSWERS, the same
-        // shape as the base to-hit just above and the mirror of the armour class
-        // just below -- not one reader ever added the aim to the force, because a
-        // reader always knows whether it is aiming or hurting. They share a module
-        // because THE WRITERS NEVER SEPARATE: all four places that replace them
-        // were two adjacent lines, so the paired setter turned eight assignments
-        // into four calls.
-        // THIS IS THE FIRST QUESTION OUT OF THIS STRUCT TO NEED TWO `_adjust`
-        // WINDOWS, and the body's weight right before it needed none: what decides
-        // that is whether anybody ADDS to the answer, which is a fact about the
-        // game and not about the type. The equipment loop in moria1.c adds each
-        // worn item's tohit and todam one at a time, and it cannot use one paired
-        // window because it skips a bow's todam ("Bows can't damage. -CJS-").
-        // Three multipliers stayed with their callers: BTH_PLUS_ADJ (3) on the
-        // character sheet only, the whole aim added to a swing and to a throw, and
-        // the 0 floor under a blow's damage. What the sheet shows while equipment
-        // is counted is still a separate question (player_display_numbers.h), and
-        // the saved file still keeps two shorts, the aim first.
-        // `struct misc *m_ptr` in moria1.c's calc_bonuses() died with these two --
-        // recounting equipment is now written entirely in question windows.
-        // The real armour class left this struct in #18-12-18: both halves of
-        // it, the worn armour (pac) and the plusses (ptoac), live in
-        // player_armour_class.c now as two statics reached only through
-        // player_armour_class.h. TWO FIELDS FOR ONE QUESTION -- not one reader
-        // ever looked at a half, they all added the two together, which is why
-        // create.c could fill them the other way round for a race than for a
-        // class without anything noticing. What the sheet shows is still a
-        // separate question (player_display_numbers.h), and the saved file
-        // still keeps two shorts, the worn armour first.
-        // How good this character is at traps and locks left in #18-12-20:
-        // player_disarm.c keeps the one short now, reached only through
-        // player_disarm.h. ONE FIELD, ONE QUESTION -- the simplest shape on this
-        // road, and the first since the hit die. A trap and a lock were never
-        // separate skills here. One copy of the creation-time dexterity bonus is
-        // frozen inside the number while every reader adds two copies of the
-        // current one; that oddity is the game's, and it was kept. The total that
-        // is actually rolled against is still written out four times over
-        // (abilities.c, moria3.c twice, moria4.c) because it indexes
-        // class_level_adj by pclass, which is still a field below.
-        // How well this character shrugs off a spell, a trap or a curse left in
-        // #18-12-21: player_saving_throw.c keeps the one short now, reached only
-        // through player_saving_throw.h. ONE FIELD, ONE QUESTION -- and simpler
-        // than the disarming skill above, because nothing is baked in at creation
-        // (the race's bsav goes in as it stands and the class's msav is added).
-        // ONE NUMBER, TWO RATINGS: the sheet's "Saving Throw" reads it with the
-        // wisdom and the CLA_SAVE column, its "Magic Device" with the intelligence
-        // and the CLA_DEVICE column, which is also the base of how well a staff or
-        // a wand is handled. Whether a particular attempt is resisted is still
-        // player_saves()' question (misc3.c), because the roll needs randint() and
-        // class_level_adj by pclass, which is still a field below.
-        // HOW QUIETLY THIS CHARACTER MOVES left in #18-12-27: player_stealth.c keeps
-        // the one short now, reached only through player_stealth.h. ONE FIELD, ONE
-        // QUESTION -- the same shape as the disarming skill and the saving throw
-        // above, and THE SMALLEST UNIT ON THIS ROAD: nine calls, where the six
-        // answers of the bio needed forty-four. THE UNIT IS A NUMBER OF HALVINGS,
-        // not a chance: `notice³ <= (1L << (29 - stl))` in creature.c is the ONLY
-        // PLACE IN THE GAME that uses it, and every point halves the chance that a
-        // sleeper stirs -- which is why twenty steps (-1 through 18) are enough
-        // where the disarming skill wanted two hundred. The shift has exactly as
-        // much room as it needs: at -1 it is `1L << 30`, the same number as 1024
-        // cubed, and one step lower would be undefined -- nothing can take that
-        // step, because the race and class tables cannot add up to less than -1 and
-        // NO ITEM LOWERS STEALTH (the noisy curse sets TR_AGGRAVATE, a flag of its
-        // own). The wizard screen's "-1-18" is the only fence, and it is the only
-        // prompt on that screen that admits to exactly the range the game reaches.
-        // The plus one and the word on the character sheet are the sheet's own
-        // (abilities.h), where likert() divides by ONE -- the finest divisor there,
-        // so every point moves the word.
-        // `struct misc *m_ptr` in wizard.c died with this field, and so did
-        // create.c's `p_ptr` in get_all_stats() and its `m_ptr` in get_class():
-        // THREE ALIASES FOR ONE FIELD, more than any unit before this one.
-        uint8_t pclass;              // # of class
-        // WHICH OF THE EIGHT RACES left in #18-12-22: player_race.c keeps the one
-        // byte now, reached only through player_race.h. THE FIRST QUESTION OUT OF
-        // THIS STRUCT THAT WAS NOT A QUANTITY -- the byte was a row number into
-        // the `race` table, and not one of the thirteen places that named it did
-        // arithmetic on it except to find a row. So there is no `_adjust` window:
-        // a character does not become more of a Dwarf. The table itself stays in
-        // player.c, and player_race.c reaches it with one `extern` line for the
-        // sake of the name alone -- what a race GIVES (the stat spreads, the ages
-        // and heights, the mask of classes it may take) is create.c's question,
-        // not this one. What the shops charge (rgold_adj, indexed by the owner's
-        // race and this one) and where the life story starts (prace * 3 + 1 into
-        // background[]) also stayed with their callers.
-        // The hit die's number of faces left this struct in #18-12-17: it
-        // lives in player_hit_die.c now, as a static byte reached only through
-        // player_hit_die.h. The race's base and the class's adjustment still
-        // come from the `race` and `class` tables, and the hit point table is
-        // still rolled in create.c -- only the answer moved.
-        // THE LIFE STORY WENT WITH THE REST OF THE BIOGRAPHY in #18-12-26C. It was
-        // `char history[4][60]` until #18-12-26A widened it by one byte and
-        // #18-12-26C took it away; the array is
-        // `char the_history[PLAYER_HISTORY_LINES][PLAYER_HISTORY_LINE_SIZE]` in
-        // player_bio.c now, and those two names are the only place the numbers are
-        // spent (the _Static_assert that tied them to this field went with it).
-        //
-        // WHY THE EXTRA BYTE, for the record. A line is sixty characters AND a
-        // terminator, which is sixty-one bytes and not sixty: get_history() wrote a
-        // line of exactly sixty characters and then wrote the terminator one past
-        // it, and rd_string() put such a line back the same way. NOTHING REACHABLE
-        // EVER WROTE PAST THIS ARRAY EVEN SO -- all 330,984 life stories the
-        // background table can make were enumerated, and a sixty-character line is
-        // always the last line and never the fourth, so the stray terminator always
-        // landed on the next line's leading '\0': the same value in the same place
-        // (bug candidate B21, which is why it is not a bug). The byte is there so
-        // that the window can promise "sixty characters and a terminator" about a
-        // line that really holds them, and so that creation can hand over a finished
-        // string instead of writing the characters and the terminator in two steps.
-        // The save file does not change: wr_string() writes a line up to its
-        // terminator.
-    } misc;
+    // `struct misc` STOOD HERE UNTIL #18-12-28C, and it is gone. TWENTY-TWO FIELDS
+    // left it as THIRTEEN QUESTIONS, one unit at a time, and the last one took the
+    // struct with it -- there was nothing left to be shorter. This is the record of
+    // where each went. (`struct flags` went the same way in #18-12-15B; its record
+    // is below the stats.)
+    //
+    // HOW DEEP THIS CHARACTER HAS BEEN left in #18-12-16: `max_dlv`, eight places,
+    // now behind player_max_depth.h. THE CHEAPEST QUESTION ON THIS ROAD, and that is
+    // why it went first. The comparison that decides whether a new deepest floor has
+    // been reached went into the window with it, because every caller wrote it.
+    //
+    // THE HIT DIE'S NUMBER OF FACES left in #18-12-17: `hitdie`, nine places, now
+    // behind player_hit_die.h. The race's base and the class's adjustment still come
+    // from the `race` and `class` tables and the hit point table is still rolled in
+    // create.c -- only the answer moved.
+    //
+    // THE ARMOUR CLASS left in #18-12-18: `pac` and `ptoac`, seventy-three places in
+    // forty-seven lines, now behind player_armour_class.h. TWO FIELDS AND ONE
+    // QUESTION -- all twenty-six readers wanted the sum and not one wanted a half,
+    // which is why create.c could swap which half the race's bonus and the class's
+    // bonus went into and nobody could tell (ledger observation 40).
+    //
+    // THE BASE TO-HIT left in #18-12-19: `bth` and `bthb`, thirty-five places, now
+    // behind player_base_to_hit.h. THE MIRROR OF THE ARMOUR CLASS -- two fields
+    // again, but every reader wants one half alone and every writer writes the pair.
+    // They share a module because they share how they change: heroism is worth
+    // twelve to each and a blessing five to each. Beware of the four other things
+    // with these names -- race_type.bth, struct player_abilities.bth,
+    // class_type.mbth and test_hit()'s first argument are all different questions.
+    //
+    // THE DISARMING SKILL left in #18-12-20: `disarm`, ten places, now behind
+    // player_disarm.h. ONE FIELD, ONE ANSWER -- the plainest shape on this road. A
+    // trap and a lock were never separate skills here. One copy of the creation-time
+    // dexterity bonus is frozen inside the number while every reader adds two copies
+    // of the current one; that oddity is the game's, and it stayed.
+    //
+    // THE SAVING THROW left in #18-12-21: `save`, eleven places, now behind
+    // player_saving_throw.h. ONE NUMBER, TWO RATINGS: the sheet's "Saving Throw"
+    // reads it with the wisdom and the CLA_SAVE column, its "Magic Device" with the
+    // intelligence and the CLA_DEVICE column, which is also the base of how well a
+    // staff or a wand is handled. Whether a particular attempt is resisted stayed
+    // player_saves()' question, because the roll needs randint().
+    //
+    // WHICH OF THE EIGHT RACES left in #18-12-22: `prace`, thirteen places, now
+    // behind player_race.h. THE FIRST QUESTION OUT OF THIS STRUCT THAT WAS NOT A
+    // QUANTITY -- a row number into the `race` table, with no arithmetic on it
+    // anywhere, so there is no `_adjust` window: a character does not become more of
+    // a Dwarf. What a race GIVES, what the shops charge and where the life story
+    // starts all stayed with their callers.
+    //
+    // THE BODY'S WEIGHT left in #18-12-23: `wt`, twelve places, now behind
+    // player_body_weight.h. NOT AN APPEARANCE BUT A PHYSICAL QUANTITY -- it is
+    // thrown against a shield, thrown against a door, and counted into how much the
+    // character can carry.
+    //
+    // THE ATTACK BONUSES left in #18-12-24: `ptohit` and `ptodam`, twenty-one
+    // places, now behind player_attack_bonuses.h. The module is named for the attack
+    // and not the weapon because the aim's bonus reaches bows and thrown things too.
+    // TWO FIELDS AND TWO ANSWERS, the same shape as the base to-hit: no reader ever
+    // added the aim to the force, because a reader always knows which it wants.
+    //
+    // THE SEARCHING SKILL AND ITS FREQUENCY left in #18-12-25: `srh` and `fos`,
+    // nineteen places, now behind player_search_skill.h. TWO FIELDS AND TWO
+    // QUESTIONS that share every writer -- how good a search is, and how often one
+    // happens without being asked for. Turning the frequency upside down for the
+    // sheet and holding it at zero are the sheet's own doing.
+    //
+    // WHO THIS CHARACTER IS left in #18-12-26: `name`, `male`, `age`, `ht`, `sc` and
+    // `history`, forty-seven places, now behind player_bio.h. SIX FIELDS AT ONCE,
+    // more than any unit on this road. Every one is read apart from the others, so
+    // the usual rule for splitting would have made six modules; what put them
+    // together is that NOBODY EVER MOVES ANY OF THEM (not one `_adjust` window in
+    // the header) and that THE SAME FOUR PLACES ASK FOR THEM -- the character sheet,
+    // the character dump, and the save file's writer and reader.
+    //
+    // The life story is
+    // `char the_history[PLAYER_HISTORY_LINES][PLAYER_HISTORY_LINE_SIZE]` there, one
+    // byte wider per line than the `char history[4][60]` that stood here: a line is
+    // sixty characters AND a terminator. Nothing reachable ever wrote past the
+    // narrow array even so -- all 330,984 life stories the background table can make
+    // were enumerated, and a sixty-character line is always the last line, so the
+    // stray terminator always landed on the next line's leading '\0' (bug candidate
+    // B21, which is why it is not a bug). The save file did not change.
+    //
+    // HOW QUIETLY THIS CHARACTER MOVES left in #18-12-27: `stl`, nine places, now
+    // behind player_stealth.h -- THE SMALLEST UNIT ON THIS ROAD. THE UNIT IS A
+    // NUMBER OF HALVINGS, not a chance: `notice-cubed <= (1L << (29 - stl))` in
+    // creature.c is the only place in the game that uses it, and every point halves
+    // the chance that a sleeper stirs, which is why twenty steps (-1 through 18) are
+    // enough where the disarming skill wanted two hundred.
+    //
+    // WHICH OF THE SIX CLASSES left in #18-12-28 AND TOOK THIS STRUCT WITH IT:
+    // `pclass`, FIFTY-FIVE PLACES IN SIXTEEN FILES -- more than any unit before it
+    // -- now behind player_class.h. NOT A QUANTITY EITHER, like the race and unlike
+    // everything else here: all fifty-five either indexed a table with the byte or
+    // handed it on unchanged, so there is no `_adjust` window and there never will
+    // be. A character does not slowly become more of a Rogue. The reason for the
+    // fifty-five is not that the answer is hard -- it is one byte written twice in a
+    // character's life -- but that FOUR CONSTANT TABLES ARE INDEXED BY IT, and all
+    // four stayed where they were: class[] itself, class_level_adj[][],
+    // magic_spell[][] and player_title[][], plus player_init[][] at the start of a
+    // game. FOURTEEN ALIASES DIED WITH IT, twelve `struct misc *` and two
+    // `class_type *`, and after that not one line outside player_class.c named this
+    // struct.
 
     // Stats now kept in arrays, for more efficient access. -CJS-
     struct stats {

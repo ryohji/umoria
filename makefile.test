@@ -1998,8 +1998,8 @@ $(BUILDDIR)/player_stealth_test: $(TESTDIR)/player_stealth_test.c \
 # 「どの階級か」（**27 つめで最後の問い**・`struct misc` から出る 13 つめ）。
 #
 # **足場（player_class_fixture.c）は 2 つのものを持っていて、#18-12-28C で
-# 片方だけが消える** —— 21 つめ（どの種族か）とまったく同じ形で、この道で
-# 2 例めになる。py の器は C で消えるが **class[] の表は残る**（externs.h の
+# 片方だけが消えた** —— 21 つめ（どの種族か）とまったく同じ形で、この道で
+# 2 例め。py の器は C で消えたが **class[] の表は残る**（externs.h の
 # 定数表 20 個の 1 つで #18 の対象外。src/player_class.c が extern 1 行で引く。
 # 先例は src/player_race.c の race[] と src/player_level.c の player_exp[]）。
 # **#18-12-1C から 25 回続いた「足場ごと消える」形の、2 つめの例外。**

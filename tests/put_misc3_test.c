@@ -48,7 +48,21 @@ extern player_type py;
  * 必要な宣言だけをここに書く。 */
 void put_misc3(void);
 
-#define MU_SETUP() fixture_reset()
+/* 階級は #18-12-28C で src/player_class.c の static に移ったので、
+ * fixture_reset() の `memset(&py, 0, sizeof py)` では届かない。窓口越しに
+ * 0（Warrior）へ戻す。
+ *
+ * **fixture.c には入れない。** あそこに 1 行足すと、`fixture.c` をリンクする
+ * 43 本のうち **36 本が新たに src/player_class.c を張る**ことになる（所見 34）
+ * —— 階級を置く件はこの 3 本（calc_spells・gain_spells・put_misc3）だけなので、
+ * 税 36 本より写し 3 つのほうが安い。#18-12-6C が player_level の 5 本を
+ * fixture.c に入れたのは、あれを置く件が数十本あったから。 */
+static void reset_including_the_class(void) {
+    fixture_reset();
+    player_class_set(0);
+}
+
+#define MU_SETUP() reset_including_the_class()
 
 #include "minunit.h"
 

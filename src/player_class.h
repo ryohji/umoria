@@ -18,8 +18,9 @@
 // character has come, how deep they have been, the hit die, the armour class, the
 // base to-hit, the disarming skill, the saving throw, the race, the body's weight,
 // the attack bonuses, the searching skill, the six answers of the bio and how
-// quietly the character moves. THE STRUCT GOES WITH IT in #18-12-28C: this is the
-// only field left, so `py.misc` stops existing rather than getting shorter.
+// quietly the character moves. THE STRUCT WENT WITH IT in #18-12-28C: this was the
+// only field left, so `py.misc` stopped existing rather than getting shorter, and
+// types.h keeps the record of where all thirteen questions went.
 //
 // THIS ONE IS NOT A QUANTITY, the same as the race and unlike everything else on
 // this road. ALL FIFTY-FIVE PLACES that named py.misc.pclass either indexed a table
