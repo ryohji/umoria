@@ -23,6 +23,7 @@
 #include "item_ident.h"
 #include "object_levels.h"
 #include "pending_teleport.h"
+#include "player_bio.h"
 #include "player_body_weight.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
@@ -288,7 +289,7 @@ const char *title_string(void) {
         p = "Babe in arms";
     } else if (player_level() <= MAX_PLAYER_LEVEL) {
         p = player_title[py.misc.pclass][player_level() - 1];
-    } else if (py.misc.male) {
+    } else if (player_is_male()) {
         p = "**KING**";
     } else {
         p = "**QUEEN**";
@@ -688,9 +689,9 @@ void put_character(void) {
     put_buffer("Class       :", 5, 1);
 
     if (character_is_generated()) {
-        put_buffer(m_ptr->name, 2, 15);
+        put_buffer(player_name(), 2, 15);
         put_buffer(player_race_name(), 3, 15);
-        put_buffer((m_ptr->male ? "Male" : "Female"), 4, 15);
+        put_buffer((player_is_male() ? "Male" : "Female"), 4, 15);
         put_buffer(class[m_ptr->pclass].title, 5, 15);
     }
 }
@@ -744,12 +745,10 @@ const char *likert(int x, int y) {
 
 // Prints age, height, weight, and SC -JWT-
 void put_misc1(void) {
-    struct misc *m_ptr = &py.misc;
-
-    prt_num("Age          ", (int)m_ptr->age, 2, 38);
-    prt_num("Height       ", (int)m_ptr->ht, 3, 38);
+    prt_num("Age          ", player_age(), 2, 38);
+    prt_num("Height       ", player_height(), 3, 38);
     prt_num("Weight       ", player_body_weight(), 4, 38);
-    prt_num("Social Class ", (int)m_ptr->sc, 5, 38);
+    prt_num("Social Class ", player_social_class(), 5, 38);
 }
 
 // Prints the following information on the screen. -JWT-
@@ -814,10 +813,19 @@ void get_name(void) {
     prt("Enter your player's name  [press <RETURN> when finished]", 21, 2);
     put_buffer(&blank_string[BLANK_LENGTH - 23], 2, 15);
 
-    if (!get_string(py.misc.name, 2, 15, 23) || py.misc.name[0] == 0) {
-        user_name(py.misc.name);
-        put_buffer(py.misc.name, 2, 15);
+    // 器ぜんぶを写してから打たせる。**終端までではなく 27 バイト全部**を
+    // 写すのは、get_string() が ESC のとき終端を書かずに返すからで、すぐ下の
+    // `name[0] == 0` は終端より先のバイトも読んでいる（player_bio.h の名前の
+    // 項。窓口が「終端より先はぜんぶ 0」を約束しているので、写したものは
+    // フィールドを直に渡していたころと同じ中身になる）。
+    char name[PLAYER_NAME_SIZE];
+    memcpy(name, player_name(), PLAYER_NAME_SIZE);
+
+    if (!get_string(name, 2, 15, 23) || name[0] == 0) {
+        user_name(name);
+        put_buffer(name, 2, 15);
     }
+    player_name_set(name);
 
     clear_from(20);
 }

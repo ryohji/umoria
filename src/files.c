@@ -20,6 +20,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "object_levels.h"
+#include "player_bio.h"
 #include "player_body_weight.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
@@ -198,20 +199,20 @@ bool file_character(char *filename1) {
 
         (void)fprintf(file1, "%c\n\n", CTRL_KEY('L'));
 
-        (void)fprintf(file1, " Name%9s %-23s", colon, py.misc.name);
-        (void)fprintf(file1, " Age%11s %6d", colon, (int)py.misc.age);
+        (void)fprintf(file1, " Name%9s %-23s", colon, player_name());
+        (void)fprintf(file1, " Age%11s %6d", colon, player_age());
         cnv_stat(py.stats.use_stat[A_STR], prt1);
         (void)fprintf(file1, "   STR : %s\n", prt1);
         (void)fprintf(file1, " Race%9s %-23s", colon, player_race_name());
-        (void)fprintf(file1, " Height%8s %6d", colon, (int)py.misc.ht);
+        (void)fprintf(file1, " Height%8s %6d", colon, player_height());
         cnv_stat(py.stats.use_stat[A_INT], prt1);
         (void)fprintf(file1, "   INT : %s\n", prt1);
-        (void)fprintf(file1, " Sex%10s %-23s", colon, (py.misc.male ? "Male" : "Female"));
+        (void)fprintf(file1, " Sex%10s %-23s", colon, (player_is_male() ? "Male" : "Female"));
         (void)fprintf(file1, " Weight%8s %6d", colon, player_body_weight());
         cnv_stat(py.stats.use_stat[A_WIS], prt1);
         (void)fprintf(file1, "   WIS : %s\n", prt1);
         (void)fprintf(file1, " Class%8s %-23s", colon, class[py.misc.pclass].title);
-        (void)fprintf(file1, " Social Class : %6d", py.misc.sc);
+        (void)fprintf(file1, " Social Class : %6d", player_social_class());
         cnv_stat(py.stats.use_stat[A_DEX], prt1);
         (void)fprintf(file1, "   DEX : %s\n", prt1);
         (void)fprintf(file1, " Title%8s %-23s", colon, title_string());
@@ -256,8 +257,8 @@ bool file_character(char *filename1) {
 
         // Write out the character's history
         (void)fprintf(file1, "Character Background\n");
-        for (int i = 0; i < 4; i++) {
-            (void)fprintf(file1, " %s\n", py.misc.history[i]);
+        for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+            (void)fprintf(file1, " %s\n", player_history_line(i));
         }
 
         // Write out the equipment list.

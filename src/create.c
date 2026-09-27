@@ -18,6 +18,7 @@
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
+#include "player_bio.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_display_numbers.h"
@@ -186,8 +187,8 @@ static void choose_race(void) {
 static void print_history(void) {
     put_buffer("Character Background", 14, 27);
 
-    for (int i = 0; i < 4; i++) {
-        prt(py.misc.history[i], i + 15, 10);
+    for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+        prt(player_history_line(i), i + 15, 10);
     }
 }
 
@@ -234,9 +235,7 @@ static void get_history(void) {
     } while (hist_ptr >= 1);
 
     // Clear the previous history strings
-    for (hist_ptr = 0; hist_ptr < 4; hist_ptr++) {
-        py.misc.history[hist_ptr][0] = '\0';
-    }
+    player_history_clear();
 
     // Process block of history text for pretty output
     int end_pos = (int)strlen(history_block) - 1;
@@ -270,8 +269,14 @@ static void get_history(void) {
             flag = true;
         }
 
-        (void)strncpy(py.misc.history[line_ctr], &history_block[start_pos], cur_len);
-        py.misc.history[line_ctr][cur_len] = '\0';
+        // 折りかえした 1 行を局所で組みたててから渡す。cur_len は上の枝で
+        // 60 に留められているので、終端を入れて PLAYER_HISTORY_LINE_SIZE に
+        // ちょうど収まる（フィールドに直に書いていたころ、60 字の行の終端は
+        // **次の行の先頭**に落ちていた —— bug candidate B21。types.h 参照）。
+        char line[PLAYER_HISTORY_LINE_SIZE];
+        (void)strncpy(line, &history_block[start_pos], (size_t)cur_len);
+        line[cur_len] = '\0';
+        player_history_line_set(line_ctr, line);
         line_ctr++;
         start_pos = new_start;
     } while (!flag);
@@ -282,7 +287,7 @@ static void get_history(void) {
     } else if (social_class < 1) {
         social_class = 1;
     }
-    py.misc.sc = social_class;
+    player_social_class_set(social_class);
 }
 
 // Gets the character's sex -JWT-
@@ -298,11 +303,11 @@ static void get_sex(void) {
         // speed not important here
         c = inkey();
         if (c == 'f' || c == 'F') {
-            py.misc.male = false;
+            player_set_male(false);
             put_buffer("Female", 4, 15);
             exit_flag = true;
         } else if (c == 'm' || c == 'M') {
-            py.misc.male = true;
+            player_set_male(true);
             put_buffer("Male", 4, 15);
             exit_flag = true;
         } else if (c == '?') {
@@ -316,14 +321,14 @@ static void get_sex(void) {
 // Computes character's age, height, and weight -JWT-
 static void get_ahw(void) {
     int i = player_race();
-    py.misc.age = race[i].b_age + randint((int)race[i].m_age);
-    if (py.misc.male) {
-        py.misc.ht = randnor((int)race[i].m_b_ht, (int)race[i].m_m_ht);
+    player_age_set(race[i].b_age + randint((int)race[i].m_age));
+    if (player_is_male()) {
+        player_height_set(randnor((int)race[i].m_b_ht, (int)race[i].m_m_ht));
         // 体の重さも窓口へ（#18-12-23B）。**男女で race[] の別の列**を引くので
         // 2 行になるが、窓口から見れば同じ 1 本の置きなおし。
         player_body_weight_set(randnor((int)race[i].m_b_wt, (int)race[i].m_m_wt));
     } else {
-        py.misc.ht = randnor((int)race[i].f_b_ht, (int)race[i].f_m_ht);
+        player_height_set(randnor((int)race[i].f_b_ht, (int)race[i].f_m_ht));
         player_body_weight_set(randnor((int)race[i].f_b_wt, (int)race[i].f_m_wt));
     }
     player_disarm_set(race[i].b_dis + todis_adj());
@@ -459,12 +464,12 @@ static void get_money(void) {
               monval(a_ptr[A_CON]) +
               monval(a_ptr[A_DEX]);
 
-    int gold = py.misc.sc * 6 + randint(25) + 325; // Social Class adj
+    int gold = player_social_class() * 6 + randint(25) + 325; // Social Class adj
     gold -= tmp;                                   // Stat adj
     gold += monval(a_ptr[A_CHR]);                  // Charisma adj
 
     // She charmed the banker into it! -CJS-
-    if (!py.misc.male) {
+    if (!player_is_male()) {
         gold += 50;
     }
 

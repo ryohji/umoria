@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "inventory.h"
+#include "player_bio.h"
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_level.h"
@@ -137,7 +138,7 @@ static void print_tomb(void) {
     put_buffer("/            RIP            \\   \\  :   :     /   \\", 4, 12);
     put_buffer("/", 5, 11);
     put_buffer("\\  : _;,,,;_    :   :", 5, 41);
-    (void)sprintf(str, "/%s\\,;_          _;,,,;_", center_string(tmp_str, py.misc.name));
+    (void)sprintf(str, "/%s\\,;_          _;,,,;_", center_string(tmp_str, player_name()));
     put_buffer(str, 6, 10);
     put_buffer("|               the               |   ___", 7, 9);
     if (!player_has_won()) {
@@ -151,7 +152,7 @@ static void print_tomb(void) {
     put_buffer("|  :   :", 9, 43);
     if (!player_has_won()) {
         p = class[py.misc.pclass].title;
-    } else if (py.misc.male) {
+    } else if (player_is_male()) {
         p = "*King*";
     } else {
         p = "*Queen*";
@@ -270,10 +271,10 @@ static void highscores(void) {
     new_entry.dun_level = (uint8_t)dun_level;
     new_entry.lev = (uint8_t)player_level();
     new_entry.max_dlv = (uint8_t)player_max_depth();
-    new_entry.sex = (py.misc.male ? 'M' : 'F');
+    new_entry.sex = (player_is_male() ? 'M' : 'F');
     new_entry.race = (uint8_t)player_race();
     new_entry.class = py.misc.pclass;
-    (void)strcpy(new_entry.name, py.misc.name);
+    (void)strcpy(new_entry.name, player_name());
 
     char *tmp = death_cause();
     if ('a' == *tmp) {
@@ -423,8 +424,6 @@ static void kingly(void) {
     dun_level = 0;
     (void)strcpy(death_cause(), "Ripe Old Age");
 
-    struct misc *p_ptr = &py.misc;
-
     (void)restore_level();
 
     // 素の setter を使う。**わざと約束を壊している** —— 階級は経験値が
@@ -451,7 +450,7 @@ static void kingly(void) {
     put_buffer(p, 12, 24);
     put_buffer("Veni, Vidi, Vici!", 15, 26);
     put_buffer("I came, I saw, I conquered!", 16, 21);
-    if (p_ptr->male) {
+    if (player_is_male()) {
         put_buffer("All Hail the Mighty King!", 17, 22);
     } else {
         put_buffer("All Hail the Mighty Queen!", 17, 22);

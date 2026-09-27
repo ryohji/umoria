@@ -27,6 +27,7 @@
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
+#include "player_bio.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_display_numbers.h"
@@ -68,7 +69,7 @@ static void wr_byte(uint8_t);
 static void wr_short(uint16_t);
 static void wr_long(uint32_t);
 static void wr_bytes(uint8_t *, int);
-static void wr_string(char *);
+static void wr_string(const char *);
 static void wr_shorts(uint16_t *, int);
 static void wr_item(inven_type *);
 static void wr_store(store_type *);
@@ -154,14 +155,20 @@ static bool sv_write(void) {
     wr_long(l);
 
     struct misc *m_ptr = &py.misc;
-    wr_string(m_ptr->name);
-    wr_byte(m_ptr->male);
+    // 人物の身上書きも窓口へ（#18-12-26B）。**並びはファイルの形なので
+    // 動かせない** —— 名前・性別がここ、年齢と身長が下、階層はさらに下、
+    // 生い立ち 4 行がいちばんあと。
+    wr_string(player_name());
+    // 生のバイトではなく真偽から 1 か 0 を書く。手で 2 を書きこんだ
+    // セーブファイルは 1 になって戻る（player_bio.h の性別の項）。
+    wr_byte((uint8_t)(player_is_male() ? 1 : 0));
     wr_long((uint32_t)player_gold());
     wr_long((uint32_t)player_max_experience());
     wr_long((uint32_t)player_experience());
     wr_short(player_experience_fraction());
-    wr_short(m_ptr->age);
-    wr_short(m_ptr->ht);
+    // **年齢が先、身長があと** —— 並びは動かせない。
+    wr_short((uint16_t)player_age());
+    wr_short((uint16_t)player_height());
     wr_short((uint16_t)player_body_weight());
     wr_short(player_level());
     wr_short((uint16_t)player_max_depth());
@@ -190,7 +197,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_display_to_ac());
     wr_short((uint16_t)player_disarm());
     wr_short((uint16_t)player_saving_throw());
-    wr_short((uint16_t)m_ptr->sc);
+    wr_short((uint16_t)player_social_class());
     wr_short((uint16_t)m_ptr->stl);
     wr_byte(m_ptr->pclass);
     wr_byte((uint8_t)player_race());
@@ -200,8 +207,8 @@ static bool sv_write(void) {
     wr_short(player_mana_fraction());
     wr_short((uint16_t)player_hp());
     wr_short(player_hp_fraction());
-    for (int i = 0; i < 4; i++) {
-        wr_string(m_ptr->history[i]);
+    for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+        wr_string(player_history_line(i));
     }
 
     struct stats *s_ptr = &py.stats;
@@ -615,8 +622,17 @@ bool get_char(bool *generate) {
         if ((l & 0x80000000L) == 0) {
             struct misc *m_ptr = &py.misc;
 
-            rd_string(m_ptr->name);
-            rd_byte(&m_ptr->male);
+            // 人物の身上書きも窓口へ（#18-12-26B）。読みは器の番地を要る
+            // ので、名前は局所の器に受けてから置く。**並びはファイルの形
+            // なので動かせない**。
+            char name[PLAYER_NAME_SIZE];
+            rd_string(name);
+            player_name_set(name);
+            // 生のバイトを受けて「0 でなければ男」に落とす。2 は真だった
+            // ので遊びの上のふるまいは変わらない（player_bio.h の性別の項）。
+            uint8_t male;
+            rd_byte(&male);
+            player_set_male(male != 0);
             // 金は m_ptr->au ではなく窓口へ入れる。読みは器の番地を要る
             // ので、いったん受けてから置く（幅と符号の扱いは元のまま）。
             uint32_t gold;
@@ -634,8 +650,13 @@ bool get_char(bool *generate) {
             uint16_t exp_frac;
             rd_short(&exp_frac);
             player_set_experience_fraction(exp_frac);
-            rd_short(&m_ptr->age);
-            rd_short(&m_ptr->ht);
+            // **年齢が先、身長があと** —— 並びは動かせない。
+            uint16_t age;
+            rd_short(&age);
+            player_age_set(age);
+            uint16_t height;
+            rd_short(&height);
+            player_height_set(height);
             // 体の重さも窓口へ（#18-12-23B）。番地に読んでいたので局所の
             // short に受けてから置く。**置きなおす窓口は創成と同じ 1 本**。
             uint16_t body_weight;
@@ -720,7 +741,9 @@ bool get_char(bool *generate) {
             uint16_t saving_throw;
             rd_short(&saving_throw);
             player_saving_throw_set((int16_t)saving_throw);
-            rd_short((uint16_t *)&m_ptr->sc);
+            uint16_t social_class;
+            rd_short(&social_class);
+            player_social_class_set((int16_t)social_class);
             rd_short((uint16_t *)&m_ptr->stl);
             rd_byte(&m_ptr->pclass);
             /* 番地を渡していた 1 か所。読んでから窓口へ渡す
@@ -750,8 +773,10 @@ bool get_char(bool *generate) {
             uint16_t cur_hp_frac;
             rd_short(&cur_hp_frac);
             player_set_hp_fraction(cur_hp_frac);
-            for (int i = 0; i < 4; i++) {
-                rd_string(m_ptr->history[i]);
+            for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+                char line[PLAYER_HISTORY_LINE_SIZE];
+                rd_string(line);
+                player_history_line_set(i, line);
             }
 
             struct stats *s_ptr = &py.stats;
@@ -1227,8 +1252,11 @@ static void wr_bytes(uint8_t *c, int count) {
     SAVE_LOG(fprintf(logfile, "\n"));
 }
 
-static void wr_string(char *str) {
-    SAVE_LOG(char *s = str);
+// 人物の名前と生い立ちが窓口ごしに来るので const になった（#18-12-26B。
+// player_bio.h の名前の項 —— 窓口が書ける番地を渡さないのが要点で、
+// この関数は読むだけなのだから元から const でよかった）。
+static void wr_string(const char *str) {
+    SAVE_LOG(const char *s = str);
     SAVE_LOG(fprintf(logfile, "STRING:"));
     while (*str != '\0') {
         xor_byte ^= *str++;
