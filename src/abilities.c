@@ -24,6 +24,7 @@
 
 #include "abilities.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "stats.h"
@@ -49,7 +50,7 @@ struct player_abilities calc_player_abilities(void) {
     // stl + 1, so the minimum is 1 (not 0)
     a.stl = p_ptr->stl + 1;
 
-    a.dis = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+    a.dis = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
     a.save = p_ptr->save + stat_adj(A_WIS) + (class_level_adj[p_ptr->pclass][CLA_SAVE] * player_level() / 3);
 
     // Based on `save`, not `disarm`. Preserved as it stands; the intent is

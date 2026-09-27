@@ -17,6 +17,7 @@
 #include "hp_table.h"
 #include "player_armour_class.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hit_die.h"
@@ -306,7 +307,7 @@ static void get_ahw(void) {
         py.misc.ht = randnor((int)race[i].f_b_ht, (int)race[i].f_m_ht);
         py.misc.wt = randnor((int)race[i].f_b_wt, (int)race[i].f_m_wt);
     }
-    py.misc.disarm = race[i].b_dis + todis_adj();
+    player_disarm_set(race[i].b_dis + todis_adj());
 }
 
 // Gets a character class -JWT-
@@ -410,7 +411,7 @@ static void get_class(void) {
             // 階級ぶんは 2 つの数が別々（振るのと射るのは別の腕）。 // RAK
             player_base_to_hit_adjust(c_ptr->mbth, c_ptr->mbthb);
             m_ptr->srh += c_ptr->msrh;
-            m_ptr->disarm += c_ptr->mdis;
+            player_disarm_adjust(c_ptr->mdis);
             m_ptr->fos += c_ptr->mfos;
             m_ptr->stl += c_ptr->mstl;
             m_ptr->save += c_ptr->msav;

@@ -26,6 +26,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_glowing_hands.h"
@@ -178,7 +179,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_display_to_dam());
     wr_short((uint16_t)player_display_ac());
     wr_short((uint16_t)player_display_to_ac());
-    wr_short((uint16_t)m_ptr->disarm);
+    wr_short((uint16_t)player_disarm());
     wr_short((uint16_t)m_ptr->save);
     wr_short((uint16_t)m_ptr->sc);
     wr_short((uint16_t)m_ptr->stl);
@@ -681,7 +682,12 @@ bool get_char(bool *generate) {
             uint16_t dis_tac;
             rd_short(&dis_tac);
             player_display_set_to_ac((int16_t)dis_tac);
-            rd_short((uint16_t *)&m_ptr->disarm);
+            /* 罠と鍵をはずす腕。読みは器の番地を要るのでいったん受けて
+             * から窓口へ渡す（置きなおしは種族の土台と同じ 1 本 ——
+             * どちらもただの置きかえ。player_disarm.h）。 */
+            uint16_t disarm;
+            rd_short(&disarm);
+            player_disarm_set((int16_t)disarm);
             rd_short((uint16_t *)&m_ptr->save);
             rd_short((uint16_t *)&m_ptr->sc);
             rd_short((uint16_t *)&m_ptr->stl);

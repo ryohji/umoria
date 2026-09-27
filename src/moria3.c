@@ -23,6 +23,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_level.h"
@@ -873,7 +874,7 @@ void openobject(void) {
                 // It's locked.
                 if (t_ptr->p1 > 0) {
                     struct misc *p_ptr = &py.misc;
-                    int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+                    int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
 
                     if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         msg_print("You are too confused to pick the lock.");
@@ -898,7 +899,7 @@ void openobject(void) {
                 // Open a closed chest.
 
                 struct misc *p_ptr = &py.misc;
-                int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+                int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
 
                 inven_type *t_ptr = &t_list[c_ptr->tptr];
 

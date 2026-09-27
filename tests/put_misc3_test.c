@@ -33,6 +33,7 @@
 
 #include "fixture.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
 
@@ -239,7 +240,7 @@ TEST(xdev_is_unaffected_by_wisdom)
 TEST(xdev_is_based_on_save_not_disarm)
 {
     py.misc.save = 0;
-    py.misc.disarm = 40;
+    player_disarm_set(40); /* #18-12-20B で窓口へ */
     given_intelligence_high_and_wisdom_low();
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Bad"); /* 0+4=4, 4/6=0 */
@@ -380,7 +381,7 @@ TEST(xsrh_is_srh_without_any_adjustment)
  * 2 倍しなければ 36 で "Fair" になるので判別できる。 */
 TEST(xdis_adds_twice_the_dexterity_adjustment)
 {
-    py.misc.disarm = 32;
+    player_disarm_set(32); /* #18-12-20B で窓口へ */
     given_stat(A_DEX, 18);
     given_stat(A_INT, 7);
     put_misc3();

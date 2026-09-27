@@ -19,6 +19,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_level.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
@@ -179,7 +180,7 @@ void disarm_trap(void) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
-            int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * player_level() / 3);
+            int tot = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * player_level() / 3);
 
             if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || (no_light())) {
                 tot = tot / 10;

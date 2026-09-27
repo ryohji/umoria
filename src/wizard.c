@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "player_base_to_hit.h"
+#include "player_disarm.h"
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_mana.h"
@@ -185,13 +186,13 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Disarming = ", m_ptr->disarm);
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Disarming = ", player_disarm());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->disarm = tmp_val;
+            player_disarm_set(tmp_val);
         }
     } else {
         return;
