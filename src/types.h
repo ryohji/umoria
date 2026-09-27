@@ -207,8 +207,28 @@ typedef struct player_type {
         // say so are six calls now. Beware of the four other things with these
         // names -- race_type.bth, struct player_abilities.bth, class_type.mbth
         // and test_hit()'s first argument are all different questions.
-        int16_t ptohit;              // Plusses to hit
-        int16_t ptodam;              // Plusses to dam
+        // What this character adds to a blow's aim and to its force left in
+        // #18-12-24: player_attack_bonuses.c keeps the two shorts now, reached only
+        // through player_attack_bonuses.h. TWO FIELDS AND TWO ANSWERS, the same
+        // shape as the base to-hit just above and the mirror of the armour class
+        // just below -- not one reader ever added the aim to the force, because a
+        // reader always knows whether it is aiming or hurting. They share a module
+        // because THE WRITERS NEVER SEPARATE: all four places that replace them
+        // were two adjacent lines, so the paired setter turned eight assignments
+        // into four calls.
+        // THIS IS THE FIRST QUESTION OUT OF THIS STRUCT TO NEED TWO `_adjust`
+        // WINDOWS, and the body's weight right before it needed none: what decides
+        // that is whether anybody ADDS to the answer, which is a fact about the
+        // game and not about the type. The equipment loop in moria1.c adds each
+        // worn item's tohit and todam one at a time, and it cannot use one paired
+        // window because it skips a bow's todam ("Bows can't damage. -CJS-").
+        // Three multipliers stayed with their callers: BTH_PLUS_ADJ (3) on the
+        // character sheet only, the whole aim added to a swing and to a throw, and
+        // the 0 floor under a blow's damage. What the sheet shows while equipment
+        // is counted is still a separate question (player_display_numbers.h), and
+        // the saved file still keeps two shorts, the aim first.
+        // `struct misc *m_ptr` in moria1.c's calc_bonuses() died with these two --
+        // recounting equipment is now written entirely in question windows.
         // The real armour class left this struct in #18-12-18: both halves of
         // it, the worn armour (pac) and the plusses (ptoac), live in
         // player_armour_class.c now as two statics reached only through

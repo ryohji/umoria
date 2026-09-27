@@ -16,9 +16,11 @@
 // py.misc.dis_th, dis_td, dis_tac and dis_ac, which forty-three places used to
 // touch.
 //
-// These are *not* the numbers the game fights with. Those are the real plusses
-// (py.misc.ptohit, ptodam, ptoac, pac), and they stay where they are; this
-// question is only about what the character is told. Four things make the
+// These are *not* the numbers the game fights with. Those are the real plusses,
+// and none of them is in `py` any more: the aim and the force went to
+// player_attack_bonuses.c in #18-12-24, the two halves of the armour class to
+// player_armour_class.c in #18-12-18. This question is only about what the
+// character is told. Four things make the
 // difference real, and all four are reasons the copies cannot become a
 // derivation of the real numbers:
 //
@@ -28,7 +30,8 @@
 //     its base AC -- unless it is cursed, in which case even that is withheld.
 //   - **One penalty exists only here.** A weapon too heavy to wield properly
 //     costs the *shown* to-hit (use_stat[A_STR] * 15 - weight) and nothing
-//     else; the real ptohit never carries it, because the attack code takes it
+//     else; the real aim never carries it (player_to_hit_bonus), because the
+//     attack code takes it
 //     off separately (attack_blows(), misc3.c). So the shown to-hit is not a
 //     filtered real number -- it is assembled in its own right.
 //   - **The AC is shown twice, summed differently.** The real numbers keep the

@@ -32,6 +32,7 @@
 #include "fixture.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
@@ -410,6 +411,16 @@ void fixture_reset(void)
      * （どちらも無し）とここで分かれる。だから必ず 0 に戻す。
      * **0 が人物の走りだし**（創成が重さを振るまで体重は無い）。 */
     player_body_weight_set(0);
+    /* 命中と打撃の下駄も #18-12-24C で src/player_attack_bonuses.c の static 2 つへ
+     * 移ったので、py を消しても届かない。**外してもレッドにはならない —— 21・
+     * 22 つめと同じく並びのおかげで、しかも綱わたりが 1 本ある**。0 から始まる
+     * ことに頼っている件が 3 つ（xbth_uses_the_bth_column_of_class_level_adj・
+     * xbthb_uses_the_bthb_column_of_class_level_adj・
+     * xbth_is_bth_itself_when_ptohit_is_zero）あり、下駄に 4 を置く 2 件
+     * （xbth_adds_three_times_ptohit と xbthb_…）は **main() でその 3 つより
+     * あとに並んでいる**から今は通る。順を入れかえたら落ちる側。
+     * **対で 0 へ**（どちらも創成が能力値を振るまで 0 で、ふつうの能力値でも 0）。 */
+    player_attack_bonuses_set(0, 0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

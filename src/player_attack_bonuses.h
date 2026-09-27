@@ -56,9 +56,9 @@
 int player_to_hit_bonus(void);
 int player_to_damage_bonus(void);
 
-// Both numbers outright. FOUR CALLERS: creation's first guess (create.c:117), the
-// real values it settles on (create.c:391), the recalculation that runs whenever
-// equipment changes (moria1.c:110), and the saved file's two shorts put back.
+// Both numbers outright. FOUR CALLERS: creation's first guess (create.c:122), the
+// real values it settles on (create.c:397), the recalculation that runs whenever
+// equipment changes (moria1.c:117), and the saved file's two shorts put back.
 //
 // ONE WINDOW FOR THE PAIR, because no caller has ever set one alone -- every writer
 // is two adjacent lines, and the saved file holds the pair in two adjacent shorts

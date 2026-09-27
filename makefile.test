@@ -1794,19 +1794,19 @@ $(BUILDDIR)/player_body_weight_test: $(TESTDIR)/player_body_weight_test.c \
 # 飛ばすから** —— 対では呼べない。22 つめ（体の重さ）が「誰も足さない」側の
 # 例だったので、隣りあう 2 単位で所見 45 の両側が並ぶ。
 #
-# **足場は #18-12-24A のあいだだけ要る**（player_attack_bonuses_fixture.c。
-# 置き場がまだ py.misc.ptohit / ptodam なので器が 1 つ必要で、C で消える）。
+# **足場は #18-12-24C で消えた**（player_attack_bonuses_fixture.c。置き場が
+# module の static 2 つになったので人物の器が要らない。A の 3 行が消えて、
+# module 1 本だけをリンクする最小の形 —— player_disarm_test・
+# player_saving_throw_test・player_body_weight_test と同じ）。
 #
 # 数のもと（stats.c の補正表と装備の tohit / todam）・人物画面の等級
 # （abilities.c が BTH_PLUS_ADJ を掛ける）・画面に見せる双子
 # （player_display_numbers.c）・作りなおす時機（calc_bonuses()）は module の外。
 $(BUILDDIR)/player_attack_bonuses_test: $(TESTDIR)/player_attack_bonuses_test.c \
                               $(TESTDIR)/minunit.h \
-                              $(TESTDIR)/player_attack_bonuses_fixture.c \
                               src/player_attack_bonuses.c \
                               src/player_attack_bonuses.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_attack_bonuses_test.c \
-	    $(TESTDIR)/player_attack_bonuses_fixture.c \
 	    src/player_attack_bonuses.c
 
 clean:

@@ -12,29 +12,31 @@
 
 #include "player_attack_bonuses.h"
 
-// No externs.h here, the same as the twenty-three questions before this one. The
+// No externs.h here, and after #18-12-24C NOT ONE LINE THAT REACHES ANYTHING. The
 // two numbers come from the strength and dexterity tables, but this file never
-// reads those tables -- the callers look them up and hand the answers in.
+// reads those tables -- the callers look them up and hand the answers in, the same
+// way the body's weight (the question before this one) never reads race[].
 
-// THE PLACE THE TWO NUMBERS LIVE, for the length of step A only: still the fields
-// of the character's record, reached through one door each so that #18-12-24C can
-// move them by changing these two functions and nothing else.
-extern player_type py;
-
-static int16_t *the_aim(void) {
-    return &py.misc.ptohit;
-}
-
-static int16_t *the_force(void) {
-    return &py.misc.ptodam;
-}
+// THE PLACE THE TWO NUMBERS LIVE. They were the ptohit and ptodam fields of the
+// character's record until #18-12-24C; now these two shorts are the only place the
+// answers live, and the five windows below are the only way to reach them.
+// (`struct misc` is down to ten fields.) The `the_aim()` / `the_force()` doors that
+// step A used to reach py.misc went with the fields -- there is no indirection left
+// to keep.
+//
+// ZERO IS THE HONEST START. An ordinary character really does add nothing -- the
+// dexterity table gives 0 for 8 through 15 and the strength table for 5 through 15
+// -- so a character who has not been rolled yet is indistinguishable from an
+// average one, and that is what the fields did too.
+static int16_t the_aim;
+static int16_t the_force;
 
 int player_to_hit_bonus(void) {
-    return *the_aim();
+    return the_aim;
 }
 
 int player_to_damage_bonus(void) {
-    return *the_force();
+    return the_force;
 }
 
 void player_attack_bonuses_set(int to_hit, int to_damage) {
@@ -42,20 +44,21 @@ void player_attack_bonuses_set(int to_hit, int to_damage) {
     // when equipment changes, and a saved file's two shorts put back. One sentence
     // for all four, because all four replace the pair outright.
     //
-    // The casts are the fields' own width, not a rule this window adds: both were
-    // int16_t and `p_ptr->misc.ptohit = tohit_adj()` truncated exactly like this.
-    *the_aim() = (int16_t)to_hit;
-    *the_force() = (int16_t)to_damage;
+    // The casts are the store's own width, not a rule this window adds: both fields
+    // were int16_t and `p_ptr->misc.ptohit = tohit_adj()` truncated exactly like
+    // this, so the two statics are int16_t as well.
+    the_aim = (int16_t)to_hit;
+    the_force = (int16_t)to_damage;
 }
 
 void player_to_hit_bonus_adjust(int amount) {
     // One worn or wielded item's tohit. NEGATIVE IS ORDINARY: a cursed weapon
     // takes away.
-    *the_aim() = (int16_t)(*the_aim() + amount);
+    the_aim = (int16_t)(the_aim + amount);
 }
 
 void player_to_damage_bonus_adjust(int amount) {
     // One worn or wielded item's todam. The caller skips bows before calling ("Bows
     // can't damage. -CJS-"); that condition is about bows, not about this character.
-    *the_force() = (int16_t)(*the_force() + amount);
+    the_force = (int16_t)(the_force + amount);
 }
