@@ -26,6 +26,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_base_to_hit.h"
+#include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
@@ -159,7 +160,7 @@ static bool sv_write(void) {
     wr_short(player_experience_fraction());
     wr_short(m_ptr->age);
     wr_short(m_ptr->ht);
-    wr_short(m_ptr->wt);
+    wr_short((uint16_t)player_body_weight());
     wr_short(player_level());
     wr_short((uint16_t)player_max_depth());
     wr_short((uint16_t)m_ptr->srh);
@@ -629,7 +630,11 @@ bool get_char(bool *generate) {
             player_set_experience_fraction(exp_frac);
             rd_short(&m_ptr->age);
             rd_short(&m_ptr->ht);
-            rd_short(&m_ptr->wt);
+            // 体の重さも窓口へ（#18-12-23B）。番地に読んでいたので局所の
+            // short に受けてから置く。**置きなおす窓口は創成と同じ 1 本**。
+            uint16_t body_weight;
+            rd_short(&body_weight);
+            player_body_weight_set(body_weight);
             uint16_t lev;
             rd_short(&lev);
             player_set_level(lev);

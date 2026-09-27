@@ -19,6 +19,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_base_to_hit.h"
+#include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_level.h"
 #include "player_pos.h"
@@ -907,7 +908,12 @@ static void py_bash(int y, int x) {
     // Does the player know what he's fighting?
     const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
 
-    int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + py.misc.wt / 10;
+    // 体の重さは窓口ごしに（#18-12-23B）。**この関数で 2 度使うので入口で
+    // 1 度だけ読む** —— 命中に `/ 10`、打撃に `/ 60 + 3`。あいだに重さを書く
+    // ものは無い（所見 35）。割る数が違う 2 つの規則は打ちかかりの側の話。
+    const int body_weight = player_body_weight();
+
+    int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + body_weight / 10;
 
     if (!m_ptr->ml) {
         base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
@@ -917,7 +923,7 @@ static void py_bash(int y, int x) {
         msg_print(CONCAT("You hit ", cdesc, "."));
         int k = pdamroll(equipment_at(INVEN_ARM)->damage);
         k = critical_blow((equipment_at(INVEN_ARM)->weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
-        k += py.misc.wt / 60 + 3;
+        k += body_weight / 60 + 3;
         if (k < 0) {
             k = 0;
         }
@@ -997,7 +1003,9 @@ void bash(void) {
 
             if (t_ptr->tval == TV_CLOSED_DOOR) {
                 count_msg_print("You smash into the door!");
-                int tmp = py.stats.use_stat[A_STR] + py.misc.wt / 2;
+                // 扉への体当たりも窓口へ（#18-12-23B）。盾での打ちかかりとは
+                // 別の関数で、割る数も違う（`/ 2`）。
+                int tmp = py.stats.use_stat[A_STR] + player_body_weight() / 2;
 
                 // Use (roughly) similar method as for monsters.
                 if (randint(tmp * (20 + abs(t_ptr->p1))) < 10 * (tmp - abs(t_ptr->p1))) {

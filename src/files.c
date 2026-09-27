@@ -20,6 +20,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "object_levels.h"
+#include "player_body_weight.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
@@ -206,7 +207,7 @@ bool file_character(char *filename1) {
         cnv_stat(py.stats.use_stat[A_INT], prt1);
         (void)fprintf(file1, "   INT : %s\n", prt1);
         (void)fprintf(file1, " Sex%10s %-23s", colon, (py.misc.male ? "Male" : "Female"));
-        (void)fprintf(file1, " Weight%8s %6d", colon, (int)py.misc.wt);
+        (void)fprintf(file1, " Weight%8s %6d", colon, player_body_weight());
         cnv_stat(py.stats.use_stat[A_WIS], prt1);
         (void)fprintf(file1, "   WIS : %s\n", prt1);
         (void)fprintf(file1, " Class%8s %-23s", colon, class[py.misc.pclass].title);

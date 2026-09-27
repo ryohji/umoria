@@ -23,6 +23,7 @@
 #include "item_ident.h"
 #include "object_levels.h"
 #include "pending_teleport.h"
+#include "player_body_weight.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
@@ -747,7 +748,7 @@ void put_misc1(void) {
 
     prt_num("Age          ", (int)m_ptr->age, 2, 38);
     prt_num("Height       ", (int)m_ptr->ht, 3, 38);
-    prt_num("Weight       ", (int)m_ptr->wt, 4, 38);
+    prt_num("Weight       ", player_body_weight(), 4, 38);
     prt_num("Social Class ", (int)m_ptr->sc, 5, 38);
 }
 
@@ -939,7 +940,10 @@ int inven_damage(bool (*typ)(inven_type *), int perc) {
 
 // Computes current weight limit -RAK-
 int weight_limit(void) {
-    int weight_cap = py.stats.use_stat[A_STR] * PLAYER_WEIGHT_CAP + py.misc.wt;
+    // 体の重さは窓口ごしに（#18-12-23B）。**この式の主語は腕力**で、体重は
+    // 下駄のほう —— だから上限の計算は module の外に残した（use_stat[] に
+    // まだ窓口が無いので、畳むとしても `struct stats` のあと）。
+    int weight_cap = py.stats.use_stat[A_STR] * PLAYER_WEIGHT_CAP + player_body_weight();
 
     if (weight_cap > 3000) {
         weight_cap = 3000;

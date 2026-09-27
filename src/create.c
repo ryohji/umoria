@@ -17,6 +17,7 @@
 #include "hp_table.h"
 #include "player_armour_class.h"
 #include "player_base_to_hit.h"
+#include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
@@ -310,10 +311,12 @@ static void get_ahw(void) {
     py.misc.age = race[i].b_age + randint((int)race[i].m_age);
     if (py.misc.male) {
         py.misc.ht = randnor((int)race[i].m_b_ht, (int)race[i].m_m_ht);
-        py.misc.wt = randnor((int)race[i].m_b_wt, (int)race[i].m_m_wt);
+        // 体の重さも窓口へ（#18-12-23B）。**男女で race[] の別の列**を引くので
+        // 2 行になるが、窓口から見れば同じ 1 本の置きなおし。
+        player_body_weight_set(randnor((int)race[i].m_b_wt, (int)race[i].m_m_wt));
     } else {
         py.misc.ht = randnor((int)race[i].f_b_ht, (int)race[i].f_m_ht);
-        py.misc.wt = randnor((int)race[i].f_b_wt, (int)race[i].f_m_wt);
+        player_body_weight_set(randnor((int)race[i].f_b_wt, (int)race[i].f_m_wt));
     }
     player_disarm_set(race[i].b_dis + todis_adj());
 }

@@ -14,6 +14,7 @@
 
 #include "externs.h"
 #include "player_base_to_hit.h"
+#include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_gold.h"
 #include "player_hp.h"
@@ -240,13 +241,14 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  Weight = ", m_ptr->wt);
+    (void)sprintf(tmp_str, "Current=%d  Weight = ", player_body_weight());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if (tmp_val > -1 && (*tmp_str != '\0')) {
-            m_ptr->wt = tmp_val;
+            // 断りは prompt の規則なので呼び手に残す（所見 24）。
+            player_body_weight_set(tmp_val);
         }
     } else {
         return;
