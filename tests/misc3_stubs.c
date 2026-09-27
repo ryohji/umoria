@@ -40,6 +40,7 @@
 #include "player_level.h"
 #include "player_race.h"
 #include "player_saving_throw.h"
+#include "player_search_skill.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
@@ -421,6 +422,20 @@ void fixture_reset(void)
      * あとに並んでいる**から今は通る。順を入れかえたら落ちる側。
      * **対で 0 へ**（どちらも創成が能力値を振るまで 0 で、ふつうの能力値でも 0）。 */
     player_attack_bonuses_set(0, 0);
+    /* 探索の腕と頻度も #18-12-25C で src/player_search_skill.c の static 2 つへ
+     * 移った。**外してもレッドにならず、0 を当てにしている件も 1 つも無い** ——
+     * 21 つめ（どちらも無し）と同じ側で、24 つめの綱わたりとは違う。この 2 つを
+     * 読む既存の件は 5 つ（xfos の 4 件と xsrh の 1 件）だけで、**どれも自分が
+     * 読む数を自分で置いてから put_misc3() を呼ぶ**ので、並びを変えても落ちない。
+     * **確かめた** —— この 2 行を足す前にグリーン 1448 件。
+     * **それでも足すのは、2 つの 0 の意味が違うことを黙って隠さないため。**
+     * 腕の 0 は本当の答え（search() に 0 が渡る＝何も見つけられない）だが、
+     * **頻度の 0 はふつうの答えではない** —— 本物の人物は種族の表から必ず値を
+     * 持ち、randint(0) を訊く者は居ない（読み手が `<= 1` で先に囲う）。
+     * 置く窓口が 2 本あるので 2 行になる（対で置く窓口は無い。wizard.c が
+     * 腕だけを置くから —— player_search_skill.h）。 */
+    player_search_chance_set(0);
+    player_search_frequency_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

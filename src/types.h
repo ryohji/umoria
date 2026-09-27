@@ -194,8 +194,36 @@ typedef struct player_type {
         // "Check for a maximum level"), so nothing outside can make the record
         // shallower except the save file's reader. The windows are in
         // player_max_depth.h.
-        int16_t srh;                 // Chance in search
-        int16_t fos;                 // Frenq of search
+        // How well and how often this character looks for what is hidden left in
+        // #18-12-25: player_search_skill.c keeps the two shorts now (srh and fos),
+        // reached only through player_search_skill.h. TWO FIELDS AND TWO ANSWERS
+        // again, and here the two are not even the same KIND of number -- the
+        // chance is handed straight to search() and bigger is better, while the
+        // frequency is a one-in-n where SMALLER IS BETTER and a good ring of
+        // searching drives it below zero. Nothing ever added them up.
+        // ONE MODULE ANYWAY, because the class table adds to both and a piece of
+        // searching gear moves both -- in OPPOSITE DIRECTIONS by the same amount.
+        // THIS IS THE EXACT MIRROR OF THE QUESTION BELOW IT (#18-12-24): there the
+        // setter was paired and two `_adjust` windows were needed, here TWO SETTERS
+        // and ONE PAIRED `_adjust`. What splits the setters is one writer --
+        // wizard.c's editor walks Gold, Searching, Stealth and never asks for the
+        // frequency. What joins the adders is that no caller ever adds to one
+        // alone. The two tests are independent (ledger observation 40, steps 5a and
+        // 5b), and this pair of neighbouring units is the proof.
+        // The paired adder takes TWO amounts and not one, because THE CALLER OWNS
+        // THE SIGNS: py_bonuses() passes (amount, -amount) and creation passes
+        // (msrh, mfos), both positive. "Searching gear makes you find more and look
+        // more often" is a fact about the gear.
+        // Three things stayed with their callers: the character sheet's upside-down
+        // arithmetic (40 - frequency) and its floor at 0, the decision whether to
+        // look at all (randint() and the searching flag), and what a look finds
+        // (search() itself). The sheet's two ratings are COARSE in different
+        // degrees -- likert() divides the perception by 3 and the searching by 6, so
+        // the searching word cannot see a change of 1 at all (observation 41).
+        // NOT THE SAME QUESTION AS whether this character is searching right now:
+        // that flag has had its own window since #18-12-7 (player_is_searching() in
+        // player_status_flags.h), and the collision is why the module is called
+        // player_search_skill and not player_searching.
         // The base to-hit left this struct in #18-12-19: both numbers, the one
         // for swinging (bth) and the one for shooting and throwing (bthb), live
         // in player_base_to_hit.c now as two statics reached only through

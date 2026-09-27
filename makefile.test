@@ -1844,20 +1844,20 @@ $(BUILDDIR)/player_attack_bonuses_test: $(TESTDIR)/player_attack_bonuses_test.c 
 # 符号は呼び手が書く（py_bonuses() は (amount, -amount)、創成は (msrh, mfos)
 # でどちらも正）。
 #
-# **足場は #18-12-25C で消える見こみ**（player_search_skill_fixture.c）——
-# この問いは表に届かない（種族と階級の表を読むのは創成のほう）ので、
-# 22 回続いた「足場ごと消える」形になる。**A のあいだだけ 3 行ぶん長い。**
+# **足場は #18-12-25C で消えた**（player_search_skill_fixture.c。置き場が
+# module の static 2 つになったので人物の器が要らない。**#18-12-1C から
+# 数えて 23 回め**の同じ形で、例外は 21 つめだけ）。**module 1 本だけを
+# リンクする最小の形** —— player_disarm_test・player_saving_throw_test・
+# player_body_weight_test・player_attack_bonuses_test と同じ。
 #
 # 数のもと（種族と階級の表・装備）・人物画面の逆さ（abilities.c:51 の
 # 40 - fos と 0 の留め）・今回見るかの判断（randint() と探索モードの旗）・
 # 見て何が見つかるか（search()）はどれも module の外。
 $(BUILDDIR)/player_search_skill_test: $(TESTDIR)/player_search_skill_test.c \
-                              $(TESTDIR)/player_search_skill_fixture.c \
                               $(TESTDIR)/minunit.h \
                               src/player_search_skill.c \
                               src/player_search_skill.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_search_skill_test.c \
-	    $(TESTDIR)/player_search_skill_fixture.c \
 	    src/player_search_skill.c
 
 clean:
