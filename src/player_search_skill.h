@@ -49,8 +49,10 @@
 
 // The two answers. SIX CALLERS FOR THE CHANCE (search mode's turn, the two
 // automatic looks, the character sheet, the debugging editor's prompt, the saved
-// file) and FOUR FOR THE FREQUENCY (the automatic look asks twice in one condition
-// and it is folded to one read, the character sheet, the saved file).
+// file) and THREE FOR THE FREQUENCY (the automatic look, which asks twice in one
+// condition and has it folded to one read, the character sheet, the saved file).
+// Both counts were checked against the callers after #18-12-25B; the step-A note
+// said four for the frequency and listed three.
 //
 // Both are ints, though the fields are int16_t: every caller either passes the
 // number to a function taking int (`search(row, col, chance)`, `randint(n)`) or
