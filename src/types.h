@@ -163,8 +163,43 @@ typedef struct inven_type {
 
 typedef struct player_type {
     struct misc {
-        char name[PLAYER_NAME_SIZE]; // Name of character
-        uint8_t male;                // Sex of character
+        // WHO THIS CHARACTER IS left this struct in #18-12-26: the name, the sex,
+        // the age, the height, the social class and the four lines of life story
+        // all live in player_bio.c now, as six statics reached only through
+        // player_bio.h. SIX FIELDS AT ONCE, more than any unit on this road, and
+        // they left `struct misc` with two.
+        //
+        // SIX ANSWERS AND ONE MODULE, against the usual rule for splitting. The
+        // rule is "does anything read one without the other", and all six are read
+        // apart, every time -- nothing adds two of them up, nothing compares two,
+        // nothing needs two at once. By that rule alone this would have been six
+        // modules. What put them together is that NOBODY EVER MOVES ANY OF THEM
+        // (creation sets each one once, so there is not a single `_adjust` window
+        // in the header -- six answers and not one of them can be nudged) and that
+        // THE SAME FOUR PLACES ASK FOR THEM (the character sheet, the character
+        // dump, and the save file's writer and reader). Split six ways, not one of
+        // the six would have stood on its own.
+        //
+        // THE SEX WAS A BYTE AND IS A bool NOW. Every one of its nine readers asked
+        // a yes-or-no question; the byte belonged to the save file, which still
+        // reads and writes one. The one thing that changes is invisible: a
+        // hand-edited 2 in a save file used to make the round trip as 2 and now
+        // comes back as 1, and 2 was already true.
+        //
+        // The three rules the sex carries all stayed with their callers, and they
+        // are THE SAME FORK WRITTEN FOUR TIMES WITH FOUR DIFFERENT ANSWERS --
+        // **KING**/**QUEEN** on the sheet, *King*/*Queen* on the tomb, "All Hail
+        // the Mighty King!" and the 'M'/'F' of a high score entry -- plus the fifty
+        // gold a woman starts with ("She charmed the banker into it! -CJS-") and
+        // which of the race table's two height columns to roll against. Where the
+        // answers come from (the race table, the background table), how the story
+        // is wrapped at sixty characters, and what the sheet and the dump look like
+        // are all creation's and the display's business.
+        //
+        // PLAYER_NAME_SIZE STAYED HERE, one line above: the high score table has a
+        // name field of its own that is exactly as wide, and that field is not this
+        // question. PLAYER_HISTORY_LINES and PLAYER_HISTORY_LINE_SIZE went into
+        // player_bio.h with the story.
         // The purse moved to player_gold.c (au, #18-12-1C). How much gold is
         // carried is the first question to leave this struct: the windows are
         // in player_gold.h, and no caller needs the number's address any more
@@ -175,8 +210,6 @@ typedef struct player_type {
         // question -- the level is stored and yet it is fixed by the experience,
         // so the promise between them now has one home. The windows are in
         // player_level.h; the save file's reader takes all five through locals.
-        uint16_t age;                // Characters age
-        uint16_t ht;                 // Height
         // The body's weight moved to player_body_weight.c (wt, #18-12-23C).
         // A NUMBER THAT NOBODY ADDS TO -- the character does not put on weight,
         // so the two windows in player_body_weight.h are the whole question and
@@ -287,7 +320,6 @@ typedef struct player_type {
         // a wand is handled. Whether a particular attempt is resisted is still
         // player_saves()' question (misc3.c), because the roll needs randint() and
         // class_level_adj by pclass, which is still a field below.
-        int16_t sc;                  // Social Class
         int16_t stl;                 // Stealth factor
         uint8_t pclass;              // # of class
         // WHICH OF THE EIGHT RACES left in #18-12-22: player_race.c keeps the one
@@ -307,25 +339,27 @@ typedef struct player_type {
         // player_hit_die.h. The race's base and the class's adjustment still
         // come from the `race` and `class` tables, and the hit point table is
         // still rolled in create.c -- only the answer moved.
-        // ONE BYTE WIDER THAN IT WAS, since #18-12-26A: `char history[4][60]`
-        // until then. Four lines of sixty characters and a terminator, which is
-        // sixty-one bytes and not sixty -- get_history() writes a line of exactly
-        // sixty characters and then writes the terminator one past it, and
-        // rd_string() puts such a line back the same way. Nothing reachable ever
-        // wrote past this array even so: all 330,984 life stories the background
-        // table can make were enumerated, and the sixty-character line is always
-        // the last line and never the fourth, so the stray terminator always
-        // landed on the next line's leading '\0' -- the same value in the same
-        // place (bug candidate B21, which is why it is not a bug). The extra byte
-        // is here so that player_bio.h can promise "sixty characters and a
-        // terminator" about a line that really holds them. The save file does not
-        // change: wr_string() writes a line up to its terminator.
+        // THE LIFE STORY WENT WITH THE REST OF THE BIOGRAPHY in #18-12-26C. It was
+        // `char history[4][60]` until #18-12-26A widened it by one byte and
+        // #18-12-26C took it away; the array is
+        // `char the_history[PLAYER_HISTORY_LINES][PLAYER_HISTORY_LINE_SIZE]` in
+        // player_bio.c now, and those two names are the only place the numbers are
+        // spent (the _Static_assert that tied them to this field went with it).
         //
-        // PLAYER_HISTORY_LINES and PLAYER_HISTORY_LINE_SIZE say these two numbers
-        // in player_bio.h, where they stay after #18-12-26C takes this field away;
-        // player_bio.c checks that they still add up to this array with a
-        // _Static_assert, so the two cannot drift apart while both exist.
-        char history[4][61];         // History record
+        // WHY THE EXTRA BYTE, for the record. A line is sixty characters AND a
+        // terminator, which is sixty-one bytes and not sixty: get_history() wrote a
+        // line of exactly sixty characters and then wrote the terminator one past
+        // it, and rd_string() put such a line back the same way. NOTHING REACHABLE
+        // EVER WROTE PAST THIS ARRAY EVEN SO -- all 330,984 life stories the
+        // background table can make were enumerated, and a sixty-character line is
+        // always the last line and never the fourth, so the stray terminator always
+        // landed on the next line's leading '\0': the same value in the same place
+        // (bug candidate B21, which is why it is not a bug). The byte is there so
+        // that the window can promise "sixty characters and a terminator" about a
+        // line that really holds them, and so that creation can hand over a finished
+        // string instead of writing the characters and the terminator in two steps.
+        // The save file does not change: wr_string() writes a line up to its
+        // terminator.
     } misc;
 
     // Stats now kept in arrays, for more efficient access. -CJS-

@@ -1899,20 +1899,19 @@ $(BUILDDIR)/player_search_skill_test: $(TESTDIR)/player_search_skill_test.c \
 # 60 字ちょうどの行に終端が入らなかった。B21 は到達しないので壊れてはいなかった
 # が、窓口の約束（60 字 ＋ 終端）を 60 バイトの行では書けない）。
 #
-# **足場は #18-12-26C で消える見こみ**（player_bio_fixture.c）——
-# この問いは表に届かない（年齢と身長の表を読むのも `background[]` を歩くのも
-# 創成のほう）ので、23 回続いた「足場ごと消える」形になる。
-# **A のあいだだけ 3 行ぶん長い。**
+# **足場は #18-12-26C で消えた**（player_bio_fixture.c。置き場が module の
+# static 6 つになったので人物の器が要らない。**#18-12-1C から数えて 24 回め**の
+# 同じ形で、例外は 21 つめだけ）。**module 1 本だけをリンクする最小の形** ——
+# player_disarm_test・player_saving_throw_test・player_body_weight_test・
+# player_attack_bonuses_test・player_search_skill_test と同じ。
 #
 # 王か女王か（3 か所・3 通りの語）・最初の持ち金の +50・どちらの身長の表を
 # 引くか・生い立ちの 60 字の折りかえし・画面の並びはどれも module の外。
 $(BUILDDIR)/player_bio_test: $(TESTDIR)/player_bio_test.c \
-                              $(TESTDIR)/player_bio_fixture.c \
                               $(TESTDIR)/minunit.h \
                               src/player_bio.c \
                               src/player_bio.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_bio_test.c \
-	    $(TESTDIR)/player_bio_fixture.c \
 	    src/player_bio.c
 
 clean:

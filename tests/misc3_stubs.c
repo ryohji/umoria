@@ -34,6 +34,7 @@
 #include "item_ident.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
+#include "player_bio.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
 #include "player_infra_range.h"
@@ -436,6 +437,25 @@ void fixture_reset(void)
      * 腕だけを置くから —— player_search_skill.h）。 */
     player_search_chance_set(0);
     player_search_frequency_set(0);
+    /* 人物の身上書きの 6 つも #18-12-26C で src/player_bio.c の static 6 つへ
+     * 移ったので、py を消しても届かない。**外してもレッドにならず、0 を当てに
+     * している既存の件も 1 つも無い** —— 21・25 つめと同じ側で、23 つめの
+     * 「0 が期待値に乗っている」とも 24 つめの綱わたりとも違う。**この 6 つを
+     * 読む既存の件は 1 つも無い**（put_character() と put_misc1() を呼ぶテストが
+     * そもそも無く、6 つの窓口を名ざす既存の件も無い）。**確かめた** —— この
+     * 6 行を足さずに全 1481 件がグリーンになるのを見た。
+     * **それでも足すのは、6 つとも「0 が人物の走りだし」だから** ——
+     * 名前も無く、男でもなく、年齢も身長も階層も 0 で、生い立ちは 4 行とも空。
+     * py を memset していたころに書いてあった約束（各件は白紙の人物から
+     * 始まる）を、置き場が移ったせいで黙って嘘にしないため。
+     * 置く窓口が 5 本と消す窓口 1 本なので 6 行になる（`_adjust` は 1 本も
+     * 無い —— 誰も年齢を足さない。player_bio.h）。 */
+    player_name_set("");
+    player_set_male(false);
+    player_age_set(0);
+    player_height_set(0);
+    player_social_class_set(0);
+    player_history_clear();
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);
