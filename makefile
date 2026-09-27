@@ -82,7 +82,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	player_abilities.o player_timed_effects.o player_resting.o \
 	player_speed.o player_infra_range.o player_glowing_hands.o \
 	player_spells_to_learn.o player_max_depth.o player_hit_die.o player_armour_class.o player_base_to_hit.o \
-	player_disarm.o player_saving_throw.o \
+	player_disarm.o player_saving_throw.o player_race.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 

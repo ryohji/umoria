@@ -25,6 +25,7 @@
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_mana.h"
+#include "player_race.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later
@@ -200,7 +201,7 @@ bool file_character(char *filename1) {
         (void)fprintf(file1, " Age%11s %6d", colon, (int)py.misc.age);
         cnv_stat(py.stats.use_stat[A_STR], prt1);
         (void)fprintf(file1, "   STR : %s\n", prt1);
-        (void)fprintf(file1, " Race%9s %-23s", colon, race[py.misc.prace].trace);
+        (void)fprintf(file1, " Race%9s %-23s", colon, player_race_name());
         (void)fprintf(file1, " Height%8s %6d", colon, (int)py.misc.ht);
         cnv_stat(py.stats.use_stat[A_INT], prt1);
         (void)fprintf(file1, "   INT : %s\n", prt1);

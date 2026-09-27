@@ -24,6 +24,7 @@
 #include "player_hp.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_race.h"
 #include "player_saving_throw.h"
 #include "stats.h"
 
@@ -86,7 +87,7 @@ static void change_stat(int stat, int16_t amount) {
 // module so looping of character selection would be allowed -RGM-
 static void get_all_stats(void) {
     player_type *p_ptr = &py;
-    race_type *r_ptr = &race[p_ptr->misc.prace];
+    race_type *r_ptr = &race[player_race()];
 
     get_stats();
     change_stat(A_STR, r_ptr->str_adj);
@@ -165,9 +166,10 @@ static void choose_race(void) {
         }
     } while (!exit_flag);
 
-    player_type *p_ptr = &py;
+    // 別名はここで死んだ（#18-12-22B）。使っていたのは次の 1 行だけで、
+    // 種族の行を指す r_ptr のほうは下の put_buffer が使う。
     race_type *r_ptr = &race[j];
-    p_ptr->misc.prace = j;
+    player_race_set(j);
     put_buffer(r_ptr->trace, 3, 15);
 }
 
@@ -191,7 +193,10 @@ static void get_history(void) {
     int test_roll;
     bool flag;
 
-    int hist_ptr = py.misc.prace * 3 + 1;
+    // 生い立ちの表の始まり。**行番号の算術はここに残す** —— これは
+    // background[] の並びの知識（上の Assumptions がそう書いている）で、
+    // 種族の性質ではない（player_race.h）。
+    int hist_ptr = player_race() * 3 + 1;
     int social_class = randint(4);
     int cur_ptr = 0;
     history_block[0] = '\0';
@@ -301,7 +306,7 @@ static void get_sex(void) {
 
 // Computes character's age, height, and weight -JWT-
 static void get_ahw(void) {
-    int i = py.misc.prace;
+    int i = player_race();
     py.misc.age = race[i].b_age + randint((int)race[i].m_age);
     if (py.misc.male) {
         py.misc.ht = randnor((int)race[i].m_b_ht, (int)race[i].m_m_ht);
@@ -322,7 +327,7 @@ static void get_class(void) {
         cl[j] = 0;
     }
 
-    int i = py.misc.prace;
+    int i = player_race();
     int j = 0;
     int k = 0;
     int l = 2;

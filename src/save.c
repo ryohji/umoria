@@ -38,6 +38,7 @@
 #include "player_mana.h"
 #include "player_max_depth.h"
 #include "player_pos.h"
+#include "player_race.h"
 #include "player_resting.h"
 #include "player_saving_throw.h"
 #include "player_speed.h"
@@ -185,7 +186,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)m_ptr->sc);
     wr_short((uint16_t)m_ptr->stl);
     wr_byte(m_ptr->pclass);
-    wr_byte(m_ptr->prace);
+    wr_byte((uint8_t)player_race());
     wr_byte((uint8_t)player_hit_die());
     wr_byte(player_experience_factor());
     wr_short((uint16_t)player_mana());
@@ -698,7 +699,12 @@ bool get_char(bool *generate) {
             rd_short((uint16_t *)&m_ptr->sc);
             rd_short((uint16_t *)&m_ptr->stl);
             rd_byte(&m_ptr->pclass);
-            rd_byte(&m_ptr->prace);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す
+             * （置きなおしは種族のメニューと同じ窓口 —— どちらもただの
+             * 置きかえ。player_race.h）。 */
+            uint8_t prace;
+            rd_byte(&prace);
+            player_race_set(prace);
             /* 番地を渡していた 1 か所。読んでから窓口へ渡す
              * （置きなおしは種族の土台と同じ窓口 —— どちらもただの
              * 置きかえ。player_hit_die.h）。 */

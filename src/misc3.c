@@ -29,6 +29,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_race.h"
 #include "player_resting.h"
 #include "player_saving_throw.h"
 #include "player_speed.h"
@@ -610,7 +611,9 @@ void bst_stat(int stat, int amount) {
 
 // Prints character-screen info -RAK-
 void prt_stat_block(void) {
-    prt_field(race[py.misc.prace].trace, 2, STAT_COLUMN);
+    // 種族の名前は窓口へ（#18-12-22B）。**すぐ下の行が階級の名前を同じ器から
+    // 引くので、このファイルの直書きは残る** —— 消えるのは #18-12-28。
+    prt_field(player_race_name(), 2, STAT_COLUMN);
     prt_field(class[py.misc.pclass].title, 3, STAT_COLUMN);
     prt_field(title_string(), 4, STAT_COLUMN);
 
@@ -685,7 +688,7 @@ void put_character(void) {
 
     if (character_is_generated()) {
         put_buffer(m_ptr->name, 2, 15);
-        put_buffer(race[m_ptr->prace].trace, 3, 15);
+        put_buffer(player_race_name(), 3, 15);
         put_buffer((m_ptr->male ? "Male" : "Female"), 4, 15);
         put_buffer(class[m_ptr->pclass].title, 5, 15);
     }

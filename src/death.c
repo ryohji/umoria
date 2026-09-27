@@ -18,6 +18,7 @@
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_max_depth.h"
+#include "player_race.h"
 #include "score_death.h"
 #include "platform.h"
 #include "save_state.h"
@@ -270,7 +271,7 @@ static void highscores(void) {
     new_entry.lev = (uint8_t)player_level();
     new_entry.max_dlv = (uint8_t)player_max_depth();
     new_entry.sex = (py.misc.male ? 'M' : 'F');
-    new_entry.race = py.misc.prace;
+    new_entry.race = (uint8_t)player_race();
     new_entry.class = py.misc.pclass;
     (void)strcpy(new_entry.name, py.misc.name);
 
