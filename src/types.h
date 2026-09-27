@@ -234,7 +234,18 @@ typedef struct player_type {
         int16_t sc;                  // Social Class
         int16_t stl;                 // Stealth factor
         uint8_t pclass;              // # of class
-        uint8_t prace;               // # of race
+        // WHICH OF THE EIGHT RACES left in #18-12-22: player_race.c keeps the one
+        // byte now, reached only through player_race.h. THE FIRST QUESTION OUT OF
+        // THIS STRUCT THAT WAS NOT A QUANTITY -- the byte was a row number into
+        // the `race` table, and not one of the thirteen places that named it did
+        // arithmetic on it except to find a row. So there is no `_adjust` window:
+        // a character does not become more of a Dwarf. The table itself stays in
+        // player.c, and player_race.c reaches it with one `extern` line for the
+        // sake of the name alone -- what a race GIVES (the stat spreads, the ages
+        // and heights, the mask of classes it may take) is create.c's question,
+        // not this one. What the shops charge (rgold_adj, indexed by the owner's
+        // race and this one) and where the life story starts (prace * 3 + 1 into
+        // background[]) also stayed with their callers.
         // The hit die's number of faces left this struct in #18-12-17: it
         // lives in player_hit_die.c now, as a static byte reached only through
         // player_hit_die.h. The race's base and the class's adjustment still

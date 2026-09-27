@@ -36,6 +36,7 @@
 #include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_race.h"
 #include "player_saving_throw.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
@@ -391,6 +392,14 @@ void fixture_reset(void)
      * 確かめた —— **並びが変わったら落ちる側**で、この 1 行がそれを止める。
      * **0 が人物の走りだし**（Human は種族の土台が 0 で、焼きこむ下駄も無い）。 */
     player_saving_throw_set(0);
+    /* どの種族かも #18-12-22C で src/player_race.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにはならない —— しかも今回は
+     * 並びではなく中身から言える**（21 つめは並びのおかげだった）。
+     * この行番号を読む既存の件は 1 つも無く、変異を入れても 11 本のどれにも
+     * 1 件も出ないのを確かめてある（読みに +1 で module の 14 件だけが落ちる）。
+     * それでも足すのは、上の約束（各件は 0 から始まる）を黙って嘘にしないため。
+     * **0 が人物の走りだし**で、race[] の 0 行めはちょうど Human。 */
+    player_race_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);
