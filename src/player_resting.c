@@ -25,24 +25,20 @@
 // game writes it through player_rest_set() (save.c).
 static int16_t turns_left;
 
-static int16_t *turns(void) {
-    return &turns_left;
-}
-
 bool player_resting(void) {
-    return *turns() != 0;
+    return turns_left != 0;
 }
 
 int player_rest_turns(void) {
-    return *turns();
+    return turns_left;
 }
 
 bool player_rest_is_until_healed(void) {
-    return *turns() < 0;
+    return turns_left < 0;
 }
 
 void player_rest_set(int rest_turns) {
-    *turns() = (int16_t)rest_turns;
+    turns_left = (int16_t)rest_turns;
 }
 
 void player_rest_stop(void) {
@@ -50,18 +46,16 @@ void player_rest_stop(void) {
 }
 
 bool player_rest_count_down(void) {
-    int16_t *left = turns();
-
     // Towards zero from whichever side it is on. The "not resting" case answers
     // false without touching the count: dungeon.c's old shape was
     // `if (rest > 0) ... else if (rest < 0) ...`, so zero moved nowhere.
-    if (*left > 0) {
-        *left = (int16_t)(*left - 1);
-    } else if (*left < 0) {
-        *left = (int16_t)(*left + 1);
+    if (turns_left > 0) {
+        turns_left = (int16_t)(turns_left - 1);
+    } else if (turns_left < 0) {
+        turns_left = (int16_t)(turns_left + 1);
     } else {
         return false;
     }
 
-    return *left == 0;
+    return turns_left == 0;
 }

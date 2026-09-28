@@ -26,21 +26,17 @@
 // character is made (create.c), and so does loading a saved game (save.c).
 static int16_t the_squares;
 
-static int16_t *squares(void) {
-    return &the_squares;
-}
-
 int player_infra_range(void) {
-    return *squares();
+    return the_squares;
 }
 
 void player_infra_range_adjust(int num_squares) {
     // Adding, not replacing: an item of infra-vision and the potion can both be
     // in effect at once, and py_bonuses() passes the same amount back with the
     // opposite sign when the item comes off. Nothing clamps the total.
-    *squares() = (int16_t)(*squares() + num_squares);
+    the_squares = (int16_t)(the_squares + num_squares);
 }
 
 void player_infra_range_set(int num_squares) {
-    *squares() = (int16_t)num_squares;
+    the_squares = (int16_t)num_squares;
 }

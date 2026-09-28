@@ -26,26 +26,22 @@
 // 11 and a saved file ever put something else here.
 static uint8_t the_charge;
 
-static uint8_t *charge(void) {
-    return &the_charge;
-}
-
 int player_glowing_hands(void) {
-    return *charge();
+    return the_charge;
 }
 
 void player_glowing_hands_begin(void) {
     // Replacing, not adding. The game never stacks two charges: scrolls.c only
     // gets this far when the hands were dark.
-    *charge() = 1;
+    the_charge = 1;
 }
 
 void player_glowing_hands_spend(void) {
     // The whole charge goes at once, however big it was. Both fights ask
     // player_glowing_hands() first, so this is never reached with dark hands.
-    *charge() = 0;
+    the_charge = 0;
 }
 
 void player_glowing_hands_restore(int charge_from_file) {
-    *charge() = (uint8_t)charge_from_file;
+    the_charge = (uint8_t)charge_from_file;
 }

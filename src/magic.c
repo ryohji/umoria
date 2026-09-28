@@ -14,6 +14,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "player_class.h"
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
@@ -31,7 +32,7 @@ void cast(void) {
         msg_print("You have no light to read by.");
     } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
-    } else if (class[py.misc.pclass].spell != MAGE) {
+    } else if (player_class_spell_type() != MAGE) {
         msg_print("You can't cast spells!");
     } else if (!find_range(TV_MAGIC_BOOK, TV_NEVER, &i, &j)) {
         msg_print("But you are not carrying any spell-books!");
@@ -44,7 +45,7 @@ void cast(void) {
         } else if (result > 0) {
             free_turn_flag = false;
 
-            spell_type *m_ptr = &magic_spell[py.misc.pclass - 1][choice];
+            spell_type *m_ptr = &magic_spell[player_class() - 1][choice];
 
             if (randint(100) < chance) {
                 msg_print("You failed to get the spell off!");

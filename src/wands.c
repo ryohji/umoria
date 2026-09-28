@@ -17,8 +17,10 @@
 #include "device.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_class.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_saving_throw.h"
 #include "player_timed_effects.h"
 #include "stats.h"
 
@@ -45,9 +47,8 @@ void aim(void) {
             }
             bool ident = false;
 
-            struct misc *m_ptr = &py.misc;
-
-            int chance = device_use_chance(m_ptr->save, stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[m_ptr->pclass][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
+            // 杖（staffs.c）とまったく同じ形。
+            int chance = device_use_chance(player_saving_throw(), stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[player_class()][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
 
             if (!device_use_succeeds(chance)) {
                 msg_print("You failed to use the wand properly.");

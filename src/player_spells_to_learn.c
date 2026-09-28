@@ -29,12 +29,8 @@
 // dead (types.h says so).
 static uint8_t the_count;
 
-static uint8_t *count(void) {
-    return &the_count;
-}
-
 int player_spells_to_learn(void) {
-    return *count();
+    return the_count;
 }
 
 void player_spells_to_learn_set(int spells_to_learn) {
@@ -42,5 +38,5 @@ void player_spells_to_learn_set(int spells_to_learn) {
     // may lower this number as well as raise it (a drained stat allows fewer
     // spells, and the character forgets some), so adding here would make the
     // count climb without bound.
-    *count() = (uint8_t)spells_to_learn;
+    the_count = (uint8_t)spells_to_learn;
 }

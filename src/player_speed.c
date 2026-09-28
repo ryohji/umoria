@@ -25,20 +25,16 @@
 // a saved game writes it through player_speed_set() (save.c).
 static int16_t the_steps;
 
-static int16_t *steps(void) {
-    return &the_steps;
-}
-
 int player_speed(void) {
-    return *steps();
+    return the_steps;
 }
 
 void player_speed_adjust(int num_steps) {
     // Adding, not replacing: change_speed() is called once per potion, item and
     // trap, and the effects stack. Nothing clamps the total.
-    *steps() = (int16_t)(*steps() + num_steps);
+    the_steps = (int16_t)(the_steps + num_steps);
 }
 
 void player_speed_set(int num_steps) {
-    *steps() = (int16_t)num_steps;
+    the_steps = (int16_t)num_steps;
 }

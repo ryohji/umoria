@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "object_levels.h"
 #include "options.h"
+#include "player_class.h"
 #include "player_food.h"
 #include "player_hp.h"
 #include "progress.h"
@@ -170,12 +171,12 @@ int main(int argc, char *argv[]) {
         player_set_food(7500);
         player_set_digestion(2);
 
-        if (class[py.misc.pclass].spell == MAGE) {
+        if (player_class_spell_type() == MAGE) {
             // Magic realm
             clear_screen(); // makes spell list easier to read
             calc_spells(A_INT);
             calc_mana(A_INT);
-        } else if (class[py.misc.pclass].spell == PRIEST) {
+        } else if (player_class_spell_type() == PRIEST) {
             // Clerical realm
             calc_spells(A_WIS);
             clear_screen(); // force out the 'learn prayer' message
@@ -244,7 +245,7 @@ static void char_inven_init(void) {
     }
 
     for (i = 0; i < 5; i++) {
-        j = player_init[py.misc.pclass][i];
+        j = player_init[player_class()][i];
         invcopy(&inven_init, j);
         // this makes it known2 and known1
         store_bought(&inven_init);

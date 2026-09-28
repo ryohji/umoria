@@ -18,8 +18,14 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
+#include "player_attack_bonuses.h"
+#include "player_base_to_hit.h"
+#include "player_body_weight.h"
+#include "player_class.h"
+#include "player_disarm.h"
 #include "player_level.h"
 #include "player_pos.h"
+#include "player_search_skill.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "stats.h"
@@ -147,7 +153,8 @@ void tunnel(int dir) {
                     // Secret doors.
 
                     count_msg_print("You tunnel into the granite wall.");
-                    search(player_row(), player_col(), py.misc.srh);
+                    // 探索の腕は窓口へ（#18-12-25B）。
+                    search(player_row(), player_col(), player_search_chance());
                 } else {
                     abort();
                 }
@@ -178,7 +185,7 @@ void disarm_trap(void) {
             monster_type *m_ptr = &m_list[c_ptr->cptr];
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
-            int tot = py.misc.disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[py.misc.pclass][CLA_DISARM] * player_level() / 3);
+            int tot = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
             if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || (no_light())) {
                 tot = tot / 10;
@@ -667,8 +674,13 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
 
     // Throwing objects
     *tdam = pdamroll(i_ptr->damage) + i_ptr->todam;
-    *tbth = py.misc.bthb * 75 / 100;
-    *tpth = py.misc.ptohit + i_ptr->tohit;
+    // 投げるだけなら 75 パーセント。**この割りかたはこの 1 行のもの**で、
+    // 窓口には入れない（#18-12-19B）。
+    *tbth = player_base_to_hit_with_bows() * 75 / 100;
+    // 命中の下駄は窓口へ（#18-12-24B）。**そのまま足す**（3 倍は人物画面だけ）。
+    // すぐ下の `-=` は投げ道具でない武器の分を引きもどす計算で、**局所の
+    // *tpth を直すだけ**なので下駄そのものは動かない。
+    *tpth = player_to_hit_bonus() + i_ptr->tohit;
 
     // Add this back later if the correct throwing device. -CJS-
     if (equipment_at(INVEN_WIELD)->tval != TV_NOTHING) {
@@ -688,7 +700,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         switch (equipment_at(INVEN_WIELD)->p1) {
         case 1:
             if (i_ptr->tval == TV_SLING_AMMO) { // Sling and ammo
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 2;
@@ -697,7 +709,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 2:
             if (i_ptr->tval == TV_ARROW) { // Short Bow and Arrow
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 2;
@@ -706,7 +718,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 3:
             if (i_ptr->tval == TV_ARROW) { // Long Bow and Arrow
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 3;
@@ -715,7 +727,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 4:
             if (i_ptr->tval == TV_ARROW) { // Composite Bow and Arrow
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 4;
@@ -724,7 +736,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 5:
             if (i_ptr->tval == TV_BOLT) { // Light Crossbow and Bolt
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 3;
@@ -733,7 +745,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
             break;
         case 6:
             if (i_ptr->tval == TV_BOLT) { // Heavy Crossbow and Bolt
-                *tbth = py.misc.bthb;
+                *tbth = player_base_to_hit_with_bows();
                 *tpth += 2 * equipment_at(INVEN_WIELD)->tohit;
                 *tdam += equipment_at(INVEN_WIELD)->todam;
                 *tdam = *tdam * 4;
@@ -836,7 +848,7 @@ void throw_object(void) {
                         // if monster not lit, make it much more difficult to hit, subtract
                         // off most bonuses, and reduce bthb depending on distance.
                         if (!m_ptr->ml) {
-                            tbth = (tbth / (cur_dis + 2)) - (player_level() * class_level_adj[py.misc.pclass][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
+                            tbth = (tbth / (cur_dis + 2)) - (player_level() * class_level_adj[player_class()][CLA_BTHB] / 2) - (tpth * (BTH_PLUS_ADJ - 1));
                         }
 
                         if (test_hit(tbth, (int)player_level(), tpth, (int)r_ptr->ac, CLA_BTHB)) {
@@ -903,17 +915,22 @@ static void py_bash(int y, int x) {
     // Does the player know what he's fighting?
     const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
 
-    int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + py.misc.wt / 10;
+    // 体の重さは窓口ごしに（#18-12-23B）。**この関数で 2 度使うので入口で
+    // 1 度だけ読む** —— 命中に `/ 10`、打撃に `/ 60 + 3`。あいだに重さを書く
+    // ものは無い（所見 35）。割る数が違う 2 つの規則は打ちかかりの側の話。
+    const int body_weight = player_body_weight();
+
+    int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + body_weight / 10;
 
     if (!m_ptr->ml) {
-        base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
+        base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[player_class()][CLA_BTH] / 2);
     }
 
     if (test_hit(base_tohit, (int)player_level(), (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {
         msg_print(CONCAT("You hit ", cdesc, "."));
         int k = pdamroll(equipment_at(INVEN_ARM)->damage);
         k = critical_blow((equipment_at(INVEN_ARM)->weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
-        k += py.misc.wt / 60 + 3;
+        k += body_weight / 60 + 3;
         if (k < 0) {
             k = 0;
         }
@@ -993,7 +1010,9 @@ void bash(void) {
 
             if (t_ptr->tval == TV_CLOSED_DOOR) {
                 count_msg_print("You smash into the door!");
-                int tmp = py.stats.use_stat[A_STR] + py.misc.wt / 2;
+                // 扉への体当たりも窓口へ（#18-12-23B）。盾での打ちかかりとは
+                // 別の関数で、割る数も違う（`/ 2`）。
+                int tmp = py.stats.use_stat[A_STR] + player_body_weight() / 2;
 
                 // Use (roughly) similar method as for monsters.
                 if (randint(tmp * (20 + abs(t_ptr->p1))) < 10 * (tmp - abs(t_ptr->p1))) {

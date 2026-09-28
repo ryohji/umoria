@@ -13,10 +13,16 @@
 #include "types.h"
 
 #include "externs.h"
+#include "player_base_to_hit.h"
+#include "player_body_weight.h"
+#include "player_disarm.h"
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_saving_throw.h"
+#include "player_search_skill.h"
+#include "player_stealth.h"
 
 // Light up the dungeon -RAK-
 void wizard_light(void) {
@@ -120,8 +126,6 @@ void change_character(void) {
         return;
     }
 
-    struct misc *m_ptr = &py.misc;
-
     prt("(1 - 32767) Hit points = ", 0, 0);
     if (get_string(tmp_str, 0, 25, 5)) {
         tmp_val = atoi(tmp_str);
@@ -160,85 +164,98 @@ void change_character(void) {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Searching = ", m_ptr->srh);
+    // 探索の腕は窓口へ（#18-12-25B）。**この入り口は頻度を訊かない** ——
+    // 片方だけ置く書き手はここだけで、それが置く窓口を 2 本に分けている。
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Searching = ", player_search_chance());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->srh = tmp_val;
+            // 0..200 に囲うのはこの入り口の規則で、窓口は何も断らない。
+            player_search_chance_set(tmp_val);
         }
     } else {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (-1-18) Stealth = ", m_ptr->stl);
+    // 足音の静かさも窓口へ（#18-12-27B）。**この入り口の「-1-18」は遊びが
+    // 届く幅とぴったり同じ**（種族 -2〜+4 ＋ 階級 +1〜+5 ＋ 装備 3 か所 × 1〜3）——
+    // 上の探索と罠の「0-200」はどちらも上端に届かないので、そこが違う。
+    (void)sprintf(tmp_str, "Current=%d  (-1-18) Stealth = ", player_stealth());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -2) && (tmp_val < 19) && (*tmp_str != '\0')) {
-            m_ptr->stl = tmp_val;
+            // -1〜18 に囲うのはこの入り口の規則で、窓口は何も断らない。
+            player_stealth_set(tmp_val);
         }
     } else {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Disarming = ", m_ptr->disarm);
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Disarming = ", player_disarm());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->disarm = tmp_val;
+            player_disarm_set(tmp_val);
         }
     } else {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-100) Save = ", m_ptr->save);
+    // **文と留めが食いちがっている** —— 「(0-100)」と出しておいて受けるのは
+    // 0〜200（上の罠と鍵をはずす腕とまったく同じ検査で、文だけが違う）。
+    // この食いちがいは画面のもので、窓口は何も留めない（→ 所見 24）。
+    (void)sprintf(tmp_str, "Current=%d  (0-100) Save = ", player_saving_throw());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->save = tmp_val;
+            player_saving_throw_set(tmp_val);
         }
     } else {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Base to hit = ", m_ptr->bth);
+    // 遊びのなかで唯一、2 つの数を片方ずつ置く場所（#18-12-19B）。
+    // **0〜200 の留めはこの画面のもの**で、窓口は持たない。
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Base to hit = ", player_base_to_hit());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->bth = tmp_val;
+            player_base_to_hit_set_melee(tmp_val);
         }
     } else {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  (0-200) Bows/Throwing = ", m_ptr->bthb);
+    (void)sprintf(tmp_str, "Current=%d  (0-200) Bows/Throwing = ", player_base_to_hit_with_bows());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            m_ptr->bthb = tmp_val;
+            player_base_to_hit_set_with_bows(tmp_val);
         }
     } else {
         return;
     }
 
-    (void)sprintf(tmp_str, "Current=%d  Weight = ", m_ptr->wt);
+    (void)sprintf(tmp_str, "Current=%d  Weight = ", player_body_weight());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if (tmp_val > -1 && (*tmp_str != '\0')) {
-            m_ptr->wt = tmp_val;
+            // 断りは prompt の規則なので呼び手に残す（所見 24）。
+            player_body_weight_set(tmp_val);
         }
     } else {
         return;

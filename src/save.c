@@ -24,19 +24,32 @@
 #include "panel.h"
 #include "messages.h"
 #include "player_abilities.h"
+#include "player_armour_class.h"
+#include "player_attack_bonuses.h"
+#include "player_base_to_hit.h"
+#include "player_bio.h"
+#include "player_body_weight.h"
+#include "player_class.h"
+#include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
+#include "player_hit_die.h"
 #include "player_hp.h"
 #include "player_infra_range.h"
 #include "player_level.h"
 #include "player_mana.h"
+#include "player_max_depth.h"
 #include "player_pos.h"
+#include "player_race.h"
 #include "player_resting.h"
+#include "player_saving_throw.h"
+#include "player_search_skill.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
+#include "player_stealth.h"
 #include "player_timed_effects.h"
 #include "options.h"
 #include "progress.h"
@@ -58,7 +71,7 @@ static void wr_byte(uint8_t);
 static void wr_short(uint16_t);
 static void wr_long(uint32_t);
 static void wr_bytes(uint8_t *, int);
-static void wr_string(char *);
+static void wr_string(const char *);
 static void wr_shorts(uint16_t *, int);
 static void wr_item(inven_type *);
 static void wr_store(store_type *);
@@ -143,50 +156,71 @@ static bool sv_write(void) {
 
     wr_long(l);
 
-    struct misc *m_ptr = &py.misc;
-    wr_string(m_ptr->name);
-    wr_byte(m_ptr->male);
+    // 人物の身上書きも窓口へ（#18-12-26B）。**並びはファイルの形なので
+    // 動かせない** —— 名前・性別がここ、年齢と身長が下、階層はさらに下、
+    // 生い立ち 4 行がいちばんあと。
+    wr_string(player_name());
+    // 生のバイトではなく真偽から 1 か 0 を書く。手で 2 を書きこんだ
+    // セーブファイルは 1 になって戻る（player_bio.h の性別の項）。
+    wr_byte((uint8_t)(player_is_male() ? 1 : 0));
     wr_long((uint32_t)player_gold());
     wr_long((uint32_t)player_max_experience());
     wr_long((uint32_t)player_experience());
     wr_short(player_experience_fraction());
-    wr_short(m_ptr->age);
-    wr_short(m_ptr->ht);
-    wr_short(m_ptr->wt);
+    // **年齢が先、身長があと** —— 並びは動かせない。
+    wr_short((uint16_t)player_age());
+    wr_short((uint16_t)player_height());
+    wr_short((uint16_t)player_body_weight());
     wr_short(player_level());
-    wr_short(m_ptr->max_dlv);
-    wr_short((uint16_t)m_ptr->srh);
-    wr_short((uint16_t)m_ptr->fos);
-    wr_short((uint16_t)m_ptr->bth);
-    wr_short((uint16_t)m_ptr->bthb);
+    wr_short((uint16_t)player_max_depth());
+    // 探索の腕と頻度も窓口へ（#18-12-25B）。**腕が先、頻度があと** ——
+    // 並びは動かせない。
+    wr_short((uint16_t)player_search_chance());
+    wr_short((uint16_t)player_search_frequency());
+    // 素の命中力も窓口へ（#18-12-19B）。**近接が先、弓があと** ——
+    // 並びは動かせない。
+    wr_short((uint16_t)player_base_to_hit());
+    wr_short((uint16_t)player_base_to_hit_with_bows());
     wr_short((uint16_t)player_max_mana());
     wr_short((uint16_t)player_max_hp());
-    wr_short((uint16_t)m_ptr->ptohit);
-    wr_short((uint16_t)m_ptr->ptodam);
-    wr_short((uint16_t)m_ptr->pac);
-    wr_short((uint16_t)m_ptr->ptoac);
+    // 命中と打撃の下駄も窓口へ（#18-12-24B）。**命中が先、打撃があと** ——
+    // 並びは動かせない。読みは 2 本だが、置きなおす窓口は対で 1 本。
+    wr_short((uint16_t)player_to_hit_bonus());
+    wr_short((uint16_t)player_to_damage_bonus());
+    // 守りの点数も窓口へ（#18-12-18B）。**半分が 2 つあるのでファイルにも
+    // 2 本ある** —— 着ているものぶんが先、魔法ぶんがあと。並びは動かせない。
+    wr_short((uint16_t)player_armour_class_armour());
+    wr_short((uint16_t)player_armour_class_magical());
     // The four numbers the sheet shows. Their place in the file cannot move.
     wr_short((uint16_t)player_display_to_hit());
     wr_short((uint16_t)player_display_to_dam());
     wr_short((uint16_t)player_display_ac());
     wr_short((uint16_t)player_display_to_ac());
-    wr_short((uint16_t)m_ptr->disarm);
-    wr_short((uint16_t)m_ptr->save);
-    wr_short((uint16_t)m_ptr->sc);
-    wr_short((uint16_t)m_ptr->stl);
-    wr_byte(m_ptr->pclass);
-    wr_byte(m_ptr->prace);
-    wr_byte(m_ptr->hitdie);
+    wr_short((uint16_t)player_disarm());
+    wr_short((uint16_t)player_saving_throw());
+    wr_short((uint16_t)player_social_class());
+    // 足音の静かさも窓口へ（#18-12-27B）。**手前の階層と同じ幅で隣りあっている**
+    // ので、2 本を入れちがえてもテストは 1 件も落ちない（所見 46）—— 網は人物
+    // 画面のほうで、入れかわると Stealth が Superb に、Social Class が 1 桁になる。
+    wr_short((uint16_t)player_stealth());
+    // 階級も窓口へ（#18-12-28B）。**ここから byte が 4 本つづく** ——
+    // 階級・種族・体力の骰子・経験の倍率で、どの 2 本を入れちがえても幅では
+    // 気づけない（所見 46）。**4 本が 4 つの別の module にあるので、並びを
+    // 固定する 1 件はここには書けない** —— 網は人物画面のほうで、階級と種族が
+    // 入れかわると Class 行と Race 行が同時にずれる。
+    wr_byte((uint8_t)player_class());
+    wr_byte((uint8_t)player_race());
+    wr_byte((uint8_t)player_hit_die());
     wr_byte(player_experience_factor());
     wr_short((uint16_t)player_mana());
     wr_short(player_mana_fraction());
     wr_short((uint16_t)player_hp());
     wr_short(player_hp_fraction());
-    for (int i = 0; i < 4; i++) {
-        wr_string(m_ptr->history[i]);
+    for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+        wr_string(player_history_line(i));
     }
 
-    struct stats *s_ptr = &py.stats;
+    struct player_stat *s_ptr = &py.stats;
     wr_bytes(s_ptr->max_stat, 6);
     wr_bytes(s_ptr->cur_stat, 6);
     wr_shorts((uint16_t *)s_ptr->mod_stat, 6);
@@ -595,11 +629,18 @@ bool get_char(bool *generate) {
         }
 
         if ((l & 0x80000000L) == 0) {
-            struct misc *m_ptr = &py.misc;
-
-            rd_string(m_ptr->name);
-            rd_byte(&m_ptr->male);
-            // 金は m_ptr->au ではなく窓口へ入れる。読みは器の番地を要る
+            // 人物の身上書きも窓口へ（#18-12-26B）。読みは器の番地を要る
+            // ので、名前は局所の器に受けてから置く。**並びはファイルの形
+            // なので動かせない**。
+            char name[PLAYER_NAME_SIZE];
+            rd_string(name);
+            player_name_set(name);
+            // 生のバイトを受けて「0 でなければ男」に落とす。2 は真だった
+            // ので遊びの上のふるまいは変わらない（player_bio.h の性別の項）。
+            uint8_t male;
+            rd_byte(&male);
+            player_set_male(male != 0);
+            // 金は py.misc.au ではなく窓口へ入れる。読みは器の番地を要る
             // ので、いったん受けてから置く（幅と符号の扱いは元のまま）。
             uint32_t gold;
             rd_long(&gold);
@@ -616,17 +657,41 @@ bool get_char(bool *generate) {
             uint16_t exp_frac;
             rd_short(&exp_frac);
             player_set_experience_fraction(exp_frac);
-            rd_short(&m_ptr->age);
-            rd_short(&m_ptr->ht);
-            rd_short(&m_ptr->wt);
+            // **年齢が先、身長があと** —— 並びは動かせない。
+            uint16_t age;
+            rd_short(&age);
+            player_age_set(age);
+            uint16_t height;
+            rd_short(&height);
+            player_height_set(height);
+            // 体の重さも窓口へ（#18-12-23B）。番地に読んでいたので局所の
+            // short に受けてから置く。**置きなおす窓口は創成と同じ 1 本**。
+            uint16_t body_weight;
+            rd_short(&body_weight);
+            player_body_weight_set(body_weight);
             uint16_t lev;
             rd_short(&lev);
             player_set_level(lev);
-            rd_short(&m_ptr->max_dlv);
-            rd_short((uint16_t *)&m_ptr->srh);
-            rd_short((uint16_t *)&m_ptr->fos);
-            rd_short((uint16_t *)&m_ptr->bth);
-            rd_short((uint16_t *)&m_ptr->bthb);
+            // どこまで潜ったかも窓口へ（#18-12-16B）。読みもどしは置きなおし
+            // なので player_max_depth_set() —— 深いほうを残す窓口ではない。
+            uint16_t max_depth;
+            rd_short(&max_depth);
+            player_max_depth_set(max_depth);
+            // 読みもどしも置く窓口が 2 本（#18-12-25B）——
+            // wizard.c が腕だけを置きかえるので対にはできない。
+            uint16_t search_chance;
+            uint16_t search_frequency;
+            rd_short(&search_chance);
+            rd_short(&search_frequency);
+            player_search_chance_set((int16_t)search_chance);
+            player_search_frequency_set((int16_t)search_frequency);
+            // 読みもどしは種族の土台と同じ文なので、置きなおしの窓口が
+            // 1 本で足りる（#18-12-19B。守りの点数だけが 2 本要った）。
+            uint16_t base_to_hit;
+            uint16_t base_to_hit_with_bows;
+            rd_short(&base_to_hit);
+            rd_short(&base_to_hit_with_bows);
+            player_base_to_hit_set((int16_t)base_to_hit, (int16_t)base_to_hit_with_bows);
             // 魔力の 3 つも窓口へ（#18-12-4B）。並びは動かせないので位置は
             // そのまま —— 上限はここ、残りと端数は階級・種族のあと。
             uint16_t max_mana;
@@ -637,10 +702,24 @@ bool get_char(bool *generate) {
             uint16_t max_hp;
             rd_short(&max_hp);
             player_set_max_hp((int16_t)max_hp);
-            rd_short((uint16_t *)&m_ptr->ptohit);
-            rd_short((uint16_t *)&m_ptr->ptodam);
-            rd_short((uint16_t *)&m_ptr->pac);
-            rd_short((uint16_t *)&m_ptr->ptoac);
+            // 下駄の 2 本。器の番地に読んでいたので局所に受けてから対で置く
+            // （#18-12-24B）。**ファイルの並びが命中・打撃なので窓口の引数の
+            // 並びもこれ** —— 15 つめが立てた問いへの 8 度めの答えで、
+            // 遊びのときと同じ窓口を使う側。
+            uint16_t to_hit_bonus;
+            uint16_t to_damage_bonus;
+            rd_short(&to_hit_bonus);
+            rd_short(&to_damage_bonus);
+            player_attack_bonuses_set((int16_t)to_hit_bonus, (int16_t)to_damage_bonus);
+            // 守りの点数の 2 本。読みは器の番地を要るのでいったん受けてから
+            // 窓口へ渡す。**_reset() ではなく _set_parts()** —— ファイルの数は
+            // もう着ているものを含んでいるので、着ているものぶんを 0 に
+            // する規則には従えない（player_armour_class.h）。
+            uint16_t armour_class;
+            uint16_t magical_armour_class;
+            rd_short(&armour_class);
+            rd_short(&magical_armour_class);
+            player_armour_class_set_parts((int16_t)armour_class, (int16_t)magical_armour_class);
             // 画面に出す 4 つも窓口へ入れる。読みは器の番地を要るので、
             // いったん受けてから 1 つずつ置く（セーブデータの並びは動かせない
             // のでこの位置のまま。**書きだしと同じ順**で、AC の合計が修正より
@@ -657,13 +736,46 @@ bool get_char(bool *generate) {
             uint16_t dis_tac;
             rd_short(&dis_tac);
             player_display_set_to_ac((int16_t)dis_tac);
-            rd_short((uint16_t *)&m_ptr->disarm);
-            rd_short((uint16_t *)&m_ptr->save);
-            rd_short((uint16_t *)&m_ptr->sc);
-            rd_short((uint16_t *)&m_ptr->stl);
-            rd_byte(&m_ptr->pclass);
-            rd_byte(&m_ptr->prace);
-            rd_byte(&m_ptr->hitdie);
+            /* 罠と鍵をはずす腕。読みは器の番地を要るのでいったん受けて
+             * から窓口へ渡す（置きなおしは種族の土台と同じ 1 本 ——
+             * どちらもただの置きかえ。player_disarm.h）。 */
+            uint16_t disarm;
+            rd_short(&disarm);
+            player_disarm_set((int16_t)disarm);
+            /* 抵抗も同じ形（#18-12-21B）。読みは器の番地を要るので受けて
+             * から窓口へ渡す。置きなおしは種族の土台と同じ 1 本
+             * （player_saving_throw.h）。 */
+            uint16_t saving_throw;
+            rd_short(&saving_throw);
+            player_saving_throw_set((int16_t)saving_throw);
+            uint16_t social_class;
+            rd_short(&social_class);
+            player_social_class_set((int16_t)social_class);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す —— **符号なしで
+             * 読んで符号つきに戻すので、負の静かさもそのまま往復する**
+             * （Half-Troll の Warrior は -1）。 */
+            uint16_t stealth;
+            rd_short(&stealth);
+            player_stealth_set((int16_t)stealth);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す —— **置きなおしは
+             * 階級のメニューと同じ窓口**（種族・体力の骰子・素の命中力・
+             * 罠と鍵をはずす腕・抵抗・足音の静かさと同じで、守りの点数だけが
+             * ちがう。player_class.h）。**ここから byte が 4 本つづく**（所見 46）。 */
+            uint8_t pclass;
+            rd_byte(&pclass);
+            player_class_set(pclass);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す
+             * （置きなおしは種族のメニューと同じ窓口 —— どちらもただの
+             * 置きかえ。player_race.h）。 */
+            uint8_t prace;
+            rd_byte(&prace);
+            player_race_set(prace);
+            /* 番地を渡していた 1 か所。読んでから窓口へ渡す
+             * （置きなおしは種族の土台と同じ窓口 —— どちらもただの
+             * 置きかえ。player_hit_die.h）。 */
+            uint8_t hit_die;
+            rd_byte(&hit_die);
+            player_hit_die_set(hit_die);
             uint8_t expfact;
             rd_byte(&expfact);
             player_set_experience_factor(expfact);
@@ -679,11 +791,13 @@ bool get_char(bool *generate) {
             uint16_t cur_hp_frac;
             rd_short(&cur_hp_frac);
             player_set_hp_fraction(cur_hp_frac);
-            for (int i = 0; i < 4; i++) {
-                rd_string(m_ptr->history[i]);
+            for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+                char line[PLAYER_HISTORY_LINE_SIZE];
+                rd_string(line);
+                player_history_line_set(i, line);
             }
 
-            struct stats *s_ptr = &py.stats;
+            struct player_stat *s_ptr = &py.stats;
             rd_bytes(s_ptr->max_stat, 6);
             rd_bytes(s_ptr->cur_stat, 6);
             rd_shorts((uint16_t *)s_ptr->mod_stat, 6);
@@ -1156,8 +1270,11 @@ static void wr_bytes(uint8_t *c, int count) {
     SAVE_LOG(fprintf(logfile, "\n"));
 }
 
-static void wr_string(char *str) {
-    SAVE_LOG(char *s = str);
+// 人物の名前と生い立ちが窓口ごしに来るので const になった（#18-12-26B。
+// player_bio.h の名前の項 —— 窓口が書ける番地を渡さないのが要点で、
+// この関数は読むだけなのだから元から const でよかった）。
+static void wr_string(const char *str) {
+    SAVE_LOG(const char *s = str);
     SAVE_LOG(fprintf(logfile, "STRING:"));
     while (*str != '\0') {
         xor_byte ^= *str++;

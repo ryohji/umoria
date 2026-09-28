@@ -162,115 +162,67 @@ typedef struct inven_type {
 #define PLAYER_NAME_SIZE 27
 
 typedef struct player_type {
-    struct misc {
-        char name[PLAYER_NAME_SIZE]; // Name of character
-        uint8_t male;                // Sex of character
-        // The purse moved to player_gold.c (au, #18-12-1C). How much gold is
-        // carried is the first question to leave this struct: the windows are
-        // in player_gold.h, and no caller needs the number's address any more
-        // (the save file's reader takes it through a local).
-        //
-        // How far the character has come moved to player_level.c (max_exp, exp,
-        // exp_frac, lev and expfact, #18-12-6C). Five fields answered one
-        // question -- the level is stored and yet it is fixed by the experience,
-        // so the promise between them now has one home. The windows are in
-        // player_level.h; the save file's reader takes all five through locals.
-        uint16_t age;                // Characters age
-        uint16_t ht;                 // Height
-        uint16_t wt;                 // Weight
-        uint16_t max_dlv;            // Max level explored
-        int16_t srh;                 // Chance in search
-        int16_t fos;                 // Frenq of search
-        int16_t bth;                 // Base to hit
-        int16_t bthb;                // BTH with bows
-        int16_t ptohit;              // Plusses to hit
-        int16_t ptodam;              // Plusses to dam
-        int16_t pac;                 // Total AC
-        int16_t ptoac;               // Magical AC
-        int16_t disarm;              // % to Disarm
-        int16_t save;                // Saving throw
-        int16_t sc;                  // Social Class
-        int16_t stl;                 // Stealth factor
-        uint8_t pclass;              // # of class
-        uint8_t prace;               // # of race
-        uint8_t hitdie;              // Char hit die
-        char history[4][60];         // History record
-    } misc;
+    // `struct misc` AND `struct flags` BOTH STOOD HERE, AND BOTH ARE GONE: emptied one
+    // question at a time by #18-12 -- `struct flags` in #18-12-15B and `struct misc` in
+    // #18-12-28C, which deleted the struct outright rather than making it shorter,
+    // because its last field had left. The stats below are all that is left in here.
+    //
+    // THE RECORD OF A QUESTION IS IN THE MODULE THAT ANSWERS IT, not in this file. Each
+    // `src/player_*.h` opens with the question it owns: what the unit is, where the
+    // number comes from, what deliberately stayed with the callers and what the move
+    // cost. The road as a whole -- which unit went when and what each one taught -- is
+    // REFACTORING_PLAN.md 第 5 節 and the ledger's observations. This struct carried a
+    // copy of that story for a while, and the copy is what has now been deleted.
+    //
+    // WHERE TO LOOK WHEN OLD CODE, AN OLD NOTE OR THE SAVE FILE NAMES A FIELD THAT USED
+    // TO BE HERE:
+    //
+    //   struct misc
+    //     au                               #18-12-1   player_gold.h
+    //     max_exp exp exp_frac lev expfact #18-12-6   player_level.h
+    //     max_dlv                          #18-12-16  player_max_depth.h
+    //     hitdie                           #18-12-17  player_hit_die.h
+    //     pac ptoac                        #18-12-18  player_armour_class.h
+    //     bth bthb                         #18-12-19  player_base_to_hit.h
+    //     disarm                           #18-12-20  player_disarm.h
+    //     save                             #18-12-21  player_saving_throw.h
+    //     prace                            #18-12-22  player_race.h
+    //     wt                               #18-12-23  player_body_weight.h
+    //     ptohit ptodam                    #18-12-24  player_attack_bonuses.h
+    //     srh fos                          #18-12-25  player_search_skill.h
+    //     name male age ht sc history      #18-12-26  player_bio.h
+    //     stl                              #18-12-27  player_stealth.h
+    //     pclass                           #18-12-28  player_class.h
+    //   struct flags
+    //     status (thirty bits)             #18-12-7   player_status_flags.h
+    //     the seventeen equipment bytes    #18-12-8   player_abilities.h
+    //     the eighteen counters            #18-12-9   player_timed_effects.h
+    //     rest                             #18-12-10  player_resting.h
+    //     speed                            #18-12-11  player_speed.h
+    //     see_infra                        #18-12-12  player_infra_range.h
+    //     confuse_monster                  #18-12-13  player_glowing_hands.h
+    //     new_spells                       #18-12-14  player_spells_to_learn.h
+    //     food food_digested               #18-12-15B struck out, dead since #18-12-2C
+    //     protection                       #18-12-15A a `static int16_t` in save.c
+    //
+    // The last two rows answer no question. The stomach had already moved to
+    // player_food.h and left only these two declarations behind, and "Protection fr.
+    // evil" was written and read by the save file and by nowhere else -- A HOLE IN THE
+    // FILE FORMAT, kept at a fixed position inside the one file that reads it.
 
     // Stats now kept in arrays, for more efficient access. -CJS-
-    struct stats {
+    //
+    // The tag is `player_stat` rather than `stats` since #18-12-30: this is the only
+    // struct left inside the character's record, and a bare `struct stats` said
+    // nothing about whose four arrays these are (stats.h next door is a different
+    // thing again -- the tables that turn one of them into a bonus). The member is
+    // still `stats`, so every reader still spells it `py.stats.use_stat[A_STR]`.
+    struct player_stat {
         uint8_t max_stat[6]; // What is restored
         uint8_t cur_stat[6]; // What is natural
         int16_t mod_stat[6]; // What is modified, may be +/-
         uint8_t use_stat[6]; // What is used
     } stats;
-
-    // `struct flags` STOOD HERE UNTIL #18-12-15B, and it is gone. Twenty-six
-    // fields left it, one question at a time, and the three that were left over
-    // answered no question at all. This is the record of where each went.
-    //
-    // The status word left in #18-12-7C: thirty bits, asked and answered from a
-    // hundred and five places, now behind player_status_flags.h. The eighteen
-    // counters were a different question -- most of the marks that lived in the
-    // word pair with one of them.
-    //
-    // Seventeen one-byte fields left in #18-12-8C: what the character can do and
-    // resist because of what is being worn -- sees invisible, never paralyzed,
-    // the four resistances and falling, slow digestion, regeneration, random
-    // teleportation, aggravation and the six sustained stats. They were asked and
-    // answered from a hundred and six places and are now behind
-    // player_abilities.h, which WORKS THEM OUT FROM THE EQUIPMENT rather than
-    // remembering them.
-    //
-    // The eighteen counters left in #18-12-9C: how much longer each temporary
-    // state lasts, asked and answered from two hundred and eighty-one places,
-    // now behind player_timed_effects.h. Twelve of them pair with a mark in the
-    // status word, and that pairing is the reason they moved together.
-    //
-    // `rest` left in #18-12-10C: whether the character is resting and for how
-    // many more turns, asked and answered from twenty-one places, now behind
-    // player_resting.h. It went on its own because it is WHAT THE CHARACTER IS
-    // DOING rather than a state wearing off -- and because it moves towards zero
-    // FROM BOTH SIDES (a negative count is "until healed" and counts up).
-    //
-    // `speed` left in #18-12-11C: how many steps from normal speed the character
-    // is moving, asked and answered from nine places, now behind player_speed.h.
-    // It is NOT a clock -- nothing ticks it down; potions, items and traps add to
-    // and subtract from it, and POSITIVE MEANS SLOW.
-    //
-    // `see_infra` left in #18-12-12C: HOW FAR AWAY the character can make out a
-    // warm-blooded creature, IN SQUARES, asked and answered from nine places, now
-    // behind player_infra_range.h. It is not a clock either -- the race, the
-    // equipment and the potion put a number there and nothing ticks it down --
-    // and it was the FIRST of these questions whose starting value is not zero.
-    //
-    // `confuse_monster` left in #18-12-13C: whether the character's hands are
-    // glowing, ready to confuse whatever they next touch, asked and answered from
-    // eight places, now behind player_glowing_hands.h. It is a CHARGE, not a
-    // clock -- scroll 11 lights the hands and they stay lit however many turns
-    // pass, until one blow actually connects. Its name was a lie about OWNERSHIP
-    // (it named what happens to the monster, and collided with the unrelated
-    // spell confuse_monster() in spells.c), so the module is named after the
-    // hands the messages name.
-    //
-    // `new_spells` left in #18-12-14C: how many more spells (or prayers) the
-    // character may still learn, asked and answered from nine places, now behind
-    // player_spells_to_learn.h. Its name was a lie about CONTENTS -- it is a
-    // COUNT, not a list of spells, and which spells are known lives in
-    // spells_known.h -- so the module is named after the question the tests were
-    // already asking (spells_to_learn).
-    //
-    // THE LAST THREE WERE NOT QUESTIONS, and #18-12-15 swept them out rather than
-    // giving them windows. `food` and `food_digested` had no reader and no writer
-    // left at all: the stomach moved to player_food.h in #18-12-2C and only these
-    // two declarations stayed behind, so #18-12-15B simply struck them out.
-    // `protection` ("Protection fr. evil") was written and read by save.c and by
-    // nowhere else -- the game never looked at the number, and protection from
-    // evil is itself a counter in player_timed_effects.h -- so #18-12-15A made it
-    // a `static int16_t` in save.c. It is a HOLE IN THE FILE FORMAT, not a
-    // question: two bytes kept at a fixed position so that a file written
-    // elsewhere survives being read and written back. A hole belongs inside the
-    // one file that reads it, and no module was made for it.
 } player_type;
 
 // spell name is stored in spell_names[] array at index i, +31 if priest

@@ -21,11 +21,17 @@
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
+#include "player_armour_class.h"
+#include "player_attack_bonuses.h"
+#include "player_base_to_hit.h"
+#include "player_class.h"
+#include "player_disarm.h"
 #include "player_glowing_hands.h"
 #include "player_gold.h"
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_pos.h"
+#include "player_search_skill.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "running.h"
@@ -38,7 +44,6 @@ static void hit_trap(int y, int x) {
     change_trap(y, x);
 
     cave_type *c_ptr = &cave[y][x];
-    struct misc *p_ptr = &py.misc;
     inven_type *t_ptr = &t_list[c_ptr->tptr];
 
     int dam = pdamroll(t_ptr->damage);
@@ -55,7 +60,7 @@ static void hit_trap(int y, int x) {
         }
         break;
     case 2: // Arrow trap
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             objdes(tmp, t_ptr, true);
             take_hit(dam, tmp);
             msg_print("An arrow hits you.");
@@ -102,7 +107,7 @@ static void hit_trap(int y, int x) {
         msg_print("Hmmm, there was something under this rock.");
         break;
     case 7: // STR Dart
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             if (!player_stat_sustained(A_STR)) {
                 (void)dec_stat(A_STR);
                 objdes(tmp, t_ptr, true);
@@ -164,7 +169,7 @@ static void hit_trap(int y, int x) {
         player_timed_add(PLAYER_TIMED_CONFUSION, randint(15) + 15);
         break;
     case 17: // Slow Dart
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             objdes(tmp, t_ptr, true);
             take_hit(dam, tmp);
             msg_print("A small dart hits you!");
@@ -178,7 +183,7 @@ static void hit_trap(int y, int x) {
         }
         break;
     case 18: // CON Dart
-        if (test_hit(125, 0, 0, p_ptr->pac + p_ptr->ptoac, CLA_MISC_HIT)) {
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
             if (!player_stat_sustained(A_CON)) {
                 (void)dec_stat(A_CON);
                 objdes(tmp, t_ptr, true);
@@ -235,7 +240,10 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     // set j again, since bit_pos modified it
     j = spells_learned_among(inventory_at(item_val)->flags);
 
-    spell_type *s_ptr = magic_spell[py.misc.pclass - 1];
+    // **`- 1` は表の並びの知識**で、階級についての事実ではない —— 戦士に行が
+    // 無いので magic_spell は MAX_CLASS - 1 行（player_class.h の 2 つめ。
+    // src/player.c:307 のコメントがこの道より古い）。
+    spell_type *s_ptr = magic_spell[player_class() - 1];
 
     int spell[31];
     while (j) {
@@ -249,8 +257,8 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     if (i > 0) {
         result = get_spell(spell, i, sn, sc, prompt, first_spell);
         if (result &&
-            magic_spell[py.misc.pclass - 1][*sn].smana > player_mana()) {
-            if (class[py.misc.pclass].spell == MAGE) {
+            magic_spell[player_class() - 1][*sn].smana > player_mana()) {
+            if (player_class_spell_type() == MAGE) {
                 result = (int)get_check("You summon your limited strength to cast this one! Confirm?");
             } else {
                 result = (int)get_check("The gods may think you presumptuous for this! Confirm?");
@@ -589,15 +597,18 @@ void py_attack(int y, int x) {
         blows = 1;
     }
 
-    struct misc *p_ptr = &py.misc;
-    tot_tohit += p_ptr->ptohit;
+    // 命中の下駄は窓口へ（#18-12-24B）。**そのまま足す** —— 3 を掛けるのは
+    // 人物画面だけの規則（abilities.c）。
+    tot_tohit += player_to_hit_bonus();
 
     // if creature not lit, make it more difficult to hit
     int base_tohit;
     if (m_ptr->ml) {
-        base_tohit = p_ptr->bth;
+        base_tohit = player_base_to_hit();
     } else {
-        base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
+        // 見えない相手は当てにくい。**半分にする式はこの 1 行のもの**で、
+        // 窓口には入れない（#18-12-19B）。
+        base_tohit = (player_base_to_hit() / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[player_class()][CLA_BTH] / 2);
     }
 
     int k;
@@ -616,7 +627,9 @@ void py_attack(int y, int x) {
                 k = critical_blow(1, 0, k, CLA_BTH);
             }
 
-            k += p_ptr->ptodam;
+            // 打撃の下駄も窓口へ（#18-12-24B）。**0 で止めるのはこの行いの
+            // 規則**なので呼び手に残す（負の下駄で damage が負になりうる）。
+            k += player_to_damage_bonus();
             if (k < 0) {
                 k = 0;
             }
@@ -715,11 +728,16 @@ void move_char(int dir, bool do_pickup) {
                     area_affect(dir, player_row(), player_col());
                 }
 
-                // Check to see if he notices something
-                // fos may be negative if have good rings of searching
-                if ((py.misc.fos <= 1) || (randint(py.misc.fos) == 1) ||
+                // Check to see if he notices something.
+                //
+                // 探索の腕と頻度は窓口へ（#18-12-25B）。**頻度は 1 つの式で
+                // 2 度読むので入口の局所に畳んだ**（→ 所見 35 の 1 つめの形）。
+                // **1 以下なら毎回見るという規則も、負になりうるのも呼び手の側**
+                // —— the frequency may be negative if have good rings of searching.
+                const int how_often = player_search_frequency();
+                if ((how_often <= 1) || (randint(how_often) == 1) ||
                     player_is_searching()) {
-                    search(player_row(), player_col(), py.misc.srh);
+                    search(player_row(), player_col(), player_search_chance());
                 }
 
                 // A room of light should be lit.
@@ -869,8 +887,7 @@ void openobject(void) {
 
                 // It's locked.
                 if (t_ptr->p1 > 0) {
-                    struct misc *p_ptr = &py.misc;
-                    int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+                    int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
                     if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         msg_print("You are too confused to pick the lock.");
@@ -894,8 +911,7 @@ void openobject(void) {
             } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
                 // Open a closed chest.
 
-                struct misc *p_ptr = &py.misc;
-                int i = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[p_ptr->pclass][CLA_DISARM] * player_level() / 3);
+                int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
                 inven_type *t_ptr = &t_list[c_ptr->tptr];
 

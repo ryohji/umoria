@@ -42,6 +42,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_class.h"
 #include "player_level.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
@@ -85,14 +86,14 @@ static void given_no_spells_known(void) {
 
 /* 知力 18（段 3 = 1 倍）の魔法使い。レベル n なら n 個まで覚えていられる。 */
 static void given_a_mage_of_level(int level) {
-    py.misc.pclass = 1; /* class[1] は Mage（MAGE 系・初級レベル 1） */
+    player_class_set(1); /* class[1] は Mage（MAGE 系・初級レベル 1） */
     player_set_level((uint16_t)level);
     py.stats.use_stat[A_INT] = 18;
 }
 
 /* 賢さ 18（段 3 = 1 倍）の僧侶。言いかたが "prayer" になる。 */
 static void given_a_priest_of_level(int level) {
-    py.misc.pclass = 2; /* class[2] は Priest（PRIEST 系・初級レベル 1） */
+    player_class_set(2); /* class[2] は Priest（PRIEST 系・初級レベル 1） */
     player_set_level((uint16_t)level);
     py.stats.use_stat[A_WIS] = 18;
 }

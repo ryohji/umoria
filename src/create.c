@@ -15,11 +15,23 @@
 #include "externs.h"
 
 #include "hp_table.h"
+#include "player_armour_class.h"
+#include "player_attack_bonuses.h"
+#include "player_base_to_hit.h"
+#include "player_bio.h"
+#include "player_body_weight.h"
+#include "player_class.h"
+#include "player_disarm.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
+#include "player_hit_die.h"
 #include "player_hp.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_race.h"
+#include "player_saving_throw.h"
+#include "player_search_skill.h"
+#include "player_stealth.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-
@@ -80,8 +92,7 @@ static void change_stat(int stat, int16_t amount) {
 // generate all stats and modify for race. needed in a separate
 // module so looping of character selection would be allowed -RGM-
 static void get_all_stats(void) {
-    player_type *p_ptr = &py;
-    race_type *r_ptr = &race[p_ptr->misc.prace];
+    race_type *r_ptr = &race[player_race()];
 
     get_stats();
     change_stat(A_STR, r_ptr->str_adj);
@@ -98,17 +109,31 @@ static void get_all_stats(void) {
         set_use_stat(j);
     }
 
-    p_ptr->misc.srh = r_ptr->srh;
-    p_ptr->misc.bth = r_ptr->bth;
-    p_ptr->misc.bthb = r_ptr->bthb;
-    p_ptr->misc.fos = r_ptr->fos;
-    p_ptr->misc.stl = r_ptr->stl;
-    p_ptr->misc.save = r_ptr->bsav;
-    p_ptr->misc.hitdie = r_ptr->bhitdie;
-    p_ptr->misc.ptodam = todam_adj();
-    p_ptr->misc.ptohit = tohit_adj();
-    p_ptr->misc.ptoac = 0;
-    p_ptr->misc.pac = toac_adj();
+    // 探索の腕と頻度は窓口が 2 本（#18-12-25B）。**素の命中力と違って対では
+    // 置かない** —— wizard.c が腕だけを置きかえるので、片方だけの窓口が要る。
+    // この 2 行が離れているのもそのため（あいだに別の問いが入っている）。
+    player_search_chance_set(r_ptr->srh);
+    // 素の命中力の 2 本は 1 つの窓口で（#18-12-19B）。種族は必ず両方を書く。
+    player_base_to_hit_set(r_ptr->bth, r_ptr->bthb);
+    player_search_frequency_set(r_ptr->fos);
+    // 足音の静かさも窓口へ（#18-12-27B）。**この 1 行で `player_type *p_ptr`
+    // が死んだ** —— 種族の表から置く行がぜんぶ窓口になったので、この関数はもう
+    // 人物の器を名ざさない（能力値のほうは `py.stats` と直に書いてある）。
+    player_stealth_set(r_ptr->stl);
+    // 抵抗は種族の表の数そのまま（#18-12-21B）。**下駄は 1 つも混ざらない** ——
+    // 罠と鍵をはずす腕はここで DEX の下駄を焼きこむが、こちらは焼きこまない。
+    player_saving_throw_set(r_ptr->bsav);
+    player_hit_die_set(r_ptr->bhitdie);
+    // 命中と打撃の下駄も 1 つの窓口で（#18-12-24B）。**種族の表は関係ない** ——
+    // どちらも DEX と STR の補正表から来る仮の値で、:397 が本物を置きなおす。
+    // **引数は命中・打撃の順**で、もとの 2 行は打撃が先だったが、どちらの
+    // `_adj()` も能力値を読むだけなので順は結果を変えない。
+    player_attack_bonuses_set(tohit_adj(), todam_adj());
+    // The one place that puts the dexterity bonus in the ARMOUR half rather
+    // than the magical one -- the class table below does it the other way
+    // round. Nothing can tell the two spellings apart, because every reader
+    // only ever asks for the sum (player_armour_class.h).
+    player_armour_class_set_parts(toac_adj(), 0);
     player_set_experience_factor(r_ptr->b_exp);
     // The only question so far whose starting value is not zero: Human 0,
     // Dwarf 5, and five more in between. Deciding, not adding -- a character
@@ -155,9 +180,10 @@ static void choose_race(void) {
         }
     } while (!exit_flag);
 
-    player_type *p_ptr = &py;
+    // 別名はここで死んだ（#18-12-22B）。使っていたのは次の 1 行だけで、
+    // 種族の行を指す r_ptr のほうは下の put_buffer が使う。
     race_type *r_ptr = &race[j];
-    p_ptr->misc.prace = j;
+    player_race_set(j);
     put_buffer(r_ptr->trace, 3, 15);
 }
 
@@ -165,8 +191,8 @@ static void choose_race(void) {
 static void print_history(void) {
     put_buffer("Character Background", 14, 27);
 
-    for (int i = 0; i < 4; i++) {
-        prt(py.misc.history[i], i + 15, 10);
+    for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+        prt(player_history_line(i), i + 15, 10);
     }
 }
 
@@ -181,7 +207,10 @@ static void get_history(void) {
     int test_roll;
     bool flag;
 
-    int hist_ptr = py.misc.prace * 3 + 1;
+    // 生い立ちの表の始まり。**行番号の算術はここに残す** —— これは
+    // background[] の並びの知識（上の Assumptions がそう書いている）で、
+    // 種族の性質ではない（player_race.h）。
+    int hist_ptr = player_race() * 3 + 1;
     int social_class = randint(4);
     int cur_ptr = 0;
     history_block[0] = '\0';
@@ -210,9 +239,7 @@ static void get_history(void) {
     } while (hist_ptr >= 1);
 
     // Clear the previous history strings
-    for (hist_ptr = 0; hist_ptr < 4; hist_ptr++) {
-        py.misc.history[hist_ptr][0] = '\0';
-    }
+    player_history_clear();
 
     // Process block of history text for pretty output
     int end_pos = (int)strlen(history_block) - 1;
@@ -246,8 +273,14 @@ static void get_history(void) {
             flag = true;
         }
 
-        (void)strncpy(py.misc.history[line_ctr], &history_block[start_pos], cur_len);
-        py.misc.history[line_ctr][cur_len] = '\0';
+        // 折りかえした 1 行を局所で組みたててから渡す。cur_len は上の枝で
+        // 60 に留められているので、終端を入れて PLAYER_HISTORY_LINE_SIZE に
+        // ちょうど収まる（フィールドに直に書いていたころ、60 字の行の終端は
+        // **次の行の先頭**に落ちていた —— bug candidate B21。types.h 参照）。
+        char line[PLAYER_HISTORY_LINE_SIZE];
+        (void)strncpy(line, &history_block[start_pos], (size_t)cur_len);
+        line[cur_len] = '\0';
+        player_history_line_set(line_ctr, line);
         line_ctr++;
         start_pos = new_start;
     } while (!flag);
@@ -258,7 +291,7 @@ static void get_history(void) {
     } else if (social_class < 1) {
         social_class = 1;
     }
-    py.misc.sc = social_class;
+    player_social_class_set(social_class);
 }
 
 // Gets the character's sex -JWT-
@@ -274,11 +307,11 @@ static void get_sex(void) {
         // speed not important here
         c = inkey();
         if (c == 'f' || c == 'F') {
-            py.misc.male = false;
+            player_set_male(false);
             put_buffer("Female", 4, 15);
             exit_flag = true;
         } else if (c == 'm' || c == 'M') {
-            py.misc.male = true;
+            player_set_male(true);
             put_buffer("Male", 4, 15);
             exit_flag = true;
         } else if (c == '?') {
@@ -291,16 +324,18 @@ static void get_sex(void) {
 
 // Computes character's age, height, and weight -JWT-
 static void get_ahw(void) {
-    int i = py.misc.prace;
-    py.misc.age = race[i].b_age + randint((int)race[i].m_age);
-    if (py.misc.male) {
-        py.misc.ht = randnor((int)race[i].m_b_ht, (int)race[i].m_m_ht);
-        py.misc.wt = randnor((int)race[i].m_b_wt, (int)race[i].m_m_wt);
+    int i = player_race();
+    player_age_set(race[i].b_age + randint((int)race[i].m_age));
+    if (player_is_male()) {
+        player_height_set(randnor((int)race[i].m_b_ht, (int)race[i].m_m_ht));
+        // 体の重さも窓口へ（#18-12-23B）。**男女で race[] の別の列**を引くので
+        // 2 行になるが、窓口から見れば同じ 1 本の置きなおし。
+        player_body_weight_set(randnor((int)race[i].m_b_wt, (int)race[i].m_m_wt));
     } else {
-        py.misc.ht = randnor((int)race[i].f_b_ht, (int)race[i].f_m_ht);
-        py.misc.wt = randnor((int)race[i].f_b_wt, (int)race[i].f_m_wt);
+        player_height_set(randnor((int)race[i].f_b_ht, (int)race[i].f_m_ht));
+        player_body_weight_set(randnor((int)race[i].f_b_wt, (int)race[i].f_m_wt));
     }
-    py.misc.disarm = race[i].b_dis + todis_adj();
+    player_disarm_set(race[i].b_dis + todis_adj());
 }
 
 // Gets a character class -JWT-
@@ -312,7 +347,7 @@ static void get_class(void) {
         cl[j] = 0;
     }
 
-    int i = py.misc.prace;
+    int i = player_race();
     int j = 0;
     int k = 0;
     int l = 2;
@@ -337,10 +372,12 @@ static void get_class(void) {
         mask <<= 1;
     } while (j < MAX_CLASS);
 
-    py.misc.pclass = 0;
+    // **メニューの前の 0 は人物の答えにならない** —— このループは答えずには
+    // 出られないので、下の `player_class_set(cl[j])` がかならず上書きする
+    // （player_class.h の「一生で 2 回」）。
+    player_class_set(0);
 
     int min_value, max_value;
-    struct misc *m_ptr;
     player_type *p_ptr;
     class_type *c_ptr;
     char s;
@@ -351,8 +388,11 @@ static void get_class(void) {
         s = inkey();
         j = s - 'a';
         if ((j < k) && (j >= 0)) {
-            py.misc.pclass = cl[j];
-            c_ptr = &class[py.misc.pclass];
+            player_class_set(cl[j]);
+            // **階級が何をくれるかは窓口の外**（player_class.h の 3 つめ）——
+            // 窓口が返すのは行番号だけで、この 1 行から下の 6 つの補正・体力の
+            // 骰子・静かさ・経験の倍率・称号はぜんぶ表の欄。
+            c_ptr = &class[player_class()];
             exit_flag = true;
             clear_from(20);
             put_buffer(c_ptr->title, 5, 15);
@@ -370,45 +410,48 @@ static void get_class(void) {
                 set_use_stat(i);
             }
 
-            p_ptr->misc.ptodam = todam_adj(); // Real values
-            p_ptr->misc.ptohit = tohit_adj();
-            p_ptr->misc.ptoac = toac_adj();
-            p_ptr->misc.pac = 0;
+            // Real values（#18-12-24B）。:122 の仮の値を捨てて置きなおす ——
+            // 職業の madj_str / madj_dex がここまでに能力値を動かしているから。
+            player_attack_bonuses_set(tohit_adj(), todam_adj());
+            player_armour_class_reset(toac_adj());
             // Displayed values: a copy of the real plusses, with the visible
             // bonus folded into the visible total. Nothing is worn yet, so the
-            // armour the sheet shows is only what the bonus is worth (pac is 0
-            // on the line above).
-            player_display_start_from_real(p_ptr->misc.ptohit, p_ptr->misc.ptodam, p_ptr->misc.ptoac);
+            // armour the sheet shows is only what the bonus is worth (the line
+            // above put the armour half at zero).
+            player_display_start_from_real((int16_t)player_to_hit_bonus(), (int16_t)player_to_damage_bonus(), (int16_t)player_armour_class_magical());
             player_display_fold_to_ac();
 
             // now set misc stats, do this after setting stats because of con_adj() for hitpoints
-            m_ptr = &py.misc;
-            m_ptr->hitdie += c_ptr->adj_hd;
-            player_reset_hp((int16_t)(con_adj() + m_ptr->hitdie));
+            player_hit_die_adjust(c_ptr->adj_hd);
+            player_reset_hp((int16_t)(con_adj() + player_hit_die()));
 
             // Initialize hit_points array.
             // Put bounds on total possible hp, only succeed
             // if it is within 1/8 of average value.
-            min_value = (MAX_PLAYER_LEVEL * 3 / 8 * (m_ptr->hitdie - 1)) + MAX_PLAYER_LEVEL;
-            max_value = (MAX_PLAYER_LEVEL * 5 / 8 * (m_ptr->hitdie - 1)) + MAX_PLAYER_LEVEL;
-            set_hp_total_at_level(1, m_ptr->hitdie);
+            min_value = (MAX_PLAYER_LEVEL * 3 / 8 * (player_hit_die() - 1)) + MAX_PLAYER_LEVEL;
+            max_value = (MAX_PLAYER_LEVEL * 5 / 8 * (player_hit_die() - 1)) + MAX_PLAYER_LEVEL;
+            set_hp_total_at_level(1, (uint16_t)player_hit_die());
             do {
                 // i は添字ではなくレベル - 1 のまま回す（振る回数と順番を
                 // 変えないため）。level i + 1 の合計は、その段の振りに
                 // 1 つ下の段までの合計を足したもの。
                 for (i = 1; i < MAX_PLAYER_LEVEL; i++) {
-                    set_hp_total_at_level(i + 1, (uint16_t)(randint((int)m_ptr->hitdie) + hp_total_at_level(i)));
+                    set_hp_total_at_level(i + 1, (uint16_t)(randint(player_hit_die()) + hp_total_at_level(i)));
                 }
             } while ((hp_total_at_level(MAX_PLAYER_LEVEL) < min_value) ||
                      (hp_total_at_level(MAX_PLAYER_LEVEL) > max_value));
 
-            m_ptr->bth += c_ptr->mbth;
-            m_ptr->bthb += c_ptr->mbthb; // RAK
-            m_ptr->srh += c_ptr->msrh;
-            m_ptr->disarm += c_ptr->mdis;
-            m_ptr->fos += c_ptr->mfos;
-            m_ptr->stl += c_ptr->mstl;
-            m_ptr->save += c_ptr->msav;
+            // 階級ぶんは 2 つの数が別々（振るのと射るのは別の腕）。 // RAK
+            player_base_to_hit_adjust(c_ptr->mbth, c_ptr->mbthb);
+            // 階級ぶんは対で足す 1 本（#18-12-25B）。**どちらの引数も正** ——
+            // 装備のほうは (amount, -amount) で呼ぶが、符号は呼び手のもの。
+            player_search_skill_adjust(c_ptr->msrh, c_ptr->mfos);
+            player_disarm_adjust(c_ptr->mdis);
+            // 階級ぶんは足す 1 本（#18-12-27B）。**引数は正** —— どの階級も
+            // 静かさを足すので、創成が置ける下端は -1（Half-Troll の Warrior）。
+            // **この 1 行で `struct misc *m_ptr` が死んだ**。
+            player_stealth_adjust(c_ptr->mstl);
+            player_saving_throw_adjust(c_ptr->msav);
             player_set_experience_factor((uint8_t)(player_experience_factor() + c_ptr->m_exp));
         } else if (s == '?') {
             helpfile(MORIA_WELCOME);
@@ -432,12 +475,12 @@ static void get_money(void) {
               monval(a_ptr[A_CON]) +
               monval(a_ptr[A_DEX]);
 
-    int gold = py.misc.sc * 6 + randint(25) + 325; // Social Class adj
+    int gold = player_social_class() * 6 + randint(25) + 325; // Social Class adj
     gold -= tmp;                                   // Stat adj
     gold += monval(a_ptr[A_CHR]);                  // Charisma adj
 
     // She charmed the banker into it! -CJS-
-    if (!py.misc.male) {
+    if (!player_is_male()) {
         gold += 50;
     }
 

@@ -32,8 +32,18 @@
 #include "fixture.h"
 #include "inventory.h"
 #include "item_ident.h"
+#include "player_attack_bonuses.h"
+#include "player_base_to_hit.h"
+#include "player_bio.h"
+#include "player_class.h"
+#include "player_stealth.h"
+#include "player_body_weight.h"
+#include "player_disarm.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_race.h"
+#include "player_saving_throw.h"
+#include "player_search_skill.h"
 #include "player_speed.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
@@ -359,6 +369,122 @@ void fixture_reset(void)
      * 残っていると message が出ず、それを読む 2 件が落ちる。
      * **0 が人物の走りだし**（戦士はずっと 0）。 */
     player_spells_to_learn_set(0);
+    /* 素の命中力の 2 本も #18-12-19C で src/player_base_to_hit.c の static へ
+     * 移ったので、py を消しても届かない。**外してもレッドにはならない** ——
+     * この数を読む 3 件（xbth の 2 つと xbthb）はどれも自分で 24 を置いてから
+     * 読むので、前の件が残した数を見る件が無い（実際に外して確かめた。
+     * 速さと赤外視の 2 行と同じ側で、呪文の 1 行とは違う）。それでも足すのは、
+     * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。
+     * **2 本まとめて 0 へ**（どちらも種族を選ぶまで 0）。 */
+    player_base_to_hit_set(0, 0);
+    /* 罠と鍵をはずす腕も #18-12-20C で src/player_disarm.c の static へ移った。
+     * **この 1 行は外すと本当にレッドになる**（呪文の 1 行と同じ側で、素の
+     * 命中力・速さ・赤外視の 3 行とは違う）—— class_level_adj の列を見る
+     * xdis_uses_the_disarm_column_of_class_level_adj は自分で腕を置かず、
+     * 階級の項だけを見たいので 0 から始まることに頼っている。前の 2 件が
+     * 置いた 40 と 32 が残ると "Fair" のはずが "Excellent" になる
+     * （C の段で実際にこの 1 件が落ちて気づいた）。
+     * **0 が人物の走りだし**（Human は種族の土台も創成時の下駄も 0）。 */
+    player_disarm_set(0);
+    /* 抵抗も #18-12-21C で src/player_saving_throw.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにはならない —— ただし今の並びの
+     * おかげでしかない**（下調べでは「外すと落ちる」と読んでいたが外れた）。
+     * 0 から始まることに頼っている件が 3 つある
+     * （xdev_uses_the_device_column_of_class_level_adj・
+     * xsave_uses_the_save_column_of_class_level_adj・
+     * xsave_class_bonus_divides_evenly_when_product_is_multiple_of_three）が、
+     * その前に数を置く 5 件の**最後が置くのがたまたま 0**（xdev_is_based_on_
+     * save_not_disarm）なので今は通る。そこを 30 に変えると 3 件とも落ちるのを
+     * 確かめた —— **並びが変わったら落ちる側**で、この 1 行がそれを止める。
+     * **0 が人物の走りだし**（Human は種族の土台が 0 で、焼きこむ下駄も無い）。 */
+    player_saving_throw_set(0);
+    /* どの種族かも #18-12-22C で src/player_race.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにはならない —— しかも今回は
+     * 並びではなく中身から言える**（21 つめは並びのおかげだった）。
+     * この行番号を読む既存の件は 1 つも無く、変異を入れても 11 本のどれにも
+     * 1 件も出ないのを確かめてある（読みに +1 で module の 14 件だけが落ちる）。
+     * それでも足すのは、上の約束（各件は 0 から始まる）を黙って嘘にしないため。
+     * **0 が人物の走りだし**で、race[] の 0 行めはちょうど Human。 */
+    player_race_set(0);
+    /* 体の重さも #18-12-23C で src/player_body_weight.c の static へ移った。
+     * **この 1 行は外してもレッドにならないが、0 は既存の件の期待値に
+     * 乗っている** —— check_strength_test の
+     * the_limit_for_an_average_character_is_thirteen_hundred が読み返す 1300 は
+     * 10 × PLAYER_WEIGHT_CAP ＋ **0** で、体重を置く件は 1 つも無い。
+     * **「外しても緑」と「0 が当てにされている」は別のこと**で、21 つめ
+     * （どちらも無し）とここで分かれる。だから必ず 0 に戻す。
+     * **0 が人物の走りだし**（創成が重さを振るまで体重は無い）。 */
+    player_body_weight_set(0);
+    /* 命中と打撃の下駄も #18-12-24C で src/player_attack_bonuses.c の static 2 つへ
+     * 移ったので、py を消しても届かない。**外してもレッドにはならない —— 21・
+     * 22 つめと同じく並びのおかげで、しかも綱わたりが 1 本ある**。0 から始まる
+     * ことに頼っている件が 3 つ（xbth_uses_the_bth_column_of_class_level_adj・
+     * xbthb_uses_the_bthb_column_of_class_level_adj・
+     * xbth_is_bth_itself_when_ptohit_is_zero）あり、下駄に 4 を置く 2 件
+     * （xbth_adds_three_times_ptohit と xbthb_…）は **main() でその 3 つより
+     * あとに並んでいる**から今は通る。順を入れかえたら落ちる側。
+     * **対で 0 へ**（どちらも創成が能力値を振るまで 0 で、ふつうの能力値でも 0）。 */
+    player_attack_bonuses_set(0, 0);
+    /* 探索の腕と頻度も #18-12-25C で src/player_search_skill.c の static 2 つへ
+     * 移った。**外してもレッドにならず、0 を当てにしている件も 1 つも無い** ——
+     * 21 つめ（どちらも無し）と同じ側で、24 つめの綱わたりとは違う。この 2 つを
+     * 読む既存の件は 5 つ（xfos の 4 件と xsrh の 1 件）だけで、**どれも自分が
+     * 読む数を自分で置いてから put_misc3() を呼ぶ**ので、並びを変えても落ちない。
+     * **確かめた** —— この 2 行を足す前にグリーン 1448 件。
+     * **それでも足すのは、2 つの 0 の意味が違うことを黙って隠さないため。**
+     * 腕の 0 は本当の答え（search() に 0 が渡る＝何も見つけられない）だが、
+     * **頻度の 0 はふつうの答えではない** —— 本物の人物は種族の表から必ず値を
+     * 持ち、randint(0) を訊く者は居ない（読み手が `<= 1` で先に囲う）。
+     * 置く窓口が 2 本あるので 2 行になる（対で置く窓口は無い。wizard.c が
+     * 腕だけを置くから —— player_search_skill.h）。 */
+    player_search_chance_set(0);
+    player_search_frequency_set(0);
+    /* 人物の身上書きの 6 つも #18-12-26C で src/player_bio.c の static 6 つへ
+     * 移ったので、py を消しても届かない。**外してもレッドにならず、0 を当てに
+     * している既存の件も 1 つも無い** —— 21・25 つめと同じ側で、23 つめの
+     * 「0 が期待値に乗っている」とも 24 つめの綱わたりとも違う。**この 6 つを
+     * 読む既存の件は 1 つも無い**（put_character() と put_misc1() を呼ぶテストが
+     * そもそも無く、6 つの窓口を名ざす既存の件も無い）。**確かめた** —— この
+     * 6 行を足さずに全 1481 件がグリーンになるのを見た。
+     * **それでも足すのは、6 つとも「0 が人物の走りだし」だから** ——
+     * 名前も無く、男でもなく、年齢も身長も階層も 0 で、生い立ちは 4 行とも空。
+     * py を memset していたころに書いてあった約束（各件は白紙の人物から
+     * 始まる）を、置き場が移ったせいで黙って嘘にしないため。
+     * 置く窓口が 5 本と消す窓口 1 本なので 6 行になる（`_adjust` は 1 本も
+     * 無い —— 誰も年齢を足さない。player_bio.h）。 */
+    player_name_set("");
+    player_set_male(false);
+    player_age_set(0);
+    player_height_set(0);
+    player_social_class_set(0);
+    player_history_clear();
+    /* 足音の静かさも #18-12-27C で src/player_stealth.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにならない** —— この数を読む既存の
+     * 2 件（xstl の語）は **B で自分で置くように書きかえた**ので、走りだしの 0 に
+     * よりかかっていない。**確かめた** —— この 1 行を足さずに全 1497 件が
+     * グリーンになるのを見た。
+     * **それでも足すのは、0 が「まだ種族を選んでいない」人物だから** ——
+     * py を memset していたころの約束（各件は白紙の人物から始まる）を、置き場が
+     * 移ったせいで黙って嘘にしないため。0 は Human の種族の土台でもあるが、
+     * **どの階級も 1 以上足すので、振りおわった人物が 0 で居ることはない**
+     * （player_stealth.h）。置く窓口 1 本なので 1 行（`_adjust` は足場の仕事では
+     * ない）。 */
+    player_stealth_set(0);
+    /* どの階級かも #18-12-28C で src/player_class.c の static へ移ったので、
+     * py を消しても届かない。**外してもレッドにならない** —— この行番号を読む
+     * 既存の件（calc_spells の 17・gain_spells の 13・put_misc3 の 8）は
+     * **どれも B で自分で階級を置くように書きかえた**ので、走りだしの 0 に
+     * よりかかっていない。**確かめた** —— この 1 行を足さずに全 1517 件が
+     * グリーンになるのを見た（21・25・26 つめと同じ側）。
+     * **それでも足すのは、0 が「まだ階級を選んでいない」人物だから** ——
+     * get_class() がメニューの前に置くのと同じ 0 で（たまたま class[] の
+     * 0 行め Warrior でもある）、py を memset していたころの約束（各件は白紙の
+     * 人物から始まる）を、置き場が移ったせいで黙って嘘にしないため。
+     * 置く窓口 1 本なので 1 行（`_adjust` は無いし、これからも無い ——
+     * 人物はローグに「なっていく」ものではない。player_class.h）。
+     * **税は 0 本** —— この足場をリンクする 9 本は 9 本とも
+     * すでに src/player_class.c を張っている（所見 34・48）。 */
+    player_class_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     memset(fixture_screen, 0, sizeof fixture_screen);

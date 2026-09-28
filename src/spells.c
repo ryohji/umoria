@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "panel.h"
 #include "player_abilities.h"
+#include "player_class.h"
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_pos.h"
@@ -1951,8 +1952,6 @@ void lose_chr(void) {
 
 // Lose experience -RAK-
 void lose_exp(int32_t amount) {
-    struct misc *m_ptr = &py.misc;
-
     player_lose_experience(amount);
 
     prt_experience();
@@ -1962,12 +1961,10 @@ void lose_exp(int32_t amount) {
     if (player_recompute_level()) {
         calc_hitpoints();
 
-        class_type *c_ptr = &class[m_ptr->pclass];
-
-        if (c_ptr->spell == MAGE) {
+        if (player_class_spell_type() == MAGE) {
             calc_spells(A_INT);
             calc_mana(A_INT);
-        } else if (c_ptr->spell == PRIEST) {
+        } else if (player_class_spell_type() == PRIEST) {
             calc_spells(A_WIS);
             calc_mana(A_WIS);
         }

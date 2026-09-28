@@ -32,8 +32,15 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "player_attack_bonuses.h"
+#include "player_base_to_hit.h"
+#include "player_class.h"
+#include "player_disarm.h"
+#include "player_search_skill.h"
 #include "player_infra_range.h"
 #include "player_level.h"
+#include "player_saving_throw.h"
+#include "player_stealth.h"
 
 extern player_type py;
 
@@ -64,7 +71,8 @@ void put_misc3(void);
 /* ------------------------------------------------------------------
  * 条件づくりの補助関数
  *
- * fixture_reset() が py を丸ごと 0 にするので、pclass は 0（Warrior）、
+ * fixture_reset() が階級とレベルを窓口越しに 0 へ戻すので（#18-12-28C と
+ * #18-12-6C で置き場が module の static へ移った）、階級は 0（Warrior）で
  * lev も 0 から始まる。lev が 0 なら class_level_adj の項が消えるので、
  * 素の式だけを見たいテストは lev を触らない。
  * ------------------------------------------------------------------ */
@@ -75,7 +83,7 @@ void put_misc3(void);
  * 行は 0 Warrior {4,4,2,2,3}, 1 Mage {2,2,4,3,3}, 3 Rogue {3,4,3,4,3}。 */
 static void given_class_and_level(int pclass, int lev)
 {
-    py.misc.pclass = (uint8_t)pclass;
+    player_class_set(pclass);
     player_set_level((uint16_t)lev);
 }
 
@@ -119,7 +127,7 @@ static void given_intelligence_high_and_wisdom_low(void)
 
 TEST(xstl_is_stl_plus_one)
 {
-    py.misc.stl = 1;
+    player_stealth_set(1);
     put_misc3();
     ASSERT_EQ_STR(AT_STEALTH, "Poor"); /* xstl=2 -> 2/1=2 */
 }
@@ -128,7 +136,7 @@ TEST(xstl_is_stl_plus_one)
  * +1 しているので成りたたない。stl=0 でも xstl は 1 になる。 */
 TEST(xstl_is_one_when_stl_is_zero)
 {
-    py.misc.stl = 0;
+    player_stealth_set(0);
     put_misc3();
     ASSERT_EQ_STR(AT_STEALTH, "Bad"); /* xstl=1 -> 1/1=1 */
 }
@@ -139,14 +147,14 @@ TEST(xstl_is_one_when_stl_is_zero)
 
 TEST(xfos_is_forty_minus_fos_when_fos_is_below_forty)
 {
-    py.misc.fos = 22;
+    player_search_frequency_set(22); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Very Good"); /* xfos=18 -> 18/3=6 */
 }
 
 TEST(xfos_is_zero_when_fos_is_exactly_forty)
 {
-    py.misc.fos = 40;
+    player_search_frequency_set(40); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Bad"); /* xfos=0 -> 0/3=0 */
 }
@@ -155,7 +163,7 @@ TEST(xfos_is_zero_when_fos_is_exactly_forty)
  * likert の default に落ちて "Superb" になるので判別できる。 */
 TEST(xfos_is_clamped_to_zero_when_fos_exceeds_forty)
 {
-    py.misc.fos = 52;
+    player_search_frequency_set(52); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Bad");
 }
@@ -169,7 +177,7 @@ TEST(xfos_is_clamped_to_zero_when_fos_exceeds_forty)
  * このテストはそれを固定する。 */
 TEST(xfos_exceeds_twenty_nine_when_fos_falls_below_eleven)
 {
-    py.misc.fos = 2;
+    player_search_frequency_set(2); /* #18-12-25B で窓口へ */
     put_misc3();
     ASSERT_EQ_STR(AT_PERCEPTION, "Superb"); /* xfos=38 -> 38/3=12 */
 }
@@ -201,7 +209,7 @@ TEST(xinfra_is_see_infra_times_ten_in_feet)
  * 8 のままで "Bad" になるので判別できる。 */
 TEST(xsave_uses_wisdom_not_intelligence)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_wisdom_high_and_intelligence_low();
     put_misc3();
     ASSERT_EQ_STR(AT_SAVING_THROW, "Poor"); /* 12/6=2 */
@@ -210,16 +218,16 @@ TEST(xsave_uses_wisdom_not_intelligence)
 /* 逆向き。A_INT だけ高くても xsave は上がらない。 */
 TEST(xsave_is_unaffected_by_intelligence)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_intelligence_high_and_wisdom_low();
     put_misc3();
     ASSERT_EQ_STR(AT_SAVING_THROW, "Bad"); /* 8/6=1 */
 }
 
-/* xdev は xsave と同じ p_ptr->save を基にしつつ stat_adj は A_INT。 */
+/* xdev は xsave と同じ抵抗の 1 本を基にしつつ stat_adj は A_INT。 */
 TEST(xdev_uses_intelligence_not_wisdom)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_intelligence_high_and_wisdom_low();
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Poor"); /* 12/6=2 */
@@ -227,18 +235,19 @@ TEST(xdev_uses_intelligence_not_wisdom)
 
 TEST(xdev_is_unaffected_by_wisdom)
 {
-    py.misc.save = 8;
+    player_saving_throw_set(8);
     given_wisdom_high_and_intelligence_low();
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Bad"); /* 8/6=1 */
 }
 
-/* SUSPICIOUS: xdev は disarm ではなく p_ptr->save を基にしている
- * （xsave と同じ）。意図的かどうかは判断できないので固定するだけ。 */
+/* SUSPICIOUS: xdev は disarm ではなく抵抗の 1 本を基にしている
+ * （xsave と同じ）。意図的かどうかは判断できないので固定するだけ。
+ * #18-12-21B でどちらも窓口ごしになり、同じ 1 本だとひと目で分かる。 */
 TEST(xdev_is_based_on_save_not_disarm)
 {
-    py.misc.save = 0;
-    py.misc.disarm = 40;
+    player_saving_throw_set(0);
+    player_disarm_set(40); /* #18-12-20B で窓口へ */
     given_intelligence_high_and_wisdom_low();
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Bad"); /* 0+4=4, 4/6=0 */
@@ -323,29 +332,30 @@ TEST(xdev_class_bonus_is_truncated_when_product_is_not_multiple_of_three)
 {
     given_class_and_level(1, 5);
     given_stat(A_INT, 7);
-    py.misc.save = 6;
+    player_saving_throw_set(6);
     put_misc3();
     ASSERT_EQ_STR(AT_MAGIC_DEVICE, "Poor"); /* 6+6=12, 12/6=2 */
 }
 
 /* ------------------------------------------------------------------
- * xbth -- ptohit に BTH_PLUS_ADJ（3）が掛かる
+ * xbth -- 命中の下駄に BTH_PLUS_ADJ（3）が掛かる（#18-12-24 の窓口）
  * ------------------------------------------------------------------ */
 
-/* ptohit=0 なら bth がそのまま出る。次のテストの基準値。 */
+/* 命中の下駄が 0 なら bth がそのまま出る。次のテストの基準値。
+ * **打撃のほうは 0 で置きっぱなし** —— この画面は打撃の下駄を見ない。 */
 TEST(xbth_is_bth_itself_when_ptohit_is_zero)
 {
-    py.misc.bth = 24;
-    py.misc.ptohit = 0;
+    player_base_to_hit_set_melee(24); /* #18-12-19B で窓口へ */
+    player_attack_bonuses_set(0, 0);  /* #18-12-24B で窓口へ（対で置く） */
     put_misc3();
     ASSERT_EQ_STR(AT_FIGHTING, "Poor"); /* 24/12=2 */
 }
 
-/* ptohit=4 なら 4*3=12 が乗って 36。係数がなければ 28 で "Poor"。 */
+/* 命中の下駄が 4 なら 4*3=12 が乗って 36。係数がなければ 28 で "Poor"。 */
 TEST(xbth_adds_three_times_ptohit)
 {
-    py.misc.bth = 24;
-    py.misc.ptohit = 4;
+    player_base_to_hit_set_melee(24); /* #18-12-19B で窓口へ */
+    player_attack_bonuses_set(4, 0);  /* #18-12-24B で窓口へ（対で置く） */
     put_misc3();
     ASSERT_EQ_STR(AT_FIGHTING, "Fair"); /* 36/12=3 */
 }
@@ -353,8 +363,8 @@ TEST(xbth_adds_three_times_ptohit)
 /* xbthb も同じ係数を使う（基は bthb）。 */
 TEST(xbthb_adds_three_times_ptohit_to_bthb)
 {
-    py.misc.bthb = 24;
-    py.misc.ptohit = 4;
+    player_base_to_hit_set_with_bows(24); /* #18-12-19B で窓口へ */
+    player_attack_bonuses_set(4, 0);      /* #18-12-24B で窓口へ（対で置く） */
     put_misc3();
     ASSERT_EQ_STR(AT_BOWS, "Fair"); /* 36/12=3 */
 }
@@ -365,7 +375,7 @@ TEST(xbthb_adds_three_times_ptohit_to_bthb)
 
 TEST(xsrh_is_srh_without_any_adjustment)
 {
-    py.misc.srh = 32;
+    player_search_chance_set(32); /* #18-12-25B で窓口へ */
     given_class_and_level(1, 20); /* class の項が乗らないことも確かめる */
     put_misc3();
     ASSERT_EQ_STR(AT_SEARCHING, "Good"); /* 32/6=5 */
@@ -379,7 +389,7 @@ TEST(xsrh_is_srh_without_any_adjustment)
  * 2 倍しなければ 36 で "Fair" になるので判別できる。 */
 TEST(xdis_adds_twice_the_dexterity_adjustment)
 {
-    py.misc.disarm = 32;
+    player_disarm_set(32); /* #18-12-20B で窓口へ */
     given_stat(A_DEX, 18);
     given_stat(A_INT, 7);
     put_misc3();

@@ -14,6 +14,8 @@
 
 #include "externs.h"
 
+#include "player_bio.h"
+
 void ident_char(void) {
     char command;
     if (get_com("Enter character to be identified :", &command)) {
@@ -113,7 +115,7 @@ void ident_char(void) {
             prt("? - A scroll.", 0, 0);
             break;
         case '@':
-            prt(py.misc.name, 0, 0);
+            prt(player_name(), 0, 0);
             break;
         case 'A':
             prt("A - Giant Ant Lion.", 0, 0);
