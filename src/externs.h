@@ -12,10 +12,6 @@
 // 誰も気づけなかった。include を入れて食いちがいを見つけた。
 extern const char *copyright[17];
 
-// horrible hack: needed because compact_monster() can be called from
-// deep within creatures() via place_monster() and summon_monster().
-extern int hack_monptr;
-
 // These are options, set with set_options command -CJS-
 extern bool rogue_like_commands;
 extern bool find_cut;          // Cut corners on a run

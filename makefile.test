@@ -2060,13 +2060,13 @@ $(BUILDDIR)/player_class_test: $(TESTDIR)/player_class_test.c \
 # か py にあり、足場（tests/*_fixture.c）で器を 1 つ置いてから C で捨てて
 # いた。
 #
-# **そのぶん A のあいだは器が 2 つある** —— variable.c:39 の `hack_monptr`
-# （本体が使う）と、この module の static（テストだけが見る）。食いちがう
-# 心配が無いのは、**本体がまだ窓口を 1 つも呼んでいない**から
-# （ステップ A は保護だけ）。B で creature.c の 10 の代入・misc1.c と
-# moria3.c の比較・game_state.c の写しとりを窓口に差しかえると、**置き場の
-# 引っこしも同時に済む**（呼び手が窓口を通れば触る器はこちらになる）。
-# C に残るのは variable.c と externs.h から古い 1 行を消す仕事だけ。
+# **そのぶん A のあいだは器が 2 つあった** —— variable.c:39 の `hack_monptr`
+# （本体が使っていた）と、この module の static（テストだけが見ていた）。
+# 食いちがう心配が無かったのは、**A の段では本体が窓口を 1 つも呼んで
+# いない**から（A は保護だけ）。B で creature.c の 10 の代入・misc1.c と
+# moria3.c の比較・game_state.c の写しとりを窓口に差しかえたところで
+# **置き場の引っこしも済み**（呼び手が窓口を通れば触る器はこちら）、
+# C は variable.c と externs.h から古い 1 行を消すだけで終わった。
 #
 # **B で増えた recipe は 1 本だけ** —— movement_rate_test（src/creature.c を
 # 丸ごと #include する）。窓口を呼ぶのは 4 ファイル（creature.c 10 か所・

@@ -100,7 +100,14 @@ GROUPS = {
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
         cave dun_level cur_height cur_width m_list m_level mfptr mon_tot_mult
-        t_list tcptr hack_monptr""",
+        t_list tcptr""",
+    # いま creatures() が誰の手番を処理しているか（hack_monptr）は #18-14-1C で
+    # monster_turn.c の static になり、externs.h から外れた。窓口は
+    # src/monster_turn.h（monster_turn_begin / monster_turn_end /
+    # monster_delete_may_shift / monster_turn_index）。読み手 2 つが
+    # `hack_monptr < i` と手で書いていた比較に名前が付いた ——
+    # 「その席を詰めなおしてよいか」。**この区分の 1 問め**で、残る 10 個は
+    # 手番とは独立なので残す。
     # レベルごとに並べたダンジョンの品物表（sorted_objects と t_level）は
     # #18-10-C で object_levels.c の static になり、externs.h から外れた。窓口は
     # src/object_levels.h（object_levels_init / object_at_level_position /

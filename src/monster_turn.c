@@ -26,11 +26,12 @@
 // which is what lets one comparison serve as both "the walk has not got here
 // yet" and "there is no walk".
 //
-// FOR ONE STEP THERE ARE TWO OF THESE. The old `hack_monptr` is still in
-// variable.c and the game is still using it; nothing calls the windows below
-// yet, so the row here is only reachable from the unit test. The step that
-// points creature.c, misc1.c, moria3.c and game_state.c at the windows moves
-// the storage at the same time, and the step after that deletes the old line.
+// FOR ONE STEP THERE WERE TWO OF THESE. The row went in here at #18-14-1A,
+// while the game was still using `hack_monptr` in variable.c and nothing called
+// the windows -- safe only because the unit test was the row's only reader.
+// Pointing creature.c, misc1.c, moria3.c and game_state.c at the windows
+// (#18-14-1B) moved the storage as well as the call sites, and #18-14-1C deleted
+// the old line from variable.c and externs.h.
 static int the_turn = -1;
 
 void monster_turn_begin(int index) {

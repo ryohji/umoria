@@ -34,9 +34,13 @@ const char *copyright[17] = {
     "You should have received a copy of the GNU General Public License ",
     "along with Umoria.  If not, see <http://www.gnu.org/licenses/>."};
 
-// a horrible hack: needed because compact_monster() can be called from
-// creatures() via summon_monster() and place_monster()
-int hack_monptr = -1;
+// hack_monptr（いま creatures() が誰の手番を処理しているか）はここに無い。
+// #18-14-1C で src/monster_turn.c の static になった。窓口は
+// src/monster_turn.h（monster_turn_begin / monster_turn_end /
+//  monster_delete_may_shift / monster_turn_index）。読み手 2 つが
+// `hack_monptr < i` と手で書いていた比較には名前が付いた ——
+// 「その席を詰めなおしてよいか」。上流の「horrible hack」の註は
+// 呼び手（misc1.c と moria3.c）と窓口の記録に残っている。
 
 // weapon_heavy と pack_heavy（重さに負けているか）はここに無い。#18-7-4C1 で
 // src/burden.c の static になった。窓口は src/burden.h
