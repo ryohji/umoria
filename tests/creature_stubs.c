@@ -53,6 +53,12 @@ player_type py;
 uint32_t player_exp[MAX_PLAYER_LEVEL];
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 monster_type m_list[MAX_MALLOC];
+/* 白紙のモンスター 1 体。#18-14-4B で src/monster_list.c をリンクするように
+ * なったので要る（階の頭で全行に書き、返した行を白紙に戻すのに使う）。
+ * 本物は monsters.c の定義表のとなりで、あちらはこの実行形式に来ない。
+ * m_list / mfptr の 2 行は #18-14-4C で消えるが、**この 1 行は残る** ——
+ * blank_monster はこの問いの主題ではなく定数表の側。 */
+monster_type blank_monster;
 inven_type t_list[MAX_TALLOC];
 /* 居場所の 2 個（char_row / char_col）もここに無い。#18-6C1 で
  * src/player_pos.c が static で持つようになったので、代役を置くと窓口越しの

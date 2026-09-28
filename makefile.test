@@ -644,6 +644,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/running.c src/running.h \
                                 src/monster_turn.c src/monster_turn.h \
                                 src/monster_breeding.c src/monster_breeding.h \
+                                src/monster_list.c src/monster_list.h \
                                 src/player_level.c src/player_level.h \
                                 src/player_status_flags.c src/player_status_flags.h \
                                 src/player_abilities.c src/player_abilities.h \
@@ -657,7 +658,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
 	    src/screen_touched.c src/running.c src/monster_turn.c \
-	    src/monster_breeding.c \
+	    src/monster_breeding.c src/monster_list.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_infra_range.c src/player_glowing_hands.c \

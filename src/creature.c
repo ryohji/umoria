@@ -17,6 +17,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "monster_breeding.h"
+#include "monster_list.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "player_abilities.h"
@@ -43,7 +44,7 @@ void update_mon(int monptr) {
     creature_type *r_ptr;
 
     bool flag = false;
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
 
     // Asked once and held in one place: the condition below read the same
     // number twice.
@@ -132,7 +133,7 @@ static bool check_mon_lite(int y, int x) {
         return false;
     } else {
         update_mon(monptr);
-        return m_list[monptr].ml;
+        return monster_list_at(monptr)->ml;
     }
 }
 
@@ -140,8 +141,8 @@ static bool check_mon_lite(int y, int x) {
 static void get_moves(int monptr, int *mm) {
     int ay, ax, move_val;
 
-    int y = m_list[monptr].fy - player_row();
-    int x = m_list[monptr].fx - player_col();
+    int y = monster_list_at(monptr)->fy - player_row();
+    int x = monster_list_at(monptr)->fx - player_col();
 
     if (y < 0) {
         move_val = 8;
@@ -291,7 +292,7 @@ static void make_attack(int monptr) {
         return;
     }
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -895,7 +896,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
     int i = 0;
     bool do_turn = false;
     bool do_move = false;
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     uint32_t movebits = monster_get_creature(m_ptr->creature)->cmove;
 
     do {
@@ -1019,8 +1020,8 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                     // Creature is attempting to move on other creature?
 
                     // Creature eats other creatures?
-                    if ((movebits & CM_EATS_OTHER) && (monster_get_creature(m_ptr->creature)->mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp)) {
-                        if (m_list[c_ptr->cptr].ml) {
+                    if ((movebits & CM_EATS_OTHER) && (monster_get_creature(m_ptr->creature)->mexp >= monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->mexp)) {
+                        if (monster_list_at(c_ptr->cptr)->ml) {
                             *rcmove |= CM_EATS_OTHER;
                         }
 
@@ -1077,7 +1078,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         return;
     }
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
     int chance = (int)(r_ptr->spells & CS_FREQ);
 
@@ -1303,7 +1304,7 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                     // Some critters are cannibalistic!
                     if ((monster_get_creature(creature)->cmove & CM_EATS_OTHER)
                         // Check the experience level -CJS-
-                        && monster_get_creature(creature)->mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp) {
+                        && monster_get_creature(creature)->mexp >= monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->mexp) {
                         // It ate an already processed monster.Handle * normally.
                         if (monptr < c_ptr->cptr) {
                             delete_monster((int)c_ptr->cptr);
@@ -1352,7 +1353,7 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
 static void mon_move(int monptr, uint32_t *rcmove) {
     int i, k;
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     // Does the critter multiply?
@@ -1545,8 +1546,8 @@ void creatures(int attack) {
     vtype cdesc;
 
     // Process the monsters
-    for (int i = mfptr - 1; i >= MIN_MONIX && !player_is_dead(); i--) {
-        m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX && !player_is_dead(); i--) {
+        m_ptr = monster_list_at(i);
         // Get rid of an eaten/breathed on monster.  Note: Be sure not to
         // process this monster. This is necessary because we can't delete
         // monsters while scanning the m_list here.
