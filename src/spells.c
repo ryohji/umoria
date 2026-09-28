@@ -17,6 +17,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "monster_levels.h"
+#include "monster_list.h"
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_class.h"
@@ -36,7 +37,7 @@ int sleep_monsters1(int y, int x) {
         for (int j = x - 1; j <= x + 1; j++) {
             cave_type *c_ptr = &cave[i][j];
             if (c_ptr->cptr > 1) {
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -158,8 +159,8 @@ int detect_sdoor(void) {
 int detect_invisible(void) {
     bool flag = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
 
         if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && (CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove)) {
             m_ptr->ml = true;
@@ -314,8 +315,8 @@ int aggravate_monster(int dis_affect) {
 
     bool aggravate = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        m_ptr = monster_list_at(i);
         m_ptr->csleep = 0;
         if ((m_ptr->cdis <= dis_affect) && (m_ptr->cspeed < 2)) {
             m_ptr->cspeed++;
@@ -428,8 +429,8 @@ int td_destroy(void) {
 int detect_monsters(void) {
     bool detect = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
 
         if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && ((CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove) == 0)) {
             m_ptr->ml = true;
@@ -480,7 +481,7 @@ void light_line(int dir, int y, int x) {
             // set pl in case tl was true above
             c_ptr->pl = true;
             if (c_ptr->cptr > 1) {
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 // light up and draw monster
@@ -632,7 +633,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, const char *bolt_typ) {
             if (c_ptr->cptr > 1) {
                 flag = true;
 
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 // light up monster and draw monster, temporarily set
@@ -726,7 +727,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
 
                             if (c_ptr->fval <= MAX_OPEN_SPACE) {
                                 if (c_ptr->cptr > 1) {
-                                    monster_type *m_ptr = &m_list[c_ptr->cptr];
+                                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                                     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                                     // lite up creature if visible, temp set pl so that update_mon works
@@ -839,7 +840,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                     }
 
                     if (c_ptr->cptr > 1) {
-                        monster_type *m_ptr = &m_list[c_ptr->cptr];
+                        monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                         dam = dam_hp;
@@ -977,7 +978,7 @@ int hp_monster(int dir, int y, int x, int dam) {
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
             monster = true;
@@ -1010,7 +1011,7 @@ int drain_life(int dir, int y, int x) {
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if ((r_ptr->cdefense & CD_UNDEAD) == 0) {
@@ -1050,7 +1051,7 @@ int speed_monster(int dir, int y, int x, int spd) {
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1088,7 +1089,7 @@ int confuse_monster(int dir, int y, int x) {
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1139,7 +1140,7 @@ int sleep_monster(int dir, int y, int x) {
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1213,7 +1214,7 @@ int wall_to_mud(int dir, int y, int x) {
         }
 
         if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if (CD_STONE & r_ptr->cdefense) {
@@ -1289,7 +1290,7 @@ int poly_monster(int dir, int y, int x) {
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
@@ -1340,7 +1341,7 @@ int build_wall(int dir, int y, int x) {
                 // stop the wall building
                 flag = true;
 
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 if (!(r_ptr->cmove & CM_PHASE)) {
@@ -1395,10 +1396,10 @@ bool clone_monster(int dir, int y, int x) {
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            m_list[c_ptr->cptr].csleep = 0;
+            monster_list_at(c_ptr->cptr)->csleep = 0;
 
             // monptr of 0 is safe here, since can't reach here from creatures
-            return multiply_monster(y, x, m_list[c_ptr->cptr].creature, 0);
+            return multiply_monster(y, x, monster_list_at(c_ptr->cptr)->creature, 0);
         }
     } while (!flag);
 
@@ -1409,7 +1410,7 @@ bool clone_monster(int dir, int y, int x) {
 void teleport_away(int monptr, int dis) {
     int yn, xn;
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     int ctr = 0;
 
     do {
@@ -1486,7 +1487,7 @@ int teleport_monster(int dir, int y, int x) {
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            m_list[c_ptr->cptr].csleep = 0; // wake it up
+            monster_list_at(c_ptr->cptr)->csleep = 0; // wake it up
             teleport_away((int)c_ptr->cptr, MAX_SIGHT);
             result = true;
         }
@@ -1500,8 +1501,8 @@ int teleport_monster(int dir, int y, int x) {
 int mass_genocide(void) {
     bool result = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && ((r_ptr->cmove & CM_WIN) == 0)) {
@@ -1521,8 +1522,8 @@ int genocide(void) {
 
     char typ;
     if (get_com("Which type of creature do you wish exterminated?", &typ)) {
-        for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-            monster_type *m_ptr = &m_list[i];
+        for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+            monster_type *m_ptr = monster_list_at(i);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
             if (typ == r_ptr->cchar) {
                 if ((r_ptr->cmove & CM_WIN) == 0) {
@@ -1548,8 +1549,8 @@ int genocide(void) {
 int speed_monsters(int spd) {
     bool speed = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1584,8 +1585,8 @@ int speed_monsters(int spd) {
 int sleep_monsters2(void) {
     bool sleep = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1615,8 +1616,8 @@ int sleep_monsters2(void) {
 int mass_poly(void) {
     bool mass = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         if (m_ptr->cdis <= MAX_SIGHT) {
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
@@ -1641,8 +1642,8 @@ int mass_poly(void) {
 int detect_evil(void) {
     bool flag = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) &&
             (CD_EVIL & monster_get_creature(m_ptr->creature)->cdefense)) {
             m_ptr->ml = true;
@@ -1754,7 +1755,7 @@ void earthquake(void) {
                 }
 
                 if (c_ptr->cptr > 1) {
-                    monster_type *m_ptr = &m_list[c_ptr->cptr];
+                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                     if (!(r_ptr->cmove & CM_PHASE)) {
@@ -1838,8 +1839,8 @@ void create_food(void) {
 int dispel_creature(int cflag, int damage) {
     bool dispel = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
@@ -1865,8 +1866,8 @@ int dispel_creature(int cflag, int damage) {
 int turn_undead(void) {
     bool turn_und = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(player_row(), player_col(), m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
