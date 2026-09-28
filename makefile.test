@@ -62,7 +62,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_attack_bonuses_test player_search_skill_test \
         player_bio_test player_stealth_test player_class_test \
         monster_turn_test monster_levels_test monster_breeding_test \
-        monster_list_test
+        monster_list_test dungeon_size_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -2203,6 +2203,29 @@ $(BUILDDIR)/monster_list_test: $(TESTDIR)/monster_list_test.c \
                               src/monster_list.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_list_test.c \
 	    $(TESTDIR)/monster_list_fixture.c src/monster_list.c
+
+# 「この階の広さ」（#18-14-5）。src/dungeon_size.c は externs.h を include せず、
+# extern も 1 つも持たない（要るのは <stdint.h> だけ）ので、リンクするのは
+# module 1 本だけ ——**足場は 0 本**（所見 52 の形。#18-14-1〜3 と同じ）。
+#
+# **B は 1 コミットで通す見こみ** —— 8 ファイル 62 参照（cur_height 30・
+# cur_width 32）で、そのうち 48 は読みの置きかえ 1 つの形。だから置き場は
+# A の段で module の static に入れてある（#18-14-4 は 12 ファイル 101 参照で
+# B を 5 つに割ったので、置き場を C まで動かせなかった）。
+#
+# **税は 11 本で、下調べの見こみと初めて一致した** —— src/misc3.c を丸ごと
+# #include する 9 本（inven_stack・put_misc3・object_levels・haggle_comment・
+# objdes・calc_hitpoints・check_strength・calc_spells・gain_spells）と、
+# src/save.c を丸ごと #include する 2 本（save_bool・store_save）。
+# 残る 6 ファイル（generate.c・misc1.c・dungeon.c・wizard.c・game_state.c・
+# variable.c）は、どの recipe も対象として並べていない。
+# 払うのは B の段（tests/misc3_stubs.c の 2 行もそこで死ぬ → 所見 52 の落とし穴）。
+$(BUILDDIR)/dungeon_size_test: $(TESTDIR)/dungeon_size_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/dungeon_size.c \
+                              src/dungeon_size.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_size_test.c \
+	    src/dungeon_size.c
 
 clean:
 	rm -rf $(BUILDDIR)
