@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "floor_items.h"
 #include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "dungeon_size.h"
 #include "monster_list.h"
 #include "panel.h"
@@ -66,65 +67,38 @@ static void rand_dir(int *rdir, int *cdir) {
     }
 }
 
-// Blanks out entire cave -RAK-
-static void blank_cave(void) {
-    memset((char *)&cave[0][0], 0, sizeof(cave));
-}
-
 // Fills in empty spots with desired rock -RAK-
 // Note: 9 is a temporary value.
 static void fill_cave(int fval) {
     // no need to check the border of the cave
     for (int i = dungeon_height() - 2; i > 0; i--) {
-        cave_type *c_ptr = &cave[i][1];
-        for (int j = dungeon_width() - 2; j > 0; j--) {
+        // columns 1 .. width - 2, the row without its two border squares --
+        // the same range upstream's pointer covered from column 1 (#18-14-8)
+        for (int j = 1; j <= dungeon_width() - 2; j++) {
+            cave_type *c_ptr = square_at(i, j);
             if ((c_ptr->fval == NULL_WALL) || (c_ptr->fval == TMP1_WALL) ||
                 (c_ptr->fval == TMP2_WALL)) {
                 c_ptr->fval = fval;
             }
-            c_ptr++;
         }
     }
 }
 
-#ifdef DEBUG
-#include <assert.h>
-#endif
-
 // Places indestructible rock around edges of dungeon -RAK-
+//
+// The two casts and the four #ifdef DEBUG asserts that used to stand here were
+// checking pointer arithmetic that no longer happens; see src/dungeon_map.h.
 static void place_boundary(void) {
-    cave_type(*left_ptr)[MAX_WIDTH];
-    cave_type(*right_ptr)[MAX_WIDTH];
-
     // put permanent wall on leftmost row and rightmost row
-    left_ptr = (cave_type(*)[MAX_WIDTH]) & cave[0][0];
-    right_ptr = (cave_type(*)[MAX_WIDTH]) & cave[0][dungeon_width() - 1];
-
     for (int i = 0; i < dungeon_height(); i++) {
-        #ifdef DEBUG
-            assert((cave_type *)left_ptr == &cave[i][0]);
-            assert((cave_type *)right_ptr == &cave[i][dungeon_width() - 1]);
-        #endif
-
-        ((cave_type *)left_ptr)->fval = BOUNDARY_WALL;
-        left_ptr++;
-        ((cave_type *)right_ptr)->fval = BOUNDARY_WALL;
-        right_ptr++;
+        square_at(i, 0)->fval = BOUNDARY_WALL;
+        square_at(i, dungeon_width() - 1)->fval = BOUNDARY_WALL;
     }
 
     // put permanent wall on top row and bottom row
-    cave_type *top_ptr = &cave[0][0];
-    cave_type *bottom_ptr = &cave[dungeon_height() - 1][0];
-
     for (int i = 0; i < dungeon_width(); i++) {
-        #ifdef DEBUG
-            assert(top_ptr == &cave[0][i]);
-            assert(bottom_ptr == &cave[dungeon_height() - 1][i]);
-        #endif
-        top_ptr->fval = BOUNDARY_WALL;
-        top_ptr++;
-        bottom_ptr->fval = BOUNDARY_WALL;
-        bottom_ptr++;
+        square_at(0, i)->fval = BOUNDARY_WALL;
+        square_at(dungeon_height() - 1, i)->fval = BOUNDARY_WALL;
     }
 }
 
@@ -148,7 +122,7 @@ static void place_streamer(int fval, int treas_chance) {
             int ty = y + randint(t1) - t2;
             int tx = x + randint(t1) - t2;
             if (in_bounds(ty, tx)) {
-                cave_type *c_ptr = &cave[ty][tx];
+                cave_type *c_ptr = square_at(ty, tx);
                 if (c_ptr->fval == GRANITE_WALL) {
                     c_ptr->fval = fval;
                     if (randint(treas_chance) == 1) {
@@ -162,7 +136,7 @@ static void place_streamer(int fval, int treas_chance) {
 
 static void place_open_door(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_OPEN_DOOR);
     cave_ptr->fval = CORR_FLOOR;
@@ -170,7 +144,7 @@ static void place_open_door(int y, int x) {
 
 static void place_broken_door(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_OPEN_DOOR);
     cave_ptr->fval = CORR_FLOOR;
@@ -179,7 +153,7 @@ static void place_broken_door(int y, int x) {
 
 static void place_closed_door(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_CLOSED_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
@@ -187,7 +161,7 @@ static void place_closed_door(int y, int x) {
 
 static void place_locked_door(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_CLOSED_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
@@ -196,7 +170,7 @@ static void place_locked_door(int y, int x) {
 
 static void place_stuck_door(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_CLOSED_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
@@ -205,7 +179,7 @@ static void place_stuck_door(int y, int x) {
 
 static void place_secret_door(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_SECRET_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
@@ -235,7 +209,7 @@ static void place_door(int y, int x) {
 
 // Place an up staircase at given y, x -RAK-
 static void place_up_stairs(int y, int x) {
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     if (cave_ptr->tptr != 0) {
         (void)delete_object(y, x);
     }
@@ -246,7 +220,7 @@ static void place_up_stairs(int y, int x) {
 
 // Place a down staircase at given y, x -RAK-
 static void place_down_stairs(int y, int x) {
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     if (cave_ptr->tptr != 0) {
         (void)delete_object(y, x);
     }
@@ -271,7 +245,7 @@ static void place_stairs(int typ, int num, int walls) {
                 int x2 = x1 + 12;
                 do {
                     do {
-                        cave_type *cave_ptr = &cave[y1][x1];
+                        cave_type *cave_ptr = square_at(y1, x1);
                         if (cave_ptr->fval <= MAX_OPEN_SPACE &&
                             (cave_ptr->tptr == 0) &&
                             (next_to_walls(y1, x1) >= walls)) {
@@ -302,7 +276,7 @@ static void vault_trap(int y, int x, int yd, int xd, int num) {
         do {
             int y1 = y - yd - 1 + randint(2 * yd + 1);
             int x1 = x - xd - 1 + randint(2 * xd + 1);
-            cave_type *c_ptr = &cave[y1][x1];
+            cave_type *c_ptr = square_at(y1, x1);
             if ((c_ptr->fval != NULL_WALL) && (c_ptr->fval <= MAX_CAVE_FLOOR) && (c_ptr->tptr == 0)) {
                 place_trap(y1, x1, randint(MAX_TRAP) - 1);
                 flag = true;
@@ -335,39 +309,30 @@ static void build_room(int yval, int xval) {
     int x_left = xval - randint(11);
     int x_right = xval + randint(11);
 
-    // the x dim of rooms tends to be much larger than the y dim,
-    // so don't bother rewriting the y loop.
-
-    cave_type *c_ptr, *d_ptr;
-
     for (int i = y_height; i <= y_depth; i++) {
-        c_ptr = &cave[i][x_left];
         for (int j = x_left; j <= x_right; j++) {
+            cave_type *c_ptr = square_at(i, j);
             c_ptr->fval = floor;
             c_ptr->lr = true;
-            c_ptr++;
         }
     }
 
     for (int i = (y_height - 1); i <= (y_depth + 1); i++) {
-        c_ptr = &cave[i][x_left - 1];
+        cave_type *c_ptr = square_at(i, x_left - 1);
         c_ptr->fval = GRANITE_WALL;
         c_ptr->lr = true;
-        c_ptr = &cave[i][x_right + 1];
-        c_ptr->fval = GRANITE_WALL;
-        c_ptr->lr = true;
-    }
-
-    c_ptr = &cave[y_height - 1][x_left];
-    d_ptr = &cave[y_depth + 1][x_left];
-
-    for (int i = x_left; i <= x_right; i++) {
-        c_ptr->fval = GRANITE_WALL;
-        c_ptr->lr = true;
-        c_ptr++;
+        cave_type *d_ptr = square_at(i, x_right + 1);
         d_ptr->fval = GRANITE_WALL;
         d_ptr->lr = true;
-        d_ptr++;
+    }
+
+    for (int i = x_left; i <= x_right; i++) {
+        cave_type *c_ptr = square_at(y_height - 1, i);
+        c_ptr->fval = GRANITE_WALL;
+        c_ptr->lr = true;
+        cave_type *d_ptr = square_at(y_depth + 1, i);
+        d_ptr->fval = GRANITE_WALL;
+        d_ptr->lr = true;
     }
 }
 
@@ -381,8 +346,6 @@ static void build_type1(int yval, int xval) {
         floor = DARK_FLOOR;
     }
 
-    cave_type *c_ptr, *d_ptr;
-
     int limit = 1 + randint(2);
     for (int i0 = 0; i0 < limit; i0++) {
         int y_height = yval - randint(4);
@@ -390,44 +353,37 @@ static void build_type1(int yval, int xval) {
         int x_left = xval - randint(11);
         int x_right = xval + randint(11);
 
-        // the x dim of rooms tends to be much larger than the y dim,
-        // so don't bother rewriting the y loop.
-
         for (int i = y_height; i <= y_depth; i++) {
-            c_ptr = &cave[i][x_left];
             for (int j = x_left; j <= x_right; j++) {
+                cave_type *c_ptr = square_at(i, j);
                 c_ptr->fval = floor;
                 c_ptr->lr = true;
-                c_ptr++;
             }
         }
         for (int i = (y_height - 1); i <= (y_depth + 1); i++) {
-            c_ptr = &cave[i][x_left - 1];
+            cave_type *c_ptr = square_at(i, x_left - 1);
             if (c_ptr->fval != floor) {
                 c_ptr->fval = GRANITE_WALL;
                 c_ptr->lr = true;
             }
-            c_ptr = &cave[i][x_right + 1];
-            if (c_ptr->fval != floor) {
-                c_ptr->fval = GRANITE_WALL;
-                c_ptr->lr = true;
-            }
-        }
-
-        c_ptr = &cave[y_height - 1][x_left];
-        d_ptr = &cave[y_depth + 1][x_left];
-
-        for (int i = x_left; i <= x_right; i++) {
-            if (c_ptr->fval != floor) {
-                c_ptr->fval = GRANITE_WALL;
-                c_ptr->lr = true;
-            }
-            c_ptr++;
+            cave_type *d_ptr = square_at(i, x_right + 1);
             if (d_ptr->fval != floor) {
                 d_ptr->fval = GRANITE_WALL;
                 d_ptr->lr = true;
             }
-            d_ptr++;
+        }
+
+        for (int i = x_left; i <= x_right; i++) {
+            cave_type *c_ptr = square_at(y_height - 1, i);
+            if (c_ptr->fval != floor) {
+                c_ptr->fval = GRANITE_WALL;
+                c_ptr->lr = true;
+            }
+            cave_type *d_ptr = square_at(y_depth + 1, i);
+            if (d_ptr->fval != floor) {
+                d_ptr->fval = GRANITE_WALL;
+                d_ptr->lr = true;
+            }
         }
     }
 }
@@ -452,39 +408,30 @@ static void build_type2(int yval, int xval) {
     int x_left = xval - 11;
     int x_right = xval + 11;
 
-    // the x dim of rooms tends to be much larger than the y dim,
-    // so don't bother rewriting the y loop.
-
-    cave_type *c_ptr, *d_ptr;
-
     for (int i = y_height; i <= y_depth; i++) {
-        c_ptr = &cave[i][x_left];
         for (int j = x_left; j <= x_right; j++) {
+            cave_type *c_ptr = square_at(i, j);
             c_ptr->fval = floor;
             c_ptr->lr = true;
-            c_ptr++;
         }
     }
 
     for (int i = (y_height - 1); i <= (y_depth + 1); i++) {
-        c_ptr = &cave[i][x_left - 1];
+        cave_type *c_ptr = square_at(i, x_left - 1);
         c_ptr->fval = GRANITE_WALL;
         c_ptr->lr = true;
-        c_ptr = &cave[i][x_right + 1];
-        c_ptr->fval = GRANITE_WALL;
-        c_ptr->lr = true;
-    }
-
-    c_ptr = &cave[y_height - 1][x_left];
-    d_ptr = &cave[y_depth + 1][x_left];
-
-    for (int i = x_left; i <= x_right; i++) {
-        c_ptr->fval = GRANITE_WALL;
-        c_ptr->lr = true;
-        c_ptr++;
+        cave_type *d_ptr = square_at(i, x_right + 1);
         d_ptr->fval = GRANITE_WALL;
         d_ptr->lr = true;
-        d_ptr++;
+    }
+
+    for (int i = x_left; i <= x_right; i++) {
+        cave_type *c_ptr = square_at(y_height - 1, i);
+        c_ptr->fval = GRANITE_WALL;
+        c_ptr->lr = true;
+        cave_type *d_ptr = square_at(y_depth + 1, i);
+        d_ptr->fval = GRANITE_WALL;
+        d_ptr->lr = true;
     }
 
     // The inner room
@@ -494,16 +441,12 @@ static void build_type2(int yval, int xval) {
     x_right = x_right - 2;
 
     for (int i = (y_height - 1); i <= (y_depth + 1); i++) {
-        cave[i][x_left - 1].fval = TMP1_WALL;
-        cave[i][x_right + 1].fval = TMP1_WALL;
+        square_at(i, x_left - 1)->fval = TMP1_WALL;
+        square_at(i, x_right + 1)->fval = TMP1_WALL;
     }
-    c_ptr = &cave[y_height - 1][x_left];
-    d_ptr = &cave[y_depth + 1][x_left];
     for (int i = x_left; i <= x_right; i++) {
-        c_ptr->fval = TMP1_WALL;
-        c_ptr++;
-        d_ptr->fval = TMP1_WALL;
-        d_ptr++;
+        square_at(y_height - 1, i)->fval = TMP1_WALL;
+        square_at(y_depth + 1, i)->fval = TMP1_WALL;
     }
 
     int tmp;
@@ -546,11 +489,11 @@ static void build_type2(int yval, int xval) {
         }
 
         for (int i = yval - 1; i <= yval + 1; i++) {
-            cave[i][xval - 1].fval = TMP1_WALL;
-            cave[i][xval + 1].fval = TMP1_WALL;
+            square_at(i, xval - 1)->fval = TMP1_WALL;
+            square_at(i, xval + 1)->fval = TMP1_WALL;
         }
-        cave[yval - 1][xval].fval = TMP1_WALL;
-        cave[yval + 1][xval].fval = TMP1_WALL;
+        square_at(yval - 1, xval)->fval = TMP1_WALL;
+        square_at(yval + 1, xval)->fval = TMP1_WALL;
 
         // Place a door
         tmp = randint(4);
@@ -596,42 +539,32 @@ static void build_type2(int yval, int xval) {
         }
 
         for (int i = yval - 1; i <= yval + 1; i++) {
-            c_ptr = &cave[i][xval - 1];
             for (int j = xval - 1; j <= xval + 1; j++) {
-                c_ptr->fval = TMP1_WALL;
-                c_ptr++;
+                square_at(i, j)->fval = TMP1_WALL;
             }
         }
         if (randint(2) == 1) {
             tmp = randint(2);
             for (int i = yval - 1; i <= yval + 1; i++) {
-                c_ptr = &cave[i][xval - 5 - tmp];
                 for (int j = xval - 5 - tmp; j <= xval - 3 - tmp; j++) {
-                    c_ptr->fval = TMP1_WALL;
-                    c_ptr++;
+                    square_at(i, j)->fval = TMP1_WALL;
                 }
             }
             for (int i = yval - 1; i <= yval + 1; i++) {
-                c_ptr = &cave[i][xval + 3 + tmp];
                 for (int j = xval + 3 + tmp; j <= xval + 5 + tmp; j++) {
-                    c_ptr->fval = TMP1_WALL;
-                    c_ptr++;
+                    square_at(i, j)->fval = TMP1_WALL;
                 }
             }
         }
 
         // Inner rooms
         if (randint(3) == 1) {
-            c_ptr = &cave[yval - 1][xval - 5];
-            d_ptr = &cave[yval + 1][xval - 5];
             for (int i = xval - 5; i <= xval + 5; i++) {
-                c_ptr->fval = TMP1_WALL;
-                c_ptr++;
-                d_ptr->fval = TMP1_WALL;
-                d_ptr++;
+                square_at(yval - 1, i)->fval = TMP1_WALL;
+                square_at(yval + 1, i)->fval = TMP1_WALL;
             }
-            cave[yval][xval - 5].fval = TMP1_WALL;
-            cave[yval][xval + 5].fval = TMP1_WALL;
+            square_at(yval, xval - 5)->fval = TMP1_WALL;
+            square_at(yval, xval + 5)->fval = TMP1_WALL;
             place_secret_door(yval - 3 + (randint(2) << 1), xval - 3);
             place_secret_door(yval - 3 + (randint(2) << 1), xval + 3);
             if (randint(3) == 1) {
@@ -664,7 +597,7 @@ static void build_type2(int yval, int xval) {
         for (int i = y_height; i <= y_depth; i++) {
             for (int j = x_left; j <= x_right; j++) {
                 if (0x1 & (j + i)) {
-                    cave[i][j].fval = TMP1_WALL;
+                    square_at(i, j)->fval = TMP1_WALL;
                 }
             }
         }
@@ -684,13 +617,11 @@ static void build_type2(int yval, int xval) {
         break;
     case 5: // Four small rooms.
         for (int i = y_height; i <= y_depth; i++) {
-            cave[i][xval].fval = TMP1_WALL;
+            square_at(i, xval)->fval = TMP1_WALL;
         }
 
-        c_ptr = &cave[yval][x_left];
         for (int i = x_left; i <= x_right; i++) {
-            c_ptr->fval = TMP1_WALL;
-            c_ptr++;
+            square_at(yval, i)->fval = TMP1_WALL;
         }
 
         if (randint(2) == 1) {
@@ -739,26 +670,26 @@ static void build_type3(int yval, int xval) {
 
     for (int i = y_height; i <= y_depth; i++) {
         for (int j = x_left; j <= x_right; j++) {
-            c_ptr = &cave[i][j];
+            c_ptr = square_at(i, j);
             c_ptr->fval = floor;
             c_ptr->lr = true;
         }
     }
 
     for (int i = (y_height - 1); i <= (y_depth + 1); i++) {
-        c_ptr = &cave[i][x_left - 1];
+        c_ptr = square_at(i, x_left - 1);
         c_ptr->fval = GRANITE_WALL;
         c_ptr->lr = true;
-        c_ptr = &cave[i][x_right + 1];
+        c_ptr = square_at(i, x_right + 1);
         c_ptr->fval = GRANITE_WALL;
         c_ptr->lr = true;
     }
 
     for (int i = x_left; i <= x_right; i++) {
-        c_ptr = &cave[y_height - 1][i];
+        c_ptr = square_at(y_height - 1, i);
         c_ptr->fval = GRANITE_WALL;
         c_ptr->lr = true;
-        c_ptr = &cave[y_depth + 1][i];
+        c_ptr = square_at(y_depth + 1, i);
         c_ptr->fval = GRANITE_WALL;
         c_ptr->lr = true;
     }
@@ -771,19 +702,19 @@ static void build_type3(int yval, int xval) {
 
     for (int i = y_height; i <= y_depth; i++) {
         for (int j = x_left; j <= x_right; j++) {
-            c_ptr = &cave[i][j];
+            c_ptr = square_at(i, j);
             c_ptr->fval = floor;
             c_ptr->lr = true;
         }
     }
 
     for (int i = (y_height - 1); i <= (y_depth + 1); i++) {
-        c_ptr = &cave[i][x_left - 1];
+        c_ptr = square_at(i, x_left - 1);
         if (c_ptr->fval != floor) {
             c_ptr->fval = GRANITE_WALL;
             c_ptr->lr = true;
         }
-        c_ptr = &cave[i][x_right + 1];
+        c_ptr = square_at(i, x_right + 1);
         if (c_ptr->fval != floor) {
             c_ptr->fval = GRANITE_WALL;
             c_ptr->lr = true;
@@ -791,12 +722,12 @@ static void build_type3(int yval, int xval) {
     }
 
     for (int i = x_left; i <= x_right; i++) {
-        c_ptr = &cave[y_height - 1][i];
+        c_ptr = square_at(y_height - 1, i);
         if (c_ptr->fval != floor) {
             c_ptr->fval = GRANITE_WALL;
             c_ptr->lr = true;
         }
-        c_ptr = &cave[y_depth + 1][i];
+        c_ptr = square_at(y_depth + 1, i);
         if (c_ptr->fval != floor) {
             c_ptr->fval = GRANITE_WALL;
             c_ptr->lr = true;
@@ -807,20 +738,18 @@ static void build_type3(int yval, int xval) {
     switch (randint(4)) {
     case 1: // Large middle pillar
         for (int i = yval - 1; i <= yval + 1; i++) {
-            c_ptr = &cave[i][xval - 1];
             for (int j = xval - 1; j <= xval + 1; j++) {
-                c_ptr->fval = TMP1_WALL;
-                c_ptr++;
+                square_at(i, j)->fval = TMP1_WALL;
             }
         }
         break;
     case 2: // Inner treasure vault
         for (int i = yval - 1; i <= yval + 1; i++) {
-            cave[i][xval - 1].fval = TMP1_WALL;
-            cave[i][xval + 1].fval = TMP1_WALL;
+            square_at(i, xval - 1)->fval = TMP1_WALL;
+            square_at(i, xval + 1)->fval = TMP1_WALL;
         }
-        cave[yval - 1][xval].fval = TMP1_WALL;
-        cave[yval + 1][xval].fval = TMP1_WALL;
+        square_at(yval - 1, xval)->fval = TMP1_WALL;
+        square_at(yval + 1, xval)->fval = TMP1_WALL;
 
         // Place a door
         tmp = randint(4);
@@ -841,14 +770,14 @@ static void build_type3(int yval, int xval) {
         break;
     case 3:
         if (randint(3) == 1) {
-            cave[yval - 1][xval - 2].fval = TMP1_WALL;
-            cave[yval + 1][xval - 2].fval = TMP1_WALL;
-            cave[yval - 1][xval + 2].fval = TMP1_WALL;
-            cave[yval + 1][xval + 2].fval = TMP1_WALL;
-            cave[yval - 2][xval - 1].fval = TMP1_WALL;
-            cave[yval - 2][xval + 1].fval = TMP1_WALL;
-            cave[yval + 2][xval - 1].fval = TMP1_WALL;
-            cave[yval + 2][xval + 1].fval = TMP1_WALL;
+            square_at(yval - 1, xval - 2)->fval = TMP1_WALL;
+            square_at(yval + 1, xval - 2)->fval = TMP1_WALL;
+            square_at(yval - 1, xval + 2)->fval = TMP1_WALL;
+            square_at(yval + 1, xval + 2)->fval = TMP1_WALL;
+            square_at(yval - 2, xval - 1)->fval = TMP1_WALL;
+            square_at(yval - 2, xval + 1)->fval = TMP1_WALL;
+            square_at(yval + 2, xval - 1)->fval = TMP1_WALL;
+            square_at(yval + 2, xval + 1)->fval = TMP1_WALL;
             if (randint(3) == 1) {
                 place_secret_door(yval, xval - 2);
                 place_secret_door(yval, xval + 2);
@@ -856,13 +785,13 @@ static void build_type3(int yval, int xval) {
                 place_secret_door(yval + 2, xval);
             }
         } else if (randint(3) == 1) {
-            cave[yval][xval].fval = TMP1_WALL;
-            cave[yval - 1][xval].fval = TMP1_WALL;
-            cave[yval + 1][xval].fval = TMP1_WALL;
-            cave[yval][xval - 1].fval = TMP1_WALL;
-            cave[yval][xval + 1].fval = TMP1_WALL;
+            square_at(yval, xval)->fval = TMP1_WALL;
+            square_at(yval - 1, xval)->fval = TMP1_WALL;
+            square_at(yval + 1, xval)->fval = TMP1_WALL;
+            square_at(yval, xval - 1)->fval = TMP1_WALL;
+            square_at(yval, xval + 1)->fval = TMP1_WALL;
         } else if (randint(3) == 1) {
-            cave[yval][xval].fval = TMP1_WALL;
+            square_at(yval, xval)->fval = TMP1_WALL;
         }
         break;
     case 4:
@@ -915,7 +844,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2) {
             tmp_col = col1 + col_dir;
         }
 
-        cave_type *c_ptr = &cave[tmp_row][tmp_col];
+        cave_type *c_ptr = square_at(tmp_row, tmp_col);
         if (c_ptr->fval == NULL_WALL) {
             row1 = tmp_row;
             col1 = tmp_col;
@@ -939,7 +868,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2) {
             for (int i = row1 - 1; i <= row1 + 1; i++) {
                 for (int j = col1 - 1; j <= col1 + 1; j++) {
                     if (in_bounds(i, j)) {
-                        cave_type *d_ptr = &cave[i][j];
+                        cave_type *d_ptr = square_at(i, j);
 
                         // values 11 and 12 are impossible here, place_streamer
                         // is never run before build_tunnel
@@ -983,13 +912,13 @@ static void build_tunnel(int row1, int col1, int row2, int col2) {
 
     coords *tun_ptr = &tunstk[0];
     for (int i = 0; i < tunindex; i++) {
-        cave_type *d_ptr = &cave[tun_ptr->y][tun_ptr->x];
+        cave_type *d_ptr = square_at(tun_ptr->y, tun_ptr->x);
         d_ptr->fval = CORR_FLOOR;
         tun_ptr++;
     }
 
     for (int i = 0; i < wallindex; i++) {
-        cave_type *c_ptr = &cave[wallstk[i].y][wallstk[i].x];
+        cave_type *c_ptr = square_at(wallstk[i].y, wallstk[i].x);
         if (c_ptr->fval == TMP2_WALL) {
             if (randint(100) < DUN_TUN_PEN) {
                 place_door(wallstk[i].y, wallstk[i].x);
@@ -1005,11 +934,11 @@ static int next_to(int y, int x) {
     bool next;
 
     if (next_to_corr(y, x) > 2) {
-        if ((cave[y - 1][x].fval >= MIN_CAVE_WALL) &&
-            (cave[y + 1][x].fval >= MIN_CAVE_WALL)) {
+        if ((square_at(y - 1, x)->fval >= MIN_CAVE_WALL) &&
+            (square_at(y + 1, x)->fval >= MIN_CAVE_WALL)) {
             next = true;
-        } else if ((cave[y][x - 1].fval >= MIN_CAVE_WALL) &&
-                   (cave[y][x + 1].fval >= MIN_CAVE_WALL)) {
+        } else if ((square_at(y, x - 1)->fval >= MIN_CAVE_WALL) &&
+                   (square_at(y, x + 1)->fval >= MIN_CAVE_WALL)) {
             next = true;
         } else {
             next = false;
@@ -1022,7 +951,7 @@ static int next_to(int y, int x) {
 
 // Places door at y, x position if at least 2 walls found
 static void try_door(int y, int x) {
-    if ((cave[y][x].fval == CORR_FLOOR) && (randint(100) > DUN_TUN_JCT) &&
+    if ((square_at(y, x)->fval == CORR_FLOOR) && (randint(100) > DUN_TUN_JCT) &&
         next_to(y, x)) {
         place_door(y, x);
     }
@@ -1036,7 +965,7 @@ static void new_spot(int16_t *y, int16_t *x) {
     do {
         i = randint(dungeon_height() - 2);
         j = randint(dungeon_width() - 2);
-        c_ptr = &cave[i][j];
+        c_ptr = square_at(i, j);
     } while (c_ptr->fval >= MIN_CLOSED_SPACE || (c_ptr->cptr != 0) || (c_ptr->tptr != 0));
 
     *y = i;
@@ -1166,7 +1095,7 @@ static void build_store(int store_num, int y, int x) {
 
     for (int i = y_height; i <= y_depth; i++) {
         for (int j = x_left; j <= x_right; j++) {
-            cave[i][j].fval = BOUNDARY_WALL;
+            square_at(i, j)->fval = BOUNDARY_WALL;
         }
     }
 
@@ -1187,7 +1116,7 @@ static void build_store(int store_num, int y, int x) {
             i = y_height;
         }
     }
-    cave_type *c_ptr = &cave[i][j];
+    cave_type *c_ptr = square_at(i, j);
     c_ptr->fval = CORR_FLOOR;
     int cur_pos = popt();
     c_ptr->tptr = cur_pos;
@@ -1228,22 +1157,19 @@ static void town_gen(void) {
     if (0x1 & (progress_turn() / 5000)) {
         // Night time
         for (int i = 0; i < dungeon_height(); i++) {
-            cave_type *c_ptr = &cave[i][0];
             for (int j = 0; j < dungeon_width(); j++) {
+                cave_type *c_ptr = square_at(i, j);
                 if (c_ptr->fval != DARK_FLOOR) {
                     c_ptr->pl = true;
                 }
-                c_ptr++;
             }
         }
         alloc_monster(MIN_MALLOC_TN, 3, true);
     } else {
         // Day time
         for (int i = 0; i < dungeon_height(); i++) {
-            cave_type *c_ptr = &cave[i][0];
             for (int j = 0; j < dungeon_width(); j++) {
-                c_ptr->pl = true;
-                c_ptr++;
+                square_at(i, j)->pl = true;
             }
         }
         alloc_monster(MIN_MALLOC_TD, 3, true);
@@ -1260,7 +1186,7 @@ void generate_cave(void) {
     floor_items_reset();
     // Link all free space in monster list together (mlink(), #18-14-4)
     monster_list_reset();
-    blank_cave();
+    dungeon_map_reset();
 
     if (player_is_in_town()) {
         set_dungeon_size(SCREEN_HEIGHT, SCREEN_WIDTH);

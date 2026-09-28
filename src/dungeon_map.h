@@ -54,16 +54,30 @@
 // and generate.c has to write that ring, so the ring cannot be refused here.
 // Callers that need the guard already call it.
 //
-// NO CALLER WALKS THE TABLE WITH A POINTER ANY MORE. Three places used to:
-// fill_cave() carried a `c_ptr++` along a row, place_boundary() stepped a
-// `cave_type (*)[MAX_WIDTH]` down the rows behind two casts and two DEBUG
-// asserts whose only job was to prove the arithmetic still landed on
-// `&cave[i][0]`, and save.c's loader ran one pointer over the whole table to
-// unpack a run-length encoding, with a comment explaining why the end of it
-// could not be written as `&cave[MAX_HEIGHT][0]`. All three became loops with
-// indices, so the promise that the table is one contiguous row-major block is
-// now this file's business and nobody else's. The casts, the asserts and the
-// comment went with them.
+// NO CALLER WALKS THE TABLE WITH A POINTER ANY MORE. Nineteen loops used to --
+// eighteen in generate.c and one in save.c -- in three shapes:
+//
+//   * ALONG A ROW -- seventeen of the eighteen: take `&cave[i][x_left]`, then
+//     carry `c_ptr++` across the columns the caller means to touch. fill_cave(),
+//     every room builder and the town's two lighting sweeps drew their floors
+//     and walls this way, and six of the seventeen carried a second pointer
+//     along the opposite edge of the room at the same time. An upstream comment
+//     said why the row and not the column ("the x dim of rooms tends to be much
+//     larger than the y dim, so don't bother rewriting the y loop") -- the long
+//     dimension got the pointer. With a window there is nothing to save, so
+//     that comment went too.
+//
+//   * DOWN A COLUMN, once, in place_boundary(): a `cave_type (*)[MAX_WIDTH]`
+//     stepped row by row behind two casts, with two DEBUG asserts whose only
+//     job was to prove the arithmetic still landed on `&cave[i][0]`.
+//
+//   * OVER THE WHOLE TABLE, once, in save.c's loader, to unpack a run-length
+//     encoding against an end pointer, with a comment explaining why that end
+//     could not be written as `&cave[MAX_HEIGHT][0]`.
+//
+// All nineteen became loops with two subscripts, so the promise that the table
+// is one contiguous row-major block is now this file's business and nobody
+// else's. The casts, the asserts and both comments went with them.
 
 // A new level: every square blank. Called by generate_cave() in generate.c for
 // the town and for every dungeon level, before anything is built. It was a
