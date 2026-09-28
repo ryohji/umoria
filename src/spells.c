@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "dungeon_level.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "inventory.h"
 #include "monster_levels.h"
 #include "monster_list.h"
@@ -70,7 +71,7 @@ int detect_treasure(void) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             cave_type *c_ptr = &cave[i][j];
 
-            if ((c_ptr->tptr != 0) && (t_list[c_ptr->tptr].tval == TV_GOLD) &&
+            if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval == TV_GOLD) &&
                 !test_light(i, j)) {
                 c_ptr->fm = true;
                 lite_spot(i, j);
@@ -91,7 +92,7 @@ int detect_object(void) {
             cave_type *c_ptr = &cave[i][j];
 
             if ((c_ptr->tptr != 0) &&
-                (t_list[c_ptr->tptr].tval < TV_MAX_OBJECT) &&
+                (floor_item_at(c_ptr->tptr)->tval < TV_MAX_OBJECT) &&
                 !test_light(i, j)) {
                 c_ptr->fm = true;
                 lite_spot(i, j);
@@ -112,12 +113,12 @@ int detect_trap(void) {
             cave_type *c_ptr = &cave[i][j];
 
             if (c_ptr->tptr != 0) {
-                if (t_list[c_ptr->tptr].tval == TV_INVIS_TRAP) {
+                if (floor_item_at(c_ptr->tptr)->tval == TV_INVIS_TRAP) {
                     c_ptr->fm = true;
                     change_trap(i, j);
                     detect = true;
-                } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
-                    inven_type *t_ptr = &t_list[c_ptr->tptr];
+                } else if (floor_item_at(c_ptr->tptr)->tval == TV_CHEST) {
+                    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
                     known2(t_ptr);
                 }
             }
@@ -136,13 +137,13 @@ int detect_sdoor(void) {
             cave_type *c_ptr = &cave[i][j];
 
             if (c_ptr->tptr != 0) {
-                if (t_list[c_ptr->tptr].tval == TV_SECRET_DOOR) {
+                if (floor_item_at(c_ptr->tptr)->tval == TV_SECRET_DOOR) {
                     // Secret doors
 
                     c_ptr->fm = true;
                     change_trap(i, j);
                     detect = true;
-                } else if (((t_list[c_ptr->tptr].tval == TV_UP_STAIR) || (t_list[c_ptr->tptr].tval == TV_DOWN_STAIR)) && !c_ptr->fm) {
+                } else if (((floor_item_at(c_ptr->tptr)->tval == TV_UP_STAIR) || (floor_item_at(c_ptr->tptr)->tval == TV_DOWN_STAIR)) && !c_ptr->fm) {
                     // Staircases
 
                     c_ptr->fm = true;
@@ -269,7 +270,7 @@ void map_area(void) {
 
                         if (c_ptr->fval >= MIN_CAVE_WALL) {
                             c_ptr->pl = true;
-                        } else if ((c_ptr->tptr != 0) && (t_list[c_ptr->tptr].tval >= TV_MIN_VISIBLE) && (t_list[c_ptr->tptr].tval <= TV_MAX_VISIBLE)) {
+                        } else if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval >= TV_MIN_VISIBLE) && (floor_item_at(c_ptr->tptr)->tval <= TV_MAX_VISIBLE)) {
                             c_ptr->fm = true;
                         }
                     }
@@ -355,7 +356,7 @@ int trap_creation(void) {
                 place_trap(i, j, randint(MAX_TRAP) - 1);
 
                 // don't let player gain exp from the newly created traps
-                t_list[c_ptr->tptr].p1 = 0;
+                floor_item_at(c_ptr->tptr)->p1 = 0;
 
                 // open pits are immediately visible, so call lite_spot
                 lite_spot(i, j);
@@ -385,7 +386,7 @@ int door_creation(void) {
                     int k = popt();
                     c_ptr->fval = BLOCKED_FLOOR;
                     c_ptr->tptr = k;
-                    invcopy(&t_list[k], OBJ_CLOSED_DOOR);
+                    invcopy(floor_item_at(k), OBJ_CLOSED_DOOR);
                     lite_spot(i, j);
                 }
             }
@@ -403,20 +404,20 @@ int td_destroy(void) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
             cave_type *c_ptr = &cave[i][j];
             if (c_ptr->tptr != 0) {
-                if (((t_list[c_ptr->tptr].tval >= TV_INVIS_TRAP) &&
-                     (t_list[c_ptr->tptr].tval <= TV_CLOSED_DOOR) &&
-                     (t_list[c_ptr->tptr].tval != TV_RUBBLE)) ||
-                    (t_list[c_ptr->tptr].tval == TV_SECRET_DOOR)) {
+                if (((floor_item_at(c_ptr->tptr)->tval >= TV_INVIS_TRAP) &&
+                     (floor_item_at(c_ptr->tptr)->tval <= TV_CLOSED_DOOR) &&
+                     (floor_item_at(c_ptr->tptr)->tval != TV_RUBBLE)) ||
+                    (floor_item_at(c_ptr->tptr)->tval == TV_SECRET_DOOR)) {
                     if (delete_object(i, j)) {
                         destroy = true;
                     }
-                } else if ((t_list[c_ptr->tptr].tval == TV_CHEST) &&
-                           (t_list[c_ptr->tptr].flags != 0)) {
+                } else if ((floor_item_at(c_ptr->tptr)->tval == TV_CHEST) &&
+                           (floor_item_at(c_ptr->tptr)->flags != 0)) {
                     // destroy traps on chest and unlock
-                    t_list[c_ptr->tptr].flags &= ~(CH_TRAPPED | CH_LOCKED);
-                    t_list[c_ptr->tptr].name2 = SN_UNLOCKED;
+                    floor_item_at(c_ptr->tptr)->flags &= ~(CH_TRAPPED | CH_LOCKED);
+                    floor_item_at(c_ptr->tptr)->name2 = SN_UNLOCKED;
                     msg_print("You have disarmed the chest.");
-                    known2(&t_list[c_ptr->tptr]);
+                    known2(floor_item_at(c_ptr->tptr));
                     destroy = true;
                 }
             }
@@ -537,7 +538,7 @@ int disarm_all(int dir, int y, int x) {
         // note, must continue upto and including the first non open space,
         // because secret doors have fval greater than MAX_OPEN_SPACE
         if (c_ptr->tptr != 0) {
-            inven_type *t_ptr = &t_list[c_ptr->tptr];
+            inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
             if ((t_ptr->tval == TV_INVIS_TRAP) ||
                 (t_ptr->tval == TV_VIS_TRAP)) {
@@ -722,7 +723,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                         if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
                             c_ptr = &cave[i][j];
 
-                            if ((c_ptr->tptr != 0) && (*destroy)(&t_list[c_ptr->tptr])) {
+                            if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
                                 (void)delete_object(i, j);
                             }
 
@@ -827,7 +828,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
             if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
                 cave_type *c_ptr = &cave[i][j];
 
-                if ((c_ptr->tptr != 0) && (*destroy)(&t_list[c_ptr->tptr])) {
+                if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
                     (void)delete_object(i, j);
                 }
 
@@ -1194,13 +1195,13 @@ int wall_to_mud(int dir, int y, int x) {
             if (panel_contains(y, x) && test_light(y, x)) {
                 msgtype out_val;
                 bigvtype tmp_str;
-                objdes(tmp_str, &t_list[c_ptr->tptr], false);
+                objdes(tmp_str, floor_item_at(c_ptr->tptr), false);
                 (void)snprintf(out_val, sizeof(out_val), "The %s turns into mud.", tmp_str);
                 msg_print(out_val);
                 wall = true;
             }
 
-            if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
+            if (floor_item_at(c_ptr->tptr)->tval == TV_RUBBLE) {
                 (void)delete_object(y, x);
                 if (randint(10) == 1) {
                     place_object(y, x, false);
@@ -1251,7 +1252,7 @@ int td_destroy2(int dir, int y, int x) {
 
         // must move into first closed spot, as it might be a secret door
         if (c_ptr->tptr != 0) {
-            inven_type *t_ptr = &t_list[c_ptr->tptr];
+            inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
             if ((t_ptr->tval == TV_INVIS_TRAP) ||
                 (t_ptr->tval == TV_CLOSED_DOOR) ||
@@ -1831,7 +1832,7 @@ void create_food(void) {
         free_turn_flag = true;
     } else {
         place_object(player_row(), player_col(), false);
-        invcopy(&t_list[c_ptr->tptr], OBJ_MUSH);
+        invcopy(floor_item_at(c_ptr->tptr), OBJ_MUSH);
     }
 }
 
@@ -1894,7 +1895,7 @@ void warding_glyph(void) {
     if (c_ptr->tptr == 0) {
         int i = popt();
         c_ptr->tptr = i;
-        invcopy(&t_list[i], OBJ_SCARE_MON);
+        invcopy(floor_item_at(i), OBJ_SCARE_MON);
     }
 }
 
