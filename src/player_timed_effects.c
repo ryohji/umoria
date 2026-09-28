@@ -72,24 +72,20 @@ static bool has_mark(player_timed_effect effect) {
     return mark_of[effect] != NO_MARK;
 }
 
-static int16_t *turns_of(player_timed_effect effect) {
-    return &turns_left[effect];
-}
-
 bool player_timed_in_force(player_timed_effect effect) {
-    return *turns_of(effect) > 0;
+    return turns_left[effect] > 0;
 }
 
 int player_timed_turns(player_timed_effect effect) {
-    return *turns_of(effect);
+    return turns_left[effect];
 }
 
 void player_timed_add(player_timed_effect effect, int turns) {
-    *turns_of(effect) = (int16_t)(*turns_of(effect) + turns);
+    turns_left[effect] = (int16_t)(turns_left[effect] + turns);
 }
 
 void player_timed_set(player_timed_effect effect, int turns) {
-    *turns_of(effect) = (int16_t)turns;
+    turns_left[effect] = (int16_t)turns;
 }
 
 void player_timed_clear(player_timed_effect effect) {
@@ -97,8 +93,8 @@ void player_timed_clear(player_timed_effect effect) {
 }
 
 void player_timed_shorten_to(player_timed_effect effect, int turns) {
-    if (*turns_of(effect) > turns) {
-        *turns_of(effect) = (int16_t)turns;
+    if (turns_left[effect] > turns) {
+        turns_left[effect] = (int16_t)turns;
     }
 }
 
@@ -113,10 +109,9 @@ bool player_timed_beginning(player_timed_effect effect) {
 bool player_timed_count_down(player_timed_effect effect) {
     // Unconditionally: minus one is a state the fear counter really reaches
     // (player_timed_effects.h).
-    int16_t *turns = turns_of(effect);
-    *turns = (int16_t)(*turns - 1);
+    turns_left[effect] = (int16_t)(turns_left[effect] - 1);
 
-    if (*turns != 0) {
+    if (turns_left[effect] != 0) {
         return false;
     }
 

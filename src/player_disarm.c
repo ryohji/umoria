@@ -22,26 +22,22 @@
 // until create.c picks a race, and a Human's racial base happens to be zero too
 // -- with a dexterity of 8 through 12 the creation-time bonus is zero as well,
 // so a Human really does sit at zero until a class is picked.
-static int16_t the_chance_number;
-
-static int16_t *the_chance(void) {
-    return &the_chance_number;
-}
+static int16_t the_chance;
 
 int player_disarm(void) {
-    return *the_chance();
+    return the_chance;
 }
 
 void player_disarm_set(int chance) {
     // The race's base with the creation-time dexterity bonus baked in, the saved
     // file's short put back, and the wizard screen's prompt. One sentence for all
     // three, because all three are a plain replacement.
-    *the_chance() = (int16_t)chance;
+    the_chance = (int16_t)chance;
 }
 
 void player_disarm_adjust(int chance) {
     // The class's mdis, added to whatever the race left here. This was
     // `m_ptr->disarm += c_ptr->mdis;` in create.c: one statement then, one
     // statement now, so the store is still touched once.
-    *the_chance() = (int16_t)(*the_chance() + chance);
+    the_chance = (int16_t)(the_chance + chance);
 }

@@ -23,24 +23,20 @@
 // the game starts. (`struct misc` is down to twenty fields.)
 static uint8_t the_faces;
 
-static uint8_t *faces_of_the_die(void) {
-    return &the_faces;
-}
-
 int player_hit_die(void) {
-    return *faces_of_the_die();
+    return the_faces;
 }
 
 void player_hit_die_set(int faces) {
     // The race's base, and the saved file's byte put back. One sentence for
     // both, because both are a plain replacement (player_hit_die.h says why
     // player_max_depth needed two doors here and this question does not).
-    *faces_of_the_die() = (uint8_t)faces;
+    the_faces = (uint8_t)faces;
 }
 
 void player_hit_die_adjust(int faces) {
     // The class's adj_hd, added to whatever the race left here. This was
     // `m_ptr->hitdie += c_ptr->adj_hd;` in create.c: one statement then, one
     // statement now, so the store is still touched once.
-    *faces_of_the_die() = (uint8_t)(*faces_of_the_die() + faces);
+    the_faces = (uint8_t)(the_faces + faces);
 }

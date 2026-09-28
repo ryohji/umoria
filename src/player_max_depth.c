@@ -26,12 +26,8 @@
 // then twelve more followed out of `struct flags` until it was empty.
 static uint16_t the_deepest;
 
-static uint16_t *deepest(void) {
-    return &the_deepest;
-}
-
 int player_max_depth(void) {
-    return *deepest();
+    return the_deepest;
 }
 
 void player_note_depth_reached(int level) {
@@ -39,8 +35,8 @@ void player_note_depth_reached(int level) {
     // Keeping the deeper of the two is the whole meaning of the number, so it
     // belongs on this side of the window: there is no way in from outside that
     // can make the record shallower.
-    if (level > *deepest()) {
-        *deepest() = (uint16_t)level;
+    if (level > the_deepest) {
+        the_deepest = (uint16_t)level;
     }
 }
 
@@ -48,5 +44,5 @@ void player_max_depth_set(int level) {
     // Replacing, not keeping the deeper one. The saved file's short is the whole
     // record, and putting it back has to give the number that was written, so
     // this door does not compare (player_max_depth.h says who may use it).
-    *deepest() = (uint16_t)level;
+    the_deepest = (uint16_t)level;
 }

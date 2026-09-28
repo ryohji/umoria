@@ -26,14 +26,10 @@
 // weight is a character that creation has not reached yet. THE TESTS LEAN ON THAT
 // ZERO: tests/check_strength_test.c:244 expects a carrying limit of 1300, which is
 // 10 * PLAYER_WEIGHT_CAP + 0.
-static uint16_t the_pounds_themselves;
-
-static uint16_t *the_pounds(void) {
-    return &the_pounds_themselves;
-}
+static uint16_t the_pounds;
 
 int player_body_weight(void) {
-    return *the_pounds();
+    return the_pounds;
 }
 
 void player_body_weight_set(int pounds) {
@@ -44,5 +40,5 @@ void player_body_weight_set(int pounds) {
     //
     // The cast is the field's own width, not a rule this window adds: `wt` is a
     // uint16_t and `py.misc.wt = randnor(...)` truncated exactly like this.
-    *the_pounds() = (uint16_t)pounds;
+    the_pounds = (uint16_t)pounds;
 }

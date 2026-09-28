@@ -23,14 +23,10 @@
 // Unlike the disarming skill next door, NOTHING IS BAKED IN at creation, so a
 // Human really does sit at exactly zero until a class is picked, whatever the
 // stats rolled.
-static int16_t the_chance_number;
-
-static int16_t *the_chance(void) {
-    return &the_chance_number;
-}
+static int16_t the_chance;
 
 int player_saving_throw(void) {
-    return *the_chance();
+    return the_chance;
 }
 
 void player_saving_throw_set(int chance) {
@@ -38,12 +34,12 @@ void player_saving_throw_set(int chance) {
     // prompt. One sentence for all three, because all three are a plain
     // replacement -- and nothing is added on the way in, which is where this
     // question is simpler than the disarming skill next door.
-    *the_chance() = (int16_t)chance;
+    the_chance = (int16_t)chance;
 }
 
 void player_saving_throw_adjust(int chance) {
     // The class's msav, added to whatever the race left here. This was
     // `m_ptr->save += c_ptr->msav;` in create.c: one statement then, one
     // statement now, so the store is still touched once.
-    *the_chance() = (int16_t)(*the_chance() + chance);
+    the_chance = (int16_t)(the_chance + chance);
 }
