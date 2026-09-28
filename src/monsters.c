@@ -762,7 +762,15 @@ const char *monster_name_indefinite(vtype m_name, const creature_type *r_ptr) {
 }
 
 monster_type m_list[MAX_MALLOC];
-int16_t m_level[MAX_MONS_LEVEL + 1];
+
+// m_level（レベルごとのモンスター定義の索引）はここに無い。#18-14-2C で
+// src/monster_levels.c の static になった。窓口は src/monster_levels.h
+// （monster_levels_init / monsters_up_to_level / monsters_at_level /
+//  first_monster_at_level）。組みたてていた init_m_level() は main.c の
+// static で**テストから届かなかった** —— module に移して初めて数え上げが
+// 届いた（#18-10 の init_t_level() と同じ）。**上の定義表がレベルの昇順に
+// 書かれているという前提**がこの索引の土台で、それは
+// tests/monster_levels_test.c が全帯で見張っている。
 
 // Blank monster values
 monster_type blank_monster = {0, 0, 0, {0}, 0, 0, 0, false, 0, false};

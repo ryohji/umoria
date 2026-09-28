@@ -107,7 +107,11 @@ extern int16_t tcptr; // Cur treasure heap ptr
 
 // Following are creature arrays and variables
 extern monster_type m_list[MAX_MALLOC];
-extern int16_t m_level[MAX_MONS_LEVEL + 1];
+// m_level is not declared here. Where each level's monsters sit in the
+// definition table is private to monster_levels.c, reached through
+// src/monster_levels.h. Every reader wanted a band -- a count, a width or the
+// number it starts at -- never the raw array; the building of it used to be a
+// static of main.c, out of reach of any test.
 extern monster_type blank_monster; // Blank monster values
 extern int16_t mfptr;              // Cur free monster ptr
 extern int16_t mon_tot_mult;       // # of repro's of creature

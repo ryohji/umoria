@@ -99,8 +99,17 @@ GROUPS = {
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
-        cave dun_level cur_height cur_width m_list m_level mfptr mon_tot_mult
+        cave dun_level cur_height cur_width m_list mfptr mon_tot_mult
         t_list tcptr""",
+    # レベルごとのモンスター定義の索引（m_level）は #18-14-2C で
+    # monster_levels.c の static になり、externs.h から外れた。窓口は
+    # src/monster_levels.h（monster_levels_init / monsters_up_to_level /
+    # monsters_at_level / first_monster_at_level）。**この区分の 2 問め**。
+    # 組みたてていた init_m_level() は main.c の static で、**テストから
+    # 届かなかった**（#18-10 の init_t_level() と同じ形）。読み手 6 か所が
+    # `m_level[level] - m_level[level - 1]` や `+ m_level[0]` と手で書いていた
+    # 引き算に名前が付いた。品物のほうは並べなおした本体（sorted_objects）が
+    # 別に要ったが、モンスター定義表はもとからレベルの昇順なので索引だけで足りる。
     # いま creatures() が誰の手番を処理しているか（hack_monptr）は #18-14-1C で
     # monster_turn.c の static になり、externs.h から外れた。窓口は
     # src/monster_turn.h（monster_turn_begin / monster_turn_end /
