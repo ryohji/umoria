@@ -66,7 +66,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player_attack_bonuses.c player_search_skill.c player_bio.c \
 	player_stealth.c player_class.c \
 	monster_turn.c monster_levels.c monster_breeding.c monster_list.c \
-	dungeon_size.c \
+	dungeon_size.c dungeon_level.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -90,7 +90,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	player_attack_bonuses.o player_search_skill.o player_bio.o \
 	player_stealth.o player_class.o \
 	monster_turn.o monster_levels.o monster_breeding.o monster_list.o \
-	dungeon_size.o \
+	dungeon_size.o dungeon_level.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -247,6 +247,10 @@ monster_list.o: $(SRCDIR)/monster_list.h $(HEADERS_COMMON)
 # that takes both halves, so no caller can change half of the size. It needs
 # nothing but <stdint.h> and its own header -- not even constant.h.
 dungeon_size.o: $(SRCDIR)/dungeon_size.h
+# Which level the game is on now (#18-14-6). One int16_t, one predicate for
+# the question six callers wrote three different ways, and one setter. Like
+# dungeon_size.o it needs nothing but its own header and the standard ones.
+dungeon_level.o: $(SRCDIR)/dungeon_level.h
 monsters.o: $(HEADERS_COMMON)
 # object_levels.c does not include externs.h (it declares the three things it
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.

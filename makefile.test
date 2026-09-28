@@ -62,7 +62,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_attack_bonuses_test player_search_skill_test \
         player_bio_test player_stealth_test player_class_test \
         monster_turn_test monster_levels_test monster_breeding_test \
-        monster_list_test dungeon_size_test
+        monster_list_test dungeon_size_test dungeon_level_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -2228,6 +2228,29 @@ $(BUILDDIR)/dungeon_size_test: $(TESTDIR)/dungeon_size_test.c \
                               src/dungeon_size.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_size_test.c \
 	    src/dungeon_size.c
+
+# 「いま何階か」（#18-14-6）。src/dungeon_level.c も externs.h を include せず、
+# extern も 1 つも持たない（要るのは <stdint.h> と <stdbool.h> だけ）ので、
+# リンクするのは module 1 本だけ ——**足場は 0 本**（所見 52 の形。
+# #18-14-1〜3・#18-14-5 と同じ）。
+#
+# **B は 1 コミットで通す見こみ** —— 12 ファイル 40 参照で、置きかえの形は
+# 4 つ（読み 30 を窓口へ・「町にいるか」の 6 か所・書き 3・読みもどしの別名 1）。
+# 5 問めの 54 か所より小さいので、置き場は A の段で module の static に
+# 入れてある。
+#
+# **税は 12 本の見こみ** —— src/misc3.c を丸ごと #include する 9 本と
+# src/save.c を丸ごと #include する 2 本（この 11 本は 5 問めと同じ顔ぶれ）に、
+# **level_exit_test が 1 本加わる** —— src/level_exit.c の leave_for_level() が
+# 深さと旗を対で書くので、あれが窓口を呼びはじめる。**そのとき
+# tests/level_exit_fixture.c は消える**（中身は dun_level 1 つだけで、
+# 「dun_level を閉じる人がこのファイルを消す」と自分で書いてある）。
+$(BUILDDIR)/dungeon_level_test: $(TESTDIR)/dungeon_level_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/dungeon_level.c \
+                              src/dungeon_level.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_level_test.c \
+	    src/dungeon_level.c
 
 clean:
 	rm -rf $(BUILDDIR)
