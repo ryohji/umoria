@@ -61,7 +61,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_saving_throw_test player_race_test player_body_weight_test \
         player_attack_bonuses_test player_search_skill_test \
         player_bio_test player_stealth_test player_class_test \
-        monster_turn_test monster_levels_test
+        monster_turn_test monster_levels_test monster_breeding_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -2117,6 +2117,36 @@ $(BUILDDIR)/monster_levels_test: $(TESTDIR)/monster_levels_test.c \
                               src/monsters.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_levels_test.c \
 	    src/monster_levels.c src/monsters.c
+
+# この階で増えたモンスターの数（ダンジョンとその中身から出す 3 つめの問い・
+# #18-14-3）。もとは monsters.c:779 の `int16_t mon_tot_mult;` で、
+# **定義表の隣に置かれた階ごとの数** —— 表とは何の関係も無い（#18-14-2 の
+# m_level が 1 行上にいたのと同じ置きかた。どちらも「モンスターに関係する数は
+# monsters.c」で済ませた跡）。
+#
+# **リンクするのは module 1 本だけ**で、足場（tests/*_fixture.c）は 1 つも
+# 要らない —— 依存は MAX_MON_MULT（constant.h）1 つで、int16_t 1 つと比較 1 つ
+# と足し引き 2 つで足りる。monster_turn_test と同じ 2 コンパイル単位。
+#
+# **A のあいだは器が 2 つある** —— monsters.c:779 の `mon_tot_mult`（本体が
+# 使う）と、この module の static（テストだけが見る）。#18-14-1A・#18-14-2A と
+# 同じで、本体が窓口を 1 つも呼んでいないから食いちがわない
+# （→ GLOBALS_INVENTORY.md 所見 52）。**C では tests/creature_stubs.c:66 の
+# 代役 `int16_t mon_tot_mult;` を消すのを忘れないこと** —— #18-14-1C で
+# hack_monptr のそれを消し忘れた（上の movement_rate_test の註）。
+#
+# **他の recipe への税は B で測る。** 下調べの見積りは 4 本だが、#18-14-1 の
+# 3 → 1 と #18-14-2 の 3 → 0 と同じ数えかたの誤り（名前が出るファイルを
+# 数えて、recipe がそのファイルを並べているかを見ていない）を含むので
+# 当てにしない。窓口を呼ぶのは creature.c・dungeon.c・moria3.c・save.c の
+# 4 ファイルで、**このうち recipe に出てくるのは creature.c（movement_rate_test）
+# と save.c（save_test 系）**。
+$(BUILDDIR)/monster_breeding_test: $(TESTDIR)/monster_breeding_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_breeding.c \
+                              src/monster_breeding.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_breeding_test.c \
+	    src/monster_breeding.c
 
 clean:
 	rm -rf $(BUILDDIR)

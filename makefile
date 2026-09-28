@@ -65,7 +65,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player_disarm.c player_saving_throw.c player_race.c player_body_weight.c \
 	player_attack_bonuses.c player_search_skill.c player_bio.c \
 	player_stealth.c player_class.c \
-	monster_turn.c monster_levels.c \
+	monster_turn.c monster_levels.c monster_breeding.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -88,7 +88,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	player_disarm.o player_saving_throw.o player_race.o player_body_weight.o \
 	player_attack_bonuses.o player_search_skill.o player_bio.o \
 	player_stealth.o player_class.o \
-	monster_turn.o monster_levels.o \
+	monster_turn.o monster_levels.o monster_breeding.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -234,6 +234,9 @@ monster_turn.o: $(SRCDIR)/monster_turn.h $(HEADERS_COMMON)
 # declares the walk over the definitions itself rather than including
 # externs.h, which would drag in ncurses for the sake of one loop.
 monster_levels.o: $(SRCDIR)/monster_levels.h $(HEADERS_COMMON)
+# How many monsters have been bred on this level (#18-14-3). One int16_t, one
+# comparison against MAX_MON_MULT (constant.h) and two steps; no externs.h.
+monster_breeding.o: $(SRCDIR)/monster_breeding.h $(HEADERS_COMMON)
 monsters.o: $(HEADERS_COMMON)
 # object_levels.c does not include externs.h (it declares the three things it
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.
