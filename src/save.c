@@ -16,6 +16,7 @@
 
 #include "burden.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "equipment.h"
@@ -397,9 +398,9 @@ static bool sv_write(void) {
     wr_byte((uint8_t)count);
     wr_byte(prev_char);
 
-    wr_short((uint16_t)tcptr);
-    for (int i = MIN_TRIX; i < tcptr; i++) {
-        wr_item(&t_list[i]);
+    wr_short((uint16_t)floor_items_used());
+    for (int i = MIN_TRIX; i < floor_items_used(); i++) {
+        wr_item(floor_item_at(i));
     }
     wr_short((uint16_t)monster_list_used());
     for (int i = MIN_MONIX; i < monster_list_used(); i++) {
@@ -1108,16 +1109,19 @@ bool get_char(bool *generate) {
             total_count += count;
         }
 
-        rd_short((uint16_t *)&tcptr);
-        if (tcptr > MAX_TALLOC) {
+        // The two marks below are put back before they are checked, exactly
+        // as the old `rd_short((uint16_t *)&tcptr)` and `&mfptr` did -- a file
+        // claiming more rows than the table holds leaves the mark bogus and
+        // then fails the load.
+        uint16_t floor_used;
+        rd_short(&floor_used);
+        set_floor_items_used((int16_t)floor_used);
+        if (floor_items_used() > MAX_TALLOC) {
             goto error;
         }
-        for (int i = MIN_TRIX; i < tcptr; i++) {
-            rd_item(&t_list[i]);
+        for (int i = MIN_TRIX; i < floor_items_used(); i++) {
+            rd_item(floor_item_at(i));
         }
-        // The mark is put back before it is checked, exactly as the old
-        // `rd_short((uint16_t *)&mfptr)` did -- a file claiming more rows than
-        // the table holds leaves the mark bogus and then fails the load.
         uint16_t monsters_used;
         rd_short(&monsters_used);
         set_monster_list_used((int16_t)monsters_used);

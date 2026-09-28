@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "floor_items.h"
 #include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "monster_levels.h"
@@ -235,7 +236,7 @@ int next_to_corr(int y, int x) {
 
             // should fail if there is already a door present
             if (c_ptr->fval == CORR_FLOOR &&
-                (c_ptr->tptr == 0 || t_list[c_ptr->tptr].tval < TV_MIN_DOORS)) {
+                (c_ptr->tptr == 0 || floor_item_at(c_ptr->tptr)->tval < TV_MIN_DOORS)) {
                 i++;
             }
         }
@@ -429,8 +430,8 @@ uint8_t loc_symbol(int y, int x) {
         return monster_get_creature(monster_list_at(cave_ptr->cptr)->creature)->cchar;
     } else if (!cave_ptr->pl && !cave_ptr->tl && !cave_ptr->fm) {
         return ' ';
-    } else if ((cave_ptr->tptr != 0) && (t_list[cave_ptr->tptr].tval != TV_INVIS_TRAP)) {
-        return t_list[cave_ptr->tptr].tchar;
+    } else if ((cave_ptr->tptr != 0) && (floor_item_at(cave_ptr->tptr)->tval != TV_INVIS_TRAP)) {
+        return floor_item_at(cave_ptr->tptr)->tchar;
     } else if (cave_ptr->fval <= MAX_CAVE_FLOOR) {
         return '.';
     } else if (cave_ptr->fval == GRANITE_WALL || cave_ptr->fval == BOUNDARY_WALL || highlight_seams == false) {
@@ -723,7 +724,7 @@ static void compact_objects(void) {
                 cave_type *cave_ptr = &cave[i][j];
                 if ((cave_ptr->tptr != 0) &&
                     (distance(i, j, player_row(), player_col()) > cur_dis)) {
-                    switch (t_list[cave_ptr->tptr].tval) {
+                    switch (floor_item_at(cave_ptr->tptr)->tval) {
                     case TV_VIS_TRAP:
                         chance = 15;
                         break;
@@ -765,30 +766,32 @@ static void compact_objects(void) {
 
 // Gives pointer to next free space -RAK-
 int popt(void) {
-    if (tcptr == MAX_TALLOC) {
+    if (floor_items_is_full()) {
         compact_objects();
     }
-    return tcptr++;
+    return floor_items_claim_slot();
 }
 
 // Pushs a record back onto free space list -RAK-
 // Delete_object() should always be called instead, unless the object
 // in question is not in the dungeon, e.g. in store1.c and files.c
 void pusht(uint8_t x) {
-    if (x != tcptr - 1) {
-        t_list[x] = t_list[tcptr - 1];
+    const int last = floor_items_used() - 1;
+
+    if (x != last) {
+        *floor_item_at(x) = *floor_item_at(last);
 
         // must change the tptr in the cave of the object just moved
         for (int i = 0; i < dungeon_height(); i++) {
             for (int j = 0; j < dungeon_width(); j++) {
-                if (cave[i][j].tptr == tcptr - 1) {
+                if (cave[i][j].tptr == last) {
                     cave[i][j].tptr = x;
                 }
             }
         }
     }
-    tcptr--;
-    invcopy(&t_list[tcptr], OBJ_NOTHING);
+    // Blank the row that was just copied away and take the mark back one
+    floor_items_drop_last();
 }
 
 // Should the object be enchanted -RAK-
