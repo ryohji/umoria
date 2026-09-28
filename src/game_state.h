@@ -27,7 +27,7 @@ struct GameState {
     player_type *player;  // Player data (points to existing py global for now)
 
     // World state
-    cave_type (*cave)[MAX_WIDTH];  // Dungeon map (points to existing cave global)
+    cave_type *cave;                // Dungeon map (square (0,0) of dungeon_map.c's table)
     monster_type *monsters;         // Monster list (row 0 of monster_list.c's table)
     inven_type *treasure;           // Floor items (row 0 of floor_items.c's table)
     inven_type *inventory;          // Player inventory

@@ -15,6 +15,7 @@
 
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_map.h"
 #include "externs.h"
 #include "floor_items.h"
 #include "equipment.h"
@@ -48,7 +49,7 @@ void tunnel(int dir) {
     int x = player_col();
     (void)mmove(dir, &y, &x);
 
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
 
     // Compute the digging ability of player; based on
     // strength, and type of tool used
@@ -180,7 +181,7 @@ void disarm_trap(void) {
     if (get_dir(CNIL, &dir)) {
         (void)mmove(dir, &y, &x);
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         bool no_disarm = false;
 
@@ -564,7 +565,7 @@ static bool look_see(int x, int y, bool *transparent) {
         return false;
     }
 
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
     *transparent = c_ptr->fval <= MAX_OPEN_SPACE;
 
     if (gl_noquery) {
@@ -768,7 +769,7 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
     if (randint(10) > 1) {
         do {
             if (in_bounds(i, j)) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 if (c_ptr->fval <= MAX_OPEN_SPACE && c_ptr->tptr == 0) {
                     flag = true;
@@ -784,7 +785,7 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
 
     if (flag) {
         int cur_pos = popt();
-        cave[i][j].tptr = cur_pos;
+        square_at(i, j)->tptr = cur_pos;
         *floor_item_at(cur_pos) = *t_ptr;
         lite_spot(i, j);
     } else {
@@ -840,7 +841,7 @@ void throw_object(void) {
                     flag = true;
                 }
 
-                cave_type *c_ptr = &cave[y][x];
+                cave_type *c_ptr = square_at(y, x);
                 if ((c_ptr->fval <= MAX_OPEN_SPACE) && (!flag)) {
                     if (c_ptr->cptr > 1) {
                         flag = true;
@@ -910,7 +911,7 @@ void throw_object(void) {
 // Used to be part of bash above.
 static void py_bash(int y, int x) {
 
-    int monster = cave[y][x].cptr;
+    int monster = square_at(y, x)->cptr;
     monster_type *m_ptr = monster_list_at(monster);
     creature_type *c_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
@@ -1001,7 +1002,7 @@ void bash(void) {
         }
         (void)mmove(dir, &y, &x);
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
         if (c_ptr->cptr > 1) {
             if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
                 msg_print("You are afraid!");

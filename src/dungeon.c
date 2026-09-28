@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "command_state.h"
 #include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "dungeon_size.h"
 #include "equipment.h"
 #include "floor_items.h"
@@ -97,7 +98,7 @@ void dungeon(void) {
     forget_run();
     forget_pending_teleport();
     monster_breeding_reset();
-    cave[player_row()][player_col()].cptr = 1;
+    square_at(player_row(), player_col())->cptr = 1;
 
     // Ensure we display the panel.
     panel_forget_position();
@@ -1776,7 +1777,7 @@ static void examine_book(void) {
 // Go up one level -RAK-
 static void go_up(void) {
     bool no_stairs = false;
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (c_ptr->tptr != 0) {
         if (floor_item_at(c_ptr->tptr)->tval == TV_UP_STAIR) {
@@ -1798,7 +1799,7 @@ static void go_up(void) {
 
 // Go down one level -RAK-
 static void go_down(void) {
-    const uint8_t tptr = cave[player_row()][player_col()].tptr;
+    const uint8_t tptr = square_at(player_row(), player_col())->tptr;
 
     if (tptr != 0 && floor_item_at(tptr)->tval == TV_DOWN_STAIR) {
         leave_for_level(dungeon_level() + 1);
@@ -1820,7 +1821,7 @@ static void jamdoor(void) {
     int dir;
     if (get_dir(CNIL, &dir)) {
         (void)mmove(dir, &y, &x);
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if (c_ptr->tptr != 0) {
             inven_type *t_ptr = floor_item_at(c_ptr->tptr);

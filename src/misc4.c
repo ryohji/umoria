@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "dungeon_map.h"
 #include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
@@ -65,7 +66,7 @@ void inscribe(inven_type *i_ptr, const char *str) {
 
 // We need to reset the view of things. -CJS-
 void check_view(void) {
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     // Check for new panel
     if (get_panel(player_row(), player_col(), false)) {
@@ -86,7 +87,7 @@ void check_view(void) {
 
         for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {
             for (int j = (player_col() - 1); j <= (player_col() + 1); j++) {
-                cave_type *d_ptr = &cave[i][j];
+                cave_type *d_ptr = square_at(i, j);
                 if ((d_ptr->fval == LIGHT_FLOOR) && !d_ptr->pl) {
                     light_room(i, j);
                 }

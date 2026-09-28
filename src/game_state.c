@@ -11,6 +11,7 @@
 #include "burden.h"
 #include "command_state.h"
 #include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "dungeon_size.h"
 #include "constant.h"
 #include "externs.h"
@@ -53,7 +54,7 @@ GameState *game_state_init(void) {
     // Point to existing global variables (for backward compatibility during migration)
     // These will eventually be moved into the GameState structure itself
     state->player = &py;
-    state->cave = cave;
+    state->cave = square_at(0, 0);
     state->monsters = monster_list_at(0);
     state->treasure = floor_item_at(0);
     state->inventory = inventory_and_equipment_at(0);

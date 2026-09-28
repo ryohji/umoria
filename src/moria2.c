@@ -16,6 +16,7 @@
 #include "externs.h"
 
 #include "command_state.h"
+#include "dungeon_map.h"
 #include "equipment.h"
 #include "floor_items.h"
 #include "monster_list.h"
@@ -30,7 +31,7 @@ static bool see_wall(int, int, int);
 // Change a trap from invisible to visible -RAK-
 // Note: Secret doors are handled here
 void change_trap(int y, int x) {
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
     inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
     if (t_ptr->tval == TV_INVIS_TRAP) {
@@ -60,7 +61,7 @@ void search(int y, int x, int chance) {
         for (int j = (x - 1); j <= (x + 1); j++) {
             // always in_bounds here
             if (randint(100) < chance) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 // Search for hidden objects
                 if (c_ptr->tptr != 0) {
@@ -348,7 +349,7 @@ void area_affect(int dir, int y, int x) {
 
             // Objects player can see (Including doors?) cause a stop.
             if (mmove(newdir, &row, &col)) {
-                cave_type *c_ptr = &cave[row][col];
+                cave_type *c_ptr = square_at(row, col);
 
                 bool inv;
                 if (player_has_light() || c_ptr->tl || c_ptr->pl || c_ptr->fm) {

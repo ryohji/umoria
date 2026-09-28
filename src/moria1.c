@@ -15,6 +15,7 @@
 
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_map.h"
 #include "equipment.h"
 #include "externs.h"
 #include "floor_items.h"
@@ -665,7 +666,7 @@ void inven_command(char command) {
         case 'd': // Drop
             if (inventory_count() == 0 && equipment_count() == 0) {
                 msg_print("But you're not carrying anything.");
-            } else if (cave[player_row()][player_col()].tptr != 0) {
+            } else if (square_at(player_row(), player_col())->tptr != 0) {
                 msg_print("There's no room to drop anything here.");
             } else {
                 selecting = true;
@@ -865,7 +866,7 @@ void inven_command(char command) {
                                 msg_print("Hmmm, it seems to be cursed.");
                                 item = -1;
                             } else if (command == 't' && !inven_check_num(equipment_at(item))) {
-                                if (cave[player_row()][player_col()].tptr != 0) {
+                                if (square_at(player_row(), player_col())->tptr != 0) {
                                     msg_print("You can't carry it.");
                                     item = -1;
                                 } else if (get_check("You can't carry it.  Drop it?")) {
@@ -1337,7 +1338,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
 
 // Returns true if player has no light -RAK-
 bool no_light(void) {
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (!c_ptr->tl && !c_ptr->pl) {
         return true;
@@ -1447,9 +1448,9 @@ bool get_alldir(const char *prompt, int *dir) {
 // Moves creature record from one space to another -RAK-
 void move_rec(int y1, int x1, int y2, int x2) {
     // this always works correctly, even if y1==y2 and x1==x2
-    int tmp = cave[y1][x1].cptr;
-    cave[y1][x1].cptr = 0;
-    cave[y2][x2].cptr = tmp;
+    int tmp = square_at(y1, x1)->cptr;
+    square_at(y1, x1)->cptr = 0;
+    square_at(y2, x2)->cptr = tmp;
 }
 
 // Room is lit, make it appear -RAK-
@@ -1465,7 +1466,7 @@ void light_room(int y, int x) {
 
     for (int i = start_row; i <= end_row; i++) {
         for (int j = start_col; j <= end_col; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if (c_ptr->lr && !c_ptr->pl) {
                 c_ptr->pl = true;
@@ -1498,7 +1499,7 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
         // Turn off lamp light
         for (int i = y1 - 1; i <= y1 + 1; i++) {
             for (int j = x1 - 1; j <= x1 + 1; j++) {
-                cave[i][j].tl = false;
+                square_at(i, j)->tl = false;
             }
         }
         if (player_is_running() && !find_prself) {
@@ -1510,7 +1511,7 @@ static void sub1_move_light(int y1, int x1, int y2, int x2) {
 
     for (int i = y2 - 1; i <= y2 + 1; i++) {
         for (int j = x2 - 1; j <= x2 + 1; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             // only light up if normal movement
             if (player_light_is_drawn()) {
@@ -1558,7 +1559,7 @@ static void sub3_move_light(int y1, int x1, int y2, int x2) {
     if (player_light_is_drawn()) {
         for (int i = y1 - 1; i <= y1 + 1; i++) {
             for (int j = x1 - 1; j <= x1 + 1; j++) {
-                cave[i][j].tl = false;
+                square_at(i, j)->tl = false;
                 print(loc_symbol(i, j), i, j);
             }
         }
