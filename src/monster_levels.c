@@ -32,7 +32,7 @@ creature_type *monster_creature_rget(creature_rev_iterator it);
 // from m_level[L - 1] to m_level[L] - 1. The name came over from monsters.c
 // (#18-14-2) with the type -- `int16_t m_level[MAX_MONS_LEVEL + 1];` -- and so
 // did the fact that it starts out as zeroes: until monster_levels_init() runs,
-// every band is empty, which is why main() calls it before the first cave is
+// every band is empty, which is why main() calls it before the first level is
 // generated.
 //
 // FOR ONE STEP THERE WERE TWO OF THESE, as with #18-14-1: the row went in here
