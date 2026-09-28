@@ -15,6 +15,7 @@
 
 #include "equipment.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "inventory.h"
 #include "monster_breeding.h"
 #include "monster_list.h"
@@ -917,7 +918,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
             } else if (c_ptr->tptr != 0) {
                 // Creature can open doors?
 
-                t_ptr = &t_list[c_ptr->tptr];
+                t_ptr = floor_item_at(c_ptr->tptr);
 
                 // Creature can open doors.
                 if (movebits & CM_OPEN_DOOR) {
@@ -985,8 +986,8 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
 
             // Glyph of warding present?
             if (do_move && (c_ptr->tptr != 0) &&
-                (t_list[c_ptr->tptr].tval == TV_VIS_TRAP) &&
-                (t_list[c_ptr->tptr].subval == 99)) {
+                (floor_item_at(c_ptr->tptr)->tval == TV_VIS_TRAP) &&
+                (floor_item_at(c_ptr->tptr)->subval == 99)) {
                 if (randint(OBJ_RUNE_PROT) < monster_get_creature(m_ptr->creature)->level) {
                     if ((newy == player_row()) && (newx == player_col())) {
                         msg_print("The rune of protection is broken!");
@@ -1046,7 +1047,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                 if (movebits & CM_PICKS_UP) {
                     c_ptr = &cave[newy][newx];
 
-                    if ((c_ptr->tptr != 0) && (t_list[c_ptr->tptr].tval <= TV_MAX_OBJECT)) {
+                    if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval <= TV_MAX_OBJECT)) {
                         *rcmove |= CM_PICKS_UP;
                         (void)delete_object(newy, newx);
                     }

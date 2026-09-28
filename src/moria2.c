@@ -17,6 +17,7 @@
 
 #include "command_state.h"
 #include "equipment.h"
+#include "floor_items.h"
 #include "monster_list.h"
 #include "player_abilities.h"
 #include "player_light.h"
@@ -30,7 +31,7 @@ static bool see_wall(int, int, int);
 // Note: Secret doors are handled here
 void change_trap(int y, int x) {
     cave_type *c_ptr = &cave[y][x];
-    inven_type *t_ptr = &t_list[c_ptr->tptr];
+    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
     if (t_ptr->tval == TV_INVIS_TRAP) {
         t_ptr->tval = TV_VIS_TRAP;
@@ -63,7 +64,7 @@ void search(int y, int x, int chance) {
 
                 // Search for hidden objects
                 if (c_ptr->tptr != 0) {
-                    inven_type *t_ptr = &t_list[c_ptr->tptr];
+                    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
                     // Trap on floor?
                     if (t_ptr->tval == TV_INVIS_TRAP) {
@@ -352,7 +353,7 @@ void area_affect(int dir, int y, int x) {
                 bool inv;
                 if (player_has_light() || c_ptr->tl || c_ptr->pl || c_ptr->fm) {
                     if (c_ptr->tptr != 0) {
-                        int t = t_list[c_ptr->tptr].tval;
+                        int t = floor_item_at(c_ptr->tptr)->tval;
                         if (t != TV_INVIS_TRAP && t != TV_SECRET_DOOR &&
                             (t != TV_OPEN_DOOR || !find_ignore_doors)) {
                             end_find();

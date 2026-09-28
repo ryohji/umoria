@@ -14,6 +14,7 @@
 #include "dungeon_size.h"
 #include "constant.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "input_ended.h"
 #include "inven_command_state.h"
 #include "inventory.h"
@@ -54,7 +55,7 @@ GameState *game_state_init(void) {
     state->player = &py;
     state->cave = cave;
     state->monsters = monster_list_at(0);
-    state->treasure = t_list;
+    state->treasure = floor_item_at(0);
     state->inventory = inventory_and_equipment_at(0);
     state->stores = store_at(0);
     state->old_messages = msg_history_slots();

@@ -19,6 +19,7 @@
 
 #include "abilities.h"
 #include "equipment.h"
+#include "floor_items.h"
 #include "inventory.h"
 #include "object_levels.h"
 #include "player_bio.h"
@@ -144,9 +145,9 @@ void print_objects(void) {
 
                 inven_type *i_ptr;
                 for (int i = 0; i < nobj; i++) {
-                    invcopy(&t_list[j], object_at_level_position(get_obj_num(level, small_object)));
+                    invcopy(floor_item_at(j), object_at_level_position(get_obj_num(level, small_object)));
                     magic_treasure(j, level);
-                    i_ptr = &t_list[j];
+                    i_ptr = floor_item_at(j);
                     store_bought(i_ptr);
 
                     if (i_ptr->flags & TR_CURSED) {

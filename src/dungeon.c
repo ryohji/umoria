@@ -18,6 +18,7 @@
 #include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "equipment.h"
+#include "floor_items.h"
 #include "input_ended.h"
 #include "inven_command_state.h"
 #include "inventory.h"
@@ -1778,7 +1779,7 @@ static void go_up(void) {
     cave_type *c_ptr = &cave[player_row()][player_col()];
 
     if (c_ptr->tptr != 0) {
-        if (t_list[c_ptr->tptr].tval == TV_UP_STAIR) {
+        if (floor_item_at(c_ptr->tptr)->tval == TV_UP_STAIR) {
             leave_for_level(dungeon_level() - 1);
             msg_print("You enter a maze of up staircases.");
             msg_print("You pass through a one-way door.");
@@ -1799,7 +1800,7 @@ static void go_up(void) {
 static void go_down(void) {
     const uint8_t tptr = cave[player_row()][player_col()].tptr;
 
-    if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
+    if (tptr != 0 && floor_item_at(tptr)->tval == TV_DOWN_STAIR) {
         leave_for_level(dungeon_level() + 1);
         msg_print("You enter a maze of down staircases.");
         msg_print("You pass through a one-way door.");
@@ -1822,7 +1823,7 @@ static void jamdoor(void) {
         cave_type *c_ptr = &cave[y][x];
 
         if (c_ptr->tptr != 0) {
-            inven_type *t_ptr = &t_list[c_ptr->tptr];
+            inven_type *t_ptr = floor_item_at(c_ptr->tptr);
             if (t_ptr->tval == TV_CLOSED_DOOR) {
                 if (c_ptr->cptr == 0) {
                     int i, j;

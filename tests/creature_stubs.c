@@ -62,7 +62,14 @@ cave_type cave[MAX_HEIGHT][MAX_WIDTH];
  * m_list / mfptr の 2 行は #18-14-4C で消えたが、**この 1 行は残った** ——
  * blank_monster はこの問いの主題ではなく定数表の側。 */
 monster_type blank_monster;
+/* 床に落ちているものの置き場。#18-14-7B① で src/floor_items.c をリンクする
+ * ようになったので、**表だけでなく印も**要る（窓口が印を読み書きする）。
+ * 表の 1 行は前からここにあった —— creature.c が `t_list[c_ptr->tptr]` と
+ * 書いていたから。置き場が src/floor_items.c の static に入る #18-14-7C で
+ * **この 2 行は消える**（invcopy() の代役は下に残る —— 空の行は定義表の
+ * 写しで、あれは主題の外）。 */
 inven_type t_list[MAX_TALLOC];
+int16_t tcptr;
 /* 居場所の 2 個（char_row / char_col）もここに無い。#18-6C1 で
  * src/player_pos.c が static で持つようになったので、代役を置くと窓口越しの
  * 読み書きが届かない別の器になるだけ。creature.c は player_row() /

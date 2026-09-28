@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "dungeon_size.h"
+#include "floor_items.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
@@ -413,7 +414,7 @@ void wizard_create(void) {
         }
 
         tmp_val = popt();
-        t_list[tmp_val] = forge;
+        *floor_item_at(tmp_val) = forge;
         c_ptr->tptr = tmp_val;
         msg_print("Allocated.");
     } else {

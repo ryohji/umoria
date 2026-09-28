@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "floor_items.h"
 #include "missile_serial.h"
 #include "options.h"
 
@@ -30,7 +31,7 @@ void magic_treasure(int x, int level) {
     int special = chance / OBJ_DIV_SPECIAL;
     int cursed = (10 * chance) / OBJ_DIV_CURSED;
 
-    inven_type *t_ptr = &t_list[x];
+    inven_type *t_ptr = floor_item_at(x);
 
     // some objects appear multiple times in the object_list with different
     // levels, this is to make the object occur more often, however, for
