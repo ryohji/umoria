@@ -31,8 +31,11 @@
  *     増えるモンスターの予算がその分だけ増える**。
  *   **③0 より下には行かない** —— もとの `if (mon_tot_mult > 0)`。
  *
- * **階ごと**。降りれば 0 に戻る（dungeon.c）。**セーブファイルには出る**ので、
- * 戻す窓口が 1 本ある（使った予算は読みもどしても残る）。
+ * **階ごと**。降りれば 0 に戻る（dungeon.c）。**セーブファイルには出るが、
+ * 読みもどした値はそのまま捨てられる** —— main() は洞窟を作ったときも
+ * 読みもどしたときも、ループの最初に dungeon() を呼び、dungeon() が最初の
+ * 手番の前にこの数を 0 に戻す。**戻す窓口があるのはファイル書式が動かせない
+ * から**で、読みもどした階はいつも予算まるごとから始まる（上流のふるまい）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に階を始めなおす。
  */
@@ -69,8 +72,10 @@ static void given_the_budget_spent(void) {
  * だから main() の**いちばん最初**に置いてあり、ここより前に窓口を呼ぶ件を
  * 足してはいけない（#18-14-1・#18-14-2 と同じ作法）。
  *
- * 見ているのは**最初の町**（dungeon.c が 0 を書く前の、走りだしたばかりの
- * ところ）。 */
+ * **これはゲームの中では起こらない状態** —— main() は最初の手番の前に
+ * dungeon() を通り、そこで 0 が書かれる。押さえているのは
+ * **置き場そのものの初期値**で、初期値が 0 でなくなったら
+ * 「階の頭で 0 に戻す」以外の道で予算が湧くことになる。 */
 TEST(nothing_has_been_bred_before_anything_happens) {
     ASSERT_EQ_INT(0, monster_breeding_count());
     ASSERT_TRUE(monster_breeding_allowed());
@@ -266,14 +271,16 @@ TEST(the_count_that_goes_in_is_the_one_that_comes_out) {
     }
 }
 
-/* **読みもどした階は使った予算のまま始まる** —— 尽きた階をセーブして
- * 読みなおしても、増えるモンスターは増えない（戻す窓口が無いと 0 から
- * 始まってしまい、セーブしなおすたびに予算が湧く）。 */
-TEST(a_restored_level_keeps_the_budget_it_had_spent) {
+/* 戻す窓口は数だけでなく答えも変える（上限を越えた数を入れれば止まる）。
+ * **ただしゲームの中ではこの効果は見えない** —— 読みもどした直後に
+ * dungeon() が 0 に戻すので、**ファイルの中のこの short は誰も読まない枠**。
+ * それでも窓口の対を残しているのはファイル書式を動かせないからで、
+ * ここで押さえているのは**入れた数がそのまま効く**ということだけ。 */
+TEST(putting_a_count_back_can_stop_the_breeding) {
     given_the_budget_spent();
     const int16_t saved = monster_breeding_count();
 
-    monster_breeding_reset(); /* 別のゲームを始めたつもり */
+    monster_breeding_reset(); /* dungeon() が階の頭でするのと同じ */
     ASSERT_TRUE(monster_breeding_allowed());
 
     set_monster_breeding_count(saved);
@@ -321,7 +328,7 @@ int main(void) {
     RUN_TEST(births_and_deaths_move_the_count_both_ways);
 
     RUN_TEST(the_count_that_goes_in_is_the_one_that_comes_out);
-    RUN_TEST(a_restored_level_keeps_the_budget_it_had_spent);
+    RUN_TEST(putting_a_count_back_can_stop_the_breeding);
 
     RUN_TEST(asking_does_not_change_the_answer);
 

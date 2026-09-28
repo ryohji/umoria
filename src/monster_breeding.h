@@ -62,9 +62,16 @@ void monster_breeding_note_birth(void);
 void monster_breeding_note_death(void);
 
 // The number itself, for the save file only (save.c writes it as a short and
-// reads it back, so a restored level keeps the budget it had spent). Nothing
-// else wants the raw count -- the readers above are the question (the same
-// arrangement as missile_serial_value()).
+// reads it back). Nothing else wants the raw count -- the readers above are the
+// question (the same arrangement as missile_serial_value()).
+//
+// THE VALUE READ BACK IS THEN THROWN AWAY, and that is upstream's behaviour, not
+// an accident of this module: main() calls dungeon() as the first thing in its
+// loop whether the cave was generated or restored, and dungeon() resets this
+// counter before the first turn. So a restored level always starts with the
+// whole budget, and the short in the file is a slot nobody reads. The windows
+// keep the pair because the file format is fixed -- taking the write out would
+// shift every field after it.
 int16_t monster_breeding_count(void);
 void set_monster_breeding_count(int16_t count);
 
