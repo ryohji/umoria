@@ -135,7 +135,11 @@ int closing_flag = 0; // Used for closing
 // that follow from it) moved to panel.c, next to the arithmetic that derives
 // one from the other
 
-cave_type cave[MAX_HEIGHT][MAX_WIDTH];
+// cave is not here either. Every square of the level -- what it is made of,
+// which monster stands on it, which thing lies on it, and the four light bits
+// -- is private to dungeon_map.c now, handed out one square at a time through
+// src/dungeon_map.h. It was the last of the eleven dungeon globals, and the
+// biggest: 258 references in fifteen files.
 
 static recall_type c_recall[MAX_CREATURES]; // Monster memories
 

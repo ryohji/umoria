@@ -52,13 +52,11 @@ player_type py;
  * 要る。この足場は py を自分で定義する = src/player.c（本物の 40 個の持ち主）と
  * 一緒にはリンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
-/* マスの表。#18-14-8B でこの実行形式が src/dungeon_map.c をリンクするように
- * なったので、**この 1 行の役目が変わった** —— creature.c が字面で読む表では
- * なく、窓口が extern 1 行で見にいく置き場になった。置き場が
- * #18-14-8C で module の static に入ったら、ここに残しても窓口に届かない
- * 別の表になるだけなので消える（m_list の 2 行が #18-14-4C で消えたのと
- * 同じ理由）。 */
-cave_type cave[MAX_HEIGHT][MAX_WIDTH];
+/* マスの表（cave）もここに無い。#18-14-8C で置き場が src/dungeon_map.c の
+ * static に入ったので、代役を置くと窓口に届かない別の表になるだけ
+ * （m_list の 2 行が #18-14-4C で消えたのと同じ理由）。この実行形式は
+ * src/dungeon_map.c をリンクしていて、下の階を白紙に戻す 1 行はその窓口を
+ * 呼ぶ。creature.c は square_at(y, x) で 1 マスを取る。 */
 /* m_list もここに無い。#18-14-4C で src/monster_list.c が static で持つように
  * なったので、代役を置くと窓口に届かない別の表になるだけ
  * （movement_rate_test はその monster_list.c をリンクしている）。creature.c は

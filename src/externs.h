@@ -64,8 +64,12 @@ extern int closing_flag; // Used for closing
 // is private to panel.c now, together with the arithmetic that derives the six
 // coordinates from the two indexes. See panel.h.
 
-// Following are all floor definitions
-extern cave_type cave[MAX_HEIGHT][MAX_WIDTH];
+// The floor of the level is not declared here. Every square -- what it is made
+// of, which monster stands on it, which thing lies on it, and the four light
+// bits -- is private to dungeon_map.c, handed out one square at a time by
+// square_at(y, x). See src/dungeon_map.h. The table always covers MAX_HEIGHT x
+// MAX_WIDTH; how much of it the level in play uses is dungeon_size.c's
+// question. With it went the last of the eleven dungeon globals.
 
 // Following are player variables
 extern player_type py;

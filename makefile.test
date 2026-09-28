@@ -2313,20 +2313,23 @@ $(BUILDDIR)/floor_items_test: $(TESTDIR)/floor_items_test.c \
 # **options_test は数えない** —— src/variable.c を並べているが、あれは置き場で
 # 呼び手ではない（7 問めで item_ident_test を数えまちがえたのと同じ形。所見 34）。
 #
-# **#18-14-8B③ で 10 本払った**（misc3 の 9 本 ＋ movement_rate）。残る 2 本は
-# src/save.c を取りこむ save_bool・store_save で、B の最後といっしょに払う。
+# **税は 12 本で、A の見こみとぴったり一致した** —— B③ で 10 本
+# （misc3 の 9 本 ＋ movement_rate）、B④ で 2 本（save_bool・store_save）。
 # **A で「払うときに tests/creature_stubs.c と tests/misc3_stubs.c の cave の
-# 定義が死ぬ」と書いたのは早かった** —— 置き場はまだ src/variable.c にあり、
-# あの 2 行は「呼び手が字面で読む表」から「窓口が extern で見にいく置き場」に
-# **役目を変えて残った**。死ぬのは C（そのとき足場 1 本もろとも 0 になる）。
-# 実際にこの段で窓口に替わったのは creature_stubs.c の memset 1 行だけ。
+# 定義が死ぬ」と書いたのは早かった** —— B のあいだ置き場は src/variable.c に
+# あり、あの 2 行は「呼び手が字面で読む表」から「窓口が extern で見にいく
+# 置き場」に**役目を変えて残った**。死んだのは C。
+#
+# **#18-14-8C で足場は見こみどおり 0 になった** ——
+# tests/dungeon_map_fixture.c はファイルごと消え、この recipe は
+# **テストの 1 本と module の 1 本だけ**になった（この列でいちばん小さい
+# recipe）。tests/misc3_stubs.c と tests/creature_stubs.c の `cave` の定義も
+# 消え、後者の「階を白紙に戻す」1 行は B③ で窓口呼びに替わっている。
 $(BUILDDIR)/dungeon_map_test: $(TESTDIR)/dungeon_map_test.c \
-                              $(TESTDIR)/dungeon_map_fixture.c \
                               $(TESTDIR)/minunit.h \
                               src/dungeon_map.c \
                               src/dungeon_map.h | $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_map_test.c \
-	    $(TESTDIR)/dungeon_map_fixture.c src/dungeon_map.c
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_map_test.c src/dungeon_map.c
 
 clean:
 	rm -rf $(BUILDDIR)

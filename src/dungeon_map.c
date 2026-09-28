@@ -15,18 +15,18 @@
 
 #include "dungeon_map.h"
 
-// THE STORAGE IS STILL IN variable.c, and it stays there until step C. The
-// storage may move at step A only when moving every caller fits in one commit,
-// and this question has 258 references in fifteen files; while the callers are
-// being moved a few files at a time, two containers would mean half the game
-// walking around one map and half around another. So this module reaches the
-// one container by hand for now, and the declaration below is the only place in
-// the tree that will still spell the old name once B is done.
+// THE STORAGE. It was `cave_type cave[MAX_HEIGHT][MAX_WIDTH];` in variable.c,
+// reached by name from fifteen files; now nothing outside this file can spell
+// it. It stayed in variable.c through steps A and B because moving every caller
+// took four commits, and while that was going on two containers would have
+// meant half the game walking around one map and half around another -- the
+// same reason the monster table (#18-14-4) and the floor-item table (#18-14-7)
+// waited for their own step C.
 //
-// Declared here rather than by including externs.h, which would drag in ncurses
-// for the sake of one name (the same choice monster_list.c and floor_items.c
-// made).
-extern cave_type cave[MAX_HEIGHT][MAX_WIDTH];
+// The table is one contiguous row-major block, and that is now this file's
+// promise alone: nineteen loops used to walk it with a pointer, and none do
+// any more. See src/dungeon_map.h.
+static cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 
 // Blank the whole table -- upstream's blank_cave(), one memset, moved here
 // unchanged. sizeof(cave) is the whole 66 x 198, not the part the level in play

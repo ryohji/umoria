@@ -57,13 +57,11 @@
 #include "player_timed_effects.h"
 
 /* --- グローバル状態 --- */
-/* マスの表。#18-14-8B で misc3.c が窓口越しに読むようになり、9 本の recipe が
- * src/dungeon_map.c をリンクするようになったので、**この 1 行の役目が
- * 変わった** —— misc3.c が字面で読む表ではなく、窓口が extern 1 行で
- * 見にいく置き場になった。置き場が #18-14-8C で module の static に
- * 入ったら、ここに残しても窓口に届かない別の表になるだけなので消える
- * （下の cur_height・dun_level・t_list の註と同じ理由）。 */
-cave_type cave[MAX_HEIGHT][MAX_WIDTH];
+/* マスの表（cave）はここに無い。#18-14-8C で置き場が src/dungeon_map.c の
+ * static に入ったので、ここで定義しても窓口には届かない別の表になるだけ。
+ * recipe が src/dungeon_map.c をリンクしているのがその代わりで、misc3.c は
+ * square_at(y, x) で 1 マスを取る（下の cur_height・dun_level・t_list の
+ * 註と同じ形。これでこの区分の 11 個ぜんぶがこの形になった）。 */
 /* この階の広さ（cur_height・cur_width）はここに無い。#18-14-5A で置き場が
  * src/dungeon_size.c の static に入り、#18-14-5B で misc3.c が窓口越しに
  * 読むようになった（ここで定義しても窓口には届かない別の器になるだけ）。
