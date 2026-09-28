@@ -114,7 +114,11 @@ extern monster_type m_list[MAX_MALLOC];
 // static of main.c, out of reach of any test.
 extern monster_type blank_monster; // Blank monster values
 extern int16_t mfptr;              // Cur free monster ptr
-extern int16_t mon_tot_mult;       // # of repro's of creature
+// mon_tot_mult is not declared here. How many monsters have been bred on this
+// level is private to monster_breeding.c, reached through
+// src/monster_breeding.h. Every reader wanted the question, not the count --
+// may another be bred, one has been, one is gone, a new level -- and only
+// save.c wanted the number itself.
 
 // Following are arrays for descriptive pieces
 extern const char *colors[MAX_COLORS];

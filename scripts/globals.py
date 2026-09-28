@@ -99,8 +99,19 @@ GROUPS = {
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
-        cave dun_level cur_height cur_width m_list mfptr mon_tot_mult
+        cave dun_level cur_height cur_width m_list mfptr
         t_list tcptr""",
+    # この階で増えたモンスターの数（mon_tot_mult）は #18-14-3C で
+    # monster_breeding.c の static になり、externs.h から外れた。窓口は
+    # src/monster_breeding.h（monster_breeding_reset / monster_breeding_allowed /
+    # monster_breeding_note_birth / monster_breeding_note_death ＋ セーブ用の
+    # monster_breeding_count / set_monster_breeding_count）。**この区分の 3 問め**。
+    # 定義表の隣（monsters.c）に置かれていたが表とは無関係な階ごとの数だった。
+    # 測って分かった 2 つ —— 比較が `MAX_MON_MULT >= mon_tot_mult` なので
+    # **許される出産は 76 回**（上限 75 と 1 ずれる）、そして**これは頭数ではなく
+    # 予算**（減るのは fix1_delete_monster() を通った 1 体だけで、生まれた子か
+    # どうかは訊かない）。別名 1 件（save.c の `rd_short((uint16_t *)&...)`）も
+    # ここで消えた。
     # レベルごとのモンスター定義の索引（m_level）は #18-14-2C で
     # monster_levels.c の static になり、externs.h から外れた。窓口は
     # src/monster_levels.h（monster_levels_init / monsters_up_to_level /

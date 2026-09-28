@@ -775,5 +775,15 @@ monster_type m_list[MAX_MALLOC];
 // Blank monster values
 monster_type blank_monster = {0, 0, 0, {0}, 0, 0, 0, false, 0, false};
 
-int16_t mfptr;        // Current free monster ptr
-int16_t mon_tot_mult; // # of repro's of creature
+int16_t mfptr; // Current free monster ptr
+
+// mon_tot_mult（この階で増えたモンスターの数）はここに無い。#18-14-3C で
+// src/monster_breeding.c の static になった。窓口は src/monster_breeding.h
+// （monster_breeding_reset / monster_breeding_allowed /
+//  monster_breeding_note_birth / monster_breeding_note_death ＋ セーブ用の
+//  2 本）。**上の定義表とは何の関係も無い階ごとの数**で、隣に置かれていた
+// だけだった（#18-14-2 の m_level も同じ置きかたで出ていった）。
+// 測って分かったことは header に書いた —— **許される出産は MAX_MON_MULT + 1
+// 回**（比較が `>=` なので 75 ではなく 76）、そして**これは「いま何体いるか」
+// でも「何体が生まれた子か」でもなく予算**（減るのは fix1_delete_monster() を
+// 通った 1 体だけで、生まれた子かどうかは訊かない）。

@@ -63,7 +63,11 @@ inven_type t_list[MAX_TALLOC];
  * 置く必要が無くなった（置くと inventory.c の分と別の器になり、窓口越しの
  * 読み書きが別の場所に当たる）。 */
 int16_t mfptr;
-int16_t mon_tot_mult;
+/* mon_tot_mult もここに無い。#18-14-3B で src/monster_breeding.c が static で
+ * 持つようになったので、代役を置くと窓口に届かない別の器になる
+ * （movement_rate_test はその monster_breeding.c をリンクしている）。
+ * creature.c は monster_breeding_allowed() で訊き、
+ * monster_breeding_note_birth() で数える。 */
 /* find_flag もここに無い。#18-11-6C で src/running.c が static で持つように
  * なったので、代役を置くと窓口に届かない別の器になる（movement_rate_test は
  * その running.c をリンクしている）。creature.c は player_is_running() 越しに
