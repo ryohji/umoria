@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 「この階は終わったか」のテスト -- 現在のふるまいを保護する
  *
  * 1 ビットで、読み手は本編のループ（dungeon.c:806,820,825）ひとり。立つまで

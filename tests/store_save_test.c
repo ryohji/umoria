@@ -1,3 +1,10 @@
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 店 6 軒のセーブデータの読み書きのテスト -- 現在のふるまいを保護する
  *
  * 店の記録の並び（開店時刻・侮辱回数・店主・在庫数・値切りの成績、そして

@@ -1,3 +1,10 @@
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 重さに負けているかどうかの判定（misc3.c:975 の check_strength と
  * misc3.c:957 の inven_check_weight）のテスト
  *

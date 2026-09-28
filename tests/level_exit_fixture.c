@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 今いる深さの置き場（テスト用の足場）
  *
  * **これは「この階は終わったか」の旗の足場ではない。** 旗の実体は

@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* テスト用のグローバルデータと初期化関数
  * 本物のデータ（object_list, colors 等）は tables.c / treasure.c を
  * そのままリンクして使う。ここに置くのは、本体では別ファイルに

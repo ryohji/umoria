@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 飛び道具の通し番号のテスト -- 現在のふるまいを保護する
  *
  * ダンジョンで作られた矢や石の束は、1 つずつ違う番号を p1 に持つ

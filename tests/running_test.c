@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 「走っているか／何歩走ったか」のテスト -- 現在のふるまいを保護する
  *
  * 走りは `.`（走る）コマンド。向きを決めて、止まる理由が出るまで動きつづける。

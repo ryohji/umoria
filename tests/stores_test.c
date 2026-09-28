@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 町の店 6 軒の記録のテスト -- 現在のふるまいを保護する
  *
  * この区分に計算は無い。パネル（#18-3）やメッセージの履歴（#18-2）と違って、

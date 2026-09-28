@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 最大 HP の計算（misc3.c:1624 の calc_hitpoints）のテスト
  *
  * レベルごとの HP 表を読む唯一の場所。ここが表のどの段を読むかで、

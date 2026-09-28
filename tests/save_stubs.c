@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* save_stubs.c -- src/save.c をリンクするための代役
  *
  * save.c は 1300 行あり、セーブ／ロードの本体（get_char / save_char）が

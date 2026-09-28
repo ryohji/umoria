@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 「画面が流されたか」の旗のテスト -- 現在のふるまいを保護する
  *
  * この 1 ビットが答えるのは 1 つの問いだけ。「前に忘れたときから今までに、

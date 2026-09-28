@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 「再開する持ち物コマンド」のテスト -- 現在のふるまいを保護する
  *
  * 持ち物のコマンド（着る・持ちかえる・外す・落とす・一覧・装備一覧）は専用の

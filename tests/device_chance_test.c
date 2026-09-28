@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 魔法道具（杖・魔法棒）の使用成功判定のテスト -- 現在の実装を保護する
  *
  * もともと staffs.c と wands.c に重複していた chance 計算は src/device.c に

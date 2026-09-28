@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* プレイヤーの居場所の置き場のテスト -- 現在のふるまいを保護する
  *
  * ここに計算は無い。char_row / char_col は置き場そのもので、保護するのは

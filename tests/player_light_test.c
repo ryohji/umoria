@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 明かりについて覚えている 2 つの答えの置き場のテスト -- 現在のふるまいを保護する
  *
  * 2 つとは「明かりが燃えているか」（player_has_light）と「その輪がいま地図に

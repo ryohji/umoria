@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 「守りの点数はいくつか」のテスト -- 現在のふるまいを保護する
  *
  * py から出す 17 つめの問いで、**`struct misc` から出る 3 つめ**

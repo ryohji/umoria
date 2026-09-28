@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 値段表の置き場（テスト用の足場）
  *
  * **#18-12-6C で py が要らなくなった。** 階級と経験値の 5 つは

@@ -1,3 +1,10 @@
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* レベルごとに並べたダンジョンの品物表のテスト -- 現在の実装を保護する
  *
  * ダンジョンに置く品物を選ぶために、2 つの表が組で使われている。

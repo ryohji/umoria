@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 種族の表（テスト用の足場）
  *
  * **この足場は 2 つのものを持っていて、#18-12-22C で片方だけが消えた。**

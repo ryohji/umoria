@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* 「人物の身上書き」のテスト -- 現在のふるまいを保護する
  *
  * py から出す 25 つめの問いで、**`struct misc` から出る 11 つめ**

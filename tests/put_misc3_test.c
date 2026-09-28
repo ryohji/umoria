@@ -1,3 +1,9 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
 /* キャラクターの能力値算出のテスト -- 現在の実装を保護する
  *
  * src/misc3.c:967-1010 の put_misc3()（画面表示版）と
