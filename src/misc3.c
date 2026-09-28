@@ -21,6 +21,7 @@
 #include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "equipment.h"
+#include "floor_items.h"
 #include "hp_table.h"
 #include "inventory.h"
 #include "item_ident.h"
@@ -63,7 +64,7 @@ static char blank_string[] = "                        ";
 void place_trap(int y, int x, int subval) {
     int cur_pos = popt();
     cave[y][x].tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_TRAP_LIST + subval);
+    invcopy(floor_item_at(cur_pos), OBJ_TRAP_LIST + subval);
 }
 
 // Places rubble at location y, x -RAK-
@@ -72,7 +73,7 @@ void place_rubble(int y, int x) {
     cave_type *cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
     cave_ptr->fval = BLOCKED_FLOOR;
-    invcopy(&t_list[cur_pos], OBJ_RUBBLE);
+    invcopy(floor_item_at(cur_pos), OBJ_RUBBLE);
 }
 
 // Places a treasure (Gold or Gems) at given row, column -RAK-
@@ -86,9 +87,9 @@ void place_gold(int y, int x) {
         i = MAX_GOLD - 1;
     }
     cave[y][x].tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_GOLD_LIST + i);
+    invcopy(floor_item_at(cur_pos), OBJ_GOLD_LIST + i);
 
-    inven_type *t_ptr = &t_list[cur_pos];
+    inven_type *t_ptr = floor_item_at(cur_pos);
     t_ptr->cost += (8L * (int32_t)randint((int)t_ptr->cost)) + randint(8);
 
     if (cave[y][x].cptr == 1) {
@@ -152,7 +153,7 @@ void place_object(int y, int x, bool must_be_small) {
 
     // split this line up to avoid a reported compiler bug
     int tmp = get_obj_num(dungeon_level(), must_be_small);
-    invcopy(&t_list[cur_pos], object_at_level_position(tmp));
+    invcopy(floor_item_at(cur_pos), object_at_level_position(tmp));
     magic_treasure(cur_pos, dungeon_level());
     if (cave[y][x].cptr == 1) {
         msg_print("You feel something roll beneath your feet."); // -CJS-
@@ -907,7 +908,7 @@ void inven_drop(int item_val, int drop_all) {
 
     int i = popt();
     inven_type *i_ptr = inventory_and_equipment_at(item_val);
-    t_list[i] = *i_ptr;
+    *floor_item_at(i) = *i_ptr;
     cave[player_row()][player_col()].tptr = i;
 
     if (item_val >= INVEN_WIELD) {
@@ -922,14 +923,14 @@ void inven_drop(int item_val, int drop_all) {
             }
             invcopy(inventory_at(inventory_count()), OBJ_NOTHING);
         } else {
-            t_list[i].number = 1;
+            floor_item_at(i)->number = 1;
             inventory_set_weight(inventory_weight() - i_ptr->weight);
             i_ptr->number--;
         }
 
         bigvtype prt1;
         msgtype prt2;
-        objdes(prt1, &t_list[i], true);
+        objdes(prt1, floor_item_at(i), true);
         (void)snprintf(prt2, sizeof(prt2), "Dropped %s", prt1);
         msg_print(prt2);
     }

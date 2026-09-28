@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "floor_items.h"
 #include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "monster_list.h"
@@ -163,7 +164,7 @@ static void place_open_door(int y, int x) {
     int cur_pos = popt();
     cave_type *cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_OPEN_DOOR);
+    invcopy(floor_item_at(cur_pos), OBJ_OPEN_DOOR);
     cave_ptr->fval = CORR_FLOOR;
 }
 
@@ -171,16 +172,16 @@ static void place_broken_door(int y, int x) {
     int cur_pos = popt();
     cave_type *cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_OPEN_DOOR);
+    invcopy(floor_item_at(cur_pos), OBJ_OPEN_DOOR);
     cave_ptr->fval = CORR_FLOOR;
-    t_list[cur_pos].p1 = 1;
+    floor_item_at(cur_pos)->p1 = 1;
 }
 
 static void place_closed_door(int y, int x) {
     int cur_pos = popt();
     cave_type *cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_CLOSED_DOOR);
+    invcopy(floor_item_at(cur_pos), OBJ_CLOSED_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
 }
 
@@ -188,25 +189,25 @@ static void place_locked_door(int y, int x) {
     int cur_pos = popt();
     cave_type *cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_CLOSED_DOOR);
+    invcopy(floor_item_at(cur_pos), OBJ_CLOSED_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
-    t_list[cur_pos].p1 = randint(10) + 10;
+    floor_item_at(cur_pos)->p1 = randint(10) + 10;
 }
 
 static void place_stuck_door(int y, int x) {
     int cur_pos = popt();
     cave_type *cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_CLOSED_DOOR);
+    invcopy(floor_item_at(cur_pos), OBJ_CLOSED_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
-    t_list[cur_pos].p1 = -randint(10) - 10;
+    floor_item_at(cur_pos)->p1 = -randint(10) - 10;
 }
 
 static void place_secret_door(int y, int x) {
     int cur_pos = popt();
     cave_type *cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_SECRET_DOOR);
+    invcopy(floor_item_at(cur_pos), OBJ_SECRET_DOOR);
     cave_ptr->fval = BLOCKED_FLOOR;
 }
 
@@ -240,7 +241,7 @@ static void place_up_stairs(int y, int x) {
     }
     int cur_pos = popt();
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_UP_STAIR);
+    invcopy(floor_item_at(cur_pos), OBJ_UP_STAIR);
 }
 
 // Place a down staircase at given y, x -RAK-
@@ -251,7 +252,7 @@ static void place_down_stairs(int y, int x) {
     }
     int cur_pos = popt();
     cave_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_DOWN_STAIR);
+    invcopy(floor_item_at(cur_pos), OBJ_DOWN_STAIR);
 }
 
 // Places a staircase 1=up, 2=down -RAK-
@@ -1190,15 +1191,7 @@ static void build_store(int store_num, int y, int x) {
     c_ptr->fval = CORR_FLOOR;
     int cur_pos = popt();
     c_ptr->tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_STORE_DOOR + store_num);
-}
-
-// Link all free space in treasure list together
-static void tlink(void) {
-    for (int i = 0; i < MAX_TALLOC; i++) {
-        invcopy(&t_list[i], OBJ_NOTHING);
-    }
-    tcptr = MIN_TRIX;
+    invcopy(floor_item_at(cur_pos), OBJ_STORE_DOOR + store_num);
 }
 
 // Town logic flow for generation of new town
@@ -1263,7 +1256,8 @@ void generate_cave(void) {
     panel_forget_bounds();
     player_pos_forget();
 
-    tlink();
+    // Link all free space in treasure list together (tlink(), #18-14-7)
+    floor_items_reset();
     // Link all free space in monster list together (mlink(), #18-14-4)
     monster_list_reset();
     blank_cave();
