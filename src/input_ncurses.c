@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Umoria Contributors
+// Copyright (c) 2025-2026 Umoria Contributors
 //
 // Umoria is free software released under a GPL v2 license and comes with
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
