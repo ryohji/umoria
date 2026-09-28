@@ -2175,22 +2175,27 @@ $(BUILDDIR)/monster_breeding_test: $(TESTDIR)/monster_breeding_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_breeding_test.c \
 	    src/monster_breeding.c
 
-# 「この階にいるモンスター」（#18-14-4A）。src/monster_list.c は externs.h を
-# include しないので、リンクするのは module 1 本と**足場 1 本**だけ。
+# 「この階にいるモンスター」（#18-14-4）。src/monster_list.c は externs.h を
+# include しないので、リンクするのは module 1 本と足場 1 本だけ。
 #
-# **足場が要るのはこの問いだけ。** #18-14-1〜3 は A の段で置き場を module の
-# static に入れたので足場が 0 本だった（所見 52）。あの形が使えるのは
-# 「B を 1 コミットで通しきれる」ときで、この問いは 12 ファイル 101 参照
-# （m_list 73・mfptr 28）なので B をファイルごとに割る。割るあいだ器が 2 つ
-# あると半分が古い器を読むので、置き場は #18-14-4C まで monsters.c に置いた
-# まま、module は extern 3 行で見にいく。tests/monster_list_fixture.c が
-# その 3 つ（m_list・mfptr・blank_monster）の代わりを置く —— monsters.c を
-# リンクすると 279 体の定義表が丸ごと付いてくるため。
+# **足場はもう 1 行しかない。** #18-14-4A/B のあいだは表（m_list）と印（mfptr）
+# の置き場が monsters.c にあり、足場が 3 つを代わりに置いていた。#18-14-4C で
+# 置き場が module の static に入り、残ったのは blank_monster 1 つだけ ——
+# これはこの問いの主題ではなく定数表の側で、module が「空の行」として読む。
+# それが片づけば src/monster_list.c は extern を 1 つも持たなくなり、
+# tests/monster_list_fixture.c も消える。
 #
-# **税は 3 本の見こみ**（B で測りなおす）—— movement_rate_test（src/creature.c
-# を丸ごと #include）と、src/save.c を丸ごと #include する save_bool_test・
-# store_save_test。m_list/mfptr が出る 12 ファイルのうち、recipe が並べて
-# いるのは monsters.c だけで、そちらは C で定義が消えるので払わない。
+# **置き場を A で動かせなかったのはこの問いだけ。** #18-14-1〜3 は A の段で
+# module の static に入れたので足場が 0 本だった（所見 52）。あの形が使える
+# のは「B を 1 コミットで通しきれる」ときで、この問いは 12 ファイル 101 参照
+# （m_list 73・mfptr 28）なので B を 5 つに割った。割るあいだ器が 2 つあると
+# 半分が古い器を読む。
+#
+# **税は 3 本で確定** —— movement_rate_test（src/creature.c を丸ごと
+# #include）と、src/save.c を丸ごと #include する save_bool_test・
+# store_save_test。m_list/mfptr が出ていた 12 ファイルのうち、recipe が
+# 並べているのは monsters.c だけで、そちらは C で定義が消えたので払わない
+# （下調べの 4 本は数えまちがい。所見 34）。
 $(BUILDDIR)/monster_list_test: $(TESTDIR)/monster_list_test.c \
                               $(TESTDIR)/monster_list_fixture.c \
                               $(TESTDIR)/minunit.h \

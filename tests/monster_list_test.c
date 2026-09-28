@@ -43,10 +43,10 @@
 
 #include "minunit.h"
 
-/* 新しい階に降りたところから始める（generate.c の mlink() と同じ）。
- * **窓口で戻しなおす** —— 置き場はいま monsters.c（本番）か
- * tests/monster_list_fixture.c（テスト）にあり、どちらにしてもこの足場が
- * 唯一の道。 */
+/* 新しい階に降りたところから始める（generate.c の generate_cave() が
+ * 階の頭で呼ぶのと同じ 1 本）。
+ * **窓口で戻しなおす** —— #18-14-4C で置き場が src/monster_list.c の static に
+ * 入ったので、この足場が唯一の道（#18-14-1〜3 と同じ）。 */
 static void given_a_fresh_level(void) { monster_list_reset(); }
 
 /* 行を n 個配ったところ。配った行番号は MIN_MONIX から順に出る。 */
@@ -74,7 +74,9 @@ static bool row_is_blank(int index) {
  * 足してはいけない（#18-14-1〜3 と同じ作法。所見 52）。
  *
  * **ゼロの印はゲームの中では起こらない** —— 最初の階を作るときに
- * generate.c の mlink() が必ず通り、そこで MIN_MONIX が書かれる。
+ * generate_cave() が必ず monster_list_reset() を通り、そこで MIN_MONIX が
+ * 書かれる（もとは mlink() という包みだったが、中身が窓口 1 本になったので
+ * #18-14-4B① で包みをやめた）。
  * 押さえているのは**置き場そのもの**で、**0 と MIN_MONIX の差がこの問いの
  * 芯**（0 のままだと 0 行めと 1 行めが配られ、cave 側の「いない」と
  * 「プレイヤー」に化ける）。 */

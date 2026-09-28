@@ -1550,7 +1550,7 @@ void creatures(int attack) {
         m_ptr = monster_list_at(i);
         // Get rid of an eaten/breathed on monster.  Note: Be sure not to
         // process this monster. This is necessary because we can't delete
-        // monsters while scanning the m_list here.
+        // monsters while scanning the monster list here.
         if (m_ptr->hp < 0) {
             fix2_delete_monster(i);
             continue;
@@ -1638,7 +1638,7 @@ void creatures(int attack) {
         }
 
         // Get rid of an eaten/breathed on monster. This is necessary because
-        // we can't delete monsters while scanning the m_list here.
+        // we can't delete monsters while scanning the monster list here.
         // This monster may have been killed during mon_move().
         if (m_ptr->hp < 0) {
             fix2_delete_monster(i);

@@ -99,8 +99,22 @@ GROUPS = {
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
-        cave dun_level cur_height cur_width m_list mfptr
+        cave dun_level cur_height cur_width
         t_list tcptr""",
+    # この階にいるモンスター（m_list ＋ mfptr）は #18-14-4C で
+    # monster_list.c の static になり、externs.h から外れた。窓口は
+    # src/monster_list.h（monster_list_reset / monster_list_at /
+    # monster_list_used / set_monster_list_used / monster_list_is_full /
+    # monster_list_free_slots / monster_list_claim_slot /
+    # monster_list_drop_last）。**この区分の 4 問め**で、**2 つの名前が
+    # 1 つの入れ物**だった —— 行を詰めた表と、どこまで使っているかの印。
+    # 定義表（279 体の「その種とは何か」）の隣に置かれていたが、こちらは
+    # 「いまこの階に誰が立っているか」で、別の表。
+    # 測って分かった 2 つ —— **14 か所が同じ数えおろしループを手で書いて
+    # いた**（うち 11 本は spells.c に 1 文字も違わず並ぶ）、そして
+    # **B を 1 コミットで通せないほど大きい**（12 ファイル 101 参照）ので、
+    # この区分で初めて**置き場を A で動かせなかった**（所見 52 の条件）。
+    # 別名 1 件（save.c の `rd_short((uint16_t *)&mfptr)`）もここで消えた。
     # この階で増えたモンスターの数（mon_tot_mult）は #18-14-3C で
     # monster_breeding.c の static になり、externs.h から外れた。窓口は
     # src/monster_breeding.h（monster_breeding_reset / monster_breeding_allowed /

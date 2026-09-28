@@ -13,49 +13,60 @@
 
 #include "monster_list.h"
 
-// THE STORAGE IS STILL monsters.c's FOR NOW. The previous three questions in
-// this group put the storage in the module at step A, which works only when the
-// step that moves the callers fits in one commit -- otherwise half the game
-// reads one container and half reads the other. This question has 101 references
-// in twelve files, so B is split by file and the storage cannot move until every
-// caller is through a window. It comes over in #18-14-4C, and these three lines
-// go away with it.
+// THE STORAGE. It came over from monsters.c in #18-14-4C, where it sat right
+// beside the 279-row creature definition table -- two tables that have nothing
+// to do with each other. That one says what a kind of monster is; this one says
+// which monsters are standing on this level.
+//
+// The two names were always one container: a table whose rows are PACKED, and
+// the mark saying how much of it is in use. Keeping them apart is what let
+// fourteen count-down loops and the two delete paths each re-derive the packing
+// promise by hand.
+//
+// It took the three earlier questions in this group to get here. The previous
+// three put the storage in the module at step A, which works only when the step
+// that moves the callers fits in one commit -- otherwise half the game reads one
+// container and half reads the other. This one had 101 references in twelve
+// files, so B was split five ways and the storage waited until every caller was
+// through a window.
+static monster_type the_monsters[MAX_MALLOC];
+static int16_t the_mark;
+
+// The value an empty row holds. It stays in monsters.c among the constant
+// tables, and this file is now its ONLY reader (both uses are below). It is not
+// this question's subject -- it belongs to the read-only-data group -- so it is
+// left where it is and noted for that group: a "blank monster" is the monster
+// table's notion of an empty row, so its home is here, and moving it would make
+// this module need no externs at all.
 //
 // Declared by hand rather than by including externs.h, which would drag in
-// ncurses for the sake of two names (the same choice monster_levels.c and
+// ncurses for the sake of one name (the same choice monster_levels.c and
 // object_levels.c made).
-extern monster_type m_list[MAX_MALLOC];
-extern int16_t mfptr;
-
-// The value an empty row holds. It lives in monsters.c among the constant
-// tables, and after #18-14-4B its only two readers are both in this file -- so
-// it is a name to look at again once this group is finished, not part of this
-// question.
 extern monster_type blank_monster;
 
 // Link all free space in monster list together
 void monster_list_reset(void) {
     for (int i = 0; i < MAX_MALLOC; i++) {
-        m_list[i] = blank_monster;
+        the_monsters[i] = blank_monster;
     }
-    mfptr = MIN_MONIX;
+    the_mark = MIN_MONIX;
 }
 
-monster_type *monster_list_at(int index) { return &m_list[index]; }
+monster_type *monster_list_at(int index) { return &the_monsters[index]; }
 
-int16_t monster_list_used(void) { return mfptr; }
+int16_t monster_list_used(void) { return the_mark; }
 
-void set_monster_list_used(int16_t used) { mfptr = used; }
+void set_monster_list_used(int16_t used) { the_mark = used; }
 
-bool monster_list_is_full(void) { return mfptr == MAX_MALLOC; }
+bool monster_list_is_full(void) { return the_mark == MAX_MALLOC; }
 
-int monster_list_free_slots(void) { return MAX_MALLOC - mfptr; }
+int monster_list_free_slots(void) { return MAX_MALLOC - the_mark; }
 
-// The old popm() returned `mfptr++` -- hand out the row the mark points at, then
-// move the mark past it.
-int monster_list_claim_slot(void) { return mfptr++; }
+// The old popm() returned `mfptr++` -- hand out the row the mark points at,
+// then move the mark past it.
+int monster_list_claim_slot(void) { return the_mark++; }
 
 void monster_list_drop_last(void) {
-    m_list[mfptr - 1] = blank_monster;
-    mfptr -= 1;
+    the_monsters[the_mark - 1] = blank_monster;
+    the_mark -= 1;
 }

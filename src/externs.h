@@ -106,14 +106,20 @@ extern int16_t tcptr; // Cur treasure heap ptr
 // and every reader wanted a band out of them, never the raw arrays.
 
 // Following are creature arrays and variables
-extern monster_type m_list[MAX_MALLOC];
+// m_list is not declared here. Which monsters are standing on this level is
+// private to monster_list.c, reached through src/monster_list.h. It and the mark
+// below were always one container -- a table whose rows are packed, and how far
+// it is filled -- and every reader wanted a row, a bound or a free slot, never
+// the raw array.
 // m_level is not declared here. Where each level's monsters sit in the
 // definition table is private to monster_levels.c, reached through
 // src/monster_levels.h. Every reader wanted a band -- a count, a width or the
 // number it starts at -- never the raw array; the building of it used to be a
 // static of main.c, out of reach of any test.
 extern monster_type blank_monster; // Blank monster values
-extern int16_t mfptr;              // Cur free monster ptr
+// mfptr is not declared here. How far the monster list is filled went with the
+// table itself in #18-14-4C (see above). Its one alias, save.c's
+// `rd_short((uint16_t *)&mfptr)`, went through a local uint16_t and is gone.
 // mon_tot_mult is not declared here. How many monsters have been bred on this
 // level is private to monster_breeding.c, reached through
 // src/monster_breeding.h. Every reader wanted the question, not the count --

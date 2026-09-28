@@ -52,11 +52,14 @@ player_type py;
  * 一緒にはリンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
-monster_type m_list[MAX_MALLOC];
+/* m_list もここに無い。#18-14-4C で src/monster_list.c が static で持つように
+ * なったので、代役を置くと窓口に届かない別の表になるだけ
+ * （movement_rate_test はその monster_list.c をリンクしている）。creature.c は
+ * monster_list_at() で行を取り、monster_list_used() を数えおろしの上限にする。 */
 /* 白紙のモンスター 1 体。#18-14-4B で src/monster_list.c をリンクするように
  * なったので要る（階の頭で全行に書き、返した行を白紙に戻すのに使う）。
  * 本物は monsters.c の定義表のとなりで、あちらはこの実行形式に来ない。
- * m_list / mfptr の 2 行は #18-14-4C で消えるが、**この 1 行は残る** ——
+ * m_list / mfptr の 2 行は #18-14-4C で消えたが、**この 1 行は残った** ——
  * blank_monster はこの問いの主題ではなく定数表の側。 */
 monster_type blank_monster;
 inven_type t_list[MAX_TALLOC];
@@ -68,7 +71,7 @@ inven_type t_list[MAX_TALLOC];
  * 無い。#18-5C で src/inventory.c が static で持つようになったので、代役を
  * 置く必要が無くなった（置くと inventory.c の分と別の器になり、窓口越しの
  * 読み書きが別の場所に当たる）。 */
-int16_t mfptr;
+/* mfptr もここに無い（上の m_list と一緒に #18-14-4C で出ていった）。 */
 /* mon_tot_mult もここに無い。#18-14-3B で src/monster_breeding.c が static で
  * 持つようになったので、代役を置くと窓口に届かない別の器になる
  * （movement_rate_test はその monster_breeding.c をリンクしている）。

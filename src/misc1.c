@@ -485,11 +485,11 @@ bool compact_monsters(void) {
                     ; // Do nothing
                 } else if (monster_delete_may_shift(i)) {
                     // in case this is called from within creatures(), this is a horrible
-                    // hack, the m_list/creatures() code needs to be rewritten.
+                    // hack, the monster-list/creatures() code needs to be rewritten.
                     delete_monster(i);
                     delete_any = true;
                 } else {
-                    // fix1_delete_monster() does not decrement mfptr,
+                    // fix1_delete_monster() does not take the mark back,
                     // so don't set delete_any if this was called.
                     fix1_delete_monster(i);
                 }

@@ -28,7 +28,7 @@ struct GameState {
 
     // World state
     cave_type (*cave)[MAX_WIDTH];  // Dungeon map (points to existing cave global)
-    monster_type *monsters;         // Monster list (points to existing m_list)
+    monster_type *monsters;         // Monster list (row 0 of monster_list.c's table)
     inven_type *treasure;           // Treasure list (points to existing t_list)
     inven_type *inventory;          // Player inventory
     store_type *stores;             // Store data

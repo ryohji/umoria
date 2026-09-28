@@ -348,12 +348,12 @@ void delete_monster(int j) {
 
 // The following two procedures implement the same function as delete monster.
 // However, they are used within creatures(), because deleting a monster
-// while scanning the m_list causes two problems, monsters might get two
+// while scanning the monster list causes two problems, monsters might get two
 // turns, and m_ptr/monptr might be invalid after the delete_monster.
 // Hence the delete is done in two steps.
 //
 // fix1_delete_monster does everything delete_monster does except delete
-// the monster record and reduce mfptr, this is called in breathe, and
+// the monster record and take the mark back, this is called in breathe, and
 // a couple of places in creatures.c
 void fix1_delete_monster(int j) {
     monster_type *const m_ptr = monster_list_at(j);
@@ -562,7 +562,7 @@ int mon_take_hit(int monptr, int dam) {
         player_gain_shared_experience((int32_t)r_ptr->mexp * r_ptr->level);
 
         // in case this is called from within creatures(), this is a horrible
-        // hack, the m_list/creatures() code needs to be rewritten.
+        // hack, the monster-list/creatures() code needs to be rewritten.
         if (monster_delete_may_shift(monptr)) {
             delete_monster(monptr);
         } else {

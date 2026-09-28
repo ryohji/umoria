@@ -36,8 +36,9 @@
 // level). Two names for one arrangement, so one module. #18-14-4.
 
 // A new level: nobody is on it. Blanks every row and puts the mark back at the
-// start. The one caller is mlink() in generate.c, which runs for the town and for
-// every dungeon level.
+// start. The one caller is generate_cave() in generate.c, which runs for the
+// town and for every dungeon level. (It used to call a static wrapper, mlink(),
+// whose whole body was these two loops; #18-14-4B dropped the wrapper.)
 void monster_list_reset(void);
 
 // The row at INDEX. This is the plain `&m_list[index]` it replaces: no bounds

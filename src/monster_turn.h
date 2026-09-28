@@ -12,21 +12,21 @@
 // ONE NUMBER, AND IT ANSWERS ONE QUESTION: may the monster list be renumbered
 // right now?
 //
-// `m_list` is kept dense. delete_monster() closes a hole by moving the last
-// monster down into it and decrementing mfptr, which renumbers every monster
-// above the hole. Between turns that costs nothing. While creatures() is walking
+// The monster list is kept dense. delete_monster() closes a hole by moving the
+// last monster down into it and taking the mark back one (monster_list.h), which
+// renumbers every monster above the hole. Between turns that costs nothing. While creatures() is walking
 // the list it is wrong: the walk is holding a number, and the monster that number
 // names would change under it.
 //
 // So the two places that remove a monster ask here first. If the walk has not
 // reached `index`, the hole may be closed (delete_monster). If it has, the hole
-// must be left where it is (fix1_delete_monster, which does not touch mfptr).
+// must be left where it is (fix1_delete_monster, which leaves the mark alone).
 //
 // THE OLD NAME SAID WHAT IT WAS, NOT WHAT IT ANSWERED. This was
 // `hack_monptr` in variable.c, and both readers spelled the question out by
 // hand as `hack_monptr < i`. The upstream comment above each reader is worth
-// keeping in mind -- "this is a horrible hack, the m_list/creatures() code needs
-// to be rewritten" -- and it is still true: the windows below do not fix the
+// keeping in mind -- "this is a horrible hack, the monster-list/creatures() code
+// needs to be rewritten" -- and it is still true: the windows below do not fix the
 // hack, they give it a name and one place to live. #18-14-1.
 //
 // NOT IN THE SAVE FILE. The number is only meaningful inside a call to
