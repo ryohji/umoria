@@ -18,6 +18,7 @@
 #include "externs.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "monster_list.h"
 #include "panel.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
@@ -70,7 +71,7 @@ void tunnel(int dir) {
     }
 
     if (c_ptr->cptr > 1) {
-        monster_type *m_ptr = &m_list[c_ptr->cptr];
+        monster_type *m_ptr = monster_list_at(c_ptr->cptr);
         msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
 
         // let the player attack the creature
@@ -183,7 +184,7 @@ void disarm_trap(void) {
         bool no_disarm = false;
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_VIS_TRAP || t_list[c_ptr->tptr].tval == TV_CHEST)) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             int tot = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
@@ -576,8 +577,8 @@ static bool look_see(int x, int y, bool *transparent) {
     msgtype out_val;
     out_val[0] = 0;
 
-    if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
-        creature_type *const r_ptr = monster_get_creature(m_list[c_ptr->cptr].creature);
+    if (gl_rock == 0 && c_ptr->cptr > 1 && monster_list_at(c_ptr->cptr)->ml) {
+        creature_type *const r_ptr = monster_get_creature(monster_list_at(c_ptr->cptr)->creature);
         (void)sprintf(out_val, "%s %s %s. [(r)ecall]", dstring, is_a_vowel(r_ptr->name[0]) ? "an" : "a", r_ptr->name);
         dstring = "It is on";
         prt(out_val, 0, 0);
@@ -842,7 +843,7 @@ void throw_object(void) {
                 if ((c_ptr->fval <= MAX_OPEN_SPACE) && (!flag)) {
                     if (c_ptr->cptr > 1) {
                         flag = true;
-                        monster_type *m_ptr = &m_list[c_ptr->cptr];
+                        monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                         const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
                         tbth = tbth - cur_dis;
 
@@ -909,7 +910,7 @@ void throw_object(void) {
 static void py_bash(int y, int x) {
 
     int monster = cave[y][x].cptr;
-    monster_type *m_ptr = &m_list[monster];
+    monster_type *m_ptr = monster_list_at(monster);
     creature_type *c_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
 

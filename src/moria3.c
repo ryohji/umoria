@@ -20,6 +20,7 @@
 #include "inventory.h"
 #include "level_exit.h"
 #include "monster_breeding.h"
+#include "monster_list.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "pending_teleport.h"
@@ -355,7 +356,7 @@ void delete_monster(int j) {
 // the monster record and reduce mfptr, this is called in breathe, and
 // a couple of places in creatures.c
 void fix1_delete_monster(int j) {
-    monster_type *const m_ptr = m_list + j;
+    monster_type *const m_ptr = monster_list_at(j);
 
     // force the hp negative to ensure that the monster is dead, for example,
     // if the monster was just eaten by another, it will still have positive
@@ -371,15 +372,15 @@ void fix1_delete_monster(int j) {
 // fix2_delete_monster does everything in delete_monster that wasn't done
 // by fix1_monster_delete above, this is only called in creatures()
 void fix2_delete_monster(int j) {
-    monster_type *const m_ptr = m_list + j;
-    monster_type *const the_last = m_list + mfptr - 1;
+    monster_type *const m_ptr = monster_list_at(j);
+    monster_type *const the_last = monster_list_at(monster_list_used() - 1);
 
     if (m_ptr != the_last) {
         cave[the_last->fy][the_last->fx].cptr = j;
         *m_ptr = *the_last;
     }
-    *the_last = blank_monster;
-    mfptr -= 1;
+    // Blank the row that was just copied away and take the mark back one
+    monster_list_drop_last();
 }
 
 // Creates objects nearby the coordinates given -RAK-
@@ -536,7 +537,7 @@ uint32_t monster_death(int y, int x, uint32_t flags) {
 // Decreases monsters hit points and deletes monster if needed.
 // (Picking on my babies.) -RAK-
 int mon_take_hit(int monptr, int dam) {
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->hp -= dam;
     m_ptr->csleep = 0;
@@ -575,7 +576,7 @@ int mon_take_hit(int monptr, int dam) {
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {
     const int crptr = cave[y][x].cptr;
-    monster_type *const m_ptr = m_list + crptr;
+    monster_type *const m_ptr = monster_list_at(crptr);
     const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
     inven_type *i_ptr = equipment_at(INVEN_WIELD);
@@ -708,7 +709,7 @@ void move_char(int dir, bool do_pickup) {
         // attacking each wall in an attempt to locate the invisible creature,
         // instead force player to tunnel into walls which always takes a turn
         if ((c_ptr->cptr < 2) ||
-            (!m_list[c_ptr->cptr].ml && c_ptr->fval >= MIN_CLOSED_SPACE)) {
+            (!monster_list_at(c_ptr->cptr)->ml && c_ptr->fval >= MIN_CLOSED_SPACE)) {
             // Open floor spot
             if (c_ptr->fval <= MAX_OPEN_SPACE) {
                 // Make final assignments of char co-ords
@@ -808,7 +809,7 @@ void move_char(int dir, bool do_pickup) {
             end_find();
 
             // if player can see monster, and was in find mode, then nothing
-            if (m_list[c_ptr->cptr].ml && was_running) {
+            if (monster_list_at(c_ptr->cptr)->ml && was_running) {
                 // did not do anything this turn
                 free_turn_flag = true;
             } else {
@@ -879,7 +880,7 @@ void openobject(void) {
         cave_type *c_ptr = &cave[y][x];
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR || t_list[c_ptr->tptr].tval == TV_CHEST)) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             // Closed door
@@ -995,7 +996,7 @@ void closeobject(void) {
                         msg_print("The door appears to be broken.");
                     }
                 } else {
-                    monster_type *m_ptr = &m_list[c_ptr->cptr];
+                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                     msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
                 }
             } else {
