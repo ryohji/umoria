@@ -61,7 +61,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_saving_throw_test player_race_test player_body_weight_test \
         player_attack_bonuses_test player_search_skill_test \
         player_bio_test player_stealth_test player_class_test \
-        monster_turn_test
+        monster_turn_test monster_levels_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -2080,6 +2080,36 @@ $(BUILDDIR)/monster_turn_test: $(TESTDIR)/monster_turn_test.c \
                               src/monster_turn.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_turn_test.c \
 	    src/monster_turn.c
+
+# レベルごとのモンスター定義の索引（ダンジョンとその中身から出す 2 つめの
+# 問い・#18-14-2）。もとは monsters.c:765 の `int16_t m_level[41];` で、
+# **組みたてる側が main.c の static な init_m_level() にあった** ——
+# main.c は main() を持つのでテストからリンクできず、**数え上げには 1 本の
+# テストも届いていなかった**（#18-10 の init_t_level() と同じ形。あちらは
+# object_levels.c に移して初めて届いた）。
+#
+# **リンクするのは module 1 本と src/monsters.c だけ。** 索引は表を数えて
+# 作るものなので、**本物の表（279 体）を持ちこむのがこのテストの要**：
+# 帯の中身が本当にそのレベルかを確かめるには定義そのものが要る。
+# creature_iterator_test と同じ 2 ファイルの形で、足場（tests/*_fixture.c）は
+# 1 つも要らない。
+#
+# monsters.c は `is_a_vowel()` を 1 か所から呼ぶ（monster_name_indefinite()）。
+# 名前を 1 件も見ないので、テスト側で代役を 1 行書いて済ませる
+# （creature_iterator_test・save_stubs.c と同じ）。
+#
+# **A のあいだは器が 2 つある** —— monsters.c:765 の `m_level`（本体が使う）と
+# この module の static（テストだけが見る）。#18-14-1A と同じで、本体が窓口を
+# 1 つも呼んでいないから食いちがわない。**他の recipe への税は B で測る**
+# （下調べの見積りは 3 本だが、#18-14-1 の 3 → 1 と同じく数えかたの誤りを
+# 含むので当てにしない）。
+$(BUILDDIR)/monster_levels_test: $(TESTDIR)/monster_levels_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_levels.c \
+                              src/monster_levels.h \
+                              src/monsters.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_levels_test.c \
+	    src/monster_levels.c src/monsters.c
 
 clean:
 	rm -rf $(BUILDDIR)
