@@ -261,7 +261,7 @@ static void place_stairs(int typ, int num, int walls) {
             int j = 0;
             do {
                 // Note: don't let y1/x1 be zero, and don't let y2/x2
-                // be equal to cur_height-1/cur_width-1, these values
+                // reach the last row or column of the level, those
                 // are always BOUNDARY_ROCK.
                 int y1 = randint(dungeon_height() - 14);
                 int x1 = randint(dungeon_width() - 14);

@@ -99,8 +99,23 @@ GROUPS = {
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
-        cave dun_level cur_height cur_width
+        cave dun_level
         t_list tcptr""",
+    # この階の広さ（cur_height ＋ cur_width）は #18-14-5C で dungeon_size.c の
+    # static になり、externs.h から外れた。窓口は src/dungeon_size.h
+    # （dungeon_height / dungeon_width / set_dungeon_size）。**この区分の
+    # 5 問め**で、**2 つの名前が 1 つの行い**だった —— 書き手はどちらも必ず
+    # 両方を書き、読み手 48 のうち 40 が対で読む。だから**窓口は両方を取る
+    # 1 本**にして、半分だけ変える道を無くした（#18-12-18 の pac/ptoac で
+    # 見た穴と同じ形）。
+    # 測って分かった 3 つ —— **この対は 2 つの値しか取らない**（町の 22x66 と
+    # 階の 66x198。選ぶのは generate_cave() の 1 か所で、つまり「町にいるか」の
+    # 言いかえ）、**無作為な 1 マスの取りかたが 2 通りある**（randint(高さ-2) は
+    # 外周に当たらず randint(高さ)-1 は当たる。畳むと出現位置が変わるので
+    # そのまま残した）、そして **dungeon.c の 'L' が行を幅と比べている**
+    # （上流のバグ。そのまま写して header に書きとめた）。
+    # 別名 2 件（save.c の `rd_short((uint16_t *)&cur_height)` の対）も
+    # ここで消えた。税は 11 本で、**下調べの見こみと初めて一致した**。
     # この階にいるモンスター（m_list ＋ mfptr）は #18-14-4C で
     # monster_list.c の static になり、externs.h から外れた。窓口は
     # src/monster_list.h（monster_list_reset / monster_list_at /

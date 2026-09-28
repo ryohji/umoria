@@ -64,7 +64,13 @@ const char *copyright[17] = {
 // are still there. That handle is never read and never closed -- recorded as
 // bug candidate B19, not changed here.
 FILE *highscore_fp;               // File pointer to high score file
-int16_t cur_height, cur_width;    // Cur dungeon size
+// How tall and how wide this level is moved to dungeon_size.c (#18-14-5C).
+// The windows are in dungeon_size.h. It was the only line here that said
+// anything about the shape of a level, and it was two names for one thing: a
+// size. Both writers set both halves one after the other and the readers took
+// them in pairs, so the window that sets them takes both -- there is no longer
+// a way to change half of a size. The pair only ever holds one of two values,
+// the town's 22 by 66 or a dungeon level's 66 by 198.
 int16_t dun_level = 0;            // Cur dungeon level
 // The serial number that tells one batch of missiles from another moved to
 // missile_serial.c (#18-11-2C). The window is in missile_serial.h

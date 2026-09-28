@@ -197,8 +197,8 @@ int distance(int y1, int x1, int y2, int x2) {
 }
 
 // Checks points north, south, east, and west for a wall -RAK-
-// note that y,x is always in_bounds(), i.e. 0 < y < cur_height-1,
-// and 0 < x < cur_width-1
+// note that y,x is always in_bounds(), i.e. inside the boundary ring:
+// 0 < y < height-1 and 0 < x < width-1 (see dungeon_size.h)
 int next_to_walls(int y, int x) {
     int i = 0;
     cave_type *c_ptr = &cave[y - 1][x];

@@ -49,8 +49,11 @@ extern int16_t dun_level;           // Cur dungeon level
 extern char days[7][29];
 extern int closing_flag; // Used for closing
 
-extern int16_t cur_height; // Current dungeon height
-extern int16_t cur_width;  // Current dungeon width
+// How tall and how wide this level is are not declared here. The pair is
+// private to dungeon_size.c and is reached through src/dungeon_size.h. Two
+// names, one act: one setter takes both halves, so no caller can change half
+// of a size, and the two aliases that read the pair straight out of the save
+// file (rd_short through a faked pointer) are gone with it.
 
 // Following are calculated from max dungeon sizes
 // The panel (the ten values that say which part of the dungeon is on screen)

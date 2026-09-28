@@ -91,7 +91,7 @@ struct GameState {
     bool wait_for_more;    // Waiting for user
     int closing_flag;      // Game closing
 
-    // Dungeon dimensions
+    // Dungeon dimensions (a copy of dungeon_size.c's pair)
     int16_t cur_height;
     int16_t cur_width;
     int16_t max_panel_rows;
