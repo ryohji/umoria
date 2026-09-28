@@ -15,6 +15,7 @@
 
 #include "externs.h"
 
+#include "dungeon_level.h"
 #include "equipment.h"
 #include "inventory.h"
 #include "item_ident.h"
@@ -194,7 +195,7 @@ void read_scroll(void) {
                 ident = true;
                 break;
             case 10: {
-                int deeper = dun_level + (-3) + 2 * randint(2);
+                int deeper = dungeon_level() + (-3) + 2 * randint(2);
                 // The scroll may not push the player above the town; that is a
                 // rule of this scroll, not of leaving a level.
                 if (deeper < 1) {

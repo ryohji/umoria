@@ -26,7 +26,7 @@ bool level_is_over(void);
 // This level is finished, and the next one is `level`.
 //
 // This is the pair that always moved together: six of the eight old assignments
-// to new_level_flag put a new value in dun_level in the same breath, and a
+// to new_level_flag put a new depth in the same breath, and a
 // half-done pair is two different accidents -- a new depth the loop never goes
 // to, or the same level generated again under a depth that has already changed.
 //
@@ -35,16 +35,18 @@ bool level_is_over(void);
 // prompt says, and the deep-descent scroll stops at 1 because it may not push
 // the player above the town. Level 0 is the town, and it is a level like any
 // other here -- word-of-recall uses it.
+// The depth itself lives in src/dungeon_level.c (#18-14-6); this window writes
+// it through set_dungeon_level().
 void leave_for_level(int level);
 
-// This level is finished and no other one is named, so dun_level is left as it
+// This level is finished and no other one is named, so the depth is left as it
 // is. Three callers: dying, quitting, and word-of-recall with nowhere to go
 // (already in town with no depth recorded yet). For the first two the game ends
 // before another level is built; the third rebuilds the town.
 void end_level(void);
 
 // A level has begun, so nothing is pending. dungeon.c does this in its setup,
-// before the first turn of the level. It says nothing about dun_level, which by
+// before the first turn of the level. It says nothing about the depth, which by
 // then already holds the level being started.
 void begin_level(void);
 

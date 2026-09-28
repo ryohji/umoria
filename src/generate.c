@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "monster_list.h"
 #include "panel.h"
@@ -322,7 +323,7 @@ static void vault_monster(int y, int x, int num) {
 // Builds a room at a row, column coordinate -RAK-
 static void build_room(int yval, int xval) {
     uint8_t floor;
-    if (dun_level <= randint(25)) {
+    if (dungeon_level() <= randint(25)) {
         floor = LIGHT_FLOOR;
     } else {
         floor = DARK_FLOOR;
@@ -373,7 +374,7 @@ static void build_room(int yval, int xval) {
 // Type 1 unusual rooms are several overlapping rectangular ones
 static void build_type1(int yval, int xval) {
     uint8_t floor;
-    if (dun_level <= randint(25)) {
+    if (dungeon_level() <= randint(25)) {
         floor = LIGHT_FLOOR;
     } else {
         floor = DARK_FLOOR;
@@ -439,7 +440,7 @@ static void build_type1(int yval, int xval) {
 //   5 - A set of four inner rooms
 static void build_type2(int yval, int xval) {
     uint8_t floor;
-    if (dun_level <= randint(25)) {
+    if (dungeon_level() <= randint(25)) {
         floor = LIGHT_FLOOR;
     } else {
         floor = DARK_FLOOR;
@@ -721,7 +722,7 @@ static void build_type2(int yval, int xval) {
 // Type 3 unusual rooms are cross shaped
 static void build_type3(int yval, int xval) {
     uint8_t floor;
-    if (dun_level <= randint(25)) {
+    if (dungeon_level() <= randint(25)) {
         floor = LIGHT_FLOOR;
     } else {
         floor = DARK_FLOOR;
@@ -1070,7 +1071,7 @@ static void cave_gen(void) {
             if (room_map[i][j] == true) {
                 yloc[k] = i * (SCREEN_HEIGHT >> 1) + QUART_HEIGHT;
                 xloc[k] = j * (SCREEN_WIDTH >> 1) + QUART_WIDTH;
-                if (dun_level > randint(DUN_UNUSUAL)) {
+                if (dungeon_level() > randint(DUN_UNUSUAL)) {
                     int tmp = randint(3);
                     if (tmp == 1) {
                         build_type1(yloc[k], xloc[k]);
@@ -1129,7 +1130,7 @@ static void cave_gen(void) {
         try_door(doorstk[i].y + 1, doorstk[i].x);
     }
 
-    int alloc_level = (dun_level / 3);
+    int alloc_level = (dungeon_level() / 3);
     if (alloc_level < 2) {
         alloc_level = 2;
     } else if (alloc_level > 10) {
@@ -1148,7 +1149,7 @@ static void cave_gen(void) {
     alloc_object(set_floor, 5, randnor(TREAS_ANY_ALLOC, 3));
     alloc_object(set_floor, 4, randnor(TREAS_GOLD_ALLOC, 3));
     alloc_object(set_floor, 1, randint(alloc_level));
-    if (dun_level >= WIN_MON_APPEAR) {
+    if (dungeon_level() >= WIN_MON_APPEAR) {
         place_win_monster();
     }
 }
@@ -1267,7 +1268,7 @@ void generate_cave(void) {
     monster_list_reset();
     blank_cave();
 
-    if (dun_level == 0) {
+    if (player_is_in_town()) {
         set_dungeon_size(SCREEN_HEIGHT, SCREEN_WIDTH);
         panel_set_dungeon_size(dungeon_height(), dungeon_width());
         town_gen();

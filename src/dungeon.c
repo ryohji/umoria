@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "command_state.h"
+#include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "equipment.h"
 #include "input_ended.h"
@@ -86,7 +87,7 @@ void dungeon(void) {
     // Check for a maximum level. The comparison moved inside the window at
     // #18-12-16B: the record only ever grows, so telling it where we are is
     // enough (src/player_max_depth.h).
-    player_note_depth_reached(dun_level);
+    player_note_depth_reached(dungeon_level());
 
     // Reset flags and initialize variables
     int find_count = 0;
@@ -127,7 +128,7 @@ void dungeon(void) {
         handle_pending_signals();
 
         // turn over the store contents every, say, 1000 turns
-        if ((dun_level != 0) && ((progress_turn() % 1000) == 0)) {
+        if (!player_is_in_town() && ((progress_turn() % 1000) == 0)) {
             store_maint();
         }
 
@@ -548,7 +549,7 @@ void dungeon(void) {
             if (player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL) == 1) {
                 player_timed_add(PLAYER_TIMED_PARALYSIS, 1);
                 player_timed_clear(PLAYER_TIMED_WORD_OF_RECALL);
-                if (dun_level > 0) {
+                if (!player_is_in_town()) {
                     leave_for_level(0);
                     msg_print("You feel yourself yanked upwards!");
                 } else if (player_max_depth() != 0) {
@@ -1778,7 +1779,7 @@ static void go_up(void) {
 
     if (c_ptr->tptr != 0) {
         if (t_list[c_ptr->tptr].tval == TV_UP_STAIR) {
-            leave_for_level(dun_level - 1);
+            leave_for_level(dungeon_level() - 1);
             msg_print("You enter a maze of up staircases.");
             msg_print("You pass through a one-way door.");
         } else {
@@ -1799,7 +1800,7 @@ static void go_down(void) {
     const uint8_t tptr = cave[player_row()][player_col()].tptr;
 
     if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
-        leave_for_level(dun_level + 1);
+        leave_for_level(dungeon_level() + 1);
         msg_print("You enter a maze of down staircases.");
         msg_print("You pass through a one-way door.");
     } else {

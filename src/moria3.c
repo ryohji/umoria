@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "command_state.h"
+#include "dungeon_level.h"
 #include "score_death.h"
 #include "equipment.h"
 #include "inventory.h"
@@ -84,7 +85,7 @@ static void hit_trap(int y, int x) {
         break;
     case 4: // Trap door
         msg_print("You fell through a trap door!");
-        leave_for_level(dun_level + 1);
+        leave_for_level(dungeon_level() + 1);
         if (player_takes_no_falling_damage()) {
             msg_print("You gently float down.");
         } else {

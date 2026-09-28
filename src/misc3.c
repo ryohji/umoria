@@ -18,6 +18,7 @@
 #include "abilities.h"
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "equipment.h"
 #include "hp_table.h"
@@ -77,9 +78,9 @@ void place_rubble(int y, int x) {
 // Places a treasure (Gold or Gems) at given row, column -RAK-
 void place_gold(int y, int x) {
     int cur_pos = popt();
-    int i = ((randint(dun_level + 2) + 2) / 2) - 1;
+    int i = ((randint(dungeon_level() + 2) + 2) / 2) - 1;
     if (randint(OBJ_GREAT) == 1) {
-        i += randint(dun_level + 1);
+        i += randint(dungeon_level() + 1);
     }
     if (i >= MAX_GOLD) {
         i = MAX_GOLD - 1;
@@ -150,9 +151,9 @@ void place_object(int y, int x, bool must_be_small) {
     cave[y][x].tptr = cur_pos;
 
     // split this line up to avoid a reported compiler bug
-    int tmp = get_obj_num(dun_level, must_be_small);
+    int tmp = get_obj_num(dungeon_level(), must_be_small);
     invcopy(&t_list[cur_pos], object_at_level_position(tmp));
-    magic_treasure(cur_pos, dun_level);
+    magic_treasure(cur_pos, dungeon_level());
     if (cave[y][x].cptr == 1) {
         msg_print("You feel something roll beneath your feet."); // -CJS-
     }
@@ -340,7 +341,9 @@ void prt_gold(void) {
 void prt_depth(void) {
     vtype depths;
 
-    int depth = dun_level * 50;
+    // Fifty feet a level. The score multiplies the same depth by the same
+    // fifty and calls the answer points -- see dungeon_level.h.
+    int depth = dungeon_level() * 50;
 
     if (depth == 0) {
         (void)strcpy(depths, "Town level");

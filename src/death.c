@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "dungeon_level.h"
 #include "inventory.h"
 #include "player_bio.h"
 #include "player_class.h"
@@ -170,7 +171,7 @@ static void print_tomb(void) {
     (void)sprintf(str, "%d Au", player_gold());
     (void)sprintf(str, "| %s |          :    :", center_string(tmp_str, str));
     put_buffer(str, 13, 9);
-    (void)sprintf(str, "Died on Level : %d", dun_level);
+    (void)sprintf(str, "Died on Level : %d", dungeon_level());
     (void)sprintf(str, "| %s |         _;,,,,;_", center_string(tmp_str, str));
     put_buffer(str, 14, 9);
     put_buffer("|            killed by            |", 15, 9);
@@ -241,7 +242,10 @@ int32_t total_points(void) {
         total += item_value(inventory_and_equipment_at(i));
     }
 
-    total += dun_level * 50;
+    // Fifty points a level. The status line multiplies the same depth by the
+    // same fifty and calls the answer feet, which is a different unit for the
+    // same arithmetic -- see dungeon_level.h.
+    total += dungeon_level() * 50;
 
     // Don't ever let the score decrease from one save to the next.
     if (best_score_so_far() > total) {
@@ -270,7 +274,7 @@ static void highscores(void) {
     new_entry.uid = 0; // NOTE: do we not want to use `getuid()`? -MRC-
     new_entry.mhp = player_max_hp();
     new_entry.chp = player_hp();
-    new_entry.dun_level = (uint8_t)dun_level;
+    new_entry.dun_level = (uint8_t)dungeon_level();
     new_entry.lev = (uint8_t)player_level();
     new_entry.max_dlv = (uint8_t)player_max_depth();
     new_entry.sex = (player_is_male() ? 'M' : 'F');
@@ -426,7 +430,7 @@ static void kingly(void) {
     const char *p;
 
     // Change the character attributes.
-    dun_level = 0;
+    set_dungeon_level(0);
     (void)strcpy(death_cause(), "Ripe Old Age");
 
     (void)restore_level();

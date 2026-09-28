@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "monster_levels.h"
 #include "monster_list.h"
@@ -645,7 +646,7 @@ void alloc_monster(int num, int dis, int slp) {
             x = randint(dungeon_width() - 2);
         } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, player_row(), player_col()) <= dis));
 
-        creature_handle h = get_mons_num(dun_level);
+        creature_handle h = get_mons_num(dungeon_level());
         const uint8_t cchar = monster_get_creature(h)->cchar;
 
         // Dragons ('d' or 'D') are always created sleeping here,
@@ -680,7 +681,7 @@ static bool summon(int *y, int *x, creature_handle h, int slp) {
 
 // Places creature adjacent to given location -RAK-
 bool summon_monster(int *y, int *x, int slp) {
-    creature_handle h = get_mons_num(dun_level + MON_SUMMON_ADJ);
+    creature_handle h = get_mons_num(dungeon_level() + MON_SUMMON_ADJ);
     return summon(y, x, h, slp);
 }
 

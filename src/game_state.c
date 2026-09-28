@@ -10,6 +10,7 @@
 
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "constant.h"
 #include "externs.h"
@@ -59,7 +60,7 @@ GameState *game_state_init(void) {
     state->old_messages = msg_history_slots();
 
     // Initialize game metadata from existing globals
-    state->dungeon_level = dun_level;
+    state->dungeon_level = dungeon_level();
     state->turn = progress_turn();
     state->death = player_is_dead();
     state->wizard_mode = progress_wizard_mode();

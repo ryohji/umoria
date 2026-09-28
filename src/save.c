@@ -16,6 +16,7 @@
 
 #include "burden.h"
 #include "externs.h"
+#include "dungeon_level.h"
 #include "dungeon_size.h"
 #include "equipment.h"
 #include "hp_table.h"
@@ -334,7 +335,7 @@ static bool sv_write(void) {
         return true;
     }
 
-    wr_short((uint16_t)dun_level);
+    wr_short((uint16_t)dungeon_level());
     wr_short((uint16_t)player_row());
     wr_short((uint16_t)player_col());
     wr_short((uint16_t)monster_breeding_count());
@@ -997,7 +998,7 @@ bool get_char(bool *generate) {
                 // don't let him die of poison again immediately
                 player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
 
-                dun_level = 0; // Resurrect on the town level.
+                set_dungeon_level(0); // Resurrect on the town level.
                 set_character_generated(true);
 
                 // set noscore to indicate a resurrection, and don't enter
@@ -1023,7 +1024,11 @@ bool get_char(bool *generate) {
         // only level specific info should follow,
         // not present for dead characters
 
-        rd_short((uint16_t *)&dun_level);
+        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた
+        // （この global の別名はこの 1 か所だけ）。下の 2 つと同じ形。
+        uint16_t dungeon_level_read;
+        rd_short(&dungeon_level_read);
+        set_dungeon_level((int16_t)dungeon_level_read);
         uint16_t char_row_read, char_col_read;
         rd_short(&char_row_read);
         rd_short(&char_col_read);
