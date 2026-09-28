@@ -17,6 +17,7 @@
 #include "floor_items.h"
 #include "command_state.h"
 #include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "score_death.h"
 #include "equipment.h"
 #include "inventory.h"
@@ -49,7 +50,7 @@ static void hit_trap(int y, int x) {
     end_find();
     change_trap(y, x);
 
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
     inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
     int dam = pdamroll(t_ptr->damage);
@@ -281,7 +282,7 @@ static void carry(int y, int x, bool pickup) {
     msgtype out_val;
     bigvtype tmp_str;
 
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
     inven_type *i_ptr = floor_item_at(c_ptr->tptr);
 
     int i = floor_item_at(c_ptr->tptr)->tval;
@@ -364,7 +365,7 @@ void fix1_delete_monster(int j) {
     // if the monster was just eaten by another, it will still have positive
     // hit points
     m_ptr->hp = -1;
-    cave[m_ptr->fy][m_ptr->fx].cptr = 0;
+    square_at(m_ptr->fy, m_ptr->fx)->cptr = 0;
     if (m_ptr->ml) {
         lite_spot(m_ptr->fy, m_ptr->fx);
     }
@@ -378,7 +379,7 @@ void fix2_delete_monster(int j) {
     monster_type *const the_last = monster_list_at(monster_list_used() - 1);
 
     if (m_ptr != the_last) {
-        cave[the_last->fy][the_last->fx].cptr = j;
+        square_at(the_last->fy, the_last->fx)->cptr = j;
         *m_ptr = *the_last;
     }
     // Blank the row that was just copied away and take the mark back one
@@ -404,7 +405,7 @@ static int summon_object(int y, int x, int num, int typ) {
             int k = x - 3 + randint(5);
 
             if (in_bounds(j, k) && los(y, x, j, k)) {
-                cave_type *c_ptr = &cave[j][k];
+                cave_type *c_ptr = square_at(j, k);
 
                 if (c_ptr->fval <= MAX_OPEN_SPACE && (c_ptr->tptr == 0)) {
                     // typ == 3 -> 50% objects, 50% gold
@@ -438,7 +439,7 @@ static int summon_object(int y, int x, int num, int typ) {
 
 // Deletes object from given location -RAK-
 int delete_object(int y, int x) {
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
 
     if (c_ptr->fval == BLOCKED_FLOOR) {
         c_ptr->fval = CORR_FLOOR;
@@ -577,7 +578,7 @@ int mon_take_hit(int monptr, int dam) {
 
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {
-    const int crptr = cave[y][x].cptr;
+    const int crptr = square_at(y, x)->cptr;
     monster_type *const m_ptr = monster_list_at(crptr);
     const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
@@ -703,7 +704,7 @@ void move_char(int dir, bool do_pickup) {
 
     // Legal move?
     if (mmove(dir, &y, &x)) {
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         // if there is no creature, or an unlit creature in the walls then...
         // disallow attacks against unlit creatures in walls because moving into
@@ -755,7 +756,7 @@ void move_char(int dir, bool do_pickup) {
                 else if (c_ptr->lr && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                     for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {
                         for (int j = (player_col() - 1); j <= (player_col() + 1); j++) {
-                            cave_type *d_ptr = &cave[i][j];
+                            cave_type *d_ptr = square_at(i, j);
 
                             if ((d_ptr->fval == LIGHT_FLOOR) && (!d_ptr->pl)) {
                                 light_room(i, j);
@@ -780,7 +781,7 @@ void move_char(int dir, bool do_pickup) {
 
                         // check to see if we have stepped back onto another
                         // trap, if so, set it off
-                        c_ptr = &cave[player_row()][player_col()];
+                        c_ptr = square_at(player_row(), player_col());
                         if (c_ptr->tptr != 0) {
                             int i = floor_item_at(c_ptr->tptr)->tval;
                             if (i == TV_INVIS_TRAP || i == TV_VIS_TRAP ||
@@ -829,7 +830,7 @@ void move_char(int dir, bool do_pickup) {
 // Chests have traps too. -RAK-
 // Note: Chest traps are based on the FLAGS value
 void chest_trap(int y, int x) {
-    inven_type *t_ptr = floor_item_at(cave[y][x].tptr);
+    inven_type *t_ptr = floor_item_at(square_at(y, x)->tptr);
 
     if (CH_LOSE_STR & t_ptr->flags) {
         msg_print("A small needle has pricked you!");
@@ -879,7 +880,7 @@ void openobject(void) {
         (void)mmove(dir, &y, &x);
 
         bool no_object = false;
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR || floor_item_at(c_ptr->tptr)->tval == TV_CHEST)) {
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
@@ -983,7 +984,7 @@ void closeobject(void) {
     if (get_dir(CNIL, &dir)) {
         (void)mmove(dir, &y, &x);
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         bool no_object = false;
 
@@ -1022,7 +1023,7 @@ int twall(int y, int x, int t1, int t2) {
     bool res = false;
 
     if (t1 > t2) {
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if (c_ptr->lr) {
             // Should become a room space, check to see whether
@@ -1031,9 +1032,9 @@ int twall(int y, int x, int t1, int t2) {
 
             for (int i = y - 1; i <= y + 1; i++) {
                 for (int j = x - 1; j <= x + 1; j++) {
-                    if (cave[i][j].fval <= MAX_CAVE_ROOM) {
-                        c_ptr->fval = cave[i][j].fval;
-                        c_ptr->pl = cave[i][j].pl;
+                    if (square_at(i, j)->fval <= MAX_CAVE_ROOM) {
+                        c_ptr->fval = square_at(i, j)->fval;
+                        c_ptr->pl = square_at(i, j)->pl;
                         found = true;
                         break;
                     }

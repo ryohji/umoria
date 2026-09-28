@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "dungeon_map.h"
 #include "equipment.h"
 #include "externs.h"
 #include "floor_items.h"
@@ -58,7 +59,7 @@ void update_mon(int monptr) {
             flag = true;
         } else if (los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             // Normal sight.
-            c_ptr = &cave[m_ptr->fy][m_ptr->fx];
+            c_ptr = square_at(m_ptr->fy, m_ptr->fx);
             r_ptr = monster_get_creature(m_ptr->creature);
             if (c_ptr->pl || c_ptr->tl || (player_is_running() && m_ptr->cdis < 2 && player_has_light())) {
                 if ((CM_INVISIBLE & r_ptr->cmove) == 0) {
@@ -128,7 +129,7 @@ static int moves_this_turn(int16_t speed) {
 
 // Makes sure a new creature gets lit up. -CJS-
 static bool check_mon_lite(int y, int x) {
-    int monptr = cave[y][x].cptr;
+    int monptr = square_at(y, x)->cptr;
 
     if (monptr <= 1) {
         return false;
@@ -905,7 +906,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
         newy = m_ptr->fy;
         newx = m_ptr->fx;
         (void)mmove(mm[i], &newy, &newx);
-        c_ptr = &cave[newy][newx];
+        c_ptr = square_at(newy, newx);
         if (c_ptr->fval != BOUNDARY_WALL) {
             // Floor is open?
             if (c_ptr->fval <= MAX_OPEN_SPACE) {
@@ -1045,7 +1046,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
             if (do_move) {
                 // Pick up or eat an object
                 if (movebits & CM_PICKS_UP) {
-                    c_ptr = &cave[newy][newx];
+                    c_ptr = square_at(newy, newx);
 
                     if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval <= TV_MAX_OBJECT)) {
                         *rcmove |= CM_PICKS_UP;
@@ -1208,7 +1209,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             monster_turn_begin(monptr);
             (void)summon_monster(&y, &x, false);
             monster_turn_end();
-            update_mon((int)cave[y][x].cptr);
+            update_mon((int)square_at(y, x)->cptr);
             break;
         case 15: // Summon Undead
             msg_print(CONCAT(cdesc, " magically summons an undead!"));
@@ -1219,7 +1220,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             monster_turn_begin(monptr);
             (void)summon_undead(&y, &x);
             monster_turn_end();
-            update_mon((int)cave[y][x].cptr);
+            update_mon((int)square_at(y, x)->cptr);
             break;
         case 16: // Slow Person
             if (player_never_paralyzed()) {
@@ -1298,7 +1299,7 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
         // don't create a new creature on top of the old one, that
         // causes invincible/invisible creatures to appear.
         if (in_bounds(j, k) && (j != y || k != x)) {
-            c_ptr = &cave[j][k];
+            c_ptr = square_at(j, k);
             if ((c_ptr->fval <= MAX_OPEN_SPACE) && (c_ptr->tptr == 0) && (c_ptr->cptr != 1)) {
                 // Creature there already?
                 if (c_ptr->cptr > 1) {
@@ -1365,7 +1366,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         k = 0;
         for (i = m_ptr->fy - 1; i <= m_ptr->fy + 1; i++) {
             for (int j = m_ptr->fx - 1; j <= m_ptr->fx + 1; j++) {
-                if (in_bounds(i, j) && (cave[i][j].cptr > 1)) {
+                if (in_bounds(i, j) && (square_at(i, j)->cptr > 1)) {
                     k++;
                 }
             }
@@ -1387,7 +1388,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
     bool move_test = false;
 
     // if in wall, must immediately escape to a clear area
-    if (!(r_ptr->cmove & CM_PHASE) && (cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL)) {
+    if (!(r_ptr->cmove & CM_PHASE) && (square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
         // If the monster is already dead, don't kill it again!
         // This can happen for monsters moving faster than the player. They
         // will get multiple moves, but should not if they die on the first
@@ -1405,8 +1406,8 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         // of i will fail the comparison.
         for (i = m_ptr->fy + 1; i >= (m_ptr->fy - 1); i--) {
             for (int j = m_ptr->fx - 1; j <= m_ptr->fx + 1; j++) {
-                if ((dir != 5) && (cave[i][j].fval <= MAX_OPEN_SPACE) &&
-                    (cave[i][j].cptr != 1)) {
+                if ((dir != 5) && (square_at(i, j)->fval <= MAX_OPEN_SPACE) &&
+                    (square_at(i, j)->cptr != 1)) {
                     mm[k++] = dir;
                 }
                 dir++;
@@ -1424,7 +1425,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         }
 
         // if still in a wall, let it dig itself out, but also apply some more damage
-        if (cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL) {
+        if (square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL) {
             // in case the monster dies, may need to callfix1_delete_monster()
             // instead of delete_monsters()
             monster_turn_begin(monptr);
@@ -1573,7 +1574,7 @@ void creatures(int attack) {
 
                     // Monsters trapped in rock must be given a turn also,
                     // so that they will die/dig out immediately.
-                    if (m_ptr->ml || (m_ptr->cdis <= monster_get_creature(m_ptr->creature)->aaf) || ((!(monster_get_creature(m_ptr->creature)->cmove & CM_PHASE)) && cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL)) {
+                    if (m_ptr->ml || (m_ptr->cdis <= monster_get_creature(m_ptr->creature)->aaf) || ((!(monster_get_creature(m_ptr->creature)->cmove & CM_PHASE)) && square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
                         if (m_ptr->csleep > 0) {
                             if (player_aggravates_monsters()) {
                                 m_ptr->csleep = 0;

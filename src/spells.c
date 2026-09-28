@@ -15,6 +15,7 @@
 
 #include "equipment.h"
 #include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "externs.h"
 #include "floor_items.h"
 #include "inventory.h"
@@ -37,7 +38,7 @@ int sleep_monsters1(int y, int x) {
 
     for (int i = y - 1; i <= y + 1; i++) {
         for (int j = x - 1; j <= x + 1; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->cptr > 1) {
                 monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
@@ -69,7 +70,7 @@ int detect_treasure(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval == TV_GOLD) &&
                 !test_light(i, j)) {
@@ -89,7 +90,7 @@ int detect_object(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if ((c_ptr->tptr != 0) &&
                 (floor_item_at(c_ptr->tptr)->tval < TV_MAX_OBJECT) &&
@@ -110,7 +111,7 @@ int detect_trap(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if (c_ptr->tptr != 0) {
                 if (floor_item_at(c_ptr->tptr)->tval == TV_INVIS_TRAP) {
@@ -134,7 +135,7 @@ int detect_sdoor(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if (c_ptr->tptr != 0) {
                 if (floor_item_at(c_ptr->tptr)->tval == TV_SECRET_DOOR) {
@@ -193,7 +194,7 @@ int light_area(int y, int x) {
 
     bool light = true;
 
-    if (cave[y][x].lr && !player_is_in_town()) {
+    if (square_at(y, x)->lr && !player_is_in_town()) {
         light_room(y, x);
     }
 
@@ -201,7 +202,7 @@ int light_area(int y, int x) {
     // the edge of a room, or next to a destroyed area, etc.
     for (int i = y - 1; i <= y + 1; i++) {
         for (int j = x - 1; j <= x + 1; j++) {
-            cave[i][j].pl = true;
+            square_at(i, j)->pl = true;
             lite_spot(i, j);
         }
     }
@@ -213,7 +214,7 @@ int light_area(int y, int x) {
 int unlight_area(int y, int x) {
     bool unlight = false;
 
-    if (cave[y][x].lr && !player_is_in_town()) {
+    if (square_at(y, x)->lr && !player_is_in_town()) {
         int tmp1 = (SCREEN_HEIGHT / 2);
         int tmp2 = (SCREEN_WIDTH / 2);
         int start_row = (y / tmp1) * tmp1 + 1;
@@ -223,7 +224,7 @@ int unlight_area(int y, int x) {
 
         for (int i = start_row; i <= end_row; i++) {
             for (int j = start_col; j <= end_col; j++) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
                 if (c_ptr->lr && c_ptr->fval <= MAX_CAVE_FLOOR) {
                     c_ptr->pl = false;
                     c_ptr->fval = DARK_FLOOR;
@@ -237,7 +238,7 @@ int unlight_area(int y, int x) {
     } else {
         for (int i = y - 1; i <= y + 1; i++) {
             for (int j = x - 1; j <= x + 1; j++) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
                 if ((c_ptr->fval == CORR_FLOOR) && c_ptr->pl) {
                     // pl could have been set by star-lite wand, etc
                     c_ptr->pl = false;
@@ -263,10 +264,10 @@ void map_area(void) {
 
     for (int m = i; m <= j; m++) {
         for (int n = k; n <= l; n++) {
-            if (in_bounds(m, n) && (cave[m][n].fval <= MAX_CAVE_FLOOR)) {
+            if (in_bounds(m, n) && (square_at(m, n)->fval <= MAX_CAVE_FLOOR)) {
                 for (int i7 = m - 1; i7 <= m + 1; i7++) {
                     for (int i8 = n - 1; i8 <= n + 1; i8++) {
-                        cave_type *c_ptr = &cave[i7][i8];
+                        cave_type *c_ptr = square_at(i7, i8);
 
                         if (c_ptr->fval >= MIN_CAVE_WALL) {
                             c_ptr->pl = true;
@@ -347,7 +348,7 @@ int trap_creation(void) {
                 continue;
             }
 
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if (c_ptr->fval <= MAX_CAVE_FLOOR) {
                 if (c_ptr->tptr != 0) {
@@ -374,7 +375,7 @@ int door_creation(void) {
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
             if ((i != player_row()) || (j != player_col())) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 if (c_ptr->fval <= MAX_CAVE_FLOOR) {
                     door = true;
@@ -402,7 +403,7 @@ int td_destroy(void) {
 
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->tptr != 0) {
                 if (((floor_item_at(c_ptr->tptr)->tval >= TV_INVIS_TRAP) &&
                      (floor_item_at(c_ptr->tptr)->tval <= TV_CLOSED_DOOR) &&
@@ -463,7 +464,7 @@ void light_line(int dir, int y, int x) {
         // put mmove at end because want to light up current spot
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -533,7 +534,7 @@ int disarm_all(int dir, int y, int x) {
         // put mmove at end, in case standing on a trap
         dist++;
 
-        c_ptr = &cave[y][x];
+        c_ptr = square_at(y, x);
 
         // note, must continue upto and including the first non open space,
         // because secret doors have fval greater than MAX_OPEN_SPACE
@@ -626,7 +627,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, const char *bolt_typ) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         lite_spot(oldy, oldx);
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
@@ -708,7 +709,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
         if (dist > OBJ_BOLT_RANGE) {
             flag = true;
         } else {
-            cave_type *c_ptr = &cave[y][x];
+            cave_type *c_ptr = square_at(y, x);
 
             if ((c_ptr->fval >= MIN_CLOSED_SPACE) || (c_ptr->cptr > 1)) {
                 flag = true;
@@ -721,7 +722,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                 for (int i = y - max_dis; i <= y + max_dis; i++) {
                     for (int j = x - max_dis; j <= x + max_dis; j++) {
                         if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
-                            c_ptr = &cave[i][j];
+                            c_ptr = square_at(i, j);
 
                             if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
                                 (void)delete_object(i, j);
@@ -826,7 +827,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
     for (int i = y - 2; i <= y + 2; i++) {
         for (int j = x - 2; j <= x + 2; j++) {
             if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
                     (void)delete_object(i, j);
@@ -973,7 +974,7 @@ int hp_monster(int dir, int y, int x, int dam) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1006,7 +1007,7 @@ int drain_life(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1046,7 +1047,7 @@ int speed_monster(int dir, int y, int x, int spd) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1086,7 +1087,7 @@ int confuse_monster(int dir, int y, int x) {
     do {
         (void)mmove(dir, &y, &x);
         dist++;
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1135,7 +1136,7 @@ int sleep_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1175,7 +1176,7 @@ int wall_to_mud(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         // note, this ray can move through walls as it turns them to mud
         if (dist == OBJ_BOLT_RANGE) {
@@ -1248,7 +1249,7 @@ int td_destroy2(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        c_ptr = &cave[y][x];
+        c_ptr = square_at(y, x);
 
         // must move into first closed spot, as it might be a secret door
         if (c_ptr->tptr != 0) {
@@ -1287,7 +1288,7 @@ int poly_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *const c_ptr = &cave[y][x];
+        cave_type *const c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1330,7 +1331,7 @@ int build_wall(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1393,7 +1394,7 @@ bool clone_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1426,7 +1427,7 @@ void teleport_away(int monptr, int dis) {
             ctr = 0;
             dis += 5;
         }
-    } while ((cave[yn][xn].fval >= MIN_CLOSED_SPACE) || (cave[yn][xn].cptr != 0));
+    } while ((square_at(yn, xn)->fval >= MIN_CLOSED_SPACE) || (square_at(yn, xn)->cptr != 0));
 
     move_rec((int)m_ptr->fy, (int)m_ptr->fx, yn, xn);
     lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
@@ -1454,13 +1455,13 @@ void teleport_to(int ny, int nx) {
             ctr = 0;
             dis++;
         }
-    } while (!in_bounds(y, x) || (cave[y][x].fval >= MIN_CLOSED_SPACE) || (cave[y][x].cptr >= 2));
+    } while (!in_bounds(y, x) || (square_at(y, x)->fval >= MIN_CLOSED_SPACE) || (square_at(y, x)->cptr >= 2));
 
     move_rec(player_row(), player_col(), y, x);
 
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             c_ptr->tl = false;
             lite_spot(i, j);
         }
@@ -1484,7 +1485,7 @@ int teleport_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1750,7 +1751,7 @@ void earthquake(void) {
     for (int i = player_row() - 8; i <= player_row() + 8; i++) {
         for (int j = player_col() - 8; j <= player_col() + 8; j++) {
             if (((i != player_row()) || (j != player_col())) && in_bounds(i, j) && (randint(8) == 1)) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 if (c_ptr->tptr != 0) {
                     (void)delete_object(i, j);
@@ -1822,7 +1823,7 @@ int protect_evil(void) {
 
 // Create some high quality mush for the player. -RAK-
 void create_food(void) {
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (c_ptr->tptr != 0) {
         // take no action here, don't want to destroy object under player
@@ -1890,7 +1891,7 @@ int turn_undead(void) {
 
 // Leave a glyph of warding. Creatures will not pass over! -RAK-
 void warding_glyph(void) {
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (c_ptr->tptr == 0) {
         int i = popt();
@@ -2008,7 +2009,7 @@ void detect_inv2(int amount) {
 }
 
 static void replace_spot(int y, int x, int typ) {
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
 
     switch (typ) {
     case 1:
@@ -2054,7 +2055,7 @@ void destroy_area(int y, int x) {
     if (!player_is_in_town()) {
         for (int i = (y - 15); i <= (y + 15); i++) {
             for (int j = (x - 15); j <= (x + 15); j++) {
-                if (in_bounds(i, j) && (cave[i][j].fval != BOUNDARY_WALL)) {
+                if (in_bounds(i, j) && (square_at(i, j)->fval != BOUNDARY_WALL)) {
                     int k = distance(i, j, y, x);
 
                     // clear player's spot, but don't put wall there

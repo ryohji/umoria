@@ -19,6 +19,7 @@
 #include "burden.h"
 #include "command_state.h"
 #include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "dungeon_size.h"
 #include "equipment.h"
 #include "floor_items.h"
@@ -63,14 +64,14 @@ static char blank_string[] = "                        ";
 // Places a particular trap at location y, x -RAK-
 void place_trap(int y, int x, int subval) {
     int cur_pos = popt();
-    cave[y][x].tptr = cur_pos;
+    square_at(y, x)->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_TRAP_LIST + subval);
 }
 
 // Places rubble at location y, x -RAK-
 void place_rubble(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     cave_ptr->fval = BLOCKED_FLOOR;
     invcopy(floor_item_at(cur_pos), OBJ_RUBBLE);
@@ -86,13 +87,13 @@ void place_gold(int y, int x) {
     if (i >= MAX_GOLD) {
         i = MAX_GOLD - 1;
     }
-    cave[y][x].tptr = cur_pos;
+    square_at(y, x)->tptr = cur_pos;
     invcopy(floor_item_at(cur_pos), OBJ_GOLD_LIST + i);
 
     inven_type *t_ptr = floor_item_at(cur_pos);
     t_ptr->cost += (8L * (int32_t)randint((int)t_ptr->cost)) + randint(8);
 
-    if (cave[y][x].cptr == 1) {
+    if (square_at(y, x)->cptr == 1) {
         msg_print("You feel something roll beneath your feet.");
     }
 }
@@ -149,13 +150,13 @@ int get_obj_num(int level, bool must_be_small) {
 // Places an object at given row, column co-ordinate -RAK-
 void place_object(int y, int x, bool must_be_small) {
     int cur_pos = popt();
-    cave[y][x].tptr = cur_pos;
+    square_at(y, x)->tptr = cur_pos;
 
     // split this line up to avoid a reported compiler bug
     int tmp = get_obj_num(dungeon_level(), must_be_small);
     invcopy(floor_item_at(cur_pos), object_at_level_position(tmp));
     magic_treasure(cur_pos, dungeon_level());
-    if (cave[y][x].cptr == 1) {
+    if (square_at(y, x)->cptr == 1) {
         msg_print("You feel something roll beneath your feet."); // -CJS-
     }
 }
@@ -172,7 +173,7 @@ void alloc_object(bool (*alloc_set)(int), int typ, int num) {
 
         // don't put an object beneath the player, this could cause
         // problems if player is standing under rubble, or on a trap.
-        while ((!(*alloc_set)(cave[i][j].fval)) || (cave[i][j].tptr != 0) || (i == player_row() && j == player_col()));
+        while ((!(*alloc_set)(square_at(i, j)->fval)) || (square_at(i, j)->tptr != 0) || (i == player_row() && j == player_col()));
 
         // NOTE: typ == 2 is not used - used to be visible traps.
         if (typ < 4) {
@@ -204,7 +205,7 @@ void random_object(int y, int x, int num) {
             int j = y - 3 + randint(5);
             int k = x - 4 + randint(7);
 
-            cave_type *cave_ptr = &cave[j][k];
+            cave_type *cave_ptr = square_at(j, k);
 
             if (in_bounds(j, k) && (cave_ptr->fval <= MAX_CAVE_FLOOR) && (cave_ptr->tptr == 0)) {
                 if (randint(100) < 75) {
@@ -902,14 +903,14 @@ void take_one_item(inven_type *s_ptr, inven_type *i_ptr) {
 
 // Drops an item from inventory to given location -RAK-
 void inven_drop(int item_val, int drop_all) {
-    if (cave[player_row()][player_col()].tptr != 0) {
+    if (square_at(player_row(), player_col())->tptr != 0) {
         (void)delete_object(player_row(), player_col());
     }
 
     int i = popt();
     inven_type *i_ptr = inventory_and_equipment_at(item_val);
     *floor_item_at(i) = *i_ptr;
-    cave[player_row()][player_col()].tptr = i;
+    square_at(player_row(), player_col())->tptr = i;
 
     if (item_val >= INVEN_WIELD) {
         takeoff(item_val, -1);
@@ -1879,13 +1880,13 @@ void teleport(int dis) {
             y += ((player_row() - y) / 2);
             x += ((player_col() - x) / 2);
         }
-    } while ((cave[y][x].fval >= MIN_CLOSED_SPACE) || (cave[y][x].cptr >= 2));
+    } while ((square_at(y, x)->fval >= MIN_CLOSED_SPACE) || (square_at(y, x)->cptr >= 2));
 
     move_rec(player_row(), player_col(), y, x);
 
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
-            cave[i][j].tl = false;
+            square_at(i, j)->tl = false;
             lite_spot(i, j);
         }
     }

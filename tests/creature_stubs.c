@@ -34,6 +34,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "dungeon_map.h"
 #include "fixture.h"
 #include "player_glowing_hands.h"
 #include "player_infra_range.h"
@@ -51,6 +52,12 @@ player_type py;
  * 要る。この足場は py を自分で定義する = src/player.c（本物の 40 個の持ち主）と
  * 一緒にはリンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
+/* マスの表。#18-14-8B でこの実行形式が src/dungeon_map.c をリンクするように
+ * なったので、**この 1 行の役目が変わった** —— creature.c が字面で読む表では
+ * なく、窓口が extern 1 行で見にいく置き場になった。置き場が
+ * #18-14-8C で module の static に入ったら、ここに残しても窓口に届かない
+ * 別の表になるだけなので消える（m_list の 2 行が #18-14-4C で消えたのと
+ * 同じ理由）。 */
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 /* m_list もここに無い。#18-14-4C で src/monster_list.c が static で持つように
  * なったので、代役を置くと窓口に届かない別の表になるだけ
@@ -246,7 +253,10 @@ void fixture_reset(void)
      * 赤外視の 1 行と同じで**いまは頼っている件が無い**（外してもグリーンの
      * まま。実際に外して確かめた）。約束のために足しておく。 */
     player_glowing_hands_restore(0);
-    memset(cave, 0, sizeof cave);
+    /* 階を白紙に戻す。#18-14-8B までは memset 1 行だったが、それは
+     * generate.c の blank_cave() の写しだった —— いまは本物と同じ窓口を
+     * 呼ぶ（上の置き場を掃く）。 */
+    dungeon_map_reset();
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;
 }
