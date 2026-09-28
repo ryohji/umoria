@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
@@ -1201,9 +1202,9 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             x = player_col();
 
             // in case compact_monster() is called,it needs monptr
-            hack_monptr = monptr;
+            monster_turn_begin(monptr);
             (void)summon_monster(&y, &x, false);
-            hack_monptr = -1;
+            monster_turn_end();
             update_mon((int)cave[y][x].cptr);
             break;
         case 15: // Summon Undead
@@ -1212,9 +1213,9 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             x = player_col();
 
             // in case compact_monster() is called,it needs monptr
-            hack_monptr = monptr;
+            monster_turn_begin(monptr);
             (void)summon_undead(&y, &x);
-            hack_monptr = -1;
+            monster_turn_end();
             update_mon((int)cave[y][x].cptr);
             break;
         case 16: // Slow Person
@@ -1313,11 +1314,11 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                         }
 
                         // in case compact_monster() is called,it needs monptr
-                        hack_monptr = monptr;
+                        monster_turn_begin(monptr);
 
                         // Place_monster() may fail if monster list full.
                         result = place_monster(j, k, creature, false);
-                        hack_monptr = -1;
+                        monster_turn_end();
                         if (!result) {
                             return false;
                         }
@@ -1328,11 +1329,11 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                     // All clear,  place a monster
 
                     // in case compact_monster() is called,it needs monptr
-                    hack_monptr = monptr;
+                    monster_turn_begin(monptr);
 
                     // Place_monster() may fail if monster list full.
                     result = place_monster(j, k, creature, false);
-                    hack_monptr = -1;
+                    monster_turn_end();
                     if (!result) {
                         return false;
                     }
@@ -1423,9 +1424,9 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         if (cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL) {
             // in case the monster dies, may need to callfix1_delete_monster()
             // instead of delete_monsters()
-            hack_monptr = monptr;
+            monster_turn_begin(monptr);
             i = mon_take_hit(monptr, damroll(8, 8));
-            hack_monptr = -1;
+            monster_turn_end();
             if (i) {
                 msg_print("You hear a scream muffled by rock!");
                 prt_experience();

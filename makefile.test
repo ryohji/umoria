@@ -606,6 +606,13 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # 戻ってくる 1 本** —— 25 つめまでの 8 単位はどれも払わせなかった（creature.c は
 # 人物の身上書きも探索の腕も読まない）。#18-12-27C で置き場も static に入る。
 #
+# #18-14-1B で creature.c が「いま誰の手番か」を窓口越しに開け閉めするように
+# なったので src/monster_turn.c もリンクする。**この単位の税はこの 1 本だけ** ——
+# 窓口を呼ぶ 4 ファイルのうち、misc1.c・moria3.c・game_state.c は**どの
+# recipe にも出てこない**（distance_test は misc1.c の distance() をテスト側の
+# 宣言だけで呼び、実装をリンクしない）。**置き場の引っこしも B で済んでいる**
+# ので、C では variable.c の古い 1 行を消すだけ（代役も足場も要らない）。
+#
 # #18-11-6B で creature.c が「走っているか」を窓口越しに訊くようになったので
 # src/running.c もリンクする（6 → 7 コンパイル単位）。この段では実体はまだ
 # variable.c にあり、running.c は extern 宣言で見にいく。その器は
@@ -620,6 +627,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/player_pos.c src/player_light.c \
                                 src/screen_touched.c src/screen_touched.h \
                                 src/running.c src/running.h \
+                                src/monster_turn.c src/monster_turn.h \
                                 src/player_level.c src/player_level.h \
                                 src/player_status_flags.c src/player_status_flags.h \
                                 src/player_abilities.c src/player_abilities.h \
@@ -632,7 +640,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
-	    src/screen_touched.c src/running.c \
+	    src/screen_touched.c src/running.c src/monster_turn.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_infra_range.c src/player_glowing_hands.c \
@@ -2060,10 +2068,12 @@ $(BUILDDIR)/player_class_test: $(TESTDIR)/player_class_test.c \
 # 引っこしも同時に済む**（呼び手が窓口を通れば触る器はこちらになる）。
 # C に残るのは variable.c と externs.h から古い 1 行を消す仕事だけ。
 #
-# B で src/monster_turn.c を足す recipe が増える見こみ：
-# **movement_rate_test（creature.c を丸ごと #include）と、misc1.c を持ちこむ
-# 規則**。数は B で測りなおす（所見 48 の数えまちがいを 4 度踏まないため、
-# recipe の行とその直後のコマンド行だけを見る）。
+# **B で増えた recipe は 1 本だけ** —— movement_rate_test（src/creature.c を
+# 丸ごと #include する）。窓口を呼ぶのは 4 ファイル（creature.c 10 か所・
+# misc1.c 1・moria3.c 1・game_state.c 1）だが、**残る 3 本はどの recipe にも
+# 出てこない**。この道でいちばん安い税で、所見 34 の「税は構造体ではなく問いに
+# ついてくる」の別の面 —— **触る数ではなく、テストが本物を持ちこんでいるかで
+# 決まる**。
 $(BUILDDIR)/monster_turn_test: $(TESTDIR)/monster_turn_test.c \
                               $(TESTDIR)/minunit.h \
                               src/monster_turn.c \

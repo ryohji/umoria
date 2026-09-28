@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "player_food.h"
 #include "player_pos.h"
@@ -480,7 +481,7 @@ bool compact_monsters(void) {
                 // Never compact away the Balrog!!
                 if (monster_get_creature(mon_ptr->creature)->cmove & CM_WIN) {
                     ; // Do nothing
-                } else if (hack_monptr < i) {
+                } else if (monster_delete_may_shift(i)) {
                     // in case this is called from within creatures(), this is a horrible
                     // hack, the m_list/creatures() code needs to be rewritten.
                     delete_monster(i);

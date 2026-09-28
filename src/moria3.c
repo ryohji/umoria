@@ -19,6 +19,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "level_exit.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
@@ -562,7 +563,7 @@ int mon_take_hit(int monptr, int dam) {
 
         // in case this is called from within creatures(), this is a horrible
         // hack, the m_list/creatures() code needs to be rewritten.
-        if (hack_monptr < monptr) {
+        if (monster_delete_may_shift(monptr)) {
             delete_monster(monptr);
         } else {
             fix1_delete_monster(monptr);

@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "level_exit.h"
 #include "missile_serial.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_light.h"
@@ -123,7 +124,7 @@ GameState *game_state_init(void) {
     state->max_panel_cols = (int16_t)panel_max_col_index();
 
     // Temporary
-    state->hack_monptr = hack_monptr;
+    state->hack_monptr = monster_turn_index();
     state->missile_ctr = missile_serial_value();
 
     // Set global instance
