@@ -20,6 +20,7 @@
 #include "score_death.h"
 #include "inven_command_state.h"
 #include "inventory.h"
+#include "monster_list.h"
 #include "level_exit.h"
 #include "panel.h"
 #include "player_abilities.h"
@@ -49,8 +50,8 @@ void change_speed(int num) {
     player_speed_adjust(num);
     player_request_speed_redraw();
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        m_list[i].cspeed += num;
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_list_at(i)->cspeed += num;
     }
 }
 

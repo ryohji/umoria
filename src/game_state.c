@@ -17,6 +17,7 @@
 #include "inventory.h"
 #include "level_exit.h"
 #include "missile_serial.h"
+#include "monster_list.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "pending_teleport.h"
@@ -50,7 +51,7 @@ GameState *game_state_init(void) {
     // These will eventually be moved into the GameState structure itself
     state->player = &py;
     state->cave = cave;
-    state->monsters = m_list;
+    state->monsters = monster_list_at(0);
     state->treasure = t_list;
     state->inventory = inventory_and_equipment_at(0);
     state->stores = store_at(0);

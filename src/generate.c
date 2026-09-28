@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "monster_list.h"
 #include "panel.h"
 #include "player_pos.h"
 #include "progress.h"
@@ -1198,14 +1199,6 @@ static void tlink(void) {
     tcptr = MIN_TRIX;
 }
 
-// Link all free space in monster list together
-static void mlink(void) {
-    for (int i = 0; i < MAX_MALLOC; i++) {
-        m_list[i] = blank_monster;
-    }
-    mfptr = MIN_MONIX;
-}
-
 // Town logic flow for generation of new town
 static void town_gen(void) {
     set_seed(progress_town_seed());
@@ -1269,7 +1262,8 @@ void generate_cave(void) {
     player_pos_forget();
 
     tlink();
-    mlink();
+    // Link all free space in monster list together (mlink(), #18-14-4)
+    monster_list_reset();
     blank_cave();
 
     if (dun_level == 0) {

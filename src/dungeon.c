@@ -20,6 +20,7 @@
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "level_exit.h"
+#include "monster_list.h"
 #include "monster_breeding.h"
 #include "panel.h"
 #include "pending_teleport.h"
@@ -645,7 +646,7 @@ void dungeon(void) {
         // creature.c when monsters try to multiply.  Compact_monsters() is
         // much more likely to succeed if called from here, than if called
         // from within creatures().
-        if (MAX_MALLOC - mfptr < 10) {
+        if (monster_list_free_slots() < 10) {
             (void)compact_monsters();
         }
 
@@ -1848,7 +1849,7 @@ static void jamdoor(void) {
                     free_turn_flag = false;
 
                     char tmp_str[80];
-                    (void)sprintf(tmp_str, "The %s is in your way!", monster_get_creature(m_list[c_ptr->cptr].creature)->name);
+                    (void)sprintf(tmp_str, "The %s is in your way!", monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->name);
                     msg_print(tmp_str);
                 }
             } else if (t_ptr->tval == TV_OPEN_DOOR) {

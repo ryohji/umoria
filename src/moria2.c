@@ -17,6 +17,7 @@
 
 #include "command_state.h"
 #include "equipment.h"
+#include "monster_list.h"
 #include "player_abilities.h"
 #include "player_light.h"
 #include "player_pos.h"
@@ -361,7 +362,7 @@ void area_affect(int dir, int y, int x) {
                     // Also Creatures
                     // The monster should be visible since update_mon() checks
                     // for the special case of being in find mode
-                    if (c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
+                    if (c_ptr->cptr > 1 && monster_list_at(c_ptr->cptr)->ml) {
                         end_find();
                         return;
                     }
