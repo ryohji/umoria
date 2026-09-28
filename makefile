@@ -66,7 +66,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player_attack_bonuses.c player_search_skill.c player_bio.c \
 	player_stealth.c player_class.c \
 	monster_turn.c monster_levels.c monster_breeding.c monster_list.c \
-	dungeon_size.c dungeon_level.c floor_items.c \
+	dungeon_size.c dungeon_level.c floor_items.c dungeon_map.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -90,7 +90,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	player_attack_bonuses.o player_search_skill.o player_bio.o \
 	player_stealth.o player_class.o \
 	monster_turn.o monster_levels.o monster_breeding.o monster_list.o \
-	dungeon_size.o dungeon_level.o floor_items.o \
+	dungeon_size.o dungeon_level.o floor_items.o dungeon_map.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 
@@ -256,6 +256,9 @@ dungeon_level.o: $(SRCDIR)/dungeon_level.h
 # so it calls invcopy() (desc.c). The prototype is declared by hand, so
 # HEADERS_COMMON is still enough.
 floor_items.o: $(SRCDIR)/floor_items.h $(HEADERS_COMMON)
+# dungeon_map.c reaches the one cave table by a hand-written extern until
+# #18-14-8C moves the storage in, and calls nothing outside itself.
+dungeon_map.o: $(SRCDIR)/dungeon_map.h $(HEADERS_COMMON)
 monsters.o: $(HEADERS_COMMON)
 # object_levels.c does not include externs.h (it declares the three things it
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.

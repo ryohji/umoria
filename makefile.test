@@ -63,7 +63,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_bio_test player_stealth_test player_class_test \
         monster_turn_test monster_levels_test monster_breeding_test \
         monster_list_test dungeon_size_test dungeon_level_test \
-        floor_items_test
+        floor_items_test dungeon_map_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -2293,6 +2293,30 @@ $(BUILDDIR)/floor_items_test: $(TESTDIR)/floor_items_test.c \
                               src/floor_items.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/floor_items_test.c \
 	    $(TESTDIR)/floor_items_fixture.c src/floor_items.c
+
+# 「床の一枚一枚」（#18-14-8A）。ダンジョンとその中身の **8 問め、最後の問い**。
+# **足場 1 本**（tests/dungeon_map_fixture.c）—— 置き場は #18-14-8C まで
+# src/variable.c にあり、module は extern 1 行で見にいく。**この区分で
+# 3 度めの「置き場を A で動かせない問い」**で、理由は 4 問め・7 問めと同じ
+# （15 ファイル 258 参照なので B が 1 コミットに収まらない。所見 52 の条件）。
+# **ただし C で足場は 0 になる** —— module が外に持つ依存が 1 つも無いので、
+# 7 問めの invcopy() のように残るものが無い（ファイルごと消える）。
+# 税の見こみは **12 本** —— src/misc3.c を丸ごと #include する 9 本
+# （inven_stack・put_misc3・object_levels・haggle_comment・objdes・
+# calc_hitpoints・check_strength・calc_spells・gain_spells）、src/save.c を
+# 丸ごと #include する 2 本（save_bool・store_save）、src/creature.c を
+# 丸ごと #include する 1 本（movement_rate）。**7 問めと同じ顔ぶれ**。
+# **options_test は数えない** —— src/variable.c を並べているが、あれは置き場で
+# 呼び手ではない（7 問めで item_ident_test を数えまちがえたのと同じ形。所見 34）。
+# 払うときに tests/creature_stubs.c と tests/misc3_stubs.c の cave の定義が
+# 死ぬ（前者は memset の 1 行も窓口に替わる）。
+$(BUILDDIR)/dungeon_map_test: $(TESTDIR)/dungeon_map_test.c \
+                              $(TESTDIR)/dungeon_map_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/dungeon_map.c \
+                              src/dungeon_map.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_map_test.c \
+	    $(TESTDIR)/dungeon_map_fixture.c src/dungeon_map.c
 
 clean:
 	rm -rf $(BUILDDIR)
