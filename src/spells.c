@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
+#include "monster_levels.h"
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_class.h"
@@ -1295,8 +1296,10 @@ int poly_monster(int dir, int y, int x) {
                 flag = true;
                 delete_monster((int)c_ptr->cptr);
 
-                // Place_monster() should always return true here.
-                const int16_t m = randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0];
+                // Place_monster() should always return true here. Any monster
+                // but a town one, so the band starts above them.
+                const int first = first_monster_at_level(1);
+                const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
                 poly = place_monster(y, x, monster_make_creature_handle(m), false);
 
                 // don't test c_ptr->fm here, only pl/tl
@@ -1622,8 +1625,10 @@ int mass_poly(void) {
                 int x = m_ptr->fx;
                 delete_monster(i);
 
-                // Place_monster() should always return true here.
-                const int16_t m = randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0];
+                // Place_monster() should always return true here. Any monster
+                // but a town one, so the band starts above them.
+                const int first = first_monster_at_level(1);
+                const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
                 mass = place_monster(y, x, monster_make_creature_handle(m), false);
             }
         }

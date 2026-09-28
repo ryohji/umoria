@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "monster_levels.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "player_food.h"
@@ -579,7 +580,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
 // Places a monster at given location -RAK-
 void place_win_monster(void) {
     if (!player_has_won()) {
-        int x, y, z = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
+        int x, y, z = randint(WIN_MON_TOT) - 1 + monsters_up_to_level(MAX_MONS_LEVEL);
 
         do {
             y = randint(cur_height - 2);
@@ -603,7 +604,7 @@ static creature_handle get_mons_num(int level) {
     int i;
 
     if (level == 0) {
-        i = randint(m_level[0]) - 1;
+        i = randint(monsters_up_to_level(0)) - 1;
     } else {
         if (level > MAX_MONS_LEVEL) {
             level = MAX_MONS_LEVEL;
@@ -620,13 +621,13 @@ static creature_handle get_mons_num(int level) {
             // all monsters of level less than or equal to the dungeon level.
             // This distribution makes a level n monster occur approx 2/n% of the
             // time on level n, and 1/n*n% are 1st level.
-            const int num = m_level[level] - m_level[0];
+            const int num = monsters_up_to_level(level) - first_monster_at_level(1);
             i = randint(num) - 1;
             const int j = randint(num) - 1;
-            const int k = MAX(i, j) + m_level[0];
+            const int k = MAX(i, j) + first_monster_at_level(1);
             level = monster_get_creature(monster_make_creature_handle(k))->level;
         }
-        i = randint(m_level[level] - m_level[level - 1]) - 1 + m_level[level - 1];
+        i = randint(monsters_at_level(level)) - 1 + first_monster_at_level(level);
     }
 
     return monster_make_creature_handle(i);
@@ -683,7 +684,7 @@ bool summon_monster(int *y, int *x, int slp) {
 
 // Places undead adjacent to given location -RAK-
 bool summon_undead(int *y, int *x) {
-    int l = m_level[MAX_MONS_LEVEL];
+    int l = monsters_up_to_level(MAX_MONS_LEVEL);
     creature_handle h;
 
     do {
