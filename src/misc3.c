@@ -949,7 +949,7 @@ int inven_damage(bool (*typ)(inven_type *), int perc) {
 int weight_limit(void) {
     // 体の重さは窓口ごしに（#18-12-23B）。**この式の主語は腕力**で、体重は
     // 下駄のほう —— だから上限の計算は module の外に残した（use_stat[] に
-    // まだ窓口が無いので、畳むとしても `struct stats` のあと）。
+    // まだ窓口が無いので、畳むとしても `struct player_stat` のあと）。
     int weight_cap = py.stats.use_stat[A_STR] * PLAYER_WEIGHT_CAP + player_body_weight();
 
     if (weight_cap > 3000) {

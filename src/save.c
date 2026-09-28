@@ -220,7 +220,7 @@ static bool sv_write(void) {
         wr_string(player_history_line(i));
     }
 
-    struct stats *s_ptr = &py.stats;
+    struct player_stat *s_ptr = &py.stats;
     wr_bytes(s_ptr->max_stat, 6);
     wr_bytes(s_ptr->cur_stat, 6);
     wr_shorts((uint16_t *)s_ptr->mod_stat, 6);
@@ -797,7 +797,7 @@ bool get_char(bool *generate) {
                 player_history_line_set(i, line);
             }
 
-            struct stats *s_ptr = &py.stats;
+            struct player_stat *s_ptr = &py.stats;
             rd_bytes(s_ptr->max_stat, 6);
             rd_bytes(s_ptr->cur_stat, 6);
             rd_shorts((uint16_t *)s_ptr->mod_stat, 6);

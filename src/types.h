@@ -211,7 +211,13 @@ typedef struct player_type {
     // FILE FORMAT, kept at a fixed position inside the one file that reads it.
 
     // Stats now kept in arrays, for more efficient access. -CJS-
-    struct stats {
+    //
+    // The tag is `player_stat` rather than `stats` since #18-12-30: this is the only
+    // struct left inside the character's record, and a bare `struct stats` said
+    // nothing about whose four arrays these are (stats.h next door is a different
+    // thing again -- the tables that turn one of them into a bonus). The member is
+    // still `stats`, so every reader still spells it `py.stats.use_stat[A_STR]`.
+    struct player_stat {
         uint8_t max_stat[6]; // What is restored
         uint8_t cur_stat[6]; // What is natural
         int16_t mod_stat[6]; // What is modified, may be +/-
