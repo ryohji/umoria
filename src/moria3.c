@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "floor_items.h"
 #include "command_state.h"
 #include "dungeon_level.h"
 #include "score_death.h"
@@ -49,7 +50,7 @@ static void hit_trap(int y, int x) {
     change_trap(y, x);
 
     cave_type *c_ptr = &cave[y][x];
-    inven_type *t_ptr = &t_list[c_ptr->tptr];
+    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
     int dam = pdamroll(t_ptr->damage);
 
@@ -281,9 +282,9 @@ static void carry(int y, int x, bool pickup) {
     bigvtype tmp_str;
 
     cave_type *c_ptr = &cave[y][x];
-    inven_type *i_ptr = &t_list[c_ptr->tptr];
+    inven_type *i_ptr = floor_item_at(c_ptr->tptr);
 
-    int i = t_list[c_ptr->tptr].tval;
+    int i = floor_item_at(c_ptr->tptr)->tval;
     if (i <= TV_MAX_PICK_UP) {
         end_find();
 
@@ -772,7 +773,7 @@ void move_char(int dir, bool do_pickup) {
 
                     // if stepped on falling rock trap, and space contains
                     // rubble, then step back into a clear area
-                    if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
+                    if (floor_item_at(c_ptr->tptr)->tval == TV_RUBBLE) {
                         move_rec(player_row(), player_col(), old_row, old_col);
                         move_light(player_row(), player_col(), old_row, old_col);
                         player_place(old_row, old_col);
@@ -781,7 +782,7 @@ void move_char(int dir, bool do_pickup) {
                         // trap, if so, set it off
                         c_ptr = &cave[player_row()][player_col()];
                         if (c_ptr->tptr != 0) {
-                            int i = t_list[c_ptr->tptr].tval;
+                            int i = floor_item_at(c_ptr->tptr)->tval;
                             if (i == TV_INVIS_TRAP || i == TV_VIS_TRAP ||
                                 i == TV_STORE_DOOR) {
                                 hit_trap(player_row(), player_col());
@@ -793,9 +794,9 @@ void move_char(int dir, bool do_pickup) {
                 // Can't move onto floor space
 
                 if (!player_is_running() && (c_ptr->tptr != 0)) {
-                    if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
+                    if (floor_item_at(c_ptr->tptr)->tval == TV_RUBBLE) {
                         msg_print("There is rubble blocking your way.");
-                    } else if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
+                    } else if (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR) {
                         msg_print("There is a closed door blocking your way.");
                     }
                 } else {
@@ -828,7 +829,7 @@ void move_char(int dir, bool do_pickup) {
 // Chests have traps too. -RAK-
 // Note: Chest traps are based on the FLAGS value
 void chest_trap(int y, int x) {
-    inven_type *t_ptr = &t_list[cave[y][x].tptr];
+    inven_type *t_ptr = floor_item_at(cave[y][x].tptr);
 
     if (CH_LOSE_STR & t_ptr->flags) {
         msg_print("A small needle has pricked you!");
@@ -880,13 +881,13 @@ void openobject(void) {
         bool no_object = false;
         cave_type *c_ptr = &cave[y][x];
 
-        if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR || t_list[c_ptr->tptr].tval == TV_CHEST)) {
+        if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR || floor_item_at(c_ptr->tptr)->tval == TV_CHEST)) {
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             // Closed door
-            if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
-                inven_type *t_ptr = &t_list[c_ptr->tptr];
+            if (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR) {
+                inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
                 // It's locked.
                 if (t_ptr->p1 > 0) {
@@ -906,17 +907,17 @@ void openobject(void) {
                     msg_print("It appears to be stuck.");
                 }
                 if (t_ptr->p1 == 0) {
-                    invcopy(&t_list[c_ptr->tptr], OBJ_OPEN_DOOR);
+                    invcopy(floor_item_at(c_ptr->tptr), OBJ_OPEN_DOOR);
                     c_ptr->fval = CORR_FLOOR;
                     lite_spot(y, x);
                     cancel_command_count();
                 }
-            } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
+            } else if (floor_item_at(c_ptr->tptr)->tval == TV_CHEST) {
                 // Open a closed chest.
 
                 int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
-                inven_type *t_ptr = &t_list[c_ptr->tptr];
+                inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
                 bool flag = false;
 
@@ -955,9 +956,9 @@ void openobject(void) {
                 if (flag) {
                     // clear the cursed chest/monster win flag, so that people
                     // can not win by opening a cursed chest
-                    t_list[c_ptr->tptr].flags &= ~TR_CURSED;
-                    (void)monster_death(y, x, t_list[c_ptr->tptr].flags);
-                    t_list[c_ptr->tptr].flags = 0;
+                    floor_item_at(c_ptr->tptr)->flags &= ~TR_CURSED;
+                    (void)monster_death(y, x, floor_item_at(c_ptr->tptr)->flags);
+                    floor_item_at(c_ptr->tptr)->flags = 0;
                 }
             } else {
                 no_object = true;
@@ -987,10 +988,10 @@ void closeobject(void) {
         bool no_object = false;
 
         if (c_ptr->tptr != 0) {
-            if (t_list[c_ptr->tptr].tval == TV_OPEN_DOOR) {
+            if (floor_item_at(c_ptr->tptr)->tval == TV_OPEN_DOOR) {
                 if (c_ptr->cptr == 0) {
-                    if (t_list[c_ptr->tptr].p1 == 0) {
-                        invcopy(&t_list[c_ptr->tptr], OBJ_CLOSED_DOOR);
+                    if (floor_item_at(c_ptr->tptr)->p1 == 0) {
+                        invcopy(floor_item_at(c_ptr->tptr), OBJ_CLOSED_DOOR);
                         c_ptr->fval = BLOCKED_FLOOR;
                         lite_spot(y, x);
                     } else {
