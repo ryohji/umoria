@@ -855,6 +855,7 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/spells_known.c src/item_ident.c src/item_ident.h \
                             src/missile_serial.c src/missile_serial.h \
                             src/monster_breeding.c src/monster_breeding.h \
+                            src/monster_list.c src/monster_list.h \
                             src/input_ended.c src/input_ended.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
@@ -887,7 +888,7 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
-	    src/monster_breeding.c \
+	    src/monster_breeding.c src/monster_list.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
@@ -951,6 +952,7 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/spells_known.c src/item_ident.c src/item_ident.h \
                              src/missile_serial.c src/missile_serial.h \
                              src/monster_breeding.c src/monster_breeding.h \
+                             src/monster_list.c src/monster_list.h \
                              src/input_ended.c src/input_ended.h \
                              src/player_level.c src/player_level.h \
                              src/player_status_flags.c src/player_status_flags.h \
@@ -983,7 +985,7 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
-	    src/monster_breeding.c \
+	    src/monster_breeding.c src/monster_list.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \

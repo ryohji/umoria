@@ -23,6 +23,7 @@
 #include "item_ident.h"
 #include "missile_serial.h"
 #include "monster_breeding.h"
+#include "monster_list.h"
 #include "panel.h"
 #include "messages.h"
 #include "player_abilities.h"
@@ -398,9 +399,9 @@ static bool sv_write(void) {
     for (int i = MIN_TRIX; i < tcptr; i++) {
         wr_item(&t_list[i]);
     }
-    wr_short((uint16_t)mfptr);
-    for (int i = MIN_MONIX; i < mfptr; i++) {
-        wr_monster(&m_list[i]);
+    wr_short((uint16_t)monster_list_used());
+    for (int i = MIN_MONIX; i < monster_list_used(); i++) {
+        wr_monster(monster_list_at(i));
     }
 
     if (ferror(fileptr) || (fflush(fileptr) == EOF)) {
@@ -1103,12 +1104,17 @@ bool get_char(bool *generate) {
         for (int i = MIN_TRIX; i < tcptr; i++) {
             rd_item(&t_list[i]);
         }
-        rd_short((uint16_t *)&mfptr);
-        if (mfptr > MAX_MALLOC) {
+        // The mark is put back before it is checked, exactly as the old
+        // `rd_short((uint16_t *)&mfptr)` did -- a file claiming more rows than
+        // the table holds leaves the mark bogus and then fails the load.
+        uint16_t monsters_used;
+        rd_short(&monsters_used);
+        set_monster_list_used((int16_t)monsters_used);
+        if (monster_list_used() > MAX_MALLOC) {
             goto error;
         }
-        for (int i = MIN_MONIX; i < mfptr; i++) {
-            rd_monster(&m_list[i]);
+        for (int i = MIN_MONIX; i < monster_list_used(); i++) {
+            rd_monster(monster_list_at(i));
         }
 
         *generate = false; // We have restored a cave - no need to generate.

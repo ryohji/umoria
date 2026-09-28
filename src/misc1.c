@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "monster_levels.h"
+#include "monster_list.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "player_food.h"
@@ -422,8 +423,8 @@ uint8_t loc_symbol(int y, int x) {
         return ' ';
     } else if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION) && (randint(12) == 1)) {
         return randint(95) + 31;
-    } else if ((cave_ptr->cptr > 1) && (m_list[cave_ptr->cptr].ml)) {
-        return monster_get_creature(m_list[cave_ptr->cptr].creature)->cchar;
+    } else if ((cave_ptr->cptr > 1) && (monster_list_at(cave_ptr->cptr)->ml)) {
+        return monster_get_creature(monster_list_at(cave_ptr->cptr)->creature)->cchar;
     } else if (!cave_ptr->pl && !cave_ptr->tl && !cave_ptr->fm) {
         return ' ';
     } else if ((cave_ptr->tptr != 0) && (t_list[cave_ptr->tptr].tval != TV_INVIS_TRAP)) {
@@ -476,8 +477,8 @@ bool compact_monsters(void) {
     bool delete_any = false;
 
     do {
-        for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-            monster_type *mon_ptr = &m_list[i];
+        for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+            monster_type *mon_ptr = monster_list_at(i);
             if ((cur_dis < mon_ptr->cdis) && (randint(3) == 1)) {
                 // Never compact away the Balrog!!
                 if (monster_get_creature(mon_ptr->creature)->cmove & CM_WIN) {
@@ -540,12 +541,12 @@ void add_food(int num) {
 // Returns a pointer to next free space -RAK-
 // Returns -1 if could not allocate a monster.
 int popm(void) {
-    if (mfptr == MAX_MALLOC) {
+    if (monster_list_is_full()) {
         if (!compact_monsters()) {
             return -1;
         }
     }
-    return mfptr++;
+    return monster_list_claim_slot();
 }
 
 // Gives Max hit points -RAK-
@@ -561,7 +562,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
     } else {
         creature_type *const r_ptr = monster_get_creature(h);
         int (*const calc_hp)(const uint8_t *) = r_ptr->cdefense & CD_MAX_HP ? max_hp : pdamroll;
-        monster_type *const mon_ptr = &m_list[cur_pos];
+        monster_type *const mon_ptr = monster_list_at(cur_pos);
         mon_ptr->fy = y;
         mon_ptr->fx = x;
         mon_ptr->creature = h;
