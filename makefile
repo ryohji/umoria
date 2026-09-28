@@ -65,6 +65,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player_disarm.c player_saving_throw.c player_race.c player_body_weight.c \
 	player_attack_bonuses.c player_search_skill.c player_bio.c \
 	player_stealth.c player_class.c \
+	monster_turn.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
 	rnd.c recall.c player.c tables.c
 
@@ -87,6 +88,7 @@ OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
 	player_disarm.o player_saving_throw.o player_race.o player_body_weight.o \
 	player_attack_bonuses.o player_search_skill.o player_bio.o \
 	player_stealth.o player_class.o \
+	monster_turn.o \
 	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
 	rnd.o recall.o player.o tables.o
 

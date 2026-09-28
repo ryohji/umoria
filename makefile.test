@@ -60,7 +60,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_base_to_hit_test player_disarm_test \
         player_saving_throw_test player_race_test player_body_weight_test \
         player_attack_bonuses_test player_search_skill_test \
-        player_bio_test player_stealth_test player_class_test
+        player_bio_test player_stealth_test player_class_test \
+        monster_turn_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -2037,6 +2038,38 @@ $(BUILDDIR)/player_class_test: $(TESTDIR)/player_class_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_class_test.c \
 	    $(TESTDIR)/player_class_fixture.c \
 	    src/player_class.c
+
+# 「いま誰の手番か」（ダンジョンとその中身から出す 1 つめの問い・#18-14-1）。
+# もとは variable.c:39 の `hack_monptr` で、**1 つの int が 1 つの問いにしか
+# 答えていない**のに、読み手 2 つ（misc1.c の詰めなおしと moria3.c の死）が
+# `hack_monptr < i` と手で書いていた。窓口はその比較に名前を付ける。
+#
+# **リンクするのは module 1 本だけ**で、**A の段から足場が 1 つも要らない**
+# —— 依存は MIN_MONIX（constant.h）すら使わず、int 1 つと比較 1 つで足りる。
+# 置き場を最初から static にしたので、**#18-12-1C から続く「module 1 本」の
+# 最小形に 1 歩めから入る**（str_insert.c・missile_serial.c・screen_touched.c
+# と同じ 2 コンパイル単位）。これまでの単位は A では置き場がまだ variable.c
+# か py にあり、足場（tests/*_fixture.c）で器を 1 つ置いてから C で捨てて
+# いた。
+#
+# **そのぶん A のあいだは器が 2 つある** —— variable.c:39 の `hack_monptr`
+# （本体が使う）と、この module の static（テストだけが見る）。食いちがう
+# 心配が無いのは、**本体がまだ窓口を 1 つも呼んでいない**から
+# （ステップ A は保護だけ）。B で creature.c の 10 の代入・misc1.c と
+# moria3.c の比較・game_state.c の写しとりを窓口に差しかえると、**置き場の
+# 引っこしも同時に済む**（呼び手が窓口を通れば触る器はこちらになる）。
+# C に残るのは variable.c と externs.h から古い 1 行を消す仕事だけ。
+#
+# B で src/monster_turn.c を足す recipe が増える見こみ：
+# **movement_rate_test（creature.c を丸ごと #include）と、misc1.c を持ちこむ
+# 規則**。数は B で測りなおす（所見 48 の数えまちがいを 4 度踏まないため、
+# recipe の行とその直後のコマンド行だけを見る）。
+$(BUILDDIR)/monster_turn_test: $(TESTDIR)/monster_turn_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_turn.c \
+                              src/monster_turn.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_turn_test.c \
+	    src/monster_turn.c
 
 clean:
 	rm -rf $(BUILDDIR)
