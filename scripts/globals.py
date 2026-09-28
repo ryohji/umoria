@@ -99,8 +99,21 @@ GROUPS = {
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
-        cave dun_level
+        cave
         t_list tcptr""",
+    # いま何階か（dun_level）は #18-14-6C で dungeon_level.c の static になり、
+    # externs.h から外れた。窓口は src/dungeon_level.h（dungeon_level /
+    # player_is_in_town / set_dungeon_level）。**この区分の 6 問め**で、
+    # **同じ問いが 3 通りに書かれていた** —— 「町にいるか」を `!= 0`・`> 0`・
+    # `== 0` と 6 か所が別々に綴っていたので、窓口 1 本に寄せた。走りだしの
+    # 0 は空の器ではなく場所（町）なので、その初期値をテストで押さえた。
+    # 測って分かった 2 つ —— **同じ `深さ * 50` が 2 つの単位を持つ**
+    # （death.c では点、misc3.c では feet。同じ算術だが畳めない。所見 54 の
+    # 2 つめ）、そして**負の階は誰も比べていないから起きない**（町に上りの
+    # 階段が無いから起きない。窓口も検めない ―― 上流のまま）。
+    # 別名 1 件（save.c の復元が int16_t へポインタ型を偽って読んでいた
+    # 1 か所）もここで消えた。税は 12 本で、**2 問続けて下調べの見こみと
+    # 一致した**。
     # この階の広さ（cur_height ＋ cur_width）は #18-14-5C で dungeon_size.c の
     # static になり、externs.h から外れた。窓口は src/dungeon_size.h
     # （dungeon_height / dungeon_width / set_dungeon_size）。**この区分の

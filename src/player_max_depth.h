@@ -10,10 +10,11 @@
 #define PLAYER_MAX_DEPTH_H
 
 // THE QUESTION. How far down has this character ever got? Not where it is now --
-// that is dun_level, which changes every time a staircase is used and goes back
-// up as well as down. This number only ever grows.
+// that is the current depth (dungeon_level(), dungeon_level.h), which changes
+// every time a staircase is used and goes back up as well as down. This number
+// only ever grows.
 //
-// It is measured in dungeon levels, the same unit as dun_level, and the town is
+// It is measured in dungeon levels, the same unit as the depth, and the town is
 // level 0. So zero means "has never gone below the town", which is where every
 // character starts.
 //
@@ -49,9 +50,9 @@ void player_max_depth_set(int level);
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all of them still in the
 // callers:
 //
-//   1. WHICH LEVEL THE CHARACTER IS ON NOW. That is dun_level, a global of its
-//      own, and it is the input to the window above rather than something this
-//      module keeps.
+//   1. WHICH LEVEL THE CHARACTER IS ON NOW. That is the depth, which has a
+//      window of its own since #18-14-6 (dungeon_level.h), and it is the input
+//      to the window above rather than something this module keeps.
 //   2. WHAT THE RECORD IS WORTH. total_points() in death.c pays 100 points per
 //      level. Scoring reads this number, but how generous the score is has
 //      nothing to do with where the character has been.

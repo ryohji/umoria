@@ -35,7 +35,11 @@ extern FILE *highscore_fp;          // High score file pointer (init_scorefile o
 // command_count and default_dir moved to command_state.c, together with
 // last_command: how many repeats are left and whether the direction is taken
 // from memory (#18-11-7C). The windows are in command_state.h
-extern int16_t dun_level;           // Cur dungeon level
+// Which level the game is on now is not declared here. The number is private to
+// dungeon_level.c and is reached through src/dungeon_level.h, which also answers
+// "am I in the town?" for the six callers that used to spell that question three
+// ways (!= 0, > 0, == 0). The one alias -- the save file's restore path reading
+// the short straight through a faked pointer -- is gone with it.
 // The top line (was: msg_flag, old_msg[MAX_SAVE_MSG], last_msg and
 // wait_for_more) is private to messages.c now, together with the code that
 // walks the ring and the -more- prompt; see messages.h.

@@ -71,7 +71,13 @@ FILE *highscore_fp;               // File pointer to high score file
 // them in pairs, so the window that sets them takes both -- there is no longer
 // a way to change half of a size. The pair only ever holds one of two values,
 // the town's 22 by 66 or a dungeon level's 66 by 198.
-int16_t dun_level = 0;            // Cur dungeon level
+// Which level the game is on now moved to dungeon_level.c (#18-14-6C). The
+// windows are in dungeon_level.h. It was one of the few lines here with an
+// initializer of its own, and the zero was not an empty container but a place:
+// a new game starts in the town. Six of its thirty readers were asking the same
+// question -- am I in the town? -- in three different spellings, and they ask
+// one window now. **Nothing here says which level the game is on, or how big it
+// is, any more.**
 // The serial number that tells one batch of missiles from another moved to
 // missile_serial.c (#18-11-2C). The window is in missile_serial.h
 //
