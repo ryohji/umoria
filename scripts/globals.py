@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+# Copyright (c) 2026 Umoria Contributors
+#
+# Umoria is free software released under a GPL v2 license and comes with
+# ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+# for further details.
+
 """externs.h のグローバル変数を数えあげる。
 
 臭い #18（データの散在）の全体像をつかむための計測。手で数えあげると
