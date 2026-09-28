@@ -61,7 +61,8 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_saving_throw_test player_race_test player_body_weight_test \
         player_attack_bonuses_test player_search_skill_test \
         player_bio_test player_stealth_test player_class_test \
-        monster_turn_test monster_levels_test monster_breeding_test
+        monster_turn_test monster_levels_test monster_breeding_test \
+        monster_list_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -2170,6 +2171,30 @@ $(BUILDDIR)/monster_breeding_test: $(TESTDIR)/monster_breeding_test.c \
                               src/monster_breeding.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_breeding_test.c \
 	    src/monster_breeding.c
+
+# 「この階にいるモンスター」（#18-14-4A）。src/monster_list.c は externs.h を
+# include しないので、リンクするのは module 1 本と**足場 1 本**だけ。
+#
+# **足場が要るのはこの問いだけ。** #18-14-1〜3 は A の段で置き場を module の
+# static に入れたので足場が 0 本だった（所見 52）。あの形が使えるのは
+# 「B を 1 コミットで通しきれる」ときで、この問いは 12 ファイル 101 参照
+# （m_list 73・mfptr 28）なので B をファイルごとに割る。割るあいだ器が 2 つ
+# あると半分が古い器を読むので、置き場は #18-14-4C まで monsters.c に置いた
+# まま、module は extern 3 行で見にいく。tests/monster_list_fixture.c が
+# その 3 つ（m_list・mfptr・blank_monster）の代わりを置く —— monsters.c を
+# リンクすると 279 体の定義表が丸ごと付いてくるため。
+#
+# **税は 3 本の見こみ**（B で測りなおす）—— movement_rate_test（src/creature.c
+# を丸ごと #include）と、src/save.c を丸ごと #include する save_bool_test・
+# store_save_test。m_list/mfptr が出る 12 ファイルのうち、recipe が並べて
+# いるのは monsters.c だけで、そちらは C で定義が消えるので払わない。
+$(BUILDDIR)/monster_list_test: $(TESTDIR)/monster_list_test.c \
+                              $(TESTDIR)/monster_list_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_list.c \
+                              src/monster_list.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_list_test.c \
+	    $(TESTDIR)/monster_list_fixture.c src/monster_list.c
 
 clean:
 	rm -rf $(BUILDDIR)
