@@ -18,6 +18,7 @@
 #include "externs.h"
 #include "floor_items.h"
 #include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "dungeon_size.h"
 #include "equipment.h"
 #include "hp_table.h"
@@ -347,7 +348,7 @@ static bool sv_write(void) {
 
     for (int i = 0; i < MAX_HEIGHT; i++) {
         for (int j = 0; j < MAX_WIDTH; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->cptr != 0) {
                 wr_byte((uint8_t)i);
                 wr_byte((uint8_t)j);
@@ -361,7 +362,7 @@ static bool sv_write(void) {
 
     for (int i = 0; i < MAX_HEIGHT; i++) {
         for (int j = 0; j < MAX_WIDTH; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->tptr != 0) {
                 wr_byte((uint8_t)i);
                 wr_byte((uint8_t)j);
@@ -379,7 +380,7 @@ static bool sv_write(void) {
 
     for (int i = 0; i < MAX_HEIGHT; i++) {
         for (int j = 0; j < MAX_WIDTH; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             uint8_t char_tmp = c_ptr->fval | (c_ptr->lr << 4) | (c_ptr->fm << 5) | (c_ptr->pl << 6) | (c_ptr->tl << 7);
 
@@ -1066,7 +1067,7 @@ bool get_char(bool *generate) {
             if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
                 goto error;
             }
-            cave[ychar][xchar].cptr = char_tmp;
+            square_at(ychar, xchar)->cptr = char_tmp;
             rd_byte(&char_tmp);
         }
 
@@ -1079,34 +1080,37 @@ bool get_char(bool *generate) {
             if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
                 goto error;
             }
-            cave[ychar][xchar].tptr = char_tmp;
+            square_at(ychar, xchar)->tptr = char_tmp;
             rd_byte(&char_tmp);
         }
 
-        // read in the rest of the cave info
-        cave_type *c_ptr = &cave[0][0];
-
-        // 番地としては &cave[MAX_HEIGHT][0] と同じだが、そう書くと存在しない
-        // 行 MAX_HEIGHT の添字を書くことになる（-Warray-bounds）。cave は
-        // 行の配列なので、末尾のひとつ先は行の側で数える。
-        const cave_type *const cave_end = (const cave_type *)END_OF(cave);
-
+        // read in the rest of the fval / light bits, run-length encoded
+        //
+        // ファイルの中ではマスが行優先の 1 本の並びになっているので、
+        // **これまでに置いた数がそのまま次のマスの番地になる** ——
+        // n 番めは (n / MAX_WIDTH, n % MAX_WIDTH)。変更前は表の上をポインタ
+        // 1 本で走らせ、END_OF() で作った末尾と比べて行きすぎを見ていた
+        // （「番地としては &cave[MAX_HEIGHT][0] だが、そう書くと存在しない
+        // 行の添字になる（-Warray-bounds）」という註つきで）。表が 1 枚の
+        // 連続した領域だという約束は src/dungeon_map.c の持ちものになったので、
+        // ここは数だけで書ける（#18-14-8）。
         int total_count = 0;
         while (total_count != MAX_HEIGHT * MAX_WIDTH) {
             rd_byte(&count);
             rd_byte(&char_tmp);
             for (int i = count; i > 0; i--) {
-                if (c_ptr >= cave_end) {
+                if (total_count >= MAX_HEIGHT * MAX_WIDTH) {
                     goto error;
                 }
+                cave_type *c_ptr =
+                    square_at(total_count / MAX_WIDTH, total_count % MAX_WIDTH);
                 c_ptr->fval = char_tmp & 0xF;
                 c_ptr->lr = (char_tmp >> 4) & 0x1;
                 c_ptr->fm = (char_tmp >> 5) & 0x1;
                 c_ptr->pl = (char_tmp >> 6) & 0x1;
                 c_ptr->tl = (char_tmp >> 7) & 0x1;
-                c_ptr++;
+                total_count++;
             }
-            total_count += count;
         }
 
         // The two marks below are put back before they are checked, exactly
