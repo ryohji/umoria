@@ -2262,29 +2262,30 @@ $(BUILDDIR)/dungeon_level_test: $(TESTDIR)/dungeon_level_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_level_test.c \
 	    src/dungeon_level.c
 
-# 「床に落ちているもの」（#18-14-7）。src/floor_items.c も externs.h を
-# include しないが、**足場は 1 本要る** —— #18-14-4（モンスターの表）と同じ
-# 形で、置き場（t_list と tcptr）が C まで treasure.c に残るため。
-# tests/floor_items_fixture.c がその 2 つと、**空の行の作りかた**を持つ。
+# 「床に落ちているもの」（#18-14-7）。置き場（t_list と tcptr）は #18-14-7C で
+# src/floor_items.c の static に入ったが、**足場は 1 本残る** ——
+# tests/floor_items_fixture.c が持つのは**空の行の作りかた**だけになった。
 # 空の行は blank_monster のような定数ではなく object_list[OBJ_NOTHING] の
-# 写しなので、写す invcopy()（src/desc.c）の代役も足場側にある。
-# **C で消えるのは足場の 2 行だけ**で、invcopy() の代役は残る。
+# 写しなので、写す invcopy()（src/desc.c）の代役が要る。#18-14-4 の足場に
+# blank_monster 1 つが残ったのと同じ形だが、**あちらは定数表の区分が済めば
+# 消え、こちらは消えない** —— 関数であり、定義表を読むから。
 #
-# **B は 1 コミットでは通さない** —— 17 ファイル 127 参照（t_list 113・
+# **B を 1 コミットでは通さなかった** —— 17 ファイル 127 参照（t_list 113・
 # tcptr 14、別名 53）で、#18-14-4 の 12 ファイル 101 参照より大きい。
-# だから置き場は C まで動かさない（所見 52）。
+# だから置き場を C まで動かさなかった（所見 52）。
 #
-# **税は 12 本の見こみ** —— src/misc3.c を丸ごと #include する 9 本
-# （inven_stack・put_misc3・object_levels・haggle_comment・objdes・
+# **税は 12 本で、A の見こみどおりだった** —— src/misc3.c を丸ごと #include
+# する 9 本（inven_stack・put_misc3・object_levels・haggle_comment・objdes・
 # calc_hitpoints・check_strength・calc_spells・gain_spells）、src/save.c を
 # 丸ごと #include する 2 本（save_bool・store_save）、src/creature.c を
 # 丸ごと #include する 1 本（movement_rate）。
-# **13 本めは払わない** —— item_ident_test は src/treasure.c だけを並べて
-# いて、あれは置き場（＝主題の家）で呼び手ではない。C で定義が消えるだけ
-# なので何も足さずに通る（所見 34 のとおり）。
-# movement_rate_test だけは足場の足しかたが違う —— tests/creature_stubs.c が
-# すでに t_list（:65）と invcopy()（:205）の代役を持っているので、
-# **tcptr の 1 行を足すだけ**で済み、その 1 行は C で消える。
+# **13 本めは払わなかった** —— item_ident_test は src/treasure.c だけを並べて
+# いて、あれは置き場（＝主題の家）で呼び手ではない（所見 34 のとおり）。
+# **見こみに無かったのは代役 1 行** —— save_bool・store_save は src/desc.c を
+# リンクしないので、module が呼ぶ invcopy() が宙に浮き、
+# tests/save_stubs.c に代役を足した。movement_rate_test は
+# tests/creature_stubs.c がすでに t_list と invcopy() の代役を持っていたので
+# tcptr の 1 行を足すだけで済み、**その行と t_list の行は C で消えた**。
 $(BUILDDIR)/floor_items_test: $(TESTDIR)/floor_items_test.c \
                               $(TESTDIR)/floor_items_fixture.c \
                               $(TESTDIR)/minunit.h \

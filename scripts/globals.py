@@ -99,8 +99,25 @@ GROUPS = {
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # GLOBALS_INVENTORY.md 側）。
     "ダンジョンとその中身": """
-        cave
-        t_list tcptr""",
+        cave""",
+    # 床に落ちているもの（t_list ＋ tcptr）は #18-14-7C で floor_items.c の
+    # static になり、externs.h から外れた。窓口は src/floor_items.h
+    # （floor_items_reset / floor_item_at / floor_items_used /
+    # set_floor_items_used / floor_items_is_full / floor_items_claim_slot /
+    # floor_items_drop_last）。**この区分の 7 問め**で、#18-14-4 のモンスターの
+    # 表とまったく同じ形（表と印で 1 つの入れ物、マスの片われ）。定義表
+    # （420 品の「その品目とは何か」）の隣に置かれていたが、こちらは
+    # 「いまこの階のどこに何が載っているか」で、別の表。
+    # 測って分かった 3 つ —— **これは「宝の表」ではない**（扉・階段・瓦礫・
+    # 罠・店の入口も行で、マスに載っているモンスターでないものぜんぶが入る。
+    # だから 17 ファイルに散っていた）、**行 0 は予約されているだけでなく
+    # 読まれる**（拾った直後の `t_list[c_ptr->tptr]` が行 0 に落ちて
+    # TV_NOTHING を得る。階の頭で白紙にするのは片づけではなく仕事）、そして
+    # **行は自分がどのマスに載っているかを知らない**（pusht() が階を掃いて
+    # 探す。上流も types.h:136 でそう書いている ―― 掃く側は 8 問めの cave の
+    # 仕事なので残した）。別名 1 件（save.c の読みもどし）もここで消えた。
+    # 税は 12 本で **A で測りなおした見こみと一致**した（下調べは 13 本と
+    # 見ていたが、13 本めは呼び手ではなく置き場だった。所見 34）。
     # いま何階か（dun_level）は #18-14-6C で dungeon_level.c の static になり、
     # externs.h から外れた。窓口は src/dungeon_level.h（dungeon_level /
     # player_is_in_town / set_dungeon_level）。**この区分の 6 問め**で、

@@ -95,9 +95,16 @@ extern bool (*store_buy[MAX_STORES])(int);
 
 // Following are treasure arrays  and variables
 extern treasure_type object_list[MAX_OBJECTS];
-extern inven_type t_list[MAX_TALLOC];
+// t_list is not declared here. What is lying on the floor of this level is
+// private to floor_items.c, reached through src/floor_items.h. It and the mark
+// below were always one container -- a table whose rows are packed, and how far
+// it is filled -- and it is not a list of treasure: doors, staircases, rubble,
+// traps and shop entrances are rows of it too. Everything on a square that is
+// not a monster is in there, which is why it reached seventeen files.
 extern const char *special_names[SN_ARRAY_SIZE];
-extern int16_t tcptr; // Cur treasure heap ptr
+// tcptr is not declared here. How far the floor table is filled went with the
+// table itself in #18-14-7C (see above). Its one alias, save.c's
+// `rd_short((uint16_t *)&tcptr)`, went through a local uint16_t and is gone.
 
 // What the player carries and wears (inventory[], inven_ctr, inven_weight,
 // equip_ctr) is not declared here. It is private to inventory.c and is
