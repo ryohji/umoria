@@ -18,6 +18,7 @@
 #include "abilities.h"
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_size.h"
 #include "equipment.h"
 #include "hp_table.h"
 #include "inventory.h"
@@ -163,8 +164,8 @@ void alloc_object(bool (*alloc_set)(int), int typ, int num) {
         int i, j;
 
         do {
-            i = randint(cur_height) - 1;
-            j = randint(cur_width) - 1;
+            i = randint(dungeon_height()) - 1;
+            j = randint(dungeon_width()) - 1;
         }
 
         // don't put an object beneath the player, this could cause
@@ -1805,7 +1806,7 @@ int mmove(int dir, int *y, int *x) {
 
     bool moved = false;
 
-    if ((new_row >= 0) && (new_row < cur_height) && (new_col >= 0) && (new_col < cur_width)) {
+    if ((new_row >= 0) && (new_row < dungeon_height()) && (new_col >= 0) && (new_col < dungeon_width())) {
         *y = new_row;
         *x = new_col;
         moved = true;
@@ -1868,8 +1869,8 @@ void teleport(int dis) {
     int y, x;
 
     do {
-        y = randint(cur_height) - 1;
-        x = randint(cur_width) - 1;
+        y = randint(dungeon_height()) - 1;
+        x = randint(dungeon_width()) - 1;
         while (distance(y, x, player_row(), player_col()) > dis) {
             y += ((player_row() - y) / 2);
             x += ((player_col() - x) / 2);

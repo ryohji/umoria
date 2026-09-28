@@ -10,6 +10,7 @@
 
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_size.h"
 #include "constant.h"
 #include "externs.h"
 #include "input_ended.h"
@@ -119,8 +120,8 @@ GameState *game_state_init(void) {
     state->closing_flag = closing_flag;
 
     // Dungeon dimensions
-    state->cur_height = cur_height;
-    state->cur_width = cur_width;
+    state->cur_height = dungeon_height();
+    state->cur_width = dungeon_width();
     state->max_panel_rows = (int16_t)panel_max_row_index();
     state->max_panel_cols = (int16_t)panel_max_col_index();
 

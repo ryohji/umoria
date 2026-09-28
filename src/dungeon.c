@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "command_state.h"
+#include "dungeon_size.h"
 #include "equipment.h"
 #include "input_ended.h"
 #include "inven_command_state.h"
@@ -1322,7 +1323,10 @@ static void do_command(char com_val) {
                 for (;;) {
                     x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
                     y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                    if (x < 0 || y < 0 || x >= cur_width || y >= cur_width) {
+                    // NOTE: the row is compared against the WIDTH. That is what this
+                    // line has always done; #18-14-5 carried it over unchanged rather
+                    // than decide an upstream bug (see dungeon_size.h).
+                    if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
                         msg_print("You've gone past the end of your map.");
                         x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
                         y += ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;

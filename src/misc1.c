@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "dungeon_size.h"
 #include "monster_levels.h"
 #include "monster_list.h"
 #include "monster_turn.h"
@@ -155,7 +156,7 @@ int bit_pos(uint32_t *test) {
 
 // Checks a co-ordinate for in bounds status -RAK-
 bool in_bounds(int y, int x) {
-    if ((y > 0) && (y < cur_height - 1) && (x > 0) && (x < cur_width - 1)) {
+    if ((y > 0) && (y < dungeon_height() - 1) && (x > 0) && (x < dungeon_width() - 1)) {
         return true;
     } else {
         return false;
@@ -584,8 +585,8 @@ void place_win_monster(void) {
         int x, y, z = randint(WIN_MON_TOT) - 1 + monsters_up_to_level(MAX_MONS_LEVEL);
 
         do {
-            y = randint(cur_height - 2);
-            x = randint(cur_width - 2);
+            y = randint(dungeon_height() - 2);
+            x = randint(dungeon_width() - 2);
         } while ((cave[y][x].fval >= MIN_CLOSED_SPACE) ||
                  (cave[y][x].cptr != 0) || (cave[y][x].tptr != 0) ||
                  (distance(y, x, player_row(), player_col()) <= MAX_SIGHT));
@@ -640,8 +641,8 @@ void alloc_monster(int num, int dis, int slp) {
 
     while (num--) {
         do {
-            y = randint(cur_height - 2);
-            x = randint(cur_width - 2);
+            y = randint(dungeon_height() - 2);
+            x = randint(dungeon_width() - 2);
         } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, player_row(), player_col()) <= dis));
 
         creature_handle h = get_mons_num(dun_level);
@@ -714,8 +715,8 @@ static void compact_objects(void) {
     int cur_dis = 66;
 
     do {
-        for (int i = 0; i < cur_height; i++) {
-            for (int j = 0; j < cur_width; j++) {
+        for (int i = 0; i < dungeon_height(); i++) {
+            for (int j = 0; j < dungeon_width(); j++) {
                 int chance;
 
                 cave_type *cave_ptr = &cave[i][j];
@@ -777,8 +778,8 @@ void pusht(uint8_t x) {
         t_list[x] = t_list[tcptr - 1];
 
         // must change the tptr in the cave of the object just moved
-        for (int i = 0; i < cur_height; i++) {
-            for (int j = 0; j < cur_width; j++) {
+        for (int i = 0; i < dungeon_height(); i++) {
+            for (int j = 0; j < dungeon_width(); j++) {
                 if (cave[i][j].tptr == tcptr - 1) {
                     cave[i][j].tptr = x;
                 }

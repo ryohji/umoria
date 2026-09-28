@@ -58,8 +58,10 @@
 
 /* --- グローバル状態 --- */
 cave_type cave[MAX_HEIGHT][MAX_WIDTH];
-int16_t cur_height;
-int16_t cur_width;
+/* この階の広さ（cur_height・cur_width）はここに無い。#18-14-5A で置き場が
+ * src/dungeon_size.c の static に入り、#18-14-5B で misc3.c が窓口越しに
+ * 読むようになった（ここで定義しても窓口には届かない別の器になるだけ）。
+ * recipe が src/dungeon_size.c をリンクしているのがその代わり。 */
 int16_t dun_level;
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
  * 読み書きするようになったので、実体は src/score_death.c の static である。 */

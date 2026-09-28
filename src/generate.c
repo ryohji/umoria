@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "dungeon_size.h"
 #include "monster_list.h"
 #include "panel.h"
 #include "player_pos.h"
@@ -72,9 +73,9 @@ static void blank_cave(void) {
 // Note: 9 is a temporary value.
 static void fill_cave(int fval) {
     // no need to check the border of the cave
-    for (int i = cur_height - 2; i > 0; i--) {
+    for (int i = dungeon_height() - 2; i > 0; i--) {
         cave_type *c_ptr = &cave[i][1];
-        for (int j = cur_width - 2; j > 0; j--) {
+        for (int j = dungeon_width() - 2; j > 0; j--) {
             if ((c_ptr->fval == NULL_WALL) || (c_ptr->fval == TMP1_WALL) ||
                 (c_ptr->fval == TMP2_WALL)) {
                 c_ptr->fval = fval;
@@ -95,12 +96,12 @@ static void place_boundary(void) {
 
     // put permanent wall on leftmost row and rightmost row
     left_ptr = (cave_type(*)[MAX_WIDTH]) & cave[0][0];
-    right_ptr = (cave_type(*)[MAX_WIDTH]) & cave[0][cur_width - 1];
+    right_ptr = (cave_type(*)[MAX_WIDTH]) & cave[0][dungeon_width() - 1];
 
-    for (int i = 0; i < cur_height; i++) {
+    for (int i = 0; i < dungeon_height(); i++) {
         #ifdef DEBUG
             assert((cave_type *)left_ptr == &cave[i][0]);
-            assert((cave_type *)right_ptr == &cave[i][cur_width - 1]);
+            assert((cave_type *)right_ptr == &cave[i][dungeon_width() - 1]);
         #endif
 
         ((cave_type *)left_ptr)->fval = BOUNDARY_WALL;
@@ -111,12 +112,12 @@ static void place_boundary(void) {
 
     // put permanent wall on top row and bottom row
     cave_type *top_ptr = &cave[0][0];
-    cave_type *bottom_ptr = &cave[cur_height - 1][0];
+    cave_type *bottom_ptr = &cave[dungeon_height() - 1][0];
 
-    for (int i = 0; i < cur_width; i++) {
+    for (int i = 0; i < dungeon_width(); i++) {
         #ifdef DEBUG
             assert(top_ptr == &cave[0][i]);
-            assert(bottom_ptr == &cave[cur_height - 1][i]);
+            assert(bottom_ptr == &cave[dungeon_height() - 1][i]);
         #endif
         top_ptr->fval = BOUNDARY_WALL;
         top_ptr++;
@@ -128,8 +129,8 @@ static void place_boundary(void) {
 // Places "streamers" of rock through dungeon -RAK-
 static void place_streamer(int fval, int treas_chance) {
     // Choose starting point and direction
-    int y = (cur_height / 2) + 11 - randint(23);
-    int x = (cur_width / 2) + 16 - randint(33);
+    int y = (dungeon_height() / 2) + 11 - randint(23);
+    int x = (dungeon_width() / 2) + 16 - randint(33);
 
     int dir = randint(8); // Number 1-4, 6-9
     if (dir > 4) {
@@ -262,8 +263,8 @@ static void place_stairs(int typ, int num, int walls) {
                 // Note: don't let y1/x1 be zero, and don't let y2/x2
                 // be equal to cur_height-1/cur_width-1, these values
                 // are always BOUNDARY_ROCK.
-                int y1 = randint(cur_height - 14);
-                int x1 = randint(cur_width - 14);
+                int y1 = randint(dungeon_height() - 14);
+                int x1 = randint(dungeon_width() - 14);
                 int y2 = y1 + 12;
                 int x2 = x1 + 12;
                 do {
@@ -1031,8 +1032,8 @@ static void new_spot(int16_t *y, int16_t *x) {
     cave_type *c_ptr;
 
     do {
-        i = randint(cur_height - 2);
-        j = randint(cur_width - 2);
+        i = randint(dungeon_height() - 2);
+        j = randint(dungeon_width() - 2);
         c_ptr = &cave[i][j];
     } while (c_ptr->fval >= MIN_CLOSED_SPACE || (c_ptr->cptr != 0) || (c_ptr->tptr != 0));
 
@@ -1050,8 +1051,8 @@ static void cave_gen(void) {
     int room_map[20][20];
     int16_t yloc[400], xloc[400];
 
-    int row_rooms = 2 * (cur_height / SCREEN_HEIGHT);
-    int col_rooms = 2 * (cur_width / SCREEN_WIDTH);
+    int row_rooms = 2 * (dungeon_height() / SCREEN_HEIGHT);
+    int col_rooms = 2 * (dungeon_width() / SCREEN_WIDTH);
     for (int i = 0; i < row_rooms; i++) {
         for (int j = 0; j < col_rooms; j++) {
             room_map[i][j] = false;
@@ -1232,9 +1233,9 @@ static void town_gen(void) {
     player_place(start_row, start_col);
     if (0x1 & (progress_turn() / 5000)) {
         // Night time
-        for (int i = 0; i < cur_height; i++) {
+        for (int i = 0; i < dungeon_height(); i++) {
             cave_type *c_ptr = &cave[i][0];
-            for (int j = 0; j < cur_width; j++) {
+            for (int j = 0; j < dungeon_width(); j++) {
                 if (c_ptr->fval != DARK_FLOOR) {
                     c_ptr->pl = true;
                 }
@@ -1244,9 +1245,9 @@ static void town_gen(void) {
         alloc_monster(MIN_MALLOC_TN, 3, true);
     } else {
         // Day time
-        for (int i = 0; i < cur_height; i++) {
+        for (int i = 0; i < dungeon_height(); i++) {
             cave_type *c_ptr = &cave[i][0];
-            for (int j = 0; j < cur_width; j++) {
+            for (int j = 0; j < dungeon_width(); j++) {
                 c_ptr->pl = true;
                 c_ptr++;
             }
@@ -1267,14 +1268,12 @@ void generate_cave(void) {
     blank_cave();
 
     if (dun_level == 0) {
-        cur_height = SCREEN_HEIGHT;
-        cur_width = SCREEN_WIDTH;
-        panel_set_dungeon_size(cur_height, cur_width);
+        set_dungeon_size(SCREEN_HEIGHT, SCREEN_WIDTH);
+        panel_set_dungeon_size(dungeon_height(), dungeon_width());
         town_gen();
     } else {
-        cur_height = MAX_HEIGHT;
-        cur_width = MAX_WIDTH;
-        panel_set_dungeon_size(cur_height, cur_width);
+        set_dungeon_size(MAX_HEIGHT, MAX_WIDTH);
+        panel_set_dungeon_size(dungeon_height(), dungeon_width());
         cave_gen();
     }
 }

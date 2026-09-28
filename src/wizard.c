@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "dungeon_size.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
@@ -35,8 +36,8 @@ void wizard_light(void) {
         flag = true;
     }
 
-    for (int i = 0; i < cur_height; i++) {
-        for (int j = 0; j < cur_width; j++) {
+    for (int i = 0; i < dungeon_height(); i++) {
+        for (int j = 0; j < dungeon_width(); j++) {
             if (cave[i][j].fval <= MAX_CAVE_FLOOR) {
                 for (int k = i - 1; k <= i + 1; k++) {
                     for (int l = j - 1; l <= j + 1; l++) {

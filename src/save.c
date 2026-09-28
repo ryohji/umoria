@@ -16,6 +16,7 @@
 
 #include "burden.h"
 #include "externs.h"
+#include "dungeon_size.h"
 #include "equipment.h"
 #include "hp_table.h"
 #include "input_ended.h"
@@ -337,8 +338,8 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_row());
     wr_short((uint16_t)player_col());
     wr_short((uint16_t)monster_breeding_count());
-    wr_short((uint16_t)cur_height);
-    wr_short((uint16_t)cur_width);
+    wr_short((uint16_t)dungeon_height());
+    wr_short((uint16_t)dungeon_width());
     wr_short((uint16_t)panel_max_row_index());
     wr_short((uint16_t)panel_max_col_index());
 
@@ -1034,8 +1035,13 @@ bool get_char(bool *generate) {
         uint16_t mon_tot_mult_read;
         rd_short(&mon_tot_mult_read);
         set_monster_breeding_count((int16_t)mon_tot_mult_read);
-        rd_short((uint16_t *)&cur_height);
-        rd_short((uint16_t *)&cur_width);
+        // 変更前は int16_t のグローバル 2 つへポインタ型を偽って直に読んでいた
+        // （この対の別名はこの 2 か所だけ）。上の 2 つと同じ形。**窓口は
+        // 両方を取る 1 本**なので、半分だけ置きなおす道がそもそも無い。
+        uint16_t level_height_read, level_width_read;
+        rd_short(&level_height_read);
+        rd_short(&level_width_read);
+        set_dungeon_size((int16_t)level_height_read, (int16_t)level_width_read);
         uint16_t max_panel_rows_read, max_panel_cols_read;
         rd_short(&max_panel_rows_read);
         rd_short(&max_panel_cols_read);
