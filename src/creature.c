@@ -16,6 +16,7 @@
 #include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
+#include "monster_breeding.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "player_abilities.h"
@@ -1322,7 +1323,7 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                         if (!result) {
                             return false;
                         }
-                        mon_tot_mult++;
+                        monster_breeding_note_birth();
                         return check_mon_lite(j, k);
                     }
                 } else {
@@ -1337,7 +1338,7 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                     if (!result) {
                         return false;
                     }
-                    mon_tot_mult++;
+                    monster_breeding_note_birth();
                     return check_mon_lite(j, k);
                 }
             }
@@ -1358,7 +1359,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
     // rest could be negative, to be safe, only use mod with positive values.
     int rest_val = abs(player_rest_turns());
 
-    if ((r_ptr->cmove & CM_MULTIPLY) && (MAX_MON_MULT >= mon_tot_mult) && ((rest_val % MON_MULT_ADJ) == 0)) {
+    if ((r_ptr->cmove & CM_MULTIPLY) && monster_breeding_allowed() && ((rest_val % MON_MULT_ADJ) == 0)) {
         k = 0;
         for (i = m_ptr->fy - 1; i <= m_ptr->fy + 1; i++) {
             for (int j = m_ptr->fx - 1; j <= m_ptr->fx + 1; j++) {

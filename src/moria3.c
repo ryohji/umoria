@@ -19,6 +19,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "level_exit.h"
+#include "monster_breeding.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "pending_teleport.h"
@@ -364,9 +365,7 @@ void fix1_delete_monster(int j) {
     if (m_ptr->ml) {
         lite_spot(m_ptr->fy, m_ptr->fx);
     }
-    if (mon_tot_mult > 0) {
-        mon_tot_mult -= 1;
-    }
+    monster_breeding_note_death();
 }
 
 // fix2_delete_monster does everything in delete_monster that wasn't done

@@ -20,6 +20,7 @@
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "level_exit.h"
+#include "monster_breeding.h"
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
@@ -91,7 +92,7 @@ void dungeon(void) {
     begin_level();
     forget_run();
     forget_pending_teleport();
-    mon_tot_mult = 0;
+    monster_breeding_reset();
     cave[player_row()][player_col()].cptr = 1;
 
     // Ensure we display the panel.

@@ -22,6 +22,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "missile_serial.h"
+#include "monster_breeding.h"
 #include "panel.h"
 #include "messages.h"
 #include "player_abilities.h"
@@ -334,7 +335,7 @@ static bool sv_write(void) {
     wr_short((uint16_t)dun_level);
     wr_short((uint16_t)player_row());
     wr_short((uint16_t)player_col());
-    wr_short((uint16_t)mon_tot_mult);
+    wr_short((uint16_t)monster_breeding_count());
     wr_short((uint16_t)cur_height);
     wr_short((uint16_t)cur_width);
     wr_short((uint16_t)panel_max_row_index());
@@ -1027,7 +1028,11 @@ bool get_char(bool *generate) {
         // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた。
         // 同じ値を渡すために int16_t を通す（panel の 2 つと同じ形）。
         player_place((int16_t)char_row_read, (int16_t)char_col_read);
-        rd_short((uint16_t *)&mon_tot_mult);
+        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた
+        // （この global の別名はこの 1 か所だけ）。上の 2 つと同じ形。
+        uint16_t mon_tot_mult_read;
+        rd_short(&mon_tot_mult_read);
+        set_monster_breeding_count((int16_t)mon_tot_mult_read);
         rd_short((uint16_t *)&cur_height);
         rd_short((uint16_t *)&cur_width);
         uint16_t max_panel_rows_read, max_panel_cols_read;

@@ -620,6 +620,13 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # 死ぬ。リンクは通るので何も知らせない** —— C の手順に「代役を探す」を
 # 必ず入れる（`grep -n <名前> tests/*_stubs.c fixture.c`）。
 #
+# #18-14-3B で creature.c が「この階でもう 1 体増やしてよいか」を窓口越しに
+# 訊き、生まれた 2 か所を窓口で数えるようになったので src/monster_breeding.c も
+# リンクする。**この単位の税は 3 本** —— この 1 本と、src/save.c を丸ごと
+# 取りこむ save_bool_test・store_save_test。窓口を呼ぶ 4 ファイルのうち
+# dungeon.c と moria3.c は**どの recipe にも出てこない**（下調べの見積りは
+# 4 本で、また「名前が出るファイル」を数えていた）。
+#
 # #18-11-6B で creature.c が「走っているか」を窓口越しに訊くようになったので
 # src/running.c もリンクする（6 → 7 コンパイル単位）。この段では実体はまだ
 # variable.c にあり、running.c は extern 宣言で見にいく。その器は
@@ -635,6 +642,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/screen_touched.c src/screen_touched.h \
                                 src/running.c src/running.h \
                                 src/monster_turn.c src/monster_turn.h \
+                                src/monster_breeding.c src/monster_breeding.h \
                                 src/player_level.c src/player_level.h \
                                 src/player_status_flags.c src/player_status_flags.h \
                                 src/player_abilities.c src/player_abilities.h \
@@ -648,6 +656,7 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
 	    src/screen_touched.c src/running.c src/monster_turn.c \
+	    src/monster_breeding.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_infra_range.c src/player_glowing_hands.c \
@@ -820,6 +829,11 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # #18-12-2B で save.c が「腹の具合」を src/player_food.h の窓口越しに読み書き
 # するようになったので src/player_food.c も付いてくる（実体はまだ py の中で、
 # その py は player.c 本物でリンクしているので足場は要らない）。
+# #18-14-3B で save.c が「この階で増えたモンスターは何体か」を
+# src/monster_breeding.h の窓口越しに読み書きするようになったので
+# src/monster_breeding.c も付いてくる。**この global の別名 1 件
+# （`rd_short((uint16_t *)&mon_tot_mult)`）がここで消えた** —— 局所の uint16_t を
+# 通して渡す形（居場所 2 個・panel 2 個と同じ）。
 # **この 2 本は src/save.c を「丸ごと #include」する形なので、リンク行を grep
 # しても出てこない。** タブ始まりの recipe だけを数えると見落とす（実際に
 # undefined reference 2 件で落ちた）。**そのうえ軸の src/save.c は依存行に
@@ -838,6 +852,7 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/hp_table.c src/burden.c \
                             src/spells_known.c src/item_ident.c src/item_ident.h \
                             src/missile_serial.c src/missile_serial.h \
+                            src/monster_breeding.c src/monster_breeding.h \
                             src/input_ended.c src/input_ended.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
@@ -870,6 +885,7 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
+	    src/monster_breeding.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
@@ -909,6 +925,11 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 # #18-12-2B で save.c が「腹の具合」を src/player_food.h の窓口越しに読み書き
 # するようになったので src/player_food.c も付いてくる（実体はまだ py の中で、
 # その py は player.c 本物でリンクしているので足場は要らない）。
+# #18-14-3B で save.c が「この階で増えたモンスターは何体か」を
+# src/monster_breeding.h の窓口越しに読み書きするようになったので
+# src/monster_breeding.c も付いてくる。**この global の別名 1 件
+# （`rd_short((uint16_t *)&mon_tot_mult)`）がここで消えた** —— 局所の uint16_t を
+# 通して渡す形（居場所 2 個・panel 2 個と同じ）。
 # **この 2 本は src/save.c を「丸ごと #include」する形なので、リンク行を grep
 # しても出てこない。** タブ始まりの recipe だけを数えると見落とす（実際に
 # undefined reference 2 件で落ちた）。**そのうえ軸の src/save.c は依存行に
@@ -927,6 +948,7 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/hp_table.c src/burden.c \
                              src/spells_known.c src/item_ident.c src/item_ident.h \
                              src/missile_serial.c src/missile_serial.h \
+                             src/monster_breeding.c src/monster_breeding.h \
                              src/input_ended.c src/input_ended.h \
                              src/player_level.c src/player_level.h \
                              src/player_status_flags.c src/player_status_flags.h \
@@ -959,6 +981,7 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
+	    src/monster_breeding.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
@@ -2135,12 +2158,12 @@ $(BUILDDIR)/monster_levels_test: $(TESTDIR)/monster_levels_test.c \
 # 代役 `int16_t mon_tot_mult;` を消すのを忘れないこと** —— #18-14-1C で
 # hack_monptr のそれを消し忘れた（上の movement_rate_test の註）。
 #
-# **他の recipe への税は B で測る。** 下調べの見積りは 4 本だが、#18-14-1 の
-# 3 → 1 と #18-14-2 の 3 → 0 と同じ数えかたの誤り（名前が出るファイルを
-# 数えて、recipe がそのファイルを並べているかを見ていない）を含むので
-# 当てにしない。窓口を呼ぶのは creature.c・dungeon.c・moria3.c・save.c の
-# 4 ファイルで、**このうち recipe に出てくるのは creature.c（movement_rate_test）
-# と save.c（save_test 系）**。
+# **他の recipe への税は 3 本だった**（B で測った。下調べの見積りは 4 本）——
+# movement_rate_test（src/creature.c を丸ごと #include）と、src/save.c を
+# 丸ごと取りこむ save_bool_test・store_save_test。窓口を呼ぶ 4 ファイルの
+# うち dungeon.c と moria3.c は**どの recipe にも出てこない**。#18-14-1 の
+# 3 → 1、#18-14-2 の 3 → 0 と同じ数えかたの誤り（名前が出るファイルを数えて、
+# recipe がそのファイルを並べているかを見ていない）が 3 回続いた。
 $(BUILDDIR)/monster_breeding_test: $(TESTDIR)/monster_breeding_test.c \
                               $(TESTDIR)/minunit.h \
                               src/monster_breeding.c \
