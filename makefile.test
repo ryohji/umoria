@@ -611,7 +611,14 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # 窓口を呼ぶ 4 ファイルのうち、misc1.c・moria3.c・game_state.c は**どの
 # recipe にも出てこない**（distance_test は misc1.c の distance() をテスト側の
 # 宣言だけで呼び、実装をリンクしない）。**置き場の引っこしも B で済んでいる**
-# ので、C では variable.c の古い 1 行を消すだけ（代役も足場も要らない）。
+# ので、C では variable.c の古い 1 行を消すだけ（足場は要らない）。
+#
+# **「代役も要らない」と書いたのは誤りだった** —— creature_stubs.c には
+# `int hack_monptr;` の代役があり、B で置き場が module に入った時点で死んだ
+# 定義になっていたのに、#18-14-1C で消し忘れた（2026-09-28 に掃除した）。
+# **置き場が A の段で module に入る形（所見 52）では、代役は B の時点で
+# 死ぬ。リンクは通るので何も知らせない** —— C の手順に「代役を探す」を
+# 必ず入れる（`grep -n <名前> tests/*_stubs.c fixture.c`）。
 #
 # #18-11-6B で creature.c が「走っているか」を窓口越しに訊くようになったので
 # src/running.c もリンクする（6 → 7 コンパイル単位）。この段では実体はまだ

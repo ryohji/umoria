@@ -68,7 +68,12 @@ int16_t mon_tot_mult;
  * なったので、代役を置くと窓口に届かない別の器になる（movement_rate_test は
  * その running.c をリンクしている）。creature.c は player_is_running() 越しに
  * 訊く。 */
-int hack_monptr;
+/* hack_monptr もここに無い。#18-14-1B で src/monster_turn.c が static で持つ
+ * ようになったので、代役を置くと窓口に届かない別の器になる（movement_rate_test
+ * はその monster_turn.c をリンクしている）。creature.c は monster_turn_begin() /
+ * monster_turn_end() 越しに開け閉めする。**この 1 行は #18-14-1C で消し忘れて
+ * いた** —— 置き場が A の段で module に入る形（→ 所見 52）だと、代役は B の
+ * 時点で誰も見ない死んだ定義になるが、リンクは通るので何も知らせない。 */
 /* death もここに無い。#19B2 で creature.c が player_is_dead() 越しに読む
  * ようになったので、実体は src/score_death.c の static である。 */
 /* player_light もここに無い。#18-7-3C1 で src/player_light.c が static で
