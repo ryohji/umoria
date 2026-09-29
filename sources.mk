@@ -30,7 +30,7 @@ SRCS = main.c misc1.c misc3.c store1.c ui/files.c ui/io.c \
 	player/hp_table.c player/player_light.c player/burden.c player/spells_known.c item/object_levels.c item/inscription.c item/item_enchant.c \
 	item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c ui/options_menu.c \
 	dungeon/level_exit.c player/pending_teleport.c ui/input_ended.c player/running.c \
-	ui/command_state.c player/player_gold.c player/player_food.c player/player_display_numbers.c \
+	ui/command_state.c player/player_gold.c player/player_food.c player/food_ops.c player/player_display_numbers.c \
 	player/player_mana.c player/player_hp.c player/player_level.c player/player_status_flags.c \
 	player/player_abilities.c player/player_timed_effects.c player/player_resting.c \
 	player/player_speed.c player/player_infra_range.c player/player_glowing_hands.c \

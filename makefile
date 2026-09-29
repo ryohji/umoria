@@ -154,6 +154,9 @@ dungeon.o: $(HEADERS_FULL)
 eat.o: $(HEADERS_FULL)
 files.o: $(HEADERS_FULL)
 game_state.o: game_state.h burden.h $(HEADERS_FULL)
+# food_ops.c came out of misc1.c (#54). It includes externs.h, and reads the
+# stomach and the timed effects (the slowness that overeating costs).
+food_ops.o: player_food.h player_timed_effects.h $(HEADERS_FULL)
 generate.o: $(HEADERS_FULL)
 # geometry.c came out of misc1.c (#54). It includes externs.h, and reads the
 # map and what lies on the floor.
