@@ -10,7 +10,7 @@
 
 ## 0. 現在地
 
-2026-09-29、`develop` は `994818a`（`origin` と同じ。push はユーザーが行う）。
+2026-09-29、`develop` は `111d2e7`（`origin` は `994818a` のまま。push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1662 件・74 本**、failed=0、`RESULT: GREEN`。
 - `externs.h` の global は **42 個・参照 599**（着手時 112 個・3147）。
@@ -19,8 +19,9 @@
   #18 の行と `docs/refactoring/globals_inventory.md` の「区分ごとの見立て」。
 - 記録の文書を `docs/refactoring/` へ切りわけた（第 1 節）。
 - **実装の再配置の L（テストのライブラリー化）が済んだ**（`refactor/52-test-library`、
-  7 コミット、マージ待ち）。`makefile.test` は 2335 → 194 行、本体の `.o` は
-  `libcore.a` から引く。**次は D0**。第 5 節・第 6 節と `docs/refactoring/layout.md`。
+  7 コミット、マージ `5e0cd6e`）。`makefile.test` は 2335 → 194 行、本体の `.o` は
+  `libcore.a` から引く。**D0（行き先の表）も済んだ**（マージ `111d2e7`）。
+  **次は D**（`git mv`）。第 5 節・第 6 節と `docs/refactoring/layout.md`。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
 [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
