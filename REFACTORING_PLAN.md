@@ -102,6 +102,12 @@ P1 の精査の記録（#8・#9・#12 ほか）は
 | 17 | **検証済み** | マジックナンバー | misc3.c:256-275, 679-808 | `stat_adj`/`tohit_adj`/`toac_adj`/`todis_adj`/`todam_adj` が 4/7/17/18/94/117/118 等の閾値をif連鎖で直書き。同じ境界値が5関数に散在 | テーブル化 | Medium | Low |
 | 18 | **完了**（2026-09-29） | データの散在 | `externs.h` の global | 着手時 112 個・参照 3147 → **42 個・参照 599**。残るのは定数表 20・起動時に一度書く表 7・オプション 11・`py` 1・`free_turn_flag` と `closing_flag` 2・`highscore_fp` 1（B19）（`scripts/globals.py` の区分）。区分ごとの今の見立ては [globals_inventory.md](docs/refactoring/globals_inventory.md)「区分ごとの見立て」、経過は [done/](docs/refactoring/done/) の `18-*.md`、この行の 2026-09-29 までの字面は [done/18-01-07-19.md](docs/refactoring/done/18-01-07-19.md) の末尾 | 区分ごとに窓口の module を作る（A/B/C） | High | 区分ごと |
 | 42 | 未着手 | 肥大化クラス／モジュール | misc3.c の残る **10 塊**（→ [done/33-41-misc3.md](docs/refactoring/done/33-41-misc3.md) の「#33 の精査」） | 配置 161 行／描画 475 行／能力値の変更 115 行／名前 50 行／持ち物 210 行／呪文 525 行／経験値 82 行／wizard 18 行／戦闘 120 行／移動 118 行 | モジュール分割（1 塊 1 コミット。終点は misc3.c が無くなるところ） | High | High |
+| 52 | 未着手 | 強すぎる依存関係 | makefile.test（2335 行の手書き recipe） | テストのビルドを 1 つの `libcore.a` から引く形にする（L1〜L3）。#38 の「税」を消す。2026-09-29 の試しで 74 本 1662 件が通った（→ [layout.md](docs/refactoring/layout.md)） | `sources.mk`＋型の規則＋`link_units.py` | High | Medium |
+| 53 | 未着手 | 置き場 | `src/` の 109 本 | サブディレクトリー 11 個へ `git mv`（D0 で行き先の表を作って見てもらう）。`#include` は書きかえず `-I` を足す（→ [layout.md](docs/refactoring/layout.md)） | Move | Medium | Low |
+| 54 | 未着手 | 肥大化クラス／モジュール | misc1.c misc2.c misc4.c（#43 の一部） | 中身の名前のファイルへ分ける。misc4 → misc1 → misc2 の順。`concat` は先にテスト（#47）（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | Medium | Medium |
+| 55 | 未着手 | 肥大化クラス／モジュール | store1.c store2.c | `store_stock`・`store_price`・`store_haggle`・`store_ui` の 4 本へ（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | Medium | Medium |
+| 56 | 未着手 | 肥大化クラス／モジュール | moria1.c〜moria4.c（#43 の残り） | 14 の行き先へ分ける。#42 のあと（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | High | High |
+| 57 | 未着手 | 肥大化クラス／モジュール | creature.c `make_attack`、spells.c の飛び道具 | `combat/` に 7 本。`make_attack` は中を割らずに移す（#25 の棚上げは維持）。#51・#29 の組が並ぶ（→ [layout.md](docs/refactoring/layout.md)） | Move | Medium | Medium |
 
 完了した列の経過は `docs/refactoring/done/` に移した（→ 末尾の「記録の置き場」）。
 
@@ -339,5 +345,6 @@ message 2 つだけで、`misc3.c` も `abilities.c` もこのバイトを読ま
 - バグ候補 → [docs/refactoring/bugs.md](docs/refactoring/bugs.md)
 - 所見（わかったこと）1〜55 → [docs/refactoring/findings.md](docs/refactoring/findings.md)
 - #18 の棚おろしと区分ごとの見立て → [docs/refactoring/globals_inventory.md](docs/refactoring/globals_inventory.md)
+- 実装の再配置の計画（#52〜#57）→ [layout.md](docs/refactoring/layout.md)
 - 作業ログ → [docs/refactoring/worklog.md](docs/refactoring/worklog.md)
 - 完了した列の経過 → [docs/refactoring/done/](docs/refactoring/done/)
