@@ -1,9 +1,11 @@
 # sources.mk -- src/ の .c の一覧（ここ 1 か所だけに書く）
 #
-# makefile がこれを include する。新しい .c はここに足す（以前は makefile の
-# SRCS と OBJS の 2 か所に足していた）。
+# makefile と makefile.win がこれを include する。新しい .c はここに足す
+# （以前は 2 つのファイルの SRCS と OBJS の 4 か所に足していて、makefile.win
+# への足しわすれが続いた。台帳 #46）。
 #
-# 名前はディレクトリーを付けずに書く。読む側が src/ を補う（makefile は VPATH）。
+# 名前はディレクトリーを付けずに書く。読む側が src/ を補う（makefile は VPATH、
+# makefile.win は src/ の中で動かす前提）。
 #
 # 並びは本体のリンクの順（makefile の OBJS がこの順になる）。並びを変えると
 # 本体の実行形式のバイト列が変わるので、足すときは末尾か、近い仲間の隣に置く。
