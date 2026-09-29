@@ -89,6 +89,7 @@ help.o: constant.h types.h externs.h config.h
 hp_table.o: hp_table.h constant.h types.h config.h
 input.o: input.h
 input_ncurses.o: input.h backend_ncurses.h
+inscription.o: inventory.h equipment.h constant.h types.h externs.h config.h
 inventory.o: inventory.h equipment.h constant.h types.h config.h
 io.o: constant.h types.h externs.h config.h
 item_ident.o: item_ident.h constant.h types.h externs.h config.h

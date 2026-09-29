@@ -155,6 +155,9 @@ generate.o: $(HEADERS_FULL)
 help.o: $(HEADERS_FULL)
 # hp_table.c does not include externs.h either, so HEADERS_COMMON is enough.
 hp_table.o: hp_table.h $(HEADERS_COMMON)
+# inscription.c came out of misc4.c (#54). It includes externs.h, and reads
+# the pack through both windows of inventory.c.
+inscription.o: inventory.h equipment.h $(HEADERS_FULL)
 # inventory.c does not include externs.h, so HEADERS_COMMON is enough here
 # (the same as stats.o and str_insert.o below). It provides both windows on the
 # one array, so equipment.h is a dependency too.

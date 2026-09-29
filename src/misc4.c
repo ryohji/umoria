@@ -14,55 +14,11 @@
 #include "types.h"
 
 #include "dungeon_map.h"
-#include "equipment.h"
 #include "externs.h"
-#include "inventory.h"
 #include "player_pos.h"
 #include "player_timed_effects.h"
 
 #include <stdarg.h>
-
-// Add a comment to an object description. -CJS-
-void scribe_object(void) {
-    if (inventory_count() > 0 || equipment_count() > 0) {
-        int item_val;
-
-        if (get_item(&item_val, "Which one? ", 0, inventory_and_equipment_slot_count(), CNIL, CNIL)) {
-            msgtype out_val;
-            bigvtype tmp_str;
-
-            objdes(tmp_str, inventory_and_equipment_at(item_val), true);
-            (void)snprintf(out_val, sizeof(out_val), "Inscribing %s", tmp_str);
-            msg_print(out_val);
-            if (inventory_and_equipment_at(item_val)->inscrip[0] != '\0') {
-                (void)sprintf(out_val, "Replace %s New inscription:",
-                              inventory_and_equipment_at(item_val)->inscrip);
-            } else {
-                (void)strcpy(out_val, "Inscription: ");
-            }
-            int j = 78 - (int)strlen(tmp_str);
-            if (j > 12) {
-                j = 12;
-            }
-            prt(out_val, 0, 0);
-            if (get_string(out_val, 0, (int)strlen(out_val), j)) {
-                inscribe(inventory_and_equipment_at(item_val), out_val);
-            }
-        }
-    } else {
-        msg_print("You are not carrying anything to inscribe.");
-    }
-}
-
-// Append an additional comment to an object description. -CJS-
-void add_inscribe(inven_type *i_ptr, uint8_t type) {
-    i_ptr->ident |= type;
-}
-
-// Replace any existing comment in an object description with a new one. -CJS-
-void inscribe(inven_type *i_ptr, const char *str) {
-    (void)strcpy(i_ptr->inscrip, str);
-}
 
 // We need to reset the view of things. -CJS-
 void check_view(void) {
