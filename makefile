@@ -220,6 +220,12 @@ monster_breeding.o: monster_breeding.h $(HEADERS_COMMON)
 # (#18-14-4). Does not include externs.h -- during A/B it reaches the storage in
 # monsters.c through three hand-written externs, and in C the storage moves here.
 monster_list.o: monster_list.h $(HEADERS_COMMON)
+# monster_place.c came out of misc1.c (#54). It includes externs.h, and reads
+# the map and its size, the depth, the monster list and levels, whose turn it
+# is, where the player stands, the player's speed and whether the game is won.
+monster_place.o: dungeon_level.h dungeon_map.h dungeon_size.h monster_levels.h \
+                 monster_list.h monster_turn.h player_pos.h player_speed.h \
+                 score_death.h $(HEADERS_FULL)
 # How tall and how wide this level is (#18-14-5). Two int16_t and one setter
 # that takes both halves, so no caller can change half of the size. It needs
 # nothing but <stdint.h> and its own header -- not even constant.h.

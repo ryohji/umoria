@@ -158,6 +158,7 @@ monster_turn.o: monster_turn.h constant.h types.h config.h
 monster_levels.o: monster_levels.h constant.h types.h config.h
 monster_breeding.o: monster_breeding.h constant.h types.h config.h
 monster_list.o: monster_list.h constant.h types.h config.h
+monster_place.o: dungeon_level.h dungeon_map.h dungeon_size.h monster_levels.h monster_list.h monster_turn.h player_pos.h player_speed.h score_death.h constant.h types.h externs.h config.h
 dungeon_size.o: dungeon_size.h
 dungeon_level.o: dungeon_level.h
 floor_items.o: floor_items.h constant.h types.h config.h
