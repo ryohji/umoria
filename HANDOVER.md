@@ -10,7 +10,7 @@
 
 ## 0. 現在地
 
-2026-09-29、`develop` は `111d2e7`（`origin` は `994818a` のまま。push はユーザーが行う）。
+2026-09-29、`develop` は `cb2c7cc`（`origin` は `994818a` のまま。push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1662 件・74 本**、failed=0、`RESULT: GREEN`。
 - `externs.h` の global は **42 個・参照 599**（着手時 112 個・3147）。
@@ -21,10 +21,11 @@
 - **実装の再配置の L（テストのライブラリー化）が済んだ**（`refactor/52-test-library`、
   7 コミット、マージ `5e0cd6e`）。`makefile.test` は 2335 → 194 行、本体の `.o` は
   `libcore.a` から引く。**D0（行き先の表）も済んだ**（マージ `111d2e7`）。
-- **D（`git mv`）も済んだ —— `refactor/53-directories`、マージ待ち**（13 コミット）。
+- **D（`git mv`）も済んだ —— `refactor/53-directories`、マージ `99fe489`**（13 コミット）。
   `src/` の 166 本が `core/ data/ player/ monster/ dungeon/ item/ store/ ui/ save/
   platform/` に入った（`combat/` はまだ無い）。本体の `objdump -d` は変更前と一致。
-  **次は層の規則を決めること**（`python3 scripts/layer_deps.py --matrix`）**と R**。
+  層の規則はユーザーの判断で**まず `core/` だけ守る**と決まった。**次は R**
+  （misc4・misc2 から。下調べは layout.md の「misc4・misc1 の下調べ」、マージ `cb2c7cc`）。
   第 5 節・第 6 節と `docs/refactoring/layout.md`。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
