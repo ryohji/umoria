@@ -16,7 +16,7 @@
  *
  * 2. race[] —— **こちらは残る。** 表は module の中に入れなかった
  *    （externs.h の「定数表（読みとり専用データ）」20 個の 1 つで、その区分は
- *    #18 の対象外。`const` 化のみ。GLOBALS_INVENTORY.md:748）。本体では
+ *    #18 の対象外。`const` 化のみ。docs/refactoring/globals_inventory.md「区分ごとの見立て」）。本体では
  *    src/player.c:107 が 8 行の実の値を持ったままで、src/player_race.c は
  *    extern 1 行で届く —— src/player_level.c が player_exp[] に対してしている
  *    のと同じ形で、その足場（tests/player_level_fixture.c）も C の後は表だけを

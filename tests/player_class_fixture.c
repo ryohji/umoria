@@ -18,7 +18,7 @@
  * ごと消えた**ので、`player_type` に `misc` という入れ物じたいが無い。
  *
  * 表は残る —— externs.h の「定数表（読みとり専用データ）」20 個の 1 つで、
- * その区分は #18 の対象外（`const` 化のみ。GLOBALS_INVENTORY.md:748）。本体では
+ * その区分は #18 の対象外（`const` 化のみ。docs/refactoring/globals_inventory.md「区分ごとの見立て」）。本体では
  * `src/player.c:283` が 6 行の実の値を持ったままで、`src/player_class.c` は
  * extern 1 行で届く —— `src/player_race.c` が `race[]` に対して、
  * `src/player_level.c` が `player_exp[]` に対してしているのと同じ形。

@@ -172,8 +172,9 @@ typedef struct player_type {
     // `src/player_*.h` opens with the question it owns: what the unit is, where the
     // number comes from, what deliberately stayed with the callers and what the move
     // cost. The road as a whole -- which unit went when and what each one taught -- is
-    // REFACTORING_PLAN.md 第 5 節 and the ledger's observations. This struct carried a
-    // copy of that story for a while, and the copy is what has now been deleted.
+    // docs/refactoring/done/18-12-py.md and docs/refactoring/findings.md. This struct
+    // carried a copy of that story for a while, and the copy is what has now been
+    // deleted.
     //
     // WHERE TO LOOK WHEN OLD CODE, AN OLD NOTE OR THE SAVE FILE NAMES A FIELD THAT USED
     // TO BE HERE:

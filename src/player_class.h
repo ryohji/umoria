@@ -92,9 +92,9 @@ void player_class_set(int row);
 //
 // THIS AND THE NEXT WINDOW ARE THE ONLY LINES THAT REACH OUT. class[] stays where it
 // is -- it is one of the twenty read-only constant tables in externs.h, and that
-// group is out of scope for #18 (const-ification only, GLOBALS_INVENTORY.md:748) --
-// so player_class.c has a single `extern` line for it, the arrangement player_race.c
-// and player_level.c already have.
+// group is out of scope for #18 (const-ification only; see the per-group table in
+// docs/refactoring/globals_inventory.md) -- so player_class.c has a single `extern`
+// line for it, the arrangement player_race.c and player_level.c already have.
 //
 // const char *, which is what class_type.title already is (types.h:501) and what
 // both receivers -- prt_field() and put_buffer() -- already take.

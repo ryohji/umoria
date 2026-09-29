@@ -32,10 +32,11 @@ static uint8_t player_experience_percentage;
 // The price list stays where it is. It is one of the twenty read-only constant
 // tables in externs.h (with player_title, race, class and class_level_adj), and
 // those are out of scope for #18 -- the inventory's own line for them says
-// "const-ification only" (GLOBALS_INVENTORY.md:748). Bringing it in here would
-// take the ledger from fifty-three to fifty-two, but it would also need a setter
-// that no caller in the game would ever use, because unlike the hit-point table
-// in hp_table.c nothing ever writes this one. So this declaration is the one line
+// "const-ification only" (the per-group table in
+// docs/refactoring/globals_inventory.md). Bringing it in here would take the
+// ledger from fifty-three to fifty-two, but it would also need a setter that no
+// caller in the game would ever use, because unlike the hit-point table in
+// hp_table.c nothing ever writes this one. So this declaration is the one line
 // that reaches out, the same arrangement stats.c and level_exit.c have.
 extern uint32_t player_exp[MAX_PLAYER_LEVEL];
 
