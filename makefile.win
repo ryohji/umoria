@@ -87,7 +87,7 @@ files.o: constant.h types.h externs.h config.h
 game_state.o: game_state.h burden.h constant.h types.h externs.h config.h
 food_ops.o: player_food.h player_timed_effects.h constant.h types.h externs.h config.h
 generate.o: constant.h types.h externs.h config.h
-geometry.o: dungeon_map.h floor_items.h constant.h types.h externs.h config.h
+geometry.o: dungeon_map.h dungeon_size.h floor_items.h constant.h types.h externs.h config.h
 help.o: constant.h types.h externs.h config.h
 hp_table.o: hp_table.h constant.h types.h config.h
 input.o: input.h
