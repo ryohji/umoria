@@ -89,6 +89,39 @@ run: $(BINS)
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
 
+# ---- 本体のライブラリー（libcore.a）----------------------------------------
+# src/ の .c の一覧は sources.mk に 1 つだけ書いてある（本体の makefile と
+# makefile.win も同じものを読む）。そのうち CORE_SRCS（main.c と ncurses を
+# 直に呼ぶ 2 本を除いたもの）を、テストと同じ CFLAGS で 1 本ずつ .o にして
+# 1 つの archive にまとめる。archive は 1 つだけにする（分けると互いに呼び
+# あってリンクの順番が壊れる。docs/refactoring/layout.md の L）。
+#
+# LIB_EXCLUDE の 3 本は入れない。どのテストもリンクしておらず、テストの
+# CFLAGS（-O2 も -D_DEFAULT_SOURCE も無い）でコンパイルすると警告が出る
+# （dungeon.c と moria1.c は -Wformat-overflow が 1 件と 4 件、signals.c は
+# kill() と sigsetmask() の暗黙宣言 2 件）。テストのフラグは変えない約束
+# なので、要るテストが現れたときに入れかたを決める。
+include sources.mk
+
+LIB_EXCLUDE = dungeon.c moria1.c signals.c
+LIB_SRCS = $(filter-out $(LIB_EXCLUDE),$(CORE_SRCS))
+LIBOBJDIR = $(BUILDDIR)/core
+LIB_OBJS = $(addprefix $(LIBOBJDIR)/,$(LIB_SRCS:.c=.o))
+LIBCORE = $(BUILDDIR)/libcore.a
+
+$(LIBOBJDIR):
+	@mkdir -p $(LIBOBJDIR)
+
+$(LIBOBJDIR)/%.o: src/%.c | $(LIBOBJDIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(LIBCORE): $(LIB_OBJS)
+	rm -f $@
+	$(AR) rcs $@ $(LIB_OBJS)
+
+.PHONY: libcore
+libcore: $(LIBCORE)
+
 # distance() は misc1.c にあるが、misc1.c 全体をリンクすると
 # ダンジョン生成や画面表示への依存が芋づるで付いてくる。
 # テスト側で対象関数の宣言だけを使い、実装は misc1.c から取りだす。
