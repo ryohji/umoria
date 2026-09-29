@@ -4,12 +4,20 @@
 # .c はここに足す（以前は makefile と makefile.win の SRCS と OBJS の 4 か所に
 # 足していて、makefile.win への足しわすれが続いた。台帳 #46）。
 #
-# 名前はディレクトリーを付けずに書く。読む側が src/ を補う（makefile は VPATH、
-# makefile.win は src/ の中で動かす前提、makefile.test は規則の側で src/ を
-# 付ける）。
+# 名前は src/ からの相対で書く（src/ 直下のものは名前だけ、サブディレクトリー
+# のものは player/burden.c のように）。読む側が src/ を補う。.o はどの
+# makefile もディレクトリーを落とした名前で 1 か所に置く（makefile は根、
+# makefile.win は src/、makefile.test は tests/build/core/）。.c を探すのは
+# VPATH/vpath、ヘッダを探すのは -I で、どちらも下の SRC_SUBDIRS から作る。
 #
 # 並びは本体のリンクの順（makefile の OBJS がこの順になる）。並びを変えると
 # 本体の実行形式のバイト列が変わるので、足すときは末尾か、近い仲間の隣に置く。
+
+# src/ のサブディレクトリー（docs/refactoring/layout.md の D0 の表）。ここに
+# 書いたものが VPATH と -I に入る。ディレクトリーを足したらここにも足す。
+# 名前が重なると -I の順で答えが変わるので、ファイルを足すときは
+# ls src/*/ | sort | uniq -d で同名が無いことを見る。
+SRC_SUBDIRS =
 
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	create.c desc.c generate.c sets.c dungeon.c creature.c death.c \
@@ -37,7 +45,9 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 
 # 本体の実行形式にだけ入り、テストのライブラリー（makefile.test の libcore.a）
 # には入れないもの。main() を持つ main.c と、ncurses を直に呼ぶ 2 本。
+# ディレクトリーを付けずに名前だけで書く（下の %/ の形で、どのディレクトリー
+# にあっても当たる）。
 APP_SRCS = main.c render_ncurses.c input_ncurses.c
 
 # それ以外のすべて。テストはこの中から要るものだけをリンクする。
-CORE_SRCS = $(filter-out $(APP_SRCS),$(SRCS))
+CORE_SRCS = $(filter-out $(APP_SRCS) $(addprefix %/,$(APP_SRCS)),$(SRCS))

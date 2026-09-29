@@ -17,7 +17,7 @@ scripts/warnings.sh と同じ位置づけ（現状を数字で見るための道
   $ python3 scripts/globals.py --check    # 分類の網羅性だけ確認（CI 向け）
 
 数えるもの
-  参照数     src/*.c に現れる回数（定義そのものを含む）
+  参照数     src/ の .c（サブディレクトリーを含む）に現れる回数（定義そのものを含む）
   参照ファイル数
   書きこみ数 代入・++・-- のほか、strcpy 系の第 1 引数に渡る形
   書きこみファイル数
@@ -355,7 +355,9 @@ def main():
         print(f"OK: {len(names)} 個すべて分類されている")
         return 0
 
-    stats = counts(names, sorted(glob.glob("src/*.c")))
+    # src/ 直下とサブディレクトリー（#53-D の core/・player/ など）の .c すべて。
+    # 集計はファイル名（basename）で見るので、置き場が変わっても数は変わらない。
+    stats = counts(names, sorted(glob.glob("src/**/*.c", recursive=True)))
 
     if mode == "--full":
         print(f"{'名前':<22}{'参照':>5}{'参照f':>6}{'書き':>5}{'書きf':>6}{'別名':>5}  区分")
