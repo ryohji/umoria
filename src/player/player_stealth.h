@@ -41,7 +41,7 @@
 //     Halfling Rogue).
 //   - WORN GEAR adds and takes back (TR_STEALTH). Three slots can carry it, each
 //     worth 1 to 3 points: the Defender weapon, boots of stealth and a cloak of
-//     stealth (misc2.c:113, :257, :681 -- `t_ptr->p1 = randint(3)` in all three).
+//     stealth (item_enchant.c:125, :264, :685 -- `t_ptr->p1 = randint(3)` in all three).
 //     NINE POINTS OF GEAR ON TOP OF THE NINE FROM CREATION, which is where the
 //     wizard screen's "-1-18" comes from: THE PROMPT ADMITS TO EXACTLY THE RANGE
 //     THE GAME CAN REACH, which is not true of the other prompts on that screen
@@ -111,7 +111,7 @@ void player_stealth_adjust(int amount);
 //   3. THE SIGN THE GEAR PASSES IN. `t_ptr->p1 * factor` is moria1.c's, exactly as
 //      it is for the searching gear -- and NOTHING IN THE GAME EVER PASSES A
 //      NEGATIVE p1 HERE: the curse that makes a character noisy sets TR_AGGRAVATE,
-//      a flag of its own, rather than a negative number of halvings (misc2.c:273).
+//      a flag of its own, rather than a negative number of halvings (item_enchant.c:277).
 //      THE OPPOSITE OF QUIET IS A DIFFERENT ROAD, not a smaller number on this one.
 //   4. THE -1 TO 18 FENCE. wizard.c's prompt, and the only fence there is.
 //   5. WHAT TR_AGGRAVATE DOES. `player_aggravates_monsters()` already has a window

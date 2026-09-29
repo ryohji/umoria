@@ -180,7 +180,7 @@ TEST(the_table_has_eleven_options)
 
 TEST(the_table_ends_with_a_null_prompt)
 {
-    /* set_options() は終端を探して項目数を数える（misc2.c:876）。
+    /* set_options() は終端を探して項目数を数える（options_menu.c:32）。
      * 終端が無いと表の外を読む。 */
     ASSERT_TRUE(game_options[game_options_count()].prompt == NULL);
 }

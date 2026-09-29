@@ -91,7 +91,7 @@ void floor_items_drop_last(void);
 //     keeps the move and the sweep and this module only takes the tail.
 //
 //  2. A ROW NUMBER IS A CURRENCY BETWEEN FUNCTIONS. popt() returns one, and
-//     magic_treasure(x, level) in misc2.c takes one: its first act is
+//     magic_treasure(x, level) in item_enchant.c takes one: its first act is
 //     `&t_list[x]`. Three callers hand it a row number they have just claimed.
 //     So a window that turns an index into a row is not an internal
 //     convenience -- it is the shape the game already speaks in.
