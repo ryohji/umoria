@@ -6,6 +6,9 @@
 
 計測日: 2026-09-09（`develop`）
 
+> 2026-09-29 に根の `GLOBALS_INVENTORY.md` からここへ移した。文中の「所見 N」は
+> [findings.md](findings.md)、「第 N 節」は `HANDOVER.md` の節を指す。
+
 ## 読みかた
 
 再現はコマンド一本。手で数えると見落とすし、直すたびに数えなおすので
