@@ -19,7 +19,7 @@
  * 読めなくなる。
  *
  * 読み書きの実体は save.c の static 関数なので、写しではなく実体を検証
- * するためにこのテストが src/save.c を #include して取りこむ。
+ * するためにこのテストが src/save/save.c を #include して取りこむ。
  * fileptr / xor_byte も static で、テストから直接触れる。
  *
  * XOR による難読化は wr_byte / rd_byte が対称に行うので、書きはじめと

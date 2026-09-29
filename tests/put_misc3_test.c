@@ -7,7 +7,7 @@
 /* キャラクターの能力値算出のテスト -- 現在の実装を保護する
  *
  * src/misc3.c:967-1010 の put_misc3()（画面表示版）と
- * src/files.c:232-249 の file_character()（ファイル出力版）に、
+ * src/ui/files.c:232-249 の file_character()（ファイル出力版）に、
  * 9 つの式が丸ごと二重に書かれている（コメントまで完全一致で、
  * 差異は出力先が put_buffer か fprintf かだけ）。片方だけ直すと
  * 画面とファイルで数値が食いちがう。
@@ -84,7 +84,7 @@ void put_misc3(void);
  * ------------------------------------------------------------------ */
 
 /* class_level_adj の行と、掛かるレベルを決める。
- * class_level_adj（src/player.c:300）の列は
+ * class_level_adj（src/data/player.c:300）の列は
  *   bth, bthb, device, disarm, save の順。
  * 行は 0 Warrior {4,4,2,2,3}, 1 Mage {2,2,4,3,3}, 3 Rogue {3,4,3,4,3}。 */
 static void given_class_and_level(int pclass, int lev)
@@ -176,8 +176,8 @@ TEST(xfos_is_clamped_to_zero_when_fos_exceeds_forty)
 
 /* SUSPICIOUS: 本体のコメント「this results in a range from 0 to 29」は
  * fos が 11 以上でないと成りたたない。キャラクター作成時の fos は
- * class の mfos（16..38、src/player.c:288）に race の fos（-5..5、
- * src/player.c:110）を足した 11..43 なので上端 29 は合う。しかし
+ * class の mfos（16..38、src/data/player.c:288）に race の fos（-5..5、
+ * src/data/player.c:110）を足した 11..43 なので上端 29 は合う。しかし
  * 探索つきの装備は fos を減らす（src/moria1.c:48 の fos -= amount）
  * ので、遊んでいる途中で fos は 11 を下まわり xfos は 29 を超える。
  * このテストはそれを固定する。 */
@@ -195,7 +195,7 @@ TEST(xfos_exceeds_twenty_nine_when_fos_falls_below_eleven)
 TEST(xinfra_is_see_infra_times_ten_in_feet)
 {
     /* #18-12-12C までは py.flags.see_infra に直に置いていた。置き場が
-     * src/player_infra_range.c の static へ移ったので窓口から置く。**この 1 件が
+     * src/player/player_infra_range.c の static へ移ったので窓口から置く。**この 1 件が
      * この問いで唯一、呼び手の式を守っているテスト** —— abilities.c の 10 倍を
      * 落とすとここが "3 feet" でレッドになる（#18-12-12B の壊し 5 通りのうち
      * 捕まった 1 つ）。 */

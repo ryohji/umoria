@@ -34,7 +34,7 @@ bool level_is_over(void) {
 }
 
 void leave_for_level(int level) {
-    // The depth moved into src/dungeon_level.c at #18-14-6, which took over the
+    // The depth moved into src/dungeon/dungeon_level.c at #18-14-6, which took over the
     // hand-written extern that used to stand here: this unit owns the pair, not
     // the number -- see the header.
     set_dungeon_level(level);

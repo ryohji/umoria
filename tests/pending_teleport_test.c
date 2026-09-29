@@ -26,7 +26,7 @@
  *      書き置きが頼んでいたのは「player を飛ばすこと」で、それは済んでいる。
  *
  * 階の始まりに忘れる窓口（dungeon.c:69）は別にしてある。「起きた」ではないから
- * （src/pending_teleport.h に書いてある）。
+ * （src/player/pending_teleport.h に書いてある）。
  *
  * 走りだしは false（variable.c:101 は初期値なしの bool）。テストは 1 プロセスで
  * 状態を共有するので、走りだしを見る 1 件は main() の先頭に置く。

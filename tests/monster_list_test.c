@@ -45,7 +45,7 @@
 
 /* 新しい階に降りたところから始める（generate.c の generate_cave() が
  * 階の頭で呼ぶのと同じ 1 本）。
- * **窓口で戻しなおす** —— #18-14-4C で置き場が src/monster_list.c の static に
+ * **窓口で戻しなおす** —— #18-14-4C で置き場が src/monster/monster_list.c の static に
  * 入ったので、この足場が唯一の道（#18-14-1〜3 と同じ）。 */
 static void given_a_fresh_level(void) { monster_list_reset(); }
 

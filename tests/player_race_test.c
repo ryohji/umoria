@@ -23,10 +23,10 @@
  * 行番号と表の中身:
  *   0 Human   1 Half-Elf   2 Elf        3 Halfling
  *   4 Gnome   5 Dwarf      6 Half-Orc   7 Half-Troll
- * （src/player.c:107 の race[MAX_RACES]）
+ * （src/data/player.c:107 の race[MAX_RACES]）
  *
  * **名前を返す窓口だけが表に届く**（`player_race_name()`）。表そのものは
- * module の外に置いたまま extern 1 行で引く —— src/player_level.c が
+ * module の外に置いたまま extern 1 行で引く —— src/player/player_level.c が
  * player_exp[] にしているのと同じ形。**だから足場は C でも消えない**
  * （消えるのは py の器だけ。tests/player_race_fixture.c に書いてある）。
  *
@@ -46,7 +46,7 @@
 #include "minunit.h"
 
 /* 表は足場が空で持っている（tests/player_race_fixture.c）。名前を読む件が
- * 自分で入れる —— 本物の 8 つの名前を写してしまうと、src/player.c が
+ * 自分で入れる —— 本物の 8 つの名前を写してしまうと、src/data/player.c が
  * 変わったときに足場だけが古くなって気づけない。 */
 extern race_type race[MAX_RACES];
 

@@ -28,7 +28,7 @@
  * 復元しそこねた項目が 1 つでもあれば落ちる。
  *
  * 読み書きの実体は save.c の static なので、写しではなく実体を検証する
- * ためにこのテストが src/save.c を #include して取りこむ（tests/
+ * ためにこのテストが src/save/save.c を #include して取りこむ（tests/
  * save_bool_test.c と同じ作り。fileptr / xor_byte も static なので、
  * 一時ファイルと XOR の種をテスト側から直に置ける）。
  */

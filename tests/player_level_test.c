@@ -69,10 +69,10 @@
 
 #include "minunit.h"
 
-/* 値段表。A の段では本体（src/player.c:94）と足場
+/* 値段表。A の段では本体（src/data/player.c:94）と足場
  * （tests/player_level_fixture.c）が持っているので、テストは直に置く。
  * **#18-12-6C で表が module の中に入るなら、ここは窓口越しになる**
- * （src/hp_table.h の set_hp_total_at_level() と同じ形）。 */
+ * （src/player/hp_table.h の set_hp_total_at_level() と同じ形）。 */
 extern uint32_t player_exp[MAX_PLAYER_LEVEL];
 
 /* 5 つをまとめて置く（各テストの足場作り）。 */
@@ -614,7 +614,7 @@ TEST(a_bare_setter_can_break_the_promise_on_purpose) {
     /* 数えなおしを呼ぶので、止まる段を必ず置く。**空の表のままだと
      * 数えなおしは表の外を読んで落ちる** —— 本体が落ちないのは実の表が
      * 単調に増えていて最後が MAX_EXP より高いからで、それだけが支え
-     * （src/player_level.c の player_level_deserved_by_experience() の
+     * （src/player/player_level.c の player_level_deserved_by_experience() の
      * コメント）。 */
     given_price_to_leave_level(2, 10000000L);
 

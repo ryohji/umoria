@@ -36,7 +36,7 @@ extern FILE *highscore_fp;          // High score file pointer (init_scorefile o
 // last_command: how many repeats are left and whether the direction is taken
 // from memory (#18-11-7C). The windows are in command_state.h
 // Which level the game is on now is not declared here. The number is private to
-// dungeon_level.c and is reached through src/dungeon_level.h, which also answers
+// dungeon_level.c and is reached through src/dungeon/dungeon_level.h, which also answers
 // "am I in the town?" for the six callers that used to spell that question three
 // ways (!= 0, > 0, == 0). The one alias -- the save file's restore path reading
 // the short straight through a faked pointer -- is gone with it.
@@ -48,13 +48,13 @@ extern FILE *highscore_fp;          // High score file pointer (init_scorefile o
 // to_be_wizard), how this life ended (death, died_from, birth_date, noscore)
 // and where it is saved (savefile, character_generated, character_saved,
 // panic_save) are not declared here. Each group is private to its own file and
-// is reached through src/progress.h, src/score_death.h and src/save_state.h.
+// is reached through src/data/progress.h, src/save/score_death.h and src/save/save_state.h.
 
 extern char days[7][29];
 extern int closing_flag; // Used for closing
 
 // How tall and how wide this level is are not declared here. The pair is
-// private to dungeon_size.c and is reached through src/dungeon_size.h. Two
+// private to dungeon_size.c and is reached through src/dungeon/dungeon_size.h. Two
 // names, one act: one setter takes both halves, so no caller can change half
 // of a size, and the two aliases that read the pair straight out of the save
 // file (rd_short through a faked pointer) are gone with it.
@@ -67,7 +67,7 @@ extern int closing_flag; // Used for closing
 // The floor of the level is not declared here. Every square -- what it is made
 // of, which monster stands on it, which thing lies on it, and the four light
 // bits -- is private to dungeon_map.c, handed out one square at a time by
-// square_at(y, x). See src/dungeon_map.h. The table always covers MAX_HEIGHT x
+// square_at(y, x). See src/dungeon/dungeon_map.h. The table always covers MAX_HEIGHT x
 // MAX_WIDTH; how much of it the level in play uses is dungeon_size.c's
 // question. With it went the last of the eleven dungeon globals.
 
@@ -100,7 +100,7 @@ extern bool (*store_buy[MAX_STORES])(int);
 // Following are treasure arrays  and variables
 extern treasure_type object_list[MAX_OBJECTS];
 // t_list is not declared here. What is lying on the floor of this level is
-// private to floor_items.c, reached through src/floor_items.h. It and the mark
+// private to floor_items.c, reached through src/dungeon/floor_items.h. It and the mark
 // below were always one container -- a table whose rows are packed, and how far
 // it is filled -- and it is not a list of treasure: doors, staircases, rubble,
 // traps and shop entrances are rows of it too. Everything on a square that is
@@ -112,26 +112,26 @@ extern const char *special_names[SN_ARRAY_SIZE];
 
 // What the player carries and wears (inventory[], inven_ctr, inven_weight,
 // equip_ctr) is not declared here. It is private to inventory.c and is
-// reached through src/inventory.h and src/equipment.h.
+// reached through src/item/inventory.h and src/item/equipment.h.
 
 // What the player has learned about each kind of object (object_ident[]) is not
 // declared here either. It is private to item_ident.c, reached through
-// src/item_ident.h.
+// src/item/item_ident.h.
 
 // Which kinds of object the dungeon can produce, in order of depth
 // (sorted_objects[], t_level[]) is private to object_levels.c, reached through
-// src/object_levels.h. The two were always one table -- an index and a body --
+// src/item/object_levels.h. The two were always one table -- an index and a body --
 // and every reader wanted a band out of them, never the raw arrays.
 
 // Following are creature arrays and variables
 // m_list is not declared here. Which monsters are standing on this level is
-// private to monster_list.c, reached through src/monster_list.h. It and the mark
+// private to monster_list.c, reached through src/monster/monster_list.h. It and the mark
 // below were always one container -- a table whose rows are packed, and how far
 // it is filled -- and every reader wanted a row, a bound or a free slot, never
 // the raw array.
 // m_level is not declared here. Where each level's monsters sit in the
 // definition table is private to monster_levels.c, reached through
-// src/monster_levels.h. Every reader wanted a band -- a count, a width or the
+// src/monster/monster_levels.h. Every reader wanted a band -- a count, a width or the
 // number it starts at -- never the raw array; the building of it used to be a
 // static of main.c, out of reach of any test.
 extern monster_type blank_monster; // Blank monster values
@@ -140,7 +140,7 @@ extern monster_type blank_monster; // Blank monster values
 // `rd_short((uint16_t *)&mfptr)`, went through a local uint16_t and is gone.
 // mon_tot_mult is not declared here. How many monsters have been bred on this
 // level is private to monster_breeding.c, reached through
-// src/monster_breeding.h. Every reader wanted the question, not the count --
+// src/monster/monster_breeding.h. Every reader wanted the question, not the count --
 // may another be bred, one has been, one is gone, a new level -- and only
 // save.c wanted the number itself.
 

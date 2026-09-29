@@ -88,7 +88,7 @@ void dungeon(void) {
 
     // Check for a maximum level. The comparison moved inside the window at
     // #18-12-16B: the record only ever grows, so telling it where we are is
-    // enough (src/player_max_depth.h).
+    // enough (src/player/player_max_depth.h).
     player_note_depth_reached(dungeon_level());
 
     // Reset flags and initialize variables

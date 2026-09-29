@@ -42,7 +42,7 @@
 bool inven_check_num(inven_type *t_ptr);
 int inven_carry(inven_type *i_ptr);
 
-/* 判定に使う本物（src/desc.c） */
+/* 判定に使う本物（src/item/desc.c） */
 int known1_p(inven_type *i_ptr);
 void known1(inven_type *i_ptr);
 

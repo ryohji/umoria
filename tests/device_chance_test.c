@@ -6,10 +6,10 @@
 
 /* 魔法道具（杖・魔法棒）の使用成功判定のテスト -- 現在の実装を保護する
  *
- * もともと staffs.c と wands.c に重複していた chance 計算は src/device.c に
+ * もともと staffs.c と wands.c に重複していた chance 計算は src/item/device.c に
  * 抽出された。違いは杖側の定数 -5 のペナルティだけで、これは penalty 引数
  * （DEVICE_PENALTY_STAFF / DEVICE_PENALTY_WAND）になっている。
- * このテストは抽出後の実体 src/device.c を直接リンクして検証する。
+ * このテストは抽出後の実体 src/item/device.c を直接リンクして検証する。
  *
  * 当初は staffs.c / wands.c をリンクすると msg_print・inventory・py への
  * 依存が芋づるで付くため、ロジックをこのファイルに写していた。抽出により
@@ -50,7 +50,7 @@ int randint(int maxval)
 
 #include "minunit.h"
 
-/* 検証対象は src/device.c の device_use_chance() と device_use_succeeds()。
+/* 検証対象は src/item/device.c の device_use_chance() と device_use_succeeds()。
  * 引数の意味は次の通り（元のコードで何を読んでいたか）:
  *   save        py.misc.save
  *   stat_adj_int stat_adj(A_INT)

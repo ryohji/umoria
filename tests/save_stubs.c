@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* save_stubs.c -- src/save.c をリンクするための代役
+/* save_stubs.c -- src/save/save.c をリンクするための代役
  *
  * save.c は 1300 行あり、セーブ／ロードの本体（get_char / save_char）が
  * 画面表示・入力・シグナル・店の再入荷・モンスター配列にまで手を伸ばす。
@@ -84,5 +84,5 @@ void prt_experience(void) {}
  * 窓口越しに読み書きするようになった）。あちらは**空の行を作るために**
  * invcopy() を呼ぶ —— 空の行は定義表 object_list の 1 行の写しなので。
  * セーブファイルの読み書きはその道（階の頭・行を返す）を通らないので代役。
- * 本物は src/desc.c で、連れてくると desc.c ごと来る。 */
+ * 本物は src/item/desc.c で、連れてくると desc.c ごと来る。 */
 void invcopy(inven_type *to, int from_index) { (void)to; (void)from_index; }

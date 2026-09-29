@@ -11,7 +11,7 @@
  * 抵抗・どの種族か・体の重さ・命中と打撃の下駄につづく）。答えは
  * **2 つの short**。py.misc.srh と py.misc.fos を 8 ファイルから
  * 19 か所（18 行）が名ざしていたが、#18-12-25B で 16 呼びの窓口ごしになり、
- * #18-12-25C で **src/player_search_skill.c の static 2 つ**になった
+ * #18-12-25C で **src/player/player_search_skill.c の static 2 つ**になった
  * —— `struct misc` は 10 → **8 フィールド**。人物の器（足場）も消えた
  * （#18-12-1C から 23 回め）。
  *
@@ -80,7 +80,7 @@ TEST(reading_either_number_twice_gives_the_same_answer) {
 }
 
 /* **`fos` は小さいほど良い**（`randint(fos) == 1` の n）。Halfling の
- * 種族ぶんは −5（src/player.c:126 の表）で、探索の指輪はさらに下げる。
+ * 種族ぶんは −5（src/data/player.c:126 の表）で、探索の指輪はさらに下げる。
  * `moria3.c:728` の "fos may be negative if have good rings of searching"
  * がそれを言っている。ここを留めると遊びが変わる（→ 所見 24）。 */
 TEST(the_frequency_can_be_negative_because_smaller_is_better) {

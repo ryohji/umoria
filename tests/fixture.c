@@ -18,14 +18,14 @@
 #include "player_level.h"
 
 player_type py;         /* 本体では player.c（530行の巨大データと同居） */
-/* 階級の値段表。#18-12-6A で src/player_level.c がリンクされる全ての実行形式に
- * 要る。src/player.c をリンクする足場（tests/misc3_stubs.c を使う側）は本物の
+/* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
+ * 要る。src/data/player.c をリンクする足場（tests/misc3_stubs.c を使う側）は本物の
  * 40 個を持っているが、この足場は py を自分で定義する = player.c と一緒には
  * リンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
- * しない。#18-5C で src/inventory.c が static で持つようになったので、
- * 消しかたも窓口（src/inventory.h）越しになる。 */
+ * しない。#18-5C で src/item/inventory.c が static で持つようになったので、
+ * 消しかたも窓口（src/item/inventory.h）越しになる。 */
 
 /* テスト専用。オリジナルには存在しない。
  * setUp から呼ぶことで、先行テストの影響を受けない条件を作る。 */
@@ -34,14 +34,14 @@ static void fixture_clear_randint_record(void);
 
 void fixture_reset(void)
 {
-    /* 品目ごとの覚えは #18-9-C で src/item_ident.c が static で持つように
+    /* 品目ごとの覚えは #18-9-C で src/item/item_ident.c が static で持つように
      * なったので、セーブファイル用の生の窓口越しに消す。 */
     memset(item_kind_record_bytes(), 0, (size_t)item_kind_record_count());
     /* 持ち物と装備は 1 本の配列なので、跨ぎの窓口で全域を消す。 */
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     memset(&py, 0, sizeof py);
-    /* 階級と経験値の 5 つは #18-12-6C で src/player_level.c が static で
+    /* 階級と経験値の 5 つは #18-12-6C で src/player/player_level.c が static で
      * 持つようになったので、py を消しても届かない。窓口越しに 0 へ戻す
      * （実体は初期化子なしの static なので、走りだしの値は 0 のまま）。 */
     player_set_level(0);
@@ -95,7 +95,7 @@ static void fixture_clear_randint_record(void)
 }
 
 /* 種の代役。#19B で desc.c が progress_color_seed() 越しに読むように
- * なったので、randes_seed の実体は src/progress.c が static で持つ（#19C1）。 */
+ * なったので、randes_seed の実体は src/data/progress.c が static で持つ（#19C1）。 */
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
 

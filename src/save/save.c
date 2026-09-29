@@ -1,4 +1,4 @@
-// src/save.c: save and restore games and monster memory info
+// src/save/save.c: save and restore games and monster memory info
 //
 // Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke,
 //                         David J. Grabiner
@@ -877,13 +877,13 @@ bool get_char(bool *generate) {
             }
             // 光る手も（#18-12-13C まで f_ptr 越しだったが）窓口へ。器の番地を要るので
             // いったん局所で受けて、そのまま窓口に渡す（0/1 に丸めない ——
-            // src/player_glowing_hands.h）。
+            // src/player/player_glowing_hands.h）。
             uint8_t saved_glowing_hands;
             rd_byte(&saved_glowing_hands);
             player_glowing_hands_restore(saved_glowing_hands);
             // あと何個覚えられるかも窓口へ。光る手と同じ形 —— 読みは器の番地を
             // 要るのでいったん局所で受け、そのまま渡す（0 も 255 もそのまま。
-            // 留めはもとから無い —— src/player_spells_to_learn.h）。
+            // 留めはもとから無い —— src/player/player_spells_to_learn.h）。
             uint8_t saved_spells_to_learn;
             rd_byte(&saved_spells_to_learn);
             player_spells_to_learn_set(saved_spells_to_learn);
@@ -1092,7 +1092,7 @@ bool get_char(bool *generate) {
         // 1 本で走らせ、END_OF() で作った末尾と比べて行きすぎを見ていた
         // （「番地としては &cave[MAX_HEIGHT][0] だが、そう書くと存在しない
         // 行の添字になる（-Warray-bounds）」という註つきで）。表が 1 枚の
-        // 連続した領域だという約束は src/dungeon_map.c の持ちものになったので、
+        // 連続した領域だという約束は src/dungeon/dungeon_map.c の持ちものになったので、
         // ここは数だけで書ける（#18-14-8）。
         int total_count = 0;
         while (total_count != MAX_HEIGHT * MAX_WIDTH) {

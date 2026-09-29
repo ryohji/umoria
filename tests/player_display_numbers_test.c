@@ -44,7 +44,7 @@
  *   6. **4 つは互いに独立**であること。1 つの窓口が触るのは 1 つの数だけ
  *      （save の読みが 4 つを入れちがえていないことの裏取りでもある）。
  *
- * 置き場は #18-12-3C で src/player_display_numbers.c の static になり、
+ * 置き場は #18-12-3C で src/player/player_display_numbers.c の static になり、
  * 初期値もそこに入った（それまで要っていた足場
  * tests/player_display_numbers_fixture.c は消した。static にしたあとも同じ
  * 名前の器を足場に残すと、窓口に届かない別の器が生き残ってテストが何も

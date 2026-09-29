@@ -44,7 +44,7 @@
 
 #include "minunit.h"
 
-/* ふつうの速さから始める。**窓口で置きなおす** —— 置き場が src/player_speed.c の
+/* ふつうの速さから始める。**窓口で置きなおす** —— 置き場が src/player/player_speed.c の
  * static に入っても（#18-12-11C）この足場は届く。 */
 static void given_normal_speed(void) { player_speed_set(0); }
 

@@ -4,9 +4,9 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* stats_fixture.c -- src/stats.c をリンクするための足場
+/* stats_fixture.c -- src/player/stats.c をリンクするための足場
  *
- * src/stats.c を切りだしたあと、リンカに未解決シンボルを列挙させたら 2 個
+ * src/player/stats.c を切りだしたあと、リンカに未解決シンボルを列挙させたら 2 個
  * しか残らなかった:
  *   gcc -std=c17 -Isrc -Itests -c -o /tmp/stats.o src/stats.c
  *   gcc -o /tmp/t tests/stat_bonus_test.c /tmp/stats.o -Isrc -Itests \

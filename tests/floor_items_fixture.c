@@ -8,11 +8,11 @@
 /* 「空の行」の作りかた（テスト用の足場）
  *
  * **もとは 3 つ置いていた。** #18-14-7A/B のあいだ、表（t_list）と印（tcptr）
- * の置き場は treasure.c にあって、src/floor_items.c が `extern` 2 行で
+ * の置き場は treasure.c にあって、src/dungeon/floor_items.c が `extern` 2 行で
  * 見にいっていた。テストは treasure.c をリンクしない —— 420 品の定義表が
  * 丸ごと付いてくる —— ので、同じ名前をここに置いて代わりにした。
  *
- * **#18-14-7C で表と印は src/floor_items.c の static に入り、その 2 行は
+ * **#18-14-7C で表と印は src/dungeon/floor_items.c の static に入り、その 2 行は
  * 消えた。残ったのは invcopy() 1 つだけ** —— #18-14-4 の
  * tests/monster_list_fixture.c とまったく同じ形で、あちらに残ったのも
  * 「空の行とは何か」の 1 つ（blank_monster）だった。
@@ -21,7 +21,7 @@
  * という**名前のついた定数**で、定数表の区分がそれを動かせばあの足場は
  * 消える。床のものにはその定数が無く、**定義表の 1 行
  * （object_list[OBJ_NOTHING]、「nothing」）を写したもの**が空の行になる。
- * 写す invcopy() は src/desc.c:561 にある**関数**で、object_list を読む。
+ * 写す invcopy() は src/item/desc.c:561 にある**関数**で、object_list を読む。
  * テストにあれを連れてくると desc.c と treasure.c ごと来るので、ここで
  * 代役を立てる。**だからこのファイルは、定数表の区分が済んでも消えない**
  * —— 消えるのは invcopy() が定義表を読まなくなったときだけ。
@@ -46,7 +46,7 @@
 #include "constant.h"
 #include "types.h"
 
-/* src/desc.c:561 の代役。写した品目の番号だけを残す。 */
+/* src/item/desc.c:561 の代役。写した品目の番号だけを残す。 */
 void invcopy(inven_type *to, int from_index) {
     const inven_type blank = {0};
     *to = blank;

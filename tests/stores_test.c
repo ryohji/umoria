@@ -14,7 +14,7 @@
  *   store2.c   9 か所  &store[n]（店に入って買う・売る）
  *   save.c     3 か所  &store[i]（6 軒ぶんの読み書き）
  *   game_state.c:40    store（配列の先頭をそのまま控える）
- * src/stores.c に寄せて、窓口は store_at() / store_count() だけにする。
+ * src/store/stores.c に寄せて、窓口は store_at() / store_count() だけにする。
  *
  * 保護するのは「置き場としてのふるまい」で、それは次の 3 つに尽きる。
  *   軒数が変わらない（6 軒。セーブファイルもこの数だけ並べて書く）

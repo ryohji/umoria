@@ -26,7 +26,7 @@
 #include "constant.h"
 #include "types.h"
 
-/* 検証に使う本物（src/monsters.c）。externs.h は本体の宣言をまるごと
+/* 検証に使う本物（src/data/monsters.c）。externs.h は本体の宣言をまるごと
  * 引きこむので、必要なものだけをここに書く。 */
 creature_handle monster_make_creature_handle(uint16_t index);
 creature_type *monster_get_creature(creature_handle h);
@@ -115,7 +115,7 @@ int main(void)
 }
 
 /* --- スタブ ---
- * monsters.c が名前を組みたてるときに使う（src/desc.c の本物）。desc.c を
+ * monsters.c が名前を組みたてるときに使う（src/item/desc.c の本物）。desc.c を
  * リンクすると定数表とインベントリまで芋づるで付いてくるので代役を置く。
  * 走査の順序を見るテストでは呼ばれない。 */
 bool is_a_vowel(char ch) { (void)ch; return false; }

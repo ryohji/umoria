@@ -10,7 +10,7 @@
 #define PLAYER_RACE_H
 
 // THE QUESTION. Which race did the player pick? The answer is A ROW NUMBER into
-// race[] (src/player.c:107), nothing more:
+// race[] (src/data/player.c:107), nothing more:
 //
 //   0 Human   1 Half-Elf   2 Elf        3 Halfling
 //   4 Gnome   5 Dwarf      6 Half-Orc   7 Half-Troll
