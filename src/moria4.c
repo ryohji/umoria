@@ -15,9 +15,12 @@
 
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_map.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "equipment.h"
 #include "inventory.h"
+#include "monster_list.h"
 #include "panel.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
@@ -46,7 +49,7 @@ void tunnel(int dir) {
     int x = player_col();
     (void)mmove(dir, &y, &x);
 
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
 
     // Compute the digging ability of player; based on
     // strength, and type of tool used
@@ -58,7 +61,7 @@ void tunnel(int dir) {
     // prevent the player from getting a free attack by trying to tunnel
     // somewhere where it has no effect.
     if (c_ptr->fval < MIN_CAVE_WALL &&
-        (c_ptr->tptr == 0 || (t_list[c_ptr->tptr].tval != TV_RUBBLE && t_list[c_ptr->tptr].tval != TV_SECRET_DOOR))) {
+        (c_ptr->tptr == 0 || (floor_item_at(c_ptr->tptr)->tval != TV_RUBBLE && floor_item_at(c_ptr->tptr)->tval != TV_SECRET_DOOR))) {
         if (c_ptr->tptr == 0) {
             msg_print("Tunnel through what?  Empty air?!?");
             free_turn_flag = true;
@@ -70,7 +73,7 @@ void tunnel(int dir) {
     }
 
     if (c_ptr->cptr > 1) {
-        monster_type *m_ptr = &m_list[c_ptr->cptr];
+        monster_type *m_ptr = monster_list_at(c_ptr->cptr);
         msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
 
         // let the player attack the creature
@@ -134,7 +137,7 @@ void tunnel(int dir) {
         default:
             // Is there an object in the way?  (Rubble and secret doors)
             if (c_ptr->tptr != 0) {
-                if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
+                if (floor_item_at(c_ptr->tptr)->tval == TV_RUBBLE) {
                     // Rubble.
 
                     if (tabil > randint(180)) {
@@ -150,7 +153,7 @@ void tunnel(int dir) {
                     } else {
                         count_msg_print("You dig in the rubble.");
                     }
-                } else if (t_list[c_ptr->tptr].tval == TV_SECRET_DOOR) {
+                } else if (floor_item_at(c_ptr->tptr)->tval == TV_SECRET_DOOR) {
                     // Secret doors.
 
                     count_msg_print("You tunnel into the granite wall.");
@@ -178,12 +181,12 @@ void disarm_trap(void) {
     if (get_dir(CNIL, &dir)) {
         (void)mmove(dir, &y, &x);
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         bool no_disarm = false;
 
-        if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_VIS_TRAP || t_list[c_ptr->tptr].tval == TV_CHEST)) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+        if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (floor_item_at(c_ptr->tptr)->tval == TV_VIS_TRAP || floor_item_at(c_ptr->tptr)->tval == TV_CHEST)) {
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             int tot = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
@@ -198,7 +201,7 @@ void disarm_trap(void) {
                 tot = tot / 10;
             }
 
-            inven_type *i_ptr = &t_list[c_ptr->tptr];
+            inven_type *i_ptr = floor_item_at(c_ptr->tptr);
             int i = i_ptr->tval;
             int level = i_ptr->level;
 
@@ -562,7 +565,7 @@ static bool look_see(int x, int y, bool *transparent) {
         return false;
     }
 
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
     *transparent = c_ptr->fval <= MAX_OPEN_SPACE;
 
     if (gl_noquery) {
@@ -576,8 +579,8 @@ static bool look_see(int x, int y, bool *transparent) {
     msgtype out_val;
     out_val[0] = 0;
 
-    if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
-        creature_type *const r_ptr = monster_get_creature(m_list[c_ptr->cptr].creature);
+    if (gl_rock == 0 && c_ptr->cptr > 1 && monster_list_at(c_ptr->cptr)->ml) {
+        creature_type *const r_ptr = monster_get_creature(monster_list_at(c_ptr->cptr)->creature);
         (void)sprintf(out_val, "%s %s %s. [(r)ecall]", dstring, is_a_vowel(r_ptr->name[0]) ? "an" : "a", r_ptr->name);
         dstring = "It is on";
         prt(out_val, 0, 0);
@@ -592,12 +595,12 @@ static bool look_see(int x, int y, bool *transparent) {
 
     if (c_ptr->tl || c_ptr->pl || c_ptr->fm) {
         if (c_ptr->tptr != 0) {
-            if (t_list[c_ptr->tptr].tval == TV_SECRET_DOOR) {
+            if (floor_item_at(c_ptr->tptr)->tval == TV_SECRET_DOOR) {
                 goto granite;
             }
-            if (gl_rock == 0 && t_list[c_ptr->tptr].tval != TV_INVIS_TRAP) {
+            if (gl_rock == 0 && floor_item_at(c_ptr->tptr)->tval != TV_INVIS_TRAP) {
                 bigvtype obj_string;
-                objdes(obj_string, &t_list[c_ptr->tptr], true);
+                objdes(obj_string, floor_item_at(c_ptr->tptr), true);
                 (void)snprintf(out_val, sizeof(out_val), "%s %s ---pause---", dstring, obj_string);
                 dstring = "It is in";
                 prt(out_val, 0, 0);
@@ -766,7 +769,7 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
     if (randint(10) > 1) {
         do {
             if (in_bounds(i, j)) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 if (c_ptr->fval <= MAX_OPEN_SPACE && c_ptr->tptr == 0) {
                     flag = true;
@@ -782,8 +785,8 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
 
     if (flag) {
         int cur_pos = popt();
-        cave[i][j].tptr = cur_pos;
-        t_list[cur_pos] = *t_ptr;
+        square_at(i, j)->tptr = cur_pos;
+        *floor_item_at(cur_pos) = *t_ptr;
         lite_spot(i, j);
     } else {
         msgtype out_val;
@@ -838,11 +841,11 @@ void throw_object(void) {
                     flag = true;
                 }
 
-                cave_type *c_ptr = &cave[y][x];
+                cave_type *c_ptr = square_at(y, x);
                 if ((c_ptr->fval <= MAX_OPEN_SPACE) && (!flag)) {
                     if (c_ptr->cptr > 1) {
                         flag = true;
-                        monster_type *m_ptr = &m_list[c_ptr->cptr];
+                        monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                         const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
                         tbth = tbth - cur_dis;
 
@@ -908,8 +911,8 @@ void throw_object(void) {
 // Used to be part of bash above.
 static void py_bash(int y, int x) {
 
-    int monster = cave[y][x].cptr;
-    monster_type *m_ptr = &m_list[monster];
+    int monster = square_at(y, x)->cptr;
+    monster_type *m_ptr = monster_list_at(monster);
     creature_type *c_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
 
@@ -999,7 +1002,7 @@ void bash(void) {
         }
         (void)mmove(dir, &y, &x);
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
         if (c_ptr->cptr > 1) {
             if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
                 msg_print("You are afraid!");
@@ -1007,7 +1010,7 @@ void bash(void) {
                 py_bash(y, x);
             }
         } else if (c_ptr->tptr != 0) {
-            inven_type *t_ptr = &t_list[c_ptr->tptr];
+            inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
             if (t_ptr->tval == TV_CLOSED_DOOR) {
                 count_msg_print("You smash into the door!");
@@ -1018,7 +1021,7 @@ void bash(void) {
                 // Use (roughly) similar method as for monsters.
                 if (randint(tmp * (20 + abs(t_ptr->p1))) < 10 * (tmp - abs(t_ptr->p1))) {
                     msg_print("The door crashes open!");
-                    invcopy(&t_list[c_ptr->tptr], OBJ_OPEN_DOOR);
+                    invcopy(floor_item_at(c_ptr->tptr), OBJ_OPEN_DOOR);
                     t_ptr->p1 = 1 - randint(2); // 50% chance of breaking door
                     c_ptr->fval = CORR_FLOOR;
                     if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {

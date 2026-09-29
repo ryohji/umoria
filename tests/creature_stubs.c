@@ -34,6 +34,7 @@
 #include "constant.h"
 #include "types.h"
 
+#include "dungeon_map.h"
 #include "fixture.h"
 #include "player_glowing_hands.h"
 #include "player_infra_range.h"
@@ -51,9 +52,27 @@ player_type py;
  * 要る。この足場は py を自分で定義する = src/player.c（本物の 40 個の持ち主）と
  * 一緒にはリンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
-cave_type cave[MAX_HEIGHT][MAX_WIDTH];
-monster_type m_list[MAX_MALLOC];
-inven_type t_list[MAX_TALLOC];
+/* マスの表（cave）もここに無い。#18-14-8C で置き場が src/dungeon_map.c の
+ * static に入ったので、代役を置くと窓口に届かない別の表になるだけ
+ * （m_list の 2 行が #18-14-4C で消えたのと同じ理由）。この実行形式は
+ * src/dungeon_map.c をリンクしていて、下の階を白紙に戻す 1 行はその窓口を
+ * 呼ぶ。creature.c は square_at(y, x) で 1 マスを取る。 */
+/* m_list もここに無い。#18-14-4C で src/monster_list.c が static で持つように
+ * なったので、代役を置くと窓口に届かない別の表になるだけ
+ * （movement_rate_test はその monster_list.c をリンクしている）。creature.c は
+ * monster_list_at() で行を取り、monster_list_used() を数えおろしの上限にする。 */
+/* 白紙のモンスター 1 体。#18-14-4B で src/monster_list.c をリンクするように
+ * なったので要る（階の頭で全行に書き、返した行を白紙に戻すのに使う）。
+ * 本物は monsters.c の定義表のとなりで、あちらはこの実行形式に来ない。
+ * m_list / mfptr の 2 行は #18-14-4C で消えたが、**この 1 行は残った** ——
+ * blank_monster はこの問いの主題ではなく定数表の側。 */
+monster_type blank_monster;
+/* 床に落ちているものの置き場（t_list / tcptr）もここに無い。#18-14-7C で
+ * src/floor_items.c が static で持つようになったので、代役を置くと窓口に
+ * 届かない別の表になるだけ（この実行形式はその floor_items.c をリンクして
+ * いる）。creature.c は floor_item_at() で行を取る。表の 1 行は長く
+ * ここにあった —— creature.c が `t_list[c_ptr->tptr]` と書いていたから。
+ * invcopy() の代役は下に残る —— 空の行は定義表の写しで、あれは主題の外。 */
 /* 居場所の 2 個（char_row / char_col）もここに無い。#18-6C1 で
  * src/player_pos.c が static で持つようになったので、代役を置くと窓口越しの
  * 読み書きが届かない別の器になるだけ。creature.c は player_row() /
@@ -62,13 +81,22 @@ inven_type t_list[MAX_TALLOC];
  * 無い。#18-5C で src/inventory.c が static で持つようになったので、代役を
  * 置く必要が無くなった（置くと inventory.c の分と別の器になり、窓口越しの
  * 読み書きが別の場所に当たる）。 */
-int16_t mfptr;
-int16_t mon_tot_mult;
+/* mfptr もここに無い（上の m_list と一緒に #18-14-4C で出ていった）。 */
+/* mon_tot_mult もここに無い。#18-14-3B で src/monster_breeding.c が static で
+ * 持つようになったので、代役を置くと窓口に届かない別の器になる
+ * （movement_rate_test はその monster_breeding.c をリンクしている）。
+ * creature.c は monster_breeding_allowed() で訊き、
+ * monster_breeding_note_birth() で数える。 */
 /* find_flag もここに無い。#18-11-6C で src/running.c が static で持つように
  * なったので、代役を置くと窓口に届かない別の器になる（movement_rate_test は
  * その running.c をリンクしている）。creature.c は player_is_running() 越しに
  * 訊く。 */
-int hack_monptr;
+/* hack_monptr もここに無い。#18-14-1B で src/monster_turn.c が static で持つ
+ * ようになったので、代役を置くと窓口に届かない別の器になる（movement_rate_test
+ * はその monster_turn.c をリンクしている）。creature.c は monster_turn_begin() /
+ * monster_turn_end() 越しに開け閉めする。**この 1 行は #18-14-1C で消し忘れて
+ * いた** —— 置き場が A の段で module に入る形（→ 所見 52）だと、代役は B の
+ * 時点で誰も見ない死んだ定義になるが、リンクは通るので何も知らせない。 */
 /* death もここに無い。#19B2 で creature.c が player_is_dead() 越しに読む
  * ようになったので、実体は src/score_death.c の static である。 */
 /* player_light もここに無い。#18-7-3C1 で src/player_light.c が static で
@@ -223,7 +251,10 @@ void fixture_reset(void)
      * 赤外視の 1 行と同じで**いまは頼っている件が無い**（外してもグリーンの
      * まま。実際に外して確かめた）。約束のために足しておく。 */
     player_glowing_hands_restore(0);
-    memset(cave, 0, sizeof cave);
+    /* 階を白紙に戻す。#18-14-8B までは memset 1 行だったが、それは
+     * generate.c の blank_cave() の写しだった —— いまは本物と同じ窓口を
+     * 呼ぶ（上の置き場を掃く）。 */
+    dungeon_map_reset();
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;
 }

@@ -33,9 +33,9 @@
 //
 // What this module deliberately does NOT do:
 //
-//   - THE MONSTERS. change_speed() (moria1.c) adds the same number to every
-//     m_list[i].cspeed, and misc1.c mixes it into cspeed when a monster is
-//     placed. That is the engine's way of saying "a slowed player is handled by
+//   - THE MONSTERS. change_speed() (moria1.c) adds the same number to the
+//     cspeed of every monster on the level, and misc1.c mixes it into cspeed
+//     when a monster is placed. That is the engine's way of saying "a slowed player is handled by
 //     moving the monsters faster instead" (creature.c), so the loop and the sum
 //     stay with the callers -- this module holds the player's number only.
 //   - THE FOOD. A sped-up character burns extra food, the square of the number

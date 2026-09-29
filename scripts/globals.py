@@ -98,9 +98,117 @@ GROUPS = {
     # player_col / player_place / player_pos_forget）。同じ区分に残る 11 個は
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # GLOBALS_INVENTORY.md 側）。
-    "ダンジョンとその中身": """
-        cave dun_level cur_height cur_width m_list m_level mfptr mon_tot_mult
-        t_list tcptr hack_monptr""",
+    # 床の一枚一枚（cave）は #18-14-8C で dungeon_map.c の static になり、
+    # externs.h から外れた。窓口は src/dungeon_map.h（dungeon_map_reset /
+    # square_at の 2 本だけ）。**この区分の 8 問め＝最後**で、**#18 に残っていた
+    # global のどれよりも大きい**（15 ファイル 258 参照・書き 47・別名 145）。
+    # **これで「ダンジョンとその中身」の区分は空になった**（行ごと消した。記録は
+    # GLOBALS_INVENTORY.md 側）。窓口が 2 本で足りたのは、**1 マスの 7 つの欄が
+    # 7 つの別の問い**で、この module はどれにも答えないから —— 配るのは
+    # 書きこめる別名で、欄の意味は呼び手の側にある（だから最後に置いた。
+    # `.cptr` と `.tptr` は 4 問め・7 問めの表の行番号で、あの 2 つが窓口を
+    # 持つまで「1 マスを配る」が何を意味するか決まらなかった）。
+    # 測って分かった 3 つ —— **表は階より大きい**（表はいつでも 66x198、町は
+    # その左上の 22x66。だから白紙に戻すのは表ぜんぶで、階の広さで止めると
+    # 次に町へ上がったとき前の階の壁が残る。広さは 5 問めの問いで、窓口は
+    # 訊かない）、**白紙のマスは「空いた床」ではない**（fval 0 は NULL_WALL ＝
+    # まだ決めていない印、cptr 0 と tptr 0 は隣の 2 つの表の行 0 と対で、
+    # あの 2 問が行 0 を白紙にするのと同じ約束の両端）、そして
+    # **19 のループが表をポインタで歩いていた**（generate.c に 18、save.c に 1。
+    # 3 つの形 —— 行に沿って 17・列を下って 1・表ぜんぶを 1 ――で、ぜんぶ
+    # 添字のループに畳んだ。save.c の読みもどしは表を**1 本の列**として歩いて
+    # いたので `square_at(n / MAX_WIDTH, n % MAX_WIDTH)` になった）。
+    # 畳んだ包み 1 本（generate.c の static blank_cave()。この区分で 3 本め）と
+    # 別名 145 件もここで消えた。B は 1 コミットに入らず 4 つに分けた
+    # （7 ファイル 32 か所・generate.c 99 か所・5 ファイル 109 か所・save.c 7 か所）。
+    # 税は 12 本で、**A の見こみとぴったり一致**した。
+    # 床に落ちているもの（t_list ＋ tcptr）は #18-14-7C で floor_items.c の
+    # static になり、externs.h から外れた。窓口は src/floor_items.h
+    # （floor_items_reset / floor_item_at / floor_items_used /
+    # set_floor_items_used / floor_items_is_full / floor_items_claim_slot /
+    # floor_items_drop_last）。**この区分の 7 問め**で、#18-14-4 のモンスターの
+    # 表とまったく同じ形（表と印で 1 つの入れ物、マスの片われ）。定義表
+    # （420 品の「その品目とは何か」）の隣に置かれていたが、こちらは
+    # 「いまこの階のどこに何が載っているか」で、別の表。
+    # 測って分かった 3 つ —— **これは「宝の表」ではない**（扉・階段・瓦礫・
+    # 罠・店の入口も行で、マスに載っているモンスターでないものぜんぶが入る。
+    # だから 17 ファイルに散っていた）、**行 0 は予約されているだけでなく
+    # 読まれる**（拾った直後の `t_list[c_ptr->tptr]` が行 0 に落ちて
+    # TV_NOTHING を得る。階の頭で白紙にするのは片づけではなく仕事）、そして
+    # **行は自分がどのマスに載っているかを知らない**（pusht() が階を掃いて
+    # 探す。上流も types.h:136 でそう書いている ―― 掃く側は 8 問めの cave の
+    # 仕事なので残した）。別名 1 件（save.c の読みもどし）もここで消えた。
+    # 税は 12 本で **A で測りなおした見こみと一致**した（下調べは 13 本と
+    # 見ていたが、13 本めは呼び手ではなく置き場だった。所見 34）。
+    # いま何階か（dun_level）は #18-14-6C で dungeon_level.c の static になり、
+    # externs.h から外れた。窓口は src/dungeon_level.h（dungeon_level /
+    # player_is_in_town / set_dungeon_level）。**この区分の 6 問め**で、
+    # **同じ問いが 3 通りに書かれていた** —— 「町にいるか」を `!= 0`・`> 0`・
+    # `== 0` と 6 か所が別々に綴っていたので、窓口 1 本に寄せた。走りだしの
+    # 0 は空の器ではなく場所（町）なので、その初期値をテストで押さえた。
+    # 測って分かった 2 つ —— **同じ `深さ * 50` が 2 つの単位を持つ**
+    # （death.c では点、misc3.c では feet。同じ算術だが畳めない。所見 54 の
+    # 2 つめ）、そして**負の階は誰も比べていないから起きない**（町に上りの
+    # 階段が無いから起きない。窓口も検めない ―― 上流のまま）。
+    # 別名 1 件（save.c の復元が int16_t へポインタ型を偽って読んでいた
+    # 1 か所）もここで消えた。税は 12 本で、**2 問続けて下調べの見こみと
+    # 一致した**。
+    # この階の広さ（cur_height ＋ cur_width）は #18-14-5C で dungeon_size.c の
+    # static になり、externs.h から外れた。窓口は src/dungeon_size.h
+    # （dungeon_height / dungeon_width / set_dungeon_size）。**この区分の
+    # 5 問め**で、**2 つの名前が 1 つの行い**だった —— 書き手はどちらも必ず
+    # 両方を書き、読み手 48 のうち 40 が対で読む。だから**窓口は両方を取る
+    # 1 本**にして、半分だけ変える道を無くした（#18-12-18 の pac/ptoac で
+    # 見た穴と同じ形）。
+    # 測って分かった 3 つ —— **この対は 2 つの値しか取らない**（町の 22x66 と
+    # 階の 66x198。選ぶのは generate_cave() の 1 か所で、つまり「町にいるか」の
+    # 言いかえ）、**無作為な 1 マスの取りかたが 2 通りある**（randint(高さ-2) は
+    # 外周に当たらず randint(高さ)-1 は当たる。畳むと出現位置が変わるので
+    # そのまま残した）、そして **dungeon.c の 'L' が行を幅と比べている**
+    # （上流のバグ。そのまま写して header に書きとめた）。
+    # 別名 2 件（save.c の `rd_short((uint16_t *)&cur_height)` の対）も
+    # ここで消えた。税は 11 本で、**下調べの見こみと初めて一致した**。
+    # この階にいるモンスター（m_list ＋ mfptr）は #18-14-4C で
+    # monster_list.c の static になり、externs.h から外れた。窓口は
+    # src/monster_list.h（monster_list_reset / monster_list_at /
+    # monster_list_used / set_monster_list_used / monster_list_is_full /
+    # monster_list_free_slots / monster_list_claim_slot /
+    # monster_list_drop_last）。**この区分の 4 問め**で、**2 つの名前が
+    # 1 つの入れ物**だった —— 行を詰めた表と、どこまで使っているかの印。
+    # 定義表（279 体の「その種とは何か」）の隣に置かれていたが、こちらは
+    # 「いまこの階に誰が立っているか」で、別の表。
+    # 測って分かった 2 つ —— **14 か所が同じ数えおろしループを手で書いて
+    # いた**（うち 11 本は spells.c に 1 文字も違わず並ぶ）、そして
+    # **B を 1 コミットで通せないほど大きい**（12 ファイル 101 参照）ので、
+    # この区分で初めて**置き場を A で動かせなかった**（所見 52 の条件）。
+    # 別名 1 件（save.c の `rd_short((uint16_t *)&mfptr)`）もここで消えた。
+    # この階で増えたモンスターの数（mon_tot_mult）は #18-14-3C で
+    # monster_breeding.c の static になり、externs.h から外れた。窓口は
+    # src/monster_breeding.h（monster_breeding_reset / monster_breeding_allowed /
+    # monster_breeding_note_birth / monster_breeding_note_death ＋ セーブ用の
+    # monster_breeding_count / set_monster_breeding_count）。**この区分の 3 問め**。
+    # 定義表の隣（monsters.c）に置かれていたが表とは無関係な階ごとの数だった。
+    # 測って分かった 2 つ —— 比較が `MAX_MON_MULT >= mon_tot_mult` なので
+    # **許される出産は 76 回**（上限 75 と 1 ずれる）、そして**これは頭数ではなく
+    # 予算**（減るのは fix1_delete_monster() を通った 1 体だけで、生まれた子か
+    # どうかは訊かない）。別名 1 件（save.c の `rd_short((uint16_t *)&...)`）も
+    # ここで消えた。
+    # レベルごとのモンスター定義の索引（m_level）は #18-14-2C で
+    # monster_levels.c の static になり、externs.h から外れた。窓口は
+    # src/monster_levels.h（monster_levels_init / monsters_up_to_level /
+    # monsters_at_level / first_monster_at_level）。**この区分の 2 問め**。
+    # 組みたてていた init_m_level() は main.c の static で、**テストから
+    # 届かなかった**（#18-10 の init_t_level() と同じ形）。読み手 6 か所が
+    # `m_level[level] - m_level[level - 1]` や `+ m_level[0]` と手で書いていた
+    # 引き算に名前が付いた。品物のほうは並べなおした本体（sorted_objects）が
+    # 別に要ったが、モンスター定義表はもとからレベルの昇順なので索引だけで足りる。
+    # いま creatures() が誰の手番を処理しているか（hack_monptr）は #18-14-1C で
+    # monster_turn.c の static になり、externs.h から外れた。窓口は
+    # src/monster_turn.h（monster_turn_begin / monster_turn_end /
+    # monster_delete_may_shift / monster_turn_index）。読み手 2 つが
+    # `hack_monptr < i` と手で書いていた比較に名前が付いた ——
+    # 「その席を詰めなおしてよいか」。**この区分の 1 問め**で、残る 10 個は
+    # 手番とは独立なので残す。
     # レベルごとに並べたダンジョンの品物表（sorted_objects と t_level）は
     # #18-10-C で object_levels.c の static になり、externs.h から外れた。窓口は
     # src/object_levels.h（object_levels_init / object_at_level_position /

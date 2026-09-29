@@ -18,7 +18,11 @@
 #include "abilities.h"
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_level.h"
+#include "dungeon_map.h"
+#include "dungeon_size.h"
 #include "equipment.h"
+#include "floor_items.h"
 #include "hp_table.h"
 #include "inventory.h"
 #include "item_ident.h"
@@ -60,36 +64,36 @@ static char blank_string[] = "                        ";
 // Places a particular trap at location y, x -RAK-
 void place_trap(int y, int x, int subval) {
     int cur_pos = popt();
-    cave[y][x].tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_TRAP_LIST + subval);
+    square_at(y, x)->tptr = cur_pos;
+    invcopy(floor_item_at(cur_pos), OBJ_TRAP_LIST + subval);
 }
 
 // Places rubble at location y, x -RAK-
 void place_rubble(int y, int x) {
     int cur_pos = popt();
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     cave_ptr->tptr = cur_pos;
     cave_ptr->fval = BLOCKED_FLOOR;
-    invcopy(&t_list[cur_pos], OBJ_RUBBLE);
+    invcopy(floor_item_at(cur_pos), OBJ_RUBBLE);
 }
 
 // Places a treasure (Gold or Gems) at given row, column -RAK-
 void place_gold(int y, int x) {
     int cur_pos = popt();
-    int i = ((randint(dun_level + 2) + 2) / 2) - 1;
+    int i = ((randint(dungeon_level() + 2) + 2) / 2) - 1;
     if (randint(OBJ_GREAT) == 1) {
-        i += randint(dun_level + 1);
+        i += randint(dungeon_level() + 1);
     }
     if (i >= MAX_GOLD) {
         i = MAX_GOLD - 1;
     }
-    cave[y][x].tptr = cur_pos;
-    invcopy(&t_list[cur_pos], OBJ_GOLD_LIST + i);
+    square_at(y, x)->tptr = cur_pos;
+    invcopy(floor_item_at(cur_pos), OBJ_GOLD_LIST + i);
 
-    inven_type *t_ptr = &t_list[cur_pos];
+    inven_type *t_ptr = floor_item_at(cur_pos);
     t_ptr->cost += (8L * (int32_t)randint((int)t_ptr->cost)) + randint(8);
 
-    if (cave[y][x].cptr == 1) {
+    if (square_at(y, x)->cptr == 1) {
         msg_print("You feel something roll beneath your feet.");
     }
 }
@@ -146,13 +150,13 @@ int get_obj_num(int level, bool must_be_small) {
 // Places an object at given row, column co-ordinate -RAK-
 void place_object(int y, int x, bool must_be_small) {
     int cur_pos = popt();
-    cave[y][x].tptr = cur_pos;
+    square_at(y, x)->tptr = cur_pos;
 
     // split this line up to avoid a reported compiler bug
-    int tmp = get_obj_num(dun_level, must_be_small);
-    invcopy(&t_list[cur_pos], object_at_level_position(tmp));
-    magic_treasure(cur_pos, dun_level);
-    if (cave[y][x].cptr == 1) {
+    int tmp = get_obj_num(dungeon_level(), must_be_small);
+    invcopy(floor_item_at(cur_pos), object_at_level_position(tmp));
+    magic_treasure(cur_pos, dungeon_level());
+    if (square_at(y, x)->cptr == 1) {
         msg_print("You feel something roll beneath your feet."); // -CJS-
     }
 }
@@ -163,13 +167,13 @@ void alloc_object(bool (*alloc_set)(int), int typ, int num) {
         int i, j;
 
         do {
-            i = randint(cur_height) - 1;
-            j = randint(cur_width) - 1;
+            i = randint(dungeon_height()) - 1;
+            j = randint(dungeon_width()) - 1;
         }
 
         // don't put an object beneath the player, this could cause
         // problems if player is standing under rubble, or on a trap.
-        while ((!(*alloc_set)(cave[i][j].fval)) || (cave[i][j].tptr != 0) || (i == player_row() && j == player_col()));
+        while ((!(*alloc_set)(square_at(i, j)->fval)) || (square_at(i, j)->tptr != 0) || (i == player_row() && j == player_col()));
 
         // NOTE: typ == 2 is not used - used to be visible traps.
         if (typ < 4) {
@@ -201,7 +205,7 @@ void random_object(int y, int x, int num) {
             int j = y - 3 + randint(5);
             int k = x - 4 + randint(7);
 
-            cave_type *cave_ptr = &cave[j][k];
+            cave_type *cave_ptr = square_at(j, k);
 
             if (in_bounds(j, k) && (cave_ptr->fval <= MAX_CAVE_FLOOR) && (cave_ptr->tptr == 0)) {
                 if (randint(100) < 75) {
@@ -339,7 +343,9 @@ void prt_gold(void) {
 void prt_depth(void) {
     vtype depths;
 
-    int depth = dun_level * 50;
+    // Fifty feet a level. The score multiplies the same depth by the same
+    // fifty and calls the answer points -- see dungeon_level.h.
+    int depth = dungeon_level() * 50;
 
     if (depth == 0) {
         (void)strcpy(depths, "Town level");
@@ -897,14 +903,14 @@ void take_one_item(inven_type *s_ptr, inven_type *i_ptr) {
 
 // Drops an item from inventory to given location -RAK-
 void inven_drop(int item_val, int drop_all) {
-    if (cave[player_row()][player_col()].tptr != 0) {
+    if (square_at(player_row(), player_col())->tptr != 0) {
         (void)delete_object(player_row(), player_col());
     }
 
     int i = popt();
     inven_type *i_ptr = inventory_and_equipment_at(item_val);
-    t_list[i] = *i_ptr;
-    cave[player_row()][player_col()].tptr = i;
+    *floor_item_at(i) = *i_ptr;
+    square_at(player_row(), player_col())->tptr = i;
 
     if (item_val >= INVEN_WIELD) {
         takeoff(item_val, -1);
@@ -918,14 +924,14 @@ void inven_drop(int item_val, int drop_all) {
             }
             invcopy(inventory_at(inventory_count()), OBJ_NOTHING);
         } else {
-            t_list[i].number = 1;
+            floor_item_at(i)->number = 1;
             inventory_set_weight(inventory_weight() - i_ptr->weight);
             i_ptr->number--;
         }
 
         bigvtype prt1;
         msgtype prt2;
-        objdes(prt1, &t_list[i], true);
+        objdes(prt1, floor_item_at(i), true);
         (void)snprintf(prt2, sizeof(prt2), "Dropped %s", prt1);
         msg_print(prt2);
     }
@@ -1805,7 +1811,7 @@ int mmove(int dir, int *y, int *x) {
 
     bool moved = false;
 
-    if ((new_row >= 0) && (new_row < cur_height) && (new_col >= 0) && (new_col < cur_width)) {
+    if ((new_row >= 0) && (new_row < dungeon_height()) && (new_col >= 0) && (new_col < dungeon_width())) {
         *y = new_row;
         *x = new_col;
         moved = true;
@@ -1868,19 +1874,19 @@ void teleport(int dis) {
     int y, x;
 
     do {
-        y = randint(cur_height) - 1;
-        x = randint(cur_width) - 1;
+        y = randint(dungeon_height()) - 1;
+        x = randint(dungeon_width()) - 1;
         while (distance(y, x, player_row(), player_col()) > dis) {
             y += ((player_row() - y) / 2);
             x += ((player_col() - x) / 2);
         }
-    } while ((cave[y][x].fval >= MIN_CLOSED_SPACE) || (cave[y][x].cptr >= 2));
+    } while ((square_at(y, x)->fval >= MIN_CLOSED_SPACE) || (square_at(y, x)->cptr >= 2));
 
     move_rec(player_row(), player_col(), y, x);
 
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
-            cave[i][j].tl = false;
+            square_at(i, j)->tl = false;
             lite_spot(i, j);
         }
     }

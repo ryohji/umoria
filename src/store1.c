@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "floor_items.h"
 #include "player_race.h"
 #include "stores.h"
 
@@ -313,10 +314,10 @@ static void store_create(int store_num) {
 
     do {
         int i = store_choice[store_num][randint(STORE_CHOICES) - 1];
-        invcopy(&t_list[cur_pos], i);
+        invcopy(floor_item_at(cur_pos), i);
         magic_treasure(cur_pos, OBJ_TOWN_LEVEL);
 
-        inven_type *t_ptr = &t_list[cur_pos];
+        inven_type *t_ptr = floor_item_at(cur_pos);
 
         if (store_check_num(t_ptr, store_num)) {
             if ((t_ptr->cost > 0) && // Item must be good

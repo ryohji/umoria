@@ -16,7 +16,10 @@
 #include "externs.h"
 
 #include "command_state.h"
+#include "dungeon_map.h"
 #include "equipment.h"
+#include "floor_items.h"
+#include "monster_list.h"
 #include "player_abilities.h"
 #include "player_light.h"
 #include "player_pos.h"
@@ -28,8 +31,8 @@ static bool see_wall(int, int, int);
 // Change a trap from invisible to visible -RAK-
 // Note: Secret doors are handled here
 void change_trap(int y, int x) {
-    cave_type *c_ptr = &cave[y][x];
-    inven_type *t_ptr = &t_list[c_ptr->tptr];
+    cave_type *c_ptr = square_at(y, x);
+    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
     if (t_ptr->tval == TV_INVIS_TRAP) {
         t_ptr->tval = TV_VIS_TRAP;
@@ -58,11 +61,11 @@ void search(int y, int x, int chance) {
         for (int j = (x - 1); j <= (x + 1); j++) {
             // always in_bounds here
             if (randint(100) < chance) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 // Search for hidden objects
                 if (c_ptr->tptr != 0) {
-                    inven_type *t_ptr = &t_list[c_ptr->tptr];
+                    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
                     // Trap on floor?
                     if (t_ptr->tval == TV_INVIS_TRAP) {
@@ -346,12 +349,12 @@ void area_affect(int dir, int y, int x) {
 
             // Objects player can see (Including doors?) cause a stop.
             if (mmove(newdir, &row, &col)) {
-                cave_type *c_ptr = &cave[row][col];
+                cave_type *c_ptr = square_at(row, col);
 
                 bool inv;
                 if (player_has_light() || c_ptr->tl || c_ptr->pl || c_ptr->fm) {
                     if (c_ptr->tptr != 0) {
-                        int t = t_list[c_ptr->tptr].tval;
+                        int t = floor_item_at(c_ptr->tptr)->tval;
                         if (t != TV_INVIS_TRAP && t != TV_SECRET_DOOR &&
                             (t != TV_OPEN_DOOR || !find_ignore_doors)) {
                             end_find();
@@ -361,7 +364,7 @@ void area_affect(int dir, int y, int x) {
                     // Also Creatures
                     // The monster should be visible since update_mon() checks
                     // for the special case of being in find mode
-                    if (c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml) {
+                    if (c_ptr->cptr > 1 && monster_list_at(c_ptr->cptr)->ml) {
                         end_find();
                         return;
                     }

@@ -14,6 +14,13 @@
 #include "types.h"
 
 #include "externs.h"
+#include "floor_items.h"
+#include "dungeon_level.h"
+#include "dungeon_map.h"
+#include "dungeon_size.h"
+#include "monster_levels.h"
+#include "monster_list.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "player_food.h"
 #include "player_pos.h"
@@ -152,7 +159,7 @@ int bit_pos(uint32_t *test) {
 
 // Checks a co-ordinate for in bounds status -RAK-
 bool in_bounds(int y, int x) {
-    if ((y > 0) && (y < cur_height - 1) && (x > 0) && (x < cur_width - 1)) {
+    if ((y > 0) && (y < dungeon_height() - 1) && (x > 0) && (x < dungeon_width() - 1)) {
         return true;
     } else {
         return false;
@@ -193,24 +200,24 @@ int distance(int y1, int x1, int y2, int x2) {
 }
 
 // Checks points north, south, east, and west for a wall -RAK-
-// note that y,x is always in_bounds(), i.e. 0 < y < cur_height-1,
-// and 0 < x < cur_width-1
+// note that y,x is always in_bounds(), i.e. inside the boundary ring:
+// 0 < y < height-1 and 0 < x < width-1 (see dungeon_size.h)
 int next_to_walls(int y, int x) {
     int i = 0;
-    cave_type *c_ptr = &cave[y - 1][x];
+    cave_type *c_ptr = square_at(y - 1, x);
 
     if (c_ptr->fval >= MIN_CAVE_WALL) {
         i++;
     }
-    c_ptr = &cave[y + 1][x];
+    c_ptr = square_at(y + 1, x);
     if (c_ptr->fval >= MIN_CAVE_WALL) {
         i++;
     }
-    c_ptr = &cave[y][x - 1];
+    c_ptr = square_at(y, x - 1);
     if (c_ptr->fval >= MIN_CAVE_WALL) {
         i++;
     }
-    c_ptr = &cave[y][x + 1];
+    c_ptr = square_at(y, x + 1);
     if (c_ptr->fval >= MIN_CAVE_WALL) {
         i++;
     }
@@ -226,11 +233,11 @@ int next_to_corr(int y, int x) {
 
     for (int j = y - 1; j <= (y + 1); j++) {
         for (int k = x - 1; k <= (x + 1); k++) {
-            cave_type *c_ptr = &cave[j][k];
+            cave_type *c_ptr = square_at(j, k);
 
             // should fail if there is already a door present
             if (c_ptr->fval == CORR_FLOOR &&
-                (c_ptr->tptr == 0 || t_list[c_ptr->tptr].tval < TV_MIN_DOORS)) {
+                (c_ptr->tptr == 0 || floor_item_at(c_ptr->tptr)->tval < TV_MIN_DOORS)) {
                 i++;
             }
         }
@@ -287,7 +294,7 @@ bool los(int fromY, int fromX, int toY, int toX) {
         }
 
         for (p_y = fromY + 1; p_y < toY; p_y++) {
-            if (cave[p_y][fromX].fval >= MIN_CLOSED_SPACE) {
+            if (square_at(p_y, fromX)->fval >= MIN_CLOSED_SPACE) {
                 return false;
             }
         }
@@ -302,7 +309,7 @@ bool los(int fromY, int fromX, int toY, int toX) {
         }
 
         for (px = fromX + 1; px < toX; px++) {
-            if (cave[fromY][px].fval >= MIN_CLOSED_SPACE) {
+            if (square_at(fromY, px)->fval >= MIN_CLOSED_SPACE) {
                 return false;
             }
         }
@@ -349,7 +356,7 @@ bool los(int fromY, int fromX, int toY, int toX) {
             }
 
             while (toX - px) {
-                if (cave[p_y][px].fval >= MIN_CLOSED_SPACE) {
+                if (square_at(p_y, px)->fval >= MIN_CLOSED_SPACE) {
                     return false;
                 }
 
@@ -358,7 +365,7 @@ bool los(int fromY, int fromX, int toY, int toX) {
                     px += xSign;
                 } else if (dy > scale2) {
                     p_y += ySign;
-                    if (cave[p_y][px].fval >= MIN_CLOSED_SPACE) {
+                    if (square_at(p_y, px)->fval >= MIN_CLOSED_SPACE) {
                         return false;
                     }
                     px += xSign;
@@ -386,7 +393,7 @@ bool los(int fromY, int fromX, int toY, int toX) {
             }
 
             while (toY - p_y) {
-                if (cave[p_y][px].fval >= MIN_CLOSED_SPACE) {
+                if (square_at(p_y, px)->fval >= MIN_CLOSED_SPACE) {
                     return false;
                 }
                 dx += m;
@@ -394,7 +401,7 @@ bool los(int fromY, int fromX, int toY, int toX) {
                     p_y += ySign;
                 } else if (dx > scale2) {
                     px += xSign;
-                    if (cave[p_y][px].fval >= MIN_CLOSED_SPACE) {
+                    if (square_at(p_y, px)->fval >= MIN_CLOSED_SPACE) {
                         return false;
                     }
                     p_y += ySign;
@@ -412,7 +419,7 @@ bool los(int fromY, int fromX, int toY, int toX) {
 
 // Returns symbol for given row, column -RAK-
 uint8_t loc_symbol(int y, int x) {
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
 
     if ((cave_ptr->cptr == 1) && (!player_is_running() || find_prself)) {
         return '@';
@@ -420,12 +427,12 @@ uint8_t loc_symbol(int y, int x) {
         return ' ';
     } else if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION) && (randint(12) == 1)) {
         return randint(95) + 31;
-    } else if ((cave_ptr->cptr > 1) && (m_list[cave_ptr->cptr].ml)) {
-        return monster_get_creature(m_list[cave_ptr->cptr].creature)->cchar;
+    } else if ((cave_ptr->cptr > 1) && (monster_list_at(cave_ptr->cptr)->ml)) {
+        return monster_get_creature(monster_list_at(cave_ptr->cptr)->creature)->cchar;
     } else if (!cave_ptr->pl && !cave_ptr->tl && !cave_ptr->fm) {
         return ' ';
-    } else if ((cave_ptr->tptr != 0) && (t_list[cave_ptr->tptr].tval != TV_INVIS_TRAP)) {
-        return t_list[cave_ptr->tptr].tchar;
+    } else if ((cave_ptr->tptr != 0) && (floor_item_at(cave_ptr->tptr)->tval != TV_INVIS_TRAP)) {
+        return floor_item_at(cave_ptr->tptr)->tchar;
     } else if (cave_ptr->fval <= MAX_CAVE_FLOOR) {
         return '.';
     } else if (cave_ptr->fval == GRANITE_WALL || cave_ptr->fval == BOUNDARY_WALL || highlight_seams == false) {
@@ -439,7 +446,7 @@ uint8_t loc_symbol(int y, int x) {
 
 // Tests a spot for light or field mark status -RAK-
 bool test_light(int y, int x) {
-    cave_type *cave_ptr = &cave[y][x];
+    cave_type *cave_ptr = square_at(y, x);
     if (cave_ptr->pl || cave_ptr->tl || cave_ptr->fm) {
         return true;
     } else {
@@ -474,19 +481,19 @@ bool compact_monsters(void) {
     bool delete_any = false;
 
     do {
-        for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-            monster_type *mon_ptr = &m_list[i];
+        for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+            monster_type *mon_ptr = monster_list_at(i);
             if ((cur_dis < mon_ptr->cdis) && (randint(3) == 1)) {
                 // Never compact away the Balrog!!
                 if (monster_get_creature(mon_ptr->creature)->cmove & CM_WIN) {
                     ; // Do nothing
-                } else if (hack_monptr < i) {
+                } else if (monster_delete_may_shift(i)) {
                     // in case this is called from within creatures(), this is a horrible
-                    // hack, the m_list/creatures() code needs to be rewritten.
+                    // hack, the monster-list/creatures() code needs to be rewritten.
                     delete_monster(i);
                     delete_any = true;
                 } else {
-                    // fix1_delete_monster() does not decrement mfptr,
+                    // fix1_delete_monster() does not take the mark back,
                     // so don't set delete_any if this was called.
                     fix1_delete_monster(i);
                 }
@@ -538,12 +545,12 @@ void add_food(int num) {
 // Returns a pointer to next free space -RAK-
 // Returns -1 if could not allocate a monster.
 int popm(void) {
-    if (mfptr == MAX_MALLOC) {
+    if (monster_list_is_full()) {
         if (!compact_monsters()) {
             return -1;
         }
     }
-    return mfptr++;
+    return monster_list_claim_slot();
 }
 
 // Gives Max hit points -RAK-
@@ -559,7 +566,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
     } else {
         creature_type *const r_ptr = monster_get_creature(h);
         int (*const calc_hp)(const uint8_t *) = r_ptr->cdefense & CD_MAX_HP ? max_hp : pdamroll;
-        monster_type *const mon_ptr = &m_list[cur_pos];
+        monster_type *const mon_ptr = monster_list_at(cur_pos);
         mon_ptr->fy = y;
         mon_ptr->fx = x;
         mon_ptr->creature = h;
@@ -570,7 +577,7 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
         mon_ptr->cdis = distance(player_row(), player_col(), y, x);
         mon_ptr->ml = false;
         mon_ptr->csleep = (slp = slp ? r_ptr->sleep : 0) ? slp * 2 + randint(slp * 10) : 0;
-        cave[y][x].cptr = cur_pos;
+        square_at(y, x)->cptr = cur_pos;
         return true;
     }
 }
@@ -578,13 +585,13 @@ bool place_monster(int y, int x, creature_handle h, int slp) {
 // Places a monster at given location -RAK-
 void place_win_monster(void) {
     if (!player_has_won()) {
-        int x, y, z = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL];
+        int x, y, z = randint(WIN_MON_TOT) - 1 + monsters_up_to_level(MAX_MONS_LEVEL);
 
         do {
-            y = randint(cur_height - 2);
-            x = randint(cur_width - 2);
-        } while ((cave[y][x].fval >= MIN_CLOSED_SPACE) ||
-                 (cave[y][x].cptr != 0) || (cave[y][x].tptr != 0) ||
+            y = randint(dungeon_height() - 2);
+            x = randint(dungeon_width() - 2);
+        } while ((square_at(y, x)->fval >= MIN_CLOSED_SPACE) ||
+                 (square_at(y, x)->cptr != 0) || (square_at(y, x)->tptr != 0) ||
                  (distance(y, x, player_row(), player_col()) <= MAX_SIGHT));
 
         // Check for case where could not allocate space for
@@ -602,7 +609,7 @@ static creature_handle get_mons_num(int level) {
     int i;
 
     if (level == 0) {
-        i = randint(m_level[0]) - 1;
+        i = randint(monsters_up_to_level(0)) - 1;
     } else {
         if (level > MAX_MONS_LEVEL) {
             level = MAX_MONS_LEVEL;
@@ -619,13 +626,13 @@ static creature_handle get_mons_num(int level) {
             // all monsters of level less than or equal to the dungeon level.
             // This distribution makes a level n monster occur approx 2/n% of the
             // time on level n, and 1/n*n% are 1st level.
-            const int num = m_level[level] - m_level[0];
+            const int num = monsters_up_to_level(level) - first_monster_at_level(1);
             i = randint(num) - 1;
             const int j = randint(num) - 1;
-            const int k = MAX(i, j) + m_level[0];
+            const int k = MAX(i, j) + first_monster_at_level(1);
             level = monster_get_creature(monster_make_creature_handle(k))->level;
         }
-        i = randint(m_level[level] - m_level[level - 1]) - 1 + m_level[level - 1];
+        i = randint(monsters_at_level(level)) - 1 + first_monster_at_level(level);
     }
 
     return monster_make_creature_handle(i);
@@ -637,11 +644,11 @@ void alloc_monster(int num, int dis, int slp) {
 
     while (num--) {
         do {
-            y = randint(cur_height - 2);
-            x = randint(cur_width - 2);
-        } while (cave[y][x].fval >= MIN_CLOSED_SPACE || (cave[y][x].cptr != 0) || (distance(y, x, player_row(), player_col()) <= dis));
+            y = randint(dungeon_height() - 2);
+            x = randint(dungeon_width() - 2);
+        } while (square_at(y, x)->fval >= MIN_CLOSED_SPACE || (square_at(y, x)->cptr != 0) || (distance(y, x, player_row(), player_col()) <= dis));
 
-        creature_handle h = get_mons_num(dun_level);
+        creature_handle h = get_mons_num(dungeon_level());
         const uint8_t cchar = monster_get_creature(h)->cchar;
 
         // Dragons ('d' or 'D') are always created sleeping here,
@@ -659,7 +666,7 @@ static bool summon(int *y, int *x, creature_handle h, int slp) {
     do {
         const int j = *y - 2 + randint(3);
         const int k = *x - 2 + randint(3);
-        const cave_type *const cave_ptr = &cave[j][k];
+        const cave_type *const cave_ptr = square_at(j, k);
         if (in_bounds(j, k) && cave_ptr->fval <= MAX_OPEN_SPACE && cave_ptr->cptr == 0) {
             // Place_monster() should always return true here.
             if (place_monster(j, k, h, slp)) {
@@ -676,13 +683,13 @@ static bool summon(int *y, int *x, creature_handle h, int slp) {
 
 // Places creature adjacent to given location -RAK-
 bool summon_monster(int *y, int *x, int slp) {
-    creature_handle h = get_mons_num(dun_level + MON_SUMMON_ADJ);
+    creature_handle h = get_mons_num(dungeon_level() + MON_SUMMON_ADJ);
     return summon(y, x, h, slp);
 }
 
 // Places undead adjacent to given location -RAK-
 bool summon_undead(int *y, int *x) {
-    int l = m_level[MAX_MONS_LEVEL];
+    int l = monsters_up_to_level(MAX_MONS_LEVEL);
     creature_handle h;
 
     do {
@@ -711,14 +718,14 @@ static void compact_objects(void) {
     int cur_dis = 66;
 
     do {
-        for (int i = 0; i < cur_height; i++) {
-            for (int j = 0; j < cur_width; j++) {
+        for (int i = 0; i < dungeon_height(); i++) {
+            for (int j = 0; j < dungeon_width(); j++) {
                 int chance;
 
-                cave_type *cave_ptr = &cave[i][j];
+                cave_type *cave_ptr = square_at(i, j);
                 if ((cave_ptr->tptr != 0) &&
                     (distance(i, j, player_row(), player_col()) > cur_dis)) {
-                    switch (t_list[cave_ptr->tptr].tval) {
+                    switch (floor_item_at(cave_ptr->tptr)->tval) {
                     case TV_VIS_TRAP:
                         chance = 15;
                         break;
@@ -760,30 +767,32 @@ static void compact_objects(void) {
 
 // Gives pointer to next free space -RAK-
 int popt(void) {
-    if (tcptr == MAX_TALLOC) {
+    if (floor_items_is_full()) {
         compact_objects();
     }
-    return tcptr++;
+    return floor_items_claim_slot();
 }
 
 // Pushs a record back onto free space list -RAK-
 // Delete_object() should always be called instead, unless the object
 // in question is not in the dungeon, e.g. in store1.c and files.c
 void pusht(uint8_t x) {
-    if (x != tcptr - 1) {
-        t_list[x] = t_list[tcptr - 1];
+    const int last = floor_items_used() - 1;
+
+    if (x != last) {
+        *floor_item_at(x) = *floor_item_at(last);
 
         // must change the tptr in the cave of the object just moved
-        for (int i = 0; i < cur_height; i++) {
-            for (int j = 0; j < cur_width; j++) {
-                if (cave[i][j].tptr == tcptr - 1) {
-                    cave[i][j].tptr = x;
+        for (int i = 0; i < dungeon_height(); i++) {
+            for (int j = 0; j < dungeon_width(); j++) {
+                if (square_at(i, j)->tptr == last) {
+                    square_at(i, j)->tptr = x;
                 }
             }
         }
     }
-    tcptr--;
-    invcopy(&t_list[tcptr], OBJ_NOTHING);
+    // Blank the row that was just copied away and take the mark back one
+    floor_items_drop_last();
 }
 
 // Should the object be enchanted -RAK-

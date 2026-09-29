@@ -10,13 +10,19 @@
 
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_level.h"
+#include "dungeon_map.h"
+#include "dungeon_size.h"
 #include "constant.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "input_ended.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "level_exit.h"
 #include "missile_serial.h"
+#include "monster_list.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_light.h"
@@ -48,15 +54,15 @@ GameState *game_state_init(void) {
     // Point to existing global variables (for backward compatibility during migration)
     // These will eventually be moved into the GameState structure itself
     state->player = &py;
-    state->cave = cave;
-    state->monsters = m_list;
-    state->treasure = t_list;
+    state->cave = square_at(0, 0);
+    state->monsters = monster_list_at(0);
+    state->treasure = floor_item_at(0);
     state->inventory = inventory_and_equipment_at(0);
     state->stores = store_at(0);
     state->old_messages = msg_history_slots();
 
     // Initialize game metadata from existing globals
-    state->dungeon_level = dun_level;
+    state->dungeon_level = dungeon_level();
     state->turn = progress_turn();
     state->death = player_is_dead();
     state->wizard_mode = progress_wizard_mode();
@@ -117,13 +123,13 @@ GameState *game_state_init(void) {
     state->closing_flag = closing_flag;
 
     // Dungeon dimensions
-    state->cur_height = cur_height;
-    state->cur_width = cur_width;
+    state->cur_height = dungeon_height();
+    state->cur_width = dungeon_width();
     state->max_panel_rows = (int16_t)panel_max_row_index();
     state->max_panel_cols = (int16_t)panel_max_col_index();
 
     // Temporary
-    state->hack_monptr = hack_monptr;
+    state->hack_monptr = monster_turn_index();
     state->missile_ctr = missile_serial_value();
 
     // Set global instance

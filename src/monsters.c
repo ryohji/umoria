@@ -761,11 +761,40 @@ const char *monster_name_indefinite(vtype m_name, const creature_type *r_ptr) {
     return strcat(strcpy(m_name, article), r_ptr->name); // "The %s" | "an %s" | "a %s", r_ptr->name
 }
 
-monster_type m_list[MAX_MALLOC];
-int16_t m_level[MAX_MONS_LEVEL + 1];
+// m_list（この階にいるモンスターの表）はここに無い。#18-14-4C で
+// src/monster_list.c の static になった。窓口は src/monster_list.h
+// （monster_list_reset / monster_list_at / monster_list_used /
+//  set_monster_list_used / monster_list_is_full / monster_list_free_slots /
+//  monster_list_claim_slot / monster_list_drop_last）。**下の定義表とは別の
+// 表**で、あちらは「その種のモンスターとは何か」、こちらは「いまこの階に
+// 誰が立っているか」を言う。使っているところまでの印（mfptr）と 2 つで
+// 1 つの入れ物だった —— **行が詰まっているという約束**を、14 本の数えおろし
+// ループと消す道 2 本がそれぞれ手で組みなおしていた。
+
+// m_level（レベルごとのモンスター定義の索引）はここに無い。#18-14-2C で
+// src/monster_levels.c の static になった。窓口は src/monster_levels.h
+// （monster_levels_init / monsters_up_to_level / monsters_at_level /
+//  first_monster_at_level）。組みたてていた init_m_level() は main.c の
+// static で**テストから届かなかった** —— module に移して初めて数え上げが
+// 届いた（#18-10 の init_t_level() と同じ）。**上の定義表がレベルの昇順に
+// 書かれているという前提**がこの索引の土台で、それは
+// tests/monster_levels_test.c が全帯で見張っている。
 
 // Blank monster values
 monster_type blank_monster = {0, 0, 0, {0}, 0, 0, 0, false, 0, false};
 
-int16_t mfptr;        // Current free monster ptr
-int16_t mon_tot_mult; // # of repro's of creature
+// mfptr（表をどこまで使っているかの印）もここに無い。上の m_list と 2 つで
+// 1 つの入れ物なので、#18-14-4C で一緒に src/monster_list.c の static に
+// なった。印は「最後に埋まった行のひとつ先」で、行 0（モンスターなし）と
+// 行 1（プレイヤー）は配られないので MIN_MONIX（2）から始まる。
+
+// mon_tot_mult（この階で増えたモンスターの数）はここに無い。#18-14-3C で
+// src/monster_breeding.c の static になった。窓口は src/monster_breeding.h
+// （monster_breeding_reset / monster_breeding_allowed /
+//  monster_breeding_note_birth / monster_breeding_note_death ＋ セーブ用の
+//  2 本）。**上の定義表とは何の関係も無い階ごとの数**で、隣に置かれていた
+// だけだった（#18-14-2 の m_level も同じ置きかたで出ていった）。
+// 測って分かったことは header に書いた —— **許される出産は MAX_MON_MULT + 1
+// 回**（比較が `>=` なので 75 ではなく 76）、そして**これは「いま何体いるか」
+// でも「何体が生まれた子か」でもなく予算**（減るのは fix1_delete_monster() を
+// 通った 1 体だけで、生まれた子かどうかは訊かない）。

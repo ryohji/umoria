@@ -10,15 +10,16 @@
 #include "constant.h"
 #include "types.h"
 
+#include "dungeon_level.h"
 #include "level_exit.h"
 
 // No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
 // inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
 // player_light.c, missile_serial.c, inven_command_state.c and screen_touched.c:
-// one bit and one depth need nothing from the rest of the game. That leaves two
-// symbols to declare, so they are declared here rather than dragging in the
-// global header (which pulls ncurses along with it) for two lines -- the same
-// choice as stats.c and object_levels.c.
+// one bit needs nothing from the rest of the game. Until #18-14-6 there was one
+// hand-written extern below for the depth this unit writes, because the depth
+// was still a global; it has a window of its own now (dungeon_level.h), so there
+// is nothing left to declare here.
 
 // The flag is owned here and is static: the only way in is through the four
 // windows below. It came over from variable.c (#18-11-4C) with its initial value
@@ -28,18 +29,15 @@
 // eight setters meant "no next level, this one is simply over".
 static bool level_over = false;
 
-// The current depth stays a global for now: it is in another group (the dungeon
-// itself, 44 references) and is not what this unit is about. It is here because
-// leave_for_level() owns the pair -- see the header. Whoever encapsulates
-// dun_level takes this line over.
-extern int16_t dun_level;
-
 bool level_is_over(void) {
     return level_over;
 }
 
 void leave_for_level(int level) {
-    dun_level = (int16_t)level;
+    // The depth moved into src/dungeon_level.c at #18-14-6, which took over the
+    // hand-written extern that used to stand here: this unit owns the pair, not
+    // the number -- see the header.
+    set_dungeon_level(level);
 
     // Both halves of leaving, in one place: see the header for what goes wrong
     // when only one of them happens.

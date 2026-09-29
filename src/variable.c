@@ -34,9 +34,13 @@ const char *copyright[17] = {
     "You should have received a copy of the GNU General Public License ",
     "along with Umoria.  If not, see <http://www.gnu.org/licenses/>."};
 
-// a horrible hack: needed because compact_monster() can be called from
-// creatures() via summon_monster() and place_monster()
-int hack_monptr = -1;
+// hack_monptr（いま creatures() が誰の手番を処理しているか）はここに無い。
+// #18-14-1C で src/monster_turn.c の static になった。窓口は
+// src/monster_turn.h（monster_turn_begin / monster_turn_end /
+//  monster_delete_may_shift / monster_turn_index）。読み手 2 つが
+// `hack_monptr < i` と手で書いていた比較には名前が付いた ——
+// 「その席を詰めなおしてよいか」。上流の「horrible hack」の註は
+// 呼び手（misc1.c と moria3.c）と窓口の記録に残っている。
 
 // weapon_heavy と pack_heavy（重さに負けているか）はここに無い。#18-7-4C1 で
 // src/burden.c の static になった。窓口は src/burden.h
@@ -60,8 +64,20 @@ int hack_monptr = -1;
 // are still there. That handle is never read and never closed -- recorded as
 // bug candidate B19, not changed here.
 FILE *highscore_fp;               // File pointer to high score file
-int16_t cur_height, cur_width;    // Cur dungeon size
-int16_t dun_level = 0;            // Cur dungeon level
+// How tall and how wide this level is moved to dungeon_size.c (#18-14-5C).
+// The windows are in dungeon_size.h. It was the only line here that said
+// anything about the shape of a level, and it was two names for one thing: a
+// size. Both writers set both halves one after the other and the readers took
+// them in pairs, so the window that sets them takes both -- there is no longer
+// a way to change half of a size. The pair only ever holds one of two values,
+// the town's 22 by 66 or a dungeon level's 66 by 198.
+// Which level the game is on now moved to dungeon_level.c (#18-14-6C). The
+// windows are in dungeon_level.h. It was one of the few lines here with an
+// initializer of its own, and the zero was not an empty container but a place:
+// a new game starts in the town. Six of its thirty readers were asking the same
+// question -- am I in the town? -- in three different spellings, and they ask
+// one window now. **Nothing here says which level the game is on, or how big it
+// is, any more.**
 // The serial number that tells one batch of missiles from another moved to
 // missile_serial.c (#18-11-2C). The window is in missile_serial.h
 //
@@ -119,7 +135,11 @@ int closing_flag = 0; // Used for closing
 // that follow from it) moved to panel.c, next to the arithmetic that derives
 // one from the other
 
-cave_type cave[MAX_HEIGHT][MAX_WIDTH];
+// cave is not here either. Every square of the level -- what it is made of,
+// which monster stands on it, which thing lies on it, and the four light bits
+// -- is private to dungeon_map.c now, handed out one square at a time through
+// src/dungeon_map.h. It was the last of the eleven dungeon globals, and the
+// biggest: 258 references in fifteen files.
 
 static recall_type c_recall[MAX_CREATURES]; // Monster memories
 

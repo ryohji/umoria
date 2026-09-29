@@ -27,9 +27,9 @@ struct GameState {
     player_type *player;  // Player data (points to existing py global for now)
 
     // World state
-    cave_type (*cave)[MAX_WIDTH];  // Dungeon map (points to existing cave global)
-    monster_type *monsters;         // Monster list (points to existing m_list)
-    inven_type *treasure;           // Treasure list (points to existing t_list)
+    cave_type *cave;                // Dungeon map (square (0,0) of dungeon_map.c's table)
+    monster_type *monsters;         // Monster list (row 0 of monster_list.c's table)
+    inven_type *treasure;           // Floor items (row 0 of floor_items.c's table)
     inven_type *inventory;          // Player inventory
     store_type *stores;             // Store data
 
@@ -91,7 +91,7 @@ struct GameState {
     bool wait_for_more;    // Waiting for user
     int closing_flag;      // Game closing
 
-    // Dungeon dimensions
+    // Dungeon dimensions (a copy of dungeon_size.c's pair)
     int16_t cur_height;
     int16_t cur_width;
     int16_t max_panel_rows;

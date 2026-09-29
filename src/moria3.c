@@ -14,11 +14,17 @@
 #include "types.h"
 
 #include "externs.h"
+#include "floor_items.h"
 #include "command_state.h"
+#include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "score_death.h"
 #include "equipment.h"
 #include "inventory.h"
 #include "level_exit.h"
+#include "monster_breeding.h"
+#include "monster_list.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
@@ -44,8 +50,8 @@ static void hit_trap(int y, int x) {
     end_find();
     change_trap(y, x);
 
-    cave_type *c_ptr = &cave[y][x];
-    inven_type *t_ptr = &t_list[c_ptr->tptr];
+    cave_type *c_ptr = square_at(y, x);
+    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
     int dam = pdamroll(t_ptr->damage);
 
@@ -81,7 +87,7 @@ static void hit_trap(int y, int x) {
         break;
     case 4: // Trap door
         msg_print("You fell through a trap door!");
-        leave_for_level(dun_level + 1);
+        leave_for_level(dungeon_level() + 1);
         if (player_takes_no_falling_damage()) {
             msg_print("You gently float down.");
         } else {
@@ -276,10 +282,10 @@ static void carry(int y, int x, bool pickup) {
     msgtype out_val;
     bigvtype tmp_str;
 
-    cave_type *c_ptr = &cave[y][x];
-    inven_type *i_ptr = &t_list[c_ptr->tptr];
+    cave_type *c_ptr = square_at(y, x);
+    inven_type *i_ptr = floor_item_at(c_ptr->tptr);
 
-    int i = t_list[c_ptr->tptr].tval;
+    int i = floor_item_at(c_ptr->tptr)->tval;
     if (i <= TV_MAX_PICK_UP) {
         end_find();
 
@@ -345,41 +351,39 @@ void delete_monster(int j) {
 
 // The following two procedures implement the same function as delete monster.
 // However, they are used within creatures(), because deleting a monster
-// while scanning the m_list causes two problems, monsters might get two
+// while scanning the monster list causes two problems, monsters might get two
 // turns, and m_ptr/monptr might be invalid after the delete_monster.
 // Hence the delete is done in two steps.
 //
 // fix1_delete_monster does everything delete_monster does except delete
-// the monster record and reduce mfptr, this is called in breathe, and
+// the monster record and take the mark back, this is called in breathe, and
 // a couple of places in creatures.c
 void fix1_delete_monster(int j) {
-    monster_type *const m_ptr = m_list + j;
+    monster_type *const m_ptr = monster_list_at(j);
 
     // force the hp negative to ensure that the monster is dead, for example,
     // if the monster was just eaten by another, it will still have positive
     // hit points
     m_ptr->hp = -1;
-    cave[m_ptr->fy][m_ptr->fx].cptr = 0;
+    square_at(m_ptr->fy, m_ptr->fx)->cptr = 0;
     if (m_ptr->ml) {
         lite_spot(m_ptr->fy, m_ptr->fx);
     }
-    if (mon_tot_mult > 0) {
-        mon_tot_mult -= 1;
-    }
+    monster_breeding_note_death();
 }
 
 // fix2_delete_monster does everything in delete_monster that wasn't done
 // by fix1_monster_delete above, this is only called in creatures()
 void fix2_delete_monster(int j) {
-    monster_type *const m_ptr = m_list + j;
-    monster_type *const the_last = m_list + mfptr - 1;
+    monster_type *const m_ptr = monster_list_at(j);
+    monster_type *const the_last = monster_list_at(monster_list_used() - 1);
 
     if (m_ptr != the_last) {
-        cave[the_last->fy][the_last->fx].cptr = j;
+        square_at(the_last->fy, the_last->fx)->cptr = j;
         *m_ptr = *the_last;
     }
-    *the_last = blank_monster;
-    mfptr -= 1;
+    // Blank the row that was just copied away and take the mark back one
+    monster_list_drop_last();
 }
 
 // Creates objects nearby the coordinates given -RAK-
@@ -401,7 +405,7 @@ static int summon_object(int y, int x, int num, int typ) {
             int k = x - 3 + randint(5);
 
             if (in_bounds(j, k) && los(y, x, j, k)) {
-                cave_type *c_ptr = &cave[j][k];
+                cave_type *c_ptr = square_at(j, k);
 
                 if (c_ptr->fval <= MAX_OPEN_SPACE && (c_ptr->tptr == 0)) {
                     // typ == 3 -> 50% objects, 50% gold
@@ -435,7 +439,7 @@ static int summon_object(int y, int x, int num, int typ) {
 
 // Deletes object from given location -RAK-
 int delete_object(int y, int x) {
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
 
     if (c_ptr->fval == BLOCKED_FLOOR) {
         c_ptr->fval = CORR_FLOOR;
@@ -536,7 +540,7 @@ uint32_t monster_death(int y, int x, uint32_t flags) {
 // Decreases monsters hit points and deletes monster if needed.
 // (Picking on my babies.) -RAK-
 int mon_take_hit(int monptr, int dam) {
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->hp -= dam;
     m_ptr->csleep = 0;
@@ -561,8 +565,8 @@ int mon_take_hit(int monptr, int dam) {
         player_gain_shared_experience((int32_t)r_ptr->mexp * r_ptr->level);
 
         // in case this is called from within creatures(), this is a horrible
-        // hack, the m_list/creatures() code needs to be rewritten.
-        if (hack_monptr < monptr) {
+        // hack, the monster-list/creatures() code needs to be rewritten.
+        if (monster_delete_may_shift(monptr)) {
             delete_monster(monptr);
         } else {
             fix1_delete_monster(monptr);
@@ -574,8 +578,8 @@ int mon_take_hit(int monptr, int dam) {
 
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {
-    const int crptr = cave[y][x].cptr;
-    monster_type *const m_ptr = m_list + crptr;
+    const int crptr = square_at(y, x)->cptr;
+    monster_type *const m_ptr = monster_list_at(crptr);
     const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
     m_ptr->csleep = 0;
     inven_type *i_ptr = equipment_at(INVEN_WIELD);
@@ -700,7 +704,7 @@ void move_char(int dir, bool do_pickup) {
 
     // Legal move?
     if (mmove(dir, &y, &x)) {
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         // if there is no creature, or an unlit creature in the walls then...
         // disallow attacks against unlit creatures in walls because moving into
@@ -708,7 +712,7 @@ void move_char(int dir, bool do_pickup) {
         // attacking each wall in an attempt to locate the invisible creature,
         // instead force player to tunnel into walls which always takes a turn
         if ((c_ptr->cptr < 2) ||
-            (!m_list[c_ptr->cptr].ml && c_ptr->fval >= MIN_CLOSED_SPACE)) {
+            (!monster_list_at(c_ptr->cptr)->ml && c_ptr->fval >= MIN_CLOSED_SPACE)) {
             // Open floor spot
             if (c_ptr->fval <= MAX_OPEN_SPACE) {
                 // Make final assignments of char co-ords
@@ -752,7 +756,7 @@ void move_char(int dir, bool do_pickup) {
                 else if (c_ptr->lr && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                     for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {
                         for (int j = (player_col() - 1); j <= (player_col() + 1); j++) {
-                            cave_type *d_ptr = &cave[i][j];
+                            cave_type *d_ptr = square_at(i, j);
 
                             if ((d_ptr->fval == LIGHT_FLOOR) && (!d_ptr->pl)) {
                                 light_room(i, j);
@@ -770,16 +774,16 @@ void move_char(int dir, bool do_pickup) {
 
                     // if stepped on falling rock trap, and space contains
                     // rubble, then step back into a clear area
-                    if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
+                    if (floor_item_at(c_ptr->tptr)->tval == TV_RUBBLE) {
                         move_rec(player_row(), player_col(), old_row, old_col);
                         move_light(player_row(), player_col(), old_row, old_col);
                         player_place(old_row, old_col);
 
                         // check to see if we have stepped back onto another
                         // trap, if so, set it off
-                        c_ptr = &cave[player_row()][player_col()];
+                        c_ptr = square_at(player_row(), player_col());
                         if (c_ptr->tptr != 0) {
-                            int i = t_list[c_ptr->tptr].tval;
+                            int i = floor_item_at(c_ptr->tptr)->tval;
                             if (i == TV_INVIS_TRAP || i == TV_VIS_TRAP ||
                                 i == TV_STORE_DOOR) {
                                 hit_trap(player_row(), player_col());
@@ -791,9 +795,9 @@ void move_char(int dir, bool do_pickup) {
                 // Can't move onto floor space
 
                 if (!player_is_running() && (c_ptr->tptr != 0)) {
-                    if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
+                    if (floor_item_at(c_ptr->tptr)->tval == TV_RUBBLE) {
                         msg_print("There is rubble blocking your way.");
-                    } else if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
+                    } else if (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR) {
                         msg_print("There is a closed door blocking your way.");
                     }
                 } else {
@@ -808,7 +812,7 @@ void move_char(int dir, bool do_pickup) {
             end_find();
 
             // if player can see monster, and was in find mode, then nothing
-            if (m_list[c_ptr->cptr].ml && was_running) {
+            if (monster_list_at(c_ptr->cptr)->ml && was_running) {
                 // did not do anything this turn
                 free_turn_flag = true;
             } else {
@@ -826,7 +830,7 @@ void move_char(int dir, bool do_pickup) {
 // Chests have traps too. -RAK-
 // Note: Chest traps are based on the FLAGS value
 void chest_trap(int y, int x) {
-    inven_type *t_ptr = &t_list[cave[y][x].tptr];
+    inven_type *t_ptr = floor_item_at(square_at(y, x)->tptr);
 
     if (CH_LOSE_STR & t_ptr->flags) {
         msg_print("A small needle has pricked you!");
@@ -876,15 +880,15 @@ void openobject(void) {
         (void)mmove(dir, &y, &x);
 
         bool no_object = false;
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
-        if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR || t_list[c_ptr->tptr].tval == TV_CHEST)) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+        if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR || floor_item_at(c_ptr->tptr)->tval == TV_CHEST)) {
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
         } else if (c_ptr->tptr != 0) {
             // Closed door
-            if (t_list[c_ptr->tptr].tval == TV_CLOSED_DOOR) {
-                inven_type *t_ptr = &t_list[c_ptr->tptr];
+            if (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR) {
+                inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
                 // It's locked.
                 if (t_ptr->p1 > 0) {
@@ -904,17 +908,17 @@ void openobject(void) {
                     msg_print("It appears to be stuck.");
                 }
                 if (t_ptr->p1 == 0) {
-                    invcopy(&t_list[c_ptr->tptr], OBJ_OPEN_DOOR);
+                    invcopy(floor_item_at(c_ptr->tptr), OBJ_OPEN_DOOR);
                     c_ptr->fval = CORR_FLOOR;
                     lite_spot(y, x);
                     cancel_command_count();
                 }
-            } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
+            } else if (floor_item_at(c_ptr->tptr)->tval == TV_CHEST) {
                 // Open a closed chest.
 
                 int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
 
-                inven_type *t_ptr = &t_list[c_ptr->tptr];
+                inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
                 bool flag = false;
 
@@ -953,9 +957,9 @@ void openobject(void) {
                 if (flag) {
                     // clear the cursed chest/monster win flag, so that people
                     // can not win by opening a cursed chest
-                    t_list[c_ptr->tptr].flags &= ~TR_CURSED;
-                    (void)monster_death(y, x, t_list[c_ptr->tptr].flags);
-                    t_list[c_ptr->tptr].flags = 0;
+                    floor_item_at(c_ptr->tptr)->flags &= ~TR_CURSED;
+                    (void)monster_death(y, x, floor_item_at(c_ptr->tptr)->flags);
+                    floor_item_at(c_ptr->tptr)->flags = 0;
                 }
             } else {
                 no_object = true;
@@ -980,22 +984,22 @@ void closeobject(void) {
     if (get_dir(CNIL, &dir)) {
         (void)mmove(dir, &y, &x);
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         bool no_object = false;
 
         if (c_ptr->tptr != 0) {
-            if (t_list[c_ptr->tptr].tval == TV_OPEN_DOOR) {
+            if (floor_item_at(c_ptr->tptr)->tval == TV_OPEN_DOOR) {
                 if (c_ptr->cptr == 0) {
-                    if (t_list[c_ptr->tptr].p1 == 0) {
-                        invcopy(&t_list[c_ptr->tptr], OBJ_CLOSED_DOOR);
+                    if (floor_item_at(c_ptr->tptr)->p1 == 0) {
+                        invcopy(floor_item_at(c_ptr->tptr), OBJ_CLOSED_DOOR);
                         c_ptr->fval = BLOCKED_FLOOR;
                         lite_spot(y, x);
                     } else {
                         msg_print("The door appears to be broken.");
                     }
                 } else {
-                    monster_type *m_ptr = &m_list[c_ptr->cptr];
+                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                     msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
                 }
             } else {
@@ -1019,7 +1023,7 @@ int twall(int y, int x, int t1, int t2) {
     bool res = false;
 
     if (t1 > t2) {
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if (c_ptr->lr) {
             // Should become a room space, check to see whether
@@ -1028,9 +1032,9 @@ int twall(int y, int x, int t1, int t2) {
 
             for (int i = y - 1; i <= y + 1; i++) {
                 for (int j = x - 1; j <= x + 1; j++) {
-                    if (cave[i][j].fval <= MAX_CAVE_ROOM) {
-                        c_ptr->fval = cave[i][j].fval;
-                        c_ptr->pl = cave[i][j].pl;
+                    if (square_at(i, j)->fval <= MAX_CAVE_ROOM) {
+                        c_ptr->fval = square_at(i, j)->fval;
+                        c_ptr->pl = square_at(i, j)->pl;
                         found = true;
                         break;
                     }

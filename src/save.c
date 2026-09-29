@@ -16,12 +16,18 @@
 
 #include "burden.h"
 #include "externs.h"
+#include "floor_items.h"
+#include "dungeon_level.h"
+#include "dungeon_map.h"
+#include "dungeon_size.h"
 #include "equipment.h"
 #include "hp_table.h"
 #include "input_ended.h"
 #include "inventory.h"
 #include "item_ident.h"
 #include "missile_serial.h"
+#include "monster_breeding.h"
+#include "monster_list.h"
 #include "panel.h"
 #include "messages.h"
 #include "player_abilities.h"
@@ -331,18 +337,18 @@ static bool sv_write(void) {
         return true;
     }
 
-    wr_short((uint16_t)dun_level);
+    wr_short((uint16_t)dungeon_level());
     wr_short((uint16_t)player_row());
     wr_short((uint16_t)player_col());
-    wr_short((uint16_t)mon_tot_mult);
-    wr_short((uint16_t)cur_height);
-    wr_short((uint16_t)cur_width);
+    wr_short((uint16_t)monster_breeding_count());
+    wr_short((uint16_t)dungeon_height());
+    wr_short((uint16_t)dungeon_width());
     wr_short((uint16_t)panel_max_row_index());
     wr_short((uint16_t)panel_max_col_index());
 
     for (int i = 0; i < MAX_HEIGHT; i++) {
         for (int j = 0; j < MAX_WIDTH; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->cptr != 0) {
                 wr_byte((uint8_t)i);
                 wr_byte((uint8_t)j);
@@ -356,7 +362,7 @@ static bool sv_write(void) {
 
     for (int i = 0; i < MAX_HEIGHT; i++) {
         for (int j = 0; j < MAX_WIDTH; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->tptr != 0) {
                 wr_byte((uint8_t)i);
                 wr_byte((uint8_t)j);
@@ -374,7 +380,7 @@ static bool sv_write(void) {
 
     for (int i = 0; i < MAX_HEIGHT; i++) {
         for (int j = 0; j < MAX_WIDTH; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             uint8_t char_tmp = c_ptr->fval | (c_ptr->lr << 4) | (c_ptr->fm << 5) | (c_ptr->pl << 6) | (c_ptr->tl << 7);
 
@@ -393,13 +399,13 @@ static bool sv_write(void) {
     wr_byte((uint8_t)count);
     wr_byte(prev_char);
 
-    wr_short((uint16_t)tcptr);
-    for (int i = MIN_TRIX; i < tcptr; i++) {
-        wr_item(&t_list[i]);
+    wr_short((uint16_t)floor_items_used());
+    for (int i = MIN_TRIX; i < floor_items_used(); i++) {
+        wr_item(floor_item_at(i));
     }
-    wr_short((uint16_t)mfptr);
-    for (int i = MIN_MONIX; i < mfptr; i++) {
-        wr_monster(&m_list[i]);
+    wr_short((uint16_t)monster_list_used());
+    for (int i = MIN_MONIX; i < monster_list_used(); i++) {
+        wr_monster(monster_list_at(i));
     }
 
     if (ferror(fileptr) || (fflush(fileptr) == EOF)) {
@@ -994,7 +1000,7 @@ bool get_char(bool *generate) {
                 // don't let him die of poison again immediately
                 player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
 
-                dun_level = 0; // Resurrect on the town level.
+                set_dungeon_level(0); // Resurrect on the town level.
                 set_character_generated(true);
 
                 // set noscore to indicate a resurrection, and don't enter
@@ -1020,16 +1026,29 @@ bool get_char(bool *generate) {
         // only level specific info should follow,
         // not present for dead characters
 
-        rd_short((uint16_t *)&dun_level);
+        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた
+        // （この global の別名はこの 1 か所だけ）。下の 2 つと同じ形。
+        uint16_t dungeon_level_read;
+        rd_short(&dungeon_level_read);
+        set_dungeon_level((int16_t)dungeon_level_read);
         uint16_t char_row_read, char_col_read;
         rd_short(&char_row_read);
         rd_short(&char_col_read);
         // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた。
         // 同じ値を渡すために int16_t を通す（panel の 2 つと同じ形）。
         player_place((int16_t)char_row_read, (int16_t)char_col_read);
-        rd_short((uint16_t *)&mon_tot_mult);
-        rd_short((uint16_t *)&cur_height);
-        rd_short((uint16_t *)&cur_width);
+        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた
+        // （この global の別名はこの 1 か所だけ）。上の 2 つと同じ形。
+        uint16_t mon_tot_mult_read;
+        rd_short(&mon_tot_mult_read);
+        set_monster_breeding_count((int16_t)mon_tot_mult_read);
+        // 変更前は int16_t のグローバル 2 つへポインタ型を偽って直に読んでいた
+        // （この対の別名はこの 2 か所だけ）。上の 2 つと同じ形。**窓口は
+        // 両方を取る 1 本**なので、半分だけ置きなおす道がそもそも無い。
+        uint16_t level_height_read, level_width_read;
+        rd_short(&level_height_read);
+        rd_short(&level_width_read);
+        set_dungeon_size((int16_t)level_height_read, (int16_t)level_width_read);
         uint16_t max_panel_rows_read, max_panel_cols_read;
         rd_short(&max_panel_rows_read);
         rd_short(&max_panel_cols_read);
@@ -1048,7 +1067,7 @@ bool get_char(bool *generate) {
             if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
                 goto error;
             }
-            cave[ychar][xchar].cptr = char_tmp;
+            square_at(ychar, xchar)->cptr = char_tmp;
             rd_byte(&char_tmp);
         }
 
@@ -1061,49 +1080,60 @@ bool get_char(bool *generate) {
             if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
                 goto error;
             }
-            cave[ychar][xchar].tptr = char_tmp;
+            square_at(ychar, xchar)->tptr = char_tmp;
             rd_byte(&char_tmp);
         }
 
-        // read in the rest of the cave info
-        cave_type *c_ptr = &cave[0][0];
-
-        // 番地としては &cave[MAX_HEIGHT][0] と同じだが、そう書くと存在しない
-        // 行 MAX_HEIGHT の添字を書くことになる（-Warray-bounds）。cave は
-        // 行の配列なので、末尾のひとつ先は行の側で数える。
-        const cave_type *const cave_end = (const cave_type *)END_OF(cave);
-
+        // read in the rest of the fval / light bits, run-length encoded
+        //
+        // ファイルの中ではマスが行優先の 1 本の並びになっているので、
+        // **これまでに置いた数がそのまま次のマスの番地になる** ——
+        // n 番めは (n / MAX_WIDTH, n % MAX_WIDTH)。変更前は表の上をポインタ
+        // 1 本で走らせ、END_OF() で作った末尾と比べて行きすぎを見ていた
+        // （「番地としては &cave[MAX_HEIGHT][0] だが、そう書くと存在しない
+        // 行の添字になる（-Warray-bounds）」という註つきで）。表が 1 枚の
+        // 連続した領域だという約束は src/dungeon_map.c の持ちものになったので、
+        // ここは数だけで書ける（#18-14-8）。
         int total_count = 0;
         while (total_count != MAX_HEIGHT * MAX_WIDTH) {
             rd_byte(&count);
             rd_byte(&char_tmp);
             for (int i = count; i > 0; i--) {
-                if (c_ptr >= cave_end) {
+                if (total_count >= MAX_HEIGHT * MAX_WIDTH) {
                     goto error;
                 }
+                cave_type *c_ptr =
+                    square_at(total_count / MAX_WIDTH, total_count % MAX_WIDTH);
                 c_ptr->fval = char_tmp & 0xF;
                 c_ptr->lr = (char_tmp >> 4) & 0x1;
                 c_ptr->fm = (char_tmp >> 5) & 0x1;
                 c_ptr->pl = (char_tmp >> 6) & 0x1;
                 c_ptr->tl = (char_tmp >> 7) & 0x1;
-                c_ptr++;
+                total_count++;
             }
-            total_count += count;
         }
 
-        rd_short((uint16_t *)&tcptr);
-        if (tcptr > MAX_TALLOC) {
+        // The two marks below are put back before they are checked, exactly
+        // as the old `rd_short((uint16_t *)&tcptr)` and `&mfptr` did -- a file
+        // claiming more rows than the table holds leaves the mark bogus and
+        // then fails the load.
+        uint16_t floor_used;
+        rd_short(&floor_used);
+        set_floor_items_used((int16_t)floor_used);
+        if (floor_items_used() > MAX_TALLOC) {
             goto error;
         }
-        for (int i = MIN_TRIX; i < tcptr; i++) {
-            rd_item(&t_list[i]);
+        for (int i = MIN_TRIX; i < floor_items_used(); i++) {
+            rd_item(floor_item_at(i));
         }
-        rd_short((uint16_t *)&mfptr);
-        if (mfptr > MAX_MALLOC) {
+        uint16_t monsters_used;
+        rd_short(&monsters_used);
+        set_monster_list_used((int16_t)monsters_used);
+        if (monster_list_used() > MAX_MALLOC) {
             goto error;
         }
-        for (int i = MIN_MONIX; i < mfptr; i++) {
-            rd_monster(&m_list[i]);
+        for (int i = MIN_MONIX; i < monster_list_used(); i++) {
+            rd_monster(monster_list_at(i));
         }
 
         *generate = false; // We have restored a cave - no need to generate.

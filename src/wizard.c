@@ -14,6 +14,9 @@
 #include "types.h"
 
 #include "externs.h"
+#include "dungeon_map.h"
+#include "dungeon_size.h"
+#include "floor_items.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
 #include "player_disarm.h"
@@ -29,18 +32,18 @@
 void wizard_light(void) {
     bool flag;
 
-    if (cave[player_row()][player_col()].pl) {
+    if (square_at(player_row(), player_col())->pl) {
         flag = false;
     } else {
         flag = true;
     }
 
-    for (int i = 0; i < cur_height; i++) {
-        for (int j = 0; j < cur_width; j++) {
-            if (cave[i][j].fval <= MAX_CAVE_FLOOR) {
+    for (int i = 0; i < dungeon_height(); i++) {
+        for (int j = 0; j < dungeon_width(); j++) {
+            if (square_at(i, j)->fval <= MAX_CAVE_FLOOR) {
                 for (int k = i - 1; k <= i + 1; k++) {
                     for (int l = j - 1; l <= j + 1; l++) {
-                        cave_type *c_ptr = &cave[k][l];
+                        cave_type *c_ptr = square_at(k, l);
                         c_ptr->pl = flag;
 
                         if (!flag) {
@@ -406,13 +409,13 @@ void wizard_create(void) {
 
     if (get_check("Allocate?")) {
         // delete object first if any, before call popt
-        cave_type *c_ptr = &cave[player_row()][player_col()];
+        cave_type *c_ptr = square_at(player_row(), player_col());
         if (c_ptr->tptr != 0) {
             (void)delete_object(player_row(), player_col());
         }
 
         tmp_val = popt();
-        t_list[tmp_val] = forge;
+        *floor_item_at(tmp_val) = forge;
         c_ptr->tptr = tmp_val;
         msg_print("Allocated.");
     } else {

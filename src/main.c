@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "input_ended.h"
 #include "inventory.h"
+#include "monster_levels.h"
 #include "object_levels.h"
 #include "options.h"
 #include "player_class.h"
@@ -28,7 +29,6 @@
 #include "platform.h"
 
 static void char_inven_init(void);
-static void init_m_level(void);
 
 #if (COST_ADJ != 100)
 static void price_adjust();
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
     init_seeds(seed);
 
     // Init monster and treasure levels for allocate
-    init_m_level();
+    monster_levels_init();
     object_levels_init();
 
     // Init the store inventories
@@ -259,25 +259,6 @@ static void char_inven_init(void) {
 
     // wierd place for it, but why not?
     spell_order_forget_all();
-}
-
-// Initializes M_LEVEL array for use with PLACE_MONSTER -RAK-
-static void init_m_level(void) {
-    for (int i = 0; i <= MAX_MONS_LEVEL; i++) {
-        m_level[i] = 0;
-    }
-
-    const creature_rev_iterator end = monster_creature_rend();
-    for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
-        const uint8_t level = monster_creature_rget(it)->level;
-        if (level <= MAX_MONS_LEVEL) {
-            m_level[level] += 1;
-        }
-    }
-
-    for (int i = 1; i <= MAX_MONS_LEVEL; i++) {
-        m_level[i] += m_level[i - 1];
-    }
 }
 
 #if (COST_ADJ != 100)

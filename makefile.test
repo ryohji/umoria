@@ -60,7 +60,10 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         player_base_to_hit_test player_disarm_test \
         player_saving_throw_test player_race_test player_body_weight_test \
         player_attack_bonuses_test player_search_skill_test \
-        player_bio_test player_stealth_test player_class_test
+        player_bio_test player_stealth_test player_class_test \
+        monster_turn_test monster_levels_test monster_breeding_test \
+        monster_list_test dungeon_size_test dungeon_level_test \
+        floor_items_test dungeon_map_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -263,7 +266,7 @@ $(BUILDDIR)/item_ident_test: $(TESTDIR)/item_ident_test.c $(TESTDIR)/fixture.c \
 $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                               $(TESTDIR)/misc3_stubs.c \
                               $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                              src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                              src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                               src/pending_teleport.c src/pending_teleport.h \
                               src/tables.c src/inventory.c \
                               src/treasure.c src/player.c src/abilities.c \
@@ -291,7 +294,7 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/inven_stack_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -358,7 +361,7 @@ $(BUILDDIR)/inven_stack_test: $(TESTDIR)/inven_stack_test.c \
 $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -387,7 +390,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/put_misc3_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -413,7 +416,7 @@ $(BUILDDIR)/put_misc3_test: $(TESTDIR)/put_misc3_test.c \
 $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -443,7 +446,7 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/object_levels_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -502,7 +505,7 @@ $(BUILDDIR)/object_levels_test: $(TESTDIR)/object_levels_test.c \
 $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  $(TESTDIR)/misc3_stubs.c \
                                  $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                                 src/store2.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c \
+                                 src/store2.c src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c \
                                  src/pending_teleport.c src/pending_teleport.h \
                                  src/str_insert.c src/desc.c \
                                  src/tables.c src/inventory.c \
@@ -535,7 +538,7 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
                                  src/player_class.c src/player_class.h \
                                  src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/haggle_comment_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c src/messages.c \
 	    src/stores.c src/progress.c src/score_death.c src/save_state.c \
@@ -605,6 +608,27 @@ $(BUILDDIR)/haggle_comment_test: $(TESTDIR)/haggle_comment_test.c \
 # 戻ってくる 1 本** —— 25 つめまでの 8 単位はどれも払わせなかった（creature.c は
 # 人物の身上書きも探索の腕も読まない）。#18-12-27C で置き場も static に入る。
 #
+# #18-14-1B で creature.c が「いま誰の手番か」を窓口越しに開け閉めするように
+# なったので src/monster_turn.c もリンクする。**この単位の税はこの 1 本だけ** ——
+# 窓口を呼ぶ 4 ファイルのうち、misc1.c・moria3.c・game_state.c は**どの
+# recipe にも出てこない**（distance_test は misc1.c の distance() をテスト側の
+# 宣言だけで呼び、実装をリンクしない）。**置き場の引っこしも B で済んでいる**
+# ので、C では variable.c の古い 1 行を消すだけ（足場は要らない）。
+#
+# **「代役も要らない」と書いたのは誤りだった** —— creature_stubs.c には
+# `int hack_monptr;` の代役があり、B で置き場が module に入った時点で死んだ
+# 定義になっていたのに、#18-14-1C で消し忘れた（2026-09-28 に掃除した）。
+# **置き場が A の段で module に入る形（所見 52）では、代役は B の時点で
+# 死ぬ。リンクは通るので何も知らせない** —— C の手順に「代役を探す」を
+# 必ず入れる（`grep -n <名前> tests/*_stubs.c fixture.c`）。
+#
+# #18-14-3B で creature.c が「この階でもう 1 体増やしてよいか」を窓口越しに
+# 訊き、生まれた 2 か所を窓口で数えるようになったので src/monster_breeding.c も
+# リンクする。**この単位の税は 3 本** —— この 1 本と、src/save.c を丸ごと
+# 取りこむ save_bool_test・store_save_test。窓口を呼ぶ 4 ファイルのうち
+# dungeon.c と moria3.c は**どの recipe にも出てこない**（下調べの見積りは
+# 4 本で、また「名前が出るファイル」を数えていた）。
+#
 # #18-11-6B で creature.c が「走っているか」を窓口越しに訊くようになったので
 # src/running.c もリンクする（6 → 7 コンパイル単位）。この段では実体はまだ
 # variable.c にあり、running.c は extern 宣言で見にいく。その器は
@@ -619,6 +643,11 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
                                 src/player_pos.c src/player_light.c \
                                 src/screen_touched.c src/screen_touched.h \
                                 src/running.c src/running.h \
+                                src/monster_turn.c src/monster_turn.h \
+                                src/monster_breeding.c src/monster_breeding.h \
+                                src/monster_list.c src/monster_list.h \
+                                src/floor_items.c src/floor_items.h \
+                                src/dungeon_map.c src/dungeon_map.h \
                                 src/player_level.c src/player_level.h \
                                 src/player_status_flags.c src/player_status_flags.h \
                                 src/player_abilities.c src/player_abilities.h \
@@ -631,7 +660,9 @@ $(BUILDDIR)/movement_rate_test: $(TESTDIR)/movement_rate_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/movement_rate_test.c \
 	    $(TESTDIR)/creature_stubs.c src/player_gold.c src/player_mana.c src/inventory.c src/progress.c \
 	    src/score_death.c src/player_pos.c src/player_light.c \
-	    src/screen_touched.c src/running.c \
+	    src/screen_touched.c src/running.c src/monster_turn.c \
+	    src/monster_breeding.c src/monster_list.c src/floor_items.c \
+	    src/dungeon_map.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_infra_range.c src/player_glowing_hands.c \
@@ -667,7 +698,7 @@ $(BUILDDIR)/stat_bonus_test: $(TESTDIR)/stat_bonus_test.c \
 $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                          $(TESTDIR)/misc3_stubs.c \
                          $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                         src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                         src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                          src/pending_teleport.c src/pending_teleport.h \
                          src/tables.c src/inventory.c \
                          src/treasure.c src/player.c \
@@ -695,7 +726,7 @@ $(BUILDDIR)/objdes_test: $(TESTDIR)/objdes_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/objdes_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -804,6 +835,11 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # #18-12-2B で save.c が「腹の具合」を src/player_food.h の窓口越しに読み書き
 # するようになったので src/player_food.c も付いてくる（実体はまだ py の中で、
 # その py は player.c 本物でリンクしているので足場は要らない）。
+# #18-14-3B で save.c が「この階で増えたモンスターは何体か」を
+# src/monster_breeding.h の窓口越しに読み書きするようになったので
+# src/monster_breeding.c も付いてくる。**この global の別名 1 件
+# （`rd_short((uint16_t *)&mon_tot_mult)`）がここで消えた** —— 局所の uint16_t を
+# 通して渡す形（居場所 2 個・panel 2 個と同じ）。
 # **この 2 本は src/save.c を「丸ごと #include」する形なので、リンク行を grep
 # しても出てこない。** タブ始まりの recipe だけを数えると見落とす（実際に
 # undefined reference 2 件で落ちた）。**そのうえ軸の src/save.c は依存行に
@@ -811,7 +847,9 @@ $(BUILDDIR)/creature_iterator_test: $(TESTDIR)/creature_iterator_test.c \
 # （src/save.c の隣を真似ると依存行にしか入らない）。
 $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
-                            src/save.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
+                            src/save.c src/floor_items.c src/floor_items.h \
+                            src/dungeon_map.c src/dungeon_map.h \
+                            src/player_display_numbers.c src/player_gold.c src/player_food.c \
                             src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h \
                             src/variable.c src/tables.c \
                             src/treasure.c src/player.c src/monsters.c \
@@ -822,6 +860,10 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
                             src/hp_table.c src/burden.c \
                             src/spells_known.c src/item_ident.c src/item_ident.h \
                             src/missile_serial.c src/missile_serial.h \
+                            src/monster_breeding.c src/monster_breeding.h \
+                            src/monster_list.c src/monster_list.h \
+                            src/dungeon_size.c src/dungeon_size.h \
+                            src/dungeon_level.c src/dungeon_level.h \
                             src/input_ended.c src/input_ended.h \
                             src/player_level.c src/player_level.h \
                             src/player_status_flags.c src/player_status_flags.h \
@@ -854,6 +896,8 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
+	    src/monster_breeding.c src/monster_list.c src/dungeon_size.c \
+	    src/dungeon_level.c src/floor_items.c src/dungeon_map.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
@@ -893,6 +937,11 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 # #18-12-2B で save.c が「腹の具合」を src/player_food.h の窓口越しに読み書き
 # するようになったので src/player_food.c も付いてくる（実体はまだ py の中で、
 # その py は player.c 本物でリンクしているので足場は要らない）。
+# #18-14-3B で save.c が「この階で増えたモンスターは何体か」を
+# src/monster_breeding.h の窓口越しに読み書きするようになったので
+# src/monster_breeding.c も付いてくる。**この global の別名 1 件
+# （`rd_short((uint16_t *)&mon_tot_mult)`）がここで消えた** —— 局所の uint16_t を
+# 通して渡す形（居場所 2 個・panel 2 個と同じ）。
 # **この 2 本は src/save.c を「丸ごと #include」する形なので、リンク行を grep
 # しても出てこない。** タブ始まりの recipe だけを数えると見落とす（実際に
 # undefined reference 2 件で落ちた）。**そのうえ軸の src/save.c は依存行に
@@ -900,7 +949,9 @@ $(BUILDDIR)/save_bool_test: $(TESTDIR)/save_bool_test.c \
 # （src/save.c の隣を真似ると依存行にしか入らない）。
 $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              $(TESTDIR)/save_stubs.c $(TESTDIR)/minunit.h \
-                             src/save.c src/player_display_numbers.c src/player_gold.c src/player_food.c \
+                             src/save.c src/floor_items.c src/floor_items.h \
+                            src/dungeon_map.c src/dungeon_map.h \
+                             src/player_display_numbers.c src/player_gold.c src/player_food.c \
                             src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h \
                              src/variable.c src/tables.c \
                              src/treasure.c src/player.c src/monsters.c \
@@ -911,6 +962,10 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
                              src/hp_table.c src/burden.c \
                              src/spells_known.c src/item_ident.c src/item_ident.h \
                              src/missile_serial.c src/missile_serial.h \
+                             src/monster_breeding.c src/monster_breeding.h \
+                             src/monster_list.c src/monster_list.h \
+                             src/dungeon_size.c src/dungeon_size.h \
+                             src/dungeon_level.c src/dungeon_level.h \
                              src/input_ended.c src/input_ended.h \
                              src/player_level.c src/player_level.h \
                              src/player_status_flags.c src/player_status_flags.h \
@@ -943,6 +998,8 @@ $(BUILDDIR)/store_save_test: $(TESTDIR)/store_save_test.c \
 	    src/progress.c src/score_death.c src/save_state.c src/player_pos.c \
 	    src/hp_table.c src/burden.c src/spells_known.c src/item_ident.c \
 	    src/missile_serial.c src/input_ended.c \
+	    src/monster_breeding.c src/monster_list.c src/dungeon_size.c \
+	    src/dungeon_level.c src/floor_items.c src/dungeon_map.c \
 	    src/player_level.c \
 	    src/player_status_flags.c src/player_abilities.c \
 	    src/player_timed_effects.c src/player_resting.c src/player_speed.c src/player_infra_range.c src/player_glowing_hands.c src/player_spells_to_learn.c \
@@ -1095,7 +1152,7 @@ $(BUILDDIR)/hp_table_test: $(TESTDIR)/hp_table_test.c \
 $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -1122,7 +1179,7 @@ $(BUILDDIR)/calc_hitpoints_test: $(TESTDIR)/calc_hitpoints_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_hitpoints_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -1195,16 +1252,18 @@ $(BUILDDIR)/inven_command_state_test: $(TESTDIR)/inven_command_state_test.c \
 # player_light.c・missile_serial.c・screen_touched.c と同じ最小形。足場
 # tests/pending_teleport_fixture.c は実体が入ったときに消した）。
 #
-# level_exit_test に残っている tests/level_exit_fixture.c は **旗の足場ではない**。
-# 中身は dun_level 1 つだけで、これは別の区分（地下そのもの）の global ——
-# leave_for_level() が対で書きかえる相手なので要る。dun_level を閉じる人が
-# このファイルを消す。
+# **#18-14-6B で tests/level_exit_fixture.c は消えた。** 中身は深さ 1 つだけで、
+# 「dun_level を閉じる人がこのファイルを消す」とあのファイルに書いてあった
+# とおり、深さが src/dungeon_level.c の static に入った段で役目が終わった
+# （leave_for_level() が窓口越しに書くので、代役では届かない）。代わりに
+# **src/dungeon_level.c をリンクする** —— この 1 本が 6 問めの税 12 本のうち、
+# misc3.c を引く 9 本と save.c の 2 本に足された 1 本。
 $(BUILDDIR)/level_exit_test: $(TESTDIR)/level_exit_test.c \
-                             $(TESTDIR)/level_exit_fixture.c \
                              $(TESTDIR)/minunit.h \
-                             src/level_exit.c src/level_exit.h | $(BUILDDIR)
+                             src/level_exit.c src/level_exit.h \
+                             src/dungeon_level.c src/dungeon_level.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/level_exit_test.c src/level_exit.c \
-	    $(TESTDIR)/level_exit_fixture.c
+	    src/dungeon_level.c
 
 $(BUILDDIR)/pending_teleport_test: $(TESTDIR)/pending_teleport_test.c \
                                    $(TESTDIR)/minunit.h \
@@ -1294,7 +1353,7 @@ $(BUILDDIR)/player_light_test: $(TESTDIR)/player_light_test.c \
 $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -1321,7 +1380,7 @@ $(BUILDDIR)/check_strength_test: $(TESTDIR)/check_strength_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/check_strength_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -1365,7 +1424,7 @@ $(BUILDDIR)/burden_test: $(TESTDIR)/burden_test.c \
 $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -1394,7 +1453,7 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/calc_spells_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -1426,7 +1485,7 @@ $(BUILDDIR)/calc_spells_test: $(TESTDIR)/calc_spells_test.c \
 $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
                             $(TESTDIR)/misc3_stubs.c \
                             $(TESTDIR)/fixture.h $(TESTDIR)/minunit.h \
-                            src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
+                            src/command_state.c src/misc3.c src/floor_items.c src/floor_items.h src/dungeon_map.c src/dungeon_map.h src/dungeon_size.c src/dungeon_size.h src/dungeon_level.c src/dungeon_level.h src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_mana.h src/player_hp.c src/player_hp.h src/stats.c src/str_insert.c src/desc.c \
                             src/pending_teleport.c src/pending_teleport.h \
                             src/tables.c src/inventory.c \
                             src/treasure.c src/player.c \
@@ -1453,7 +1512,7 @@ $(BUILDDIR)/gain_spells_test: $(TESTDIR)/gain_spells_test.c \
                             src/player_class.c src/player_class.h \
                             src/player_disarm.c src/player_disarm.h | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/gain_spells_test.c \
-	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
+	    $(TESTDIR)/misc3_stubs.c src/command_state.c src/misc3.c src/floor_items.c src/dungeon_map.c src/dungeon_size.c src/dungeon_level.c src/player_display_numbers.c src/player_gold.c src/player_mana.c src/player_hp.c src/pending_teleport.c src/stats.c src/str_insert.c \
 	    src/desc.c src/tables.c src/inventory.c \
 	    src/treasure.c src/player.c src/abilities.c \
 	    src/progress.c src/score_death.c src/save_state.c \
@@ -2037,6 +2096,240 @@ $(BUILDDIR)/player_class_test: $(TESTDIR)/player_class_test.c \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/player_class_test.c \
 	    $(TESTDIR)/player_class_fixture.c \
 	    src/player_class.c
+
+# 「いま誰の手番か」（ダンジョンとその中身から出す 1 つめの問い・#18-14-1）。
+# もとは variable.c:39 の `hack_monptr` で、**1 つの int が 1 つの問いにしか
+# 答えていない**のに、読み手 2 つ（misc1.c の詰めなおしと moria3.c の死）が
+# `hack_monptr < i` と手で書いていた。窓口はその比較に名前を付ける。
+#
+# **リンクするのは module 1 本だけ**で、**A の段から足場が 1 つも要らない**
+# —— 依存は MIN_MONIX（constant.h）すら使わず、int 1 つと比較 1 つで足りる。
+# 置き場を最初から static にしたので、**#18-12-1C から続く「module 1 本」の
+# 最小形に 1 歩めから入る**（str_insert.c・missile_serial.c・screen_touched.c
+# と同じ 2 コンパイル単位）。これまでの単位は A では置き場がまだ variable.c
+# か py にあり、足場（tests/*_fixture.c）で器を 1 つ置いてから C で捨てて
+# いた。
+#
+# **そのぶん A のあいだは器が 2 つあった** —— variable.c:39 の `hack_monptr`
+# （本体が使っていた）と、この module の static（テストだけが見ていた）。
+# 食いちがう心配が無かったのは、**A の段では本体が窓口を 1 つも呼んで
+# いない**から（A は保護だけ）。B で creature.c の 10 の代入・misc1.c と
+# moria3.c の比較・game_state.c の写しとりを窓口に差しかえたところで
+# **置き場の引っこしも済み**（呼び手が窓口を通れば触る器はこちら）、
+# C は variable.c と externs.h から古い 1 行を消すだけで終わった。
+#
+# **B で増えた recipe は 1 本だけ** —— movement_rate_test（src/creature.c を
+# 丸ごと #include する）。窓口を呼ぶのは 4 ファイル（creature.c 10 か所・
+# misc1.c 1・moria3.c 1・game_state.c 1）だが、**残る 3 本はどの recipe にも
+# 出てこない**。この道でいちばん安い税で、所見 34 の「税は構造体ではなく問いに
+# ついてくる」の別の面 —— **触る数ではなく、テストが本物を持ちこんでいるかで
+# 決まる**。
+$(BUILDDIR)/monster_turn_test: $(TESTDIR)/monster_turn_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_turn.c \
+                              src/monster_turn.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_turn_test.c \
+	    src/monster_turn.c
+
+# レベルごとのモンスター定義の索引（ダンジョンとその中身から出す 2 つめの
+# 問い・#18-14-2）。もとは monsters.c:765 の `int16_t m_level[41];` で、
+# **組みたてる側が main.c の static な init_m_level() にあった** ——
+# main.c は main() を持つのでテストからリンクできず、**数え上げには 1 本の
+# テストも届いていなかった**（#18-10 の init_t_level() と同じ形。あちらは
+# object_levels.c に移して初めて届いた）。
+#
+# **リンクするのは module 1 本と src/monsters.c だけ。** 索引は表を数えて
+# 作るものなので、**本物の表（279 体）を持ちこむのがこのテストの要**：
+# 帯の中身が本当にそのレベルかを確かめるには定義そのものが要る。
+# creature_iterator_test と同じ 2 ファイルの形で、足場（tests/*_fixture.c）は
+# 1 つも要らない。
+#
+# monsters.c は `is_a_vowel()` を 1 か所から呼ぶ（monster_name_indefinite()）。
+# 名前を 1 件も見ないので、テスト側で代役を 1 行書いて済ませる
+# （creature_iterator_test・save_stubs.c と同じ）。
+#
+# **A のあいだは器が 2 つある** —— monsters.c:765 の `m_level`（本体が使う）と
+# この module の static（テストだけが見る）。#18-14-1A と同じで、本体が窓口を
+# 1 つも呼んでいないから食いちがわない。**他の recipe への税は B で測る**
+# （下調べの見積りは 3 本だが、#18-14-1 の 3 → 1 と同じく数えかたの誤りを
+# 含むので当てにしない）。
+$(BUILDDIR)/monster_levels_test: $(TESTDIR)/monster_levels_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_levels.c \
+                              src/monster_levels.h \
+                              src/monsters.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_levels_test.c \
+	    src/monster_levels.c src/monsters.c
+
+# この階で増えたモンスターの数（ダンジョンとその中身から出す 3 つめの問い・
+# #18-14-3）。もとは monsters.c:779 の `int16_t mon_tot_mult;` で、
+# **定義表の隣に置かれた階ごとの数** —— 表とは何の関係も無い（#18-14-2 の
+# m_level が 1 行上にいたのと同じ置きかた。どちらも「モンスターに関係する数は
+# monsters.c」で済ませた跡）。
+#
+# **リンクするのは module 1 本だけ**で、足場（tests/*_fixture.c）は 1 つも
+# 要らない —— 依存は MAX_MON_MULT（constant.h）1 つで、int16_t 1 つと比較 1 つ
+# と足し引き 2 つで足りる。monster_turn_test と同じ 2 コンパイル単位。
+#
+# **A のあいだは器が 2 つある** —— monsters.c:779 の `mon_tot_mult`（本体が
+# 使う）と、この module の static（テストだけが見る）。#18-14-1A・#18-14-2A と
+# 同じで、本体が窓口を 1 つも呼んでいないから食いちがわない
+# （→ GLOBALS_INVENTORY.md 所見 52）。**C では tests/creature_stubs.c:66 の
+# 代役 `int16_t mon_tot_mult;` を消すのを忘れないこと** —— #18-14-1C で
+# hack_monptr のそれを消し忘れた（上の movement_rate_test の註）。
+#
+# **他の recipe への税は 3 本だった**（B で測った。下調べの見積りは 4 本）——
+# movement_rate_test（src/creature.c を丸ごと #include）と、src/save.c を
+# 丸ごと取りこむ save_bool_test・store_save_test。窓口を呼ぶ 4 ファイルの
+# うち dungeon.c と moria3.c は**どの recipe にも出てこない**。#18-14-1 の
+# 3 → 1、#18-14-2 の 3 → 0 と同じ数えかたの誤り（名前が出るファイルを数えて、
+# recipe がそのファイルを並べているかを見ていない）が 3 回続いた。
+$(BUILDDIR)/monster_breeding_test: $(TESTDIR)/monster_breeding_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_breeding.c \
+                              src/monster_breeding.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_breeding_test.c \
+	    src/monster_breeding.c
+
+# 「この階にいるモンスター」（#18-14-4）。src/monster_list.c は externs.h を
+# include しないので、リンクするのは module 1 本と足場 1 本だけ。
+#
+# **足場はもう 1 行しかない。** #18-14-4A/B のあいだは表（m_list）と印（mfptr）
+# の置き場が monsters.c にあり、足場が 3 つを代わりに置いていた。#18-14-4C で
+# 置き場が module の static に入り、残ったのは blank_monster 1 つだけ ——
+# これはこの問いの主題ではなく定数表の側で、module が「空の行」として読む。
+# それが片づけば src/monster_list.c は extern を 1 つも持たなくなり、
+# tests/monster_list_fixture.c も消える。
+#
+# **置き場を A で動かせなかったのはこの問いだけ。** #18-14-1〜3 は A の段で
+# module の static に入れたので足場が 0 本だった（所見 52）。あの形が使える
+# のは「B を 1 コミットで通しきれる」ときで、この問いは 12 ファイル 101 参照
+# （m_list 73・mfptr 28）なので B を 5 つに割った。割るあいだ器が 2 つあると
+# 半分が古い器を読む。
+#
+# **税は 3 本で確定** —— movement_rate_test（src/creature.c を丸ごと
+# #include）と、src/save.c を丸ごと #include する save_bool_test・
+# store_save_test。m_list/mfptr が出ていた 12 ファイルのうち、recipe が
+# 並べているのは monsters.c だけで、そちらは C で定義が消えたので払わない
+# （下調べの 4 本は数えまちがい。所見 34）。
+$(BUILDDIR)/monster_list_test: $(TESTDIR)/monster_list_test.c \
+                              $(TESTDIR)/monster_list_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/monster_list.c \
+                              src/monster_list.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/monster_list_test.c \
+	    $(TESTDIR)/monster_list_fixture.c src/monster_list.c
+
+# 「この階の広さ」（#18-14-5）。src/dungeon_size.c は externs.h を include せず、
+# extern も 1 つも持たない（要るのは <stdint.h> だけ）ので、リンクするのは
+# module 1 本だけ ——**足場は 0 本**（所見 52 の形。#18-14-1〜3 と同じ）。
+#
+# **B は 1 コミットで通す見こみ** —— 8 ファイル 62 参照（cur_height 30・
+# cur_width 32）で、そのうち 48 は読みの置きかえ 1 つの形。だから置き場は
+# A の段で module の static に入れてある（#18-14-4 は 12 ファイル 101 参照で
+# B を 5 つに割ったので、置き場を C まで動かせなかった）。
+#
+# **税は 11 本で、下調べの見こみと初めて一致した** —— src/misc3.c を丸ごと
+# #include する 9 本（inven_stack・put_misc3・object_levels・haggle_comment・
+# objdes・calc_hitpoints・check_strength・calc_spells・gain_spells）と、
+# src/save.c を丸ごと #include する 2 本（save_bool・store_save）。
+# 残る 6 ファイル（generate.c・misc1.c・dungeon.c・wizard.c・game_state.c・
+# variable.c）は、どの recipe も対象として並べていない。
+# 払うのは B の段（tests/misc3_stubs.c の 2 行もそこで死ぬ → 所見 52 の落とし穴）。
+$(BUILDDIR)/dungeon_size_test: $(TESTDIR)/dungeon_size_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/dungeon_size.c \
+                              src/dungeon_size.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_size_test.c \
+	    src/dungeon_size.c
+
+# 「いま何階か」（#18-14-6）。src/dungeon_level.c も externs.h を include せず、
+# extern も 1 つも持たない（要るのは <stdint.h> と <stdbool.h> だけ）ので、
+# リンクするのは module 1 本だけ ——**足場は 0 本**（所見 52 の形。
+# #18-14-1〜3・#18-14-5 と同じ）。
+#
+# **B は 1 コミットで通す見こみ** —— 12 ファイル 40 参照で、置きかえの形は
+# 4 つ（読み 30 を窓口へ・「町にいるか」の 6 か所・書き 3・読みもどしの別名 1）。
+# 5 問めの 54 か所より小さいので、置き場は A の段で module の static に
+# 入れてある。
+#
+# **税は 12 本の見こみ** —— src/misc3.c を丸ごと #include する 9 本と
+# src/save.c を丸ごと #include する 2 本（この 11 本は 5 問めと同じ顔ぶれ）に、
+# **level_exit_test が 1 本加わる** —— src/level_exit.c の leave_for_level() が
+# 深さと旗を対で書くので、あれが窓口を呼びはじめる。**そのとき
+# tests/level_exit_fixture.c は消える**（中身は dun_level 1 つだけで、
+# 「dun_level を閉じる人がこのファイルを消す」と自分で書いてある）。
+$(BUILDDIR)/dungeon_level_test: $(TESTDIR)/dungeon_level_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/dungeon_level.c \
+                              src/dungeon_level.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_level_test.c \
+	    src/dungeon_level.c
+
+# 「床に落ちているもの」（#18-14-7）。置き場（t_list と tcptr）は #18-14-7C で
+# src/floor_items.c の static に入ったが、**足場は 1 本残る** ——
+# tests/floor_items_fixture.c が持つのは**空の行の作りかた**だけになった。
+# 空の行は blank_monster のような定数ではなく object_list[OBJ_NOTHING] の
+# 写しなので、写す invcopy()（src/desc.c）の代役が要る。#18-14-4 の足場に
+# blank_monster 1 つが残ったのと同じ形だが、**あちらは定数表の区分が済めば
+# 消え、こちらは消えない** —— 関数であり、定義表を読むから。
+#
+# **B を 1 コミットでは通さなかった** —— 17 ファイル 127 参照（t_list 113・
+# tcptr 14、別名 53）で、#18-14-4 の 12 ファイル 101 参照より大きい。
+# だから置き場を C まで動かさなかった（所見 52）。
+#
+# **税は 12 本で、A の見こみどおりだった** —— src/misc3.c を丸ごと #include
+# する 9 本（inven_stack・put_misc3・object_levels・haggle_comment・objdes・
+# calc_hitpoints・check_strength・calc_spells・gain_spells）、src/save.c を
+# 丸ごと #include する 2 本（save_bool・store_save）、src/creature.c を
+# 丸ごと #include する 1 本（movement_rate）。
+# **13 本めは払わなかった** —— item_ident_test は src/treasure.c だけを並べて
+# いて、あれは置き場（＝主題の家）で呼び手ではない（所見 34 のとおり）。
+# **見こみに無かったのは代役 1 行** —— save_bool・store_save は src/desc.c を
+# リンクしないので、module が呼ぶ invcopy() が宙に浮き、
+# tests/save_stubs.c に代役を足した。movement_rate_test は
+# tests/creature_stubs.c がすでに t_list と invcopy() の代役を持っていたので
+# tcptr の 1 行を足すだけで済み、**その行と t_list の行は C で消えた**。
+$(BUILDDIR)/floor_items_test: $(TESTDIR)/floor_items_test.c \
+                              $(TESTDIR)/floor_items_fixture.c \
+                              $(TESTDIR)/minunit.h \
+                              src/floor_items.c \
+                              src/floor_items.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/floor_items_test.c \
+	    $(TESTDIR)/floor_items_fixture.c src/floor_items.c
+
+# 「床の一枚一枚」（#18-14-8A）。ダンジョンとその中身の **8 問め、最後の問い**。
+# **足場 1 本**（tests/dungeon_map_fixture.c）—— 置き場は #18-14-8C まで
+# src/variable.c にあり、module は extern 1 行で見にいく。**この区分で
+# 3 度めの「置き場を A で動かせない問い」**で、理由は 4 問め・7 問めと同じ
+# （15 ファイル 258 参照なので B が 1 コミットに収まらない。所見 52 の条件）。
+# **ただし C で足場は 0 になる** —— module が外に持つ依存が 1 つも無いので、
+# 7 問めの invcopy() のように残るものが無い（ファイルごと消える）。
+# 税の見こみは **12 本** —— src/misc3.c を丸ごと #include する 9 本
+# （inven_stack・put_misc3・object_levels・haggle_comment・objdes・
+# calc_hitpoints・check_strength・calc_spells・gain_spells）、src/save.c を
+# 丸ごと #include する 2 本（save_bool・store_save）、src/creature.c を
+# 丸ごと #include する 1 本（movement_rate）。**7 問めと同じ顔ぶれ**。
+# **options_test は数えない** —— src/variable.c を並べているが、あれは置き場で
+# 呼び手ではない（7 問めで item_ident_test を数えまちがえたのと同じ形。所見 34）。
+#
+# **税は 12 本で、A の見こみとぴったり一致した** —— B③ で 10 本
+# （misc3 の 9 本 ＋ movement_rate）、B④ で 2 本（save_bool・store_save）。
+# **A で「払うときに tests/creature_stubs.c と tests/misc3_stubs.c の cave の
+# 定義が死ぬ」と書いたのは早かった** —— B のあいだ置き場は src/variable.c に
+# あり、あの 2 行は「呼び手が字面で読む表」から「窓口が extern で見にいく
+# 置き場」に**役目を変えて残った**。死んだのは C。
+#
+# **#18-14-8C で足場は見こみどおり 0 になった** ——
+# tests/dungeon_map_fixture.c はファイルごと消え、この recipe は
+# **テストの 1 本と module の 1 本だけ**になった（この列でいちばん小さい
+# recipe）。tests/misc3_stubs.c と tests/creature_stubs.c の `cave` の定義も
+# 消え、後者の「階を白紙に戻す」1 行は B③ で窓口呼びに替わっている。
+$(BUILDDIR)/dungeon_map_test: $(TESTDIR)/dungeon_map_test.c \
+                              $(TESTDIR)/minunit.h \
+                              src/dungeon_map.c \
+                              src/dungeon_map.h | $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/dungeon_map_test.c src/dungeon_map.c
 
 clean:
 	rm -rf $(BUILDDIR)

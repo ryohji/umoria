@@ -79,3 +79,10 @@ int known1_p(inven_type *i_ptr) { (void)i_ptr; return 0; }
 void identify(int *item) { (void)item; }
 void sample(inven_type *i_ptr) { (void)i_ptr; }
 void prt_experience(void) {}
+
+/* floor_items.c は #18-14-7B⑤ からリンクしている（save.c が床の表を
+ * 窓口越しに読み書きするようになった）。あちらは**空の行を作るために**
+ * invcopy() を呼ぶ —— 空の行は定義表 object_list の 1 行の写しなので。
+ * セーブファイルの読み書きはその道（階の頭・行を返す）を通らないので代役。
+ * 本物は src/desc.c で、連れてくると desc.c ごと来る。 */
+void invcopy(inven_type *to, int from_index) { (void)to; (void)from_index; }

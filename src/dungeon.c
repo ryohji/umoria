@@ -15,11 +15,17 @@
 
 #include "externs.h"
 #include "command_state.h"
+#include "dungeon_level.h"
+#include "dungeon_map.h"
+#include "dungeon_size.h"
 #include "equipment.h"
+#include "floor_items.h"
 #include "input_ended.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "level_exit.h"
+#include "monster_list.h"
+#include "monster_breeding.h"
 #include "panel.h"
 #include "pending_teleport.h"
 #include "player_abilities.h"
@@ -83,7 +89,7 @@ void dungeon(void) {
     // Check for a maximum level. The comparison moved inside the window at
     // #18-12-16B: the record only ever grows, so telling it where we are is
     // enough (src/player_max_depth.h).
-    player_note_depth_reached(dun_level);
+    player_note_depth_reached(dungeon_level());
 
     // Reset flags and initialize variables
     int find_count = 0;
@@ -91,8 +97,8 @@ void dungeon(void) {
     begin_level();
     forget_run();
     forget_pending_teleport();
-    mon_tot_mult = 0;
-    cave[player_row()][player_col()].cptr = 1;
+    monster_breeding_reset();
+    square_at(player_row(), player_col())->cptr = 1;
 
     // Ensure we display the panel.
     panel_forget_position();
@@ -124,7 +130,7 @@ void dungeon(void) {
         handle_pending_signals();
 
         // turn over the store contents every, say, 1000 turns
-        if ((dun_level != 0) && ((progress_turn() % 1000) == 0)) {
+        if (!player_is_in_town() && ((progress_turn() % 1000) == 0)) {
             store_maint();
         }
 
@@ -545,7 +551,7 @@ void dungeon(void) {
             if (player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL) == 1) {
                 player_timed_add(PLAYER_TIMED_PARALYSIS, 1);
                 player_timed_clear(PLAYER_TIMED_WORD_OF_RECALL);
-                if (dun_level > 0) {
+                if (!player_is_in_town()) {
                     leave_for_level(0);
                     msg_print("You feel yourself yanked upwards!");
                 } else if (player_max_depth() != 0) {
@@ -644,7 +650,7 @@ void dungeon(void) {
         // creature.c when monsters try to multiply.  Compact_monsters() is
         // much more likely to succeed if called from here, than if called
         // from within creatures().
-        if (MAX_MALLOC - mfptr < 10) {
+        if (monster_list_free_slots() < 10) {
             (void)compact_monsters();
         }
 
@@ -1320,7 +1326,10 @@ static void do_command(char com_val) {
                 for (;;) {
                     x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
                     y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                    if (x < 0 || y < 0 || x >= cur_width || y >= cur_width) {
+                    // NOTE: the row is compared against the WIDTH. That is what this
+                    // line has always done; #18-14-5 carried it over unchanged rather
+                    // than decide an upstream bug (see dungeon_size.h).
+                    if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
                         msg_print("You've gone past the end of your map.");
                         x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
                         y += ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
@@ -1768,11 +1777,11 @@ static void examine_book(void) {
 // Go up one level -RAK-
 static void go_up(void) {
     bool no_stairs = false;
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (c_ptr->tptr != 0) {
-        if (t_list[c_ptr->tptr].tval == TV_UP_STAIR) {
-            leave_for_level(dun_level - 1);
+        if (floor_item_at(c_ptr->tptr)->tval == TV_UP_STAIR) {
+            leave_for_level(dungeon_level() - 1);
             msg_print("You enter a maze of up staircases.");
             msg_print("You pass through a one-way door.");
         } else {
@@ -1790,10 +1799,10 @@ static void go_up(void) {
 
 // Go down one level -RAK-
 static void go_down(void) {
-    const uint8_t tptr = cave[player_row()][player_col()].tptr;
+    const uint8_t tptr = square_at(player_row(), player_col())->tptr;
 
-    if (tptr != 0 && t_list[tptr].tval == TV_DOWN_STAIR) {
-        leave_for_level(dun_level + 1);
+    if (tptr != 0 && floor_item_at(tptr)->tval == TV_DOWN_STAIR) {
+        leave_for_level(dungeon_level() + 1);
         msg_print("You enter a maze of down staircases.");
         msg_print("You pass through a one-way door.");
     } else {
@@ -1812,10 +1821,10 @@ static void jamdoor(void) {
     int dir;
     if (get_dir(CNIL, &dir)) {
         (void)mmove(dir, &y, &x);
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if (c_ptr->tptr != 0) {
-            inven_type *t_ptr = &t_list[c_ptr->tptr];
+            inven_type *t_ptr = floor_item_at(c_ptr->tptr);
             if (t_ptr->tval == TV_CLOSED_DOOR) {
                 if (c_ptr->cptr == 0) {
                     int i, j;
@@ -1847,7 +1856,7 @@ static void jamdoor(void) {
                     free_turn_flag = false;
 
                     char tmp_str[80];
-                    (void)sprintf(tmp_str, "The %s is in your way!", monster_get_creature(m_list[c_ptr->cptr].creature)->name);
+                    (void)sprintf(tmp_str, "The %s is in your way!", monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->name);
                     msg_print(tmp_str);
                 }
             } else if (t_ptr->tval == TV_OPEN_DOOR) {

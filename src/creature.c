@@ -13,9 +13,14 @@
 #include "constant.h"
 #include "types.h"
 
+#include "dungeon_map.h"
 #include "equipment.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "inventory.h"
+#include "monster_breeding.h"
+#include "monster_list.h"
+#include "monster_turn.h"
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
@@ -41,7 +46,7 @@ void update_mon(int monptr) {
     creature_type *r_ptr;
 
     bool flag = false;
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
 
     // Asked once and held in one place: the condition below read the same
     // number twice.
@@ -54,7 +59,7 @@ void update_mon(int monptr) {
             flag = true;
         } else if (los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             // Normal sight.
-            c_ptr = &cave[m_ptr->fy][m_ptr->fx];
+            c_ptr = square_at(m_ptr->fy, m_ptr->fx);
             r_ptr = monster_get_creature(m_ptr->creature);
             if (c_ptr->pl || c_ptr->tl || (player_is_running() && m_ptr->cdis < 2 && player_has_light())) {
                 if ((CM_INVISIBLE & r_ptr->cmove) == 0) {
@@ -124,13 +129,13 @@ static int moves_this_turn(int16_t speed) {
 
 // Makes sure a new creature gets lit up. -CJS-
 static bool check_mon_lite(int y, int x) {
-    int monptr = cave[y][x].cptr;
+    int monptr = square_at(y, x)->cptr;
 
     if (monptr <= 1) {
         return false;
     } else {
         update_mon(monptr);
-        return m_list[monptr].ml;
+        return monster_list_at(monptr)->ml;
     }
 }
 
@@ -138,8 +143,8 @@ static bool check_mon_lite(int y, int x) {
 static void get_moves(int monptr, int *mm) {
     int ay, ax, move_val;
 
-    int y = m_list[monptr].fy - player_row();
-    int x = m_list[monptr].fx - player_col();
+    int y = monster_list_at(monptr)->fy - player_row();
+    int x = monster_list_at(monptr)->fx - player_col();
 
     if (y < 0) {
         move_val = 8;
@@ -289,7 +294,7 @@ static void make_attack(int monptr) {
         return;
     }
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -893,7 +898,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
     int i = 0;
     bool do_turn = false;
     bool do_move = false;
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     uint32_t movebits = monster_get_creature(m_ptr->creature)->cmove;
 
     do {
@@ -901,7 +906,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
         newy = m_ptr->fy;
         newx = m_ptr->fx;
         (void)mmove(mm[i], &newy, &newx);
-        c_ptr = &cave[newy][newx];
+        c_ptr = square_at(newy, newx);
         if (c_ptr->fval != BOUNDARY_WALL) {
             // Floor is open?
             if (c_ptr->fval <= MAX_OPEN_SPACE) {
@@ -914,7 +919,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
             } else if (c_ptr->tptr != 0) {
                 // Creature can open doors?
 
-                t_ptr = &t_list[c_ptr->tptr];
+                t_ptr = floor_item_at(c_ptr->tptr);
 
                 // Creature can open doors.
                 if (movebits & CM_OPEN_DOOR) {
@@ -982,8 +987,8 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
 
             // Glyph of warding present?
             if (do_move && (c_ptr->tptr != 0) &&
-                (t_list[c_ptr->tptr].tval == TV_VIS_TRAP) &&
-                (t_list[c_ptr->tptr].subval == 99)) {
+                (floor_item_at(c_ptr->tptr)->tval == TV_VIS_TRAP) &&
+                (floor_item_at(c_ptr->tptr)->subval == 99)) {
                 if (randint(OBJ_RUNE_PROT) < monster_get_creature(m_ptr->creature)->level) {
                     if ((newy == player_row()) && (newx == player_col())) {
                         msg_print("The rune of protection is broken!");
@@ -1017,8 +1022,8 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                     // Creature is attempting to move on other creature?
 
                     // Creature eats other creatures?
-                    if ((movebits & CM_EATS_OTHER) && (monster_get_creature(m_ptr->creature)->mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp)) {
-                        if (m_list[c_ptr->cptr].ml) {
+                    if ((movebits & CM_EATS_OTHER) && (monster_get_creature(m_ptr->creature)->mexp >= monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->mexp)) {
+                        if (monster_list_at(c_ptr->cptr)->ml) {
                             *rcmove |= CM_EATS_OTHER;
                         }
 
@@ -1041,9 +1046,9 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
             if (do_move) {
                 // Pick up or eat an object
                 if (movebits & CM_PICKS_UP) {
-                    c_ptr = &cave[newy][newx];
+                    c_ptr = square_at(newy, newx);
 
-                    if ((c_ptr->tptr != 0) && (t_list[c_ptr->tptr].tval <= TV_MAX_OBJECT)) {
+                    if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval <= TV_MAX_OBJECT)) {
                         *rcmove |= CM_PICKS_UP;
                         (void)delete_object(newy, newx);
                     }
@@ -1075,7 +1080,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
         return;
     }
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
     int chance = (int)(r_ptr->spells & CS_FREQ);
 
@@ -1201,10 +1206,10 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             x = player_col();
 
             // in case compact_monster() is called,it needs monptr
-            hack_monptr = monptr;
+            monster_turn_begin(monptr);
             (void)summon_monster(&y, &x, false);
-            hack_monptr = -1;
-            update_mon((int)cave[y][x].cptr);
+            monster_turn_end();
+            update_mon((int)square_at(y, x)->cptr);
             break;
         case 15: // Summon Undead
             msg_print(CONCAT(cdesc, " magically summons an undead!"));
@@ -1212,10 +1217,10 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             x = player_col();
 
             // in case compact_monster() is called,it needs monptr
-            hack_monptr = monptr;
+            monster_turn_begin(monptr);
             (void)summon_undead(&y, &x);
-            hack_monptr = -1;
-            update_mon((int)cave[y][x].cptr);
+            monster_turn_end();
+            update_mon((int)square_at(y, x)->cptr);
             break;
         case 16: // Slow Person
             if (player_never_paralyzed()) {
@@ -1294,14 +1299,14 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
         // don't create a new creature on top of the old one, that
         // causes invincible/invisible creatures to appear.
         if (in_bounds(j, k) && (j != y || k != x)) {
-            c_ptr = &cave[j][k];
+            c_ptr = square_at(j, k);
             if ((c_ptr->fval <= MAX_OPEN_SPACE) && (c_ptr->tptr == 0) && (c_ptr->cptr != 1)) {
                 // Creature there already?
                 if (c_ptr->cptr > 1) {
                     // Some critters are cannibalistic!
                     if ((monster_get_creature(creature)->cmove & CM_EATS_OTHER)
                         // Check the experience level -CJS-
-                        && monster_get_creature(creature)->mexp >= monster_get_creature(m_list[c_ptr->cptr].creature)->mexp) {
+                        && monster_get_creature(creature)->mexp >= monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->mexp) {
                         // It ate an already processed monster.Handle * normally.
                         if (monptr < c_ptr->cptr) {
                             delete_monster((int)c_ptr->cptr);
@@ -1313,30 +1318,30 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                         }
 
                         // in case compact_monster() is called,it needs monptr
-                        hack_monptr = monptr;
+                        monster_turn_begin(monptr);
 
                         // Place_monster() may fail if monster list full.
                         result = place_monster(j, k, creature, false);
-                        hack_monptr = -1;
+                        monster_turn_end();
                         if (!result) {
                             return false;
                         }
-                        mon_tot_mult++;
+                        monster_breeding_note_birth();
                         return check_mon_lite(j, k);
                     }
                 } else {
                     // All clear,  place a monster
 
                     // in case compact_monster() is called,it needs monptr
-                    hack_monptr = monptr;
+                    monster_turn_begin(monptr);
 
                     // Place_monster() may fail if monster list full.
                     result = place_monster(j, k, creature, false);
-                    hack_monptr = -1;
+                    monster_turn_end();
                     if (!result) {
                         return false;
                     }
-                    mon_tot_mult++;
+                    monster_breeding_note_birth();
                     return check_mon_lite(j, k);
                 }
             }
@@ -1350,18 +1355,18 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
 static void mon_move(int monptr, uint32_t *rcmove) {
     int i, k;
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
     // Does the critter multiply?
     // rest could be negative, to be safe, only use mod with positive values.
     int rest_val = abs(player_rest_turns());
 
-    if ((r_ptr->cmove & CM_MULTIPLY) && (MAX_MON_MULT >= mon_tot_mult) && ((rest_val % MON_MULT_ADJ) == 0)) {
+    if ((r_ptr->cmove & CM_MULTIPLY) && monster_breeding_allowed() && ((rest_val % MON_MULT_ADJ) == 0)) {
         k = 0;
         for (i = m_ptr->fy - 1; i <= m_ptr->fy + 1; i++) {
             for (int j = m_ptr->fx - 1; j <= m_ptr->fx + 1; j++) {
-                if (in_bounds(i, j) && (cave[i][j].cptr > 1)) {
+                if (in_bounds(i, j) && (square_at(i, j)->cptr > 1)) {
                     k++;
                 }
             }
@@ -1383,7 +1388,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
     bool move_test = false;
 
     // if in wall, must immediately escape to a clear area
-    if (!(r_ptr->cmove & CM_PHASE) && (cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL)) {
+    if (!(r_ptr->cmove & CM_PHASE) && (square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
         // If the monster is already dead, don't kill it again!
         // This can happen for monsters moving faster than the player. They
         // will get multiple moves, but should not if they die on the first
@@ -1401,8 +1406,8 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         // of i will fail the comparison.
         for (i = m_ptr->fy + 1; i >= (m_ptr->fy - 1); i--) {
             for (int j = m_ptr->fx - 1; j <= m_ptr->fx + 1; j++) {
-                if ((dir != 5) && (cave[i][j].fval <= MAX_OPEN_SPACE) &&
-                    (cave[i][j].cptr != 1)) {
+                if ((dir != 5) && (square_at(i, j)->fval <= MAX_OPEN_SPACE) &&
+                    (square_at(i, j)->cptr != 1)) {
                     mm[k++] = dir;
                 }
                 dir++;
@@ -1420,12 +1425,12 @@ static void mon_move(int monptr, uint32_t *rcmove) {
         }
 
         // if still in a wall, let it dig itself out, but also apply some more damage
-        if (cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL) {
+        if (square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL) {
             // in case the monster dies, may need to callfix1_delete_monster()
             // instead of delete_monsters()
-            hack_monptr = monptr;
+            monster_turn_begin(monptr);
             i = mon_take_hit(monptr, damroll(8, 8));
-            hack_monptr = -1;
+            monster_turn_end();
             if (i) {
                 msg_print("You hear a scream muffled by rock!");
                 prt_experience();
@@ -1543,11 +1548,11 @@ void creatures(int attack) {
     vtype cdesc;
 
     // Process the monsters
-    for (int i = mfptr - 1; i >= MIN_MONIX && !player_is_dead(); i--) {
-        m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX && !player_is_dead(); i--) {
+        m_ptr = monster_list_at(i);
         // Get rid of an eaten/breathed on monster.  Note: Be sure not to
         // process this monster. This is necessary because we can't delete
-        // monsters while scanning the m_list here.
+        // monsters while scanning the monster list here.
         if (m_ptr->hp < 0) {
             fix2_delete_monster(i);
             continue;
@@ -1569,7 +1574,7 @@ void creatures(int attack) {
 
                     // Monsters trapped in rock must be given a turn also,
                     // so that they will die/dig out immediately.
-                    if (m_ptr->ml || (m_ptr->cdis <= monster_get_creature(m_ptr->creature)->aaf) || ((!(monster_get_creature(m_ptr->creature)->cmove & CM_PHASE)) && cave[m_ptr->fy][m_ptr->fx].fval >= MIN_CAVE_WALL)) {
+                    if (m_ptr->ml || (m_ptr->cdis <= monster_get_creature(m_ptr->creature)->aaf) || ((!(monster_get_creature(m_ptr->creature)->cmove & CM_PHASE)) && square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
                         if (m_ptr->csleep > 0) {
                             if (player_aggravates_monsters()) {
                                 m_ptr->csleep = 0;
@@ -1635,7 +1640,7 @@ void creatures(int attack) {
         }
 
         // Get rid of an eaten/breathed on monster. This is necessary because
-        // we can't delete monsters while scanning the m_list here.
+        // we can't delete monsters while scanning the monster list here.
         // This monster may have been killed during mon_move().
         if (m_ptr->hp < 0) {
             fix2_delete_monster(i);

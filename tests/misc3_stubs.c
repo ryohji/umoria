@@ -57,10 +57,19 @@
 #include "player_timed_effects.h"
 
 /* --- グローバル状態 --- */
-cave_type cave[MAX_HEIGHT][MAX_WIDTH];
-int16_t cur_height;
-int16_t cur_width;
-int16_t dun_level;
+/* マスの表（cave）はここに無い。#18-14-8C で置き場が src/dungeon_map.c の
+ * static に入ったので、ここで定義しても窓口には届かない別の表になるだけ。
+ * recipe が src/dungeon_map.c をリンクしているのがその代わりで、misc3.c は
+ * square_at(y, x) で 1 マスを取る（下の cur_height・dun_level・t_list の
+ * 註と同じ形。これでこの区分の 11 個ぜんぶがこの形になった）。 */
+/* この階の広さ（cur_height・cur_width）はここに無い。#18-14-5A で置き場が
+ * src/dungeon_size.c の static に入り、#18-14-5B で misc3.c が窓口越しに
+ * 読むようになった（ここで定義しても窓口には届かない別の器になるだけ）。
+ * recipe が src/dungeon_size.c をリンクしているのがその代わり。 */
+/* いま何階か（dun_level）はここに無い。#18-14-6A で置き場が
+ * src/dungeon_level.c の static に入り、#18-14-6B で misc3.c が窓口越しに
+ * 読むようになった（ここで定義しても窓口には届かない別の器になるだけ）。
+ * recipe が src/dungeon_level.c をリンクしているのがその代わり。 */
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
  * 読み書きするようになったので、実体は src/score_death.c の static である。 */
 /* 打っているコマンドの覚え 3 個（command_count・default_dir・last_command）は

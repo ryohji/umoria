@@ -14,8 +14,13 @@
 #include "types.h"
 
 #include "equipment.h"
+#include "dungeon_level.h"
+#include "dungeon_map.h"
 #include "externs.h"
+#include "floor_items.h"
 #include "inventory.h"
+#include "monster_levels.h"
+#include "monster_list.h"
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_class.h"
@@ -33,9 +38,9 @@ int sleep_monsters1(int y, int x) {
 
     for (int i = y - 1; i <= y + 1; i++) {
         for (int j = x - 1; j <= x + 1; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->cptr > 1) {
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -65,9 +70,9 @@ int detect_treasure(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
-            if ((c_ptr->tptr != 0) && (t_list[c_ptr->tptr].tval == TV_GOLD) &&
+            if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval == TV_GOLD) &&
                 !test_light(i, j)) {
                 c_ptr->fm = true;
                 lite_spot(i, j);
@@ -85,10 +90,10 @@ int detect_object(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if ((c_ptr->tptr != 0) &&
-                (t_list[c_ptr->tptr].tval < TV_MAX_OBJECT) &&
+                (floor_item_at(c_ptr->tptr)->tval < TV_MAX_OBJECT) &&
                 !test_light(i, j)) {
                 c_ptr->fm = true;
                 lite_spot(i, j);
@@ -106,15 +111,15 @@ int detect_trap(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if (c_ptr->tptr != 0) {
-                if (t_list[c_ptr->tptr].tval == TV_INVIS_TRAP) {
+                if (floor_item_at(c_ptr->tptr)->tval == TV_INVIS_TRAP) {
                     c_ptr->fm = true;
                     change_trap(i, j);
                     detect = true;
-                } else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
-                    inven_type *t_ptr = &t_list[c_ptr->tptr];
+                } else if (floor_item_at(c_ptr->tptr)->tval == TV_CHEST) {
+                    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
                     known2(t_ptr);
                 }
             }
@@ -130,16 +135,16 @@ int detect_sdoor(void) {
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if (c_ptr->tptr != 0) {
-                if (t_list[c_ptr->tptr].tval == TV_SECRET_DOOR) {
+                if (floor_item_at(c_ptr->tptr)->tval == TV_SECRET_DOOR) {
                     // Secret doors
 
                     c_ptr->fm = true;
                     change_trap(i, j);
                     detect = true;
-                } else if (((t_list[c_ptr->tptr].tval == TV_UP_STAIR) || (t_list[c_ptr->tptr].tval == TV_DOWN_STAIR)) && !c_ptr->fm) {
+                } else if (((floor_item_at(c_ptr->tptr)->tval == TV_UP_STAIR) || (floor_item_at(c_ptr->tptr)->tval == TV_DOWN_STAIR)) && !c_ptr->fm) {
                     // Staircases
 
                     c_ptr->fm = true;
@@ -157,8 +162,8 @@ int detect_sdoor(void) {
 int detect_invisible(void) {
     bool flag = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
 
         if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && (CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove)) {
             m_ptr->ml = true;
@@ -189,7 +194,7 @@ int light_area(int y, int x) {
 
     bool light = true;
 
-    if (cave[y][x].lr && (dun_level > 0)) {
+    if (square_at(y, x)->lr && !player_is_in_town()) {
         light_room(y, x);
     }
 
@@ -197,7 +202,7 @@ int light_area(int y, int x) {
     // the edge of a room, or next to a destroyed area, etc.
     for (int i = y - 1; i <= y + 1; i++) {
         for (int j = x - 1; j <= x + 1; j++) {
-            cave[i][j].pl = true;
+            square_at(i, j)->pl = true;
             lite_spot(i, j);
         }
     }
@@ -209,7 +214,7 @@ int light_area(int y, int x) {
 int unlight_area(int y, int x) {
     bool unlight = false;
 
-    if (cave[y][x].lr && (dun_level > 0)) {
+    if (square_at(y, x)->lr && !player_is_in_town()) {
         int tmp1 = (SCREEN_HEIGHT / 2);
         int tmp2 = (SCREEN_WIDTH / 2);
         int start_row = (y / tmp1) * tmp1 + 1;
@@ -219,7 +224,7 @@ int unlight_area(int y, int x) {
 
         for (int i = start_row; i <= end_row; i++) {
             for (int j = start_col; j <= end_col; j++) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
                 if (c_ptr->lr && c_ptr->fval <= MAX_CAVE_FLOOR) {
                     c_ptr->pl = false;
                     c_ptr->fval = DARK_FLOOR;
@@ -233,7 +238,7 @@ int unlight_area(int y, int x) {
     } else {
         for (int i = y - 1; i <= y + 1; i++) {
             for (int j = x - 1; j <= x + 1; j++) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
                 if ((c_ptr->fval == CORR_FLOOR) && c_ptr->pl) {
                     // pl could have been set by star-lite wand, etc
                     c_ptr->pl = false;
@@ -259,14 +264,14 @@ void map_area(void) {
 
     for (int m = i; m <= j; m++) {
         for (int n = k; n <= l; n++) {
-            if (in_bounds(m, n) && (cave[m][n].fval <= MAX_CAVE_FLOOR)) {
+            if (in_bounds(m, n) && (square_at(m, n)->fval <= MAX_CAVE_FLOOR)) {
                 for (int i7 = m - 1; i7 <= m + 1; i7++) {
                     for (int i8 = n - 1; i8 <= n + 1; i8++) {
-                        cave_type *c_ptr = &cave[i7][i8];
+                        cave_type *c_ptr = square_at(i7, i8);
 
                         if (c_ptr->fval >= MIN_CAVE_WALL) {
                             c_ptr->pl = true;
-                        } else if ((c_ptr->tptr != 0) && (t_list[c_ptr->tptr].tval >= TV_MIN_VISIBLE) && (t_list[c_ptr->tptr].tval <= TV_MAX_VISIBLE)) {
+                        } else if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval >= TV_MIN_VISIBLE) && (floor_item_at(c_ptr->tptr)->tval <= TV_MAX_VISIBLE)) {
                             c_ptr->fm = true;
                         }
                     }
@@ -313,8 +318,8 @@ int aggravate_monster(int dis_affect) {
 
     bool aggravate = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        m_ptr = monster_list_at(i);
         m_ptr->csleep = 0;
         if ((m_ptr->cdis <= dis_affect) && (m_ptr->cspeed < 2)) {
             m_ptr->cspeed++;
@@ -343,7 +348,7 @@ int trap_creation(void) {
                 continue;
             }
 
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
 
             if (c_ptr->fval <= MAX_CAVE_FLOOR) {
                 if (c_ptr->tptr != 0) {
@@ -352,7 +357,7 @@ int trap_creation(void) {
                 place_trap(i, j, randint(MAX_TRAP) - 1);
 
                 // don't let player gain exp from the newly created traps
-                t_list[c_ptr->tptr].p1 = 0;
+                floor_item_at(c_ptr->tptr)->p1 = 0;
 
                 // open pits are immediately visible, so call lite_spot
                 lite_spot(i, j);
@@ -370,7 +375,7 @@ int door_creation(void) {
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
             if ((i != player_row()) || (j != player_col())) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 if (c_ptr->fval <= MAX_CAVE_FLOOR) {
                     door = true;
@@ -382,7 +387,7 @@ int door_creation(void) {
                     int k = popt();
                     c_ptr->fval = BLOCKED_FLOOR;
                     c_ptr->tptr = k;
-                    invcopy(&t_list[k], OBJ_CLOSED_DOOR);
+                    invcopy(floor_item_at(k), OBJ_CLOSED_DOOR);
                     lite_spot(i, j);
                 }
             }
@@ -398,22 +403,22 @@ int td_destroy(void) {
 
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             if (c_ptr->tptr != 0) {
-                if (((t_list[c_ptr->tptr].tval >= TV_INVIS_TRAP) &&
-                     (t_list[c_ptr->tptr].tval <= TV_CLOSED_DOOR) &&
-                     (t_list[c_ptr->tptr].tval != TV_RUBBLE)) ||
-                    (t_list[c_ptr->tptr].tval == TV_SECRET_DOOR)) {
+                if (((floor_item_at(c_ptr->tptr)->tval >= TV_INVIS_TRAP) &&
+                     (floor_item_at(c_ptr->tptr)->tval <= TV_CLOSED_DOOR) &&
+                     (floor_item_at(c_ptr->tptr)->tval != TV_RUBBLE)) ||
+                    (floor_item_at(c_ptr->tptr)->tval == TV_SECRET_DOOR)) {
                     if (delete_object(i, j)) {
                         destroy = true;
                     }
-                } else if ((t_list[c_ptr->tptr].tval == TV_CHEST) &&
-                           (t_list[c_ptr->tptr].flags != 0)) {
+                } else if ((floor_item_at(c_ptr->tptr)->tval == TV_CHEST) &&
+                           (floor_item_at(c_ptr->tptr)->flags != 0)) {
                     // destroy traps on chest and unlock
-                    t_list[c_ptr->tptr].flags &= ~(CH_TRAPPED | CH_LOCKED);
-                    t_list[c_ptr->tptr].name2 = SN_UNLOCKED;
+                    floor_item_at(c_ptr->tptr)->flags &= ~(CH_TRAPPED | CH_LOCKED);
+                    floor_item_at(c_ptr->tptr)->name2 = SN_UNLOCKED;
                     msg_print("You have disarmed the chest.");
-                    known2(&t_list[c_ptr->tptr]);
+                    known2(floor_item_at(c_ptr->tptr));
                     destroy = true;
                 }
             }
@@ -427,8 +432,8 @@ int td_destroy(void) {
 int detect_monsters(void) {
     bool detect = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
 
         if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && ((CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove) == 0)) {
             m_ptr->ml = true;
@@ -459,7 +464,7 @@ void light_line(int dir, int y, int x) {
         // put mmove at end because want to light up current spot
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -479,7 +484,7 @@ void light_line(int dir, int y, int x) {
             // set pl in case tl was true above
             c_ptr->pl = true;
             if (c_ptr->cptr > 1) {
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 // light up and draw monster
@@ -529,12 +534,12 @@ int disarm_all(int dir, int y, int x) {
         // put mmove at end, in case standing on a trap
         dist++;
 
-        c_ptr = &cave[y][x];
+        c_ptr = square_at(y, x);
 
         // note, must continue upto and including the first non open space,
         // because secret doors have fval greater than MAX_OPEN_SPACE
         if (c_ptr->tptr != 0) {
-            inven_type *t_ptr = &t_list[c_ptr->tptr];
+            inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
             if ((t_ptr->tval == TV_INVIS_TRAP) ||
                 (t_ptr->tval == TV_VIS_TRAP)) {
@@ -622,7 +627,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, const char *bolt_typ) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         lite_spot(oldy, oldx);
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
@@ -631,7 +636,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, const char *bolt_typ) {
             if (c_ptr->cptr > 1) {
                 flag = true;
 
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 // light up monster and draw monster, temporarily set
@@ -704,7 +709,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
         if (dist > OBJ_BOLT_RANGE) {
             flag = true;
         } else {
-            cave_type *c_ptr = &cave[y][x];
+            cave_type *c_ptr = square_at(y, x);
 
             if ((c_ptr->fval >= MIN_CLOSED_SPACE) || (c_ptr->cptr > 1)) {
                 flag = true;
@@ -717,15 +722,15 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                 for (int i = y - max_dis; i <= y + max_dis; i++) {
                     for (int j = x - max_dis; j <= x + max_dis; j++) {
                         if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
-                            c_ptr = &cave[i][j];
+                            c_ptr = square_at(i, j);
 
-                            if ((c_ptr->tptr != 0) && (*destroy)(&t_list[c_ptr->tptr])) {
+                            if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
                                 (void)delete_object(i, j);
                             }
 
                             if (c_ptr->fval <= MAX_OPEN_SPACE) {
                                 if (c_ptr->cptr > 1) {
-                                    monster_type *m_ptr = &m_list[c_ptr->cptr];
+                                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                                     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                                     // lite up creature if visible, temp set pl so that update_mon works
@@ -822,9 +827,9 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
     for (int i = y - 2; i <= y + 2; i++) {
         for (int j = x - 2; j <= x + 2; j++) {
             if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
-                if ((c_ptr->tptr != 0) && (*destroy)(&t_list[c_ptr->tptr])) {
+                if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
                     (void)delete_object(i, j);
                 }
 
@@ -838,7 +843,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                     }
 
                     if (c_ptr->cptr > 1) {
-                        monster_type *m_ptr = &m_list[c_ptr->cptr];
+                        monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                         dam = dam_hp;
@@ -969,14 +974,14 @@ int hp_monster(int dir, int y, int x, int dam) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
             monster = true;
@@ -1002,14 +1007,14 @@ int drain_life(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if ((r_ptr->cdefense & CD_UNDEAD) == 0) {
@@ -1042,14 +1047,14 @@ int speed_monster(int dir, int y, int x, int spd) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1082,12 +1087,12 @@ int confuse_monster(int dir, int y, int x) {
     do {
         (void)mmove(dir, &y, &x);
         dist++;
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1131,14 +1136,14 @@ int sleep_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
             flag = true;
 
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1171,7 +1176,7 @@ int wall_to_mud(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         // note, this ray can move through walls as it turns them to mud
         if (dist == OBJ_BOLT_RANGE) {
@@ -1191,13 +1196,13 @@ int wall_to_mud(int dir, int y, int x) {
             if (panel_contains(y, x) && test_light(y, x)) {
                 msgtype out_val;
                 bigvtype tmp_str;
-                objdes(tmp_str, &t_list[c_ptr->tptr], false);
+                objdes(tmp_str, floor_item_at(c_ptr->tptr), false);
                 (void)snprintf(out_val, sizeof(out_val), "The %s turns into mud.", tmp_str);
                 msg_print(out_val);
                 wall = true;
             }
 
-            if (t_list[c_ptr->tptr].tval == TV_RUBBLE) {
+            if (floor_item_at(c_ptr->tptr)->tval == TV_RUBBLE) {
                 (void)delete_object(y, x);
                 if (randint(10) == 1) {
                     place_object(y, x, false);
@@ -1212,7 +1217,7 @@ int wall_to_mud(int dir, int y, int x) {
         }
 
         if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if (CD_STONE & r_ptr->cdefense) {
@@ -1244,11 +1249,11 @@ int td_destroy2(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        c_ptr = &cave[y][x];
+        c_ptr = square_at(y, x);
 
         // must move into first closed spot, as it might be a secret door
         if (c_ptr->tptr != 0) {
-            inven_type *t_ptr = &t_list[c_ptr->tptr];
+            inven_type *t_ptr = floor_item_at(c_ptr->tptr);
 
             if ((t_ptr->tval == TV_INVIS_TRAP) ||
                 (t_ptr->tval == TV_CLOSED_DOOR) ||
@@ -1283,20 +1288,22 @@ int poly_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *const c_ptr = &cave[y][x];
+        cave_type *const c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = &m_list[c_ptr->cptr];
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
             if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
                 flag = true;
                 delete_monster((int)c_ptr->cptr);
 
-                // Place_monster() should always return true here.
-                const int16_t m = randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0];
+                // Place_monster() should always return true here. Any monster
+                // but a town one, so the band starts above them.
+                const int first = first_monster_at_level(1);
+                const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
                 poly = place_monster(y, x, monster_make_creature_handle(m), false);
 
                 // don't test c_ptr->fm here, only pl/tl
@@ -1324,7 +1331,7 @@ int build_wall(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
@@ -1337,7 +1344,7 @@ int build_wall(int dir, int y, int x) {
                 // stop the wall building
                 flag = true;
 
-                monster_type *m_ptr = &m_list[c_ptr->cptr];
+                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                 creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                 if (!(r_ptr->cmove & CM_PHASE)) {
@@ -1387,15 +1394,15 @@ bool clone_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            m_list[c_ptr->cptr].csleep = 0;
+            monster_list_at(c_ptr->cptr)->csleep = 0;
 
             // monptr of 0 is safe here, since can't reach here from creatures
-            return multiply_monster(y, x, m_list[c_ptr->cptr].creature, 0);
+            return multiply_monster(y, x, monster_list_at(c_ptr->cptr)->creature, 0);
         }
     } while (!flag);
 
@@ -1406,7 +1413,7 @@ bool clone_monster(int dir, int y, int x) {
 void teleport_away(int monptr, int dis) {
     int yn, xn;
 
-    monster_type *m_ptr = &m_list[monptr];
+    monster_type *m_ptr = monster_list_at(monptr);
     int ctr = 0;
 
     do {
@@ -1420,7 +1427,7 @@ void teleport_away(int monptr, int dis) {
             ctr = 0;
             dis += 5;
         }
-    } while ((cave[yn][xn].fval >= MIN_CLOSED_SPACE) || (cave[yn][xn].cptr != 0));
+    } while ((square_at(yn, xn)->fval >= MIN_CLOSED_SPACE) || (square_at(yn, xn)->cptr != 0));
 
     move_rec((int)m_ptr->fy, (int)m_ptr->fx, yn, xn);
     lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
@@ -1448,13 +1455,13 @@ void teleport_to(int ny, int nx) {
             ctr = 0;
             dis++;
         }
-    } while (!in_bounds(y, x) || (cave[y][x].fval >= MIN_CLOSED_SPACE) || (cave[y][x].cptr >= 2));
+    } while (!in_bounds(y, x) || (square_at(y, x)->fval >= MIN_CLOSED_SPACE) || (square_at(y, x)->cptr >= 2));
 
     move_rec(player_row(), player_col(), y, x);
 
     for (int i = player_row() - 1; i <= player_row() + 1; i++) {
         for (int j = player_col() - 1; j <= player_col() + 1; j++) {
-            cave_type *c_ptr = &cave[i][j];
+            cave_type *c_ptr = square_at(i, j);
             c_ptr->tl = false;
             lite_spot(i, j);
         }
@@ -1478,12 +1485,12 @@ int teleport_monster(int dir, int y, int x) {
         (void)mmove(dir, &y, &x);
         dist++;
 
-        cave_type *c_ptr = &cave[y][x];
+        cave_type *c_ptr = square_at(y, x);
 
         if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
-            m_list[c_ptr->cptr].csleep = 0; // wake it up
+            monster_list_at(c_ptr->cptr)->csleep = 0; // wake it up
             teleport_away((int)c_ptr->cptr, MAX_SIGHT);
             result = true;
         }
@@ -1497,8 +1504,8 @@ int teleport_monster(int dir, int y, int x) {
 int mass_genocide(void) {
     bool result = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && ((r_ptr->cmove & CM_WIN) == 0)) {
@@ -1518,8 +1525,8 @@ int genocide(void) {
 
     char typ;
     if (get_com("Which type of creature do you wish exterminated?", &typ)) {
-        for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-            monster_type *m_ptr = &m_list[i];
+        for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+            monster_type *m_ptr = monster_list_at(i);
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
             if (typ == r_ptr->cchar) {
                 if ((r_ptr->cmove & CM_WIN) == 0) {
@@ -1545,8 +1552,8 @@ int genocide(void) {
 int speed_monsters(int spd) {
     bool speed = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1581,8 +1588,8 @@ int speed_monsters(int spd) {
 int sleep_monsters2(void) {
     bool sleep = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -1612,8 +1619,8 @@ int sleep_monsters2(void) {
 int mass_poly(void) {
     bool mass = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         if (m_ptr->cdis <= MAX_SIGHT) {
             creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
@@ -1622,8 +1629,10 @@ int mass_poly(void) {
                 int x = m_ptr->fx;
                 delete_monster(i);
 
-                // Place_monster() should always return true here.
-                const int16_t m = randint(m_level[MAX_MONS_LEVEL] - m_level[0]) - 1 + m_level[0];
+                // Place_monster() should always return true here. Any monster
+                // but a town one, so the band starts above them.
+                const int first = first_monster_at_level(1);
+                const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
                 mass = place_monster(y, x, monster_make_creature_handle(m), false);
             }
         }
@@ -1636,8 +1645,8 @@ int mass_poly(void) {
 int detect_evil(void) {
     bool flag = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) &&
             (CD_EVIL & monster_get_creature(m_ptr->creature)->cdefense)) {
             m_ptr->ml = true;
@@ -1742,14 +1751,14 @@ void earthquake(void) {
     for (int i = player_row() - 8; i <= player_row() + 8; i++) {
         for (int j = player_col() - 8; j <= player_col() + 8; j++) {
             if (((i != player_row()) || (j != player_col())) && in_bounds(i, j) && (randint(8) == 1)) {
-                cave_type *c_ptr = &cave[i][j];
+                cave_type *c_ptr = square_at(i, j);
 
                 if (c_ptr->tptr != 0) {
                     (void)delete_object(i, j);
                 }
 
                 if (c_ptr->cptr > 1) {
-                    monster_type *m_ptr = &m_list[c_ptr->cptr];
+                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
                     creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
                     if (!(r_ptr->cmove & CM_PHASE)) {
@@ -1814,7 +1823,7 @@ int protect_evil(void) {
 
 // Create some high quality mush for the player. -RAK-
 void create_food(void) {
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (c_ptr->tptr != 0) {
         // take no action here, don't want to destroy object under player
@@ -1824,7 +1833,7 @@ void create_food(void) {
         free_turn_flag = true;
     } else {
         place_object(player_row(), player_col(), false);
-        invcopy(&t_list[c_ptr->tptr], OBJ_MUSH);
+        invcopy(floor_item_at(c_ptr->tptr), OBJ_MUSH);
     }
 }
 
@@ -1833,8 +1842,8 @@ void create_food(void) {
 int dispel_creature(int cflag, int damage) {
     bool dispel = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
@@ -1860,8 +1869,8 @@ int dispel_creature(int cflag, int damage) {
 int turn_undead(void) {
     bool turn_und = false;
 
-    for (int i = mfptr - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = &m_list[i];
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
+        monster_type *m_ptr = monster_list_at(i);
         creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
         if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(player_row(), player_col(), m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
@@ -1882,12 +1891,12 @@ int turn_undead(void) {
 
 // Leave a glyph of warding. Creatures will not pass over! -RAK-
 void warding_glyph(void) {
-    cave_type *c_ptr = &cave[player_row()][player_col()];
+    cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (c_ptr->tptr == 0) {
         int i = popt();
         c_ptr->tptr = i;
-        invcopy(&t_list[i], OBJ_SCARE_MON);
+        invcopy(floor_item_at(i), OBJ_SCARE_MON);
     }
 }
 
@@ -2000,7 +2009,7 @@ void detect_inv2(int amount) {
 }
 
 static void replace_spot(int y, int x, int typ) {
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = square_at(y, x);
 
     switch (typ) {
     case 1:
@@ -2043,10 +2052,10 @@ static void replace_spot(int y, int x, int typ) {
 //        as teleporting to another level.  This will NOT win
 //        the game.
 void destroy_area(int y, int x) {
-    if (dun_level > 0) {
+    if (!player_is_in_town()) {
         for (int i = (y - 15); i <= (y + 15); i++) {
             for (int j = (x - 15); j <= (x + 15); j++) {
-                if (in_bounds(i, j) && (cave[i][j].fval != BOUNDARY_WALL)) {
+                if (in_bounds(i, j) && (square_at(i, j)->fval != BOUNDARY_WALL)) {
                     int k = distance(i, j, y, x);
 
                     // clear player's spot, but don't put wall there
