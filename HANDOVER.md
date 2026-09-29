@@ -10,9 +10,10 @@
 
 ## 0. 現在地
 
-2026-09-29、`develop` は `cb2c7cc`（`origin` は `994818a` のまま。push はユーザーが行う）。
+2026-09-29、`develop` は `d437df0` の上に #54 の記録（`origin` は `994818a` のまま。push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1662 件・74 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1671 件・75 本**、failed=0、`RESULT: GREEN`。
+  `layer_deps.py --check` は core/ の違反 0。
 - `externs.h` の global は **42 個・参照 599**（着手時 112 個・3147）。
   `scripts/globals.py --check` は 42 個すべて分類。
 - **#18（データの散在）の列は終わった。** 残りの 42 個をどうするかは台帳の
@@ -24,8 +25,14 @@
 - **D（`git mv`）も済んだ —— `refactor/53-directories`、マージ `99fe489`**（13 コミット）。
   `src/` の 166 本が `core/ data/ player/ monster/ dungeon/ item/ store/ ui/ save/
   platform/` に入った（`combat/` はまだ無い）。本体の `objdump -d` は変更前と一致。
-  層の規則はユーザーの判断で**まず `core/` だけ守る**と決まった。**次は R**
-  （misc4・misc2 から。下調べは layout.md の「misc4・misc1 の下調べ」、マージ `cb2c7cc`）。
+  層の規則はユーザーの判断で**まず `core/` だけ守る**と決まり、毎ステップの確認の 3
+  に入った（マージ `d6b95e3`）。
+- **R が始まった。misc2.c と misc4.c は消えた**（#54。マージ `1647652`・`d437df0`）。
+  `magic_treasure` → `item/item_enchant.c`、`set_options` → `ui/options_menu.c`、
+  inscription → `item/inscription.c`、`check_view` → `ui/map_view.c`、`concat` は
+  テスト 9 件を足してから `core/str_insert.c`（#47 も済んだ）。どのコミットも
+  動かした関数の機械語が変更前と一致（`scripts/dis_compare.py`）。**次は misc1**
+  （行き先の迷いどころ 3 つはユーザーが決めた。layout.md の R の節）。
   第 5 節・第 6 節と `docs/refactoring/layout.md`。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
@@ -524,7 +531,7 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
   `game_state.c`・全域ヘッダ 5 本と、R で割る番号つき 10 本。
 - テストのビルドを**ライブラリー化した**（#52、L1〜L3）。src/ の `.c` の一覧は
   `sources.mk` の 1 つ（3 つの makefile が読む。#46 も解消、Windows は未確認）。
-  `libcore.a` は 103 本（`main`・`render_ncurses`・`input_ncurses` と、テストの
+  `libcore.a` は 105 本（#54 の後。`main`・`render_ncurses`・`input_ncurses` と、テストの
   フラグで警告の出る `dungeon`・`moria1`・`signals` を除く）。手書きの recipe
   （2335 行）は型の規則 1 つと足場の表 19 行に、`makefile.test` は 194 行に。
   **第 7 節の「recipe 行を grep して税を数える」項は L2 の前の話** ——
@@ -534,8 +541,14 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
   `stats.c` など）に UI や外への依存を持つ code を足さない。兄弟のファイルを
   作る。葉のテストが単独でリンクできることを守るため。
 
-L・D0・D は済んだ（1662 件・74 本 GREEN、警告 0。D はマージ待ち）。次の一手は
-層の規則（`layer_deps.py` の `RULES`）を決めることと、第 6 節の R。
+L・D0・D は済み、層の規則は「core/ だけ守る」に決まった。R は misc4・misc2 が
+済み（1671 件・75 本 GREEN、警告 0）。次は misc1、そのあと第 6 節の順。
+
+- **純粋な移動は `scripts/dis_compare.py 変更前の umoria 変更後の umoria 関数…`
+  で確かめる。** 移す関数の多くは本物に届くテストが 0 件で（misc4 の 5 本中 4 本、
+  misc2 の 2 本とも）、壊しても赤くならない。そういう関数の移動は、機械語の
+  一致だけが保護になる。objdump のアドレスを落とすだけでは足りない
+  （文字列の番地と switch の跳び先の表がずれる。道具の冒頭の説明）。
 
 ## 6. その先の順番
 

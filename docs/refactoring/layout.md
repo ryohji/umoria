@@ -106,6 +106,15 @@
 - `add_food` → `item/eat.c` か、兄弟の `player/food_ops.c`。**`player_food.c` は
   不可**（測った。下の「下調べ」）。どちらにするかは misc1 の段で決める。
 
+**misc1 で決まったこと（2026-09-29、ユーザーの判断）。** 下調べの「core/ の規則に
+合わないもの」と `add_food` について。
+- `init_seeds`（`progress.c` の窓口を呼ぶ）→ `src/game_state.c`。core には入れない。
+- `randnor` → `core/rnd.c`。読む `normal_table` も `data/tables.c` から**表ごと**移す
+  （読み手は `randnor` だけ。中身は変えない）。
+- `add_food` → 新しい `player/food_ops.c`。
+- `damroll`・`pdamroll`・`max_hp` は `randint` を呼ぶので、`randint` が `core/rnd.c` に
+  入ってから `core/dice.c` へ移す。
+
 ### misc4・misc1 の下調べ（2026-09-29、`aefc979` の時点）
 
 読みとりだけで測った。関数は `misc1.c` に 33 個（`static` 3）、`misc4.c` に 5 個で、
@@ -530,6 +539,6 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | L1〜L3 | 済み（2026-09-29、`develop` へマージ `5e0cd6e`） | `refactor/52-test-library`、`e7c3a9c`〜`c188e58`（7 コミット）。74 本の Map は 72 本が旧 recipe と一致、残る 2 本は旧 recipe が誰も参照しない `tables.c`・`treasure.c` を並べていた差（`worklog.md`） |
 | D0 | 済み（2026-09-29、迷いどころ 10 点はすべて案のとおり。マージ `111d2e7`） | `docs/53-d0-destinations`、`2dfa7b8`・`89395b0` |
 | D | 済み（2026-09-29、`develop` へマージ `99fe489`）。D0 の表のとおり `.c` 96 本・`.h` 70 本を 10 個のディレクトリーへ（`combat/` は 0 本なのでまだ無い）。どのコミットでも本体の `objdump -d` が変更前と一致 | `refactor/53-directories`、`68dbae9`〜`cfaadc4`（13 コミット。makefile の仕組み 1・`layer_deps.py --matrix` 1・`git mv` 10・コメント 1。`worklog.md`） |
-| R（misc4 → moria4） | 未着手 | |
+| R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 は作業中 | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット） |
 | combat の残り | 未着手 | |
 | 後始末 | 未着手 | |

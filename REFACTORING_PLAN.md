@@ -103,8 +103,8 @@ P1 の精査の記録（#8・#9・#12 ほか）は
 | 18 | **完了**（2026-09-29） | データの散在 | `externs.h` の global | 着手時 112 個・参照 3147 → **42 個・参照 599**。残るのは定数表 20・起動時に一度書く表 7・オプション 11・`py` 1・`free_turn_flag` と `closing_flag` 2・`highscore_fp` 1（B19）（`scripts/globals.py` の区分）。区分ごとの今の見立ては [globals_inventory.md](docs/refactoring/globals_inventory.md)「区分ごとの見立て」、経過は [done/](docs/refactoring/done/) の `18-*.md`、この行の 2026-09-29 までの字面は [done/18-01-07-19.md](docs/refactoring/done/18-01-07-19.md) の末尾 | 区分ごとに窓口の module を作る（A/B/C） | High | 区分ごと |
 | 42 | 未着手 | 肥大化クラス／モジュール | misc3.c の残る **10 塊**（→ [done/33-41-misc3.md](docs/refactoring/done/33-41-misc3.md) の「#33 の精査」） | 配置 161 行／描画 475 行／能力値の変更 115 行／名前 50 行／持ち物 210 行／呪文 525 行／経験値 82 行／wizard 18 行／戦闘 120 行／移動 118 行 | モジュール分割（1 塊 1 コミット。終点は misc3.c が無くなるところ） | High | High |
 | 52 | **済み**（2026-09-29、`refactor/52-test-library` をマージ `5e0cd6e`。makefile.test 2335 → 194 行、#46 も解消・Windows は未確認） | 強すぎる依存関係 | makefile.test（2335 行の手書き recipe） | テストのビルドを 1 つの `libcore.a` から引く形にする（L1〜L3）。#38 の「税」を消す。2026-09-29 の試しで 74 本 1662 件が通った（→ [layout.md](docs/refactoring/layout.md)） | `sources.mk`＋型の規則＋`link_units.py` | High | Medium |
-| 53 | D0 済み（2026-09-29、行き先の表はユーザーの判断で確定・マージ `111d2e7`）。**D 済み**（2026-09-29、`refactor/53-directories` の 13 コミットをマージ `99fe489`。166 本を 10 個のディレクトリーへ、本体の `objdump -d` は変更前と一致）。層の規則（`layer_deps.py` の `RULES`）は未定 | 置き場 | `src/` の 109 本 | サブディレクトリー 11 個へ `git mv`（D0 で行き先の表を作って見てもらう）。`#include` は書きかえず `-I` を足す（→ [layout.md](docs/refactoring/layout.md)） | Move | Medium | Low |
-| 54 | 未着手 | 肥大化クラス／モジュール | misc1.c misc2.c misc4.c（#43 の一部） | 中身の名前のファイルへ分ける。misc4 → misc1 → misc2 の順。`concat` は先にテスト（#47）（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | Medium | Medium |
+| 53 | D0 済み（2026-09-29、行き先の表はユーザーの判断で確定・マージ `111d2e7`）。**D 済み**（2026-09-29、`refactor/53-directories` の 13 コミットをマージ `99fe489`。166 本を 10 個のディレクトリーへ、本体の `objdump -d` は変更前と一致）。層の規則はユーザーの判断で「まず `core/` だけ守る」（2026-09-29、マージ `d6b95e3`） | 置き場 | `src/` の 109 本 | サブディレクトリー 11 個へ `git mv`（D0 で行き先の表を作って見てもらう）。`#include` は書きかえず `-I` を足す（→ [layout.md](docs/refactoring/layout.md)） | Move | Medium | Low |
+| 54 | **misc2・misc4 済み**（2026-09-29、`refactor/54-misc2` をマージ `1647652`、`refactor/54-misc4` をマージ `d437df0`。どちらのファイルも消えた。テスト 1662 → 1671 件）。misc1 は作業中 | 肥大化クラス／モジュール | misc1.c misc2.c misc4.c（#43 の一部） | 中身の名前のファイルへ分ける。misc4 → misc1 → misc2 の順。`concat` は先にテスト（#47）（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | Medium | Medium |
 | 55 | 未着手 | 肥大化クラス／モジュール | store1.c store2.c | `store_stock`・`store_price`・`store_haggle`・`store_ui` の 4 本へ（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | Medium | Medium |
 | 56 | 未着手 | 肥大化クラス／モジュール | moria1.c〜moria4.c（#43 の残り） | 14 の行き先へ分ける。#42 のあと（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | High | High |
 | 57 | 未着手 | 肥大化クラス／モジュール | creature.c `make_attack`、spells.c の飛び道具 | `combat/` に 7 本。`make_attack` は中を割らずに移す（#25 の棚上げは維持）。#51・#29 の組が並ぶ（→ [layout.md](docs/refactoring/layout.md)） | Move | Medium | Medium |
@@ -310,6 +310,11 @@ message 2 つだけで、`misc3.c` も `abilities.c` もこのバイトを読ま
 
 **#47・#48 は 2026-09-13 に追加**（#41 の副産物）。#47 は**#41 から意図的に外した
 もの**で、#48 は**移動のついでに直したくなるが我慢したもの**。
+
+**#47 は 2026-09-29 に #54 で済んだ**（`tests/concat_test.c` の 9 件を足してから、
+`concat` を `core/str_insert.c` へ移した。`dcb4f9f`・`cdd5bf8`）。`CONCAT` マクロは
+予定どおり `externs.h` に残した。宣言は `externs.h` と `str_insert.h` の 2 か所にある
+（`str_insert.c` は `externs.h` を読まないので、`-Wmissing-prototypes` のため）。
 
 **#46 は 2026-09-13 に追加**（#40 の副産物）。
 
