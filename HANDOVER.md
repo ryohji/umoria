@@ -18,8 +18,9 @@
 - **#18（データの散在）の列は終わった。** 残りの 42 個をどうするかは台帳の
   #18 の行と `docs/refactoring/globals_inventory.md` の「区分ごとの見立て」。
 - 記録の文書を `docs/refactoring/` へ切りわけた（第 1 節）。
-- **次は実装の再配置**（番号つきファイルの分割・サブディレクトリー・テストの
-  ライブラリー化）。第 5 節・第 6 節と `docs/refactoring/layout.md`。
+- **実装の再配置の L（テストのライブラリー化）が済んだ**（`refactor/52-test-library`、
+  7 コミット、マージ待ち）。`makefile.test` は 2335 → 194 行、本体の `.o` は
+  `libcore.a` から引く。**次は D0**。第 5 節・第 6 節と `docs/refactoring/layout.md`。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
 [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
@@ -510,15 +511,19 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
 - サブディレクトリーは `core/ data/ player/ monster/ dungeon/ item/ store/
   combat/ ui/ save/ platform/`。`main.c` だけ `src/` に残す。`#include` の
   1394 行（`src/` と `tests/` の `#include "…"`）は書きかえず、ディレクトリーごとに `-I` を足す。
-- テストのビルドを**ライブラリー化**する（`main`・`render_ncurses`・
-  `input_ncurses` を除く全 `.o` を 1 つの `libcore.a` に）。`/tmp` での試しで
-  74 本すべてがリンクし 1662 件が通った。手書きの recipe（2335 行）と
-  「税」（#38）が消える。
+- テストのビルドを**ライブラリー化した**（#52、L1〜L3）。src/ の `.c` の一覧は
+  `sources.mk` の 1 つ（3 つの makefile が読む。#46 も解消、Windows は未確認）。
+  `libcore.a` は 103 本（`main`・`render_ncurses`・`input_ncurses` と、テストの
+  フラグで警告の出る `dungeon`・`moria1`・`signals` を除く）。手書きの recipe
+  （2335 行）は型の規則 1 つと足場の表 19 行に、`makefile.test` は 194 行に。
+  **第 7 節の「recipe 行を grep して税を数える」項は L2 の前の話** ——
+  いまは `python3 scripts/link_units.py --who <名前>.o`。共有ヘッダの地雷も
+  `-MMD` で塞いだ。
 - **置き場の規則**：葉の「状態」module（`inventory.c`・`player_level.c`・
   `stats.c` など）に UI や外への依存を持つ code を足さない。兄弟のファイルを
   作る。葉のテストが単独でリンクできることを守るため。
 
-まだ 1 行も動かしていない。最初の一手は第 6 節の L1。
+L は済んだ（1662 件・74 本 GREEN、警告 0）。次の一手は第 6 節の D0。
 
 ## 6. その先の順番
 

@@ -181,7 +181,7 @@
 
 | 段 | 状態 | ブランチ・コミット |
 |---|---|---|
-| L1〜L3 | 未着手 | |
+| L1〜L3 | 済み（マージ待ち、2026-09-29） | `refactor/52-test-library`、`e7c3a9c`〜`c188e58`（7 コミット）。74 本の Map は 72 本が旧 recipe と一致、残る 2 本は旧 recipe が誰も参照しない `tables.c`・`treasure.c` を並べていた差（`worklog.md`） |
 | D0 | 未着手 | |
 | D | 未着手 | |
 | R（misc4 → moria4） | 未着手 | |
