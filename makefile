@@ -160,6 +160,7 @@ hp_table.o: hp_table.h $(HEADERS_COMMON)
 # one array, so equipment.h is a dependency too.
 inventory.o: inventory.h equipment.h $(HEADERS_COMMON)
 io.o: $(HEADERS_FULL)
+item_enchant.o: floor_items.h missile_serial.h $(HEADERS_FULL)
 item_ident.o: item_ident.h $(HEADERS_FULL)
 magic.o: $(HEADERS_FULL)
 main.o: $(HEADERS_FULL)

@@ -91,6 +91,7 @@ input.o: input.h
 input_ncurses.o: input.h backend_ncurses.h
 inventory.o: inventory.h equipment.h constant.h types.h config.h
 io.o: constant.h types.h externs.h config.h
+item_enchant.o: floor_items.h missile_serial.h constant.h types.h externs.h config.h
 item_ident.o: item_ident.h constant.h types.h externs.h config.h
 magic.o: constant.h types.h externs.h config.h
 main.o: constant.h types.h externs.h config.h
