@@ -387,11 +387,14 @@ bool player_saves(void);
 int find_range(int, int, int *, int *);
 void teleport(int);
 
-// misc4.c
+// item/inscription.c (these five were misc4.c until #54)
 void scribe_object(void);
 void add_inscribe(inven_type *, uint8_t);
 void inscribe(inven_type *, const char *);
+// ui/map_view.c
 void check_view(void);
+// core/str_insert.c, which declares it in str_insert.h as well; CONCAT above
+// expands to it
 char *concat(char *buffer, ...);
 
 // monsters.c

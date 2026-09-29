@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Substituting a template inside a string.
+// Substituting a template inside a string, and joining strings.
 
 #ifndef STR_INSERT_H
 #define STR_INSERT_H
@@ -34,5 +34,12 @@ void insert_str(char *object_str, const char *mtc_str, const char *insert);
 // written out in decimal, prefixed with '+' when `show_sign` is true and the
 // number is not negative.
 void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show_sign);
+
+// Copies the strings after `buffer`, up to the first NULL, one after another
+// into `buffer` and returns `buffer`. Only NULL gives the empty string. The
+// length is not checked; every caller goes through CONCAT (externs.h), which
+// passes a fresh vtype, so the result must fit in 79 characters. The same
+// prototype is in externs.h, next to that macro.
+char *concat(char *buffer, ...);
 
 #endif // STR_INSERT_H

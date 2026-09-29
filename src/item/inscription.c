@@ -5,7 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc code for maintaining the dungeon, printing player info
+// Inscriptions: the comment a player writes on an object, and the marks the
+// game adds to its description.
 
 #include "headers.h"
 
@@ -13,14 +14,14 @@
 #include "constant.h"
 #include "types.h"
 
-#include "dungeon_map.h"
 #include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
 
-#include <stdarg.h>
+// Moved out of misc4.c unchanged. The three prototypes stay in externs.h, the
+// same as the other files that include it (desc.c, eat.c): scribe_object()
+// asks for the item through get_item() and prints through io.c, so this file
+// needs externs.h anyway.
 
 // Add a comment to an object description. -CJS-
 void scribe_object(void) {
@@ -62,53 +63,4 @@ void add_inscribe(inven_type *i_ptr, uint8_t type) {
 // Replace any existing comment in an object description with a new one. -CJS-
 void inscribe(inven_type *i_ptr, const char *str) {
     (void)strcpy(i_ptr->inscrip, str);
-}
-
-// We need to reset the view of things. -CJS-
-void check_view(void) {
-    cave_type *c_ptr = square_at(player_row(), player_col());
-
-    // Check for new panel
-    if (get_panel(player_row(), player_col(), false)) {
-        prt_map();
-    }
-
-    // Move the light source
-    move_light(player_row(), player_col(), player_row(), player_col());
-
-    if (c_ptr->fval == LIGHT_FLOOR) {
-        // A room of light should be lit.
-
-        if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS) && !c_ptr->pl) {
-            light_room(player_row(), player_col());
-        }
-    } else if (c_ptr->lr && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
-        // In doorway of light-room?
-
-        for (int i = (player_row() - 1); i <= (player_row() + 1); i++) {
-            for (int j = (player_col() - 1); j <= (player_col() + 1); j++) {
-                cave_type *d_ptr = square_at(i, j);
-                if ((d_ptr->fval == LIGHT_FLOOR) && !d_ptr->pl) {
-                    light_room(i, j);
-                }
-            }
-        }
-    }
-}
-
-// concatenate var length string arguments (last should be NULL) into buffer.
-// returns buffer.
-char *concat(char *const buffer, ...) {
-    char *p = buffer;
-    const char *s;
-    va_list list;
-
-    va_start(list, buffer);
-    buffer[0] = '\0';
-    while ((s = va_arg(list, const char *))) {
-        p = strcpy(p, s) + strlen(s);
-    }
-    va_end(list);
-
-    return buffer;
 }

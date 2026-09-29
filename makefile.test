@@ -50,6 +50,7 @@ TESTS = distance_test device_chance_test item_ident_test inven_stack_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
         str_insert_test inventory_test progress_test score_death_test \
+        concat_test \
         save_state_test player_pos_test hp_table_test \
         calc_hitpoints_test player_light_test burden_test \
         check_strength_test calc_spells_test gain_spells_test \

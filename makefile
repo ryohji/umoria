@@ -155,6 +155,9 @@ generate.o: $(HEADERS_FULL)
 help.o: $(HEADERS_FULL)
 # hp_table.c does not include externs.h either, so HEADERS_COMMON is enough.
 hp_table.o: hp_table.h $(HEADERS_COMMON)
+# inscription.c came out of misc4.c (#54). It includes externs.h, and reads
+# the pack through both windows of inventory.c.
+inscription.o: inventory.h equipment.h $(HEADERS_FULL)
 # inventory.c does not include externs.h, so HEADERS_COMMON is enough here
 # (the same as stats.o and str_insert.o below). It provides both windows on the
 # one array, so equipment.h is a dependency too.
@@ -164,9 +167,11 @@ item_enchant.o: floor_items.h missile_serial.h $(HEADERS_FULL)
 item_ident.o: item_ident.h $(HEADERS_FULL)
 magic.o: $(HEADERS_FULL)
 main.o: $(HEADERS_FULL)
+# map_view.c came out of misc4.c (#54). It includes externs.h, and reads the
+# map, where the player stands and whether the player is blind.
+map_view.o: dungeon_map.h player_pos.h player_timed_effects.h $(HEADERS_FULL)
 misc1.o: $(HEADERS_FULL)
 misc3.o: burden.h $(HEADERS_FULL)
-misc4.o: $(HEADERS_FULL)
 # missile_serial.c does not include externs.h either (MAX_SHORT comes from
 # constant.h), so HEADERS_COMMON is enough.
 missile_serial.o: missile_serial.h $(HEADERS_COMMON)
