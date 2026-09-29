@@ -165,10 +165,10 @@
 - `creature.c`（1651 行 → 約 1050 行）と `spells.c`（2141 行 → 約 1790 行）も
   触ることになる。そのため、番号つきのファイルが片づいたあとに別のブランチで行う。
 
-## D0：行き先の表（案）
+## D0：行き先の表
 
 2026-09-29、`68c7ad0` の時点で測った。**まだ 1 本も動かしていない。** ユーザーに
-見てもらってから D に入る。
+見てもらい、末尾の「決まったこと」のとおりに決まった。
 
 **数えた本数。** `src/*.c` は **109 本**（上の「109 本」と一致）、`src/*.h` は
 **76 本**。`.h` のうち 68 本は同じ名前の `.c` と対で、`.c` に付いていく。
@@ -434,27 +434,20 @@ D のあいだは `src/` に置いたまま。分け先は上の「番号つき�
   `"creature.c"`・`"save.c"` 2 本）。`-I` で探すので、`makefile.test` には
   `monster/`・`save/` の `-I` も要る。
 
-### ユーザーに決めてもらいたい点
+### 決まったこと（2026-09-29、ユーザーの判断）
 
-- `src/` に `main.c` のほかに `dungeon.c`（主ループ）と `game_state.c`（B3）を
-  残してよいか。だめなら `dungeon.c` は `dungeon/` へ、`game_state.c` は
-  B3 を先に決める。
-- 全域ヘッダ 5 本（`config.h`・`constant.h`・`types.h`・`headers.h`・`externs.h`）
-  を `src/` に残してよいか。
-- `spells.c`（2141 行）を `item/` に置いてよいか。それとも 12 個めの
-  ディレクトリー（`magic/` など）を作るか。
-- `wizard.c` を `ui/` に置いてよいか。それとも `debug/` を作るか。
-- `monsters.c`・`variable.c` を `data/` に置いてよいか（`monster/` の案もある）。
-- `options.c`・`progress.c`・`sets.c` を `data/` に置いてよいか
-  （それぞれ `ui/`・`save/`・`item/` の案もある）。
-- `panel.c` を `ui/` に置いてよいか（`dungeon/` の案もある。`dungeon/` →
-  `ui/` の依存ができる）。
-- `render.c`・`input.c` を `ui/` に、`files.c`・`recall.c`・`help.c` を
-  `ui/` に置いてよいか。
-- `create.c` を `player/` に、`magic.c`・`prayer.c` を `item/` に、
-  `death.c` を `save/` に置いてよいか。
-- R で作る `dungeon/search.c` を、`<search.h>` と重ならない名前
-  （`secret_search.c` など）に変えてよいか。
+D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の表の案のとおり**と決まった。
+
+- `src/` に残すのは `main.c`・`dungeon.c`（主ループ）・`game_state.c`（B3。
+  判断が出るまで）と、全域ヘッダ 5 本（`config.h`・`constant.h`・`types.h`・
+  `headers.h`・`externs.h`）。
+- ディレクトリーは 11 個のまま。`spells.c` は `item/`、`wizard.c` は `ui/`。
+  `magic/`・`debug/` は作らない（`spells.c` の飛び道具は #57 で `combat/` へ）。
+- `monsters.c`・`variable.c`・`options.c`・`progress.c`・`sets.c` は `data/`。
+- `panel.c`・`render.c`・`input.c`・`files.c`・`recall.c`・`help.c` は `ui/`。
+  `create.c` は `player/`、`magic.c`・`prayer.c` は `item/`、`death.c` は `save/`。
+- R で作る `dungeon/search.c` は `<search.h>` と重ならない名前にする
+  （`secret_search.c` など。名前は R の段で決める）。
 
 ## 順番
 
