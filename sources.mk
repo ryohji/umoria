@@ -17,10 +17,10 @@
 # 書いたものが VPATH と -I に入る。ディレクトリーを足したらここにも足す。
 # 名前が重なると -I の順で答えが変わるので、ファイルを足すときは
 # ls src/*/ | sort | uniq -d で同名が無いことを見る。
-SRC_SUBDIRS = core data player monster
+SRC_SUBDIRS = core data player monster dungeon
 
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
-	player/create.c desc.c generate.c data/sets.c dungeon.c monster/creature.c death.c \
+	player/create.c desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c death.c \
 	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c device.c \
 	item_ident.c player/abilities.c data/options.c messages.c \
 	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
@@ -29,7 +29,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	inventory.c data/progress.c score_death.c save_state.c player/player_pos.c \
 	player/hp_table.c player/player_light.c player/burden.c player/spells_known.c object_levels.c \
 	missile_serial.c inven_command_state.c screen_touched.c \
-	level_exit.c player/pending_teleport.c input_ended.c player/running.c \
+	dungeon/level_exit.c player/pending_teleport.c input_ended.c player/running.c \
 	command_state.c player/player_gold.c player/player_food.c player/player_display_numbers.c \
 	player/player_mana.c player/player_hp.c player/player_level.c player/player_status_flags.c \
 	player/player_abilities.c player/player_timed_effects.c player/player_resting.c \
@@ -39,7 +39,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player/player_attack_bonuses.c player/player_search_skill.c player/player_bio.c \
 	player/player_stealth.c player/player_class.c \
 	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c \
-	dungeon_size.c dungeon_level.c floor_items.c dungeon_map.c \
+	dungeon/dungeon_size.c dungeon/dungeon_level.c dungeon/floor_items.c dungeon/dungeon_map.c \
 	moria1.c moria2.c moria3.c moria4.c data/monsters.c data/treasure.c data/variable.c \
 	core/rnd.c recall.c data/player.c data/tables.c
 
