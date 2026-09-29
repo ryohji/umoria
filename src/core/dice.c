@@ -5,7 +5,9 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc utility and initialization code, magic objects code
+// Dice rolls: what the monster and object tables write as 2d6
+//
+// The three functions came over unchanged from misc1.c, the last of it (#54).
 
 #include "headers.h"
 

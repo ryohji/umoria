@@ -270,7 +270,7 @@ int topen(char *, int, int);
 void cast(void);
 
 // main.c
-// misc1.c
+// core/dice.c
 int damroll(int, int);
 int pdamroll(const uint8_t *);
 int max_hp(const uint8_t *);
