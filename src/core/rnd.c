@@ -98,7 +98,7 @@ int32_t rnd(void) {
 }
 
 // this table is used to generate a psuedo-normal distribution.  See
-// the function randnor() in misc1.c, this is much faster than calling
+// the function randnor() below, this is much faster than calling
 // transcendental function to calculate a true normal distribution.
 uint16_t normal_table[NORMAL_TABLE_SIZE] = {
      206,     613,    1022,    1430,    1838,    2245,    2652,    3058,
