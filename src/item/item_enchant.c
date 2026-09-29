@@ -9,7 +9,8 @@
 // object may be given when it is created
 //
 // magic_treasure() came over from misc2.c unchanged. It is one long switch on
-// the object's type and is not split here (ledger #26).
+// the object's type and is not split here (ledger #26). m_bonus(), the size of
+// a plus, came from misc1.c.
 
 #include "headers.h"
 
@@ -852,5 +853,27 @@ void magic_treasure(int x, int level) {
 
     default:
         break;
+    }
+}
+
+// Moved out of misc1.c unchanged (#54); its prototype stays in externs.h.
+// magic_treasure() above is the only caller.
+
+// Enchant a bonus based on degree desired -RAK-
+int m_bonus(int base, int max_std, int level) {
+    int stand_dev = (OBJ_STD_ADJ * level / 100) + OBJ_STD_MIN;
+
+    // Check for level > max_std since that may have generated an overflow.
+    if (stand_dev > max_std || level > max_std) {
+        stand_dev = max_std;
+    }
+
+    // abs may be a macro, don't call it with randnor as a parameter
+    int tmp = randnor(0, stand_dev);
+    int x = (abs(tmp) / 10) + base;
+    if (x < base) {
+        return base;
+    } else {
+        return x;
     }
 }

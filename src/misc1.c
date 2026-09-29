@@ -783,22 +783,3 @@ bool magik(int chance) {
         return false;
     }
 }
-
-// Enchant a bonus based on degree desired -RAK-
-int m_bonus(int base, int max_std, int level) {
-    int stand_dev = (OBJ_STD_ADJ * level / 100) + OBJ_STD_MIN;
-
-    // Check for level > max_std since that may have generated an overflow.
-    if (stand_dev > max_std || level > max_std) {
-        stand_dev = max_std;
-    }
-
-    // abs may be a macro, don't call it with randnor as a parameter
-    int tmp = randnor(0, stand_dev);
-    int x = (abs(tmp) / 10) + base;
-    if (x < base) {
-        return base;
-    } else {
-        return x;
-    }
-}
