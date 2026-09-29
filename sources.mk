@@ -17,16 +17,16 @@
 # 書いたものが VPATH と -I に入る。ディレクトリーを足したらここにも足す。
 # 名前が重なると -I の順で答えが変わるので、ファイルを足すときは
 # ls src/*/ | sort | uniq -d で同名が無いことを見る。
-SRC_SUBDIRS = core data player monster dungeon item store ui
+SRC_SUBDIRS = core data player monster dungeon item store ui save
 
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c ui/files.c ui/io.c \
-	player/create.c item/desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c death.c \
-	item/eat.c ui/help.c item/magic.c item/potions.c item/prayer.c save.c item/staffs.c item/wands.c item/device.c \
+	player/create.c item/desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c save/death.c \
+	item/eat.c ui/help.c item/magic.c item/potions.c item/prayer.c save/save.c item/staffs.c item/wands.c item/device.c \
 	item/item_ident.c player/abilities.c data/options.c ui/messages.c \
 	item/scrolls.c item/spells.c ui/wizard.c store2.c signals.c signal_flags.c \
 	ui/render.c render_ncurses.c ui/view_observer.c game_state.c \
 	ui/input.c input_ncurses.c platform.c ui/panel.c store/stores.c player/stats.c core/str_insert.c \
-	item/inventory.c data/progress.c score_death.c save_state.c player/player_pos.c \
+	item/inventory.c data/progress.c save/score_death.c save/save_state.c player/player_pos.c \
 	player/hp_table.c player/player_light.c player/burden.c player/spells_known.c item/object_levels.c \
 	item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c \
 	dungeon/level_exit.c player/pending_teleport.c ui/input_ended.c player/running.c \
