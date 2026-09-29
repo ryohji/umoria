@@ -179,53 +179,6 @@ int distance(int y1, int x1, int y2, int x2) {
     return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
 }
 
-// Checks points north, south, east, and west for a wall -RAK-
-// note that y,x is always in_bounds(), i.e. inside the boundary ring:
-// 0 < y < height-1 and 0 < x < width-1 (see dungeon_size.h)
-int next_to_walls(int y, int x) {
-    int i = 0;
-    cave_type *c_ptr = square_at(y - 1, x);
-
-    if (c_ptr->fval >= MIN_CAVE_WALL) {
-        i++;
-    }
-    c_ptr = square_at(y + 1, x);
-    if (c_ptr->fval >= MIN_CAVE_WALL) {
-        i++;
-    }
-    c_ptr = square_at(y, x - 1);
-    if (c_ptr->fval >= MIN_CAVE_WALL) {
-        i++;
-    }
-    c_ptr = square_at(y, x + 1);
-    if (c_ptr->fval >= MIN_CAVE_WALL) {
-        i++;
-    }
-
-    return i;
-}
-
-// Checks all adjacent spots for corridors -RAK-
-// note that y, x is always in_bounds(), hence no need to check that
-// j, k are in_bounds(), even if they are 0 or cur_x-1 is still works
-int next_to_corr(int y, int x) {
-    int i = 0;
-
-    for (int j = y - 1; j <= (y + 1); j++) {
-        for (int k = x - 1; k <= (x + 1); k++) {
-            cave_type *c_ptr = square_at(j, k);
-
-            // should fail if there is already a door present
-            if (c_ptr->fval == CORR_FLOOR &&
-                (c_ptr->tptr == 0 || floor_item_at(c_ptr->tptr)->tval < TV_MIN_DOORS)) {
-                i++;
-            }
-        }
-    }
-
-    return i;
-}
-
 // generates damage for 2d6 style dice rolls
 int damroll(int num, int sides) {
     int sum = 0;

@@ -155,6 +155,9 @@ eat.o: $(HEADERS_FULL)
 files.o: $(HEADERS_FULL)
 game_state.o: game_state.h burden.h $(HEADERS_FULL)
 generate.o: $(HEADERS_FULL)
+# geometry.c came out of misc1.c (#54). It includes externs.h, and reads the
+# map and what lies on the floor.
+geometry.o: dungeon_map.h floor_items.h $(HEADERS_FULL)
 help.o: $(HEADERS_FULL)
 # hp_table.c does not include externs.h either, so HEADERS_COMMON is enough.
 hp_table.o: hp_table.h $(HEADERS_COMMON)
