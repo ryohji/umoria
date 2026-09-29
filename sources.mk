@@ -17,10 +17,10 @@
 # 書いたものが VPATH と -I に入る。ディレクトリーを足したらここにも足す。
 # 名前が重なると -I の順で答えが変わるので、ファイルを足すときは
 # ls src/*/ | sort | uniq -d で同名が無いことを見る。
-SRC_SUBDIRS = core data player
+SRC_SUBDIRS = core data player monster
 
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
-	player/create.c desc.c generate.c data/sets.c dungeon.c creature.c death.c \
+	player/create.c desc.c generate.c data/sets.c dungeon.c monster/creature.c death.c \
 	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c device.c \
 	item_ident.c player/abilities.c data/options.c messages.c \
 	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
@@ -38,7 +38,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	player/player_disarm.c player/player_saving_throw.c player/player_race.c player/player_body_weight.c \
 	player/player_attack_bonuses.c player/player_search_skill.c player/player_bio.c \
 	player/player_stealth.c player/player_class.c \
-	monster_turn.c monster_levels.c monster_breeding.c monster_list.c \
+	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c \
 	dungeon_size.c dungeon_level.c floor_items.c dungeon_map.c \
 	moria1.c moria2.c moria3.c moria4.c data/monsters.c data/treasure.c data/variable.c \
 	core/rnd.c recall.c data/player.c data/tables.c
