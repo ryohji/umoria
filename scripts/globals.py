@@ -97,13 +97,13 @@ GROUPS = {
     # なり、externs.h から外れた。窓口は src/player_pos.h（player_row /
     # player_col / player_place / player_pos_forget）。同じ区分に残る 11 個は
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
-    # GLOBALS_INVENTORY.md 側）。
+    # docs/refactoring/globals_inventory.md 側）。
     # 床の一枚一枚（cave）は #18-14-8C で dungeon_map.c の static になり、
     # externs.h から外れた。窓口は src/dungeon_map.h（dungeon_map_reset /
     # square_at の 2 本だけ）。**この区分の 8 問め＝最後**で、**#18 に残っていた
     # global のどれよりも大きい**（15 ファイル 258 参照・書き 47・別名 145）。
     # **これで「ダンジョンとその中身」の区分は空になった**（行ごと消した。記録は
-    # GLOBALS_INVENTORY.md 側）。窓口が 2 本で足りたのは、**1 マスの 7 つの欄が
+    # docs/refactoring/globals_inventory.md 側）。窓口が 2 本で足りたのは、**1 マスの 7 つの欄が
     # 7 つの別の問い**で、この module はどれにも答えないから —— 配るのは
     # 書きこめる別名で、欄の意味は呼び手の側にある（だから最後に置いた。
     # `.cptr` と `.tptr` は 4 問め・7 問めの表の行番号で、あの 2 つが窓口を
@@ -218,7 +218,7 @@ GROUPS = {
     # 1 つの表の目次と本体で、片方だけでは意味をなさない。区分は参照の多さで
     # 分けたものなので、module の切れ目とは一致しない。
     # **これで「持ち物・アイテム」の区分は空になった**（行ごと消した。記録は
-    # GLOBALS_INVENTORY.md 側）。
+    # docs/refactoring/globals_inventory.md 側）。
     # 品目ごとの覚え（object_ident）は #18-9-C で item_ident.c の static になり、
     # externs.h から外れた。窓口は src/item_ident.h（item_kind_is_known /
     # item_kind_was_tried / item_kind_mark_known / item_kind_mark_tried /
@@ -229,18 +229,18 @@ GROUPS = {
     # 持ち物の 4 個（inventory inven_ctr inven_weight equip_ctr）は #18-5 で
     # inventory.c の static になり、externs.h から外れた。窓口は
     # src/inventory.h（持ち物・跨ぎ）と src/equipment.h（装備）。
-    # 片づいた名前は行から消える（消えた記録は GLOBALS_INVENTORY.md 側）。
+    # 片づいた名前は行から消える（消えた記録は docs/refactoring/globals_inventory.md 側）。
     # 店の区分（store last_store_inc の 2 個）は #18-4 で externs.h から
     # 全部外れた。6 軒の記録は stores.c、値切りの途中の入力は store2.c の
     # static になった。片づいた区分は行ごと消える（記録は
-    # GLOBALS_INVENTORY.md 側）。
+    # docs/refactoring/globals_inventory.md 側）。
     # 画面の見えている範囲（パネル）の 10 個は #18-3 で panel.c の static に
     # なり、externs.h から全部外れた。メッセージ表示と同じく、片づいた区分は
-    # 行ごと消える（消えた記録は GLOBALS_INVENTORY.md 側）。
+    # 行ごと消える（消えた記録は docs/refactoring/globals_inventory.md 側）。
     # メッセージ表示の区分（msg_flag old_msg last_msg wait_for_more の 4 個）は
     # #18-2 で messages.c の static になり、externs.h から全部外れた。この一覧は
     # externs.h にあるものを数える道具なので、片づいた区分は行ごと消える。
-    # 消えた記録は GLOBALS_INVENTORY.md 側に残す。
+    # 消えた記録は docs/refactoring/globals_inventory.md 側に残す。
     # 打っているコマンドについて覚えていること 3 個（command_count default_dir
     # last_command）は #18-11-7C で src/command_state.c の static になった。
     # どれも「コマンドに繰りかえしの回数を付けられる」ことから出ているので

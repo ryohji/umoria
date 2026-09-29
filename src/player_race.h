@@ -69,9 +69,9 @@ void player_race_set(int row);
 //
 // THIS IS THE ONE PLACE THE MODULE REACHES OUT. race[] stays where it is -- it is
 // one of the twenty read-only constant tables in externs.h, and that group is out
-// of scope for #18 (const-ification only, GLOBALS_INVENTORY.md:748) -- so
-// player_race.c has a single `extern` line for it, the arrangement player_level.c
-// already has for the price list.
+// of scope for #18 (const-ification only; see the per-group table in
+// docs/refactoring/globals_inventory.md) -- so player_race.c has a single `extern`
+// line for it, the arrangement player_level.c already has for the price list.
 //
 // WHY THE NAME IS IN HERE AND THE REST OF THE ROW IS NOT: the three callers wrote
 // the identical `race[py.misc.prace].trace`, and what they wanted was not a table

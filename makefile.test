@@ -2174,7 +2174,7 @@ $(BUILDDIR)/monster_levels_test: $(TESTDIR)/monster_levels_test.c \
 # **A のあいだは器が 2 つある** —— monsters.c:779 の `mon_tot_mult`（本体が
 # 使う）と、この module の static（テストだけが見る）。#18-14-1A・#18-14-2A と
 # 同じで、本体が窓口を 1 つも呼んでいないから食いちがわない
-# （→ GLOBALS_INVENTORY.md 所見 52）。**C では tests/creature_stubs.c:66 の
+# （→ docs/refactoring/findings.md 所見 52）。**C では tests/creature_stubs.c:66 の
 # 代役 `int16_t mon_tot_mult;` を消すのを忘れないこと** —— #18-14-1C で
 # hack_monptr のそれを消し忘れた（上の movement_rate_test の註）。
 #

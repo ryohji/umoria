@@ -15,7 +15,7 @@
  * **残るのは値段表 player_exp[] 1 つだけ。** 表は module の中に入れなかった
  * —— externs.h の「定数表（読みとり専用データ）」20 個の 1 つで、
  * player_title・race・class・class_level_adj と同じ区分にあり、その区分は
- * #18 の対象外（`const` 化のみ。GLOBALS_INVENTORY.md:748）。入れれば台帳の
+ * #18 の対象外（`const` 化のみ。docs/refactoring/globals_inventory.md「区分ごとの見立て」）。入れれば台帳の
  * global は 53 → 52 になるが、**本体の誰も書かない表に setter を付けること
  * になる** —— hp_table.c の表は人物を作るときに書くので setter に呼び手が
  * いるが、こちらは呼び手が 0 になり、誰も呼ばない窓口が 1 つ増える。
