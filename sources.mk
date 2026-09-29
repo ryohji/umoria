@@ -39,7 +39,7 @@ SRCS = main.c misc1.c misc3.c store1.c ui/files.c ui/io.c \
 	player/player_attack_bonuses.c player/player_search_skill.c player/player_bio.c \
 	player/player_stealth.c player/player_class.c \
 	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c \
-	dungeon/dungeon_size.c dungeon/dungeon_level.c dungeon/floor_items.c dungeon/dungeon_map.c dungeon/geometry.c \
+	dungeon/dungeon_size.c dungeon/dungeon_level.c dungeon/floor_items.c dungeon/dungeon_map.c dungeon/geometry.c dungeon/object_place.c \
 	moria1.c moria2.c moria3.c moria4.c data/monsters.c data/treasure.c data/variable.c \
 	core/rnd.c ui/recall.c data/player.c data/tables.c
 

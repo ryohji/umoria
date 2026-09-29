@@ -104,6 +104,7 @@ misc1.o: constant.h types.h externs.h config.h
 misc3.o: burden.h constant.h types.h externs.h config.h
 missile_serial.o: missile_serial.h constant.h types.h config.h
 level_exit.o: level_exit.h constant.h types.h config.h
+object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h constant.h types.h externs.h config.h
 options.o: options.h constant.h types.h externs.h config.h
 options_menu.o: options.h constant.h types.h externs.h config.h
 panel.o: panel.h constant.h types.h externs.h config.h

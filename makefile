@@ -242,6 +242,9 @@ moria1.o: burden.h $(HEADERS_FULL)
 moria2.o: $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
 moria4.o: burden.h $(HEADERS_FULL)
+# object_place.c came out of misc1.c (#54). It includes externs.h, and reads
+# the map, its size, what lies on the floor and where the player stands.
+object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h $(HEADERS_FULL)
 options_menu.o: options.h $(HEADERS_FULL)
 panel.o: panel.h $(HEADERS_FULL)
 player.o: $(HEADERS_COMMON)
