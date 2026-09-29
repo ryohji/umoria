@@ -271,43 +271,51 @@ void cast(void);
 
 // main.c
 // misc1.c
-void init_seeds(uint32_t);
 void set_seed(uint32_t);
 void reset_seed(void);
 int randint(int);
 int randnor(int, int);
+int damroll(int, int);
+int pdamroll(const uint8_t *);
+int max_hp(const uint8_t *);
+bool magik(int);
+// The groups below, down to m_bonus(), were misc1.c until #54.
+// game_state.c
+void init_seeds(uint32_t);
+// core/bits.c, which declares it in bits.h as well
 int bit_pos(uint32_t *);
+// dungeon/geometry.c
 bool in_bounds(int, int);
+int distance(int, int, int, int);
+bool los(int, int, int, int);
+int next_to_walls(int, int);
+int next_to_corr(int, int);
+// ui/map_view.c
 // panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
 // panel_contains() は panel.h。
 int get_panel(int, int, int);
-int distance(int, int, int, int);
-int next_to_walls(int, int);
-int next_to_corr(int, int);
-int damroll(int, int);
-int pdamroll(const uint8_t *);
-bool los(int, int, int, int);
 uint8_t loc_symbol(int, int);
 bool test_light(int, int);
 void prt_map(void);
+// monster/monster_place.c
 bool compact_monsters(void);
-void add_food(int);
 int popm(void);
-int max_hp(const uint8_t *);
 bool place_monster(int, int, creature_handle, int);
 void place_win_monster(void);
 void alloc_monster(int, int, int);
 bool summon_monster(int *, int *, int);
 bool summon_undead(int *, int *);
+// player/food_ops.c
+void add_food(int);
+// dungeon/object_place.c
 int popt(void);
 void pusht(uint8_t);
-bool magik(int);
-int m_bonus(int, int, int);
 
-// item_enchant.c
+// item/item_enchant.c (magic_treasure() was misc2.c until #54)
+int m_bonus(int, int, int);
 void magic_treasure(int, int);
 
-// options_menu.c
+// ui/options_menu.c
 void set_options(void);
 
 // misc3.c
