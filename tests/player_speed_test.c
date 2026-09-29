@@ -27,7 +27,7 @@
  *      （器の幅 —— short 1 つぶん —— だけが限り）。
  *
  * モンスターはこの module の外。change_speed()（moria1.c）は同じ数を
- * m_list[i].cspeed 全員に足し、misc1.c は新しいモンスターを置くときに混ぜる。
+ * m_list[i].cspeed 全員に足し、monster/monster_place.c は新しいモンスターを置くときに混ぜる。
  * **プレイヤーが遅いぶんをモンスターを速くすることで表す設計**なので、ここでは
  * モンスターを 1 匹も触らない —— それ自身がこの単位の設計（player_speed.h）。
  * 食いけの 2 乗（dungeon.c）と探索の 1 段引き（misc3.c）も外。

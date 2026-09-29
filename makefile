@@ -140,6 +140,9 @@ help:
 HEADERS_COMMON = constant.h types.h config.h
 HEADERS_FULL = $(HEADERS_COMMON) externs.h
 
+# bits.c came out of misc1.c (#54). It needs nothing but <stdint.h> and its own
+# header -- not even constant.h (the same as dungeon_size.o below).
+bits.o: bits.h
 # burden.c does not include externs.h either, so HEADERS_COMMON is enough.
 burden.o: burden.h $(HEADERS_COMMON)
 create.o: $(HEADERS_FULL)
@@ -151,7 +154,13 @@ dungeon.o: $(HEADERS_FULL)
 eat.o: $(HEADERS_FULL)
 files.o: $(HEADERS_FULL)
 game_state.o: game_state.h burden.h $(HEADERS_FULL)
+# food_ops.c came out of misc1.c (#54). It includes externs.h, and reads the
+# stomach and the timed effects (the slowness that overeating costs).
+food_ops.o: player_food.h player_timed_effects.h $(HEADERS_FULL)
 generate.o: $(HEADERS_FULL)
+# geometry.c came out of misc1.c (#54). It includes externs.h, and reads the
+# map, its size and what lies on the floor.
+geometry.o: dungeon_map.h dungeon_size.h floor_items.h $(HEADERS_FULL)
 help.o: $(HEADERS_FULL)
 # hp_table.c does not include externs.h either, so HEADERS_COMMON is enough.
 hp_table.o: hp_table.h $(HEADERS_COMMON)
@@ -167,9 +176,11 @@ item_enchant.o: floor_items.h missile_serial.h $(HEADERS_FULL)
 item_ident.o: item_ident.h $(HEADERS_FULL)
 magic.o: $(HEADERS_FULL)
 main.o: $(HEADERS_FULL)
-# map_view.c came out of misc4.c (#54). It includes externs.h, and reads the
-# map, where the player stands and whether the player is blind.
-map_view.o: dungeon_map.h player_pos.h player_timed_effects.h $(HEADERS_FULL)
+# map_view.c came out of misc4.c and misc1.c (#54). It includes externs.h, and
+# reads the map, what lies on it (items and monsters), the panel, where the
+# player stands, whether the player is blind, hallucinating or running.
+map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
+            player_status_flags.h player_timed_effects.h running.h $(HEADERS_FULL)
 misc1.o: $(HEADERS_FULL)
 misc3.o: burden.h $(HEADERS_FULL)
 # missile_serial.c does not include externs.h either (MAX_SHORT comes from
@@ -212,6 +223,12 @@ monster_breeding.o: monster_breeding.h $(HEADERS_COMMON)
 # (#18-14-4). Does not include externs.h -- during A/B it reaches the storage in
 # monsters.c through three hand-written externs, and in C the storage moves here.
 monster_list.o: monster_list.h $(HEADERS_COMMON)
+# monster_place.c came out of misc1.c (#54). It includes externs.h, and reads
+# the map and its size, the depth, the monster list and levels, whose turn it
+# is, where the player stands, the player's speed and whether the game is won.
+monster_place.o: dungeon_level.h dungeon_map.h dungeon_size.h monster_levels.h \
+                 monster_list.h monster_turn.h player_pos.h player_speed.h \
+                 score_death.h $(HEADERS_FULL)
 # How tall and how wide this level is (#18-14-5). Two int16_t and one setter
 # that takes both halves, so no caller can change half of the size. It needs
 # nothing but <stdint.h> and its own header -- not even constant.h.
@@ -236,6 +253,9 @@ moria1.o: burden.h $(HEADERS_FULL)
 moria2.o: $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
 moria4.o: burden.h $(HEADERS_FULL)
+# object_place.c came out of misc1.c (#54). It includes externs.h, and reads
+# the map, its size, what lies on the floor and where the player stands.
+object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h $(HEADERS_FULL)
 options_menu.o: options.h $(HEADERS_FULL)
 panel.o: panel.h $(HEADERS_FULL)
 player.o: $(HEADERS_COMMON)

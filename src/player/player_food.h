@@ -30,7 +30,7 @@
 //   - the thresholds (PLAYER_FOOD_ALERT / WEAK / FAINT and zero) pick a
 //     regeneration rate, raise PY_HUNGRY / PY_WEAK and print, all in
 //     dungeon.c, and the flags belong to another question,
-//   - eating past PLAYER_FOOD_MAX costs speed and says so (misc1.c): it
+//   - eating past PLAYER_FOOD_MAX costs speed and says so (food_ops.c): it
 //     prints, and it writes another field,
 //   - starvation damage is the damage system's (dungeon.c),
 //   - a resurrected character is lifted off a negative counter (save.c),

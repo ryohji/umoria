@@ -25,7 +25,7 @@
  *      所見 24・25）。-50 の腹に 100 食べたら 100 で、50 ではない。
  *
  *   4. **窓口は上も下も見ない**こと。満腹（PLAYER_FOOD_FULL）と食べすぎ
- *      （PLAYER_FOOD_MAX と速さの罰）の規則は misc1.c、空腹の境目と
+ *      （PLAYER_FOOD_MAX と速さの罰）の規則は player/food_ops.c、空腹の境目と
  *      飢えの傷は dungeon.c、吐いたときの 150 は potions.c、蘇生のときの 0 は
  *      save.c。**どれも理由が腹の外にあり読み手が 1 つずつ**なので外に残す。
  *      ここで丸めるとふるまいが変わる。
@@ -96,7 +96,7 @@ TEST(an_empty_stomach_is_not_a_debt) {
 }
 
 /* **窓口は満腹も食べすぎも見ない。** PLAYER_FOOD_FULL を超えたら「満腹」と
- * 言い、PLAYER_FOOD_MAX を超えたら速さの罰を与えるのは misc1.c の add_food()。
+ * 言い、PLAYER_FOOD_MAX を超えたら速さの罰を与えるのは player/food_ops.c の add_food()。
  * ここで丸めを足したら、この 1 件が赤くなって気づける。 */
 TEST(overeating_is_not_stopped_here) {
     player_set_food(PLAYER_FOOD_MAX);

@@ -118,7 +118,7 @@ TEST(the_town_uses_only_a_corner_of_the_table) {
                 square_at(SCREEN_HEIGHT - 1, SCREEN_WIDTH - 1));
 }
 
-/* **窓口は境界の輪も配る。** in_bounds()（misc1.c）は輪の内側だけを
+/* **窓口は境界の輪も配る。** in_bounds()（dungeon/geometry.c）は輪の内側だけを
  * 通すが、その輪に壁を置くのは generate.c の仕事なので、ここで断っては
  * いけない。 */
 TEST(the_boundary_ring_is_handed_out_like_any_other_square) {

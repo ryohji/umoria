@@ -25,12 +25,12 @@ SRCS = main.c misc1.c misc3.c store1.c ui/files.c ui/io.c \
 	item/item_ident.c player/abilities.c data/options.c ui/messages.c \
 	item/scrolls.c item/spells.c ui/wizard.c store2.c platform/signals.c platform/signal_flags.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c game_state.c \
-	ui/input.c platform/input_ncurses.c platform/platform.c ui/panel.c ui/map_view.c store/stores.c player/stats.c core/str_insert.c \
+	ui/input.c platform/input_ncurses.c platform/platform.c ui/panel.c ui/map_view.c store/stores.c player/stats.c core/str_insert.c core/bits.c \
 	item/inventory.c data/progress.c save/score_death.c save/save_state.c player/player_pos.c \
 	player/hp_table.c player/player_light.c player/burden.c player/spells_known.c item/object_levels.c item/inscription.c item/item_enchant.c \
 	item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c ui/options_menu.c \
 	dungeon/level_exit.c player/pending_teleport.c ui/input_ended.c player/running.c \
-	ui/command_state.c player/player_gold.c player/player_food.c player/player_display_numbers.c \
+	ui/command_state.c player/player_gold.c player/player_food.c player/food_ops.c player/player_display_numbers.c \
 	player/player_mana.c player/player_hp.c player/player_level.c player/player_status_flags.c \
 	player/player_abilities.c player/player_timed_effects.c player/player_resting.c \
 	player/player_speed.c player/player_infra_range.c player/player_glowing_hands.c \
@@ -38,8 +38,8 @@ SRCS = main.c misc1.c misc3.c store1.c ui/files.c ui/io.c \
 	player/player_disarm.c player/player_saving_throw.c player/player_race.c player/player_body_weight.c \
 	player/player_attack_bonuses.c player/player_search_skill.c player/player_bio.c \
 	player/player_stealth.c player/player_class.c \
-	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c \
-	dungeon/dungeon_size.c dungeon/dungeon_level.c dungeon/floor_items.c dungeon/dungeon_map.c \
+	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c monster/monster_place.c \
+	dungeon/dungeon_size.c dungeon/dungeon_level.c dungeon/floor_items.c dungeon/dungeon_map.c dungeon/geometry.c dungeon/object_place.c \
 	moria1.c moria2.c moria3.c moria4.c data/monsters.c data/treasure.c data/variable.c \
 	core/rnd.c ui/recall.c data/player.c data/tables.c
 

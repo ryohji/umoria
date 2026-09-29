@@ -73,6 +73,7 @@ clean:
 	@echo "Compilation files removed!"
 
 abilities.o: abilities.h constant.h types.h externs.h config.h
+bits.o: bits.h
 burden.o: burden.h constant.h types.h config.h
 command_state.o: command_state.h constant.h types.h config.h
 create.o: constant.h types.h externs.h config.h
@@ -84,7 +85,9 @@ dungeon.o: constant.h types.h externs.h config.h
 eat.o: constant.h types.h externs.h config.h
 files.o: constant.h types.h externs.h config.h
 game_state.o: game_state.h burden.h constant.h types.h externs.h config.h
+food_ops.o: player_food.h player_timed_effects.h constant.h types.h externs.h config.h
 generate.o: constant.h types.h externs.h config.h
+geometry.o: dungeon_map.h dungeon_size.h floor_items.h constant.h types.h externs.h config.h
 help.o: constant.h types.h externs.h config.h
 hp_table.o: hp_table.h constant.h types.h config.h
 input.o: input.h
@@ -96,12 +99,13 @@ item_enchant.o: floor_items.h missile_serial.h constant.h types.h externs.h conf
 item_ident.o: item_ident.h constant.h types.h externs.h config.h
 magic.o: constant.h types.h externs.h config.h
 main.o: constant.h types.h externs.h config.h
-map_view.o: dungeon_map.h player_pos.h player_timed_effects.h constant.h types.h externs.h config.h
+map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h player_status_flags.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 messages.o: messages.h constant.h types.h externs.h config.h
 misc1.o: constant.h types.h externs.h config.h
 misc3.o: burden.h constant.h types.h externs.h config.h
 missile_serial.o: missile_serial.h constant.h types.h config.h
 level_exit.o: level_exit.h constant.h types.h config.h
+object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h constant.h types.h externs.h config.h
 options.o: options.h constant.h types.h externs.h config.h
 options_menu.o: options.h constant.h types.h externs.h config.h
 panel.o: panel.h constant.h types.h externs.h config.h
@@ -155,6 +159,7 @@ monster_turn.o: monster_turn.h constant.h types.h config.h
 monster_levels.o: monster_levels.h constant.h types.h config.h
 monster_breeding.o: monster_breeding.h constant.h types.h config.h
 monster_list.o: monster_list.h constant.h types.h config.h
+monster_place.o: dungeon_level.h dungeon_map.h dungeon_size.h monster_levels.h monster_list.h monster_turn.h player_pos.h player_speed.h score_death.h constant.h types.h externs.h config.h
 dungeon_size.o: dungeon_size.h
 dungeon_level.o: dungeon_level.h
 floor_items.o: floor_items.h constant.h types.h config.h
