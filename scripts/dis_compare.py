@@ -63,9 +63,10 @@ def rodata_at(secs, data, addr, lo, hi):
             e = data.find(b'\0', o)
             if e < 0:
                 e = off + size
-            raw = data[o:e]
-            if all(32 <= c < 127 or c in (9, 10) for c in raw):
-                return 'STR' + repr(raw.decode('ascii'))
+            # The table test goes first: its entries are negative offsets
+            # back into .text (high bytes 0xff, 0xfe), which no ASCII string
+            # gives, while a table can start with a NUL byte and so look
+            # like the empty string.
             targets = []
             k = o
             while k + 4 <= off + size and len(targets) < 4096:
@@ -77,6 +78,9 @@ def rodata_at(secs, data, addr, lo, hi):
                 k += 4
             if targets:
                 return 'JT' + repr(targets)
+            raw = data[o:e]
+            if all(32 <= c < 127 or c in (9, 10) for c in raw):
+                return 'STR' + repr(raw.decode('ascii'))
             return 'RODATA'
     return None
 
