@@ -623,13 +623,15 @@ int restore_level(void);
 void use(void);
 
 // store1.c
-int32_t item_value(inven_type *);
-int32_t sell_price(int, int32_t *, int32_t *, inven_type *);
 bool store_check_num(inven_type *, int);
 void store_carry(int, int *, inven_type *);
 void store_destroy(int, int, int);
 void store_init(void);
 void store_maint(void);
+// The group below was store1.c until #55.
+// store/store_price.c
+int32_t item_value(inven_type *);
+int32_t sell_price(int, int32_t *, int32_t *, inven_type *);
 bool noneedtobargain(int, int32_t);
 void updatebargain(int, int32_t, int32_t);
 
