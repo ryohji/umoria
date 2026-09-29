@@ -203,6 +203,7 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
   `purchase_haggle`・`sell_haggle`・`increase_insults` を呼ぶ。`decrease_insults` と
   `prt_comment1`（＋表 `comment1`）の呼び手は**画面の側だけ**。案のままなら外に出す名前は
   5 つ、`decrease_insults` と `prt_comment1` を `store_ui.c` に置けば 3 つ。
+- **store2 の確かめ方は、テストと差分の読みだけにする**（2026-09-30、ユーザーの判断）。
 - **store2 は機械語の一致では確かめられない。** 本体の `-O2` では `store2.o` に記号が
   残るのは 8 本だけで（`nm`）、`purchase_haggle`・`sell_haggle`・`prt_comment1〜6`・
   `display_store` など 15 本は呼び手の中に溶けこんでいる。値切りを別のファイルに出すと
@@ -586,6 +587,6 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | L1〜L3 | 済み（2026-09-29、`develop` へマージ `5e0cd6e`） | `refactor/52-test-library`、`e7c3a9c`〜`c188e58`（7 コミット）。74 本の Map は 72 本が旧 recipe と一致、残る 2 本は旧 recipe が誰も参照しない `tables.c`・`treasure.c` を並べていた差（`worklog.md`） |
 | D0 | 済み（2026-09-29、迷いどころ 10 点はすべて案のとおり。マージ `111d2e7`） | `docs/53-d0-destinations`、`2dfa7b8`・`89395b0` |
 | D | 済み（2026-09-29、`develop` へマージ `99fe489`）。D0 の表のとおり `.c` 96 本・`.h` 70 本を 10 個のディレクトリーへ（`combat/` は 0 本なのでまだ無い）。どのコミットでも本体の `objdump -d` が変更前と一致 | `refactor/53-directories`、`68dbae9`〜`cfaadc4`（13 コミット。makefile の仕組み 1・`layer_deps.py --matrix` 1・`git mv` 10・コメント 1。`worklog.md`） |
-| R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 は作業中 | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット） |
+| R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 は値段から作業中 | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット） |
 | combat の残り | 未着手 | |
 | 後始末 | 未着手 | |
