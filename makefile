@@ -46,53 +46,11 @@ CURSES = -lncurses
 SRCDIR = src
 VPATH = $(SRCDIR)
 
-SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
-	create.c desc.c generate.c sets.c dungeon.c creature.c death.c \
-	eat.c help.c magic.c potions.c prayer.c save.c staffs.c wands.c device.c \
-	item_ident.c abilities.c options.c messages.c \
-	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
-	render.c render_ncurses.c view_observer.c game_state.c \
-	input.c input_ncurses.c platform.c panel.c stores.c stats.c str_insert.c \
-	inventory.c progress.c score_death.c save_state.c player_pos.c \
-	hp_table.c player_light.c burden.c spells_known.c object_levels.c \
-	missile_serial.c inven_command_state.c screen_touched.c \
-	level_exit.c pending_teleport.c input_ended.c running.c \
-	command_state.c player_gold.c player_food.c player_display_numbers.c \
-	player_mana.c player_hp.c player_level.c player_status_flags.c \
-	player_abilities.c player_timed_effects.c player_resting.c \
-	player_speed.c player_infra_range.c player_glowing_hands.c \
-	player_spells_to_learn.c player_max_depth.c player_hit_die.c player_armour_class.c player_base_to_hit.c \
-	player_disarm.c player_saving_throw.c player_race.c player_body_weight.c \
-	player_attack_bonuses.c player_search_skill.c player_bio.c \
-	player_stealth.c player_class.c \
-	monster_turn.c monster_levels.c monster_breeding.c monster_list.c \
-	dungeon_size.c dungeon_level.c floor_items.c dungeon_map.c \
-	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
-	rnd.c recall.c player.c tables.c
+# src/ の .c の一覧は sources.mk に 1 つだけ書く。OBJS はその名前を .o に
+# 置きかえただけなので、並びも sources.mk と同じ（＝リンクの順）。
+include sources.mk
 
-OBJS = main.o misc1.o misc2.o misc3.o misc4.o store1.o files.o io.o \
-	create.o desc.o generate.o sets.o dungeon.o creature.o death.o \
-	eat.o help.o magic.o potions.o prayer.o save.o staffs.o wands.o device.o \
-	item_ident.o abilities.o options.o messages.o \
-	scrolls.o spells.o wizard.o store2.o signals.o signal_flags.o \
-	render.o render_ncurses.o view_observer.o game_state.o \
-	input.o input_ncurses.o platform.o panel.o stores.o stats.o str_insert.o \
-	inventory.o progress.o score_death.o save_state.o player_pos.o \
-	hp_table.o player_light.o burden.o spells_known.o object_levels.o \
-	missile_serial.o inven_command_state.o screen_touched.o \
-	level_exit.o pending_teleport.o input_ended.o running.o \
-	command_state.o player_gold.o player_food.o player_display_numbers.o \
-	player_mana.o player_hp.o player_level.o player_status_flags.o \
-	player_abilities.o player_timed_effects.o player_resting.o \
-	player_speed.o player_infra_range.o player_glowing_hands.o \
-	player_spells_to_learn.o player_max_depth.o player_hit_die.o player_armour_class.o player_base_to_hit.o \
-	player_disarm.o player_saving_throw.o player_race.o player_body_weight.o \
-	player_attack_bonuses.o player_search_skill.o player_bio.o \
-	player_stealth.o player_class.o \
-	monster_turn.o monster_levels.o monster_breeding.o monster_list.o \
-	dungeon_size.o dungeon_level.o floor_items.o dungeon_map.o \
-	moria1.o moria2.o moria3.o moria4.o monsters.o treasure.o variable.o \
-	rnd.o recall.o player.o tables.o
+OBJS = $(SRCS:.c=.o)
 
 LIBFILES = splash.hlp origcmds.hlp owizcmds.hlp roglcmds.hlp rwizcmds.hlp \
 	version.hlp welcome.hlp
