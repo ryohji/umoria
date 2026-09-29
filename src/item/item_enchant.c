@@ -5,7 +5,11 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc utility and initialization code, magic objects code
+// Making an object magical: the pluses, the curses and the ego names that an
+// object may be given when it is created
+//
+// magic_treasure() came over from misc2.c unchanged. It is one long switch on
+// the object's type and is not split here (ledger #26).
 
 #include "headers.h"
 
@@ -16,7 +20,6 @@
 #include "externs.h"
 #include "floor_items.h"
 #include "missile_serial.h"
-#include "options.h"
 
 // Chance of treasure having magic abilities -RAK-
 // Chance increases with each dungeon level
@@ -849,66 +852,5 @@ void magic_treasure(int x, int level) {
 
     default:
         break;
-    }
-}
-
-// Set or unset various boolean options. -CJS-
-//
-// The options themselves are in options.c, so that this screen and the save
-// file cannot disagree about what they are.
-void set_options(void) {
-    prt("  ESC when finished, y/n to set options, <return> or - to move cursor", 0, 0);
-
-    int max;
-    for (max = 0; game_options[max].prompt != NULL; max++) {
-        vtype string;
-
-        (void)sprintf(string, "%-38s: %s", game_options[max].prompt, (*game_options[max].value ? "yes" : "no "));
-        prt(string, max + 1, 0);
-    }
-    erase_line(max + 1, 0);
-
-    int i = 0;
-    for (;;) {
-        move_cursor(i + 1, 40);
-        switch (inkey()) {
-        case ESCAPE:
-            return;
-        case '-':
-            if (i > 0) {
-                i--;
-            } else {
-                i = max - 1;
-            }
-            break;
-        case ' ': case '\n': case '\r':
-            if (i + 1 < max) {
-                i++;
-            } else {
-                i = 0;
-            }
-            break;
-        case 'y': case 'Y':
-            put_buffer("yes", i + 1, 40);
-            *game_options[i].value = true;
-            if (i + 1 < max) {
-                i++;
-            } else {
-                i = 0;
-            }
-            break;
-        case 'n': case 'N':
-            put_buffer("no ", i + 1, 40);
-            *game_options[i].value = false;
-            if (i + 1 < max) {
-                i++;
-            } else {
-                i = 0;
-            }
-            break;
-        default:
-            bell();
-            break;
-        }
     }
 }

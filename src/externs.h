@@ -304,8 +304,10 @@ void pusht(uint8_t);
 bool magik(int);
 int m_bonus(int, int, int);
 
-// misc2.c
+// item_enchant.c
 void magic_treasure(int, int);
+
+// options_menu.c
 void set_options(void);
 
 // misc3.c
