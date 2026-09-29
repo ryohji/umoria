@@ -14,21 +14,17 @@
 #include "types.h"
 
 #include "externs.h"
-#include "floor_items.h"
 #include "dungeon_level.h"
 #include "dungeon_map.h"
 #include "dungeon_size.h"
 #include "monster_levels.h"
 #include "monster_list.h"
 #include "monster_turn.h"
-#include "panel.h"
 #include "player_food.h"
 #include "player_pos.h"
 #include "player_speed.h"
-#include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "progress.h"
-#include "running.h"
 #include "score_death.h"
 
 static creature_handle get_mons_num(int level);
@@ -144,24 +140,6 @@ bool in_bounds(int y, int x) {
     } else {
         return false;
     }
-}
-
-// Moves the panel if the player has walked off the edge of it, and redraws
-// nothing: the caller does that when we return true. Force forces the panel
-// bounds to be recalculated, useful for 'W'here.
-//
-// The move itself is panel.c's; what is left here is the one thing it must not
-// do, which is to reach back into the movement code.
-int get_panel(int y, int x, int force) {
-    if (!panel_move_to(y, x, force != 0)) {
-        return false;
-    }
-
-    // stop movement if any
-    if (find_bound) {
-        end_find();
-    }
-    return true;
 }
 
 // Distance between two points -RAK-
@@ -346,61 +324,6 @@ bool los(int fromY, int fromX, int toY, int toX) {
                 }
             }
             return true;
-        }
-    }
-}
-
-// Returns symbol for given row, column -RAK-
-uint8_t loc_symbol(int y, int x) {
-    cave_type *cave_ptr = square_at(y, x);
-
-    if ((cave_ptr->cptr == 1) && (!player_is_running() || find_prself)) {
-        return '@';
-    } else if (player_effect_in_force(PLAYER_EFFECT_BLIND)) {
-        return ' ';
-    } else if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION) && (randint(12) == 1)) {
-        return randint(95) + 31;
-    } else if ((cave_ptr->cptr > 1) && (monster_list_at(cave_ptr->cptr)->ml)) {
-        return monster_get_creature(monster_list_at(cave_ptr->cptr)->creature)->cchar;
-    } else if (!cave_ptr->pl && !cave_ptr->tl && !cave_ptr->fm) {
-        return ' ';
-    } else if ((cave_ptr->tptr != 0) && (floor_item_at(cave_ptr->tptr)->tval != TV_INVIS_TRAP)) {
-        return floor_item_at(cave_ptr->tptr)->tchar;
-    } else if (cave_ptr->fval <= MAX_CAVE_FLOOR) {
-        return '.';
-    } else if (cave_ptr->fval == GRANITE_WALL || cave_ptr->fval == BOUNDARY_WALL || highlight_seams == false) {
-        return '#';
-    } else {
-        // Originally set highlight bit, but that is not portable,
-        // now use the percent sign instead.
-        return '%';
-    }
-}
-
-// Tests a spot for light or field mark status -RAK-
-bool test_light(int y, int x) {
-    cave_type *cave_ptr = square_at(y, x);
-    if (cave_ptr->pl || cave_ptr->tl || cave_ptr->fm) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-// Prints the map of the dungeon -RAK-
-void prt_map(void) {
-    // Top to bottom. The row counter used to be kept here (starting at 1, one
-    // step per dungeon row), which is the same walk print() makes when it
-    // converts a dungeon row into a screen row -- so ask for that instead.
-    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
-        erase_line(panel_screen_row(i), PANEL_MAP_LEFT_COL);
-
-        // Left to right
-        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            uint8_t tmp = loc_symbol(i, j);
-            if (tmp != ' ') {
-                print(tmp, i, j);
-            }
         }
     }
 }

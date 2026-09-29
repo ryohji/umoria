@@ -173,9 +173,11 @@ item_enchant.o: floor_items.h missile_serial.h $(HEADERS_FULL)
 item_ident.o: item_ident.h $(HEADERS_FULL)
 magic.o: $(HEADERS_FULL)
 main.o: $(HEADERS_FULL)
-# map_view.c came out of misc4.c (#54). It includes externs.h, and reads the
-# map, where the player stands and whether the player is blind.
-map_view.o: dungeon_map.h player_pos.h player_timed_effects.h $(HEADERS_FULL)
+# map_view.c came out of misc4.c and misc1.c (#54). It includes externs.h, and
+# reads the map, what lies on it (items and monsters), the panel, where the
+# player stands, whether the player is blind, hallucinating or running.
+map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
+            player_status_flags.h player_timed_effects.h running.h $(HEADERS_FULL)
 misc1.o: $(HEADERS_FULL)
 misc3.o: burden.h $(HEADERS_FULL)
 # missile_serial.c does not include externs.h either (MAX_SHORT comes from
