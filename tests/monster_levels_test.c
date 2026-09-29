@@ -9,7 +9,7 @@
  *
  * ダンジョンとその中身から出す 2 つめの問い（#18-14-2）。もとは
  * monsters.c:765 の `int16_t m_level[MAX_MONS_LEVEL + 1];` で、組みたてるのは
- * main.c の **static な** init_m_level() 1 か所だけ、読むのは misc1.c の 4 か所
+ * main.c の **static な** init_m_level() 1 か所だけ、読むのは monster/monster_place.c の 4 か所
  * （勝ちのモンスターの置き場・get_mons_num() の 3 か所）と spells.c の 2 か所
  * （変身と大虐殺の置きなおし）。
  *

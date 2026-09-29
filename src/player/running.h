@@ -12,7 +12,7 @@
 // Running is the "." command: the player picks a direction and keeps moving
 // until something worth stopping for turns up. While it lasts, the game behaves
 // differently in several places that have nothing to do with moving -- the '@' is
-// not drawn (misc1.c), the lamp's glow is not painted square by square
+// not drawn (map_view.c), the lamp's glow is not painted square by square
 // (moria1.c), a monster right next to the player is noticed even in the dark
 // (creature.c), blocked ways and objects underfoot are passed over in silence
 // (moria3.c), and the main loop does not wait ten seconds for a keypress before

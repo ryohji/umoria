@@ -18,7 +18,7 @@
  * が、creatures() が表をたどっている最中は違う —— たどっている側は番号を
  * 手に持っていて、その番号が指す相手が入れかわってしまう。
  *
- * だからモンスターを消す 2 か所（misc1.c の詰めなおしと moria3.c の死）が
+ * だからモンスターを消す 2 か所（monster/monster_place.c の詰めなおしと moria3.c の死）が
  * ここに訊く。**たどりがまだその席まで来ていなければ詰めてよく**
  * （delete_monster）、**来ていたら隙間を隙間のまま残す**
  * （fix1_delete_monster。こちらは mfptr を減らさない）。
@@ -126,7 +126,7 @@ TEST(a_monster_the_walk_has_passed_must_not_be_shifted) {
 }
 
 /* **まだ来ていない席は詰めてよい。** これがあるおかげで、召喚で表が
- * あふれたときの詰めなおし（misc1.c）が手番の最中でも働く。 */
+ * あふれたときの詰めなおし（monster/monster_place.c）が手番の最中でも働く。 */
 TEST(a_monster_the_walk_has_not_reached_can_be_shifted) {
     given_the_turn_of(5);
 

@@ -51,7 +51,7 @@ monster_type *monster_list_at(int index);
 // monsters (rows 0 and 1 are inside the range and never hold one). The reverse
 // walk is `for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--)`, spelled
 // out fourteen times -- thirteen of them character for character (spells.c 11,
-// misc1.c 1, moria1.c 1) and one with an extra condition (creature.c stops early
+// monster_place.c 1, moria1.c 1) and one with an extra condition (creature.c stops early
 // if the player has died). The same shape the definition table got an iterator
 // for in #17; here the body needs the index itself, for removals and for hits,
 // so the loops stay written out and only the bound comes through a window.
@@ -63,7 +63,7 @@ monster_type *monster_list_at(int index);
 int16_t monster_list_used(void);
 void set_monster_list_used(int16_t used);
 
-// Is there room for one more? Asked by popm() in misc1.c, which calls
+// Is there room for one more? Asked by popm() in monster_place.c, which calls
 // compact_monsters() and tries again when the answer is yes.
 bool monster_list_is_full(void);
 
@@ -73,7 +73,7 @@ bool monster_list_is_full(void);
 int monster_list_free_slots(void);
 
 // Take the next free row and return its index. The row is NOT blanked -- the
-// caller (place_monster() in misc1.c) writes every field. Ask
+// caller (place_monster() in monster_place.c) writes every field. Ask
 // monster_list_is_full() first; claiming a slot past the end would run off the
 // table, exactly as the old `mfptr++` did.
 int monster_list_claim_slot(void);

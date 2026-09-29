@@ -66,7 +66,7 @@ inven_type *floor_item_at(int index);
 int16_t floor_items_used(void);
 void set_floor_items_used(int16_t used);
 
-// Is there room for one more? Asked by popt() in misc1.c, and only there.
+// Is there room for one more? Asked by popt() in object_place.c, and only there.
 bool floor_items_is_full(void);
 
 // Take the next free row and return its index. The row is NOT blanked -- every
@@ -76,7 +76,7 @@ bool floor_items_is_full(void);
 int floor_items_claim_slot(void);
 
 // Blank the last occupied row and shrink the mark by one. This is the tail of
-// pusht() in misc1.c: the caller moves the last row down into the hole and
+// pusht() in object_place.c: the caller moves the last row down into the hole and
 // fixes up the square that pointed at it, then calls this to give the row back.
 void floor_items_drop_last(void);
 
@@ -111,7 +111,7 @@ void floor_items_drop_last(void);
 //         return tcptr++;
 //     }
 //
-// compact_objects() is static in misc1.c and returns void, and popt() does not
+// compact_objects() is static in object_place.c and returns void, and popt() does not
 // ask again whether the table is full -- so unlike popm(), which returns -1
 // when compaction cannot free a monster row, this one always hands out
 // `tcptr++`, off the end of the table if compaction achieved nothing.

@@ -34,7 +34,7 @@
 // What this module deliberately does NOT do:
 //
 //   - THE MONSTERS. change_speed() (moria1.c) adds the same number to the
-//     cspeed of every monster on the level, and misc1.c mixes it into cspeed
+//     cspeed of every monster on the level, and monster_place.c mixes it into cspeed
 //     when a monster is placed. That is the engine's way of saying "a slowed player is handled by
 //     moving the monsters faster instead" (creature.c), so the loop and the sum
 //     stay with the callers -- this module holds the player's number only.
@@ -59,7 +59,7 @@
 // How many steps from normal, SIGN AND ALL -- positive is slow, negative is
 // fast. Five of the nine places wanted the number itself: the extra food a fast
 // character burns (dungeon.c), the state line and whether it is worth drawing
-// (misc3.c twice), the number mixed into a new monster's speed (misc1.c) and
+// (misc3.c twice), the number mixed into a new monster's speed (monster_place.c) and
 // the save file's writer.
 int player_speed(void);
 

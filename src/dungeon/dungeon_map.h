@@ -49,7 +49,7 @@
 // the bottom of this file say what was measured about them.
 //
 // NOTHING IS CHECKED, exactly as `&cave[y][x]` checked nothing. The tree does
-// have a guard, in_bounds() in misc1.c, but it asks a different and stricter
+// have a guard, in_bounds() in geometry.c, but it asks a different and stricter
 // question -- is (y, x) inside the level's boundary ring, 0 < y < height - 1 --
 // and generate.c has to write that ring, so the ring cannot be refused here.
 // Callers that need the guard already call it.
@@ -127,7 +127,7 @@ cave_type *square_at(int y, int x);
 // TWO THINGS THIS QUESTION INHERITED AND KEPT:
 //
 //  1. THE SWEEP IN pusht(). A floor row does not know which square it lies on,
-//     so when misc1.c moves the last row down into a hole it sweeps the level
+//     so when object_place.c moves the last row down into a hole it sweeps the level
 //     looking for the square whose tptr is the row it moved. #18-14-7 left that
 //     sweep here on purpose, because it needs this table. It is still a sweep;
 //     it now walks through this window. Removing it means putting y and x in

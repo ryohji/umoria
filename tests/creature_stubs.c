@@ -138,7 +138,7 @@ bool panel_contains(int y, int x) { (void)y; (void)x; return true; }
 bool los(int a, int b, int c, int d) { (void)a; (void)b; (void)c; (void)d; return false; }
 /* distance は代役にしない。creature.c:1033,1532 が `m_ptr->cdis` に
  * 代入しており、常に 0 を返すと「全モンスターが隣接している」状態に
- * なる。純粋関数なので misc1.c:210 の実装を写す（misc1.c 全体を
+ * なる。純粋関数なので もと misc1.c:210（いまは dungeon/geometry.c）の実装を写す（misc1.c 全体を
  * リンクすると依存が芋づるで付くため）。tests/distance_test.c が
  * 本物のふるまいを固定しているので、乖離すればそちらで気づける。 */
 int distance(int y1, int x1, int y2, int x2) {
