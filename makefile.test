@@ -114,8 +114,16 @@ LIBCORE = $(BUILDDIR)/libcore.a
 $(LIBOBJDIR):
 	@mkdir -p $(LIBOBJDIR)
 
+# -MMD -MP で、.o ごとに「その .c が取りこんだ src/ と tests/ のヘッダ」を
+# tests/build/core/<name>.d に書かせて読む。以前はどの規則も types.h・
+# constant.h・config.h を依存に書いていなかったので、共有ヘッダを書きかえても
+# 古い実行形式が使いまわされた（HANDOVER 第 7 節）。いまは共有ヘッダが
+# 変われば、それを取りこむ .o → libcore.a → 全テストの順に作りなおされる。
+# -MMD -MP は依存の一覧を書き出すだけで、.o の中身は変えない。
 $(LIBOBJDIR)/%.o: src/%.c | $(LIBOBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+
+-include $(LIB_OBJS:.o=.d)
 
 $(LIBCORE): $(LIB_OBJS)
 	rm -f $@
