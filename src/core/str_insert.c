@@ -5,8 +5,9 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Substituting a template inside a string
+// Substituting a template inside a string, and joining strings
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -91,4 +92,24 @@ void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show
             (void)sprintf(object_str, "%s%d%s", str1, number, str2);
         }
     }
+}
+
+// concatenate var length string arguments (last should be NULL) into buffer.
+// returns buffer.
+//
+// Moved out of misc4.c unchanged (#54). Callers reach it through the CONCAT
+// macro in externs.h, which keeps its own prototype of this function.
+char *concat(char *const buffer, ...) {
+    char *p = buffer;
+    const char *s;
+    va_list list;
+
+    va_start(list, buffer);
+    buffer[0] = '\0';
+    while ((s = va_arg(list, const char *))) {
+        p = strcpy(p, s) + strlen(s);
+    }
+    va_end(list);
+
+    return buffer;
 }

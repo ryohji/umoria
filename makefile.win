@@ -100,7 +100,6 @@ messages.o: messages.h constant.h types.h externs.h config.h
 misc1.o: constant.h types.h externs.h config.h
 misc2.o: constant.h types.h externs.h config.h
 misc3.o: burden.h constant.h types.h externs.h config.h
-misc4.o: constant.h types.h externs.h config.h
 missile_serial.o: missile_serial.h constant.h types.h config.h
 level_exit.o: level_exit.h constant.h types.h config.h
 options.o: options.h constant.h types.h externs.h config.h

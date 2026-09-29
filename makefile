@@ -172,7 +172,6 @@ map_view.o: dungeon_map.h player_pos.h player_timed_effects.h $(HEADERS_FULL)
 misc1.o: $(HEADERS_FULL)
 misc2.o: $(HEADERS_FULL)
 misc3.o: burden.h $(HEADERS_FULL)
-misc4.o: $(HEADERS_FULL)
 # missile_serial.c does not include externs.h either (MAX_SHORT comes from
 # constant.h), so HEADERS_COMMON is enough.
 missile_serial.o: missile_serial.h $(HEADERS_COMMON)

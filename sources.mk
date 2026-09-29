@@ -19,7 +19,7 @@
 # ls src/*/ | sort | uniq -d で同名が無いことを見る。
 SRC_SUBDIRS = core data player monster dungeon item store ui save platform
 
-SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c ui/files.c ui/io.c \
+SRCS = main.c misc1.c misc2.c misc3.c store1.c ui/files.c ui/io.c \
 	player/create.c item/desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c save/death.c \
 	item/eat.c ui/help.c item/magic.c item/potions.c item/prayer.c save/save.c item/staffs.c item/wands.c item/device.c \
 	item/item_ident.c player/abilities.c data/options.c ui/messages.c \
