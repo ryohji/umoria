@@ -17,7 +17,7 @@
 # 書いたものが VPATH と -I に入る。ディレクトリーを足したらここにも足す。
 # 名前が重なると -I の順で答えが変わるので、ファイルを足すときは
 # ls src/*/ | sort | uniq -d で同名が無いことを見る。
-SRC_SUBDIRS =
+SRC_SUBDIRS = core
 
 SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	create.c desc.c generate.c sets.c dungeon.c creature.c death.c \
@@ -25,7 +25,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	item_ident.c abilities.c options.c messages.c \
 	scrolls.c spells.c wizard.c store2.c signals.c signal_flags.c \
 	render.c render_ncurses.c view_observer.c game_state.c \
-	input.c input_ncurses.c platform.c panel.c stores.c stats.c str_insert.c \
+	input.c input_ncurses.c platform.c panel.c stores.c stats.c core/str_insert.c \
 	inventory.c progress.c score_death.c save_state.c player_pos.c \
 	hp_table.c player_light.c burden.c spells_known.c object_levels.c \
 	missile_serial.c inven_command_state.c screen_touched.c \
@@ -41,7 +41,7 @@ SRCS = main.c misc1.c misc2.c misc3.c misc4.c store1.c files.c io.c \
 	monster_turn.c monster_levels.c monster_breeding.c monster_list.c \
 	dungeon_size.c dungeon_level.c floor_items.c dungeon_map.c \
 	moria1.c moria2.c moria3.c moria4.c monsters.c treasure.c variable.c \
-	rnd.c recall.c player.c tables.c
+	core/rnd.c recall.c player.c tables.c
 
 # 本体の実行形式にだけ入り、テストのライブラリー（makefile.test の libcore.a）
 # には入れないもの。main() を持つ main.c と、ncurses を直に呼ぶ 2 本。
