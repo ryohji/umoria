@@ -97,14 +97,73 @@
 - `bit_pos` → `core/bits.c`
 - `in_bounds`・`distance`・`los`・`next_to_walls`・`next_to_corr` →
   `dungeon/geometry.c`
-- `get_panel` → `ui/panel.c`
+- `get_panel` → `ui/map_view.c`（2026-09-29 に `ui/panel.c` から改めた。下の「下調べ」）
 - `loc_symbol`・`test_light`・`prt_map` → `ui/map_view.c`
 - `compact_monsters`・`popm`・`place_monster`・`place_win_monster`・
   `get_mons_num`・`alloc_monster`・`summon*` → `monster/monster_place.c`
 - `compact_objects`・`popt`・`pusht` → `dungeon/object_place.c`
 - `m_bonus` → `item/item_enchant.c`
-- `add_food` → `eat.c` か `player_food.c`。どちらにするかは呼び手を測ってから
-  決める。
+- `add_food` → `item/eat.c` か、兄弟の `player/food_ops.c`。**`player_food.c` は
+  不可**（測った。下の「下調べ」）。どちらにするかは misc1 の段で決める。
+
+### misc4・misc1 の下調べ（2026-09-29、`aefc979` の時点）
+
+読みとりだけで測った。関数は `misc1.c` に 33 個（`static` 3）、`misc4.c` に 5 個で、
+全部に上の行き先がある。
+
+- **上の表に無かったもの。** `misc1.c:60` の `static uint32_t old_seed`。
+  `set_seed`・`reset_seed` と同じファイルへ移す。`static` の `get_mons_num`・
+  `summon`・`compact_objects` も、呼び手と同じファイルでないとリンクできない。
+- **テストへの影響は代役からだけ来る。** `src/misc1.c`・`src/misc4.c` を旧 recipe で
+  リンクしていたテストは 0 本、`#include "misc1.c"` なども 0。同じ名前の代役は
+  `tests/creature_stubs.c` に 11 個、`tests/misc3_stubs.c` に 9 個、
+  `tests/fixture.c` に 4 個（`add_inscribe` の第 2 引数が `int` で、本物の
+  `uint8_t` とずれている）、`tests/save_stubs.c`・`tests/device_chance_test.c` に
+  `randint` が 1 個ずつ。`distance` の写しは 3 つ（`distance_test.c` の `static`、
+  2 つの代役。#37）。
+- **`get_panel` は `panel.c` に入れない。** `find_bound` と `end_find()`（moria2。
+  行き先は `player/run_path.c`）を読むので、依存ゼロの `panel.c` が依存を持つ。
+  呼び手 4 か所と `check_view` はどれも直後に `prt_map` を呼ぶので、
+  `ui/map_view.c` が自然。
+- **`add_food` は `player_food.c` に入れない。** `msg_print` と
+  `player_timed_add` を呼ぶ。`player_food.h:33` も「食べすぎの罰は画面に出すので
+  外に置く」と書いている。呼び手は `eat.c:189` と `potions.c:316`。
+- **`core/` の規則に合わないものがある。** `init_seeds` は `progress.c` の窓口を、
+  `randnor` は `tables.c` の `normal_table` を呼ぶ。`core/rnd.c` に入れるなら
+  この 2 つは別の置き場を考える（`magik` は `misc2` だけが呼ぶので
+  `item/item_enchant.c` の案もある）。
+- **下の層から上の層を呼ぶものがある。** `compact_objects`（`dungeon/`）が
+  `prt_map`（`ui/`）と `msg_print` を、`compact_monsters` が `msg_print` と
+  moria3 の `delete_monster` を呼ぶ。L3 の層の検査の規則を決めるときの材料になる。
+- **archive の中の `.o` の粒度が効く。** 代役が一部だけを覆っている `.o`
+  （例：`geometry.o` の `in_bounds`・`los`・`distance` は `creature_stubs.c` が
+  代役にしている）は、テストがその `.o` の別の関数を 1 つでも要ると丸ごと
+  引かれて多重定義になる。**分けるたびに `scripts/link_units.py` で引かれた
+  `.o` を見る。** #37 の `distance` の写しは、`geometry.c` をリンクするだけでは
+  消せない（代役の `in_bounds`（いつも真）と `los`（いつも偽）まで本物に替わり、
+  テストのふるまいが変わる）。
+- **`concat` のテスト（#47）。** 直接の呼び手は 0 で、`CONCAT` マクロ
+  （`externs.h:174`）越しに 88 か所（creature 40・spells 34・moria3 7・moria4 7）。
+  本物を通るテストは 0 件。`misc4.o` を archive から引くと `scribe_object` が
+  `get_item`（moria1。libcore に入っていない）を要るので、**先に inscription と
+  `check_view` を出して `misc4.c` を `concat` だけにしてから**テストを足すのが
+  楽。見るのは「戻り値は第 1 引数」「NULL だけなら空文字列」「順につなぐ」
+  「79 文字ちょうど」。長さは見ない関数なので、あふれは試さない。
+- **`moria1.c` と `dungeon.c` は libcore に入っていない**（#52 の L で外した）。
+  テストのフラグ（`-O2` が無い）だと `-Wformat-overflow` が `moria1.c` に 4 件
+  （499・711・975・1074 行の `sprintf`）、`dungeon.c` に 1 件（1317 行）出るため。
+  **moria1 を割ると、その行を持つ塊が警告を連れて libcore に入る。** 警告を
+  消すにはコードを変えることになるので、その段でユーザーに問い合わせる
+  （本当にあふれうるかは測っていない。バグ候補にはまだ入れていない）。
+- **古い行番号のコメントがある**（`distance_test.c` の「misc1.c:217」、
+  `panel_test.c` の「misc1.c:165-200」、台帳 #47 の「misc4.c:95-108」など）。
+  移すときに直す（コメントだけの別コミット）。
+
+**順番の提案（影響の小さい順）。** ① misc4 の inscription と `check_view` →
+② `concat`（テストを足してから `core/str_insert.c` へ）→ ③ misc1 のうち代役が
+0 のもの（bits・`max_hp`/`pdamroll`・`m_bonus`・`add_food`・`next_to_*`・
+object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geometry
+（代役と写しが最も多く絡む）。
 
 **`misc2.c`（914 行）**
 - `magic_treasure`（23〜853 行。棚上げ #26）→ そのまま `item/item_enchant.c` へ。
