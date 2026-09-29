@@ -269,7 +269,9 @@ prayer.o: $(HEADERS_FULL)
 recall.o: $(HEADERS_FULL)
 render.o: render.h
 render_ncurses.o: render.h backend_ncurses.h
-rnd.o: $(HEADERS_COMMON)
+# rnd.c includes externs.h, and since #54 also holds what was misc1.c's
+# randint() and the rest.
+rnd.o: $(HEADERS_FULL)
 view_observer.o: view_observer.h
 input.o: input.h
 input_ncurses.o: input.h backend_ncurses.h

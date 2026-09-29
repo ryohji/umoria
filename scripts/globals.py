@@ -261,7 +261,8 @@ GROUPS = {
 }
 
 # 定義の置き場。ここでの代入は初期化なので「散らばった書きこみ」に数えない。
-HOME_FILES = {"variable.c", "player.c", "tables.c", "treasure.c", "monsters.c"}
+# rnd.c は #54 で normal_table を tables.c から受けとった。
+HOME_FILES = {"variable.c", "player.c", "tables.c", "treasure.c", "monsters.c", "rnd.c"}
 # 状態の写しとり。`state->x = x` は x を書かない。
 SNAPSHOT_FILES = {"game_state.c"}
 
