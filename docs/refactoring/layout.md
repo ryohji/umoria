@@ -165,6 +165,297 @@
 - `creature.c`（1651 行 → 約 1050 行）と `spells.c`（2141 行 → 約 1790 行）も
   触ることになる。そのため、番号つきのファイルが片づいたあとに別のブランチで行う。
 
+## D0：行き先の表（案）
+
+2026-09-29、`68c7ad0` の時点で測った。**まだ 1 本も動かしていない。** ユーザーに
+見てもらってから D に入る。
+
+**数えた本数。** `src/*.c` は **109 本**（上の「109 本」と一致）、`src/*.h` は
+**76 本**。`.h` のうち 68 本は同じ名前の `.c` と対で、`.c` に付いていく。
+残りの 8 本はヘッダだけのもの（`backend_ncurses.h`・`config.h`・`constant.h`・
+`curses.h`・`equipment.h`・`externs.h`・`headers.h`・`types.h`）。
+
+**見たもの。** 各ファイルの冒頭の注釈と関数の一覧、`#include` の並び、それに
+`.o` を 1 本ずつ組んで `nm -u` に出る名前（libc を除く）。ncurses を取りこむのは
+`#include` で見ると `curses.h`・`platform.c`（`backend_ncurses.h` 経由）・
+`render_ncurses.c`・`input_ncurses.c` だけ。`externs.h` はもう何も include
+しない（`types.h` が `headers.h` を引くだけ）。
+
+**本数のまとめ。**
+
+| 行き先 | `.c` | `.h` | `.c` の行数 |
+|---|---|---|---|
+| `core/` | 2 | 1 | 210 |
+| `data/` | 8 | 2 | 2731 |
+| `player/` | 37 | 36 | 3549 |
+| `monster/` | 5 | 4 | 1917 |
+| `dungeon/` | 6 | 5 | 1437 |
+| `item/` | 14 | 6 | 4927 |
+| `store/` | 1 | 1 | 28 |
+| `combat/` | 0 | 0 | 0 |
+| `ui/` | 14 | 9 | 3208 |
+| `save/` | 4 | 2 | 2281 |
+| `platform/` | 5 | 4 | 755 |
+| `src/` に残す | 3 | 6 | 2347 |
+| R で分割（D では動かさない） | 10 | 0 | 9677 |
+| 計 | 109 | 76 | |
+
+- `combat/` は 0 本。上の「combat/」の節のとおり、R と「combat の残り」で
+  新しく作るファイルだけが入る。
+- `src/` に残す `.c` は `main.c` のほかに 2 本（`dungeon.c`・`game_state.c`）。
+  上の「`main.c` だけ `src/` に残す」から外れるので、下で訊く。
+
+### R で分割（D では動かさない）
+
+`misc1.c`（824）・`misc2.c`（914）・`misc3.c`（1899）・`misc4.c`（114）・
+`store1.c`（396）・`store2.c`（1085）・`moria1.c`（1711）・`moria2.c`（607）・
+`moria3.c`（1063）・`moria4.c`（1064）。10 本、どれも対の `.h` は無い。
+D のあいだは `src/` に置いたまま。分け先は上の「番号つきファイルの分割（R）」。
+
+### core/（2 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `rnd.c` | 116 | 乱数の本体。`nm -u` に出る名前が 0。`externs.h` を include するのは自分の宣言のためだけ |
+| `str_insert.c`・`.h` | 94・38 | 文字列の道具。`nm -u` が 0、`externs.h` も引かない |
+
+- `rnd.c` の `externs.h` は、include の上では `core/` から `src/` の全域ヘッダへの
+  依存になる。リンクの上では何にも頼らない。L3 の検査は `nm` で見るので当たらない。
+
+### data/（8 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `tables.c` | 217 | 店主・品ぞろえ・品物の見た目の名前（色・木・金属など）・打撃の回数・正規分布の定数表 |
+| `treasure.c` | 572 | 品物の定義表 |
+| `monsters.c` | 800 | モンスターの定義表 |
+| `player.c` | 524 | 人物の表（`py`・種族・職業・称号） |
+| `variable.c` | 193 | 全域変数の置き場 |
+| `sets.c` | 280 | `set_*` の述語と店の買い取り表。`tables.c` の店の表がこの 6 本を指す |
+| `options.c`・`.h` | 66・50 | 設定の旗の表。UI の呼び出しは無く、`save.c` が読む |
+| `progress.c`・`.h` | 79・54 | 手番・種・wizard の旗の置き場。依存 0 |
+
+- **`monsters.c`**：表のほかに名前の関数（`monster_name*`）と攻撃の窓口を持つ。
+  `is_a_vowel`（`desc.c`）を呼ぶので `data/` → `item/` の依存になる。
+  候補は `data/`（表が主）と `monster/`（関数が主）。表の行数が多いので `data/`。
+- **`variable.c`**：残りの全域変数と、モンスターの思い出（`recall_*`）の窓口。
+  候補は `data/` と `monster/`。まだ全域変数が主なので `data/`。
+- **`sets.c`**：候補は `data/` と `item/`（品物の述語が主）。`tables.c` から
+  呼ばれるので、同じディレクトリーにそろえた。
+- **`options.c`**：候補は `data/` と `ui/`（R で作る `ui/options_menu.c` の隣）。
+  `ui/` に置くと `save/` → `ui/` の依存ができるので `data/`。`find_*` などの
+  旗は `variable.c` にある。
+- **`progress.c`**：候補は `data/` と `save/`（兄弟の `save_state.c`・
+  `score_death.c` と同じ区分から出た）。中身は手番の数なので `data/`。
+
+### player/（37 本）
+
+`player_*.c` の 29 本と、その `.h` 29 本はそのまま。どれも `externs.h` を引かない
+葉の状態 module。ほかに次の 8 本。
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `abilities.c`・`.h` | 84・40 | 能力値の計算。`player_*`・`stats.c` と `player.c` の表（`class_level_adj`）を読む |
+| `burden.c`・`.h` | 44・60 | 荷の重さ。依存 0 |
+| `hp_table.c`・`.h` | 40・42 | レベルごとの HP の表。依存 0 |
+| `stats.c`・`.h` | 143・45 | 能力値から修正値への表。`py` だけを読む |
+| `spells_known.c`・`.h` | 163・132 | 覚えた呪文。依存 0 |
+| `running.c`・`.h` | 61・65 | 走っているかの状態。R の `player/run_path.c` と並べる |
+| `pending_teleport.c`・`.h` | 41・38 | 予約された瞬間移動。依存 0 |
+| `create.c` | 538 | 人物を作る流れ。prompt を出す（`inkey`・`clear_from` など） |
+
+- **`create.c`**：候補は `player/`（作るのは人物）と `ui/`（画面で訊く流れ）。
+  葉ではないので、置いても規則には当たらない。`player/`。
+
+### monster/（5 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `creature.c` | 1651 | モンスターの行動。上の計画どおり。`make_attack` は後で `combat/` へ |
+| `monster_breeding.c`・`.h` | 65・78 | 増殖の予算。依存 0 |
+| `monster_levels.c`・`.h` | 75・44 | レベルごとの索引。依存 0 |
+| `monster_list.c`・`.h` | 72・86 | 階にいるモンスターの表。依存 0 |
+| `monster_turn.c`・`.h` | 54・76 | 手番のモンスター。依存 0 |
+
+### dungeon/（6 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `dungeon_map.c`・`.h` | 36・145 | 床の表 |
+| `dungeon_size.c`・`.h` | 37・86 | 階の広さ |
+| `dungeon_level.c`・`.h` | 34・77 | いま何階か |
+| `floor_items.c`・`.h` | 77・125 | 床に載っているもの |
+| `level_exit.c`・`.h` | 53・53 | 階を出る印。`set_dungeon_level` だけを呼ぶ |
+| `generate.c` | 1200 | 階と町の生成 |
+
+- `generate.c` は `panel.h` を引く（`ui/`）。上の計画で `panel.c` は `ui/` なので、
+  `dungeon/` → `ui/` の依存が 1 本できる。
+
+### item/（14 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `inventory.c`・`.h` | 86・55 | 持ち物。葉 |
+| `equipment.h` | 45 | 装備の窓口。ヘッダだけ。`inventory.c` に実体があるので隣へ |
+| `item_ident.c`・`.h` | 152・66 | 鑑定の記録 |
+| `object_levels.c`・`.h` | 80・41 | レベルごとの品物の索引 |
+| `desc.c` | 609 | 品物の名前 |
+| `device.c`・`.h` | 45・28 | 杖と棒の成功率。`nm -u` が 0 |
+| `missile_serial.c`・`.h` | 45・32 | 矢の束の番号。依存 0 |
+| `eat.c`・`potions.c`・`scrolls.c`・`staffs.c`・`wands.c` | 195・320・486・174・173 | 品物を使うコマンド |
+| `magic.c` | 212 | `cast`（魔法を唱えるコマンド） |
+| `prayer.c` | 209 | `pray`（祈るコマンド） |
+| `spells.c` | 2141 | 呪文と品物の効き目（68 関数） |
+
+- **`magic.c`・`prayer.c`**：候補は `item/`（R の `item/spellbook.c` の
+  `cast_spell` と並べる、と上に書いた）と `player/`。本を使うコマンドで、
+  `eat.c` などと同じ形なので `item/`。
+- **`spells.c`**：いちばん迷う。中身は探知（`detect_*`）、地形（`earthquake`・
+  `destroy_area`・`door_creation`）、モンスターへの効き目、人物への効き目
+  （`cure_*`・`lose_*`）、飛び道具（`fire_bolt` など。後で `combat/`）が混ざる。
+  呼び手は `magic.c`・`prayer.c` と品物のコマンド 5 本。候補は `item/`
+  （呼び手の隣）、`combat/`、新しいディレクトリー（たとえば `magic/`）の 3 つ。
+  11 個の中からなら `item/`。
+
+### store/（1 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `stores.c`・`.h` | 28・33 | 店の表の窓口。依存 0。`store1/2` の分け先はここに増える |
+
+### ui/（14 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `io.c` | 617 | 画面と入力の古い窓口（`prt`・`msg_print`・`inkey` など） |
+| `messages.c`・`.h` | 98・67 | 上の行の履歴 |
+| `panel.c`・`.h` | 145・77 | 画面が映している範囲 |
+| `render.c`・`.h` | 127・100 | 描画の前面。backend を差しかえる口で、ncurses は引かない |
+| `input.c`・`.h` | 70・104 | 入力の前面。`render.c` と対 |
+| `view_observer.c`・`.h` | 150・146 | 表示の通知 |
+| `input_ended.c`・`.h` | 47・57 | 入力が尽きた回数。`io.c` が読む |
+| `command_state.c`・`.h` | 89・101 | 繰り返しの回数と、覚えた向き |
+| `inven_command_state.c`・`.h` | 43・43 | 持ち物画面の途中の状態。`screen_touched.c` を呼ぶ |
+| `screen_touched.c`・`.h` | 37・35 | 画面を流したかの印 |
+| `help.c` | 323 | `ident_char`（記号を訊く） |
+| `recall.c` | 683 | モンスターの思い出を画面に出す（`prt`・`inkey`） |
+| `files.c` | 355 | ファイルを見せる・書き出す（下記） |
+| `wizard.c` | 424 | wizard のコマンド（下記） |
+
+- **`io.c`**：`shell_out`・`user_name`・`topen`・`tilde` の 4 本は OS 寄りで、
+  候補は `platform/`。D では割らずに `ui/` へ運ぶ。
+- **`render.c`・`input.c`**：候補は `ui/`（上の計画の例）と `platform/`（backend と
+  並べる）。backend に依存しないので `ui/`。
+- **`panel.c`**：葉の状態 module だが、`generate.c`・`creature.c`・`save.c` など
+  12 本が引く。候補は `ui/`（上の計画の例）と `dungeon/`。
+- **`command_state.c`・`input_ended.c`**：候補は `ui/` と `player/`（または
+  `platform/`）。どちらも入力の状態なので `ui/`。
+- **`recall.c`**：候補は `ui/`（画面に出す）と `monster/`（思い出の中身）。
+  `prt`・`inkey` を呼ぶので `ui/`。
+- **`files.c`**：`init_scorefile`（得点ファイルを開く。B19）・`read_times`・
+  `helpfile`・`print_objects`（wizard）・`file_character`（人物の書き出し）の
+  5 本。候補は `ui/` と `save/`。`get_string`・`msg_print` を呼ぶ関数が多いので
+  `ui/`。いずれ割る対象。
+- **`wizard.c`**：`wizard_light`・`change_character`・`wizard_create`。
+  候補は `ui/`（prompt と `prt_*`）と `player/`（人物を書きかえる）、それに
+  12 個めのディレクトリー（`debug/` など）。11 個の中からなら `ui/`。
+
+### save/（4 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `save.c` | 1593 | セーブの書きと読み |
+| `save_state.c`・`.h` | 84・75 | セーブの状態の置き場 |
+| `score_death.c`・`.h` | 98・77 | 死んだか・勝ったかの置き場 |
+| `death.c` | 506 | 墓と得点表 |
+
+- **`death.c`**：`display_scores`・`print_tomb` は画面を描くので、候補は `save/`
+  （上の計画の例）と `ui/`。得点ファイルの読み書き（`highscores`）を持つので
+  `save/`。
+
+### platform/（5 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `platform.c`・`.h` | 39・22 | 描画と入力の backend をつなぐ |
+| `render_ncurses.c` | 302 | ncurses の描画 backend |
+| `input_ncurses.c` | 132 | ncurses の入力 backend |
+| `backend_ncurses.h` | 22 | 上の 2 本の宣言。ヘッダだけ |
+| `curses.h` | 16 | `<ncurses.h>` を包む。ヘッダだけ（下記） |
+| `signals.c` | 228 | signal の受け手 |
+| `signal_flags.c`・`.h` | 54・45 | signal と本体のあいだの旗。依存 0 |
+
+- `signals.c` は `prt`・`save_char` を呼ぶ。`platform/` は葉ではないので規則には
+  当たらない。
+
+### src/ に残す（`.c` 3 本・`.h` 6 本）
+
+| ファイル | 行数 | 理由 |
+|---|---|---|
+| `main.c` | 287 | 上の計画どおり |
+| `dungeon.c` | 1904 | 遊びの主ループとコマンドの振り分け（下記） |
+| `game_state.c`・`.h` | 156・148 | 誰も呼ばない写しとり（B3。下記） |
+| `config.h`・`constant.h`・`types.h`・`headers.h`・`externs.h` | 26・600・351・54・646 | 全域ヘッダ。ほぼすべての `.c` が引く |
+
+- **`dungeon.c`**：名前は「ダンジョン」だが、中身は `dungeon()`（主ループ）・
+  `do_command`・`original_commands` と、再生（`regenhp`・`regenmana`）、階段
+  （`go_up`・`go_down`）、`jamdoor`・`refill_lamp`・`examine_book`。
+  呼び手は `main.c` だけで、`#include` は 42 行。候補は `src/`（`main.c` の隣。
+  組みたての頂上）と `dungeon/`。`dungeon/` に置くと「地図と階」が
+  いちばん広い依存を抱えるので、`src/` を案にした。いずれ割る対象。
+- **`game_state.c`**：`game_state_init()` を誰も呼ばない（B3）。約 50 個の
+  全域変数を写すので、どこへ置いても全方向に依存する。消すかどうかは B3 の
+  判断なので、それまで `src/` に置く案。
+- **全域ヘッダ 5 本**：`core/` に置く案もあるが、`externs.h` はすべての
+  ディレクトリーの名前を宣言するので、`core/` の「どこにも依存しない」に合わない。
+  `-Isrc` は残るので、`src/` のままで `#include` は変わらない。
+
+### 同じ名前のヘッダ
+
+**`-I` を足す方式で気をつけるのは 2 つ。**
+
+1. **ディレクトリーをまたいだ同名。** いまはすべて `src/` の 1 か所にあるので、
+   同名は 1 つも無い。`tests/` のヘッダ（`fixture.h`・`minunit.h`）とも重ならない。
+   `src/` と `tests/` のファイル名の重なりも 0。R で作る予定の名前
+   （上の R と `combat/` の節の 33 本）も、いまの `src/` とは重ならない。
+   → 同名が無いので、`-I` の順番で答えが変わるところは無い。**新しいファイルを
+   足すときは、ほかのディレクトリーとの同名を検める**（`ls src/*/ | sort | uniq -d`）。
+2. **システムのヘッダとの同名。** `/usr/include` と重なるのは 2 本。
+   - `curses.h`：`#include "curses.h"` は `render_ncurses.c`・`input_ncurses.c` の
+     2 本だけで、どちらも `platform/` に行く。同じディレクトリーの `curses.h` が
+     先に見つかるので、ふるまいは変わらない。`<curses.h>` を書くファイルは 0。
+   - **`panel.h`**：ncurses の panel ライブラリーの `<panel.h>` と同名。
+     `"panel.h"` を引くのは 13 本（`src/` 12・`tests/` 1）、`<panel.h>` は 0。
+     いまも `-Isrc` で横取りしうる形で、`ui/` に移っても変わらない。
+   - R で作る予定の `dungeon/search.c` の `search.h` は、`/usr/include/search.h`
+     （`hsearch` など）と同名になる。`src/strings.h` と同じ理由で避けたい。
+     名前を変える案：`dungeon/secret_search.c`。
+- **`.c` を include するテストが 4 本ある**（`#include "store2.c"`・
+  `"creature.c"`・`"save.c"` 2 本）。`-I` で探すので、`makefile.test` には
+  `monster/`・`save/` の `-I` も要る。
+
+### ユーザーに決めてもらいたい点
+
+- `src/` に `main.c` のほかに `dungeon.c`（主ループ）と `game_state.c`（B3）を
+  残してよいか。だめなら `dungeon.c` は `dungeon/` へ、`game_state.c` は
+  B3 を先に決める。
+- 全域ヘッダ 5 本（`config.h`・`constant.h`・`types.h`・`headers.h`・`externs.h`）
+  を `src/` に残してよいか。
+- `spells.c`（2141 行）を `item/` に置いてよいか。それとも 12 個めの
+  ディレクトリー（`magic/` など）を作るか。
+- `wizard.c` を `ui/` に置いてよいか。それとも `debug/` を作るか。
+- `monsters.c`・`variable.c` を `data/` に置いてよいか（`monster/` の案もある）。
+- `options.c`・`progress.c`・`sets.c` を `data/` に置いてよいか
+  （それぞれ `ui/`・`save/`・`item/` の案もある）。
+- `panel.c` を `ui/` に置いてよいか（`dungeon/` の案もある。`dungeon/` →
+  `ui/` の依存ができる）。
+- `render.c`・`input.c` を `ui/` に、`files.c`・`recall.c`・`help.c` を
+  `ui/` に置いてよいか。
+- `create.c` を `player/` に、`magic.c`・`prayer.c` を `item/` に、
+  `death.c` を `save/` に置いてよいか。
+- R で作る `dungeon/search.c` を、`<search.h>` と重ならない名前
+  （`secret_search.c` など）に変えてよいか。
+
 ## 順番
 
 **L → D → R → 後始末。** 段ごとにブランチを分け、段ごとにマージの許可を取る。
