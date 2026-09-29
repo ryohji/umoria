@@ -67,7 +67,9 @@ make -f makefile.test 2>&1 | grep -E "^[0-9]+ tests" \
   | awk '{s+=$1; f+=$5} END {print s" tests, failed="f}'
 
 # 3. global の分類の網羅性（区分から外した名前を消し忘れると落ちる）
+#    と層の規則（1 のあと。いまは core/ が他の層に依存しないことだけ）
 python3 scripts/globals.py --check
+python3 scripts/layer_deps.py --check
 
 # 4. 起動確認（種族選択画面まで行けば OK）
 touch scores.dat
