@@ -137,26 +137,6 @@ int randnor(int mean, int stand) {
     return mean + offset;
 }
 
-// Returns position of first set bit -RAK-
-// and clears that bit
-int bit_pos(uint32_t *test) {
-    uint32_t mask = 0x1;
-
-    // i は int、sizeof(*test) * 8 は size_t（符号なし）。そのまま比べると
-    // i が符号なしに変換される。ここは i >= 0 しか通らないので値は変わらない
-    // が、変換が起きていることを明示しておく。
-    for (int i = 0; i < (int)(sizeof(*test) * 8); i++) {
-        if (*test & mask) {
-            *test &= ~mask;
-            return i;
-        }
-        mask <<= 1;
-    }
-
-    // no one bits found
-    return -1;
-}
-
 // Checks a co-ordinate for in bounds status -RAK-
 bool in_bounds(int y, int x) {
     if ((y > 0) && (y < dungeon_height() - 1) && (x > 0) && (x < dungeon_width() - 1)) {

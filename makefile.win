@@ -73,6 +73,7 @@ clean:
 	@echo "Compilation files removed!"
 
 abilities.o: abilities.h constant.h types.h externs.h config.h
+bits.o: bits.h
 burden.o: burden.h constant.h types.h config.h
 command_state.o: command_state.h constant.h types.h config.h
 create.o: constant.h types.h externs.h config.h

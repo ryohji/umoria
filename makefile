@@ -140,6 +140,9 @@ help:
 HEADERS_COMMON = constant.h types.h config.h
 HEADERS_FULL = $(HEADERS_COMMON) externs.h
 
+# bits.c came out of misc1.c (#54). It needs nothing but <stdint.h> and its own
+# header -- not even constant.h (the same as dungeon_size.o below).
+bits.o: bits.h
 # burden.c does not include externs.h either, so HEADERS_COMMON is enough.
 burden.o: burden.h $(HEADERS_COMMON)
 create.o: $(HEADERS_FULL)
