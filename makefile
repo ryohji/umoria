@@ -166,6 +166,9 @@ io.o: $(HEADERS_FULL)
 item_ident.o: item_ident.h $(HEADERS_FULL)
 magic.o: $(HEADERS_FULL)
 main.o: $(HEADERS_FULL)
+# map_view.c came out of misc4.c (#54). It includes externs.h, and reads the
+# map, where the player stands and whether the player is blind.
+map_view.o: dungeon_map.h player_pos.h player_timed_effects.h $(HEADERS_FULL)
 misc1.o: $(HEADERS_FULL)
 misc2.o: $(HEADERS_FULL)
 misc3.o: burden.h $(HEADERS_FULL)

@@ -95,6 +95,7 @@ io.o: constant.h types.h externs.h config.h
 item_ident.o: item_ident.h constant.h types.h externs.h config.h
 magic.o: constant.h types.h externs.h config.h
 main.o: constant.h types.h externs.h config.h
+map_view.o: dungeon_map.h player_pos.h player_timed_effects.h constant.h types.h externs.h config.h
 messages.o: messages.h constant.h types.h externs.h config.h
 misc1.o: constant.h types.h externs.h config.h
 misc2.o: constant.h types.h externs.h config.h
