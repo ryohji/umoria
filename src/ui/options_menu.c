@@ -5,7 +5,12 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc utility and initialization code, magic objects code
+// The options screen: shows the player's boolean options and lets them be
+// switched on and off
+//
+// set_options() came over from misc2.c unchanged. It is kept out of
+// data/options.c on purpose: that module is the table alone and calls nothing
+// on the screen, so its test does not have to link the screen code.
 
 #include "headers.h"
 
