@@ -50,11 +50,11 @@
  * prt_comment2 / prt_comment3 はどれも呼ばないので、
  * 「呼ばれたら何もしない／固定値を返す」で足りる。
  * 一覧はリンカに出させたもので、手で数えあげたわけではない。 */
-/* doing_inven はもう要らない。#18-11-3C で src/inven_command_state.c が static で
+/* doing_inven はもう要らない。#18-11-3C で src/ui/inven_command_state.c が static で
  * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 /* msg_flag はもう要らない。メッセージの状態は messages.c が持つので、
  * 代役ではなく本物をリンクしている（makefile.test 参照）。 */
-/* turn は src/progress.c の static である（#19B で store2.c が progress_turn()
+/* turn は src/data/progress.c の static である（#19B で store2.c が progress_turn()
  * 越しに読むようになり、#19C1 で実体もそこへ移った）。 */
 
 void move_cursor(int row, int col) { (void)row; (void)col; }

@@ -11,7 +11,7 @@
 
 // THE QUESTION. How much does the character weigh? In pounds, not tenths of a
 // pound -- a male Halfling is about sixty, a male Human about a hundred and
-// eighty (src/player.c:107, the m_b_wt / f_b_wt columns of race[]).
+// eighty (src/data/player.c:107, the m_b_wt / f_b_wt columns of race[]).
 //
 // THE EIGHTH QUESTION OUT OF struct misc, after how deep the character has been,
 // the hit die, the armour class, the base to-hit, the disarming skill, the saving

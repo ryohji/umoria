@@ -50,7 +50,7 @@
 #include "minunit.h"
 
 /* 新しい階に降りたところから始める（dungeon.c の 1 行と同じ）。**窓口で
- * 戻しなおす** —— 置き場が src/monster_breeding.c の static なので、この
+ * 戻しなおす** —— 置き場が src/monster/monster_breeding.c の static なので、この
  * 足場が唯一の道。 */
 static void given_a_fresh_level(void) { monster_breeding_reset(); }
 

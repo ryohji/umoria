@@ -8,7 +8,7 @@
  *
  * calc_spells() は「いまのレベルと能力値で覚えていられる呪文の数」を数えなおし、
  * 多すぎれば忘れさせ、余裕ができれば忘れた呪文を思いださせる唯一の場所。
- * #18-8 で窓口（`src/spells_known.h`）に預けた 4 つの global
+ * #18-8 で窓口（`src/player/spells_known.h`）に預けた 4 つの global
  * （`spell_learned` `spell_worked` `spell_forgotten` `spell_order`）のうち
  * 3 つを書きかえるのはここだけなので、窓口を通す書きかえ（ステップ B）の前に
  * ここで押さえた。いまは読み書きとも窓口越し（#18-8-B2）。
@@ -80,7 +80,7 @@ void calc_spells(int stat);
  * ------------------------------------------------------------------ */
 
 /* fixture_reset() は py を 0 で埋めるが、呪文の 4 個は消さない
- * （置き場は src/spells_known.c で、代役の管轄ではない）。どのテストも同じ
+ * （置き場は src/player/spells_known.c で、代役の管轄ではない）。どのテストも同じ
  * 地点から始まるように、ここで 4 個とも自分で初期化する。覚えた順を
  * SPELL_NONE で埋めるのは main.c:256 がゲーム開始時にするのと同じこと。 */
 static void given_no_spells_known(void) {

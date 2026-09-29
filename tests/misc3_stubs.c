@@ -57,43 +57,43 @@
 #include "player_timed_effects.h"
 
 /* --- グローバル状態 --- */
-/* マスの表（cave）はここに無い。#18-14-8C で置き場が src/dungeon_map.c の
+/* マスの表（cave）はここに無い。#18-14-8C で置き場が src/dungeon/dungeon_map.c の
  * static に入ったので、ここで定義しても窓口には届かない別の表になるだけ。
  * recipe が src/dungeon_map.c をリンクしているのがその代わりで、misc3.c は
  * square_at(y, x) で 1 マスを取る（下の cur_height・dun_level・t_list の
  * 註と同じ形。これでこの区分の 11 個ぜんぶがこの形になった）。 */
 /* この階の広さ（cur_height・cur_width）はここに無い。#18-14-5A で置き場が
- * src/dungeon_size.c の static に入り、#18-14-5B で misc3.c が窓口越しに
+ * src/dungeon/dungeon_size.c の static に入り、#18-14-5B で misc3.c が窓口越しに
  * 読むようになった（ここで定義しても窓口には届かない別の器になるだけ）。
  * recipe が src/dungeon_size.c をリンクしているのがその代わり。 */
 /* いま何階か（dun_level）はここに無い。#18-14-6A で置き場が
- * src/dungeon_level.c の static に入り、#18-14-6B で misc3.c が窓口越しに
+ * src/dungeon/dungeon_level.c の static に入り、#18-14-6B で misc3.c が窓口越しに
  * 読むようになった（ここで定義しても窓口には届かない別の器になるだけ）。
  * recipe が src/dungeon_level.c をリンクしているのがその代わり。 */
 /* noscore はここに無い。#19B2 で misc3.c が score_disqualifications() 越しに
- * 読み書きするようになったので、実体は src/score_death.c の static である。 */
+ * 読み書きするようになったので、実体は src/save/score_death.c の static である。 */
 /* 打っているコマンドの覚え 3 個（command_count・default_dir・last_command）は
- * ここに無い。#18-11-7B で misc3.c の prt_state() が src/command_state.h の
- * 窓口越しに読むようになり、#18-11-7C で実体が src/command_state.c の static に
+ * ここに無い。#18-11-7B で misc3.c の prt_state() が src/ui/command_state.h の
+ * 窓口越しに読むようになり、#18-11-7C で実体が src/ui/command_state.c の static に
  * なった（ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* pack_heavy と weapon_heavy はここに無い。#18-7-4B で misc3.c が
  * pack_speed_penalty() / weapon_is_too_heavy() 越しに読み書きするように
- * なり、#18-7-4C1 で実体が src/burden.c の static になった
+ * なり、#18-7-4C1 で実体が src/player/burden.c の static になった
  * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* character_generated もここに無い。#19B3 で misc3.c が
  * character_is_generated() 越しに読むようになったので、実体は
- * src/save_state.c の static である。 */
+ * src/save/save_state.c の static である。 */
 bool display_counts;
 bool free_turn_flag;
 /* teleport_flag もここに無い。#18-11-4B で misc3.c の teleport() が出口で
  * teleport_done() を呼ぶようになり、#18-11-4C で実体が
- * src/pending_teleport.c の static になった
+ * src/player/pending_teleport.c の static になった
  * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 /* total_winner と max_score はここに無い。#18-7-1B で misc3.c が
  * player_has_won() 越しに読むようになり、#18-7-1C1 で実体が
- * src/score_death.c の static になった。 */
+ * src/save/score_death.c の static になった。 */
 /* wizard はここに無い。#19B で misc3.c が progress_wizard_mode() 越しに
- * 読み書きするようになったので、実体は src/progress.c の static である
+ * 読み書きするようになったので、実体は src/data/progress.c の static である
  * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 
 /* --- 画面描画（misc3.c の表示系 4 割がこれを呼ぶ） --- */
@@ -315,7 +315,7 @@ int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
  * （回数が変わると乱数列がずれ、ゲーム全体のふるまいが変わる）。 */
 int fixture_randint_call_count(void) { return fixture_randint_calls; }
 
-/* 種も同じ理由でここに無い。実体は src/progress.c の static（desc.c が窓口
+/* 種も同じ理由でここに無い。実体は src/data/progress.c の static（desc.c が窓口
  * 越しに読む）。 */
 void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
@@ -334,58 +334,58 @@ bool magic_shop(int t) { (void)t; return false; }
 /* --- テスト専用の初期化。本体（src/）には存在しない。
  * MU_SETUP から呼ぶことで、先行テストの影響を受けない条件を作る。
  * py は player.c の本物なのでそのまま消去する。持ち物は #18-5C で
- * src/inventory.c、品目ごとの覚えは #18-9-C で src/item_ident.c が static で
+ * src/item/inventory.c、品目ごとの覚えは #18-9-C で src/item/item_ident.c が static で
  * 持つようになったので、どちらも窓口越しに消す。 --- */
 void fixture_reset(void)
 {
     extern player_type py;
 
-    /* 品目ごとの覚えは #18-9-C で src/item_ident.c が static で持つように
+    /* 品目ごとの覚えは #18-9-C で src/item/item_ident.c が static で持つように
      * なったので、セーブファイル用の生の窓口越しに消す。 */
     memset(item_kind_record_bytes(), 0, (size_t)item_kind_record_count());
     /* 持ち物と装備は 1 本の配列なので、跨ぎの窓口で全域を消す。 */
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     memset(&py, 0, sizeof py);
-    /* 階級と経験値の 5 つは #18-12-6C で src/player_level.c が static で
+    /* 階級と経験値の 5 つは #18-12-6C で src/player/player_level.c が static で
      * 持つようになったので、py を消しても届かない。窓口越しに 0 へ戻す。 */
     player_set_level(0);
     player_set_experience(0);
     player_set_max_experience(0);
     player_set_experience_fraction(0);
     player_set_experience_factor(0);
-    /* 状態の旗の 1 語も #18-12-7C で src/player_status_flags.c の static へ
+    /* 状態の旗の 1 語も #18-12-7C で src/player/player_status_flags.c の static へ
      * 移ったので、同じように窓口越しに消す。**旗が 1 つも立っていない状態が
      * 人物の走りだし** —— 30 bit を 1 回で降ろせる窓口はセーブファイル用の
      * これだけ。 */
     player_set_status_word(0);
-    /* 一時的な状態の残り時間 18 個も #18-12-9C で src/player_timed_effects.c の
+    /* 一時的な状態の残り時間 18 個も #18-12-9C で src/player/player_timed_effects.c の
      * static へ移ったので、py を消しても届かない。**どれも効いていないのが
      * 人物の走りだし**で、1 件が置いた長さが次の 1 件に残らないように 18 個とも
      * 0 へ戻す（印の 1 語と同じ理由）。 */
     for (int effect = 0; effect < PLAYER_TIMED_COUNT; effect++) {
         player_timed_clear((player_timed_effect)effect);
     }
-    /* いまの速さも #18-12-11C で src/player_speed.c の static へ移ったので、
+    /* いまの速さも #18-12-11C で src/player/player_speed.c の static へ移ったので、
      * py を消しても届かない。**ふつうの速さ（0 段）が人物の走りだし**で、
      * 1 件が置いた段数が次の 1 件に残らないように窓口越しに戻す。**どのテストも
      * 速さを読まないので、外してもレッドにはならない** —— それでも足すのは、
      * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。 */
     player_speed_set(0);
-    /* 赤外視の距離も #18-12-12C で src/player_infra_range.c の static へ移った。
+    /* 赤外視の距離も #18-12-12C で src/player/player_infra_range.c の static へ移った。
      * put_misc3() は毎回 xinfra を書くが、**それを読むのは xinfra の 1 件だけで、
      * その件は自分で 3 ます を置いてから読む**。だから外してもレッドにはならない
      * （実際に外して確かめた）。それでも足すのは、上の約束（各件は 0 から
      * 始まる）を黙って嘘にしないため —— 速さの 1 行と同じ理由。 */
     /* あと何個呪文を覚えられるかも #18-12-14C で
-     * src/player_spells_to_learn.c の static へ移った。**この 1 行は外すと
+     * src/player/player_spells_to_learn.c の static へ移った。**この 1 行は外すと
      * 本当にレッドになる**（速さと赤外視の 2 行とは違う。実際に外して
      * 2 件が落ちるのを確かめた）—— calc_spells() が「学べるようになった」と
      * 告げるのは**前に置いた数が 0 だったとき**だけなので、前の件が置いた数が
      * 残っていると message が出ず、それを読む 2 件が落ちる。
      * **0 が人物の走りだし**（戦士はずっと 0）。 */
     player_spells_to_learn_set(0);
-    /* 素の命中力の 2 本も #18-12-19C で src/player_base_to_hit.c の static へ
+    /* 素の命中力の 2 本も #18-12-19C で src/player/player_base_to_hit.c の static へ
      * 移ったので、py を消しても届かない。**外してもレッドにはならない** ——
      * この数を読む 3 件（xbth の 2 つと xbthb）はどれも自分で 24 を置いてから
      * 読むので、前の件が残した数を見る件が無い（実際に外して確かめた。
@@ -393,7 +393,7 @@ void fixture_reset(void)
      * 上の約束（各件は 0 から始まる）を黙って嘘にしないため。
      * **2 本まとめて 0 へ**（どちらも種族を選ぶまで 0）。 */
     player_base_to_hit_set(0, 0);
-    /* 罠と鍵をはずす腕も #18-12-20C で src/player_disarm.c の static へ移った。
+    /* 罠と鍵をはずす腕も #18-12-20C で src/player/player_disarm.c の static へ移った。
      * **この 1 行は外すと本当にレッドになる**（呪文の 1 行と同じ側で、素の
      * 命中力・速さ・赤外視の 3 行とは違う）—— class_level_adj の列を見る
      * xdis_uses_the_disarm_column_of_class_level_adj は自分で腕を置かず、
@@ -402,7 +402,7 @@ void fixture_reset(void)
      * （C の段で実際にこの 1 件が落ちて気づいた）。
      * **0 が人物の走りだし**（Human は種族の土台も創成時の下駄も 0）。 */
     player_disarm_set(0);
-    /* 抵抗も #18-12-21C で src/player_saving_throw.c の static へ移ったので、
+    /* 抵抗も #18-12-21C で src/player/player_saving_throw.c の static へ移ったので、
      * py を消しても届かない。**外してもレッドにはならない —— ただし今の並びの
      * おかげでしかない**（下調べでは「外すと落ちる」と読んでいたが外れた）。
      * 0 から始まることに頼っている件が 3 つある
@@ -414,7 +414,7 @@ void fixture_reset(void)
      * 確かめた —— **並びが変わったら落ちる側**で、この 1 行がそれを止める。
      * **0 が人物の走りだし**（Human は種族の土台が 0 で、焼きこむ下駄も無い）。 */
     player_saving_throw_set(0);
-    /* どの種族かも #18-12-22C で src/player_race.c の static へ移ったので、
+    /* どの種族かも #18-12-22C で src/player/player_race.c の static へ移ったので、
      * py を消しても届かない。**外してもレッドにはならない —— しかも今回は
      * 並びではなく中身から言える**（21 つめは並びのおかげだった）。
      * この行番号を読む既存の件は 1 つも無く、変異を入れても 11 本のどれにも
@@ -422,7 +422,7 @@ void fixture_reset(void)
      * それでも足すのは、上の約束（各件は 0 から始まる）を黙って嘘にしないため。
      * **0 が人物の走りだし**で、race[] の 0 行めはちょうど Human。 */
     player_race_set(0);
-    /* 体の重さも #18-12-23C で src/player_body_weight.c の static へ移った。
+    /* 体の重さも #18-12-23C で src/player/player_body_weight.c の static へ移った。
      * **この 1 行は外してもレッドにならないが、0 は既存の件の期待値に
      * 乗っている** —— check_strength_test の
      * the_limit_for_an_average_character_is_thirteen_hundred が読み返す 1300 は
@@ -431,7 +431,7 @@ void fixture_reset(void)
      * （どちらも無し）とここで分かれる。だから必ず 0 に戻す。
      * **0 が人物の走りだし**（創成が重さを振るまで体重は無い）。 */
     player_body_weight_set(0);
-    /* 命中と打撃の下駄も #18-12-24C で src/player_attack_bonuses.c の static 2 つへ
+    /* 命中と打撃の下駄も #18-12-24C で src/player/player_attack_bonuses.c の static 2 つへ
      * 移ったので、py を消しても届かない。**外してもレッドにはならない —— 21・
      * 22 つめと同じく並びのおかげで、しかも綱わたりが 1 本ある**。0 から始まる
      * ことに頼っている件が 3 つ（xbth_uses_the_bth_column_of_class_level_adj・
@@ -441,7 +441,7 @@ void fixture_reset(void)
      * あとに並んでいる**から今は通る。順を入れかえたら落ちる側。
      * **対で 0 へ**（どちらも創成が能力値を振るまで 0 で、ふつうの能力値でも 0）。 */
     player_attack_bonuses_set(0, 0);
-    /* 探索の腕と頻度も #18-12-25C で src/player_search_skill.c の static 2 つへ
+    /* 探索の腕と頻度も #18-12-25C で src/player/player_search_skill.c の static 2 つへ
      * 移った。**外してもレッドにならず、0 を当てにしている件も 1 つも無い** ——
      * 21 つめ（どちらも無し）と同じ側で、24 つめの綱わたりとは違う。この 2 つを
      * 読む既存の件は 5 つ（xfos の 4 件と xsrh の 1 件）だけで、**どれも自分が
@@ -455,7 +455,7 @@ void fixture_reset(void)
      * 腕だけを置くから —— player_search_skill.h）。 */
     player_search_chance_set(0);
     player_search_frequency_set(0);
-    /* 人物の身上書きの 6 つも #18-12-26C で src/player_bio.c の static 6 つへ
+    /* 人物の身上書きの 6 つも #18-12-26C で src/player/player_bio.c の static 6 つへ
      * 移ったので、py を消しても届かない。**外してもレッドにならず、0 を当てに
      * している既存の件も 1 つも無い** —— 21・25 つめと同じ側で、23 つめの
      * 「0 が期待値に乗っている」とも 24 つめの綱わたりとも違う。**この 6 つを
@@ -474,7 +474,7 @@ void fixture_reset(void)
     player_height_set(0);
     player_social_class_set(0);
     player_history_clear();
-    /* 足音の静かさも #18-12-27C で src/player_stealth.c の static へ移ったので、
+    /* 足音の静かさも #18-12-27C で src/player/player_stealth.c の static へ移ったので、
      * py を消しても届かない。**外してもレッドにならない** —— この数を読む既存の
      * 2 件（xstl の語）は **B で自分で置くように書きかえた**ので、走りだしの 0 に
      * よりかかっていない。**確かめた** —— この 1 行を足さずに全 1497 件が
@@ -486,7 +486,7 @@ void fixture_reset(void)
      * （player_stealth.h）。置く窓口 1 本なので 1 行（`_adjust` は足場の仕事では
      * ない）。 */
     player_stealth_set(0);
-    /* どの階級かも #18-12-28C で src/player_class.c の static へ移ったので、
+    /* どの階級かも #18-12-28C で src/player/player_class.c の static へ移ったので、
      * py を消しても届かない。**外してもレッドにならない** —— この行番号を読む
      * 既存の件（calc_spells の 17・gain_spells の 13・put_misc3 の 8）は
      * **どれも B で自分で階級を置くように書きかえた**ので、走りだしの 0 に
@@ -499,7 +499,7 @@ void fixture_reset(void)
      * 置く窓口 1 本なので 1 行（`_adjust` は無いし、これからも無い ——
      * 人物はローグに「なっていく」ものではない。player_class.h）。
      * **税は 0 本** —— この足場をリンクする 9 本は 9 本とも
-     * すでに src/player_class.c を張っている（所見 34・48）。 */
+     * すでに src/player/player_class.c を張っている（所見 34・48）。 */
     player_class_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);

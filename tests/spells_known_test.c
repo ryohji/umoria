@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 覚えている呪文の置き場（src/spells_known.c）のテスト
+/* 覚えている呪文の置き場（src/player/spells_known.c）のテスト
  *
  * ここに「何を覚えていられるか」の計算は無い。数えなおしは calc_spells()
  * （misc3.c:1220）、どれを覚えるかは gain_spells()（misc3.c:1374）にあり、

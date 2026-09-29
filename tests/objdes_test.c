@@ -30,7 +30,7 @@
 
 #include "fixture.h"
 
-/* 検証に使う本物（src/desc.c, src/treasure.c）。externs.h は本体の宣言を
+/* 検証に使う本物（src/item/desc.c, src/data/treasure.c）。externs.h は本体の宣言を
  * まるごと引きこむので、必要なものだけをここに書く。 */
 extern treasure_type object_list[];
 void invcopy(inven_type *, int);

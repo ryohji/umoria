@@ -551,7 +551,7 @@ const char *special_names[SN_ARRAY_SIZE] = {
 };
 
 // t_list（この階の床に載っているものの表）はここに無い。#18-14-7C で
-// src/floor_items.c の static になった。窓口は src/floor_items.h
+// src/dungeon/floor_items.c の static になった。窓口は src/dungeon/floor_items.h
 // （floor_items_reset / floor_item_at / floor_items_used /
 //  set_floor_items_used / floor_items_is_full / floor_items_claim_slot /
 //  floor_items_drop_last）。**上の定義表とは別の表**で、あちらは「その品目と
@@ -566,7 +566,7 @@ const char *special_names[SN_ARRAY_SIZE] = {
 // and equipment windows.
 
 // tcptr（表をどこまで使っているかの印）もここに無い。上の t_list と 2 つで
-// 1 つの入れ物なので、#18-14-7C で一緒に src/floor_items.c の static に
+// 1 つの入れ物なので、#18-14-7C で一緒に src/dungeon/floor_items.c の static に
 // なった。印は「最後に埋まった行のひとつ先」で、行 0（何も無い）は配られない
 // ので MIN_TRIX（1）から始まる。**予約は 1 行だけ** —— モンスターの表と違って
 // プレイヤーの行が無い（プレイヤーは床に落ちていない）。

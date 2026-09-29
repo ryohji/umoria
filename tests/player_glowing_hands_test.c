@@ -14,7 +14,7 @@
  * 8 か所が触っていた。
  *
  * **名前が関数と衝突している。** externs.h:538 に
- * `int confuse_monster(int, int, int);`（src/spells.c:1075。杖と巻物が向きを
+ * `int confuse_monster(int, int, int);`（src/item/spells.c:1075。杖と巻物が向きを
  * 指定してモンスターを混乱させる呪文）があり、フィールドのほうは
  * **プレイヤーが持っている 1 回ぶんの蓄え**。別物なので、module も窓口も
  * game の message に合わせて「手」を名前にした（player_glowing_hands.h）。
@@ -48,7 +48,7 @@
 #include "minunit.h"
 
 /* 手が暗いところから始める（走りだしと同じ）。**窓口で置きなおす** ——
- * 置き場が src/player_glowing_hands.c の static に入っても（#18-12-13C）
+ * 置き場が src/player/player_glowing_hands.c の static に入っても（#18-12-13C）
  * この足場は届く。 */
 static void given_dark_hands(void) { player_glowing_hands_restore(0); }
 

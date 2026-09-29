@@ -18,7 +18,7 @@
 // substitution, so they were never related to the ten other jobs misc3.c does.
 //
 // The name is not strings.h on purpose: -Isrc would let src/strings.h shadow
-// the standard <strings.h> for every translation unit (src/curses.h already
+// the standard <strings.h> for every translation unit (src/platform/curses.h already
 // shadows a system header that way).
 //
 // This header deliberately does not include types.h, which has no include

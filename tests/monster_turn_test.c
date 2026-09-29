@@ -43,7 +43,7 @@
 #include "minunit.h"
 
 /* 誰の手番でもないところから始める（走りだしと同じ）。**窓口で閉じなおす**
- * —— 置き場が src/monster_turn.c の static なので、この足場が唯一の道。 */
+ * —— 置き場が src/monster/monster_turn.c の static なので、この足場が唯一の道。 */
 static void given_nobodys_turn(void) { monster_turn_end(); }
 
 /* creatures() が index 番のモンスターを処理している最中。 */

@@ -7,7 +7,7 @@
 /* アイテムの効果が判明したときの処理のテスト -- 現在の実装を保護する
  *
  * potions.c / eat.c / scrolls.c に重複していた ident ブロックは
- * src/item_ident.c の learn_item_effect() に抽出された。このテストは
+ * src/item/item_ident.c の learn_item_effect() に抽出された。このテストは
  * その実体をリンクして検証する（写しではない）。
  *
  * potions.c / eat.c / scrolls.c 自体はリンクできない。効果処理の巨大な
@@ -35,7 +35,7 @@
 
 extern player_type py;
 
-/* 検証に使う本物（src/desc.c）。externs.h は ncurses まで引きこむので、
+/* 検証に使う本物（src/item/desc.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 int known1_p(inven_type *i_ptr);
 void identify(int *item);
@@ -51,7 +51,7 @@ void prt_experience(void);
 
 #include "minunit.h"
 
-/* 実体（src/item_ident.c）への呼びだし。抽出前の呼びだし側は item_val を
+/* 実体（src/item/item_ident.c）への呼びだし。抽出前の呼びだし側は item_val を
  * 局所変数として持っていたので、ここでも同じく変数に受けて渡す。
  * 戻り値（更新後の i_ptr）はこのテストでは見ない。 */
 static void apply_ident(bool ident, int item_val)
@@ -408,7 +408,7 @@ TEST(marking_a_kind_known_clears_that_it_was_tried)
 }
 
 /* ------------------------------------------------------------------
- * 5. 品目ごとの覚えの窓口（#18-9-A2 で足した src/item_ident.c の側）
+ * 5. 品目ごとの覚えの窓口（#18-9-A2 で足した src/item/item_ident.c の側）
  *
  * #18-9-C で表そのものが item_ident.c の static になった。ここで見るのは
  * 「窓口が desc.c と同じ表を見ていること」と「枠を持たない品目を訊かれても

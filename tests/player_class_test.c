@@ -26,7 +26,7 @@
  *
  * 行番号と表の中身:
  *   0 Warrior   1 Mage   2 Priest   3 Rogue   4 Ranger   5 Paladin
- * （src/player.c:283 の class[MAX_CLASS]）
+ * （src/data/player.c:283 の class[MAX_CLASS]）
  *
  * **呼びは 57 で、この道でいちばん多い**（55 行のうち 2 行が 1 行で 2 度
  * 呼ぶ。前の最多は 25 つめの身上書きの 44。
@@ -36,7 +36,7 @@
  *
  * **表に届く窓口は 2 本だけ**（`player_class_title()` と
  * `player_class_spell_type()`）。表そのものは module の外に置いたまま
- * extern 1 行で引く —— src/player_race.c が race[] に、src/player_level.c が
+ * extern 1 行で引く —— src/player/player_race.c が race[] に、src/player/player_level.c が
  * player_exp[] にしているのと同じ形。**だから足場は C でも消えなかった**
  * （消えたのは py の器だけ。tests/player_class_fixture.c に書いてある）。
  *
@@ -68,7 +68,7 @@
 #include "minunit.h"
 
 /* 表は足場が空で持っている（tests/player_class_fixture.c）。名前と系を読む件が
- * 自分で入れる —— 本物の 6 行を写してしまうと、src/player.c が変わったときに
+ * 自分で入れる —— 本物の 6 行を写してしまうと、src/data/player.c が変わったときに
  * 足場だけが古くなって気づけない。 */
 extern class_type class[MAX_CLASS];
 
@@ -88,7 +88,7 @@ static void given_the_table_has_the_six_names(void) {
 }
 
 /* 表の 6 行に系を入れる。**本物の並びと同じ** —— 戦士だけが NONE で、
- * 盗人と狩人は魔法系、聖人と騎士は祈り系（src/player.c:285 の Spell 欄）。 */
+ * 盗人と狩人は魔法系、聖人と騎士は祈り系（src/data/player.c:285 の Spell 欄）。 */
 static void given_the_table_has_the_six_schools(void) {
     class[0].spell = NONE;
     class[1].spell = MAGE;
@@ -266,7 +266,7 @@ TEST(the_school_follows_the_row) {
 /* **呪文の表の行は階級より 1 つ小さい**（`magic_spell[pclass - 1]`）。
  * ここに写しがあるのは **この module の外の規則**を 2 件で固定するためで、
  * 窓口の仕事ではない（`- 1` は「戦士に行が無い」という**表の並びの知識**で、
- * src/player.c:307 のコメントがこの道より古い）。 */
+ * src/data/player.c:307 のコメントがこの道より古い）。 */
 TEST(the_spell_tables_row_is_one_less_than_the_class) {
     given_the_menu_answered(2); /* Priest */
 

@@ -28,13 +28,13 @@
  *
  * 上限・下限は窓口に入れない。wizard の ^D が 0-99 なのはその prompt がそう
  * 言っているからで、巻物が 1 で止まるのは町より上へ押しあげないためで、
- * どちらも「階を出る」の規則ではない（src/level_exit.h に書いてある）。
+ * どちらも「階を出る」の規則ではない（src/dungeon/level_exit.h に書いてある）。
  *
  * 走りだしは false（variable.c:100 は初期値なしの bool）。テストは 1 プロセスで
  * 状態を共有するので、走りだしを見る 1 件は main() の先頭に置く。
  */
 /* externs.h は要らない。窓口と、型のための types.h だけで足りる。
- * **深さも窓口越しに見る** —— #18-14-6 で src/dungeon_level.c の static に
+ * **深さも窓口越しに見る** —— #18-14-6 で src/dungeon/dungeon_level.c の static に
  * 入ったので、足場 tests/level_exit_fixture.c は消した（あのファイルに
  * 「dun_level を閉じる人がこのファイルを消す」と書いてあったとおり）。 */
 #include "config.h"

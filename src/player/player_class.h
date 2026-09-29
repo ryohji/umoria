@@ -10,7 +10,7 @@
 #define PLAYER_CLASS_H
 
 // THE QUESTION. Which class did the player pick? The answer is A ROW NUMBER into
-// class[] (src/player.c:283), nothing more:
+// class[] (src/data/player.c:283), nothing more:
 //
 //   0 Warrior   1 Mage   2 Priest   3 Rogue   4 Ranger   5 Paladin
 //
@@ -138,7 +138,7 @@ int player_class_spell_type(void);
 //   2. WHERE THIS CLASS'S SPELLS ARE. magic_spell[row - 1][spell] is read at ten
 //      sites and THE MINUS ONE IS THE TABLE'S OWN LAYOUT, not a fact about the
 //      class: the table has MAX_CLASS - 1 rows because a Warrior has no spells, and
-//      src/player.c:307 says so in a comment older than this road. The same call as
+//      src/data/player.c:307 says so in a comment older than this road. The same call as
 //      the race made about `prace * 3 + 1` into background[] -- with ten sites
 //      rather than one, so if these ever fold it should be into a module for the
 //      spell table, not this one.

@@ -6,13 +6,13 @@
 
 /* モンスターの行動回数計算のテスト -- 現在の実装を保護する
  *
- * src/creature.c:75-86 の moves_this_turn() は、名前と戻り値の意味が
+ * src/monster/creature.c:75-86 の moves_this_turn() は、名前と戻り値の意味が
  * 乖離している。
  *
  *   speed > 0  のとき: 行動回数（speed 回。ただし休憩中は 1 回に抑える）
  *   speed <= 0 のとき: 条件式 (turn % (2 - speed)) == 0 の結果（0 か 1）
  *
- * 呼びだし元（src/creature.c:1529）は k = moves_this_turn(...) の結果を
+ * 呼びだし元（src/monster/creature.c:1529）は k = moves_this_turn(...) の結果を
  * while (k > 0) { k--; ... } で「回数」として消費するので、0/1 は
  * 「0 回 / 1 回」として機能している。つまり呼びだし側の解釈は一貫して
  * 「回数」であり、後者の枝は「周期的に 1 回動く」を意味している。
@@ -24,13 +24,13 @@
  * このテストは、その 3 つでふるまいが変わらないことを保証する。
  *
  * 観測のしかた: movement_rate は static なので外部から呼べない。そこで
- * src/creature.c をこの翻訳単位に #include し、内部の static 関数を
+ * src/monster/creature.c をこの翻訳単位に #include し、内部の static 関数を
  * 直接呼ぶ。写しではないので、ステップ B で実体を書きかえればこの
  * テストがそれを検証する。先例は tests/haggle_comment_test.c。
  *
  * 依存はグローバル turn（int32_t、tests/creature_stubs.c が定義）と
- * 休息の残りターン（#18-12-10C から src/player_resting.c の static。窓口は
- * src/player_resting.h）の 2 つだけ。turn は fixture_reset() の対象外なので、
+ * 休息の残りターン（#18-12-10C から src/player/player_resting.c の static。窓口は
+ * src/player/player_resting.h）の 2 つだけ。turn は fixture_reset() の対象外なので、
  * 各テストが明示的に代入する。
  *
  * 期待値はすべて現在の実装が返した実際の値。とくに負の turn に対する

@@ -249,7 +249,7 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
 
     // **`- 1` は表の並びの知識**で、階級についての事実ではない —— 戦士に行が
     // 無いので magic_spell は MAX_CLASS - 1 行（player_class.h の 2 つめ。
-    // src/player.c:307 のコメントがこの道より古い）。
+    // src/data/player.c:307 のコメントがこの道より古い）。
     spell_type *s_ptr = magic_spell[player_class() - 1];
 
     int spell[31];

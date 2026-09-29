@@ -44,7 +44,7 @@
 #include "minunit.h"
 
 /* 赤外視を持たない種族（Human）から始める。**窓口で置きなおす** ——
- * 置き場が src/player_infra_range.c の static に入っても（#18-12-12C）
+ * 置き場が src/player/player_infra_range.c の static に入っても（#18-12-12C）
  * この足場は届く。 */
 static void given_no_infra_vision(void) { player_infra_range_set(0); }
 

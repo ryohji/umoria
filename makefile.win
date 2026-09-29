@@ -32,7 +32,15 @@ CC = gcc
 # 相対の名前で書いてある）なので、sources.mk はこのファイルの置き場から探す。
 include $(dir $(lastword $(MAKEFILE_LIST)))sources.mk
 
-OBJS = $(SRCS:.c=.o)
+# .o は src/ に名前だけで並べる（下の依存行がその名前で書いてある）。.c と
+# ヘッダは VPATH で src/ のサブディレクトリー（sources.mk の SRC_SUBDIRS）から
+# 探す。#include "..." のほうは -iquote で同じディレクトリーを足す。-I では
+# なく -iquote にしているのは、#include <...> の探し先を前と同じ（src/ を
+# 見ない）に保つため（このリポジトリーの curses.h が <curses.h> を横取りしない）。
+VPATH = $(SRC_SUBDIRS)
+INC += -iquote . $(addprefix -iquote ,$(SRC_SUBDIRS))
+
+OBJS = $(notdir $(SRCS:.c=.o))
 
 LIBFILES = splash.hlp origcmds.hlp owizcmds.hlp roglcmds.hlp \
 			rwizcmds.hlp version.hlp welcome.hlp

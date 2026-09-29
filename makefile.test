@@ -33,7 +33,11 @@ WARNINGS = -Wall -Wextra -Wno-unused-parameter \
 # 文字列リテラルへの書きこみ等、数千件）の抑制を並べていた。本体側の
 # 警告解消でどれも 0 件になったので、抑制ごと外した。テスト・本体とも
 # この設定で警告 0 件。
-CFLAGS = $(STD) $(WARNINGS) -g -Isrc -Itests
+# -I は src/ とそのサブディレクトリー（sources.mk の SRC_SUBDIRS）と tests/。
+# #include "..." はヘッダの名前だけで書いてあるので、ヘッダのあるディレクトリー
+# はすべて要る。src/ の .c を丸ごと #include するテスト（下の「気をつける
+# こと」の 2）も、この -I でその .c を見つける。
+CFLAGS = $(STD) $(WARNINGS) -g -Isrc $(addprefix -Isrc/,$(SRC_SUBDIRS)) -Itests
 TESTDIR = tests
 BUILDDIR = $(TESTDIR)/build
 
@@ -105,10 +109,14 @@ $(BUILDDIR):
 # なので、要るテストが現れたときに入れかたを決める。
 include sources.mk
 
+# LIB_EXCLUDE は名前だけで書く（%/ の形で、どのディレクトリーにあっても当たる）。
+# .o はディレクトリーを落とした名前で tests/build/core/ に並べ、.c は vpath で
+# src/ とそのサブディレクトリーから探す（名前は src/ の中で重ならない）。
 LIB_EXCLUDE = dungeon.c moria1.c signals.c
-LIB_SRCS = $(filter-out $(LIB_EXCLUDE),$(CORE_SRCS))
+LIB_SRCS = $(filter-out $(LIB_EXCLUDE) $(addprefix %/,$(LIB_EXCLUDE)),$(CORE_SRCS))
 LIBOBJDIR = $(BUILDDIR)/core
-LIB_OBJS = $(addprefix $(LIBOBJDIR)/,$(LIB_SRCS:.c=.o))
+LIB_OBJS = $(addprefix $(LIBOBJDIR)/,$(notdir $(LIB_SRCS:.c=.o)))
+vpath %.c src $(addprefix src/,$(SRC_SUBDIRS))
 LIBCORE = $(BUILDDIR)/libcore.a
 
 $(LIBOBJDIR):
@@ -120,7 +128,7 @@ $(LIBOBJDIR):
 # 古い実行形式が使いまわされた（HANDOVER 第 7 節）。いまは共有ヘッダが
 # 変われば、それを取りこむ .o → libcore.a → 全テストの順に作りなおされる。
 # -MMD -MP は依存の一覧を書き出すだけで、.o の中身は変えない。
-$(LIBOBJDIR)/%.o: src/%.c | $(LIBOBJDIR)
+$(LIBOBJDIR)/%.o: %.c | $(LIBOBJDIR)
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
 -include $(LIB_OBJS:.o=.d)

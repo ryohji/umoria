@@ -668,7 +668,7 @@ void prt_stat_block(void) {
     // 位置（0x100）を知っていて 8 つずらして 1 を作っていた**。探索している
     // なら 1 引くという意味で、prt_speed() の i-- と同じ。**同じ規則が 2 か所に
     // 書かれているが畳まない** —— 探索と速さは別の問いで、片方が他方の半分では
-    // ない（src/player_speed.h）。
+    // ない（src/player/player_speed.h）。
     if (player_speed() - (player_is_searching() ? 1 : 0) != 0) {
         prt_speed();
     }

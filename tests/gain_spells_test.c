@@ -8,7 +8,7 @@
 /* 呪文を覚えるとき（misc3.c:1374 の gain_spells）のテスト
  *
  * プレイヤーが学ぶ（`G` コマンド、dungeon.c:1294）と呼ばれる。#18-8 で窓口
- * `src/spells_known.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
+ * `src/player/spells_known.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
  * 覚えた順（`spell_order`）に書き足すのはここだけ**なのに、単体テストが
  * 1 件も届いていなかった。窓口を通す書きかえ（ステップ B）の前に押さえた。
  * いまは読み書きとも窓口越し（#18-8-B2）。
@@ -75,7 +75,7 @@ void gain_spells(void);
  * ------------------------------------------------------------------ */
 
 /* fixture_reset() は py を 0 で埋めるが、呪文の 4 個は消さない
- * （置き場は src/spells_known.c で、代役の管轄ではない）。覚えた順を
+ * （置き場は src/player/spells_known.c で、代役の管轄ではない）。覚えた順を
  * SPELL_NONE で埋めるのは main.c:256 がゲーム開始時にするのと同じこと。
  * free_turn_flag も代役側の器なので自分で戻す。 */
 static void given_no_spells_known(void) {

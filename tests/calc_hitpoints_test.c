@@ -50,7 +50,7 @@ void calc_hitpoints(void);
  * 条件づくりの補助関数
  * ------------------------------------------------------------------ */
 
-/* con_adj()（src/stats.c:80）は A_CON を見る。7..16 なら 0 を返すので、
+/* con_adj()（src/player/stats.c:80）は A_CON を見る。7..16 なら 0 を返すので、
  * 表の値だけを見たいテストはこれを使う。 */
 static void given_neutral_constitution(void) {
     py.stats.use_stat[A_CON] = 10;
@@ -65,7 +65,7 @@ static void given_constitution_adding_two_per_level(void) {
  * 何も書かないので、レベルを決めるときに一緒に埋める。
  * 残りも入れておく（上限が動くと残りは割合で追従する）。
  *
- * **体力 3 つの置き場は #18-12-5C で src/player_hp.c の static に入ったので、
+ * **体力 3 つの置き場は #18-12-5C で src/player/player_hp.c の static に入ったので、
  * fixture_reset() の memset では消えない。** どのテストもここを通るから
  * 前のテストの値は残らないが、新しいテストを足すときは必ずここで足場を
  * 作ること（窓口を通さずに読み書きする道はもう無い）。 */

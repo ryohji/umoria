@@ -10,7 +10,7 @@
  * （どの種族か。#18-12-22）の足場とまったく同じ道すじで、そこでも `py` だけが
  * 消えて `race[]` が残った。
  *
- * 1 バイトは `src/player_class.c` の static に入ったので、ここで `py` を
+ * 1 バイトは `src/player/player_class.c` の static に入ったので、ここで `py` を
  * 定義しても窓口には届かない別の器になるだけ（HANDOVER.md 第 7 節。#18-6C2
  * 以来くりかえしているつまずきで、#18-12-1C から #18-12-27C まで **24 回**
  * 足場ごと消してきた —— 残ったのは 6・21・27 つめの 3 本だけで、どれも表を
@@ -19,13 +19,13 @@
  *
  * 表は残る —— externs.h の「定数表（読みとり専用データ）」20 個の 1 つで、
  * その区分は #18 の対象外（`const` 化のみ。docs/refactoring/globals_inventory.md「区分ごとの見立て」）。本体では
- * `src/player.c:283` が 6 行の実の値を持ったままで、`src/player_class.c` は
- * extern 1 行で届く —— `src/player_race.c` が `race[]` に対して、
- * `src/player_level.c` が `player_exp[]` に対してしているのと同じ形。
+ * `src/data/player.c:283` が 6 行の実の値を持ったままで、`src/player/player_class.c` は
+ * extern 1 行で届く —— `src/player/player_race.c` が `race[]` に対して、
+ * `src/player/player_level.c` が `player_exp[]` に対してしているのと同じ形。
  *
  * 表は空のまま置く（初期化子なし = `title` が全部 NULL・`spell` が全部 0）。
  * **名前や系を読む件は自分で入れてから読む** —— 本物の 6 行を写すと、
- * `src/player.c` が変わったときに足場だけが古くなって気づけない
+ * `src/data/player.c` が変わったときに足場だけが古くなって気づけない
  * （22 つめの足場に書いた理由をそのまま当てる）。
  */
 #include "config.h"

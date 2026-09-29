@@ -10,7 +10,7 @@
  * （どこまで潜ったか・体力の骰子・守りの点数・素の命中力・罠と鍵をはずす腕・
  * 抵抗・どの種族か・体の重さにつづく）。答えは **2 つの short** —— もとは
  * py.misc.ptohit と py.misc.ptodam で、6 ファイルから 21 か所が名ざしていた
- * （19 行）。**#18-12-24C から src/player_attack_bonuses.c の static 2 つ**で、
+ * （19 行）。**#18-12-24C から src/player/player_attack_bonuses.c の static 2 つ**で、
  * このテストは足場を 1 つも持たない（人物の器が要らないので
  * player_attack_bonuses_fixture.c は C で消えた）。
  *
@@ -20,7 +20,7 @@
  * それでも **module は 1 つ** —— 置く側が 4 か所とも 2 行ずつで対になって
  * いるから（19 つめの `bth` ＋ `bthb` と同じ形 → 台帳の所見 40）。
  *
- * **数は負がふつう** —— もとは src/stats.c の補正表（DEX と STR）で、
+ * **数は負がふつう** —— もとは src/player/stats.c の補正表（DEX と STR）で、
  * 弱い人物は −3 から始まり、呪われた武器はさらに引く。
  *
  * **窓口は 5 本**（下調べは 6 本と見こんだ）——
@@ -74,7 +74,7 @@ TEST(reading_either_number_twice_gives_the_same_answer) {
     ASSERT_EQ_INT(6, player_to_damage_bonus());
 }
 
-/* **負がふつう** —— DEX 3 は命中に −3、STR 3 は打撃に −2（src/stats.c:99・
+/* **負がふつう** —— DEX 3 は命中に −3、STR 3 は打撃に −2（src/player/stats.c:99・
  * :136 の表の 1 段め）。ここを留めると遊びが変わる（→ 所見 24）。 */
 TEST(a_weak_and_clumsy_character_has_negative_bonuses) {
     given_bonuses_of(-6, -2); /* DEX 3 と STR 3 で命中は −3 ＋ −3 */

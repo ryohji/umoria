@@ -35,15 +35,15 @@ const char *copyright[17] = {
     "along with Umoria.  If not, see <http://www.gnu.org/licenses/>."};
 
 // hack_monptr（いま creatures() が誰の手番を処理しているか）はここに無い。
-// #18-14-1C で src/monster_turn.c の static になった。窓口は
-// src/monster_turn.h（monster_turn_begin / monster_turn_end /
+// #18-14-1C で src/monster/monster_turn.c の static になった。窓口は
+// src/monster/monster_turn.h（monster_turn_begin / monster_turn_end /
 //  monster_delete_may_shift / monster_turn_index）。読み手 2 つが
 // `hack_monptr < i` と手で書いていた比較には名前が付いた ——
 // 「その席を詰めなおしてよいか」。上流の「horrible hack」の註は
 // 呼び手（misc1.c と moria3.c）と窓口の記録に残っている。
 
 // weapon_heavy と pack_heavy（重さに負けているか）はここに無い。#18-7-4C1 で
-// src/burden.c の static になった。窓口は src/burden.h
+// src/player/burden.c の static になった。窓口は src/player/burden.h
 // （weapon_is_too_heavy / set_weapon_too_heavy /
 //  pack_speed_penalty / set_pack_speed_penalty）。
 
@@ -55,7 +55,7 @@ const char *copyright[17] = {
 //                 max_score
 //   save_state.c  savefile, character_generated, character_saved, panic_save
 //
-// See src/progress.h, src/score_death.h and src/save_state.h.
+// See src/data/progress.h, src/save/score_death.h and src/save/save_state.h.
 //
 // highscore_fp is the fourteenth of that batch and stays here. The two
 // functions that read and write the score file (display_scores() and
@@ -138,7 +138,7 @@ int closing_flag = 0; // Used for closing
 // cave is not here either. Every square of the level -- what it is made of,
 // which monster stands on it, which thing lies on it, and the four light bits
 // -- is private to dungeon_map.c now, handed out one square at a time through
-// src/dungeon_map.h. It was the last of the eleven dungeon globals, and the
+// src/dungeon/dungeon_map.h. It was the last of the eleven dungeon globals, and the
 // biggest: 258 references in fifteen files.
 
 static recall_type c_recall[MAX_CREATURES]; // Monster memories

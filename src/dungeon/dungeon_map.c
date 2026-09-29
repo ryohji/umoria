@@ -25,7 +25,7 @@
 //
 // The table is one contiguous row-major block, and that is now this file's
 // promise alone: nineteen loops used to walk it with a pointer, and none do
-// any more. See src/dungeon_map.h.
+// any more. See src/dungeon/dungeon_map.h.
 static cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 
 // Blank the whole table -- upstream's blank_cave(), one memset, moved here

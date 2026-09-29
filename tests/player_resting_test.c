@@ -42,7 +42,7 @@
 #include "minunit.h"
 
 /* 休んでいない状態から始める。**窓口で置きなおす** —— 置き場が
- * src/player_resting.c の static に入っても（#18-12-10C）この足場は届く。 */
+ * src/player/player_resting.c の static に入っても（#18-12-10C）この足場は届く。 */
 static void given_not_resting(void) { player_rest_stop(); }
 
 static void given_resting_for(int rest_turns) {
