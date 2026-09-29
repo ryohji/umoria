@@ -1,7 +1,8 @@
 # 引きつぎ資料
 
 次にこのリファクタリングを続ける担当へ。**この資料 → `REFACTORING_PLAN.md` →
-`GLOBALS_INVENTORY.md`** の順に読めば、前提と作法と次の一手が揃う。
+`docs/refactoring/layout.md`** の順に読めば、前提と作法と次の一手が揃う。
+済んだ列の経過は `docs/refactoring/done/` にあり、要るときだけ開けばよい。
 
 作成日: 2026-09-13（`develop` の `a89c97d` 時点）
 
@@ -9,16 +10,40 @@
 
 ## 0. 現在地
 
-（書きなおし中。2026-09-29 までの第 0 節は [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)）
+2026-09-29、`develop` は `994818a`（`origin` と同じ。push はユーザーが行う）。
+
+- 本体の警告 0（clean から）。テスト **1662 件・74 本**、failed=0、`RESULT: GREEN`。
+- `externs.h` の global は **42 個・参照 599**（着手時 112 個・3147）。
+  `scripts/globals.py --check` は 42 個すべて分類。
+- **#18（データの散在）の列は終わった。** 残りの 42 個をどうするかは台帳の
+  #18 の行と `docs/refactoring/globals_inventory.md` の「区分ごとの見立て」。
+- 記録の文書を `docs/refactoring/` へ切りわけた（第 1 節）。
+- **次は実装の再配置**（番号つきファイルの分割・サブディレクトリー・テストの
+  ライブラリー化）。第 5 節・第 6 節と `docs/refactoring/layout.md`。
+
+2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
+[docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
 
 ## 1. 資料の役割分担
 
+入口は根の 2 つだけ。残りは `docs/refactoring/` に置き、入口から番号で指す。
+
 | 文書 | 何が書いてあるか |
 |---|---|
-| `REFACTORING_PLAN.md` | 台帳（P1/P2/P3/棚上げ）、区分ごとの経過、**バグ候補 18 件**（B1 は #10-B で解消）、末尾に**作業ログ**（1 作業 1 行、テスト件数の推移つき） |
-| `GLOBALS_INVENTORY.md` | #18 の棚おろし。着手前の姿（凍結）＋**所見 29 件**＋区分ごとの見立て |
+| `HANDOVER.md`（この資料） | 現在地・作法・約束・地雷・次の順番 |
+| `REFACTORING_PLAN.md` | 台帳（P1/P2/P3/棚上げ）。1 項目 1 行と、その項目の今の状態 |
+| `docs/refactoring/layout.md` | 実装の再配置の計画（ディレクトリー・移し先・ライブラリー化・順番） |
+| `docs/refactoring/bugs.md` | バグ候補（B2〜B19。B1 は #10-B で解消）。**直さない** |
+| `docs/refactoring/findings.md` | 所見（わかったこと）1〜55 と索引。作法の根拠はここを番号で指す |
+| `docs/refactoring/globals_inventory.md` | #18 の棚おろし。着手前の姿（凍結）＋区分ごとの見立て＋付録 |
+| `docs/refactoring/worklog.md` | 作業ログ（1 作業 1 行、テスト件数の推移つき） |
+| `docs/refactoring/done/` | 済んだ列の経過（台帳の節・この資料の節を字を変えずに移したもの） |
 | `scripts/globals.py` | `externs.h` の global を区分に分けて数える道具。手で数えない |
 | `CHANGELOG.md` | 上流の履歴。この作業では触っていない |
+
+`done/` の文書の中の「第 N 節」は**移した時点のこの資料**の節、「所見 N」は
+`findings.md` を指す（各文書の冒頭に註がある）。第 1〜4・7 節の番号は変えて
+いないので、ソースやテストのコメントの「HANDOVER 第 4 節」はそのまま通じる。
 
 `patterns.md`（臭いの型と手順のカタログ）はリポジトリ外。文中で参照されるが
 無くても進められる。
@@ -477,11 +502,50 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
 
 ## 5. いまの作業
 
-（書きなおし中。済んだ列の記録は [docs/refactoring/done/](docs/refactoring/done/)）
+**実装の再配置**（台帳の #52〜。#42・#43・#38 を束ねる）。計画の全体は
+[docs/refactoring/layout.md](docs/refactoring/layout.md)。要点だけ：
+
+- `misc1〜4`・`store1/2`・`moria1〜4` を**中身の名前**のファイルへ分ける。
+  新しいファイルは最初から行き先のサブディレクトリーに作る。
+- サブディレクトリーは `core/ data/ player/ monster/ dungeon/ item/ store/
+  combat/ ui/ save/ platform/`。`main.c` だけ `src/` に残す。`#include` の
+  1394 行（`src/` と `tests/` の `#include "…"`）は書きかえず、ディレクトリーごとに `-I` を足す。
+- テストのビルドを**ライブラリー化**する（`main`・`render_ncurses`・
+  `input_ncurses` を除く全 `.o` を 1 つの `libcore.a` に）。`/tmp` での試しで
+  74 本すべてがリンクし 1662 件が通った。手書きの recipe（2335 行）と
+  「税」（#38）が消える。
+- **置き場の規則**：葉の「状態」module（`inventory.c`・`player_level.c`・
+  `stats.c` など）に UI や外への依存を持つ code を足さない。兄弟のファイルを
+  作る。葉のテストが単独でリンクできることを守るため。
+
+まだ 1 行も動かしていない。最初の一手は第 6 節の L1。
 
 ## 6. その先の順番
 
-（書きなおし中。2026-09-29 までの第 6 節は [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)）
+**L → D → R → 後始末**。各段はブランチを分け、段ごとにマージの許可を取る。
+
+1. **L（テストのライブラリー化）**
+   - L1：`sources.mk` を作り、`makefile`・`makefile.win`・`makefile.test` が
+     同じ一覧を読む。
+   - L2：`makefile.test` を型の規則＋「実行形式ごとの追加ファイル」だけにする。
+     **74 本すべてで、リンクマップに出る `.o` が旧 recipe と一致すること**を
+     確かめてから旧 recipe を消す。
+   - L3：`scripts/link_units.py`（実行形式ごとに archive から引かれた `.o` を
+     出す）と、`nm` による層の依存の検査。**archive は 1 つ**（分けると循環で
+     リンク順が壊れる）。
+2. **D（すでにきれいな module を `git mv`）**——中身を変えずに行き先の
+   ディレクトリーへ。1 ディレクトリー 1 コミット。
+3. **R（番号つきファイルの分割）**——`misc4` → `misc1` → `misc2` →
+   `store1/2` → `misc3`（#42）→ `moria1〜4`。そのあと別ブランチで
+   `creature.c`・`spells.c` から戦闘の code を `combat/` へ。
+4. **後始末**——テストの代役の重複（#37）。
+
+**ライブラリー化の落とし穴**：代役（stub）を消すと、`undefined reference` で
+止まらず**黙って本物がリンクされる**。代役を消したら L3 の道具で引かれた
+`.o` を見る。
+
+2026-09-29 までの第 6 節（#18 の残りの順番）は
+[docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
 
 ## 7. 地雷とつまずきどころ
 
@@ -1181,20 +1245,23 @@ grep -c '$(TESTDIR)/misc3_stubs.c' makefile.test   # 18 行 = recipe 9 本
 
 ## 8. 終わったら更新する文書
 
-区分を 1 つ片づけるごとに、**docs だけの独立したコミット**を作る。
+単位を 1 つ片づけるごとに、**docs だけの独立したコミット**を作る。
 
-1. `GLOBALS_INVENTORY.md`——所見（`## わかったこと` の連番）を 1 件追加、
-   「区分ごとの見立て」の該当行を**完了**に、集計節の「現在の合計」を更新。
+1. `REFACTORING_PLAN.md`——台帳の該当行の状態を**1 行で**書きかえる。
+   経過の散文はここに書かない。
+2. 経過の散文（測り・A/B/C・分かったこと・予告と実際）は、その列の文書へ。
+   列が続いている間は `docs/refactoring/` に置き、終わったら `done/` へ移す。
+   再配置の列なら `layout.md` の「進みぐあい」の表を更新する。
+3. `docs/refactoring/worklog.md`——**1 ステップ 1 行**、本当に 1 行
+   （コミット ID・何をしたか・テスト件数）。理由や発見は所見か列の文書へ。
+4. 新しい所見は `docs/refactoring/findings.md` の末尾に連番で足し、索引にも
+   1 行足す。バグ候補は `bugs.md` へ（直さない）。
+5. global を減らす作業なら `globals_inventory.md` の「区分ごとの見立て」と
+   集計を更新し、`scripts/globals.py` の `GROUPS` から片づいた名前を消す。
    凍結した表（着手前の姿）と付録の一覧は**書きかえない**。
-2. `REFACTORING_PLAN.md`——`#### #18-N` の節を追加、#18 の行の個数と完了
-   一覧を更新、**末尾の作業ログに 1 ステップ 1 行**（テスト件数の推移つき）。
-3. `scripts/globals.py`——`GROUPS` から片づいた名前を消す。
-4. `HANDOVER.md`（この資料）——第 0 節の数字と第 5 節の「次の作業」を差しかえる。
+6. `HANDOVER.md`（この資料）——第 0 節の数字と第 5・6 節を差しかえる。
+   **入口の 2 つはそれぞれ 6 万字（`len()` で数える）を超えない。** 超えそうなら、済んだ部分を
+   `done/` へ字を変えずに移す。
 
 マージまで終わったら、マージの行も作業ログに足す（`--no-ff` のコミット ID と
 「マージ後に全ビルド・全テスト・起動を確認」）。
-
-**#33 系（#40〜#42、`misc3.c` の分割）のときは 1 と 3 が要らない。** global を
-減らす作業ではないので `GLOBALS_INVENTORY.md` と `scripts/globals.py` は
-そのまま。かわりに **`REFACTORING_PLAN.md` の「#33 の精査」の塊の表**（どの塊が
-どこへ行ったか）と、**この資料の第 4 節の module 一覧**を更新する。
