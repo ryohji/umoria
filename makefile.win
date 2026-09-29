@@ -168,7 +168,7 @@ potions.o: constant.h types.h externs.h config.h
 prayer.o: constant.h types.h externs.h config.h
 progress.o: progress.h constant.h types.h config.h
 recall.o: constant.h config.h types.h externs.h
-rnd.o: constant.h types.h
+rnd.o: constant.h types.h externs.h config.h
 save.o: burden.h constant.h types.h externs.h config.h
 save_state.o: save_state.h progress.h score_death.h constant.h types.h config.h
 score_death.o: score_death.h constant.h types.h config.h
