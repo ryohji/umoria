@@ -295,6 +295,9 @@ save_state.o: save_state.h progress.h \
 store1.o: stores.h $(HEADERS_FULL)
 store2.o: stores.h $(HEADERS_FULL)
 stores.o: stores.h $(HEADERS_FULL)
+# store_price.c came out of store1.c (#55). It includes externs.h, and reads
+# the stores and the race of the customer (a column of the price table).
+store_price.o: stores.h player_race.h $(HEADERS_FULL)
 stats.o: stats.h $(HEADERS_COMMON)
 # str_insert.c does not include externs.h, so HEADERS_COMMON is enough here
 # (the same as stats.o above).
