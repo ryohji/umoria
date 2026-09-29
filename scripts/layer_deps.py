@@ -6,9 +6,9 @@ docs/refactoring/layout.md (step L3). The layers are the subdirectories of
 src/ (core/, data/, player/, ui/, ...), read from the paths in sources.mk;
 a file directly in src/ (main.c, dungeon.c, the numbered files until step R)
 is in the layer "src". Step D (#53) moves the files, and --matrix shows who
-calls whom between the layers. RULES below is still empty, so --check has
-nothing to enforce: the rules (for example "core/ must not reach ui/") are
-to be decided from that matrix and written here.
+calls whom between the layers. RULES below says which layers each
+layer must not reach; only core/ is ruled so far, and the other rules are to
+be added from that matrix as step R splits the numbered files.
 
 What it does now:
   * reads the list of sources from sources.mk (SRCS), so it knows which
@@ -39,11 +39,15 @@ from collections import defaultdict
 
 SOURCES_MK = 'sources.mk'
 
-# Layer rules, to be decided from --matrix after step D. Each entry says
-# which layers a layer may NOT depend on, e.g.
-#     'core': {'data', 'player', 'monster', 'dungeon', 'item', 'store',
-#              'combat', 'ui', 'save', 'platform'},
-RULES = {}
+# Layer rules. Each entry says which layers a layer may NOT depend on.
+# Only core/ is ruled for now (decided 2026-09-29 from --matrix after step D):
+# core/ depends on nothing else in the game, and it had 0 outgoing edges.
+# The other layers still call into the numbered files in src/, so their rules
+# are to be added one by one as step R splits those files.
+RULES = {
+    'core': {'src', 'data', 'player', 'monster', 'dungeon', 'item', 'store',
+             'combat', 'ui', 'save', 'platform'},
+}
 
 # The order of the rows and columns of --matrix (docs/refactoring/layout.md).
 # A layer that is not here (a new directory) is appended in name order.
@@ -151,6 +155,9 @@ def main():
         if not RULES:
             print('no layer rules yet (see --matrix); '
                   f'{len(edges)} edges between {len(units)} units')
+        elif not bad:
+            print(f'OK: {len(edges)} edges between {len(units)} units, '
+                  f'none against the rules for {", ".join(sorted(RULES))}')
         sys.exit(1 if bad else 0)
 
     if args.layers or args.matrix:
