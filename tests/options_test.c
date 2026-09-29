@@ -8,9 +8,10 @@
 /* オプション（ユーザー設定 11 個）のテスト -- 現在のふるまいを保護する
  *
  * 11 個のオプションについて、3 箇所が同じことを知っていた。
- *   misc2.c:856  表示名と値の置き場（設定画面の並び順）
- *   save.c:64    値 → セーブファイルのビット（書くとき）
- *   save.c:571   セーブファイルのビット → 値（読むとき）
+ *   set_options()  表示名と値の置き場（設定画面の並び順。いまは
+ *                  ui/options_menu.c で、表を読むだけになった）
+ *   save.c:64      値 → セーブファイルのビット（書くとき）
+ *   save.c:571     セーブファイルのビット → 値（読むとき）
  * 一致していなければセーブファイルが壊れるのに、一致を保証するものが
  * 何も無かった。src/data/options.c の 1 つの表に寄せる。
  *
@@ -250,8 +251,9 @@ TEST(every_option_has_a_bit_of_its_own)
 
 TEST(the_prompts_are_in_the_order_the_options_screen_showed_them)
 {
-    /* misc2.c:857-867 の写し。設定画面の並びはユーザーに見えるふるまい
-     * なので、表に寄せるときに動いてはいけない。 */
+    /* 表に寄せる前の set_options()（いまは ui/options_menu.c）が並べて
+     * いた順の写し。設定画面の並びはユーザーに見えるふるまいなので、表に
+     * 寄せるときに動いてはいけない。 */
     static const char *const shown[] = {
         "Running: cut known corners",
         "Running: examine potential corners",
