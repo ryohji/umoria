@@ -6,9 +6,10 @@
 
 /* 文字列をつなぐ concat のテスト -- 現在の実装を保護する（台帳 #47）
  *
- * concat は #54 で src/misc4.c から src/core/str_insert.c へ移す。移す前に
- * ここでふるまいを押さえる。それまで本物の concat を通るテストは 0 件だった
- * （tests/creature_stubs.c に第 1 引数をそのまま返すだけの代役がある）。
+ * concat は #54 で src/misc4.c から src/core/str_insert.c へ移した。移す前に
+ * （#54-misc4-3A）ここでふるまいを押さえた。それまで本物の concat を通る
+ * テストは 0 件だった（tests/creature_stubs.c に第 1 引数をそのまま返すだけの
+ * 代役がある）。このテストが引く本体の .o は str_insert.o の 1 本だけ。
  *
  * 直接の呼び手は 0 で、呼ばれるのはいつも externs.h の CONCAT マクロ越し
  * （88 か所。creature 40・spells 34・moria3 7・moria4 7）:
@@ -27,8 +28,8 @@
 #include "constant.h"
 #include "types.h"
 
-/* 検証対象。宣言は externs.h にあるが、1 つのためにそれを取りこまず、
- * 同じ形をここに書く（str_insert_test.c と同じ）。 */
+/* 検証対象。宣言は externs.h と str_insert.h にあるが、移す前後で同じ
+ * テストを走らせるために、同じ形をここに書く（str_insert_test.c と同じ）。 */
 char *concat(char *buffer, ...);
 
 #include "minunit.h"
