@@ -37,6 +37,9 @@
   から動かす。上の「例」は置き場の考えかたを示すもので、確定の一覧ではない。
 - **`#include` は書きかえない。** `src/` と `tests/` の `#include "…"` 1394 行は
   そのまま。3 つの makefile で、ディレクトリーごとに `-I` を足す。
+  **D の後は**、ディレクトリーの一覧は `sources.mk` の `SRC_SUBDIRS` の 1 か所で、
+  3 つの makefile の `VPATH`・`-I` はそこから作る。`.c` を足すのは `SRCS` に
+  `player/foo.c` の形で 1 語。
 
 ### 置き場の規則
 
@@ -467,7 +470,7 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 |---|---|---|
 | L1〜L3 | 済み（2026-09-29、`develop` へマージ `5e0cd6e`） | `refactor/52-test-library`、`e7c3a9c`〜`c188e58`（7 コミット）。74 本の Map は 72 本が旧 recipe と一致、残る 2 本は旧 recipe が誰も参照しない `tables.c`・`treasure.c` を並べていた差（`worklog.md`） |
 | D0 | 済み（2026-09-29、迷いどころ 10 点はすべて案のとおり。マージ `111d2e7`） | `docs/53-d0-destinations`、`2dfa7b8`・`89395b0` |
-| D | 未着手 | |
+| D | 済み（2026-09-29、マージ待ち）。D0 の表のとおり `.c` 96 本・`.h` 70 本を 10 個のディレクトリーへ（`combat/` は 0 本なのでまだ無い）。どのコミットでも本体の `objdump -d` が変更前と一致 | `refactor/53-directories`、`68dbae9`〜`cfaadc4`（13 コミット。makefile の仕組み 1・`layer_deps.py --matrix` 1・`git mv` 10・コメント 1。`worklog.md`） |
 | R（misc4 → moria4） | 未着手 | |
 | combat の残り | 未着手 | |
 | 後始末 | 未着手 | |

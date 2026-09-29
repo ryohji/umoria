@@ -21,7 +21,11 @@
 - **実装の再配置の L（テストのライブラリー化）が済んだ**（`refactor/52-test-library`、
   7 コミット、マージ `5e0cd6e`）。`makefile.test` は 2335 → 194 行、本体の `.o` は
   `libcore.a` から引く。**D0（行き先の表）も済んだ**（マージ `111d2e7`）。
-  **次は D**（`git mv`）。第 5 節・第 6 節と `docs/refactoring/layout.md`。
+- **D（`git mv`）も済んだ —— `refactor/53-directories`、マージ待ち**（13 コミット）。
+  `src/` の 166 本が `core/ data/ player/ monster/ dungeon/ item/ store/ ui/ save/
+  platform/` に入った（`combat/` はまだ無い）。本体の `objdump -d` は変更前と一致。
+  **次は層の規則を決めること**（`python3 scripts/layer_deps.py --matrix`）**と R**。
+  第 5 節・第 6 節と `docs/refactoring/layout.md`。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
 [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
@@ -179,50 +183,50 @@ rm -f scores.dat /tmp/probe.sav
 
 | module | 中身 | テスト |
 |---|---|---|
-| `src/device.c` | 魔法道具の成功判定 | `device_chance_test.c` 24 件 |
-| `src/item_ident.c` | 効果が判明したときの経験値と鑑定＋**品目ごとの覚え**（#18-9 で足した。鑑定済み／試した の記録 7 群×64） | `item_ident_test.c` 42 件 |
-| `src/abilities.c` | 能力値 9 式 | `put_misc3_test.c` 24 件 |
-| `src/options.c` | オプション 11 個の表（名前・置き場・ビット・既定値） | `options_test.c` |
-| `src/messages.c` | メッセージ履歴の輪 | `messages_test.c` |
-| `src/panel.c` | 見ている範囲の座標 10 個 | `panel_test.c` 12 件 |
-| `src/stores.c` | 店 6 軒の記録 | `stores_test.c` 8 件 |
-| `src/stats.c` | 能力値の補正表（`misc3.c` から出した 116 行） | `stat_bonus_test.c` 129 件 |
-| `src/str_insert.c` | 文字列への差しこみ（`misc3.c` から出した 67 行） | `str_insert_test.c` 22 件 |
-| `src/inventory.c` | 持ち物 22 枠と装備 12 枠（1 本の配列・2 つの窓口。`inventory.h` と `equipment.h`） | `inventory_test.c` 25 件 |
-| `src/progress.c` | ターン数と乱数の種と wizard の 5 個 | `progress_test.c` 27 件 |
-| `src/score_death.c` | 結末の 6 個（`death` `died_from` `birth_date` `noscore` ＋ #18-7-1 で足した `total_winner` `max_score`） | `score_death_test.c` 37 件 |
-| `src/save_state.c` | セーブの旗 4 個と**跨ぐ述語 3 つ** | `save_state_test.c` 32 件 |
-| `src/player_pos.c` | プレイヤーの居場所 2 個（読み 2・置く 1・忘れる 1） | `player_pos_test.c` 17 件 |
-| `src/hp_table.c` | レベルごとの HP の段 1 個（表そのもの。`py.misc.mhp` は別の値） | `hp_table_test.c` 15 件＋`calc_hitpoints_test.c` 13 件 |
-| `src/player_light.c` | 明かりについて覚えている**別の 2 つ**（明かりが燃えているか＝#18-7-3、その輪がいま地図に描かれているか＝#18-11-1 で足した。どちらも**導出に替えず置き場のまま**。要るのは変わり目） | `player_light_test.c` 14 件 |
-| `src/burden.c` | 重さに負けているか 2 個（武器は旗・荷は段数） | `burden_test.c` 12 件＋`check_strength_test.c` 24 件 |
-| `src/object_levels.c` | レベル順に並べたダンジョンの品物表（目次 `t_level` と本体 `sorted_objects` の 2 個。組みたてる数え上げソートも一緒に移した） | `object_levels_test.c` 18 件 |
-| `src/spells_known.c` | 覚えている呪文 4 個（覚えた／成功した／忘れた の 3 つのビット列＋覚えた順 32 個。**ビット演算は窓口の内側**） | `spells_known_test.c` 43 件＋`calc_spells_test.c` 17 件＋`gain_spells_test.c` 13 件 |
-| `src/missile_serial.c` | 飛び道具の束を区別する通し番号 1 個（配る 1・セーブのための生 2。**折りかえしの規則も「進めてから渡す」順序も窓口の内側**） | `missile_serial_test.c` 10 件 |
-| `src/inven_command_state.c` | 次の turn に再開する持ち物コマンド 1 個（訊く 1・中断 1・終わり 1。**中断は「文字を覚える」と「画面の旗を消す」の両方をやる**ので `screen_touched.h` を呼ぶ） | `inven_command_state_test.c` 8 件 |
-| `src/screen_touched.c` | 画面が流されたか 1 個（立てる 1・読む 1・忘れる 1。忘れるのは中断の一部としてしか呼ばない） | `screen_touched_test.c` 6 件 |
-| `src/level_exit.c` | この階は終わったか 1 個（読む 1・行き先つきで出る 1・行き先なしで終わる 1・階の始まり 1。**深さと対で動く**が、`#18-14-6` で深さも窓口になったので **`extern` は 1 本も無くなった**（`set_dungeon_level()` を呼ぶ）） | `level_exit_test.c` 10 件 |
-| `src/pending_teleport.c` | teleport が待っているか 1 個（予約 1・読む 1・起きた 1・階の始まりの取り消し 1） | `pending_teleport_test.c` 8 件 |
-| `src/input_ended.c` | 入力が尽きたか 1 個（EOF を 1 回読んだ 1・尽きたか 1・**もう望みが無いか 1**・写しとり用の生 1。**「100 回まで我慢する」は窓口の内側**で、`io.c` は数を知らない。戻す窓口は無い） | `input_ended_test.c` 8 件 |
-| `src/command_state.c` | 打っているコマンドについて覚えていること 3 個（残りの繰りかえし回数・覚えた向きを使うか・前のコマンド。窓口 13。**「数を受けとって終わりにする」と「退避して戻す」の 2 つの言いまわしが内側**。ただし退避した値は呼び手に返す —— 入れ子になるので） | `command_state_test.c` 15 件 |
-| `src/running.c` | 走っているか／何歩走ったか 1 個（走っているか 1・走りだす 1・止める 1・階の始まりに忘れる 1・**1 歩進めてまだ走れるか 1**・写しとり用の生 1。**「100 歩で息切れ」は窓口の内側**で、`moria2.c` は数を知らない。**止めたあとの画面の後始末は呼び手のまま**） | `running_test.c` 10 件 |
+| `src/item/device.c` | 魔法道具の成功判定 | `device_chance_test.c` 24 件 |
+| `src/item/item_ident.c` | 効果が判明したときの経験値と鑑定＋**品目ごとの覚え**（#18-9 で足した。鑑定済み／試した の記録 7 群×64） | `item_ident_test.c` 42 件 |
+| `src/player/abilities.c` | 能力値 9 式 | `put_misc3_test.c` 24 件 |
+| `src/data/options.c` | オプション 11 個の表（名前・置き場・ビット・既定値） | `options_test.c` |
+| `src/ui/messages.c` | メッセージ履歴の輪 | `messages_test.c` |
+| `src/ui/panel.c` | 見ている範囲の座標 10 個 | `panel_test.c` 12 件 |
+| `src/store/stores.c` | 店 6 軒の記録 | `stores_test.c` 8 件 |
+| `src/player/stats.c` | 能力値の補正表（`misc3.c` から出した 116 行） | `stat_bonus_test.c` 129 件 |
+| `src/core/str_insert.c` | 文字列への差しこみ（`misc3.c` から出した 67 行） | `str_insert_test.c` 22 件 |
+| `src/item/inventory.c` | 持ち物 22 枠と装備 12 枠（1 本の配列・2 つの窓口。`inventory.h` と `equipment.h`） | `inventory_test.c` 25 件 |
+| `src/data/progress.c` | ターン数と乱数の種と wizard の 5 個 | `progress_test.c` 27 件 |
+| `src/save/score_death.c` | 結末の 6 個（`death` `died_from` `birth_date` `noscore` ＋ #18-7-1 で足した `total_winner` `max_score`） | `score_death_test.c` 37 件 |
+| `src/save/save_state.c` | セーブの旗 4 個と**跨ぐ述語 3 つ** | `save_state_test.c` 32 件 |
+| `src/player/player_pos.c` | プレイヤーの居場所 2 個（読み 2・置く 1・忘れる 1） | `player_pos_test.c` 17 件 |
+| `src/player/hp_table.c` | レベルごとの HP の段 1 個（表そのもの。`py.misc.mhp` は別の値） | `hp_table_test.c` 15 件＋`calc_hitpoints_test.c` 13 件 |
+| `src/player/player_light.c` | 明かりについて覚えている**別の 2 つ**（明かりが燃えているか＝#18-7-3、その輪がいま地図に描かれているか＝#18-11-1 で足した。どちらも**導出に替えず置き場のまま**。要るのは変わり目） | `player_light_test.c` 14 件 |
+| `src/player/burden.c` | 重さに負けているか 2 個（武器は旗・荷は段数） | `burden_test.c` 12 件＋`check_strength_test.c` 24 件 |
+| `src/item/object_levels.c` | レベル順に並べたダンジョンの品物表（目次 `t_level` と本体 `sorted_objects` の 2 個。組みたてる数え上げソートも一緒に移した） | `object_levels_test.c` 18 件 |
+| `src/player/spells_known.c` | 覚えている呪文 4 個（覚えた／成功した／忘れた の 3 つのビット列＋覚えた順 32 個。**ビット演算は窓口の内側**） | `spells_known_test.c` 43 件＋`calc_spells_test.c` 17 件＋`gain_spells_test.c` 13 件 |
+| `src/item/missile_serial.c` | 飛び道具の束を区別する通し番号 1 個（配る 1・セーブのための生 2。**折りかえしの規則も「進めてから渡す」順序も窓口の内側**） | `missile_serial_test.c` 10 件 |
+| `src/ui/inven_command_state.c` | 次の turn に再開する持ち物コマンド 1 個（訊く 1・中断 1・終わり 1。**中断は「文字を覚える」と「画面の旗を消す」の両方をやる**ので `screen_touched.h` を呼ぶ） | `inven_command_state_test.c` 8 件 |
+| `src/ui/screen_touched.c` | 画面が流されたか 1 個（立てる 1・読む 1・忘れる 1。忘れるのは中断の一部としてしか呼ばない） | `screen_touched_test.c` 6 件 |
+| `src/dungeon/level_exit.c` | この階は終わったか 1 個（読む 1・行き先つきで出る 1・行き先なしで終わる 1・階の始まり 1。**深さと対で動く**が、`#18-14-6` で深さも窓口になったので **`extern` は 1 本も無くなった**（`set_dungeon_level()` を呼ぶ）） | `level_exit_test.c` 10 件 |
+| `src/player/pending_teleport.c` | teleport が待っているか 1 個（予約 1・読む 1・起きた 1・階の始まりの取り消し 1） | `pending_teleport_test.c` 8 件 |
+| `src/ui/input_ended.c` | 入力が尽きたか 1 個（EOF を 1 回読んだ 1・尽きたか 1・**もう望みが無いか 1**・写しとり用の生 1。**「100 回まで我慢する」は窓口の内側**で、`io.c` は数を知らない。戻す窓口は無い） | `input_ended_test.c` 8 件 |
+| `src/ui/command_state.c` | 打っているコマンドについて覚えていること 3 個（残りの繰りかえし回数・覚えた向きを使うか・前のコマンド。窓口 13。**「数を受けとって終わりにする」と「退避して戻す」の 2 つの言いまわしが内側**。ただし退避した値は呼び手に返す —— 入れ子になるので） | `command_state_test.c` 15 件 |
+| `src/player/running.c` | 走っているか／何歩走ったか 1 個（走っているか 1・走りだす 1・止める 1・階の始まりに忘れる 1・**1 歩進めてまだ走れるか 1**・写しとり用の生 1。**「100 歩で息切れ」は窓口の内側**で、`moria2.c` は数を知らない。**止めたあとの画面の後始末は呼び手のまま**） | `running_test.c` 10 件 |
 
-**`src/str_insert.c` は「依存が 0 個の module」の手本。** リンクは
-**`tests/str_insert_test.c` ＋ `src/str_insert.c` の 2 本だけ**（それまでは 10
+**`src/core/str_insert.c` は「依存が 0 個の module」の手本。** リンクは
+**`tests/str_insert_test.c` ＋ `src/core/str_insert.c` の 2 本だけ**（それまでは 10
 コンパイル単位）で、**代役もフィクスチャも 1 つも要らない**。umoria のシンボルに
 1 つも依存しないので、手書きの `extern` すら書かなくてよい。`vtype`（`types.h:17`）
 **型**にだけ依存するため、include の並びは `stats.c` と同じ（`config.h` →
 `constant.h` → `types.h` → 自分のヘッダ）。**`vtype` を `char[80]` に書きかえれば
 型依存も消えるが、それをやると「純粋な移動」でなくなる**ので採らなかった。
 
-**`src/stats.c` は「依存が 1 個ある module」の手本。** `panel.c` などは依存ゼロ
+**`src/player/stats.c` は「依存が 1 個ある module」の手本。** `panel.c` などは依存ゼロ
 だが `stats.c` は `py` を要る。`externs.h` を include せず `extern player_type py;`
-を自分で書く形を選んだ（理由は `src/stats.c:17-23` に英語で記載）。おかげで
+を自分で書く形を選んだ（理由は `src/player/stats.c:17-23` に英語で記載）。おかげで
 `stat_bonus_test` は **`stats.c` ＋ `tests/stats_fixture.c` の 2 本だけ**を
 リンクする（それまでは 8 コンパイル単位）。**代役は 1 つも要らない。**
 
-**`src/inventory.c` も 2 単位・代役 0 になった（#18-5C）。** `inventory_test` の
-リンクは **`tests/inventory_test.c` ＋ `src/inventory.c` の 2 本だけ**で、
+**`src/item/inventory.c` も 2 単位・代役 0 になった（#18-5C）。** `inventory_test` の
+リンクは **`tests/inventory_test.c` ＋ `src/item/inventory.c` の 2 本だけ**で、
 `str_insert_test` と並ぶ最小構成。ただし軽い理由が違う ——
 `str_insert.c` は**依存する相手がいない**からで、`inventory.c` は
 **依存する相手（実体）を自分が持っている**から。ステップ A の時点では実体が
@@ -232,7 +236,7 @@ rm -f scores.dat /tmp/probe.sav
 1 本ずつ重くしたが、#18-5 では足場 31 行と `tests/creature_stubs.c` の代役
 4 個が消えた（第 6 節の #38 の二面性を参照）。
 
-**`src/spells_known.c` は「対で動く 2 つを 1 つの窓口にする」手本（#18-8）。**
+**`src/player/spells_known.c` は「対で動く 2 つを 1 つの窓口にする」手本（#18-8）。**
 4 個のうち `spell_learned` と `spell_forgotten` はいつも対で動き
 （`calc_spells`）、`spell_learned` と `spell_order` もいつも対で動く
 （`gain_spells`）。その対を `spell_forget()` `spell_remember()` `spell_learn()`
@@ -243,18 +247,18 @@ rm -f scores.dat /tmp/probe.sav
 —— 呼びだし側が持っているのは呪文の番号（`magic_spell[]` の添字）で、
 3 か所が同じシフトを書いていた。
 
-**`src/player_pos.c` は「窓口の名前を呼びだし側で決める」手本（#18-6）。**
+**`src/player/player_pos.c` は「窓口の名前を呼びだし側で決める」手本（#18-6）。**
 module の接頭辞にそろえるなら `player_pos_row()` だが、読みが 284 箇所ある
 ので `los(player_pos_row(), player_pos_col(), y, x)` の雑音が 284 回出る。
 **読みだけ短い名前**（`player_row()` / `player_col()`）にし、書きこむ側
 （`player_place()` `player_pos_forget()`）は接頭辞を保った —— 「誰が
 プレイヤーを動かすのか」は名前で探せる必要があるから。判断の理由は
-`src/player_pos.h` に英語で書いてある。**窓口の数が少ない群では #38 の
+`src/player/player_pos.h` に英語で書いてある。**窓口の数が少ない群では #38 の
 二面性が損の側に出る**ことも分かった（既存 7 本が 1 単位ずつ重くなり、
 `tests/creature_stubs.c` は他の代役が残るので消せず、減ったのは足場 25 行と
 代役 2 行だけ）。
 
-**`src/object_levels.c` は「台帳の区分をまたいだ 1 つの表」の手本（#18-10）。**
+**`src/item/object_levels.c` は「台帳の区分をまたいだ 1 つの表」の手本（#18-10）。**
 `sorted_objects` は台帳で「持ち物・アイテム」、`t_level` は「ダンジョンとその
 中身」に分類されていた。**実測すると 1 つの表の目次と本体**で、5 箇所の読み手は
 全員「レベル L の帯」を引いていた（生の配列が欲しい呼び手は 1 人もいなかった）。
@@ -512,6 +516,9 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
 - サブディレクトリーは `core/ data/ player/ monster/ dungeon/ item/ store/
   combat/ ui/ save/ platform/`。`main.c` だけ `src/` に残す。`#include` の
   1394 行（`src/` と `tests/` の `#include "…"`）は書きかえず、ディレクトリーごとに `-I` を足す。
+  **D の後は**、ディレクトリーの一覧は `sources.mk` の `SRC_SUBDIRS` の 1 か所
+  （`-I`・`VPATH` はそこから作る）。`src/` に残るのは `main.c`・`dungeon.c`・
+  `game_state.c`・全域ヘッダ 5 本と、R で割る番号つき 10 本。
 - テストのビルドを**ライブラリー化した**（#52、L1〜L3）。src/ の `.c` の一覧は
   `sources.mk` の 1 つ（3 つの makefile が読む。#46 も解消、Windows は未確認）。
   `libcore.a` は 103 本（`main`・`render_ncurses`・`input_ncurses` と、テストの
@@ -524,7 +531,8 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
   `stats.c` など）に UI や外への依存を持つ code を足さない。兄弟のファイルを
   作る。葉のテストが単独でリンクできることを守るため。
 
-L は済んだ（1662 件・74 本 GREEN、警告 0）。次の一手は第 6 節の D0。
+L・D0・D は済んだ（1662 件・74 本 GREEN、警告 0。D はマージ待ち）。次の一手は
+層の規則（`layer_deps.py` の `RULES`）を決めることと、第 6 節の R。
 
 ## 6. その先の順番
 
@@ -575,6 +583,7 @@ L は済んだ（1662 件・74 本 GREEN、警告 0）。次の一手は第 6 �
   **それが呼ぶ module は `misc3.c` を引く全実行形式に要る**（#33 を先に
   やりたくなる理由のひとつ）。**ステップ B の前に
   `grep -l 'src/misc3.c' makefile.test` で本数を数えておく。**
+  （L・D の後は `python3 scripts/link_units.py --who misc3.o`。）
 - **足場は「その module をリンクしている実行形式の数」だけ要る。** #18-11-1A で
   `src/player_light.c` に 2 つめの窓口を足したら、`player_light_test` だけでなく
   **`movement_rate_test` も `undefined reference`** で落ちた（`creature.c` が
@@ -582,6 +591,8 @@ L は済んだ（1662 件・74 本 GREEN、警告 0）。次の一手は第 6 �
   まだ global にある段では、**その module を引く実行形式すべてに足場が要る** ——
   数えかたは `grep -n '^\t.*src/<module>.c' makefile.test`（タブ始まりの
   recipe 行だけ）。ステップ C で実体が入ったら、**同じ本数ぶん外す。**
+  （L・D の後は `python3 scripts/link_units.py --who <module>.o`。`src/` の
+  下のパスは `src/player/player_light.c` のようにディレクトリーが入る。）
 - **ただし「実体の足場ではない足場」は C の後も残る。** #18-11-4 の
   `tests/level_exit_fixture.c` は、A の時点では旗（`new_level_flag`）と深さ
   （`dun_level`）の 2 つを持っていたが、**C で消したのは旗のほうだけ**。
@@ -604,6 +615,9 @@ L は済んだ（1662 件・74 本 GREEN、警告 0）。次の一手は第 6 �
   `save.c` `store1.c` `store2.c` `misc3.c` `moria1.c` のような「テストが丸ごと
   取りこむ `.c`」のときは、**recipe 行だけでなく `grep -rln '#include "<名前>.c"' tests/`
   も見る**（この落とし穴は `makefile.test` のコメントにも書いてある）。
+  **D の後も**この `grep -rln` はそのまま使える（`#include "save.c"` などは
+  `-Isrc/save`・`-Isrc/monster` で見つかる）。`link_units.py --who` には
+  丸ごと取りこむ `.c` が `.o` として出ないので、こちらは別に見る。
 - **その 4 本では、足す位置を「軸の `.c` の隣」にしてはいけない。** 丸ごと
   `#include` する規則（`movement_rate_test`・`save_bool_test`・`store_save_test`・
   `haggle_comment_test`）では、**軸の `src/creature.c` `src/save.c` は依存行に
@@ -667,6 +681,9 @@ L は済んだ（1662 件・74 本 GREEN、警告 0）。次の一手は第 6 �
   なら `tmpfile()` を使う。
 - 新しい `.c` は `makefile` の `SRCS` と `OBJS` の**両方**に足し、依存行
   （`foo.o: $(SRCDIR)/foo.h $(HEADERS_FULL)`）も書く。
+  **L・D の後は**、`sources.mk` の `SRCS` に `player/foo.c` の形で 1 語足し、
+  `makefile` の依存行は `foo.o: foo.h $(HEADERS_FULL)`（ヘッダは名前だけ。
+  `VPATH` で探す）。新しいディレクトリーなら `SRC_SUBDIRS` にも 1 語。
 - **ビルド定義は 3 つある。`makefile.win` を忘れる**（`SRCS` / `OBJS` / 依存行の
   3 箇所）。ただしこのファイルは**着手前から壊れていて、16 個のソースが未登録**
   （→ P3 #46。2026-09-24 に数えなおして**16 で合っている**ことを確認した。
@@ -682,14 +699,19 @@ L は済んだ（1662 件・74 本 GREEN、警告 0）。次の一手は第 6 �
   速い）。古い未登録は**16 本**（`device.c`・`render_ncurses.c`・`platform.c`
   ほか。この一連の作業より前からの取りのこしで、Windows で組めるかを
   確かめられないので手を付けていない）。
+  **L・D の後は** `makefile.win` も `sources.mk` を読むので、足す場所は無い
+  （Linux で `make -f makefile.win PTHREAD=` とすれば組める）。
 - **新しい module に `externs.h` を include させたくなったら、要る宣言が
   いくつかを数える。** `stats.c` は `py` の 1 個だけだったので
   `extern player_type py;` を自分で書いた（二重宣言になるが、1 行のために
-  ncurses まで引きこむ全域ヘッダは取りこまない）。理由は `src/stats.c:17-23` に
+  ncurses まで引きこむ全域ヘッダは取りこまない）。理由は `src/player/stats.c:17-23` に
   英語で書いてある。
 - **`src/strings.h` という名前を作らない。** `-Isrc` があるので
-  `#include <strings.h>` を横取りしうる（`src/curses.h` で同じ横取りが既に
-  起きている）。
+  `#include <strings.h>` を横取りしうる（`src/platform/curses.h` で同じ横取りが既に
+  起きている）。**D の後は** `-Isrc/<dir>` の 10 個ぜんぶが同じ危うさを持つ
+  （`ui/panel.h` は `/usr/include/panel.h` と同名で、`-Isrc/ui` を外すと黙って
+  そちらに落ちた）。新しい名前は `/usr/include` とも、ほかのディレクトリーとも
+  重ねない（`ls src/*/ | sort | uniq -d`）。
 
 **テストの書きかた**
 
