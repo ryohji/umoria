@@ -189,6 +189,53 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
 - 画面 → `store/store_ui.c`：`display_*`・`store_prt_gold`・`get_store_item`・
   `store_purchase`・`store_sell`・`enter_store`
 
+### store1・store2 の下調べ（2026-09-30、`f39aae5` の時点）
+
+読みとりと、別の worktree でのビルドだけで測った。関数は `store1.c` に 11 個（`static` 2）、
+`store2.c` に 26 個（`static` 25。外に出ているのは `enter_store` だけ）、`static` の表と
+変数は `store2.c` に 10 個（`comment1`〜`comment6` の表 9 つと `last_store_inc`）。
+
+- **上の表に無かったもの。** `haggle_commands`（呼び手は `purchase_haggle`・`sell_haggle`
+  だけ）、`prt_haggle_comment` と `comment_count`（#12-B）、表 9 つと `last_store_inc`
+  （読み手は値切りの 3 本だけ）→ どれも `store_haggle.c`。`insert_store`・`store_create`
+  の前方宣言（`store1.c:21-22`）は本体と一緒に `store_stock.c`。
+- **`static` と呼び手が割れる。** 画面の `store_purchase`・`store_sell` が値切りの
+  `purchase_haggle`・`sell_haggle`・`increase_insults` を呼ぶ。`decrease_insults` と
+  `prt_comment1`（＋表 `comment1`）の呼び手は**画面の側だけ**。案のままなら外に出す名前は
+  5 つ、`decrease_insults` と `prt_comment1` を `store_ui.c` に置けば 3 つ。
+- **store2 は機械語の一致では確かめられない。** 本体の `-O2` では `store2.o` に記号が
+  残るのは 8 本だけで（`nm`）、`purchase_haggle`・`sell_haggle`・`prt_comment1〜6`・
+  `display_store` など 15 本は呼び手の中に溶けこんでいる。値切りを別のファイルに出すと
+  溶けこまなくなり、`store_purchase`・`store_sell` の機械語が変わる。`store1` は
+  値段と品ぞろえのあいだの呼びだしがいまも関数呼びだしのままで（溶けているのは
+  `store_maint` の中の `store_create` だけで、同じ行き先）、一致が見込める。
+- **外への依存。** 値段と品ぞろえは画面も入力も呼ばない（値段は `desc`・`stores`・
+  `tables`・`treasure`・`player_race` だけ）。値切りは `ui/io.c` を直に呼ぶ、対話つきの
+  処理。画面は `moria1.c` の `get_item`・`inven_command` を呼ぶ（`moria1` は libcore に
+  入っていない）。`dungeon/generate.c` → `store_maint` と、品ぞろえ → `floor_item_at`・
+  `popt` で、`dungeon/` と `store/` が互いに依存する。
+- **テスト。** `store1.o`・`store2.o` を引くテストは 0 本。本物に届くのは
+  `haggle_comment_test`（`#include "store2.c"`）の `prt_comment2`・`prt_comment3`・
+  `prt_haggle_comment` と表 4 つだけで、**残りの 30 個余りは壊しても赤くならない。**
+  値段の 4 本は依存が小さく、`concat`（#47）と同じく先にテストを足せそう。
+  `haggle_comment_test` の `#include` は値切りを移すコミットで付けかえる（付けかえると、
+  代役 10 個のうち 6 個が要らなくなり、`draw_cave` 経由で引いていた `misc3.o` などの
+  49 本も減るはず）。同じテストの 43-44 行の「-Wformat-overflow を落としている」は古い。
+- **字面を変えずに運ぶところ。** #12 の `prt_haggle_comment` と表（要素数と引数の順は
+  25 件が固定）、#30 の `purchase_haggle`・`sell_haggle`（統合しない）。B22
+  （`store_sell` の `mask`）。ほかに、`int16_t last_store_inc` に `int32_t` を入れる
+  8 か所と、`display_cost` と `display_inventory` の書式の違いがある（どれも直さない）。
+- **古い行番号のコメント。** `store1.c`・`store2.c` の名前は外の 18 ファイル・39 行に出る。
+  すでにずれている行番号（`player_race.h:94` の「store1.c:139」、`str_insert_test.c` の
+  「store2.c:145-146」など）もある。`check_strength_test.c:390` の「store1.c の買い物」は
+  もとから誤り（`store_purchase` は `store2.c`）。
+
+**順番の提案。** ① 値段 → `store_price.c`（`static` 0。先にテストを足す案もある）→
+② 品ぞろえ → `store_stock.c`（`store1.c` が消える。misc1 の `popt`・`pusht`・`randint`
+の行き先に依存するので misc1 のマージの後）→ ③ 画面を先に `store_ui.c` へ出して
+`store2.c` を値切りだけにする → ④ 値切り → `store_haggle.c`（`store2.c` が消える。
+`#include` の付けかえは 1 度で済む）→ ⑤ コメント。③④ の確かめかたはユーザーに相談する。
+
 **`misc3.c`（1899 行）**：#42 の 10 塊。行き先は
 [done/33-41-misc3.md](done/33-41-misc3.md) の「#33 の精査」の表。戦闘の塊
 （`attack_blows`・`tot_dam`・`critical_blow`）は `combat/hit_rolls.c` へ。
