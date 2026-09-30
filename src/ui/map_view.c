@@ -24,11 +24,6 @@
 #include "player_timed_effects.h"
 #include "running.h"
 
-// check_view() was moved out of misc4.c unchanged, and the four below it
-// (get_panel() and prt_map(), which check_view() calls, and loc_symbol() and
-// test_light()) out of misc1.c unchanged (#54). Their prototypes stay in
-// externs.h.
-
 // We need to reset the view of things. -CJS-
 void check_view(void) {
     cave_type *c_ptr = square_at(player_row(), player_col());

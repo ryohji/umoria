@@ -97,8 +97,8 @@ void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show
 // concatenate var length string arguments (last should be NULL) into buffer.
 // returns buffer.
 //
-// Moved out of misc4.c unchanged (#54). Callers reach it through the CONCAT
-// macro in externs.h, which keeps its own prototype of this function.
+// Callers reach it through the CONCAT macro in externs.h, which keeps its own
+// prototype of this function.
 char *concat(char *const buffer, ...) {
     char *p = buffer;
     const char *s;

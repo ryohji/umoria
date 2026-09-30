@@ -9,10 +9,8 @@
 // item out, dropping it, stacking one in, the weight the player can carry,
 // and finding where a kind of item sits
 //
-// Moved out of misc3.c unchanged (#42), in the order they had there; the
-// prototypes of all but the static items_can_stack() stay in externs.h.
-// inventory.c is left alone, since it is a state module that others link
-// on its own.
+// Kept apart from inventory.c, which is a state module that others link on
+// its own.
 
 #include "headers.h"
 

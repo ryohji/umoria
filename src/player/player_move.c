@@ -126,7 +126,6 @@ static void carry(int y, int x, bool pickup) {
 }
 
 // Moves player from one space to another. -RAK-
-// Note: This routine has been pre-declared; see that for argument
 void move_char(int dir, bool do_pickup) {
     if (player_timed_in_force(PLAYER_TIMED_CONFUSION) && // Confused?
         (randint(4) > 1) &&        // 75% random movement

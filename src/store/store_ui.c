@@ -8,8 +8,7 @@
 // The store screen: showing the stock and the player's gold, and the buy and
 // sell commands that hand over to the haggling in store_haggle.c
 //
-// Moved out of store2.c unchanged (#55). enter_store() keeps its prototype in
-// externs.h; the rest stays static.
+// enter_store() is declared in externs.h; the rest is static.
 
 #include "headers.h"
 

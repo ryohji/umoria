@@ -5,15 +5,10 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 代役：もと misc3.c にあったコードを本物でリンクするテストのためのスタブ
+/* 代役：本物をリンクするテストのために、その本物が呼ぶ先を埋めるスタブ
  *
- * ファイルの名前は履歴のまま残している。misc3.c は #42 で次のファイルに
- * 分かれて無くなった（ui/wizard.c・combat/hit_rolls.c・combat/player_damage.c・
- * dungeon/geometry.c・player/player_move.c・dungeon/object_alloc.c・
- * item/inven_ops.c・ui/screen_fields.c・ui/status_line.c・ui/char_screen.c・
- * player/stat_ops.c・item/spellbook.c・player/level_ops.c。その前に
- * player/stats.c（#40）と core/str_insert.c（#41）も出ている）。名前を
- * 変えるのは代役の片づけ（#37）に残してある。
+ * ファイルの名前は misc3.c の代役だったときのまま。改名は代役の片づけ（#37）に
+ * 残してある。
  *
  * これを使うのは makefile.test の足場の表で EXTRA_<name>_test = misc3_stubs.c と
  * 書いた 9 本（calc_hitpoints・calc_spells・check_strength・gain_spells・

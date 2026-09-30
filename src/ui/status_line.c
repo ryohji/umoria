@@ -7,8 +7,6 @@
 
 // The status line: the stats, the numbers and the conditions down the left
 // side and along the bottom of the screen
-//
-// Moved out of misc3.c unchanged (#42); their prototypes stay in externs.h.
 
 #include "headers.h"
 

@@ -7,8 +7,6 @@
 
 // Raising, lowering, restoring and boosting the player's stats, and working
 // out the value in use from them
-//
-// Moved out of misc3.c unchanged (#42); their prototypes stay in externs.h.
 
 #include "headers.h"
 

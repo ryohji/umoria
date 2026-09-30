@@ -5,9 +5,6 @@
 // for further details.
 
 // Haggling with a store owner, as the store screen (store_ui.c) calls it
-//
-// These four were static in store2.c. They lost the static when the screen
-// moved out (#55), and nothing else about them changed.
 
 #ifndef STORE_HAGGLE_H
 #define STORE_HAGGLE_H

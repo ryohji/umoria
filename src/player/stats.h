@@ -10,14 +10,11 @@
 #ifndef STATS_H
 #define STATS_H
 
-// Seven stat-to-bonus tables, moved out of misc3.c unchanged. They were spread
-// over two places in that file, 400 lines apart, with the screen-printing code
-// in between; nothing but the shared shape of the lookup held them together,
-// and that shape was invisible while they were apart.
+// Seven stat-to-bonus tables.
 //
 // Every one of them reads the player's used stat (py.stats.use_stat) rather
-// than taking it as a parameter, so the callers stay as they were. Only
-// stat_adj() takes an argument, and that argument is which stat to read.
+// than taking it as a parameter. Only stat_adj() takes an argument, and that
+// argument is which stat to read.
 
 // Adjustment for wisdom/intelligence -JWT-
 // `stat` is one of A_STR .. A_CHR. The only adjustment with a floor of 0.

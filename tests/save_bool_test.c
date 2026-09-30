@@ -35,7 +35,7 @@
 #include "minunit.h"
 
 /* 読み書きの相手は実ファイルではなく一時ファイル。fopen は externs.h が
- * tfopen に置きかえてしまう（externs.h:262）ので tmpfile() を使う。 */
+ * tfopen に置きかえてしまうので tmpfile() を使う。 */
 static void begin_recording(void)
 {
     fileptr = tmpfile();

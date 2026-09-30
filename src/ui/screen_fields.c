@@ -8,9 +8,8 @@
 // Small writes into fields of the screen, shared by the status line, the
 // character screen and the experience display
 //
-// Moved out of misc3.c (#42), where they were static. The two tables stay
-// static here; the other files reach them through erase_field() and
-// prt_stat_name() (#42-10).
+// The two tables are static; the other files reach them through erase_field()
+// and prt_stat_name().
 
 #include "headers.h"
 

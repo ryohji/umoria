@@ -8,8 +8,7 @@
 // Putting things on the level: traps, rubble, gold and random objects, and
 // choosing which object a level gets
 //
-// Moved out of misc3.c unchanged (#42); their prototypes stay in externs.h.
-// They take their rows from the free list of object_place.c (popt()), but
+// These take their rows from the free list of object_place.c (popt()), but
 // are kept out of that file: object_levels_test links the real get_obj_num()
 // together with a stand-in for popt() (tests/misc3_stubs.c), and the two
 // would meet in one object file.

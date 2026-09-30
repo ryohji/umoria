@@ -34,8 +34,8 @@ void delete_monster(int j) {
 // Hence the delete is done in two steps.
 //
 // fix1_delete_monster does everything delete_monster does except delete
-// the monster record and take the mark back, this is called in breathe, and
-// a couple of places in creatures.c
+// the monster record and take the mark back. Called from make_move() and
+// multiply_monster() (creature.c) and compact_monsters() (monster_place.c).
 void fix1_delete_monster(int j) {
     monster_type *const m_ptr = monster_list_at(j);
 
