@@ -215,9 +215,9 @@ void prt_state(void) {
         }
         put_buffer(tmp, 23, 38);
     } else if (command_is_repeating()) {
-        // "Repeat " のあとに int の 10 進表記（符号つきで最大 11 字）と終端が
-        // 収まる大きさ。残りの回数は int なので、値の範囲ではなく型で
-        // 大きさを決める。16 字では足りなかった。
+        // Big enough for "Repeat ", an int in decimal (at most 11 characters with
+        // the sign) and the terminator. The count left is an int, so the size
+        // follows from the type, not from the range of values. 16 was too small.
         char tmp[sizeof("Repeat ") + 11];
 
         if (display_counts) {
@@ -291,8 +291,8 @@ void prt_winner(void) {
 
 // Prints character-screen info -RAK-
 void prt_stat_block(void) {
-    // 種族と階級の名前がならんで窓口になった（#18-12-22B と #18-12-28B）——
-    // **この 3 行で `py` を名ざすものは 1 つも無くなった**。
+    // The race and the class names went behind windows one after the other
+    // (#18-12-22B and #18-12-28B) -- NONE OF THESE THREE LINES NAMES `py` ANY MORE.
     prt_field(player_race_name(), 2, STAT_COLUMN);
     prt_field(player_class_title(), 3, STAT_COLUMN);
     prt_field(title_string(), 4, STAT_COLUMN);
@@ -310,10 +310,10 @@ void prt_stat_block(void) {
     prt_lnum("GOLD", player_gold(), 20, STAT_COLUMN);
     prt_winner();
 
-    // もとは 1 語を控えてから 8 つのビットを見ていた。窓口ごとに引いても
-    // 答えは変わらない —— この下で状態を動かすのは prt_state()（Repeat の
-    // 控え）と prt_study()（Study の要求）だけで、どちらもここで見るビットを
-    // 触らない。
+    // This used to copy one word and then look at eight bits in it. Asking each
+    // window in turn gives the same answers -- the only calls below that change
+    // any state are prt_state() (what it remembers of Repeat) and prt_study()
+    // (the Study request), and neither touches the bits looked at here.
     if (player_effect_in_force(PLAYER_EFFECT_HUNGRY) || player_effect_in_force(PLAYER_EFFECT_WEAK)) {
         prt_hunger();
     }
@@ -334,11 +334,11 @@ void prt_stat_block(void) {
     }
 
     // if speed non zero, print it, modify speed if Searching
-    // もとは `py.flags.speed - ((PY_SEARCH & status) >> 8)` で、**ビットの
-    // 位置（0x100）を知っていて 8 つずらして 1 を作っていた**。探索している
-    // なら 1 引くという意味で、prt_speed() の i-- と同じ。**同じ規則が 2 か所に
-    // 書かれているが畳まない** —— 探索と速さは別の問いで、片方が他方の半分では
-    // ない（src/player/player_speed.h）。
+    // This used to be `py.flags.speed - ((PY_SEARCH & status) >> 8)`: IT KNEW WHERE THE
+    // BIT WAS (0x100) AND SHIFTED IT DOWN BY EIGHT TO MAKE A 1. It means "one less while
+    // searching", the same as the i-- in prt_speed(). THE SAME RULE IS WRITTEN IN TWO
+    // PLACES, AND IT IS NOT FOLDED -- searching and speed are separate questions, and
+    // neither is half of the other (src/player/player_speed.h).
     if (player_speed() - (player_is_searching() ? 1 : 0) != 0) {
         prt_speed();
     }

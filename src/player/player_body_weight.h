@@ -33,7 +33,7 @@
 // the whole question, and this is the first unit on this road with fewer than
 // three.
 
-// The weight in pounds. EIGHT CALLERS: the carrying limit (misc3.c), the shield
+// The weight in pounds. EIGHT CALLERS: the carrying limit (inven_ops.c), the shield
 // bash's to-hit and damage (moria4.c, twice, folded into one call), the door bash
 // (moria4.c), the character sheet (char_screen.c), the dumped character file
 // (files.c), the saved file being written (save.c) and the wizard's prompt

@@ -14,7 +14,7 @@ Usage:
     python3 scripts/link_units.py                  # every tests/build/*.map
     python3 scripts/link_units.py tests/build/objdes_test.map
     python3 scripts/link_units.py --why objdes_test   # which name pulled each member
-    python3 scripts/link_units.py --who misc3.o    # which tests pull misc3.o
+    python3 scripts/link_units.py --who spellbook.o   # which tests pull spellbook.o
     python3 scripts/link_units.py --count          # one line per test: the count
     python3 scripts/link_units.py --shadows        # see below
 
@@ -112,7 +112,7 @@ def main():
     ap.add_argument('--why', metavar='TEST',
                     help='show which reference pulled each member of TEST')
     ap.add_argument('--who', metavar='MEMBER',
-                    help='list the tests that pull MEMBER (e.g. misc3.o)')
+                    help='list the tests that pull MEMBER (e.g. spellbook.o)')
     ap.add_argument('--count', action='store_true',
                     help='print only the number of members per test')
     ap.add_argument('--shadows', action='store_true',

@@ -172,11 +172,11 @@ void get_name(void) {
     prt("Enter your player's name  [press <RETURN> when finished]", 21, 2);
     erase_field(23, 2, 15);
 
-    // 器ぜんぶを写してから打たせる。**終端までではなく 27 バイト全部**を
-    // 写すのは、get_string() が ESC のとき終端を書かずに返すからで、すぐ下の
-    // `name[0] == 0` は終端より先のバイトも読んでいる（player_bio.h の名前の
-    // 項。窓口が「終端より先はぜんぶ 0」を約束しているので、写したものは
-    // フィールドを直に渡していたころと同じ中身になる）。
+    // Copy the whole buffer before the player types. It copies ALL 27 BYTES, NOT JUST UP
+    // TO THE TERMINATOR, because get_string() returns without writing a terminator on
+    // ESC, and `name[0] == 0` just below reads bytes past the terminator too (see the
+    // name in player_bio.h: the window promises that everything past the terminator is
+    // 0, so the copy holds the same bytes as when the field itself was passed in).
     char name[PLAYER_NAME_SIZE];
     memcpy(name, player_name(), PLAYER_NAME_SIZE);
 

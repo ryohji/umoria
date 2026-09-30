@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 覚えている呪文の出し入れ（misc3.c:1220 の calc_spells）のテスト
+/* 覚えている呪文の出し入れ（spellbook.c:197 の calc_spells）のテスト
  *
  * calc_spells() は「いまのレベルと能力値で覚えていられる呪文の数」を数えなおし、
  * 多すぎれば忘れさせ、余裕ができれば忘れた呪文を思いださせる唯一の場所。
@@ -56,7 +56,7 @@
 
 extern player_type py;
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
+/* 検証対象（src/item/spellbook.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 void calc_spells(int stat);
 

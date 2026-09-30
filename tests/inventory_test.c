@@ -185,7 +185,7 @@ TEST(what_was_written_to_a_pack_slot_stays_there)
 TEST(a_whole_slot_can_be_copied_onto_another)
 {
     /* 呼びだし側には枠ごとの代入がある（moria1.c:728-729 の武器の持ちかえ、
-     * misc3.c の詰めなおし）。窓口越しでも構造体の代入で書ける形を守る。 */
+     * inven_ops.c の詰めなおし）。窓口越しでも構造体の代入で書ける形を守る。 */
     equipment_at(INVEN_WIELD)->tval = TV_BOW;
     equipment_at(INVEN_WIELD)->cost = 4321;
     *equipment_at(INVEN_AUX) = *equipment_at(INVEN_WIELD);

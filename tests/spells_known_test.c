@@ -7,7 +7,7 @@
 /* 覚えている呪文の置き場（src/player/spells_known.c）のテスト
  *
  * ここに「何を覚えていられるか」の計算は無い。数えなおしは calc_spells()
- * （misc3.c:1220）、どれを覚えるかは gain_spells()（misc3.c:1374）にあり、
+ * （spellbook.c:197）、どれを覚えるかは gain_spells()（spellbook.c:330）にあり、
  * この module が預かるのは**その結果の覚え**だけ。保護するのは「置き場と
  * してのふるまい」で、意味のある性質は 6 つある。
  *

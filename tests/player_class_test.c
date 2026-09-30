@@ -276,8 +276,8 @@ TEST(the_spell_tables_row_is_one_less_than_the_class) {
 }
 
 /* **戦士には行が無い。** だから 10 か所の呼び手はどれも先に系を訊く ——
- * 訊かずに引くと `magic_spell[-1]` になる（バグ候補 B22 は
- * `misc3.c:1404` がまさにその番地を**確かめる前に**作っているところで、
+ * 訊かずに引くと `magic_spell[-1]` になる（バグ候補 B23 は
+ * `spellbook.c:349` がまさにその番地を**確かめる前に**作っているところで、
  * 読まないので届かない）。 */
 TEST(a_warrior_would_index_before_the_start_of_the_spell_table) {
     given_the_table_has_the_six_schools();

@@ -225,8 +225,8 @@ void calc_spells(int stat) {
 
     // calc number of spells allowed
     int num_allowed = 0;
-    // **階級が何をくれるかは窓口の外**（player_class.h の 3 つめ）——
-    // first_spell_lev はこの 1 行と calc_mana() の 2 か所だけが読む。
+    // WHAT THE CLASS GIVES IS OUTSIDE THE WINDOW (item 3 in player_class.h) --
+    // first_spell_lev is read in two places only, this line and calc_mana().
     int levels = player_level() - class[player_class()].first_spell_lev + 1;
     switch (stat_adj(stat)) {
     case 0:
@@ -312,8 +312,8 @@ void calc_spells(int stat) {
         new_spells = 0;
     }
 
-    // 局所の new_spells は「いま数えなおした答え」で、窓口の答えは「前に置いた
-    // 答え」。**違うときだけ置きなおす**（同じなら画面も書きなおさない）。
+    // The local new_spells is the answer just recounted; the window holds the one set last
+    // time. SET IT AGAIN ONLY WHEN THEY DIFFER (if they are equal, nothing is redrawn either).
     if (new_spells != player_spells_to_learn()) {
         if (new_spells > 0 && player_spells_to_learn() == 0) {
             vtype tmp_str;
@@ -337,15 +337,15 @@ void gain_spells(void) {
         return;
     }
 
-    // 窓口から取って局所で減らし、最後に 1 度だけ置きなおす（下の
-    // player_spells_to_learn_set()）。途中で置かないのは、本が足りなくて
-    // 学べなかった差を足しもどすまで答えが決まらないから。
+    // Taken from the window, counted down locally, and set back once at the end
+    // (player_spells_to_learn_set() below). Not set part way: the answer is not settled
+    // until the spells that could not be learnt for want of a book are added back.
     int new_spells = player_spells_to_learn();
     int diff_spells = 0;
 
-    // **この番地は系を訊く前に作られる**（バグ候補 B22）—— 戦士なら
-    // `magic_spell[-1]` だが、下の if がどちらの系にも入らないので読まれない。
-    // **並びは動かさない** —— B はふるまいを 1 つも変えない。
+    // THIS ADDRESS IS FORMED BEFORE THE SCHOOL IS ASKED (bug candidate B23) -- for
+    // a warrior it is `magic_spell[-1]`, but it is never read, because the if below
+    // goes into neither school. DO NOT REORDER IT -- a step B changes no behaviour.
     spell_type *msp_ptr = &magic_spell[player_class() - 1][0];
 
     int stat, offset;

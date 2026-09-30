@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 呪文を覚えるとき（misc3.c:1374 の gain_spells）のテスト
+/* 呪文を覚えるとき（spellbook.c:330 の gain_spells）のテスト
  *
  * プレイヤーが学ぶ（`G` コマンド、dungeon.c:1294）と呼ばれる。#18-8 で窓口
  * `src/player/spells_known.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
@@ -62,7 +62,7 @@
 extern player_type py;
 extern bool free_turn_flag;
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
+/* 検証対象（src/item/spellbook.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 void gain_spells(void);
 

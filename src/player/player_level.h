@@ -33,7 +33,7 @@
 // That one promise was kept in two different ways, and nothing made the two
 // agree:
 //
-//   - prt_experience() (misc3.c) CLIMBS, one level at a time, calling
+//   - prt_experience() (level_ops.c) CLIMBS, one level at a time, calling
 //     gain_level() for each step,
 //   - lose_exp() (spells.c) COUNTS AGAIN from the bottom, walking the table from
 //     the first entry until the price is too high.

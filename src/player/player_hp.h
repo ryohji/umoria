@@ -73,7 +73,7 @@
 //   - how fast regeneration runs is the caller's number, and so is the decision
 //     not to regenerate at all while poisoned (dungeon.c),
 //   - what the maximum SHOULD be comes from the level, the hit-point table and
-//     the constitution (calc_hitpoints in misc3.c), and raising PY_HP afterwards
+//     the constitution (calc_hitpoints in level_ops.c), and raising PY_HP afterwards
 //     belongs to the status flags, which are another question,
 //   - "is it full?" is not a window. The three places that ask are not asking
 //     the same thing -- twice it is `chp < mhp` (regenerate, heal) and once it

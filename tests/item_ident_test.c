@@ -94,7 +94,7 @@ static inven_type *given_a_kind_of_item(int slot, int tval, int subval)
     return i_ptr;
 }
 
-/* prt_experience() は fixture.c のスタブ。本物（misc3.c:1838）は
+/* prt_experience() は fixture.c のスタブ。本物（level_ops.c:55）は
  * 経験値の上限打ち切りとレベルアップ判定と画面描画を兼ねているが、
  * ここで見たいのは加算式なので代役にしている。加算された exp が
  * そのまま観測できる。 */
@@ -470,7 +470,8 @@ TEST(trying_a_kind_does_not_make_it_known)
 }
 
 /* 枠を持たない品目（剣）。known1_p が表を引かずに既知と答える側で、
- * misc3.c:1025 も #18-9-B より前は object_offset() == -1 でこれを訊いていた。 */
+ * inven_ops.c:223（当時は misc3.c:1025）も #18-9-B より前は object_offset() == -1 で
+ * これを訊いていた。 */
 TEST(a_kind_with_no_record_is_reported_as_having_none)
 {
     inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);

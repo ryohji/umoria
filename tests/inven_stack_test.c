@@ -14,10 +14,10 @@
  * items_can_stack()（inven_ops.c:130）の 1 つにまとまり、その注釈が
  * 「must agree」と言う。
  *
- * このテストは写しではなく src/misc3.c の実体をリンクして検証する。
- * misc3.c は 2212 行・6 責務（画面描画・能力値計算・持ち物管理・呪文・
- * 戦闘・移動）が同居しているので、リンクすると 57 個の未解決シンボルが
- * 芋づるで付いてくる。それを tests/misc3_stubs.c の代役で埋めた。
+ * このテストは写しではなく src/item/inven_ops.c の実体をリンクして検証する。
+ * 書いた当時の実体は misc3.c にあり、2212 行・6 責務（画面描画・能力値計算・
+ * 持ち物管理・呪文・戦闘・移動）が同居していたので、リンクすると 57 個の
+ * 未解決シンボルが芋づるで付いてきた。それを tests/misc3_stubs.c の代役で埋めた。
  * 定数表（tables.c）・インベントリ（treasure.c）・py と各種テーブル
  * （player.c）・known1_p（desc.c）は本物をリンクしている。
  *
@@ -39,7 +39,7 @@
 #include "fixture.h"
 #include "inventory.h"
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
+/* 検証対象（src/item/inven_ops.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 bool inven_check_num(inven_type *t_ptr);
 int inven_carry(inven_type *i_ptr);
@@ -518,11 +518,11 @@ TEST(inven_carry_increases_inven_ctr_when_inserting_into_empty_inventory)
 }
 
 /* TODO: 仕様確認 -- inven_carry() のループには終了条件がない。
- *   for (locn = 0;; locn++)     misc3.c:1251
+ *   for (locn = 0;; locn++)     inven_ops.c:228
  * break は「スタックした」か「割りこんだ」ときだけ。どちらも起きない
  * アイテムを渡すと inventory[] の末尾を越えて読みつづける。
  *
- * 割りこみ条件は misc3.c:1262 の
+ * 割りこみ条件は inven_ops.c:234 の
  *   (typ == t_ptr->tval && subt < t_ptr->subval && always_known1p)
  *   || (typ > t_ptr->tval)
  * なので、インベントリ全枠の tval が新規アイテムの tval より大きく、
@@ -531,9 +531,10 @@ TEST(inven_carry_increases_inven_ctr_when_inserting_into_empty_inventory)
  * AddressSanitizer で確認済み（このテストには含めない。UB なので
  * 実行結果が保証されず、テストとして固定できないため）:
  *   全 34 枠を tval=90 で埋め、tval=10・subval=0 の新規アイテムを渡すと
- *   src/misc3.c:1254 で global-buffer-overflow（inventory の 20 バイト先を
- *   読む）。読んだ先が偶然 break 条件を満たすまで走るので、何が起きるかは
- *   隣接するグローバル変数の内容次第。
+ *   当時の src/misc3.c:1254 で global-buffer-overflow（inventory の 20 バイト先を
+ *   読む）。いまその読みは inven_ops.c:231 から呼ぶ items_can_stack()
+ *   （inven_ops.c:130）の中にある。読んだ先が偶然 break 条件を満たすまで
+ *   走るので、何が起きるかは隣接するグローバル変数の内容次第。
  *
  * 実際の呼びだし側は inven_check_num() で先に確認する約束になっているが、
  * inven_carry() 側にその約束を守らせる仕組みがない。約束が破られた場合の

@@ -38,8 +38,8 @@
 //     states, the ninth question.
 //   - new_spells (nine references, plus twenty in tests/) is a COUNT, not an
 //     ability -- how many spells may still be learnt. It pairs with the study
-//     request and spells_known.c, and all seven of its misc3.c references are
-//     that arithmetic. It waits for its own question.
+//     request and spells_known.c; its seven misc3.c references (six now in spellbook.c,
+//     one in status_line.c) are all that arithmetic. It waits for its own question.
 //
 // The seventeen fall into four kinds, and the reading windows are named after
 // what the caller wants to know, not after the field:

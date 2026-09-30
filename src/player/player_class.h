@@ -51,12 +51,12 @@
 // handed on:
 //
 //   - class_level_adj[row][column] SIXTEEN TIMES -- the to-hit columns seven times
-//     (abilities.c, misc3.c, moria1.c, moria3.c, moria4.c), the disarming column
+//     (abilities.c, hit_rolls.c, moria1.c, moria3.c, moria4.c), the disarming column
 //     four, the device column three and the saving column twice.
-//   - magic_spell[row - 1][spell] TEN TIMES (dungeon.c, magic.c, misc3.c five times,
+//   - magic_spell[row - 1][spell] TEN TIMES (dungeon.c, magic.c, spellbook.c five times,
 //     moria3.c twice, prayer.c).
 //   - class[row] for what the class GIVES: the whole row at creation (create.c) and
-//     first_spell_lev twice (misc3.c).
+//     first_spell_lev twice (spellbook.c).
 //   - player_title[row][level - 1] once (status_line.c) and player_init[row][i] once
 //     (main.c, the starting pack).
 //   - the high score entry (death.c) and the saved file's byte (save.c).
@@ -108,12 +108,13 @@ const char *player_class_title(void);
 // THE VALUE AND NOT A PAIR OF YES-OR-NO WINDOWS. `player_class_casts_spells()` and
 // `player_class_says_prayers()` would read better at eleven of the fifteen sites,
 // and they are wrong: THE THREE ANSWERS ARE ONE NUMBER, and four sites branch on
-// all three at once (main.c, dungeon.c, misc3.c twice) where a pair of predicates
+// all three at once (main.c, dungeon.c, stat_ops.c, level_ops.c) where a pair of predicates
 // would have to be asked twice and could disagree. One number, one window (ledger
 // observation 43).
 //
-// TWO ALIASES DIE HERE. misc3.c:1587 and spells.c:1965 take `class_type *c_ptr =
-// &class[p_ptr->pclass]` and then read NOTHING BUT c_ptr->spell, twice each.
+// TWO ALIASES DIE HERE. gain_level() (misc3.c:1587 then, level_ops.c:45 now) and
+// spells.c:1965 take `class_type *c_ptr = &class[p_ptr->pclass]` and then read NOTHING
+// BUT c_ptr->spell, twice each.
 //
 // WHAT THE SCHOOL DECIDES stays with the callers, all of it: which stat the spells
 // hang off (A_INT or A_WIS), which word to print ("spell" or "prayer"), which half
@@ -144,7 +145,7 @@ int player_class_spell_type(void);
 //      spell table, not this one.
 //   3. WHAT THE CLASS GIVES. create.c reads the row whole for the six stat
 //      adjustments, the hit die's bonus, the stealth, the experience factor and the
-//      title, and misc3.c reads first_spell_lev twice. "Which class is this?" and
+//      title, and spellbook.c reads first_spell_lev twice. "Which class is this?" and
 //      "what does that class give?" are two questions, and only the first is here.
 //   4. THE TITLE FOR THIS LEVEL. player_title[row][level - 1] (status_line.c) is
 //      a table about A PAIR again, and the other half of the pair is a question
