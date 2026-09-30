@@ -313,7 +313,6 @@ bool test_light(int, int);
 void prt_map(void);
 // monster/monster_place.c
 bool compact_monsters(void);
-int popm(void);
 bool place_monster(int, int, creature_handle, int);
 void place_win_monster(void);
 void alloc_monster(int, int, int);
