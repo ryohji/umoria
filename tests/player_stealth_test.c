@@ -55,7 +55,7 @@
 #define MU_SETUP() player_stealth_set(0)
 #include "minunit.h"
 
-/* 寝ている者が動くかの右辺（creature.c:1576）。ここに写しがあるのは
+/* 寝ている者が動くかの右辺（creature.c）。ここに写しがあるのは
  * **この module の外の規則**を 3 件で固定するためで、窓口の仕事ではない。 */
 static long the_threshold_for(int stealth) { return 1L << (29 - stealth); }
 

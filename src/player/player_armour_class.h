@@ -38,9 +38,9 @@
 // tell the difference, because both spellings add up to the same number.
 //
 // WHO ASKS: the monsters. Twenty-one of the twenty-six readers are the lines in
-// creature.c where one blow of one monster is tested, one for each kind of
-// attack; four more are in traps.c (a trap's dart, a thrown thing); and the
-// last one is creature.c's `damage -= (ac * damage) / 200`, which is why a
+// monster_melee.c where one blow of one monster is tested, one for each kind
+// of attack; four more are in traps.c (a trap's dart, a thrown thing); and the
+// last one is monster_melee.c's `damage -= (ac * damage) / 200`, which is why a
 // character in plate takes less from a blow that did land.
 
 // The answer: both halves added up. TWENTY-SIX CALLERS, which is what this
@@ -116,8 +116,8 @@ void player_armour_class_adjust(int armour);
 //   1. WHETHER A BLOW LANDS. test_hit() in hit_rolls.c weighs the armour class
 //      against the attacker; twenty-five of the twenty-six readers only pass the
 //      number to it.
-//   2. HOW MUCH A BLOW THAT LANDED HURTS. creature.c's `* damage / 200` is a
-//      rule about damage, and its one reader is creature.c.
+//   2. HOW MUCH A BLOW THAT LANDED HURTS. monster_melee.c's `* damage / 200`
+//      is a rule about damage, and its one reader is monster_melee.c.
 //   3. WHAT THE SHEET SAYS. player_display_numbers.c keeps that, and it is
 //      allowed to differ (see above).
 //   4. HOW LONG A SPELL LASTS. player_timed_effects.c keeps the clocks; this

@@ -13,7 +13,7 @@
  *   misc1.c:153-160  6 個を導出する（panel_bounds）
  *   misc1.c:165-200  添字を動かすかどうか決める（get_panel。いまは ui/map_view.c）
  *   io.c:134,143     row_prt / col_prt を引いて画面座標にする
- *   misc1.c:489,494 / spells.c:55,244 ほか  4 辺の間を歩く
+ *   misc1.c:489,494 / spells.c ほか  4 辺の間を歩く
  *   generate.c:1260-1263  4 個を導出せずに手で 0 にする
  *   generate.c:1274-1277, 1282-1285  パネル数の式（同じ 4 行が 2 回）
  * src/ui/panel.c に寄せる。

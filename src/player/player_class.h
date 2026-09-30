@@ -113,8 +113,8 @@ const char *player_class_title(void);
 // observation 43).
 //
 // TWO ALIASES DIE HERE. gain_level() (misc3.c:1587 then, level_ops.c:45 now) and
-// spells.c:1965 take `class_type *c_ptr = &class[p_ptr->pclass]` and then read NOTHING
-// BUT c_ptr->spell, twice each.
+// lose_exp() (spells.c) take `class_type *c_ptr = &class[p_ptr->pclass]` and
+// then read NOTHING BUT c_ptr->spell, twice each.
 //
 // WHAT THE SCHOOL DECIDES stays with the callers, all of it: which stat the spells
 // hang off (A_INT or A_WIS), which word to print ("spell" or "prayer"), which half

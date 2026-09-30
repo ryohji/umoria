@@ -22,7 +22,7 @@
  *      どれか。読む 9 か所は数をそのまま使う。
  *
  *   3. **窓口は数を検めない**こと。払えるかを確かめるのは店（store_ui.c が
- *      払える額かを先に見る）、盗られる額を抑えるのは creature.c、
+ *      払える額かを先に見る）、盗られる額を抑えるのは monster_melee.c、
  *      80 の下限は create.c、負を断るのは wizard.c。**どれも理由が違い、
  *      読み手が 1 つずつしかいない**ので、窓口の外に残す（所見 24・25）。
  *      ここで丸めるとふるまいが変わる。
@@ -63,7 +63,7 @@ TEST(setting_replaces_what_was_there) {
     ASSERT_EQ_INT(3000, player_gold());
 }
 
-/* 盗人が財布を空にする形（creature.c は、持ち額より多く盗ったことになる
+/* 盗人が財布を空にする形（monster_melee.c は、持ち額より多く盗ったことになる
  * ときだけ 0 を置く）。 */
 TEST(the_purse_can_be_emptied) {
     player_set_gold(120);
@@ -90,7 +90,7 @@ TEST(gold_can_come_in_more_than_once) {
 
 /* --- 減る ----------------------------------------------------------------- */
 
-/* 店で買う（store_ui.c）・盗られる（creature.c）。 */
+/* 店で買う（store_ui.c）・盗られる（monster_melee.c）。 */
 TEST(a_payment_is_taken_out_of_the_purse) {
     player_set_gold(500);
     player_pay_gold(175);
