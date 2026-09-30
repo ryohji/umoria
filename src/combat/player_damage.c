@@ -16,11 +16,14 @@
 
 #include "externs.h"
 #include "equipment.h"
+#include "level_exit.h"
 #include "player_abilities.h"
 #include "player_class.h"
+#include "player_hp.h"
 #include "player_level.h"
 #include "player_saving_throw.h"
 #include "player_timed_effects.h"
+#include "score_death.h"
 #include "stats.h"
 
 // Saving throws for player character. -RAK-
@@ -36,6 +39,25 @@ bool player_saves(void) {
         return true;
     } else {
         return false;
+    }
+}
+
+// Decreases players hit points and sets death flag if necessary -RAK-
+void take_hit(int damage, const char *hit_from) {
+    if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
+        damage = 0;
+    }
+    // Nothing clamps the number at zero: a fatal wound leaves it negative on
+    // purpose, because that is the only record of the death anyone keeps.
+    if (player_take_hp_damage(damage)) {
+        if (!player_is_dead()) {
+            set_player_dead(true);
+            (void)strcpy(death_cause(), hit_from);
+            set_player_has_won(false);
+        }
+        end_level();
+    } else {
+        prt_chp();
     }
 }
 

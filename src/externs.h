@@ -345,6 +345,7 @@ void fire_dam(int, const char *);
 void cold_dam(int, char *);
 void light_dam(int, char *);
 void acid_dam(int, const char *);
+void take_hit(int, const char *);
 
 // dungeon/object_alloc.c
 void place_trap(int, int, int);
@@ -477,7 +478,6 @@ void search_on(void);
 void search_off(void);
 void rest(void);
 void rest_off(void);
-void take_hit(int, const char *);
 
 // dungeon/search.c
 void change_trap(int, int);

@@ -324,9 +324,9 @@ wands.o: device.h $(HEADERS_FULL)
 wizard.o: progress.h score_death.h $(HEADERS_FULL)
 # hit_rolls.c and player_damage.c came from misc3.c (#42). They include externs.h.
 hit_rolls.o: player_class.h player_level.h $(HEADERS_FULL)
-player_damage.o: equipment.h player_abilities.h player_class.h player_level.h \
-                 player_saving_throw.h player_timed_effects.h stats.h \
-                 $(HEADERS_FULL)
+player_damage.o: equipment.h level_exit.h player_abilities.h player_class.h \
+                 player_hp.h player_level.h player_saving_throw.h \
+                 player_timed_effects.h score_death.h stats.h $(HEADERS_FULL)
 # object_alloc.c came from misc3.c (#42). It includes externs.h.
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
                 object_levels.h player_pos.h $(HEADERS_FULL)

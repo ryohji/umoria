@@ -19,13 +19,10 @@
 #include "equipment.h"
 #include "externs.h"
 #include "floor_items.h"
-#include "score_death.h"
 #include "inven_command_state.h"
 #include "inventory.h"
-#include "level_exit.h"
 #include "panel.h"
 #include "player_food.h"
-#include "player_hp.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "player_resting.h"
@@ -1484,23 +1481,4 @@ void rest_off(void) {
     msg_print(CNIL);
 
     player_adjust_digestion(1);
-}
-
-// Decreases players hit points and sets death flag if necessary -RAK-
-void take_hit(int damage, const char *hit_from) {
-    if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
-        damage = 0;
-    }
-    // Nothing clamps the number at zero: a fatal wound leaves it negative on
-    // purpose, because that is the only record of the death anyone keeps.
-    if (player_take_hp_damage(damage)) {
-        if (!player_is_dead()) {
-            set_player_dead(true);
-            (void)strcpy(death_cause(), hit_from);
-            set_player_has_won(false);
-        }
-        end_level();
-    } else {
-        prt_chp();
-    }
 }
