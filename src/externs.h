@@ -504,11 +504,13 @@ int twall(int, int, int, int);
 void tunnel(int);
 void disarm_trap(void);
 void look(void);
-void throw_object(void);
 void bash(void);
 
 // combat/player_melee.c
 void py_bash(int, int);
+
+// combat/throw.c
+void throw_object(void);
 
 // potions.c
 void quaff(void);

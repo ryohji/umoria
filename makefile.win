@@ -92,6 +92,7 @@ geometry.o: dungeon_map.h dungeon_size.h floor_items.h constant.h types.h extern
 help.o: constant.h types.h externs.h config.h
 hit_rolls.o: player_class.h player_level.h constant.h types.h externs.h config.h
 player_melee.o: dungeon_map.h equipment.h monster_list.h player_body_weight.h player_class.h player_level.h player_timed_effects.h constant.h types.h externs.h config.h
+throw.o: dungeon_map.h equipment.h floor_items.h inventory.h monster_list.h panel.h player_attack_bonuses.h player_base_to_hit.h player_class.h player_level.h player_pos.h player_status_flags.h player_timed_effects.h constant.h types.h externs.h config.h
 hp_table.o: hp_table.h constant.h types.h config.h
 input.o: input.h
 input_ncurses.o: input.h backend_ncurses.h

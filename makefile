@@ -359,3 +359,7 @@ level_ops.o: hp_table.h player_class.h player_hp.h player_level.h \
 player_melee.o: dungeon_map.h equipment.h monster_list.h player_body_weight.h \
                 player_class.h player_level.h player_timed_effects.h \
                 $(HEADERS_FULL)
+throw.o: dungeon_map.h equipment.h floor_items.h inventory.h monster_list.h \
+         panel.h player_attack_bonuses.h player_base_to_hit.h player_class.h \
+         player_level.h player_pos.h player_status_flags.h \
+         player_timed_effects.h $(HEADERS_FULL)
