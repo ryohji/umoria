@@ -217,7 +217,7 @@ bool set_large(treasure_type *t) { (void)t; return false; }
 void move_rec(int y1, int x1, int y2, int x2) {
     (void)y1; (void)x1; (void)y2; (void)x2;
 }
-/* distance は代役にしてはいけない。misc3.c:2103 の teleport() が
+/* distance は代役にしてはいけない。player_move.c:32 の teleport() が
  * `while (distance(...) > dis)` でループするので、常に 0 を返す代役では
  * ループの意味が変わる（テスト対象外の経路だが、将来テストが及んだときに
  * 誤った結果を「正しい」と固定してしまう）。

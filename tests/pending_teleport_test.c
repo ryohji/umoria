@@ -18,7 +18,7 @@
  *   1. **罠は飛ばさずに予約するだけ**であること。この module は teleport の
  *      やりかたを知らない。
  *
- *   2. **teleport が起きたら書き置きは消える**こと（misc3.c:1886。teleport() の
+ *   2. **teleport が起きたら書き置きは消える**こと（player_move.c:51。teleport() の
  *      出口）。消し忘れると、次の turn にもう一度飛ばされる。
  *
  *   3. **どの teleport でも消える**こと。teleport() は理由を問わず出口で消すので、
