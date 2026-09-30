@@ -88,7 +88,7 @@ int popt(void) {
 
 // Pushs a record back onto free space list -RAK-
 // Delete_object() should always be called instead, unless the object
-// in question is not in the dungeon, e.g. in store1.c and files.c
+// in question is not in the dungeon, e.g. in store_stock.c and files.c
 void pusht(uint8_t x) {
     const int last = floor_items_used() - 1;
 

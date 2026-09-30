@@ -21,7 +21,7 @@
 // preserve it. Every rule about the purse has exactly one reader and stays
 // with it:
 //
-//   - a shop refuses a purchase you cannot afford (store2.c asks first),
+//   - a shop refuses a purchase you cannot afford (store_ui.c asks first),
 //   - a thief takes a tenth and cannot take more than you have (creature.c
 //     compares first),
 //   - a new character is given at least 80 gold (create.c),

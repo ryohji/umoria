@@ -15,13 +15,13 @@
  *                  だけで、そこでは insert が CNIL）、一致しない場合、
  *                  mtc_str が object_str より長い場合、同じ雛形が 2 回
  *                  現れる場合、先頭と末尾での一致
- *   insert_lnum -- show_sign が真の経路（呼びだし 2 箇所（store2.c:145-146）は
+ *   insert_lnum -- show_sign が真の経路（呼びだし 2 箇所（store_haggle.c:132-133）は
  *                  どちらも false なので、+ が付く形はどのテストも通って
  *                  いない）、1 文字目だけ一致して続きが違う場合、一致が
  *                  無い場合
  *
  * 差しこむ雛形の形は実際の呼びだしから採った（desc.c:463-464 の "ch~"→"ches"
- * と "~"→"s"、store2.c:145-146 の "%A1" / "%A2"）。
+ * と "~"→"s"、store_haggle.c:132-133 の "%A1" / "%A2"）。
  *
  * 溢れは試さない。insert_str の作業領域は char out_val[80] 固定で、strcat が
  * 長さを見ないので、差しこんだ結果が 80 バイトを超えると壊れる（バグ候補として
@@ -107,7 +107,7 @@ TEST(show_sign_prepends_plus_to_zero) { ASSERT_EQ_STR(lnum_inserted("I offer %A1
 
 TEST(show_sign_does_not_touch_a_negative_number) { ASSERT_EQ_STR(lnum_inserted("I offer %A1 gold", "%A1", -50, 1), "I offer -50 gold"); }
 
-/* store2.c:145-146 の呼びだしはこちら（show_sign = false）。 */
+/* store_haggle.c:132-133 の呼びだしはこちら（show_sign = false）。 */
 TEST(without_show_sign_a_positive_number_has_no_plus) { ASSERT_EQ_STR(lnum_inserted("I offer %A1 gold", "%A1", 250, 0), "I offer 250 gold"); }
 
 TEST(without_show_sign_a_negative_number_keeps_its_minus) { ASSERT_EQ_STR(lnum_inserted("I offer %A1 gold", "%A1", -50, 0), "I offer -50 gold"); }
@@ -124,7 +124,7 @@ TEST(a_first_char_match_without_a_full_match_leaves_the_string_untouched) { ASSE
 /* 一致が無ければ object_str は変わらない。 */
 TEST(lnum_no_match_leaves_the_string_untouched) { ASSERT_EQ_STR(lnum_inserted("no marker here", "%A1", 250, 1), "no marker here"); }
 
-/* 最後の 1 文字だけ違う雛形は一致しない。store2.c は同じ文にある "%A1" と
+/* 最後の 1 文字だけ違う雛形は一致しない。store_haggle.c は同じ文にある "%A1" と
  * "%A2" を 2 回の呼びだしで別々に埋めるので、この区別が要る。 */
 TEST(a_marker_differing_in_the_last_char_is_not_matched) { ASSERT_EQ_STR(lnum_inserted("I offer %A1 for %A2", "%A2", 300, 0), "I offer %A1 for 300"); }
 

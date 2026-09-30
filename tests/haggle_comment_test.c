@@ -6,15 +6,15 @@
 
 /* 値切り交渉メッセージ表示のテスト -- 現在の実装を保護する
  *
- * src/store2.c:123-135 の prt_comment2()（購入時）と
- * src/store2.c:137-150 の prt_comment3()（売却時）は、配列名と要素数を
+ * src/store/store_haggle.c:138-142 の prt_comment2()（購入時）と
+ * src/store/store_haggle.c:144-148 の prt_comment3()（売却時）は、配列名と要素数を
  * のぞいて中身が完全に同一の 13 行である。
  *
  *   差異 1: 配列名  comment2a/comment2b vs comment3a/comment3b
  *   差異 2: 要素数  comment2b[16] vs comment3b[15]（a 側はどちらも 3）
  *   差異 3: 呼びだし側の引数順（最重要）
- *             購入 store2.c:571  prt_comment2(last_offer, cur_ask, ...)
- *             売却 store2.c:773  prt_comment3(cur_ask, last_offer, ...)
+ *             購入 store_haggle.c:452  prt_comment2(last_offer, cur_ask, ...)
+ *             売却 store_haggle.c:656  prt_comment3(cur_ask, last_offer, ...)
  *
  * 差異 3 がこのテストの主眼である。両関数のパラメータ名はどちらも
  * (offer, asking) だが、呼びだし側が渡す順序が逆になっている（売買で
@@ -24,7 +24,7 @@
  * このテストで固定する。
  *
  * 観測のしかた: prt_comment2 / prt_comment3 は static なので外部から
- * 呼べない。そこで src/store2.c をこの翻訳単位に #include し、内部の
+ * 呼べない。そこで src/store/store_haggle.c をこの翻訳単位に #include し、内部の
  * static 関数を直接呼ぶ。写しではないので、ステップ B で実体を書きかえれば
  * このテストがそれを検証する。
  *
@@ -38,15 +38,15 @@
  * いまどう振るまうかを固定することが目的。
  */
 /* 検証対象。static 関数を呼ぶために実体ごと取りこむ。config.h /
- * constant.h / types.h も store2.c が連れてくる（types.h に多重取りこみの
+ * constant.h / types.h も store_haggle.c が連れてくる（types.h に多重取りこみの
  * 番人が無いので、テスト側から重ねて include できない）。
- * store2.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
+ * store_haggle.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
  * 既存の事情なので makefile.test 側で 1 つだけ警告を落としている。 */
-#include "store2.c"
+#include "store_haggle.c"
 
 #include "fixture.h"
 
-/* store2.c が参照するが、代役にも本物にも無いシンボル。
+/* store_haggle.c が参照するが、代役にも本物にも無いシンボル。
  * prt_comment2 / prt_comment3 はどれも呼ばないので、
  * 「呼ばれたら何もしない／固定値を返す」で足りる。
  * 一覧はリンカに出させたもので、手で数えあげたわけではない。 */
@@ -178,7 +178,7 @@ TEST(prt_comment3_with_zero_final_uses_comment3b)
  * 末尾の要素を選ぶ値を必ず固定しておく。
  *
  * SUSPICIOUS: randint の上限は配列の実際の要素数と一致している
- * （store2.c:34-78 の定義を確認: comment2a[3] / comment2b[16] /
+ * （store_haggle.c:29-76 の定義を確認: comment2a[3] / comment2b[16] /
  * comment3a[3] / comment3b[15]）。配列外アクセスのバグは無い。
  * ただし要素数がリテラルで 2 箇所（配列宣言と randint の引数）に
  * 書かれており、片方だけ増減させると壊れる。直していない。

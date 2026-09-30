@@ -21,7 +21,7 @@
  *      「作った・wizard が入れた・save から読んだ・空にされた（置きかえ）」の
  *      どれか。読む 9 か所は数をそのまま使う。
  *
- *   3. **窓口は数を検めない**こと。払えるかを確かめるのは店（store2.c が
+ *   3. **窓口は数を検めない**こと。払えるかを確かめるのは店（store_ui.c が
  *      払える額かを先に見る）、盗られる額を抑えるのは creature.c、
  *      80 の下限は create.c、負を断るのは wizard.c。**どれも理由が違い、
  *      読み手が 1 つずつしかいない**ので、窓口の外に残す（所見 24・25）。
@@ -73,7 +73,7 @@ TEST(the_purse_can_be_emptied) {
 
 /* --- 増える --------------------------------------------------------------- */
 
-/* 床で拾う（moria3.c）・店が買ってくれる（store2.c）。 */
+/* 床で拾う（moria3.c）・店が買ってくれる（store_ui.c）。 */
 TEST(found_gold_is_added_to_the_purse) {
     player_set_gold(100);
     player_gain_gold(45);
@@ -90,7 +90,7 @@ TEST(gold_can_come_in_more_than_once) {
 
 /* --- 減る ----------------------------------------------------------------- */
 
-/* 店で買う（store2.c）・盗られる（creature.c）。 */
+/* 店で買う（store_ui.c）・盗られる（creature.c）。 */
 TEST(a_payment_is_taken_out_of_the_purse) {
     player_set_gold(500);
     player_pay_gold(175);
@@ -114,7 +114,7 @@ TEST(paying_more_than_you_have_is_not_stopped_here) {
 
 /* --- 持てる額 ------------------------------------------------------------- */
 
-/* 16 bit には収まらない。上は store2.c の高い品、下は death.c の
+/* 16 bit には収まらない。上は store_ui.c の高い品、下は death.c の
  * 「老いて死ぬ」wizard コマンドが足す 250000。 */
 TEST(the_purse_holds_more_than_a_short) {
     player_set_gold(1000000);

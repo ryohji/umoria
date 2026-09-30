@@ -20,7 +20,8 @@
 
 // Moved out of store1.c unchanged (#55); their prototypes stay in externs.h.
 // None of them prints or asks for input. The callers are the stock
-// (store1.c), the haggling (store2.c) and the score of the dead (death.c).
+// (store_stock.c), the haggling (store_haggle.c) and the score of the dead
+// (death.c).
 
 // Returns the value for any given object -RAK-
 int32_t item_value(inven_type *i_ptr) {

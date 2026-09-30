@@ -13,7 +13,7 @@
  * 約束が英語で書かれている）。
  *
  * 訊く側は 2 つ。本編のループ（dungeon.c:685。毎 turn 訊いて、待っていれば
- * 持ち物コマンドに戻す）と、店（store2.c:1050。0 になるまで回すので、値切りの
+ * 持ち物コマンドに戻す）と、店（store_ui.c:412。0 になるまで回すので、値切りの
  * 途中でも持ち物コマンドが使える）。
  *
  * 保護したい性質は 3 つ。
@@ -68,7 +68,7 @@ TEST(finishing_leaves_nothing_to_resume) {
 }
 
 /* moria1.c:1140 の dummy command。' ' は「待っていない」ではなく
- * 「画面を戻すためだけに呼んでくれ」。dungeon.c と store2.c が 0 と比べて
+ * 「画面を戻すためだけに呼んでくれ」。dungeon.c と store_ui.c が 0 と比べて
  * いるのはこのため（C では ' ' も真）。 */
 TEST(a_blank_command_is_still_waiting) {
     suspend_inven_command(' ');

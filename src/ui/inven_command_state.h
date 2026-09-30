@@ -16,7 +16,7 @@
 // "call me again with this character". That is what this module remembers.
 //
 // The character to resume with, or 0 for "nothing is waiting". The main loop
-// (dungeon.c) asks every turn, and the store (store2.c) loops on it so that
+// (dungeon.c) asks every turn, and the store (store_ui.c) loops on it so that
 // inventory commands work while haggling.
 char pending_inven_command(void);
 
