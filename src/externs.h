@@ -458,6 +458,13 @@ void change_speed(int);
 void py_bonuses(inven_type *, int);
 void calc_bonuses(void);
 
+// player/rest_command.c
+void disturb(int, int);
+void search_on(void);
+void search_off(void);
+void rest(void);
+void rest_off(void);
+
 // moria1.c
 int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
@@ -473,11 +480,6 @@ void move_rec(int, int, int, int);
 void light_room(int, int);
 void lite_spot(int, int);
 void move_light(int, int, int, int);
-void disturb(int, int);
-void search_on(void);
-void search_off(void);
-void rest(void);
-void rest_off(void);
 
 // dungeon/search.c
 void change_trap(int, int);

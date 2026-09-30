@@ -366,3 +366,5 @@ player_bonuses.o: burden.h equipment.h monster_list.h player_abilities.h \
                   player_search_skill.h player_speed.h player_status_flags.h \
                   player_stealth.h player_timed_effects.h stats.h \
                   $(HEADERS_FULL)
+rest_command.o: command_state.h player_food.h player_resting.h \
+                player_status_flags.h running.h $(HEADERS_FULL)
