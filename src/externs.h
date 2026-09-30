@@ -493,7 +493,6 @@ void fix1_delete_monster(int);
 void fix2_delete_monster(int);
 int delete_object(int, int);
 uint32_t monster_death(int, int, uint32_t);
-void py_attack(int, int);
 void openobject(void);
 void closeobject(void);
 int twall(int, int, int, int);
@@ -502,6 +501,7 @@ int twall(int, int, int, int);
 void look(void);
 
 // combat/player_melee.c
+void py_attack(int, int);
 void py_bash(int, int);
 
 // combat/throw.c
