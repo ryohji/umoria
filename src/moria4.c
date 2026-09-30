@@ -909,7 +909,7 @@ void throw_object(void) {
 
 // Make a bash attack on someone. -CJS-
 // Used to be part of bash above.
-static void py_bash(int y, int x) {
+void py_bash(int y, int x) {
 
     int monster = square_at(y, x)->cptr;
     monster_type *m_ptr = monster_list_at(monster);
