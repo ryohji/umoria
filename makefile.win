@@ -129,7 +129,7 @@ status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h playe
 monsters.o: constant.h types.h config.h
 object_levels.o: object_levels.h constant.h types.h config.h
 moria1.o: burden.h constant.h types.h externs.h config.h
-moria2.o: constant.h types.h externs.h config.h
+run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h player_light.h player_pos.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 moria3.o: constant.h types.h externs.h config.h
 moria4.o: burden.h constant.h types.h externs.h config.h
 player.o: constant.h types.h config.h

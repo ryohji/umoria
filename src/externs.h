@@ -481,7 +481,7 @@ void take_hit(int, const char *);
 void change_trap(int, int);
 void search(int, int, int);
 
-// moria2.c
+// player/run_path.c
 void find_init(int);
 void find_run(void);
 void end_find(void);

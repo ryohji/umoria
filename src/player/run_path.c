@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc code, mainly handles player movement, inventory, etc
+// Running: moving step after step until something interesting happens
 
 #include "headers.h"
 

@@ -251,7 +251,9 @@ monsters.o: $(HEADERS_COMMON)
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.
 object_levels.o: object_levels.h $(HEADERS_COMMON)
 moria1.o: burden.h $(HEADERS_FULL)
-moria2.o: $(HEADERS_FULL)
+run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h \
+            player_light.h player_pos.h player_timed_effects.h running.h \
+            $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
 moria4.o: burden.h $(HEADERS_FULL)
 # object_place.c came out of misc1.c (#54). It includes externs.h, and reads
