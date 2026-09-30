@@ -222,7 +222,7 @@ TEST(setting_the_pair_wipes_whatever_the_equipment_had_added) {
 
 /* 人物画面だけが命中の下駄を **BTH_PLUS_ADJ（3）倍**する
  * （abilities.c:47・:48。B で入口の 1 度読みに畳んだ）。**掛けるのは呼び手の仕事** —— 殴りと投げは
- * そのまま足す（moria3.c:598・throw.c）。 */
+ * そのまま足す（player_melee.c・throw.c）。 */
 TEST(the_character_sheet_multiplies_the_aim_by_three_but_the_window_does_not) {
     given_bonuses_of(4, 0);
 
@@ -231,15 +231,15 @@ TEST(the_character_sheet_multiplies_the_aim_by_three_but_the_window_does_not) {
     ASSERT_EQ_INT(24 + 12, 24 + player_to_hit_bonus() * BTH_PLUS_ADJ);
 }
 
-/* 殴ったときの打撃は `k += 打撃の下駄`（moria3.c:628）—— そのまま足す。
- * 0 未満に落ちたら 0 に上げるのは呼び手の規則（:629）。 */
+/* 殴ったときの打撃は `k += 打撃の下駄`（player_melee.c）—— そのまま足す。
+ * 0 未満に落ちたら 0 に上げるのは呼び手の規則。 */
 TEST(a_blow_adds_the_force_whole_and_the_floor_is_the_callers_rule) {
     given_bonuses_of(0, -3);
 
     int damage = 2 + player_to_damage_bonus();
     ASSERT_EQ_INT(-1, damage); /* 窓口は何も直さない */
     if (damage < 0) {
-        damage = 0; /* moria3.c:629 の側 */
+        damage = 0; /* player_melee.c の側 */
     }
     ASSERT_EQ_INT(0, damage);
 }

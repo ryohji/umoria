@@ -41,13 +41,13 @@
 // changes one without the other. Two questions that share every way of changing
 // are one question with two answers.
 //
-// WHO ASKS: the four places a to-hit roll is made. moria3.c for a swing (twice,
+// WHO ASKS: the four places a to-hit roll is made. player_melee.c for a swing (twice,
 // because an unlit target is harder to hit), throw.c for a shot or a throw (seven
 // times, once per launcher), abilities.c for the two ratings on the character
 // sheet, and the saved file.
 
 // The two answers. FIVE CALLERS FOR THE MELEE NUMBER (abilities.c's rating,
-// moria3.c's two branches, the wizard screen, the saved file) and TEN FOR THE BOWS
+// player_melee.c's two branches, the wizard screen, the saved file) and TEN FOR THE BOWS
 // NUMBER (abilities.c, throw.c's seven, the wizard screen, the saved file).
 //
 // Both are ints, as `p_ptr->bth` always was once C had widened it: every caller
@@ -112,7 +112,7 @@ void player_base_to_hit_adjust_both(int amount);
 //   2. WHAT THE CHARACTER SHEET SAYS. abilities.c adds the weapon bonus times
 //      BTH_PLUS_ADJ and the class's per-level column on top of these numbers, and
 //      likert() turns the total into words. That sum is the sheet's question.
-//   3. THE BARE-HANDED AND UNLIT PENALTIES. moria3.c halves the melee number and
+//   3. THE BARE-HANDED AND UNLIT PENALTIES. player_melee.c halves the melee number and
 //      subtracts when the target cannot be seen; throw.c takes 75 percent of the
 //      bows number for a thing merely thrown. Each of those rules has exactly one
 //      reader, and it stays with that reader.

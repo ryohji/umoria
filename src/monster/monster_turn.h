@@ -50,8 +50,9 @@ void monster_turn_begin(int index);
 void monster_turn_end(void);
 
 // May the hole at `index` be closed by renumbering? Asked by compact_monsters()
-// (monster_place.c) and by the monster's death in mon_take_hit() (moria3.c), which each
-// pick between delete_monster() and fix1_delete_monster() on the answer.
+// (monster_place.c) and by the monster's death in mon_take_hit()
+// (monster_damage.c), which each pick between delete_monster() and
+// fix1_delete_monster() on the answer.
 //
 // True when nobody's turn is in progress, which is the normal case -- the
 // resting value is -1 and every real index is at least MIN_MONIX (2), so the

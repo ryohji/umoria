@@ -40,7 +40,7 @@ const char *copyright[17] = {
 //  monster_delete_may_shift / monster_turn_index）。読み手 2 つが
 // `hack_monptr < i` と手で書いていた比較には名前が付いた ——
 // 「その席を詰めなおしてよいか」。上流の「horrible hack」の註は
-// 呼び手（monster/monster_place.c と moria3.c）と窓口の記録に残っている。
+// 呼び手（monster/monster_place.c と combat/monster_damage.c）と窓口の記録に残っている。
 
 // weapon_heavy と pack_heavy（重さに負けているか）はここに無い。#18-7-4C1 で
 // src/player/burden.c の static になった。窓口は src/player/burden.h

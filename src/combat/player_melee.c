@@ -54,8 +54,8 @@ void py_attack(int y, int x) {
         blows = 1;
     }
 
-    // 命中の下駄は窓口へ（#18-12-24B）。**そのまま足す** —— 3 を掛けるのは
-    // 人物画面だけの規則（abilities.c）。
+    // The to-hit bonus is added as it is; only the character sheet triples it
+    // (abilities.c).
     tot_tohit += player_to_hit_bonus();
 
     // if creature not lit, make it more difficult to hit
@@ -63,8 +63,7 @@ void py_attack(int y, int x) {
     if (m_ptr->ml) {
         base_tohit = player_base_to_hit();
     } else {
-        // 見えない相手は当てにくい。**半分にする式はこの 1 行のもの**で、
-        // 窓口には入れない（#18-12-19B）。
+        // An unseen target is harder to hit. The halving is this line's rule.
         base_tohit = (player_base_to_hit() / 2) - (tot_tohit * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[player_class()][CLA_BTH] / 2);
     }
 
@@ -84,8 +83,8 @@ void py_attack(int y, int x) {
                 k = critical_blow(1, 0, k, CLA_BTH);
             }
 
-            // 打撃の下駄も窓口へ（#18-12-24B）。**0 で止めるのはこの行いの
-            // 規則**なので呼び手に残す（負の下駄で damage が負になりうる）。
+            // The damage bonus is added as it is. Stopping at 0 is this
+            // attack's own rule (a negative bonus can make it negative).
             k += player_to_damage_bonus();
             if (k < 0) {
                 k = 0;

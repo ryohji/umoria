@@ -172,10 +172,9 @@ void move_char(int dir, bool do_pickup) {
 
                 // Check to see if he notices something.
                 //
-                // 探索の腕と頻度は窓口へ（#18-12-25B）。**頻度は 1 つの式で
-                // 2 度読むので入口の局所に畳んだ**（→ 所見 35 の 1 つめの形）。
-                // **1 以下なら毎回見るという規則も、負になりうるのも呼び手の側**
-                // —— the frequency may be negative if have good rings of searching.
+                // The frequency is read once for the two uses below. Looking
+                // every time at 1 or less is this caller's rule; the frequency
+                // may be negative if have good rings of searching.
                 const int how_often = player_search_frequency();
                 if ((how_often <= 1) || (randint(how_often) == 1) ||
                     player_is_searching()) {

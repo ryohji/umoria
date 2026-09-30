@@ -39,7 +39,7 @@
 //
 // WHO ASKS: the monsters. Twenty-one of the twenty-six readers are the lines in
 // creature.c where one blow of one monster is tested, one for each kind of
-// attack; four more are in moria3.c (a trap's dart, a thrown thing); and the
+// attack; four more are in traps.c (a trap's dart, a thrown thing); and the
 // last one is creature.c's `damage -= (ac * damage) / 200`, which is why a
 // character in plate takes less from a blow that did land.
 

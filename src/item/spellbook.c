@@ -524,9 +524,8 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     // set j again, since bit_pos modified it
     j = spells_learned_among(inventory_at(item_val)->flags);
 
-    // **`- 1` は表の並びの知識**で、階級についての事実ではない —— 戦士に行が
-    // 無いので magic_spell は MAX_CLASS - 1 行（player_class.h の 2 つめ。
-    // src/data/player.c:307 のコメントがこの道より古い）。
+    // The `- 1` is about the table, not the class: warriors have no row, so
+    // magic_spell has MAX_CLASS - 1 rows (see player_class.h).
     spell_type *s_ptr = magic_spell[player_class() - 1];
 
     int spell[31];

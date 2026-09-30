@@ -7,7 +7,7 @@
 /* 「teleport が待っているか」のテスト -- 現在のふるまいを保護する
  *
  * この 1 ビットがあるのは 1 つの罠のためだけ。ほかの teleport はみな
- * その場で teleport() を呼ぶが、teleport の罠（moria3.c:109）は呼べない ——
+ * その場で teleport() を呼ぶが、teleport の罠（traps.c）は呼べない ——
  * 移動の途中で踏むので、飛ばす前に踏んだマスを光らせないといけない
  * （"Light up the teleport trap, before we teleport away"）。だから罠は
  * 書き置きを残し、本編のループ（dungeon.c:815）がその turn のコマンドを

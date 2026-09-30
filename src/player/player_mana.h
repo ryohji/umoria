@@ -61,7 +61,7 @@
 
 // What is left. Read by the status line, the character sheet, the character
 // dump, the save file, the two "can I afford this spell?" questions
-// (moria3.c and the casting itself) and the rest-until-recovered test.
+// (spellbook.c and the casting itself) and the rest-until-recovered test.
 int16_t player_mana(void);
 
 // What it can reach. Zero for a character who knows no spells at all, which is

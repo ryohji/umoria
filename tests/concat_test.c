@@ -12,8 +12,8 @@
  * 代役がある）。このテストが引く本体の .o は str_insert.o の 1 本だけ。
  *
  * 直接の呼び手は 0 で、呼ばれるのはいつも externs.h の CONCAT マクロ越し
- * （88 か所。creature 40・spells 34・moria3 7・player_melee 5・traps 1・
- * terrain_commands 1）:
+ * （88 か所。creature 40・spells 34・player_melee 10・
+ * terrain_commands 3・traps 1）:
  *   #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
  * だから第 1 引数はいつも vtype（80 バイト）で、最後はいつも NULL。
  *
@@ -72,7 +72,7 @@ TEST(a_single_string_is_copied_as_it_is)
     ASSERT_EQ_STR(concat(buffer, "the Orc", NULL), "the Orc");
 }
 
-/* moria3.c の "You hit " cdesc "." の形。 */
+/* player_melee.c の "You hit " cdesc "." の形。 */
 TEST(three_strings_are_joined_in_order)
 {
     fill_buffer();

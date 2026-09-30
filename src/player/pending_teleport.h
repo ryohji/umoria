@@ -10,7 +10,7 @@
 #define PENDING_TELEPORT_H
 
 // One bit, and it exists because of one trap. Every other teleport in the game
-// calls teleport() on the spot; the teleport trap (moria3.c) may not, because it
+// calls teleport() on the spot; the teleport trap (traps.c) may not, because it
 // is stepped on in the middle of a move and the player has to be lit where they
 // are first -- "Light up the teleport trap, before we teleport away". So the trap
 // leaves a note, and the main loop (dungeon.c) reads it once the turn's commands

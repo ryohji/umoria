@@ -26,7 +26,7 @@
 // does not count only the bred ones:
 //   - a birth spends one, wherever the newborn later goes;
 //   - a monster removed the delayed way gives one back (fix1_delete_monster in
-//     moria3.c) WHETHER OR NOT IT WAS EVER BRED -- that path is taken by any
+//     monster_death.c) WHETHER OR NOT IT WAS EVER BRED -- that path is taken by any
 //     monster that dies on its own turn, and by one that gets eaten;
 //   - a monster removed the ordinary way gives nothing back (delete_monster).
 // So the same level can hold far more monsters than the budget allows births,
@@ -56,7 +56,7 @@ bool monster_breeding_allowed(void);
 // monster list is full spends nothing.
 void monster_breeding_note_birth(void);
 
-// Give one back. The one call is fix1_delete_monster() (moria3.c); see the
+// Give one back. The one call is fix1_delete_monster() (monster_death.c); see the
 // asymmetry above. Floors at zero, as the old `if (mon_tot_mult > 0)` did, so a
 // level whose monsters are killed without any breeding stays at nothing spent.
 void monster_breeding_note_death(void);

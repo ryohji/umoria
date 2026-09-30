@@ -15,7 +15,7 @@
 // not drawn (map_view.c), the lamp's glow is not painted square by square
 // (moria1.c), a monster right next to the player is noticed even in the dark
 // (creature.c), blocked ways and objects underfoot are passed over in silence
-// (moria3.c), and the main loop does not wait ten seconds for a keypress before
+// (player_move.c), and the main loop does not wait ten seconds for a keypress before
 // looking for an interruption (dungeon.c). All of those ask the same one
 // question, which is why the answer is kept here.
 //
