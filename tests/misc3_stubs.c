@@ -5,28 +5,49 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* misc3.c をリンクするためのスタブ
+/* 代役：もと misc3.c にあったコードを本物でリンクするテストのためのスタブ
  *
- * inven_check_num() の依存は inven_ctr / inventory / known1_p / INVEN_WIELD の
- * 4 つだけだが、C はファイル単位でリンクするので misc3.c 全体（2212 行・6 責務）
- * を持ちこむことになる。その結果、画面描画・ダンジョン・呪文・モンスターへの
- * 参照が芋づるで未解決になる。
+ * ファイルの名前は履歴のまま残している。misc3.c は #42 で次のファイルに
+ * 分かれて無くなった（ui/wizard.c・combat/hit_rolls.c・combat/player_damage.c・
+ * dungeon/geometry.c・player/player_move.c・dungeon/object_alloc.c・
+ * item/inven_ops.c・ui/screen_fields.c・ui/status_line.c・ui/char_screen.c・
+ * player/stat_ops.c・item/spellbook.c・player/level_ops.c。その前に
+ * player/stats.c（#40）と core/str_insert.c（#41）も出ている）。名前を
+ * 変えるのは代役の片づけ（#37）に残してある。
  *
- * ここに置くのはその代役。inven_check_num() は 1 つも呼ばないので、
- * すべて「呼ばれたら何もしない／固定値を返す」で足りる。一覧はリンカに
- * 出させたもので、手で数えあげたわけではない:
- *   gcc -std=c17 -Isrc -c -o /tmp/misc3.o src/misc3.c
- *   gcc -o /tmp/t probe.c /tmp/misc3.o desc.o tables.o treasure.o player.o \
- *     2>&1 | grep 'undefined reference' | sed 's/.*to //' | sort -u
+ * これを使うのは makefile.test の足場の表で EXTRA_<name>_test = misc3_stubs.c と
+ * 書いた 9 本（calc_hitpoints・calc_spells・check_strength・gain_spells・
+ * haggle_comment・inven_stack・objdes・object_levels・put_misc3 の各 _test）。
+ * どれも検証する本物（spellbook.o・level_ops.o・inven_ops.o・char_screen.o
+ * など）をライブラリ（tests/build/libcore.a）から引く。ここに置くのは、その
+ * 本物が呼ぶ先の代役で、2 種類ある。
  *
- * 本物をリンクできるもの（tables.c の定数表、treasure.c のインベントリ、
- * player.c の py と各種テーブル、desc.c の known1_p）は本物を使う。
- * ここには本物と一緒にリンクできないものだけを書く。
+ *   1. ライブラリに無い名前。makefile.test の LIB_EXCLUDE（dungeon.c・
+ *      moria1.c・signals.c）にしか無いもの（calc_bonuses・change_speed・
+ *      takeoff など）と、fixture.h の窓口（fixture_reset など）。
+ *   2. 本物より先に埋める名前。画面と入力（io.o の msg_print・put_buffer・
+ *      get_com など）、乱数（rnd.o の randint）、ダンジョンとモンスター
+ *      （geometry.o の distance・in_bounds など）。本物を引くと ncurses の
+ *      窓口などまで芋づるで付いてくるうえ、テストが呼ばれかたを読みとれない。
+ *
+ * 一覧は手で数えあげず、リンカに出させる。1 は、misc3_stubs.c を外して
+ * ライブラリだけでリンクすると undefined reference に出る:
+ *   make -f makefile.test libcore
+ *   gcc -std=c17 -Isrc $(find src -mindepth 1 -maxdepth 1 -type d -printf '-I%p ') \
+ *     -Itests -o /tmp/t tests/calc_spells_test.c tests/build/libcore.a 2>&1 |
+ *     grep -o "undefined reference to \`[^']*'" | sed "s/.*\`//; s/'//" | sort -u
+ * 出た名前のうち、ここに定義のあるものが 1 の代役。ほかの名前（get_item・
+ * show_inven・ncurses の窓口など）は、代役を外したせいで io.o などの本物が
+ * 引かれ、その先で要るようになったもので、代役があるあいだは出てこない。
+ * 2 は scripts/link_units.py --shadows で出る（先に make -f makefile.test で
+ * tests/build/ に .map を作っておく）。
  *
  * fixture.c と分けている理由: fixture.c は py・msg_print・insert_str・
- * prt_experience を自前で持つが、misc3.c と player.c は同じものを本物として
- * 持っている。両方をリンクすると multiple definition になるので、
- * misc3.c 系のテストは fixture.c をリンクせず、こちらを使う。
+ * prt_experience を自前で持つが、これらのテストがライブラリから引く本物
+ * （player.o の py、str_insert.o の insert_str、level_ops.o の prt_experience。
+ * fixture.c では画面の代役が足りず io.o の msg_print も引かれる）も同じ名前を
+ * 持っている。両方をリンクすると multiple definition になるので、これらの
+ * テストは fixture.c をリンクせず、こちらを使う。
  * fixture.h の窓口（fixture_reset / fixture_set_randint）は同じものを提供する。
  */
 #include <stddef.h>
@@ -59,9 +80,10 @@
 /* --- グローバル状態 --- */
 /* マスの表（cave）はここに無い。#18-14-8C で置き場が src/dungeon/dungeon_map.c の
  * static に入ったので、ここで定義しても窓口には届かない別の表になるだけ。
- * recipe が src/dungeon_map.c をリンクしているのがその代わりで、misc3.c は
- * square_at(y, x) で 1 マスを取る（下の cur_height・dun_level・t_list の
- * 註と同じ形。これでこの区分の 11 個ぜんぶがこの形になった）。 */
+ * recipe が src/dungeon_map.c をリンクしているのがその代わりで、misc3.c から
+ * 分かれた先（object_alloc.c・inven_ops.c など）は square_at(y, x) で 1 マスを
+ * 取る（下の cur_height・dun_level・t_list の註と同じ形。これでこの区分の
+ * 11 個ぜんぶがこの形になった）。 */
 /* この階の広さ（cur_height・cur_width）はここに無い。#18-14-5A で置き場が
  * src/dungeon/dungeon_size.c の static に入り、#18-14-5B で misc3.c が窓口越しに
  * 読むようになった（ここで定義しても窓口には届かない別の器になるだけ）。
@@ -96,7 +118,8 @@ bool free_turn_flag;
  * 読み書きするようになったので、実体は src/data/progress.c の static である
  * （ここで定義しても窓口には届かない別の器になるだけ）。 */
 
-/* --- 画面描画（misc3.c の表示系 4 割がこれを呼ぶ） --- */
+/* --- 画面描画（もと misc3.c の 4 割だった表示系 —— いまの ui/screen_fields.c・
+ * status_line.c・char_screen.c —— がこれを呼ぶ） --- */
 
 /* msg_print も put_buffer と同じ理由で内容を記録する。値切り交渉の
  * コメント表示（store_haggle.c の prt_comment2 / prt_comment3）は組み立てた
@@ -176,7 +199,7 @@ void bell(void) {}
 char inkey(void) { return ' '; }
 
 /* get_com は「押されなかった」を返すだけでは足りない。gain_spells()
- * （misc3.c:1374）の MAGE の側は get_com が真を返すあいだ「どの呪文を学ぶ？」
+ * （spellbook.c:330）の MAGE の側は get_com が真を返すあいだ「どの呪文を学ぶ？」
  * を繰りかえすので、キーを返さないと**繰りかえしに 1 度も入らない**。
  * テストから並びを渡せるようにして、使いきったら 0（押されなかった）に戻す
  * （msg_print・change_speed と同じリンクシーム）。並びは fixture_reset() で
@@ -217,7 +240,7 @@ bool set_large(treasure_type *t) { (void)t; return false; }
 void move_rec(int y1, int x1, int y2, int x2) {
     (void)y1; (void)x1; (void)y2; (void)x2;
 }
-/* distance は代役にしてはいけない。misc3.c:2103 の teleport() が
+/* distance は代役にしてはいけない。player_move.c:32 の teleport() が
  * `while (distance(...) > dis)` でループするので、常に 0 を返す代役では
  * ループの意味が変わる（テスト対象外の経路だが、将来テストが及んだときに
  * 誤った結果を「正しい」と固定してしまう）。
@@ -247,7 +270,7 @@ void recall_update_characteristics(creature_handle h, int defence) {
 /* --- プレイヤー状態の更新 --- */
 
 /* change_speed と calc_bonuses は捨てるだけでなく、渡された値と呼ばれた
- * 回数を記録する。check_strength()（misc3.c:975）の重さの判定は、結果を
+ * 回数を記録する。check_strength()（inven_ops.c:174）の重さの判定は、結果を
  * 画面（msg_print）と速度（change_speed）に流すだけで戻り値が無いので、
  * 呼ばれかたを写しとらなければふるまいを観測できない（msg_print と同じ
  * リンクシーム）。
@@ -286,7 +309,7 @@ bool no_light(void) { return false; }
 bool file_character(char *f) { (void)f; return false; }
 void user_name(char *b) { (void)b; }
 
-/* --- モンスターの行動。misc3.c の移動処理が呼ぶ --- */
+/* --- モンスターの行動。player_move.c の teleport() が呼ぶ --- */
 void creatures(int attack) { (void)attack; }
 
 /* --- 乱数。テストから制御できるように固定値を返す ---

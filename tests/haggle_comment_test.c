@@ -225,7 +225,7 @@ TEST(prt_comment3a_index_three_selects_the_last_element)
  * insert_lnum の置換が起きない場合
  *
  * どの配列も全要素に %A1 と %A2 の両方が入っているわけではない。
- * 置換対象が無ければ insert_lnum は何もせず（misc3.c:1907、strchr が
+ * 置換対象が無ければ insert_lnum は何もせず（str_insert.c:64、strchr が
  * 0 を返した経路で string が NULL になり最後の if を通らない）、
  * 渡した数値は黙って捨てられる。
  *

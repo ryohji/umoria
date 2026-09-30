@@ -80,7 +80,7 @@ GROUPS = {
     # burden.c の static になり、externs.h から外れた。窓口は src/player/burden.h。
     # 装備と持ち物の重さから毎回導出する形にはしていない —— 重い／軽いの
     # **変わり目**でしか起きないこと（4 通りの message と change_speed への
-    # 差分）が check_strength()（misc3.c）にあるので、覚えた答えを返す
+    # 差分）が check_strength()（inven_ops.c）にあるので、覚えた答えを返す
     # 置き場のままにしてある（player_light と同じ理由）。
     # 明かりの有無（player_light）は #18-7-3C1 で player_light.c の static に
     # なり、externs.h から外れた。窓口は src/player/player_light.h（player_has_light /
@@ -147,7 +147,7 @@ GROUPS = {
     # `== 0` と 6 か所が別々に綴っていたので、窓口 1 本に寄せた。走りだしの
     # 0 は空の器ではなく場所（町）なので、その初期値をテストで押さえた。
     # 測って分かった 2 つ —— **同じ `深さ * 50` が 2 つの単位を持つ**
-    # （death.c では点、misc3.c では feet。同じ算術だが畳めない。所見 54 の
+    # （death.c では点、status_line.c では feet。同じ算術だが畳めない。所見 54 の
     # 2 つめ）、そして**負の階は誰も比べていないから起きない**（町に上りの
     # 階段が無いから起きない。窓口も検めない ―― 上流のまま）。
     # 別名 1 件（save.c の復元が int16_t へポインタ型を偽って読んでいた

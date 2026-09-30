@@ -46,7 +46,7 @@ void signals(void) {}
 _Noreturn void exit_game(void) { (void)fflush(NULL); abort(); }
 int32_t total_points(void) { return 0; }
 
-/* プレイヤーの状態更新（misc3.c / moria1.c） */
+/* プレイヤーの状態更新（inven_ops.c / moria1.c） */
 void change_speed(int num) { (void)num; }
 void check_strength(void) {}
 void disturb(int stop_search, int flush_input) { (void)stop_search; (void)flush_input; }

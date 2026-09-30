@@ -431,7 +431,7 @@ TEST(a_whole_session_follows_the_callers_order) {
     ASSERT_TRUE(player_lose_temporary_max_hp(10));
     ASSERT_EQ_INT(19, player_hp());
 
-    /* misc3.c calc_hitpoints: 階級が上がって上限が増える（満杯のままなので
+    /* level_ops.c calc_hitpoints: 階級が上がって上限が増える（満杯のままなので
      * 比例でもぴったり満杯）。 */
     ASSERT_TRUE(player_change_max_hp(30));
     ASSERT_EQ_INT(30, player_max_hp());

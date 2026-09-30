@@ -6,7 +6,7 @@
 
 // Ratings of the player's miscellaneous abilities
 //
-// Extracted from the identical blocks in put_misc3() (misc3.c, screen) and
+// Extracted from the identical blocks in put_misc3() (char_screen.c, screen) and
 // file_character() (files.c, dumped file). The two were the same down to the
 // comments; only the output differed (put_buffer versus fprintf), so a change
 // to one made the screen and the file disagree.

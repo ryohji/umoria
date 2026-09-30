@@ -42,14 +42,14 @@
 //
 // WHO ASKS, once #18-12-26B has moved the callers: creation (create.c, which sets
 // all six and reads three of them back), the character sheet and the name prompt
-// (misc3.c), the character dump (files.c), the tomb and the high score entry
+// (char_screen.c), the character dump (files.c), the tomb and the high score entry
 // (death.c), the '@' line of the symbol help (help.c), and the save file
 // (save.c). FORTY-FOUR CALLS, the most of any unit on this road.
 //
 // THE SEX IS THE ONLY ONE OF THE SIX WITH RULES ATTACHED, and all three of them
 // stay with their callers:
 //
-//   - KING OR QUEEN. misc3.c's title_string() says **KING** / **QUEEN**,
+//   - KING OR QUEEN. status_line.c's title_string() says **KING** / **QUEEN**,
 //     death.c's tomb says *King* / *Queen*, and death.c's kingly() says "All Hail
 //     the Mighty King!" -- THE SAME FORK WRITTEN THREE TIMES WITH THREE DIFFERENT
 //     PAIRS OF WORDS. None of them is this question's answer.
@@ -168,7 +168,7 @@ void player_history_clear(void);
 //      the line count are all get_history()'s arithmetic. This window takes a line
 //      that is already a line.
 //   3. KING OR QUEEN, THE STARTING PURSE, AND WHICH HEIGHT TABLE -- the three
-//      rules above, in misc3.c, death.c and create.c.
+//      rules above, in status_line.c, death.c and create.c.
 //   4. WHAT THE CHARACTER SHEET LOOKS LIKE. put_character() and put_misc1() own
 //      the rows, the columns and the words "Male" and "Female"; file_character()
 //      owns the dump's layout.

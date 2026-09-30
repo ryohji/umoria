@@ -20,7 +20,7 @@
  * 保護したい性質は 6 つ。
  *
  *   1. **走りだしは 3 つとも 0**（もとの 3 つは初期化子なしの構造体の中に
- *      あった）。本物の値は misc3.c の calc_mana() が最初の呪文を覚えたときに、
+ *      あった）。本物の値は spellbook.c の calc_mana() が最初の呪文を覚えたときに、
  *      あるいは save.c がファイルから読んで置く。
  *
  *   2. **持ちこしは足し合わさって 1 点になる**こと。上限 10・速さ 197 なら
@@ -345,7 +345,7 @@ TEST(losing_it_twice_says_nothing_changed) {
 TEST(a_whole_session_follows_the_callers_order) {
     given(0, 0, 0);
 
-    /* misc3.c calc_mana(): 最初の呪文。上限 2（1 レベルの人物が 2 になる +1 込み） */
+    /* spellbook.c calc_mana(): 最初の呪文。上限 2（1 レベルの人物が 2 になる +1 込み） */
     ASSERT_TRUE(player_change_max_mana(2));
     ASSERT_EQ_INT(2, player_mana());
 
@@ -374,7 +374,7 @@ TEST(a_whole_session_follows_the_callers_order) {
     ASSERT_TRUE(player_restore_mana());
     ASSERT_EQ_INT(2, player_mana());
 
-    /* misc3.c calc_mana(): レベルが上がって上限 4。満杯のまま連れていく */
+    /* spellbook.c calc_mana(): レベルが上がって上限 4。満杯のまま連れていく */
     ASSERT_TRUE(player_change_max_mana(4));
     ASSERT_EQ_INT(4, player_max_mana());
     ASSERT_EQ_INT(4, player_mana());

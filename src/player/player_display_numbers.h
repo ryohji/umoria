@@ -32,7 +32,7 @@
 //     costs the *shown* to-hit (use_stat[A_STR] * 15 - weight) and nothing
 //     else; the real aim never carries it (player_to_hit_bonus), because the
 //     attack code takes it
-//     off separately (attack_blows(), misc3.c). So the shown to-hit is not a
+//     off separately (attack_blows(), hit_rolls.c). So the shown to-hit is not a
 //     filtered real number -- it is assembled in its own right.
 //   - **The AC is shown twice, summed differently.** The real numbers keep the
 //     armour (pac) and the bonus (ptoac) apart; the sheet prints "+ To AC"
@@ -46,8 +46,9 @@
 
 // --- what the sheet says --------------------------------------------------
 
-// Read by the status panel and the character sheet (misc3.c), the character
-// dump (files.c) and the save file's writer (save.c). Nothing else asks.
+// Read by the status panel (status_line.c) and the character sheet
+// (char_screen.c), the character dump (files.c) and the save file's writer
+// (save.c). Nothing else asks.
 int16_t player_display_to_hit(void);
 int16_t player_display_to_dam(void);
 int16_t player_display_to_ac(void);

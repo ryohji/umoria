@@ -24,7 +24,7 @@ void schedule_teleport(void);
 // snapshot.
 bool teleport_is_pending(void);
 
-// It happened. Said by teleport() (misc3.c) on its way out, for every teleport,
+// It happened. Said by teleport() (player_move.c) on its way out, for every teleport,
 // not only the scheduled kind -- so a teleport from any other cause also clears
 // a note left by the trap. That is the old behaviour and it is harmless: the
 // player has been moved, which is all the note asked for.

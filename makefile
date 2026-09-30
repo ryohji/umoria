@@ -184,7 +184,6 @@ main.o: $(HEADERS_FULL)
 # player stands, whether the player is blind, hallucinating or running.
 map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
             player_status_flags.h player_timed_effects.h running.h $(HEADERS_FULL)
-misc3.o: burden.h $(HEADERS_FULL)
 # missile_serial.c does not include externs.h either (MAX_SHORT comes from
 # constant.h), so HEADERS_COMMON is enough.
 missile_serial.o: missile_serial.h $(HEADERS_COMMON)
@@ -319,4 +318,41 @@ tables.o: $(HEADERS_COMMON)
 treasure.o: $(HEADERS_COMMON)
 variable.o: $(HEADERS_COMMON)
 wands.o: device.h $(HEADERS_FULL)
-wizard.o: $(HEADERS_FULL)
+# enter_wiz_mode() came from misc3.c (#42).
+wizard.o: progress.h score_death.h $(HEADERS_FULL)
+# hit_rolls.c and player_damage.c came from misc3.c (#42). They include externs.h.
+hit_rolls.o: player_class.h player_level.h $(HEADERS_FULL)
+player_damage.o: player_class.h player_level.h player_saving_throw.h stats.h \
+                 $(HEADERS_FULL)
+# object_alloc.c came from misc3.c (#42). It includes externs.h.
+object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
+                object_levels.h player_pos.h $(HEADERS_FULL)
+# inven_ops.c and player_move.c came from misc3.c (#42). They include externs.h.
+inven_ops.o: burden.h dungeon_map.h equipment.h floor_items.h inventory.h \
+             item_ident.h player_body_weight.h player_pos.h \
+             player_status_flags.h $(HEADERS_FULL)
+player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h \
+               $(HEADERS_FULL)
+# screen_fields.c came from misc3.c (#42). It includes externs.h.
+screen_fields.o: screen_fields.h $(HEADERS_FULL)
+# char_screen.c came from misc3.c (#42). It includes externs.h.
+char_screen.o: abilities.h player_bio.h player_body_weight.h player_class.h \
+              player_display_numbers.h player_gold.h player_hp.h \
+              player_level.h player_mana.h player_race.h save_state.h \
+              screen_fields.h $(HEADERS_FULL)
+# status_line.c came from misc3.c (#42). It includes externs.h.
+status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h \
+              player_display_numbers.h player_gold.h player_hp.h \
+              player_level.h player_mana.h player_race.h player_resting.h \
+              player_speed.h player_spells_to_learn.h player_status_flags.h \
+              player_timed_effects.h progress.h score_death.h screen_fields.h \
+              $(HEADERS_FULL)
+# stat_ops.c came from misc3.c (#42). It includes externs.h.
+stat_ops.o: player_class.h player_status_flags.h $(HEADERS_FULL)
+# spellbook.c came from misc3.c (#42). It includes externs.h.
+spellbook.o: inventory.h player_class.h player_level.h player_mana.h \
+            player_spells_to_learn.h player_status_flags.h \
+            player_timed_effects.h spells_known.h stats.h $(HEADERS_FULL)
+# level_ops.c is what was left of misc3.c (#42). It includes externs.h.
+level_ops.o: hp_table.h player_class.h player_hp.h player_level.h \
+             player_status_flags.h screen_fields.h stats.h $(HEADERS_FULL)

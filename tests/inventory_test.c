@@ -185,7 +185,7 @@ TEST(what_was_written_to_a_pack_slot_stays_there)
 TEST(a_whole_slot_can_be_copied_onto_another)
 {
     /* 呼びだし側には枠ごとの代入がある（moria1.c:728-729 の武器の持ちかえ、
-     * misc3.c の詰めなおし）。窓口越しでも構造体の代入で書ける形を守る。 */
+     * inven_ops.c の詰めなおし）。窓口越しでも構造体の代入で書ける形を守る。 */
     equipment_at(INVEN_WIELD)->tval = TV_BOW;
     equipment_at(INVEN_WIELD)->cost = 4321;
     *equipment_at(INVEN_AUX) = *equipment_at(INVEN_WIELD);
@@ -208,7 +208,7 @@ TEST(the_pack_count_can_be_set_and_read_back)
 TEST(the_pack_count_keeps_a_negative_value)
 {
     /* 現状の記録。窓口は薄いので下限を守らない。呼びだし側は
-     * inven_ctr-- を無条件でやる箇所がある（desc.c:248、misc3.c:845,876）。 */
+     * inven_ctr-- を無条件でやる箇所がある（desc.c:248、inven_ops.c:47,78）。 */
     inventory_set_count(-1);
     ASSERT_EQ_INT(inventory_count(), -1);
 }

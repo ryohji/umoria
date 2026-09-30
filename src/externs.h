@@ -285,6 +285,23 @@ int distance(int, int, int, int);
 bool los(int, int, int, int);
 int next_to_walls(int, int);
 int next_to_corr(int, int);
+int mmove(int, int *, int *);
+// item/inven_ops.c
+void inven_destroy(int);
+void take_one_item(inven_type *, inven_type *);
+void inven_drop(int, int);
+// 引数の関数は sets.c の set_corrodes / set_flammable /
+// set_frost_destroy / set_lightning_destroy / set_acid_affect。
+// いずれも持ち物 1 つを受けとる bool f(inven_type *) 型。
+int inven_damage(bool (*)(inven_type *), int);
+int weight_limit(void);
+bool inven_check_num(inven_type *);
+bool inven_check_weight(inven_type *);
+void check_strength(void);
+int inven_carry(inven_type *);
+int find_range(int, int, int *, int *);
+// player/player_move.c
+void teleport(int);
 // ui/map_view.c
 // panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
 // panel_contains() は panel.h。
@@ -313,16 +330,26 @@ void magic_treasure(int, int);
 // ui/options_menu.c
 void set_options(void);
 
-// misc3.c
+// combat/hit_rolls.c
+int attack_blows(int, int *);
+int tot_dam(inven_type *, int, creature_handle);
+int critical_blow(int, int, int, int);
+
+// combat/player_damage.c
+bool player_saves(void);
+
+// dungeon/object_alloc.c
 void place_trap(int, int, int);
 void place_rubble(int, int);
 void place_gold(int, int);
 int get_obj_num(int, bool);
 void place_object(int, int, bool);
-// 引数の関数は sets.c の set_room / set_corr / set_floor。いずれも
-// cave[][].fval（床の種類）を受けとる bool f(int) 型。
+// The function argument is set_room, set_corr or set_floor from sets.c. Each
+// is a bool f(int) that takes cave[][].fval (the kind of floor).
 void alloc_object(bool (*)(int), int, int);
 void random_object(int, int, int);
+
+// ui/status_line.c
 void cnv_stat(uint8_t, char *);
 void prt_stat(int);
 void prt_field(const char *, int, int);
@@ -344,14 +371,10 @@ void prt_state(void);
 void prt_speed(void);
 void prt_study(void);
 void prt_winner(void);
-uint8_t modify_stat(int, int16_t);
-void set_use_stat(int);
-bool inc_stat(int);
-bool dec_stat(int);
-bool res_stat(int);
-void bst_stat(int, int);
 void prt_stat_block(void);
 void draw_cave(void);
+
+// ui/char_screen.c
 void put_character(void);
 void put_stats(void);
 const char *likert(int, int);
@@ -361,34 +384,26 @@ void put_misc3(void);
 void display_char(void);
 void get_name(void);
 void change_name(void);
-void inven_destroy(int);
-void take_one_item(inven_type *, inven_type *);
-void inven_drop(int, int);
-// 引数の関数は sets.c の set_corrodes / set_flammable /
-// set_frost_destroy / set_lightning_destroy / set_acid_affect。
-// いずれも持ち物 1 つを受けとる bool f(inven_type *) 型。
-int inven_damage(bool (*)(inven_type *), int);
-int weight_limit(void);
-bool inven_check_num(inven_type *);
-bool inven_check_weight(inven_type *);
-void check_strength(void);
-int inven_carry(inven_type *);
+
+// player/stat_ops.c
+uint8_t modify_stat(int, int16_t);
+void set_use_stat(int);
+bool inc_stat(int);
+bool dec_stat(int);
+bool res_stat(int);
+void bst_stat(int, int);
+
+// item/spellbook.c
 int spell_chance(int);
 void print_spells(int *, int, int, int);
 int get_spell(int *, int, int *, int *, const char *, int);
 void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
+
+// player/level_ops.c
 void prt_experience(void);
 void calc_hitpoints(void);
-bool enter_wiz_mode(void);
-int attack_blows(int, int *);
-int tot_dam(inven_type *, int, creature_handle);
-int critical_blow(int, int, int, int);
-int mmove(int, int *, int *);
-bool player_saves(void);
-int find_range(int, int, int *, int *);
-void teleport(int);
 
 // item/inscription.c (these five were misc4.c until #54)
 void scribe_object(void);
@@ -656,7 +671,8 @@ void recall_increment_death(creature_handle h);
 // wands.c
 void aim(void);
 
-// wizard.c
+// ui/wizard.c
+bool enter_wiz_mode(void);
 void wizard_light(void);
 void change_character(void);
 void wizard_create(void);

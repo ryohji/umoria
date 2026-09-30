@@ -6,9 +6,9 @@
 
 /* 文字列への差しこみのテスト -- 現在の実装を保護する
  *
- * 対象は src/misc3.c の insert_str（1649-1683）と insert_lnum（1685-1716）。
- * #41 でこの 2 つを新しい module（src/core/str_insert.c）へ移すので、移す前に
- * ここで出力を 1 文字も変わらないように押さえる。
+ * 対象は src/core/str_insert.c の insert_str（29-62）と insert_lnum（64-95）。
+ * #41 でこの 2 つを src/misc3.c（1649-1683 と 1685-1716）から新しい module へ
+ * 移す前に、ここで出力を 1 文字も変わらないように押さえた。
  *
  * 既存テストが通していない経路を埋めるのが主眼:
  *   insert_str  -- insert が NULL でない経路（objdes_test が通すのは食料 2 件

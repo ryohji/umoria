@@ -6,7 +6,7 @@
 
 /* キャラクターの能力値算出のテスト -- 現在の実装を保護する
  *
- * src/misc3.c:967-1010 の put_misc3()（画面表示版）と
+ * src/ui/char_screen.c:133-160 の put_misc3()（画面表示版）と
  * src/ui/files.c:232-249 の file_character()（ファイル出力版）に、
  * 9 つの式が丸ごと二重に書かれている（コメントまで完全一致で、
  * 差異は出力先が put_buffer か fprintf かだけ）。片方だけ直すと
@@ -24,7 +24,7 @@
  * 各テストは「likert の境界をまたぐかどうか」で式を固定している。
  * xstl だけは likert(xstl, 1) で除数が 1 なので 1 刻みで観測できる。
  *
- * likert(x, y) の対応（src/misc3.c:908）:
+ * likert(x, y) の対応（src/ui/char_screen.c:79）:
  *   x/y = -3..-1 "Very Bad", 0..1 "Bad", 2 "Poor", 3..4 "Fair",
  *         5 "Good", 6 "Very Good", 7..8 "Excellent", それ以上 "Superb"
  *
@@ -50,7 +50,7 @@
 
 extern player_type py;
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
+/* 検証対象（src/ui/char_screen.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 void put_misc3(void);
 
@@ -61,7 +61,7 @@ void put_misc3(void);
 /* ------------------------------------------------------------------
  * 観測の窓口
  *
- * put_misc3() が put_buffer() で書く座標（src/misc3.c:990-1010）。
+ * put_misc3() が put_buffer() で書く座標（src/ui/char_screen.c:139-159）。
  * 左列 15、中列 42、右列 69 に likert() の文字列が入る。
  * ------------------------------------------------------------------ */
 #define AT_FIGHTING     fixture_screen_text(16, 15) /* xbth  / 12 */
@@ -95,14 +95,14 @@ static void given_class_and_level(int pclass, int lev)
 
 /* stat_adj() / todis_adj() が見る能力値。A_INT と A_WIS に違う値を
  * 入れることで、式がどちらを見ているかを判別できるようにする。
- * stat_adj（src/misc3.c:256）は 7 以下 -> 0、8..14 -> 1、15..17 -> 2、
+ * stat_adj（src/player/stats.c:51）は 7 以下 -> 0、8..14 -> 1、15..17 -> 2、
  * 18..67 -> 3、68..87 -> 4。 */
 static void given_stat(int which, int value)
 {
     py.stats.use_stat[which] = (uint8_t)value;
 }
 
-/* todis_adj()（src/misc3.c:753）は A_DEX を見る。既定の 0 では -8 を
+/* todis_adj()（src/player/stats.c:125）は A_DEX を見る。既定の 0 では -8 を
  * 返して xdis に -16 が乗ってしまうので、xdis を見ないテストでも
  * 邪魔にならないよう「0 を返す値」を明示できるようにする。
  * A_DEX が 8..12 なら todis_adj() は 0。 */

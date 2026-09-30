@@ -51,12 +51,12 @@
 // nearby things. `grep -w save` finds eighty-three lines in src/*.c; eleven of
 // them were this question.
 //
-// AND BEWARE player_saves(). THAT function (misc3.c) is THE ROLL -- it answers
+// AND BEWARE player_saves(). THAT function (player_damage.c) is THE ROLL -- it answers
 // "did they resist this time?" with a bool. THIS window answers "how good are
 // they at resisting?" with a number. The roll stays where it is, because it needs
 // randint() and class_level_adj[pclass] as well.
 
-// The number. SEVEN CALLERS: the roll itself (misc3.c), the sheet's two ratings
+// The number. SEVEN CALLERS: the roll itself (player_damage.c), the sheet's two ratings
 // (abilities.c twice), the chance of using a staff and of using a wand
 // (staffs.c, wands.c), the wizard screen and the saved file.
 //
@@ -86,11 +86,11 @@ void player_saving_throw_adjust(int chance);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all still in the callers:
 //
-//   1. WHETHER THIS PARTICULAR ATTEMPT IS RESISTED. player_saves() (misc3.c)
+//   1. WHETHER THIS PARTICULAR ATTEMPT IS RESISTED. player_saves() (player_damage.c)
 //      rolls it, and every caller in the game asks that function rather than
 //      this one.
 //   2. THE TWO TOTALS. The saving throw's total is spelled out in two places
-//      (misc3.c's player_saves() and abilities.c:54) and the device's in three
+//      (player_damage.c's player_saves() and abilities.c:54) and the device's in three
 //      (abilities.c:58, staffs.c:43, wands.c:50), always as
 //
 //        save + stat_adj(A_WIS or A_INT)

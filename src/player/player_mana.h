@@ -53,7 +53,7 @@
 //     the paralysis that lasts five turns per point missing, and the one in
 //     three chance of hurting the constitution (magic.c, prayer.c),
 //   - what the maximum SHOULD be is worked out from the stat, the class and
-//     the level (calc_mana in misc3.c), and raising PY_MANA afterwards belongs
+//     the level (calc_mana in spellbook.c), and raising PY_MANA afterwards belongs
 //     to the status flags, which are another question,
 //   - printing. prt_cmana() cannot be called from inside a store, so the
 //     callers watch for a change themselves (the same arrangement
@@ -65,7 +65,7 @@
 int16_t player_mana(void);
 
 // What it can reach. Zero for a character who knows no spells at all, which is
-// how misc3.c asks whether a first spell has just been learned.
+// how gain_spells() (spellbook.c) asks whether a first spell has just been learned.
 int16_t player_max_mana(void);
 
 // The part of a point still on its way back. Only the save file asks.

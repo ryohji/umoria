@@ -10,7 +10,7 @@
 #define MISSILE_SERIAL_H
 
 // Every stack of missiles made in the dungeon gets a number of its own, kept in
-// the item's p1 field. Stacking compares it: items_can_stack() (misc3.c) lets
+// the item's p1 field. Stacking compares it: items_can_stack() (inven_ops.c) lets
 // two lots of the same arrow merge only when their p1 agree, so two batches
 // found in different places stay apart even though they look identical. The
 // numbers mean nothing beyond "not the same batch" -- nothing reads them as a

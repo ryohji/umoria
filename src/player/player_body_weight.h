@@ -19,7 +19,7 @@
 //
 // NOT VANITY -- A PHYSICAL QUANTITY. The number is on the character sheet, but
 // four of the six readers are rules, not display: a heavier character carries
-// more (misc3.c's weight_limit()), bashes monsters with a shield harder
+// more (inven_ops.c's weight_limit()), bashes monsters with a shield harder
 // (moria4.c's py_bash(), twice) and breaks doors down more easily
 // (moria4.c:1000).
 //
@@ -33,10 +33,11 @@
 // the whole question, and this is the first unit on this road with fewer than
 // three.
 
-// The weight in pounds. EIGHT CALLERS: the carrying limit (misc3.c), the shield
+// The weight in pounds. EIGHT CALLERS: the carrying limit (inven_ops.c), the shield
 // bash's to-hit and damage (moria4.c, twice, folded into one call), the door bash
-// (moria4.c), the character sheet (misc3.c), the dumped character file (files.c),
-// the saved file being written (save.c) and the wizard's prompt (wizard.c).
+// (moria4.c), the character sheet (char_screen.c), the dumped character file
+// (files.c), the saved file being written (save.c) and the wizard's prompt
+// (wizard.c).
 //
 // An int, though the field is a uint16_t: every caller either divides it
 // (`/ 10`, `/ 60`, `/ 2`), adds it to an int, or prints it with `(int)` already
@@ -61,7 +62,7 @@ void player_body_weight_set(int pounds);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- three things, all still in the callers:
 //
-//   1. HOW MUCH THE CHARACTER CAN CARRY. misc3.c:942 computes
+//   1. HOW MUCH THE CHARACTER CAN CARRY. inven_ops.c:118 computes
 //      `use_stat[A_STR] * PLAYER_WEIGHT_CAP + weight`, capped at 3000. THE
 //      SUBJECT OF THAT SENTENCE IS STRENGTH; the body's weight is the smaller
 //      term. It also needs py.stats.use_stat[], which has no window yet, so even
@@ -71,7 +72,7 @@ void player_body_weight_set(int pounds);
 //      :1000 (`/ 2`). Three different divisors for three different rules: those
 //      are facts about bashing, not about the body, and there is no shared
 //      expression to fold.
-//   3. HOW THE NUMBER IS SHOWN. misc3.c:750 hands it to prt_num(), files.c:209
+//   3. HOW THE NUMBER IS SHOWN. char_screen.c:109 hands it to prt_num(), files.c:209
 //      to fprintf("%6d"). Unlike the race's name, THE TWO SITES HAVE NO COMMON
 //      EXPRESSION -- the receivers differ -- so there is no display window here.
 

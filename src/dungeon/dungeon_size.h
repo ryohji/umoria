@@ -50,8 +50,8 @@ void set_dungeon_size(int height, int width);
 // definition line, 4 mentions inside comments, and -- for good measure -- two
 // fields of the UI snapshot struct that happen to carry the same two names):
 //
-//  - bounds tests -- in_bounds() in geometry.c and the reachability test in
-//    misc3.c ask whether a square is inside the level at all. These are the
+//  - bounds tests -- in_bounds() and the reachability test in mmove(), both
+//    in geometry.c, ask whether a square is inside the level at all. These are the
 //    only reads that take the pair apart in an interesting way: the inside of
 //    the level is 0 < y < height - 1, because the outermost ring of squares is
 //    always wall.
@@ -64,8 +64,8 @@ void set_dungeon_size(int height, int width);
 //
 //  - picking a random square -- in TWO DIFFERENT FORMS, which is worth
 //    knowing: `randint(height - 2)` gives 1..height-2 (monster_place.c twice,
-//    generate.c once) and `randint(height) - 1` gives 0..height-1 (misc3.c
-//    twice). The second can land on the boundary wall and the first cannot.
+//    generate.c once) and `randint(height) - 1` gives 0..height-1 (teleport()
+//    in player_move.c, twice). The second can land on the boundary wall and the first cannot.
 //    Both are left exactly as they were: folding them into one window would
 //    quietly change where things appear.
 //

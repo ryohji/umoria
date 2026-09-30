@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 最大 HP の計算（misc3.c:1624 の calc_hitpoints）のテスト
+/* 最大 HP の計算（level_ops.c:68 の calc_hitpoints）のテスト
  *
  * レベルごとの HP 表を読む唯一の場所。ここが表のどの段を読むかで、
  * キャラクタの最大 HP が丸ごと変わる。
@@ -14,8 +14,8 @@
  * 表は 1 起点で読む（古い添字は player_hp[lev - 1]）。1 段ずれても値が
  * 「それらしく」出てしまうので、テストで段を固定しておく。
  *
- * 呼ばれる先は 3 つだけ: レベルが上がったとき（misc3.c:1582 の gain_level）、
- * レベルが戻ったとき（spells.c:1982）、CON が変わったとき（misc3.c:513）。
+ * 呼ばれる先は 3 つだけ: レベルが上がったとき（level_ops.c:37 の gain_level）、
+ * レベルが戻ったとき（spells.c:1982）、CON が変わったとき（stat_ops.c:67）。
  * どれも単体テストが届いていなかったので、この 1 本で押さえる。
  *
  * 注意すべき仕掛けが 1 つある。mhp が 0 のときは何も書かない
@@ -38,7 +38,7 @@
 
 extern player_type py;
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
+/* 検証対象（src/player/level_ops.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 void calc_hitpoints(void);
 

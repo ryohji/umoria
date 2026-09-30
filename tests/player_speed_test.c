@@ -15,7 +15,7 @@
  * **数えおとしでも残りターンでもない。** 誰も減らさない「いまの段数」で、0 が
  * ふつう。テストの重心は 3 つ:
  *
- *   1. **符号が逆。正が遅い。** prt_speed()（misc3.c）は 1 で "Slow"・2 以上で
+ *   1. **符号が逆。正が遅い。** prt_speed()（status_line.c）は 1 で "Slow"・2 以上で
  *      "Very Slow"・0 で空白・-1 で "Fast"・それ以下で "Very Fast"。急ぎの薬は
  *      change_speed(-1)、TR_SPEED の品は change_speed(-amount)、遅くする薬は
  *      change_speed(1)。**取りちがえると速い／遅いがそのまま入れかわる**ので、
@@ -30,7 +30,7 @@
  * m_list[i].cspeed 全員に足し、monster/monster_place.c は新しいモンスターを置くときに混ぜる。
  * **プレイヤーが遅いぶんをモンスターを速くすることで表す設計**なので、ここでは
  * モンスターを 1 匹も触らない —— それ自身がこの単位の設計（player_speed.h）。
- * 食いけの 2 乗（dungeon.c）と探索の 1 段引き（misc3.c）も外。
+ * 食いけの 2 乗（dungeon.c）と探索の 1 段引き（status_line.c）も外。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に段数を置きなおす。
  */
@@ -191,7 +191,7 @@ TEST(adjusting_carries_the_steps_across_zero) {
     ASSERT_EQ_INT(-1, player_speed());
 }
 
-/* 荷は**差**で届く（misc3.c の check_strength が
+/* 荷は**差**で届く（inven_ops.c の check_strength が
  * change_speed(新しい段数 − 覚えた段数) を呼ぶ。覚えた段数は burden.c）。
  * 荷を下ろして差が戻れば、合計も戻る。 */
 TEST(a_pack_penalty_that_arrives_as_a_difference_goes_away_the_same_way) {

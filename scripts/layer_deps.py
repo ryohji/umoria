@@ -24,7 +24,7 @@ libcore.a instead (`make -f makefile.test libcore`).
 
 Usage:
     python3 scripts/layer_deps.py                   # a.o -> b.o: names...
-    python3 scripts/layer_deps.py --unit misc3.o    # only edges out of misc3.o
+    python3 scripts/layer_deps.py --unit spellbook.o  # only edges out of spellbook.o
     python3 scripts/layer_deps.py --callers inventory.o
     python3 scripts/layer_deps.py --layers          # layer -> layer: count
     python3 scripts/layer_deps.py --matrix          # the same as a table

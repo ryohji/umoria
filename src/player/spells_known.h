@@ -19,7 +19,7 @@
 // Four globals used to hold it -- three bit fields over the 31 spells and one
 // list of 32 spell numbers -- and they belong together because they answer one
 // question between them ("what does this character know, and in what order did
-// they come to know it?"). calc_spells() (misc3.c) moves spells between learned
+// they come to know it?"). calc_spells() (spellbook.c) moves spells between learned
 // and forgotten as the character's level changes, gain_spells() appends to the
 // learned list, and magic.c / prayer.c mark a spell as having worked.
 //
@@ -45,7 +45,7 @@
 bool spell_is_learned(int spell);
 
 // True while the character knew the spell and has lost it to a level or a
-// statistic change. Shown as " forgotten" in the spell list (misc3.c).
+// statistic change. Shown as " forgotten" in the spell list (spellbook.c).
 bool spell_is_forgotten(int spell);
 
 // True once the spell has been cast successfully. The first success is worth
@@ -55,7 +55,7 @@ bool spell_has_worked(int spell);
 
 // --- what the character has been through ---------------------------------
 
-// The character knows at least one spell. calc_mana() (misc3.c) uses it to
+// The character knows at least one spell. calc_mana() (spellbook.c) uses it to
 // decide whether they have any mana at all, and the forgetting loop in
 // calc_spells() uses it to stop once nothing is left to forget.
 bool any_spell_learned(void);
@@ -107,7 +107,7 @@ void spell_order_forget_all(void);
 uint32_t spells_learned_among(uint32_t spells);
 
 // The spells in the given set that the character does not know yet -- the
-// candidates for learning (misc3.c, twice: from a book for a mage, from all
+// candidates for learning (spellbook.c, twice: from a book for a mage, from all
 // spells for a priest).
 uint32_t spells_not_learned_among(uint32_t spells);
 

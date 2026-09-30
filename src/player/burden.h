@@ -13,7 +13,7 @@
 
 // This is storage and only storage, the same as progress.h, score_death.h,
 // hp_table.h and player_light.h. Both answers are computed from the character's
-// strength and the weight they carry -- check_strength() (misc3.c) does that
+// strength and the weight they carry -- check_strength() (inven_ops.c) does that
 // once, when PY_STR_WGT says the weight or the strength has changed -- but they
 // are *remembered* rather than derived, for the same reason as the light:
 // only the transitions carry the messages and the side effects.
