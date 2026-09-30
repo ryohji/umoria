@@ -252,7 +252,8 @@ monsters.o: $(HEADERS_COMMON)
 object_levels.o: object_levels.h $(HEADERS_COMMON)
 moria1.o: burden.h $(HEADERS_FULL)
 moria2.o: $(HEADERS_FULL)
-moria3.o: $(HEADERS_FULL)
+monster_death.o: dungeon_map.h monster_breeding.h monster_list.h score_death.h \
+                 $(HEADERS_FULL)
 look.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
         player_timed_effects.h $(HEADERS_FULL)
 # object_place.c came out of misc1.c (#54). It includes externs.h, and reads

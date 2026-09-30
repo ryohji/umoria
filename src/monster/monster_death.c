@@ -5,7 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc code, mainly to handle player commands
+// Taking monsters off the level, what a dying monster drops, and deleting an
+// object from the floor
 
 #include "headers.h"
 
@@ -14,36 +15,11 @@
 #include "types.h"
 
 #include "externs.h"
-#include "floor_items.h"
-#include "command_state.h"
-#include "dungeon_level.h"
+
 #include "dungeon_map.h"
-#include "score_death.h"
-#include "equipment.h"
-#include "inventory.h"
-#include "level_exit.h"
 #include "monster_breeding.h"
 #include "monster_list.h"
-#include "monster_turn.h"
-#include "panel.h"
-#include "pending_teleport.h"
-#include "player_abilities.h"
-#include "player_armour_class.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
-#include "player_class.h"
-#include "player_disarm.h"
-#include "player_glowing_hands.h"
-#include "player_gold.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_pos.h"
-#include "player_search_skill.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
-#include "running.h"
-#include "spells_known.h"
-#include "stats.h"
+#include "score_death.h"
 
 // Deletes a monster entry from the level -RAK-
 void delete_monster(int j) {

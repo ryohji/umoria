@@ -487,7 +487,7 @@ void cold_dam(int, char *);
 void light_dam(int, char *);
 void acid_dam(int, const char *);
 
-// moria3.c
+// monster/monster_death.c
 void delete_monster(int);
 void fix1_delete_monster(int);
 void fix2_delete_monster(int);
