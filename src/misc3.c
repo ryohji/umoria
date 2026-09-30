@@ -37,30 +37,9 @@
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
+#include "screen_fields.h"
 #include "spells_known.h"
 #include "stats.h"
-
-static const char *stat_names[] = {
-    "STR : ",
-    "INT : ",
-    "WIS : ",
-    "DEX : ",
-    "CON : ",
-    "CHR : ",
-};
-#define BLANK_LENGTH 24
-static char blank_string[] = "                        ";
-
-// Writes width blanks at row, column, to wipe a field before or instead of
-// writing into it. width is at most BLANK_LENGTH.
-static void erase_field(int width, int row, int column) {
-    put_buffer(&blank_string[BLANK_LENGTH - width], row, column);
-}
-
-// Writes the label of a stat ("STR : " and so on) at row, column.
-static void prt_stat_name(int stat, int row, int column) {
-    put_buffer(stat_names[stat], row, column);
-}
 
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {
@@ -104,20 +83,6 @@ static void prt_lnum(const char *header, int32_t num, int row, int column) {
 static void prt_7lnum(const char *header, int32_t num, int row, int column) {
     vtype out_val;
     (void)sprintf(out_val, "%s: %7d", header, num);
-    put_buffer(out_val, row, column);
-}
-
-// Print number with header at given row, column -RAK-
-static void prt_num(const char *header, int num, int row, int column) {
-    vtype out_val;
-    (void)sprintf(out_val, "%s: %6d", header, num);
-    put_buffer(out_val, row, column);
-}
-
-// Print long number at given row, column
-static void prt_long(int32_t num, int row, int column) {
-    vtype out_val;
-    (void)sprintf(out_val, "%6d", num);
     put_buffer(out_val, row, column);
 }
 

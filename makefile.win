@@ -104,7 +104,7 @@ magic.o: constant.h types.h externs.h config.h
 main.o: constant.h types.h externs.h config.h
 map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h player_status_flags.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 messages.o: messages.h constant.h types.h externs.h config.h
-misc3.o: constant.h types.h externs.h config.h
+misc3.o: screen_fields.h constant.h types.h externs.h config.h
 missile_serial.o: missile_serial.h constant.h types.h config.h
 level_exit.o: level_exit.h constant.h types.h config.h
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h object_levels.h player_pos.h constant.h types.h externs.h config.h
@@ -119,6 +119,7 @@ render.o: render.h
 render_ncurses.o: render.h backend_ncurses.h
 running.o: running.h constant.h types.h config.h
 inven_command_state.o: inven_command_state.h screen_touched.h constant.h types.h config.h
+screen_fields.o: screen_fields.h constant.h types.h externs.h config.h
 screen_touched.o: screen_touched.h constant.h types.h config.h
 monsters.o: constant.h types.h config.h
 object_levels.o: object_levels.h constant.h types.h config.h
