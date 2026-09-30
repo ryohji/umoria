@@ -27,8 +27,8 @@
  *      の窓口（fixture_reset など）。
  *   2. 本物より先に埋める名前。画面と入力（io.o の msg_print・put_buffer・
  *      get_com など）、装備と速さ（player_bonuses.o の calc_bonuses・
- *      change_speed）、乱数（rnd.o の randint）、ダンジョンとモンスター
- *      （geometry.o の distance・in_bounds など）。本物を引くと ncurses の
+ *      change_speed）、乱数（rnd.o の randint）、ダンジョン
+ *      （geometry.o の in_bounds など）。本物を引くと ncurses の
  *      窓口などまで芋づるで付いてくるうえ、テストが呼ばれかたを読みとれない。
  *
  * 一覧は手で数えあげず、リンカに出させる。1 は、misc3_stubs.c を外して
@@ -193,7 +193,6 @@ void clear_from(int row) { (void)row; }
 void erase_line(int row, int col) { (void)row; (void)col; }
 void save_screen(void) {}
 void restore_screen(void) {}
-void lite_spot(int y, int x) { (void)y; (void)x; }
 void bell(void) {}
 
 /* --- 入力 --- */
@@ -232,41 +231,12 @@ bool get_string(char *s, int r, int c, int l) {
     return false;
 }
 
-/* --- ダンジョン・モンスター --- */
+/* --- ダンジョン・品物 --- */
 int popt(void) { return 0; }
 int delete_object(int y, int x) { (void)y; (void)x; return 0; }
 bool in_bounds(int y, int x) { (void)y; (void)x; return true; }
 void magic_treasure(int x, int level) { (void)x; (void)level; }
 bool set_large(treasure_type *t) { (void)t; return false; }
-void move_rec(int y1, int x1, int y2, int x2) {
-    (void)y1; (void)x1; (void)y2; (void)x2;
-}
-/* distance は代役にしてはいけない。player_move.c:32 の teleport() が
- * `while (distance(...) > dis)` でループするので、常に 0 を返す代役では
- * ループの意味が変わる（テスト対象外の経路だが、将来テストが及んだときに
- * 誤った結果を「正しい」と固定してしまう）。
- *
- * 純粋関数なので もと misc1.c:210（いまは dungeon/geometry.c）の実装をそのまま写す。misc1.c 全体を
- * リンクするとダンジョン生成への依存が芋づるで付くため写しにしている。
- * tests/distance_test.c が本物のふるまいを 10 件で固定しているので、
- * 写しと本物が乖離すればそちらで気づける。 */
-int distance(int y1, int x1, int y2, int x2) {
-    int dy = y1 - y2;
-    if (dy < 0) {
-        dy = -dy;
-    }
-
-    int dx = x1 - x2;
-    if (dx < 0) {
-        dx = -dx;
-    }
-
-    return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
-}
-creature_type *monster_get_creature(creature_handle h) { (void)h; return NULL; }
-void recall_update_characteristics(creature_handle h, int defence) {
-    (void)h; (void)defence;
-}
 
 /* --- プレイヤー状態の更新 --- */
 
@@ -302,16 +272,12 @@ int fixture_speed_change_count(void) { return fixture_speed_change_calls; }
 /* calc_bonuses が呼ばれた回数。武器の旗が変わったときの再計算を見る。 */
 int fixture_calc_bonuses_count(void) { return fixture_bonuses_calls; }
 
-void check_view(void) {}
 void takeoff(int item, int posn) { (void)item; (void)posn; }
 bool no_light(void) { return false; }
 
 /* --- ファイル出力 --- */
 bool file_character(char *f) { (void)f; return false; }
 void user_name(char *b) { (void)b; }
-
-/* --- モンスターの行動。player_move.c の teleport() が呼ぶ --- */
-void creatures(int attack) { (void)attack; }
 
 /* --- 乱数。テストから制御できるように固定値を返す ---
  *
