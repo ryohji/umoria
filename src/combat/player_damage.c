@@ -26,9 +26,10 @@ bool player_saves(void) {
     // MPW C couldn't handle the expression, so split it into two parts
     int16_t temp = class_level_adj[player_class()][CLA_SAVE];
 
-    // 数は窓口から、振るのはここ（#18-12-21B）。**窓口は「どれくらい強いか」を
-    // 返し、この関数は「今回こらえたか」を返す** —— 判定には randint と
-    // 上の temp（階級の段ごとの表）の両方が要るので、module へは入れない。
+    // The number comes from the window, the roll is made here (#18-12-21B).
+    // The window answers "how good are they at resisting?", and this function
+    // answers "did they resist this time?". The roll needs both randint() and
+    // temp above (the table by class and level), so it stays out of the window.
     if (randint(100) <= (player_saving_throw() + stat_adj(A_WIS) + (temp * player_level() / 3))) {
         return true;
     } else {

@@ -32,7 +32,7 @@
 //     costs the *shown* to-hit (use_stat[A_STR] * 15 - weight) and nothing
 //     else; the real aim never carries it (player_to_hit_bonus), because the
 //     attack code takes it
-//     off separately (attack_blows(), misc3.c). So the shown to-hit is not a
+//     off separately (attack_blows(), hit_rolls.c). So the shown to-hit is not a
 //     filtered real number -- it is assembled in its own right.
 //   - **The AC is shown twice, summed differently.** The real numbers keep the
 //     armour (pac) and the bonus (ptoac) apart; the sheet prints "+ To AC"

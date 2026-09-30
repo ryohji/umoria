@@ -23,7 +23,7 @@
  * 杖と魔法棒の成功率もこの数が土台（`device_use_chance()` の第 1 引数）。
  * **どちらの等級もこの module の外**（player_saving_throw.h に書いてある）。
  *
- * 判定そのもの（`misc3.c` の `player_saves()`）も **この module の外** ——
+ * 判定そのもの（`combat/player_damage.c` の `player_saves()`）も **この module の外** ——
  * 窓口は数を返し、`player_saves()` は真偽を返す。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に 1 本を置きなおす。

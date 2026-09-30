@@ -174,7 +174,7 @@ TEST(the_reasons_accumulate_rather_than_replace) {
     ASSERT_EQ_INT(0x3, score_disqualifications());
 }
 
-/* misc3.c:1655 と death.c:243 は語まるごとの真偽を見る。 */
+/* wizard.c:37 と death.c:243 は語まるごとの真偽を見る。 */
 TEST(any_reason_at_all_makes_the_word_true) {
     set_score_disqualifications(0x4);
     ASSERT_TRUE(score_disqualifications() != 0);
