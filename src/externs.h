@@ -533,7 +533,6 @@ bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
 // rnd.c
-uint32_t get_rnd_seed(void);
 void set_rnd_seed(uint32_t);
 int32_t rnd(void);
 // The five below came from misc1.c (#54).
