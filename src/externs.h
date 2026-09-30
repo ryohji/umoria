@@ -451,10 +451,12 @@ const char *monster_name_lower(vtype, const monster_type *);
 const char *monster_name_or_something(vtype, const monster_type *);
 const char *monster_name_indefinite(vtype, const creature_type *);
 
-// moria1.c
+// player/player_bonuses.c
 void change_speed(int);
 void py_bonuses(inven_type *, int);
 void calc_bonuses(void);
+
+// moria1.c
 int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
 int show_equip(bool, int);

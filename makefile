@@ -360,3 +360,9 @@ spellbook.o: inventory.h player_class.h player_level.h player_mana.h \
 level_ops.o: hp_table.h player_class.h player_hp.h player_level.h \
              player_status_flags.h screen_fields.h stats.h $(HEADERS_FULL)
 search.o: dungeon_map.h floor_items.h player_timed_effects.h $(HEADERS_FULL)
+player_bonuses.o: burden.h equipment.h monster_list.h player_abilities.h \
+                  player_armour_class.h player_attack_bonuses.h \
+                  player_display_numbers.h player_food.h player_infra_range.h \
+                  player_search_skill.h player_speed.h player_status_flags.h \
+                  player_stealth.h player_timed_effects.h stats.h \
+                  $(HEADERS_FULL)

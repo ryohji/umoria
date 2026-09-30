@@ -125,6 +125,7 @@ screen_touched.o: screen_touched.h constant.h types.h config.h
 level_ops.o: hp_table.h player_class.h player_hp.h player_level.h player_status_flags.h screen_fields.h stats.h constant.h types.h externs.h config.h
 spellbook.o: inventory.h player_class.h player_level.h player_mana.h player_spells_to_learn.h player_status_flags.h player_timed_effects.h spells_known.h stats.h constant.h types.h externs.h config.h
 stat_ops.o: player_class.h player_status_flags.h constant.h types.h externs.h config.h
+player_bonuses.o: burden.h equipment.h monster_list.h player_abilities.h player_armour_class.h player_attack_bonuses.h player_display_numbers.h player_food.h player_infra_range.h player_search_skill.h player_speed.h player_status_flags.h player_stealth.h player_timed_effects.h stats.h constant.h types.h externs.h config.h
 status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h player_display_numbers.h player_gold.h player_hp.h player_level.h player_mana.h player_race.h player_resting.h player_speed.h player_spells_to_learn.h player_status_flags.h player_timed_effects.h progress.h score_death.h screen_fields.h constant.h types.h externs.h config.h
 monsters.o: constant.h types.h config.h
 object_levels.o: object_levels.h constant.h types.h config.h
