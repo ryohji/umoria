@@ -178,7 +178,7 @@ TEST(xfos_is_clamped_to_zero_when_fos_exceeds_forty)
  * fos が 11 以上でないと成りたたない。キャラクター作成時の fos は
  * class の mfos（16..38、src/data/player.c:288）に race の fos（-5..5、
  * src/data/player.c:110）を足した 11..43 なので上端 29 は合う。しかし
- * 探索つきの装備は fos を減らす（src/moria1.c:48 の fos -= amount）
+ * 探索つきの装備は fos を減らす（src/player/player_bonuses.c の fos -= amount）
  * ので、遊んでいる途中で fos は 11 を下まわり xfos は 29 を超える。
  * このテストはそれを固定する。 */
 TEST(xfos_exceeds_twenty_nine_when_fos_falls_below_eleven)

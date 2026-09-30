@@ -23,10 +23,11 @@
  * 本物が呼ぶ先の代役で、2 種類ある。
  *
  *   1. ライブラリに無い名前。makefile.test の LIB_EXCLUDE（dungeon.c・
- *      moria1.c・signals.c）にしか無いもの（calc_bonuses・change_speed・
- *      takeoff など）と、fixture.h の窓口（fixture_reset など）。
+ *      inven_menu.c・signals.c）にしか無いもの（takeoff など）と、fixture.h
+ *      の窓口（fixture_reset など）。
  *   2. 本物より先に埋める名前。画面と入力（io.o の msg_print・put_buffer・
- *      get_com など）、乱数（rnd.o の randint）、ダンジョンとモンスター
+ *      get_com など）、装備と速さ（player_bonuses.o の calc_bonuses・
+ *      change_speed）、乱数（rnd.o の randint）、ダンジョンとモンスター
  *      （geometry.o の distance・in_bounds など）。本物を引くと ncurses の
  *      窓口などまで芋づるで付いてくるうえ、テストが呼ばれかたを読みとれない。
  *

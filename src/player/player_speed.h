@@ -17,7 +17,7 @@
 // grants (player_abilities.c), the eighteen clocks (player_timed_effects.c) and
 // the rest (player_resting.c). ONE field answered it -- py.flags.speed, touched
 // from nine places in five files (dungeon.c three of them, misc3.c two,
-// save.c two, misc1.c one, moria1.c one).
+// save.c two, misc1.c one, player_bonuses.c one).
 //
 // THE QUESTION IS "HOW MANY STEPS FROM NORMAL SPEED IS THE CHARACTER". Zero is
 // normal. It is NOT one of the eighteen clocks and not a count of turns: nothing
@@ -33,7 +33,7 @@
 //
 // What this module deliberately does NOT do:
 //
-//   - THE MONSTERS. change_speed() (moria1.c) adds the same number to the
+//   - THE MONSTERS. change_speed() (player_bonuses.c) adds the same number to the
 //     cspeed of every monster on the level, and monster_place.c mixes it into cspeed
 //     when a monster is placed. That is the engine's way of saying "a slowed player is handled by
 //     moving the monsters faster instead" (creature.c), so the loop and the sum
@@ -64,7 +64,7 @@
 int player_speed(void);
 
 // Faster or slower by this many steps. NEGATIVE MAKES THE CHARACTER FASTER.
-// change_speed() (moria1.c) is the only caller -- it adds the same number to
+// change_speed() (player_bonuses.c) is the only caller -- it adds the same number to
 // every monster afterwards, which is why this window does not.
 void player_speed_adjust(int num_steps);
 

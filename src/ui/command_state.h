@@ -51,7 +51,7 @@ void consume_command_count(void);
 
 // Whatever was being repeated, stop. Said by nine places, and they are all the
 // same thing: a key was read (io.c), a message was printed (io.c), the player
-// was disturbed (moria1.c), a run could not start (run_path.c), a door came open
+// was disturbed (rest_command.c), a run could not start (run_path.c), a door came open
 // (moria3.c), the turn was free or the run took the count over (dungeon.c), and
 // **a new level has begun** (dungeon.c). The last one is a real cancelling, not
 // a fresh start: a count can outlive a staircase, and this is what stops it.
@@ -61,7 +61,7 @@ void cancel_command_count(void);
 // Hold the count across something that would cancel it, then put it back. Three
 // places do this, and the original said why in a comment each time: printing a
 // message must not "interrupt a counted command" (io.c), and asking for a
-// direction must not "end a counted command" (moria1.c, dungeon.c).
+// direction must not "end a counted command" (direction.c, dungeon.c).
 //
 // The held value is handed back to the caller rather than kept here, because
 // **the two outer callers nest**: dungeon.c holds the count while it turns '-'
@@ -72,7 +72,7 @@ void resume_command_count(int held);
 // --- The direction ---------------------------------------------------------
 
 // Should the remembered direction be used instead of asking for one? Asked by
-// get_dir() (moria1.c), which is the only reader. **The direction itself is not
+// get_dir() (direction.c), which is the only reader. **The direction itself is not
 // kept here** -- it is a static of get_dir(), next to the prompt that reads it,
 // the same as find_direction in run_path.c.
 bool direction_is_remembered(void);

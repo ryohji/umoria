@@ -176,7 +176,7 @@ TEST(the_class_adds_to_both_numbers_with_two_positive_amounts) {
     ASSERT_EQ_INT(33, player_search_frequency());
 }
 
-/* **moria1.c:71〜:72 —— 探索つきの装備は同じ `amount` を
+/* **player_bonuses.c —— 探索つきの装備は同じ `amount` を
  * `srh` には足し `fos` からは引く。** 符号は呼び手が書く
  * （`player_search_skill_adjust(amount, -amount)`）—— この窓口は
  * どちらの引数も足すだけで、**逆向きだということを知らない**。 */

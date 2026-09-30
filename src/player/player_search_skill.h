@@ -92,7 +92,7 @@ void player_search_skill_adjust(int chance_amount, int frequency_amount);
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all still in the callers:
 //
 //   1. WHERE THE NUMBERS COME FROM. create.c reads the race table's srh and fos and
-//      the class table's msrh and mfos; moria1.c reads the item's own amount. This
+//      the class table's msrh and mfos; player_bonuses.c reads the item's own amount. This
 //      module is told the answers, it does not derive them.
 //   2. WHAT THE CHARACTER SHEET SAYS. abilities.c turns the frequency upside down
 //      (40 - frequency) and floors the result at 0 before likert() makes words of

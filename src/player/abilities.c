@@ -52,7 +52,7 @@ struct player_abilities calc_player_abilities(void) {
     // 探索の腕と頻度も窓口へ（#18-12-25B）。**逆さにするのと 0 で留めるのは
     // この画面の規則**で、窓口には入れない —— 自動探索は頻度をそのまま
     // randint() に渡す（moria3.c:729）。0 when the frequency is >= 40; exceeds 29
-    // when it is < 11 (search gear lowers it, moria1.c:72)
+    // when it is < 11 (search gear lowers it, player_bonuses.c)
     a.fos = 40 - player_search_frequency();
     if (a.fos < 0) {
         a.fos = 0;

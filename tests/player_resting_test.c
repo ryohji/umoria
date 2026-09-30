@@ -14,7 +14,7 @@
  * **数えおとしに見えて 18 個の時計とは別物。** テストの重心は 3 つ:
  *
  *   1. **0 に向かって両方向から動く。** 正なら減り、**負なら増える**（負は
- *      「体力と魔力が満ちるまで」で、moria1.c が `*` の入力に -MAX_SHORT を
+ *      「体力と魔力が満ちるまで」で、rest_command.c が `*` の入力に -MAX_SHORT を
  *      置く）。**向きを取りちがえると `*` の休息が 1 ターンで終わる**か、
  *      永遠に終わらなくなる。両方向に釘を打つ。
  *   2. **0 は 0 のまま。** 元の dungeon.c は `if (rest > 0) … else if (rest < 0) …`
@@ -26,7 +26,7 @@
  *      そのまま返すことに釘を打つ（-MAX_SHORT が int16_t に収まることも）。
  *
  * 印（player_status_flags.c の PY_REST）はこの module の外。**数を 0 にしても
- * 印は残る**（moria1.c の rest_off() が両方を消す）ので、ここでは印を 1 度も
+ * 印は残る**（rest_command.c の rest_off() が両方を消す）ので、ここでは印を 1 度も
  * 触らない —— それ自身がこの単位の設計（player_resting.h）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に数を置きなおす。
@@ -108,7 +108,7 @@ TEST(a_negative_count_comes_back_negative) {
     ASSERT_EQ_INT(-5, player_rest_turns());
 }
 
-/* moria1.c が `*` に置く値。**int16_t に収まる**ことを釘打つ
+/* rest_command.c が `*` に置く値。**int16_t に収まる**ことを釘打つ
  * （窓口が int を受けるので、器の幅で切られると別の値になる）。 */
 TEST(the_longest_rest_survives_the_width_of_the_container) {
     given_resting_for(-MAX_SHORT);

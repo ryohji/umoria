@@ -34,10 +34,10 @@
 
 // True while the wielded weapon weighs more than the character's strength can
 // handle (use_stat[A_STR] * 15 < weight). While it is true the to-hit shown on
-// the character sheet is reduced (moria1.c) and digging is harder (moria4.c).
+// the character sheet is reduced (player_bonuses.c) and digging is harder (moria4.c).
 //
 // Wielding something else clears it before check_strength() looks again
-// (moria1.c twice), and so does restoring a save file, because the flag is not
+// (inven_menu.c twice), and so does restoring a save file, because the flag is not
 // in the save file.
 bool weapon_is_too_heavy(void);
 void set_weapon_too_heavy(bool too_heavy);

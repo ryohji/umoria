@@ -334,6 +334,7 @@ void set_options(void);
 int attack_blows(int, int *);
 int tot_dam(inven_type *, int, creature_handle);
 int critical_blow(int, int, int, int);
+bool test_hit(int, int, int, int, int);
 
 // combat/player_damage.c
 bool player_saves(void);
@@ -344,6 +345,7 @@ void fire_dam(int, const char *);
 void cold_dam(int, char *);
 void light_dam(int, char *);
 void acid_dam(int, const char *);
+void take_hit(int, const char *);
 
 // dungeon/object_alloc.c
 void place_trap(int, int, int);
@@ -451,10 +453,30 @@ const char *monster_name_lower(vtype, const monster_type *);
 const char *monster_name_or_something(vtype, const monster_type *);
 const char *monster_name_indefinite(vtype, const creature_type *);
 
-// moria1.c
+// player/player_bonuses.c
 void change_speed(int);
 void py_bonuses(inven_type *, int);
 void calc_bonuses(void);
+
+// player/rest_command.c
+void disturb(int, int);
+void search_on(void);
+void search_off(void);
+void rest(void);
+void rest_off(void);
+
+// ui/direction.c
+bool get_dir(const char *, int *);
+bool get_alldir(const char *, int *);
+
+// dungeon/lighting.c
+bool no_light(void);
+void move_rec(int, int, int, int);
+void light_room(int, int);
+void lite_spot(int, int);
+void move_light(int, int, int, int);
+
+// ui/inven_menu.c
 int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
 int show_equip(bool, int);
@@ -462,20 +484,6 @@ void takeoff(int, int);
 int verify(const char *, int);
 void inven_command(char);
 int get_item(int *, const char *, int, int, const char *, const char *);
-bool no_light(void);
-bool get_dir(const char *, int *);
-bool get_alldir(const char *, int *);
-void move_rec(int, int, int, int);
-void light_room(int, int);
-void lite_spot(int, int);
-void move_light(int, int, int, int);
-void disturb(int, int);
-void search_on(void);
-void search_off(void);
-void rest(void);
-void rest_off(void);
-bool test_hit(int, int, int, int, int);
-void take_hit(int, const char *);
 
 // dungeon/search.c
 void change_trap(int, int);

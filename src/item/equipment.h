@@ -32,7 +32,7 @@ inven_type *equipment_at(int index);
 // i++)` -- the shape the code already uses.
 //
 // There is no constant here for the number of slots, because the one place
-// that needs the count needs it at compile time (moria1.c:356 sizes a local
+// that needs the count needs it at compile time (inven_menu.c sizes a local
 // array with INVEN_ARRAY_SIZE - INVEN_WIELD) and a function cannot serve that.
 int equipment_first_slot(void);
 int equipment_end_slot(void);

@@ -5,12 +5,12 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// The rolls of a blow: how many blows a weapon gives, the extra damage of a
-// slaying weapon, and the critical hits
+// The rolls of a blow: whether it hits, how many blows a weapon gives, the
+// extra damage of a slaying weapon, and the critical hits
 //
-// Moved out of misc3.c unchanged (#42); their prototypes stay in externs.h.
-// Not all of them are free of side effects: tot_dam() records what the player
-// has learned about the monster, and critical_blow() prints a message.
+// Not all of them are free of side effects: test_hit() disturbs the player,
+// tot_dam() records what the player has learned about the monster, and
+// critical_blow() prints a message.
 
 #include "headers.h"
 
@@ -21,6 +21,24 @@
 #include "externs.h"
 #include "player_class.h"
 #include "player_level.h"
+
+// Attacker's level and plusses,  defender's AC -RAK-
+bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
+    disturb(1, 0);
+
+    // pth could be less than 0 if player wielding weapon too heavy for him
+    int i = bth + pth * BTH_PLUS_ADJ + (level * class_level_adj[player_class()][attack_type]);
+
+    // always miss 1 out of 20, always hit 1 out of 20
+    int die = randint(20);
+
+    // normal hit
+    if ((die != 1) && ((die == 20) || ((i > 0) && (randint(i) > ac)))) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // Weapon weight VS strength and dexterity -RAK-
 int attack_blows(int weight, int *wtohit) {

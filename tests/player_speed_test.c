@@ -26,7 +26,7 @@
  *   3. **留めが無い。** 上限も下限もどこにも書かれていないので、窓口も留めない
  *      （器の幅 —— short 1 つぶん —— だけが限り）。
  *
- * モンスターはこの module の外。change_speed()（moria1.c）は同じ数を
+ * モンスターはこの module の外。change_speed()（player_bonuses.c）は同じ数を
  * m_list[i].cspeed 全員に足し、monster/monster_place.c は新しいモンスターを置くときに混ぜる。
  * **プレイヤーが遅いぶんをモンスターを速くすることで表す設計**なので、ここでは
  * モンスターを 1 匹も触らない —— それ自身がこの単位の設計（player_speed.h）。
@@ -105,7 +105,7 @@ TEST(deciding_zero_steps_is_normal_speed) {
  * 符号の向き -- 正が遅い、負が速い
  * ------------------------------------------------------------------ */
 
-/* 急ぎの薬（moria1.c の change_speed(-1)）。**数は下がる。** */
+/* 急ぎの薬（player_bonuses.c の change_speed(-1)）。**数は下がる。** */
 TEST(hasting_the_character_takes_the_steps_down) {
     given_normal_speed();
 

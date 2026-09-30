@@ -30,7 +30,7 @@ void set_player_has_light(bool lit);
 // cave[][].tl bits around the character.
 //
 // This is a *different* question from the one above, even though the two are
-// read side by side in move_light() (moria1.c). One says "a light is burning",
+// read side by side in move_light() (lighting.c). One says "a light is burning",
 // the other says "its glow is on the map right now". They come apart in two
 // ways: a burning light lays down no glow while the character is running with
 // find_prself off (the glow would flicker across the screen), and a character

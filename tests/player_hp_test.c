@@ -407,7 +407,7 @@ TEST(a_whole_session_follows_the_callers_order) {
     player_reset_hp(19);
     ASSERT_EQ_INT(19, player_hp());
 
-    /* moria1.c take_hit: 致命ではない傷。 */
+    /* player_damage.c take_hit: 致命ではない傷。 */
     ASSERT_TRUE(!player_take_hp_damage(6));
     ASSERT_EQ_INT(13, player_hp());
 
@@ -437,7 +437,7 @@ TEST(a_whole_session_follows_the_callers_order) {
     ASSERT_EQ_INT(30, player_max_hp());
     ASSERT_EQ_INT(30, player_hp());
 
-    /* moria1.c take_hit: 致命の一撃。負のまま置く。 */
+    /* player_damage.c take_hit: 致命の一撃。負のまま置く。 */
     ASSERT_TRUE(player_take_hp_damage(40));
     ASSERT_EQ_INT(-10, player_hp());
     ASSERT_TRUE(player_hp_marks_death());

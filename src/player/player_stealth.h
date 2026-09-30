@@ -60,7 +60,7 @@
 // as it is; the checking is not its business (ledger observation 24).
 //
 // WHO ASKS, once #18-12-27B has moved the callers: creation (create.c, race then
-// class), the gear (moria1.c), the sleeping monster (creature.c), the character
+// class), the gear (player_bonuses.c), the sleeping monster (creature.c), the character
 // sheet and the dumped file by way of the ratings (abilities.c), the wizard screen
 // and the saved file. NINE CALLS, against the forty-four of the unit before this
 // one -- a whole question can be this small.
@@ -108,7 +108,7 @@ void player_stealth_adjust(int amount);
 //      so that the quietest sheet word is never the one for zero, and likert()
 //      divides by ONE -- the finest divisor on that screen, so EVERY POINT MOVES THE
 //      WORD. Both the plus one and the word are the sheet's question (abilities.h).
-//   3. THE SIGN THE GEAR PASSES IN. `t_ptr->p1 * factor` is moria1.c's, exactly as
+//   3. THE SIGN THE GEAR PASSES IN. `t_ptr->p1 * factor` is player_bonuses.c's, exactly as
 //      it is for the searching gear -- and NOTHING IN THE GAME EVER PASSES A
 //      NEGATIVE p1 HERE: the curse that makes a character noisy sets TR_AGGRAVATE,
 //      a flag of its own, rather than a negative number of halvings (item_enchant.c:277).

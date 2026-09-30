@@ -106,7 +106,7 @@ void player_base_to_hit_adjust_both(int amount);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all still in the callers:
 //
-//   1. WHETHER A BLOW LANDS. test_hit(int bth, ...) in moria1.c does that, and ITS
+//   1. WHETHER A BLOW LANDS. test_hit(int bth, ...) in hit_rolls.c does that, and ITS
 //      FIRST ARGUMENT HAS THE SAME NAME AS THIS QUESTION but is only whatever the
 //      caller handed over -- a monster's own to-hit goes through the same door.
 //   2. WHAT THE CHARACTER SHEET SAYS. abilities.c adds the weapon bonus times

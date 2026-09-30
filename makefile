@@ -250,7 +250,9 @@ monsters.o: $(HEADERS_COMMON)
 # object_levels.c does not include externs.h (it declares the three things it
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.
 object_levels.o: object_levels.h $(HEADERS_COMMON)
-moria1.o: burden.h $(HEADERS_FULL)
+inven_menu.o: burden.h dungeon_map.h equipment.h inven_command_state.h \
+              inventory.h player_pos.h player_status_flags.h screen_touched.h \
+              $(HEADERS_FULL)
 run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h \
             player_light.h player_pos.h player_timed_effects.h running.h \
             $(HEADERS_FULL)
@@ -324,9 +326,9 @@ wands.o: device.h $(HEADERS_FULL)
 wizard.o: progress.h score_death.h $(HEADERS_FULL)
 # hit_rolls.c and player_damage.c came from misc3.c (#42). They include externs.h.
 hit_rolls.o: player_class.h player_level.h $(HEADERS_FULL)
-player_damage.o: equipment.h player_abilities.h player_class.h player_level.h \
-                 player_saving_throw.h player_timed_effects.h stats.h \
-                 $(HEADERS_FULL)
+player_damage.o: equipment.h level_exit.h player_abilities.h player_class.h \
+                 player_hp.h player_level.h player_saving_throw.h \
+                 player_timed_effects.h score_death.h stats.h $(HEADERS_FULL)
 # object_alloc.c came from misc3.c (#42). It includes externs.h.
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
                 object_levels.h player_pos.h $(HEADERS_FULL)
@@ -360,3 +362,14 @@ spellbook.o: inventory.h player_class.h player_level.h player_mana.h \
 level_ops.o: hp_table.h player_class.h player_hp.h player_level.h \
              player_status_flags.h screen_fields.h stats.h $(HEADERS_FULL)
 search.o: dungeon_map.h floor_items.h player_timed_effects.h $(HEADERS_FULL)
+player_bonuses.o: burden.h equipment.h monster_list.h player_abilities.h \
+                  player_armour_class.h player_attack_bonuses.h \
+                  player_display_numbers.h player_food.h player_infra_range.h \
+                  player_search_skill.h player_speed.h player_status_flags.h \
+                  player_stealth.h player_timed_effects.h stats.h \
+                  $(HEADERS_FULL)
+rest_command.o: command_state.h player_food.h player_resting.h \
+                player_status_flags.h running.h $(HEADERS_FULL)
+direction.o: command_state.h $(HEADERS_FULL)
+lighting.o: dungeon_map.h floor_items.h panel.h player_light.h player_pos.h \
+            player_timed_effects.h running.h $(HEADERS_FULL)

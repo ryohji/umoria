@@ -107,7 +107,7 @@ TEST(setting_the_pair_again_replaces_rather_than_adds) {
 }
 
 /* 片方だけ動かす窓口は無い（書き手が 1 つも無いから）。
- * **対で置くと、もう片方も必ず置きかわる** —— moria1.c:117 が
+ * **対で置くと、もう片方も必ず置きかわる** —— player_bonuses.c が
  * 装備を数えなおす前に両方を素の値へ戻すのがこの形。 */
 TEST(the_pair_moves_together_because_no_caller_ever_set_one_alone) {
     given_bonuses_of(9, 9);
@@ -145,7 +145,7 @@ TEST(loading_a_saved_game_uses_the_very_same_window) {
  * 足す 2 本 -- 装備の輪が 1 つずつ積む
  * ------------------------------------------------------------------ */
 
-/* moria1.c:128 —— 身につけているものの `tohit` を 1 つずつ足す。 */
+/* player_bonuses.c —— 身につけているものの `tohit` を 1 つずつ足す。 */
 TEST(one_piece_of_equipment_adds_to_the_aim) {
     given_bonuses_of(2, 3);
 
@@ -182,7 +182,7 @@ TEST(one_piece_of_equipment_adds_to_the_force) {
 }
 
 /* **足すのが 2 本に分かれている理由をここで固定する。** 弓は打撃に足さない
- * （"Bows can't damage. -CJS-" moria1.c:131）—— その `if` は呼び手に残るので、
+ * （"Bows can't damage. -CJS-" player_bonuses.c）—— その `if` は呼び手に残るので、
  * **命中だけ足しても打撃は動かない**。 */
 TEST(a_bow_adds_to_the_aim_only_and_the_force_stays_where_it_was) {
     given_bonuses_of(0, 0);
@@ -203,8 +203,8 @@ TEST(adjusting_the_force_leaves_the_aim_alone_as_well) {
     ASSERT_EQ_INT(2, player_to_damage_bonus());
 }
 
-/* 足したあとで対を置くと、積んだものは消える —— moria1.c が装備を
- * 数えなおすたびにこれをしている（:117 で置き、:128 から積む）。 */
+/* 足したあとで対を置くと、積んだものは消える —— player_bonuses.c が装備を
+ * 数えなおすたびにこれをしている（先に置き、あとから積む）。 */
 TEST(setting_the_pair_wipes_whatever_the_equipment_had_added) {
     given_bonuses_of(0, 0);
     player_to_hit_bonus_adjust(7);

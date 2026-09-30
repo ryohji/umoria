@@ -184,7 +184,7 @@ TEST(what_was_written_to_a_pack_slot_stays_there)
 
 TEST(a_whole_slot_can_be_copied_onto_another)
 {
-    /* 呼びだし側には枠ごとの代入がある（moria1.c:728-729 の武器の持ちかえ、
+    /* 呼びだし側には枠ごとの代入がある（inven_menu.c の武器の持ちかえ、
      * inven_ops.c の詰めなおし）。窓口越しでも構造体の代入で書ける形を守る。 */
     equipment_at(INVEN_WIELD)->tval = TV_BOW;
     equipment_at(INVEN_WIELD)->cost = 4321;
@@ -276,7 +276,7 @@ TEST(the_crossing_window_agrees_with_the_equipment_window)
 TEST(the_crossing_window_covers_every_slot_exactly_once)
 {
     /* 全域 34 枠が、先頭から 1 枠ずつ隙間なく並んでいること。get_item()
-     * （moria1.c:1189）は 0 から INVEN_ARRAY_SIZE-1 までを 1 続きの添字空間
+     * （inven_menu.c）は 0 から INVEN_ARRAY_SIZE-1 までを 1 続きの添字空間
      * として扱う。 */
     int mismatch = -1;
     inven_type *first = inventory_and_equipment_at(0);

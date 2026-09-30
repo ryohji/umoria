@@ -57,7 +57,7 @@ void set_score_disqualifications(int16_t reasons);
 // --- whether the game was won --------------------------------------------
 
 // True once the player has beaten the game (killing a CM_WIN monster). It
-// outlives the win: dying afterwards clears it (moria1.c), the tomb and the
+// outlives the win: dying afterwards clears it (player_damage.c), the tomb and the
 // character sheet print a different title while it is true, the win monster is
 // not placed again, and the save file refuses a resurrection.
 bool player_has_won(void);

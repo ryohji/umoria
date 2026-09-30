@@ -154,7 +154,7 @@ TEST(a_cursed_suit_can_take_more_away_than_it_gives) {
 }
 
 /* ------------------------------------------------------------------
- * 呪文のぶん -- 二重帳簿の片方（moria1.c）と、もう片方（dungeon.c）
+ * 呪文のぶん -- 二重帳簿の片方（player_bonuses.c）と、もう片方（dungeon.c）
  * ------------------------------------------------------------------ */
 
 TEST(invulnerability_is_worth_a_hundred_points) {
@@ -209,7 +209,7 @@ TEST(a_spells_points_land_in_the_armour_half_not_the_magical_one) {
 }
 
 /* **作りなおすと呪文のぶんも消える。** だから calc_bonuses() は
- * 効いている呪文のぶんを毎回足しなおす（moria1.c:152・:156）。 */
+ * 効いている呪文のぶんを毎回足しなおす（player_bonuses.c）。 */
 TEST(rebuilding_forgets_the_spell_and_the_caller_must_add_it_again) {
     given_a_character_wearing_nothing(0);
     player_armour_class_adjust(100);

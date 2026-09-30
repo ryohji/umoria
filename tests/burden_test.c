@@ -62,7 +62,7 @@ TEST(a_weapon_that_is_too_heavy_is_remembered) {
     ASSERT_TRUE(weapon_is_too_heavy());
 }
 
-/* 武器を持ちかえたときに落とす（moria1.c の 2 か所）。一度重すぎになったら
+/* 武器を持ちかえたときに落とす（inven_menu.c の 2 か所）。一度重すぎになったら
  * 戻れない覚えかたではない。 */
 TEST(the_weapon_can_become_light_enough_again) {
     set_weapon_too_heavy(true);
