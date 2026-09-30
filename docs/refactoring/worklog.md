@@ -434,3 +434,23 @@
 | 2026-09-30 | #55-store-7 | **コメント：いまの呼び手や置き場として `store1.c`・`store2.c` を指す 16 ファイルを直した**（`3eaa18b`）。行番号も移った先に直した。来歴として書いたものは残した。`check_strength_test` の `inven_check_weight` の呼び手（「moria1.c と store1.c」）はもとから誤りで、呼ぶのは `moria3.c:315` だけ。`haggle_comment_test` の冒頭の「中身が完全に同一の 13 行」は #12 の統合の前の話で古いが、ここでは直していない。代役の一部（画面の側だけが呼んでいた名前）も要らなくなった見込みで、これも残した。 |
 | 2026-09-30 | #55 マージ | **ユーザーの許可を得て `refactor/55-store2`（`refactor/55-store-stock` を含む）をマージした**（`ced26a4`）。衝突なし。警告 0・75 本 1671 件 GREEN・globals OK 42・層 834 本 118 単位で違反 0・起動 1。**マージ済みのブランチ 3 本（`refactor/55-store2`・`refactor/55-store-stock`・`worktree-agent-a94e68b8307dfd112`）とワークツリーを消した。** |
 | 2026-09-30 | #42 下調べ | **misc3 の下調べを layout.md に書いた**（読みとりと /tmp の写しだけ。コミットは 0）。10 塊・77 関数。本物に届くテストがあるのは 15 本だけ。A を `object_place.c` に合流させると `object_levels_test` が `popt` の二重定義でリンクに落ちる。`gain_spells` のコメントの「B22」は bugs.md の B22 と番号がぶつかる。迷いどころ 13 点はユーザーに見せる。 |
+| 2026-09-30 | #42-1 | **`enter_wiz_mode` を `ui/wizard.c` へ**（`b3c0ad6`）。合流先の既存ファイル。`-O2 -fno-inline` で同じ。 |
+| 2026-09-30 | #42-2 | **`combat/` を作り、`attack_blows`・`tot_dam`・`critical_blow` を `combat/hit_rolls.c`、`player_saves` を `combat/player_damage.c` へ**（`f076308`）。`SRC_SUBDIRS` に `combat` を足した。`-O2 -fno-inline` と素の `-O2` で同じ。 |
+| 2026-09-30 | #42-3 | **コメント：I・J の移った先**（`2c9f6d4`）。`player_saves` の中の日本語のコメントを英語に。 |
+| 2026-09-30 | #42-4 | **K の 3 本を近い仲間へ**（`4b5244c`）。`mmove` → `dungeon/geometry.c`、`find_range` → 新しい `item/inven_ops.c`、`teleport` → 新しい `player/player_move.c`。同じ。 |
+| 2026-09-30 | #42-5 | **コメント：`teleport`**（`aed3507`）。 |
+| 2026-09-30 | #42-6 | **A（配置の 7 本）を新しい `dungeon/object_alloc.c` へ**（`a9dbc5c`）。object_place.c には合流させない（`object_levels_test` が `popt` の二重定義で落ちるため）。同じ。 |
+| 2026-09-30 | #42-7 | **コメント：A と `mmove`・`teleport`**（`32fc0d5`）。 |
+| 2026-09-30 | #42-8 | **E（持ち物の 10 本）を `item/inven_ops.c` へ**（`a24105d`）。`find_range` の前に misc3.c の並びのまま。include 6 本が misc3.c から落ちた。同じ。 |
+| 2026-09-30 | #42-9 | **コメント：E**（`78a1c5b`）。11 ファイル。 |
+| 2026-09-30 | #42-10 | **表の下ごしらえ**（`999363e`）。misc3.c の中に `static` の `erase_field`・`prt_stat_name` を足し、`blank_string` の 10 か所と `stat_names` の 2 か所をその呼びだしにした。**ふるまいを変えない書きかえ**で、素の `-O2` で呼び手 13 本が同じ（展開される）。 |
+| 2026-09-30 | #42-11 | **`ui/screen_fields.c` / `.h` を作った**（`6b34fb8`）。表 2 つ（`static` のまま）と、`static` を外した `erase_field`・`prt_stat_name`・`prt_num`・`prt_long`。ユーザーの「UI 層の操作として呼べるように。ヘッダーに実装は書かない」のとおり。`-fno-ipa-cp -fno-ipa-icf` で呼び手 27 本が同じ（4 本は `endbr64` だけ違う）。`-fno-inline` では `prt_long.constprop` が無くなり、呼び手が列 6 を自分で渡す。 |
+| 2026-09-30 | #42-12 | **B のステータス行（25 本）を新しい `ui/status_line.c` へ**（`fff38d8`）。人物画面だけが使う `prt_7lnum` は残した。`-fno-ipa-cp -fno-ipa-icf` で 27 本同じ。 |
+| 2026-09-30 | #42-13 | **B の人物画面と D を新しい `ui/char_screen.c` へ**（`e46483c`）。`prt_7lnum` も一緒に。同じ。 |
+| 2026-09-30 | #42-14 | **コメント：状態行・人物画面・画面の欄**（`019442d`）。12 ファイル。worktree のサブエージェントが書き、C′ の作業と並べて進めた。 |
+| 2026-09-30 | #42-15 | **C′（能力値の 6 本）を新しい `player/stat_ops.c` へ**（`6ae30df`）。同じ。 |
+| 2026-09-30 | #42-16 | **F（呪文の 6 本）を新しい `item/spellbook.c` へ**（`d227b86`）。同じ。 |
+| 2026-09-30 | #42-17 | **G だけが残った misc3.c を `git mv` で `player/level_ops.c` に**（`82eba34`）。**misc3.c が無くなった。** 同じ。 |
+| 2026-09-30 | #42-18 | **コメント：F・G と、前の段で残った misc3.c**（`bea98fe`）。「バグ候補 B22」を B23 に。移った関数の中の日本語のコメントを英語に。サブエージェントが worktree で。 |
+| 2026-09-30 | #42-19 | **`misc3_stubs.c` の冒頭と REFACTORING_PLAN:262 を今に合わせた**（`38325a1`）。 |
+| 2026-09-30 | #42 マージ | **ユーザーの許可を得て `refactor/42-misc3` をマージした**（`cb5279a`）。衝突なし。警告 0・75 本 1671 件 GREEN・globals OK 42・層 963 本 128 単位で違反 0・起動 1。**マージ済みのブランチ `refactor/42-misc3` と、作業用の worktree（`/tmp/mgd/wt-old`・サブエージェント用の 2 本）を消した。** 最上位に残る古い `.o`（`misc1.o` など）はユーザーがあとで掃除する。 |
