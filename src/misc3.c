@@ -51,6 +51,17 @@ static const char *stat_names[] = {
 #define BLANK_LENGTH 24
 static char blank_string[] = "                        ";
 
+// Writes width blanks at row, column, to wipe a field before or instead of
+// writing into it. width is at most BLANK_LENGTH.
+static void erase_field(int width, int row, int column) {
+    put_buffer(&blank_string[BLANK_LENGTH - width], row, column);
+}
+
+// Writes the label of a stat ("STR : " and so on) at row, column.
+static void prt_stat_name(int stat, int row, int column) {
+    put_buffer(stat_names[stat], row, column);
+}
+
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {
     if (stat > 18) {
@@ -71,14 +82,14 @@ void cnv_stat(uint8_t stat, char *out_val) {
 void prt_stat(int stat) {
     stat_type out_val1;
     cnv_stat(py.stats.use_stat[stat], out_val1);
-    put_buffer(stat_names[stat], 6 + stat, STAT_COLUMN);
+    prt_stat_name(stat, 6 + stat, STAT_COLUMN);
     put_buffer(out_val1, 6 + stat, STAT_COLUMN + 6);
 }
 
 // Print character info in given row, column -RAK-
 // The longest title is 13 characters, so only pad to 13
 void prt_field(const char *info, int row, int column) {
-    put_buffer(&blank_string[BLANK_LENGTH - 13], row, column);
+    erase_field(13, row, column);
     put_buffer(info, row, column);
 }
 
@@ -192,7 +203,7 @@ void prt_hunger(void) {
     } else if (player_effect_in_force(PLAYER_EFFECT_HUNGRY)) {
         put_buffer("Hungry", 23, 0);
     } else {
-        put_buffer(&blank_string[BLANK_LENGTH - 6], 23, 0);
+        erase_field(6, 23, 0);
     }
 }
 
@@ -201,7 +212,7 @@ void prt_blind(void) {
     if (player_effect_in_force(PLAYER_EFFECT_BLIND)) {
         put_buffer("Blind", 23, 7);
     } else {
-        put_buffer(&blank_string[BLANK_LENGTH - 5], 23, 7);
+        erase_field(5, 23, 7);
     }
 }
 
@@ -210,7 +221,7 @@ void prt_confused(void) {
     if (player_effect_in_force(PLAYER_EFFECT_CONFUSED)) {
         put_buffer("Confused", 23, 13);
     } else {
-        put_buffer(&blank_string[BLANK_LENGTH - 8], 23, 13);
+        erase_field(8, 23, 13);
     }
 }
 
@@ -219,7 +230,7 @@ void prt_afraid(void) {
     if (player_effect_in_force(PLAYER_EFFECT_AFRAID)) {
         put_buffer("Afraid", 23, 22);
     } else {
-        put_buffer(&blank_string[BLANK_LENGTH - 6], 23, 22);
+        erase_field(6, 23, 22);
     }
 }
 
@@ -228,7 +239,7 @@ void prt_poisoned(void) {
     if (player_effect_in_force(PLAYER_EFFECT_POISONED)) {
         put_buffer("Poisoned", 23, 29);
     } else {
-        put_buffer(&blank_string[BLANK_LENGTH - 8], 23, 29);
+        erase_field(8, 23, 29);
     }
 }
 
@@ -271,7 +282,7 @@ void prt_state(void) {
         put_buffer("Searching", 23, 38);
     } else {
         // "repeat 999" is 10 characters
-        put_buffer(&blank_string[BLANK_LENGTH - 10], 23, 38);
+        erase_field(10, 23, 38);
     }
 }
 
@@ -289,7 +300,7 @@ void prt_speed(void) {
     } else if (i == 1) {
         put_buffer("Slow     ", 23, 49);
     } else if (i == 0) {
-        put_buffer(&blank_string[BLANK_LENGTH - 9], 23, 49);
+        erase_field(9, 23, 49);
     } else if (i == -1) {
         put_buffer("Fast     ", 23, 49);
     } else {
@@ -301,7 +312,7 @@ void prt_study(void) {
     player_clear_study_redraw_request();
 
     if (player_spells_to_learn() == 0) {
-        put_buffer(&blank_string[BLANK_LENGTH - 5], 23, 59);
+        erase_field(5, 23, 59);
     } else {
         put_buffer("Study", 23, 59);
     }
@@ -537,7 +548,7 @@ void put_stats(void) {
         vtype buf;
 
         cnv_stat(py.stats.use_stat[i], buf);
-        put_buffer(stat_names[i], 2 + i, 61);
+        prt_stat_name(i, 2 + i, 61);
         put_buffer(buf, 2 + i, 66);
         if (py.stats.max_stat[i] > py.stats.cur_stat[i]) {
             cnv_stat(py.stats.max_stat[i], buf);
@@ -646,7 +657,7 @@ void display_char(void) {
 // Gets a name for the character -JWT-
 void get_name(void) {
     prt("Enter your player's name  [press <RETURN> when finished]", 21, 2);
-    put_buffer(&blank_string[BLANK_LENGTH - 23], 2, 15);
+    erase_field(23, 2, 15);
 
     // 器ぜんぶを写してから打たせる。**終端までではなく 27 バイト全部**を
     // 写すのは、get_string() が ESC のとき終端を書かずに返すからで、すぐ下の
