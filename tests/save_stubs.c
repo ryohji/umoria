@@ -42,7 +42,7 @@ int topen(char *file, int flags, int mode) { (void)file; (void)flags; (void)mode
 void nosignals(void) {}
 void signals(void) {}
 
-/* 終了処理（death.c / misc1.c） */
+/* 終了処理（death.c） */
 _Noreturn void exit_game(void) { (void)fflush(NULL); abort(); }
 int32_t total_points(void) { return 0; }
 
@@ -60,7 +60,7 @@ bool temple(int action) { (void)action; return false; }
 bool alchemist(int action) { (void)action; return false; }
 bool magic_shop(int action) { (void)action; return false; }
 
-/* 乱数（misc1.c） */
+/* 乱数（core/rnd.c） */
 int randint(int maxval) { return maxval; }
 
 /* 名前に付ける冠詞の判定（desc.c）。monsters.c が求めるだけで、desc.c を

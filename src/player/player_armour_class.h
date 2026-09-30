@@ -113,7 +113,7 @@ void player_armour_class_adjust(int armour);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all still in the callers:
 //
-//   1. WHETHER A BLOW LANDS. test_hit() in misc1.c weighs the armour class
+//   1. WHETHER A BLOW LANDS. test_hit() in moria1.c weighs the armour class
 //      against the attacker; twenty-five of the twenty-six readers only pass the
 //      number to it.
 //   2. HOW MUCH A BLOW THAT LANDED HURTS. creature.c's `* damage / 200` is a

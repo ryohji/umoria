@@ -270,15 +270,10 @@ int topen(char *, int, int);
 void cast(void);
 
 // main.c
-// misc1.c
-void set_seed(uint32_t);
-void reset_seed(void);
-int randint(int);
-int randnor(int, int);
+// core/dice.c
 int damroll(int, int);
 int pdamroll(const uint8_t *);
 int max_hp(const uint8_t *);
-bool magik(int);
 // The groups below, down to m_bonus(), were misc1.c until #54.
 // game_state.c
 void init_seeds(uint32_t);
@@ -511,6 +506,12 @@ int roff_recall(creature_type *);
 uint32_t get_rnd_seed(void);
 void set_rnd_seed(uint32_t);
 int32_t rnd(void);
+// The five below came from misc1.c (#54).
+void set_seed(uint32_t);
+void reset_seed(void);
+int randint(int);
+int randnor(int, int);
+bool magik(int);
 
 // save.c
 bool save_char(void);

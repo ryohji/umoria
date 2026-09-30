@@ -78,6 +78,7 @@ burden.o: burden.h constant.h types.h config.h
 command_state.o: command_state.h constant.h types.h config.h
 create.o: constant.h types.h externs.h config.h
 creature.o: constant.h types.h externs.h config.h
+dice.o: constant.h types.h externs.h config.h
 death.o: constant.h types.h externs.h config.h
 desc.o: constant.h types.h externs.h config.h
 device.o: device.h constant.h types.h externs.h config.h
@@ -101,7 +102,6 @@ magic.o: constant.h types.h externs.h config.h
 main.o: constant.h types.h externs.h config.h
 map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h player_status_flags.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 messages.o: messages.h constant.h types.h externs.h config.h
-misc1.o: constant.h types.h externs.h config.h
 misc3.o: burden.h constant.h types.h externs.h config.h
 missile_serial.o: missile_serial.h constant.h types.h config.h
 level_exit.o: level_exit.h constant.h types.h config.h
@@ -168,7 +168,7 @@ potions.o: constant.h types.h externs.h config.h
 prayer.o: constant.h types.h externs.h config.h
 progress.o: progress.h constant.h types.h config.h
 recall.o: constant.h config.h types.h externs.h
-rnd.o: constant.h types.h
+rnd.o: constant.h types.h externs.h config.h
 save.o: burden.h constant.h types.h externs.h config.h
 save_state.o: save_state.h progress.h score_death.h constant.h types.h config.h
 score_death.o: score_death.h constant.h types.h config.h
