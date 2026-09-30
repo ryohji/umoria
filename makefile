@@ -203,7 +203,7 @@ pending_teleport.o: pending_teleport.h $(HEADERS_COMMON)
 # a global.
 input_ended.o: input_ended.h $(HEADERS_COMMON)
 # The fourth: whether the player is running, and how far (#18-11-6). No
-# externs.h either; the direction of the run stays a static of moria2.c.
+# externs.h either; the direction of the run stays a static of run_path.c.
 running.o: running.h $(HEADERS_COMMON)
 # What the game remembers about the command being typed (#18-11-7): the repeat
 # count, whether the direction comes from memory, and the command before this

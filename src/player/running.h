@@ -25,7 +25,7 @@
 // and any other value was the number of steps so far. The two questions are
 // separated here; the number never leaves the module.
 
-// Start running. Said by find_init() (moria2.c) once it knows the first step can
+// Start running. Said by find_init() (run_path.c) once it knows the first step can
 // be taken. The length starts over, so a new run always gets a full 100 steps.
 void begin_run(void);
 
@@ -33,7 +33,7 @@ void begin_run(void);
 bool player_is_running(void);
 
 // Stop. Said by find_init() when the first step turns out to be impossible, by
-// end_find() (moria2.c), and by disturb() (moria1.c). **Stopping is not the whole
+// end_find() (run_path.c), and by disturb() (moria1.c). **Stopping is not the whole
 // of what those two do** -- end_find() also puts the light back with
 // move_light(), disturb() calls check_view(), and both of them do it only when a
 // run was actually going on. That part stays with them: the two paths differ, and
@@ -47,7 +47,7 @@ void stop_running(void);
 void forget_run(void);
 
 // One more step of the run, and may it go on? False means the run has gone on
-// long enough: find_run() (moria2.c) then says "You stop running to catch your
+// long enough: find_run() (run_path.c) then says "You stop running to catch your
 // breath." and calls end_find(). **Saying no does not stop the run** -- this
 // module only counts; stopping is the caller's to do, as it always was.
 //

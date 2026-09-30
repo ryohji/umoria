@@ -5,9 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// What happens to the player when hurt: for now the saving throw alone
-//
-// Moved out of misc3.c unchanged (#42); its prototype stays in externs.h.
+// What happens to the player when hurt: damage by element, worn armour, and
+// the saving throw
 
 #include "headers.h"
 

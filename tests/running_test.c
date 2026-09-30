@@ -15,10 +15,10 @@
  *
  * 保護したい性質は 4 つ。
  *
- *   1. **走りはじめは 1 歩目から数える**こと（moria2.c:217 の begin_run()）。
+ *   1. **走りはじめは 1 歩目から数える**こと（run_path.c の begin_run()）。
  *      0 だと「走っていない」と同じ値になってしまう。
  *
- *   2. **息切れの境目が動いていない**こと。元は moria2.c:287 の
+ *   2. **息切れの境目が動いていない**こと。元は run_path.c の
  *      `find_flag++ > 100`（"prevent infinite loops in find mode, will stop
  *      after moving 100 times"）。歩数は窓口の内側なので、境目を見るのは
  *      ここだけになる。

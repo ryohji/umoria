@@ -18,7 +18,7 @@
 // level_exit.c, pending_teleport.c and input_ended.c: counting steps needs
 // nothing from the rest of the game. In particular this module does not know how
 // to move anybody, nor which way the run is going (find_direction is a static of
-// moria2.c, next to the corridor-following rules that are the only user of it).
+// run_path.c, next to the corridor-following rules that are the only user of it).
 
 // The count is owned here and is static: the only way in is through the six
 // windows below. It came over from variable.c (#18-11-6C) with its initial value
