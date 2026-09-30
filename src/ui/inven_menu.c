@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc code, mainly handles player movement, inventory, etc
+// The inventory and equipment screens, and choosing an item
 
 #include "headers.h"
 
@@ -13,10 +13,11 @@
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 #include "burden.h"
 #include "dungeon_map.h"
 #include "equipment.h"
-#include "externs.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "player_pos.h"

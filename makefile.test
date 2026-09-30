@@ -105,7 +105,7 @@ $(BUILDDIR):
 #
 # LIB_EXCLUDE の 3 本は入れない。どのテストもリンクしておらず、テストの
 # CFLAGS（-O2 も -D_DEFAULT_SOURCE も無い）でコンパイルすると警告が出る
-# （dungeon.c と moria1.c は -Wformat-overflow が 1 件と 4 件、signals.c は
+# （dungeon.c と inven_menu.c は -Wformat-overflow が 1 件と 4 件、signals.c は
 # kill() と sigsetmask() の暗黙宣言 2 件）。テストのフラグは変えない約束
 # なので、要るテストが現れたときに入れかたを決める。
 include sources.mk
@@ -113,7 +113,7 @@ include sources.mk
 # LIB_EXCLUDE は名前だけで書く（%/ の形で、どのディレクトリーにあっても当たる）。
 # .o はディレクトリーを落とした名前で tests/build/core/ に並べ、.c は vpath で
 # src/ とそのサブディレクトリーから探す（名前は src/ の中で重ならない）。
-LIB_EXCLUDE = dungeon.c moria1.c signals.c
+LIB_EXCLUDE = dungeon.c inven_menu.c signals.c
 LIB_SRCS = $(filter-out $(LIB_EXCLUDE) $(addprefix %/,$(LIB_EXCLUDE)),$(CORE_SRCS))
 LIBOBJDIR = $(BUILDDIR)/core
 LIB_OBJS = $(addprefix $(LIBOBJDIR)/,$(notdir $(LIB_SRCS:.c=.o)))

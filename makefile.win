@@ -132,7 +132,7 @@ rest_command.o: command_state.h player_food.h player_resting.h player_status_fla
 status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h player_display_numbers.h player_gold.h player_hp.h player_level.h player_mana.h player_race.h player_resting.h player_speed.h player_spells_to_learn.h player_status_flags.h player_timed_effects.h progress.h score_death.h screen_fields.h constant.h types.h externs.h config.h
 monsters.o: constant.h types.h config.h
 object_levels.o: object_levels.h constant.h types.h config.h
-moria1.o: burden.h constant.h types.h externs.h config.h
+inven_menu.o: burden.h dungeon_map.h equipment.h inven_command_state.h inventory.h player_pos.h player_status_flags.h screen_touched.h constant.h types.h externs.h config.h
 run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h player_light.h player_pos.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 moria3.o: constant.h types.h externs.h config.h
 moria4.o: burden.h constant.h types.h externs.h config.h

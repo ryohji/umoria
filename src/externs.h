@@ -476,7 +476,7 @@ void light_room(int, int);
 void lite_spot(int, int);
 void move_light(int, int, int, int);
 
-// moria1.c
+// ui/inven_menu.c
 int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
 int show_equip(bool, int);

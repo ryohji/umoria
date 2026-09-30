@@ -250,7 +250,9 @@ monsters.o: $(HEADERS_COMMON)
 # object_levels.c does not include externs.h (it declares the three things it
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.
 object_levels.o: object_levels.h $(HEADERS_COMMON)
-moria1.o: burden.h $(HEADERS_FULL)
+inven_menu.o: burden.h dungeon_map.h equipment.h inven_command_state.h \
+              inventory.h player_pos.h player_status_flags.h screen_touched.h \
+              $(HEADERS_FULL)
 run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h \
             player_light.h player_pos.h player_timed_effects.h running.h \
             $(HEADERS_FULL)
