@@ -5,7 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* object_levels_fixture.c -- src/item/object_levels.c と src/dungeon/object_alloc.c を試すテストの足場
+/* object_levels_fixture.c -- src/item/object_levels.c と
+ * src/dungeon/object_alloc.c を試すテストの足場
  * （object_levels_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の

@@ -28,7 +28,7 @@
  * static 関数を直接呼ぶ。写しではないので、ステップ B で実体を書きかえれば
  * このテストがそれを検証する。
  *
- * 出力は msg_print() で画面に出るだけなので、tests/store_haggle_fixture.c
+ * 出力は msg_print() で画面に出るだけなので、tests/shared_stubs.c
  * の代役が記録した内容を fixture_message_text() で読みとる。本体は変更して
  * いない。
  *

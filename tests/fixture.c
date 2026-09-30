@@ -72,7 +72,7 @@ void prt_experience(void) {}
 static int fixture_randint_value = 1;
 /* 戻り値を固定するだけでは、呼びだし側が渡した上限が正しいかを検証できない。
  * 配列の要素数を取りちがえても返る値が同じで気づけないので、上限と
- * 呼びだし回数も記録する。足場（*_fixture.c）と同じ窓口を提供する。 */
+ * 呼びだし回数も記録する。tests/shared_stubs.c と同じ窓口を提供する。 */
 static int fixture_randint_last_max = 0;
 static int fixture_randint_calls = 0;
 

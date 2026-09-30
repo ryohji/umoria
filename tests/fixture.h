@@ -35,12 +35,12 @@ int fixture_randint_last_maxval(void);
  * （回数が変わると乱数列がずれ、ゲーム全体のふるまいが変わる）。 */
 int fixture_randint_call_count(void);
 
-/* put_buffer() が書いた文字を読みとる。対象ごとの足場（*_fixture.c）が
+/* put_buffer() が書いた文字を読みとる。tests/shared_stubs.c が
  * 提供する（fixture.c にはない）。画面に書くだけの関数のふるまいを、
  * 本体を変えずに観測するための窓口。fixture_reset() で記録は消える。 */
 const char *fixture_screen_text(int row, int col);
 
-/* msg_print() に渡された文字列を読みとる。対象ごとの足場（*_fixture.c）が
+/* msg_print() に渡された文字列を読みとる。tests/shared_stubs.c が
  * 提供する（fixture.c にはない）。メッセージを表示するだけの関数の
  * ふるまいを、本体を変えずに観測するための窓口。fixture_reset() で
  * 記録は消える。 */
@@ -49,7 +49,7 @@ const char *fixture_message_text(int index);
 /* msg_print() が呼ばれた回数。fixture_reset() で 0 に戻る。 */
 int fixture_message_count(void);
 
-/* 最後に change_speed() へ渡された段数の差。tests/inven_ops_fixture.c が
+/* 最後に change_speed() へ渡された段数の差。tests/shared_stubs.c が
  * 提供する（fixture.c にはない）。check_strength() は速度を
  * change_speed(新しい段数 − 覚えた段数) という**差**で動かすので、
  * 符号と大きさが観測できなければ「遅くなった」と「速くなった」を
@@ -61,10 +61,10 @@ int fixture_speed_change_last_steps(void);
 int fixture_speed_change_count(void);
 
 /* calc_bonuses() が呼ばれた回数。武器が重すぎるかどうかが変わったときに
- * 能力の再計算が走ることを見る。tests/inven_ops_fixture.c が提供する。 */
+ * 能力の再計算が走ることを見る。tests/shared_stubs.c が提供する。 */
 int fixture_calc_bonuses_count(void);
 
-/* get_com() が返すキーを前もって並べておく。対象ごとの足場（*_fixture.c）が
+/* get_com() が返すキーを前もって並べておく。tests/shared_stubs.c が
  * 提供する（fixture.c にはない）。既定では get_com() は
  * 「押されなかった」（0）を返すので、キーを待つ繰りかえし
  * （gain_spells の「どの呪文を学ぶ？」）に入れない。

@@ -18,7 +18,7 @@
  * 書いた当時の実体は misc3.c にあり、2212 行・6 責務（画面描画・能力値計算・
  * 持ち物管理・呪文・戦闘・移動）が同居していたので、リンクすると 57 個の
  * 未解決シンボルが芋づるで付いてきた。それを代役で埋めた（いまは
- * tests/inven_ops_fixture.c）。
+ * tests/shared_stubs.c）。
  * 定数表（tables.c）・インベントリ（treasure.c）・py と各種テーブル
  * （player.c）・known1_p（desc.c）は本物をリンクしている。
  *
