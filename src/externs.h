@@ -176,11 +176,13 @@ extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 // create.c
 void create_character(void);
 
+// combat/monster_melee.c
+void make_attack(int);
+
 // creature.c
 void update_mon(int);
 bool multiply_monster(int, int, creature_handle, int);
 void creatures(int);
-void make_attack(int);
 
 // death.c
 void display_scores(int);

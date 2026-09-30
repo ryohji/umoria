@@ -397,3 +397,7 @@ terrain_commands.o: burden.h command_state.h dungeon_map.h equipment.h \
                     stats.h $(HEADERS_FULL)
 monster_damage.o: monster_list.h monster_turn.h player_level.h \
                   player_timed_effects.h $(HEADERS_FULL)
+monster_melee.o: equipment.h inventory.h monster_list.h player_abilities.h \
+                 player_armour_class.h player_glowing_hands.h player_gold.h \
+                 player_level.h player_timed_effects.h score_death.h \
+                 $(HEADERS_FULL)

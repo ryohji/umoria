@@ -114,6 +114,7 @@ level_exit.o: level_exit.h constant.h types.h config.h
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h object_levels.h player_pos.h constant.h types.h externs.h config.h
 object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h constant.h types.h externs.h config.h
 search.o: dungeon_map.h floor_items.h player_timed_effects.h constant.h types.h externs.h config.h
+monster_melee.o: equipment.h inventory.h monster_list.h player_abilities.h player_armour_class.h player_glowing_hands.h player_gold.h player_level.h player_timed_effects.h score_death.h constant.h types.h externs.h config.h
 lighting.o: dungeon_map.h floor_items.h panel.h player_light.h player_pos.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 options.o: options.h constant.h types.h externs.h config.h
 options_menu.o: options.h constant.h types.h externs.h config.h
