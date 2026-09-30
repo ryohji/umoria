@@ -501,9 +501,7 @@ void closeobject(void);
 int twall(int, int, int, int);
 
 // moria4.c
-void tunnel(int);
 void look(void);
-void bash(void);
 
 // combat/player_melee.c
 void py_bash(int, int);
@@ -513,6 +511,10 @@ void throw_object(void);
 
 // dungeon/traps.c
 void disarm_trap(void);
+
+// dungeon/terrain_commands.c
+void tunnel(int);
+void bash(void);
 
 // potions.c
 void quaff(void);
