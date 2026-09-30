@@ -500,7 +500,7 @@ void openobject(void);
 void closeobject(void);
 int twall(int, int, int, int);
 
-// moria4.c
+// ui/look.c
 void look(void);
 
 // combat/player_melee.c

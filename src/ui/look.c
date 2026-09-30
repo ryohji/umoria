@@ -5,7 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc code, mainly to handle player commands
+// The look command: scanning what the player can see in a direction, one thing
+// at a time
 
 #include "headers.h"
 
@@ -13,26 +14,14 @@
 #include "constant.h"
 #include "types.h"
 
-#include "burden.h"
-#include "command_state.h"
-#include "dungeon_map.h"
 #include "externs.h"
+
+#include "dungeon_map.h"
 #include "floor_items.h"
-#include "equipment.h"
-#include "inventory.h"
 #include "monster_list.h"
 #include "panel.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
-#include "player_body_weight.h"
-#include "player_class.h"
-#include "player_disarm.h"
-#include "player_level.h"
 #include "player_pos.h"
-#include "player_search_skill.h"
-#include "player_status_flags.h"
 #include "player_timed_effects.h"
-#include "stats.h"
 
 static bool look_ray(int, int, int);
 static bool look_see(int, int, bool *);
