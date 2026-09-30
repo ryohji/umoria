@@ -25,9 +25,7 @@
 #include "player_speed.h"
 #include "score_death.h"
 
-// Moved out of misc1.c unchanged (#54); the prototypes of the global ones stay
-// in externs.h. get_mons_num() and summon() are static and serve only the
-// functions here, so they came along with their forward declarations.
+// get_mons_num() and summon() are static and serve only the functions here.
 
 static creature_handle get_mons_num(int level);
 static bool summon(int *y, int *x, creature_handle h, int slp);

@@ -18,10 +18,9 @@
 #include "externs.h"
 #include "inventory.h"
 
-// Moved out of misc4.c unchanged. The three prototypes stay in externs.h, the
-// same as the other files that include it (desc.c, eat.c): scribe_object()
-// asks for the item through get_item() and prints through io.c, so this file
-// needs externs.h anyway.
+// The three prototypes are in externs.h, the same as the other files that
+// include it (desc.c, eat.c): scribe_object() asks for the item through
+// get_item() and prints through io.c, so this file needs externs.h anyway.
 
 // Add a comment to an object description. -CJS-
 void scribe_object(void) {

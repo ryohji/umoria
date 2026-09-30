@@ -275,7 +275,6 @@ void cast(void);
 int damroll(int, int);
 int pdamroll(const uint8_t *);
 int max_hp(const uint8_t *);
-// The groups below, down to m_bonus(), were misc1.c until #54.
 // game_state.c
 void init_seeds(uint32_t);
 // core/bits.c, which declares it in bits.h as well
@@ -324,7 +323,7 @@ void add_food(int);
 int popt(void);
 void pusht(uint8_t);
 
-// item/item_enchant.c (magic_treasure() was misc2.c until #54)
+// item/item_enchant.c
 void magic_treasure(int, int);
 
 // ui/options_menu.c
@@ -410,7 +409,7 @@ int cast_spell(const char *, int, int *, int *);
 void prt_experience(void);
 void calc_hitpoints(void);
 
-// item/inscription.c (these five were misc4.c until #54)
+// item/inscription.c
 void scribe_object(void);
 void add_inscribe(inven_type *, uint8_t);
 void inscribe(inven_type *, const char *);
@@ -535,7 +534,6 @@ int roff_recall(creature_type *);
 // rnd.c
 void set_rnd_seed(uint32_t);
 int32_t rnd(void);
-// The five below came from misc1.c (#54).
 void set_seed(uint32_t);
 void reset_seed(void);
 int randint(int);
@@ -653,7 +651,6 @@ int restore_level(void);
 // staffs.c
 void use(void);
 
-// The groups below, down to updatebargain(), were store1.c until #55.
 // store/store_stock.c
 bool store_check_num(inven_type *, int);
 void store_carry(int, int *, inven_type *);

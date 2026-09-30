@@ -155,8 +155,7 @@ void game_state_free(GameState *state) {
     free(state);
 }
 
-// Moved out of misc1.c unchanged (#54); its prototype stays in externs.h. It
-// is not in core/rnd.c with the rest of the seeding, because it also seeds the
+// Not in core/rnd.c with the rest of the seeding, because it also seeds the
 // colors of unknown items and the town (progress.c), and reads the clock.
 // gets a new random seed for the random number generator
 void init_seeds(uint32_t seed) {

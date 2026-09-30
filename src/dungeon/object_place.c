@@ -19,9 +19,7 @@
 #include "floor_items.h"
 #include "player_pos.h"
 
-// Moved out of misc1.c unchanged (#54); the prototypes of popt() and pusht()
-// stay in externs.h. compact_objects() is static and has only popt() to serve,
-// so it came along.
+// compact_objects() is static and serves only popt().
 
 // If too many objects on floor level, delete some of them-RAK-
 static void compact_objects(void) {

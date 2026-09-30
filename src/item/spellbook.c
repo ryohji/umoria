@@ -7,8 +7,6 @@
 
 // The spells the player can cast: the chance of failing one, the list to
 // choose from, how many can be learned and learning them, and the mana
-//
-// Moved out of misc3.c unchanged (#42); their prototypes stay in externs.h.
 
 #include "headers.h"
 

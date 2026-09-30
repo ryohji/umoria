@@ -8,9 +8,8 @@
 // Making an object magical: the pluses, the curses and the ego names that an
 // object may be given when it is created
 //
-// magic_treasure() came over from misc2.c unchanged. It is one long switch on
-// the object's type and is not split here (ledger #26). m_bonus(), the size of
-// a plus, came from misc1.c.
+// magic_treasure() is one long switch on the object's type and is not split
+// here (ledger #26). m_bonus() gives the size of a plus.
 
 #include "headers.h"
 
@@ -858,7 +857,6 @@ void magic_treasure(int x, int level) {
     }
 }
 
-// Moved out of misc1.c unchanged (#54); its prototype stays in externs.h.
 // magic_treasure() above is the only caller.
 
 // Enchant a bonus based on degree desired -RAK-

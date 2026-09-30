@@ -12,10 +12,9 @@
 
 #include <stdint.h>
 
-// Two functions moved out of misc3.c unchanged. Both rewrite the string given
-// as the first argument in place, and both do nothing at all when the template
-// is not found. They are the only place in the game where a name is built by
-// substitution, so they were never related to the ten other jobs misc3.c did.
+// Both functions rewrite the string given as the first argument in place, and
+// both do nothing at all when the template is not found. They are the only
+// place in the game where a name is built by substitution.
 //
 // The name is not strings.h on purpose: -Isrc would let src/strings.h shadow
 // the standard <strings.h> for every translation unit (src/platform/curses.h already

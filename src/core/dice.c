@@ -6,8 +6,6 @@
 // for further details.
 
 // Dice rolls: what the monster and object tables write as 2d6
-//
-// The three functions came over unchanged from misc1.c, the last of it (#54).
 
 #include "headers.h"
 

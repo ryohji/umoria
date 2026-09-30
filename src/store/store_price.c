@@ -18,8 +18,7 @@
 #include "player_race.h"
 #include "stores.h"
 
-// Moved out of store1.c unchanged (#55); their prototypes stay in externs.h.
-// None of them prints or asks for input. The callers are the stock
+// None of these prints or asks for input. The callers are the stock
 // (store_stock.c), the haggling (store_haggle.c) and the score of the dead
 // (death.c).
 

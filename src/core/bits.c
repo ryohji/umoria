@@ -13,8 +13,6 @@
 
 // No externs.h here, the same as str_insert.c: nothing outside this file is
 // called, so the linker reports no unresolved symbol at all.
-//
-// Moved out of misc1.c unchanged (#54).
 
 // Returns position of first set bit -RAK-
 // and clears that bit

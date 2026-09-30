@@ -7,8 +7,6 @@
 
 // The character screen: the page that shows who the player is, and the
 // commands that show it and change the name on it
-//
-// Moved out of misc3.c unchanged (#42); their prototypes stay in externs.h.
 
 #include "headers.h"
 

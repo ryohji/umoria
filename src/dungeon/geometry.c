@@ -19,9 +19,6 @@
 #include "externs.h"
 #include "floor_items.h"
 
-// Moved out of misc1.c unchanged (#54), in the order they had there; their
-// prototypes stay in externs.h.
-
 // Checks a co-ordinate for in bounds status -RAK-
 bool in_bounds(int y, int x) {
     if ((y > 0) && (y < dungeon_height() - 1) && (x > 0) && (x < dungeon_width() - 1)) {
@@ -250,8 +247,6 @@ bool los(int fromY, int fromX, int toY, int toX) {
         }
     }
 }
-
-// Moved out of misc3.c unchanged (#42); its prototype stays in externs.h.
 
 // Given direction "dir", returns new row, column location -RAK-
 int mmove(int dir, int *y, int *x) {

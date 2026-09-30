@@ -17,7 +17,6 @@
 #include "player_food.h"
 #include "player_timed_effects.h"
 
-// Moved out of misc1.c unchanged (#54); its prototype stays in externs.h.
 // It is the sibling of player_food.c rather than a part of it: the stomach is
 // player_food.c's, but the penalty for overeating prints and slows the player,
 // which are not (player_food.h says why).

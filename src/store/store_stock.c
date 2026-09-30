@@ -18,11 +18,9 @@
 #include "floor_items.h"
 #include "stores.h"
 
-// Moved out of store1.c unchanged (#55), which was then removed; the
-// prototypes of the five that are not static stay in externs.h. None of them
-// prints or asks for input. The callers are main.c (store_init), the main
-// loop, the level generator and the save file loader (store_maint), and the
-// buying and selling in store_ui.c (the other three).
+// None of these prints or asks for input. The callers are main.c (store_init),
+// the main loop, the level generator and the save file loader (store_maint),
+// and the buying and selling in store_ui.c (the other three).
 
 static void insert_store(int, int, int32_t, inven_type *);
 static void store_create(int);
