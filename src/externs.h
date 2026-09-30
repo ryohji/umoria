@@ -477,7 +477,6 @@ int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
 int show_equip(bool, int);
 void takeoff(int, int);
-int verify(const char *, int);
 void inven_command(char);
 int get_item(int *, const char *, int, int, const char *, const char *);
 
