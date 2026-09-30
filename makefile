@@ -356,3 +356,6 @@ spellbook.o: inventory.h player_class.h player_level.h player_mana.h \
 # level_ops.c is what was left of misc3.c (#42). It includes externs.h.
 level_ops.o: hp_table.h player_class.h player_hp.h player_level.h \
              player_status_flags.h screen_fields.h stats.h $(HEADERS_FULL)
+player_melee.o: dungeon_map.h equipment.h monster_list.h player_body_weight.h \
+                player_class.h player_level.h player_timed_effects.h \
+                $(HEADERS_FULL)

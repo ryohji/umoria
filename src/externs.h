@@ -505,8 +505,10 @@ void tunnel(int);
 void disarm_trap(void);
 void look(void);
 void throw_object(void);
-void py_bash(int, int);
 void bash(void);
+
+// combat/player_melee.c
+void py_bash(int, int);
 
 // potions.c
 void quaff(void);
