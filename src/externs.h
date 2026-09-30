@@ -393,13 +393,15 @@ bool dec_stat(int);
 bool res_stat(int);
 void bst_stat(int, int);
 
-// misc3.c
+// item/spellbook.c
 int spell_chance(int);
 void print_spells(int *, int, int, int);
 int get_spell(int *, int, int *, int *, const char *, int);
 void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
+
+// misc3.c
 void prt_experience(void);
 void calc_hitpoints(void);
 

@@ -350,3 +350,7 @@ status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h \
               $(HEADERS_FULL)
 # stat_ops.c came from misc3.c (#42). It includes externs.h.
 stat_ops.o: player_class.h player_status_flags.h $(HEADERS_FULL)
+# spellbook.c came from misc3.c (#42). It includes externs.h.
+spellbook.o: inventory.h player_class.h player_level.h player_mana.h \
+            player_spells_to_learn.h player_status_flags.h \
+            player_timed_effects.h spells_known.h stats.h $(HEADERS_FULL)
