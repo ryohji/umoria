@@ -180,6 +180,7 @@ void create_character(void);
 void update_mon(int);
 bool multiply_monster(int, int, creature_handle, int);
 void creatures(int);
+void make_attack(int);
 
 // death.c
 void display_scores(int);

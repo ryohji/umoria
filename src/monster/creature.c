@@ -288,7 +288,7 @@ static void get_moves(int monptr, int *mm) {
 }
 
 // Make an attack on the player (chuckle.) -RAK-
-static void make_attack(int monptr) {
+void make_attack(int monptr) {
     // don't beat a dead body!
     if (player_is_dead()) {
         return;
