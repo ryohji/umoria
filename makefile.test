@@ -173,15 +173,15 @@ TEST_HEADERS = $(wildcard $(TESTDIR)/*.h)
 # ---- 足場の表 ---------------------------------------------------------------
 # 実行形式ごとに、tests/<name>.c と一緒にリンクする tests/ のファイル。
 # 書いていない実行形式は tests/<name>.c だけ（＋ libcore.a）。
-EXTRA_calc_hitpoints_test = misc3_stubs.c
-EXTRA_calc_spells_test = misc3_stubs.c
-EXTRA_check_strength_test = misc3_stubs.c
-EXTRA_gain_spells_test = misc3_stubs.c
-EXTRA_haggle_comment_test = misc3_stubs.c
-EXTRA_inven_stack_test = misc3_stubs.c
-EXTRA_objdes_test = misc3_stubs.c
-EXTRA_object_levels_test = misc3_stubs.c
-EXTRA_put_misc3_test = misc3_stubs.c
+EXTRA_calc_hitpoints_test = shared_stubs.c level_ops_fixture.c
+EXTRA_calc_spells_test = shared_stubs.c spellbook_fixture.c
+EXTRA_check_strength_test = shared_stubs.c inven_ops_fixture.c
+EXTRA_gain_spells_test = shared_stubs.c spellbook_fixture.c
+EXTRA_haggle_comment_test = shared_stubs.c store_haggle_fixture.c
+EXTRA_inven_stack_test = shared_stubs.c inven_ops_fixture.c
+EXTRA_objdes_test = shared_stubs.c desc_fixture.c
+EXTRA_object_levels_test = shared_stubs.c object_levels_fixture.c
+EXTRA_put_misc3_test = shared_stubs.c char_screen_fixture.c
 EXTRA_save_bool_test = save_stubs.c
 EXTRA_store_save_test = save_stubs.c
 EXTRA_movement_rate_test = creature_stubs.c

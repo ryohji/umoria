@@ -14,7 +14,7 @@
  *
  * 9 式は put_misc3() の途中のローカル変数なので外から直接は見えない。
  * しかし put_misc3() は結果を put_buffer() で画面に書くので、
- * tests/misc3_stubs.c の代役が記録した内容を fixture_screen_text() で
+ * tests/shared_stubs.c の代役が記録した内容を fixture_screen_text() で
  * 読みとれば観測できる。本体は一切変更していない。
  *
  * 写しにしなかった理由: ステップ B で式を 1 箇所に抽出するとき、

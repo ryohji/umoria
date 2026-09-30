@@ -17,7 +17,7 @@
  * リンクすることはできない。テスト側で定義する。
  * fixture_reset は本体には存在しないテスト専用の関数（fixture.h の窓口）。
  *
- * misc3_stubs.c / fixture.c ではなくこれを使う理由: どちらも py のほかに
+ * fixture.c ではなくこれを使う理由: fixture.c は py のほかに
  * 画面描画・乱数・インベントリの代役や実体を抱えていて、能力値の補正表とは
  * 何の関係もない module（desc.c / tables.c / treasure.c / player.c）を
  * 芋づるで引っぱってくる。補正表が読むのは py.stats.use_stat だけなので、

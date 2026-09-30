@@ -19,9 +19,9 @@
 
 player_type py;         /* 本体では player.c（530行の巨大データと同居） */
 /* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
- * 要る。src/data/player.c をリンクする足場（tests/misc3_stubs.c を使う側）は本物の
- * 40 個を持っているが、この足場は py を自分で定義する = player.c と一緒には
- * リンクされないので、ここにも空の表を置く。 */
+ * 要る。src/data/player.c をリンクする足場（tests/level_ops_fixture.c
+ * などを使う側）は本物の 40 個を持っているが、この足場は py を自分で
+ * 定義する = player.c と一緒にはリンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
  * しない。#18-5C で src/item/inventory.c が static で持つようになったので、
@@ -72,7 +72,7 @@ void prt_experience(void) {}
 static int fixture_randint_value = 1;
 /* 戻り値を固定するだけでは、呼びだし側が渡した上限が正しいかを検証できない。
  * 配列の要素数を取りちがえても返る値が同じで気づけないので、上限と
- * 呼びだし回数も記録する。misc3_stubs.c と同じ窓口を提供する。 */
+ * 呼びだし回数も記録する。tests/shared_stubs.c と同じ窓口を提供する。 */
 static int fixture_randint_last_max = 0;
 static int fixture_randint_calls = 0;
 

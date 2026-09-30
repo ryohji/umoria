@@ -28,8 +28,9 @@
  * static 関数を直接呼ぶ。写しではないので、ステップ B で実体を書きかえれば
  * このテストがそれを検証する。
  *
- * 出力は msg_print() で画面に出るだけなので、tests/misc3_stubs.c の代役が
- * 記録した内容を fixture_message_text() で読みとる。本体は変更していない。
+ * 出力は msg_print() で画面に出るだけなので、tests/shared_stubs.c
+ * の代役が記録した内容を fixture_message_text() で読みとる。本体は変更して
+ * いない。
  *
  * randint() は代役が固定値を返す（fixture_set_randint で制御）。
  * 添字は randint(N) - 1 なので、1 を渡せば配列の先頭、N を渡せば末尾。
