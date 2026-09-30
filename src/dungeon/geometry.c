@@ -250,3 +250,60 @@ bool los(int fromY, int fromX, int toY, int toX) {
         }
     }
 }
+
+// Moved out of misc3.c unchanged (#42); its prototype stays in externs.h.
+
+// Given direction "dir", returns new row, column location -RAK-
+int mmove(int dir, int *y, int *x) {
+    int new_row = 0;
+    int new_col = 0;
+
+    switch (dir) {
+    case 1:
+        new_row = *y + 1;
+        new_col = *x - 1;
+        break;
+    case 2:
+        new_row = *y + 1;
+        new_col = *x;
+        break;
+    case 3:
+        new_row = *y + 1;
+        new_col = *x + 1;
+        break;
+    case 4:
+        new_row = *y;
+        new_col = *x - 1;
+        break;
+    case 5:
+        new_row = *y;
+        new_col = *x;
+        break;
+    case 6:
+        new_row = *y;
+        new_col = *x + 1;
+        break;
+    case 7:
+        new_row = *y - 1;
+        new_col = *x - 1;
+        break;
+    case 8:
+        new_row = *y - 1;
+        new_col = *x;
+        break;
+    case 9:
+        new_row = *y - 1;
+        new_col = *x + 1;
+        break;
+    }
+
+    bool moved = false;
+
+    if ((new_row >= 0) && (new_row < dungeon_height()) && (new_col >= 0) && (new_col < dungeon_width())) {
+        *y = new_row;
+        *x = new_col;
+        moved = true;
+    }
+
+    return moved;
+}

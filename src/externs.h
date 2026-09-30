@@ -285,6 +285,11 @@ int distance(int, int, int, int);
 bool los(int, int, int, int);
 int next_to_walls(int, int);
 int next_to_corr(int, int);
+int mmove(int, int *, int *);
+// item/inven_ops.c
+int find_range(int, int, int *, int *);
+// player/player_move.c
+void teleport(int);
 // ui/map_view.c
 // panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
 // panel_contains() は panel.h。
@@ -389,9 +394,6 @@ void gain_spells(void);
 void calc_mana(int);
 void prt_experience(void);
 void calc_hitpoints(void);
-int mmove(int, int *, int *);
-int find_range(int, int, int *, int *);
-void teleport(int);
 
 // item/inscription.c (these five were misc4.c until #54)
 void scribe_object(void);

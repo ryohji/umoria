@@ -325,3 +325,7 @@ wizard.o: progress.h score_death.h $(HEADERS_FULL)
 hit_rolls.o: player_class.h player_level.h $(HEADERS_FULL)
 player_damage.o: player_class.h player_level.h player_saving_throw.h stats.h \
                  $(HEADERS_FULL)
+# inven_ops.c and player_move.c came from misc3.c (#42). They include externs.h.
+inven_ops.o: inventory.h $(HEADERS_FULL)
+player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h \
+               $(HEADERS_FULL)
