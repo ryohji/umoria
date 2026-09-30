@@ -10,7 +10,7 @@
 
 ## 0. 現在地
 
-2026-09-30、`develop` は #54 の misc1 と #55 の下調べをマージした上に記録（`origin` は `994818a` のまま。push はユーザーが行う）。
+2026-09-30、`develop` は #55（store1/2）をマージした上に記録（`origin` は `994818a` のまま。push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1671 件・75 本**、failed=0、`RESULT: GREEN`。
   `layer_deps.py --check` は core/ の違反 0。
@@ -34,7 +34,10 @@
   動かした関数の機械語が変更前と一致（`scripts/dis_compare.py`）。
 - **misc1.c も消えた**（#54 は済み。2026-09-30）。行き先は layout.md の表のとおりで、
   乱数は `core/rnd.c`（`normal_table` ごと）、`damroll` など 3 本は `core/dice.c`。
-  **次は store1/2（#55）の値段から**。確かめ方はユーザーの判断でテストと差分の読み。
+- **store1.c・store2.c も消えた**（#55 は済み。マージ `59e0c92`・`ced26a4`）。`store/` に
+  値段 `store_price.c`・品ぞろえ `store_stock.c`・画面 `store_ui.c`・値切り `store_haggle.c`。
+  画面から呼ぶ値切りの 4 本は `static` を外して `store_haggle.h` に。
+  **次は misc3（#42）。下調べは layout.md にあり、迷いどころ 13 点をユーザーに見せてから始める。**
   第 5 節・第 6 節と `docs/refactoring/layout.md`。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
@@ -544,7 +547,7 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
   作る。葉のテストが単独でリンクできることを守るため。
 
 L・D0・D は済み、層の規則は「core/ だけ守る」に決まった。R は misc4・misc2・misc1 が
-済み（1671 件・75 本 GREEN、警告 0）。次は store1/2、そのあと第 6 節の順。
+済み、store1/2 も済み（1671 件・75 本 GREEN、警告 0）。次は misc3、そのあと第 6 節の順。
 
 - **純粋な移動は `scripts/dis_compare.py 変更前の umoria 変更後の umoria 関数…`
   で確かめる。** 移す関数の多くは本物に届くテストが 0 件で（misc4 の 5 本中 4 本、

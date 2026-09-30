@@ -204,6 +204,8 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
   `prt_comment1`（＋表 `comment1`）の呼び手は**画面の側だけ**。案のままなら外に出す名前は
   5 つ、`decrease_insults` と `prt_comment1` を `store_ui.c` に置けば 3 つ。
 - **store2 の確かめ方は、テストと差分の読みだけにする**（2026-09-30、ユーザーの判断）。
+- **`prt_comment1` は画面なので `store_ui.c`、`decrease_insults` は `insult_cur` を書くので
+  `store_haggle.c`**（2026-09-30、ユーザーの判断）。外に出した名前は 4 つ（`store_haggle.h`）。
 - **store2 は機械語の一致では確かめられない。** 本体の `-O2` では `store2.o` に記号が
   残るのは 8 本だけで（`nm`）、`purchase_haggle`・`sell_haggle`・`prt_comment1〜6`・
   `display_store` など 15 本は呼び手の中に溶けこんでいる。値切りを別のファイルに出すと
@@ -263,6 +265,149 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
 **順番**：`misc4` → `misc1` → `misc2` → `store1/2` → `misc3`（#42）→
 `moria1〜4`。小さいものから始め、`misc3_stubs.c` の代役が多く当たるものほど
 後にする。
+
+### misc3 の下調べ（2026-09-30、`59e0c92` の時点）
+
+読みとりと、/tmp の写しでのビルドだけで測った（コミットは 0）。この時点の `store2.c` は、
+いまの `store/store_haggle.c`（#55）。
+
+- **状態:** `src/misc3.c` は 1899 行・77 関数（static 7）。#33 の 87 関数から #40・#41 の 10 を引いた数。include は 35 本で 10-51 行。static のデータが 2 つ。
+  - `stat_names` は B だけが使う。
+  - `blank_string` と `#define BLANK_LENGTH 24` は B と D の `get_name`（:820）が使う。
+- **塊の数え直し（関数の数は #33 の表とすべて一致）:**
+
+| 塊 | 関数 | 今の行数 | #33 表 | 表の行き先 | 今の事情 |
+|---|---:|---:|---:|---|---|
+| A 配置 | 7 | 160 | 161 | `place.c` | `dungeon/object_place.c`（popt ほか）が既にある |
+| B 描画 | 35 | 468 | 475 | `char_screen.c`（dir 無し） | static の prt_lnum/prt_7lnum/prt_num/prt_long/prt_int を持つ |
+| C' 能力値の変更 | 6 | 124 | 115 | `stats.c` | `player/stats.c` は葉モジュール。C' は prt_stat・calc_bonuses・calc_* を呼ぶので、置き場の規則に反する |
+| D 名前 | 2 | 59 | 50 | char_screen に同居させるか別 | B の display_char と blank_string を使う |
+| E 持ち物 | 10 | 219 | 210 | `inventory.c` | `item/inventory.c` は葉の状態モジュール。規則上は兄弟ファイルになる |
+| F 呪文 | 6 | 483 | 525 | spellbook.c | layout.md では `item/spellbook.c` |
+| G 経験値 | 3 | 64 | 82 | `player_level.c` | `player/player_level.c` は葉モジュールで、規則とぶつかる |
+| I wizard | 1 | 18 | 18 | wizard.c | `ui/wizard.c` |
+| J 打撃 | 4 | 123 | 120 | `combat.c` | layout.md では `combat/hit_rolls.c` と `combat/player_damage.c`（player_saves） |
+| K 移動 | 3 | 118 | 118 | `movement.c` | layout.md では `player/player_move.c` |
+
+  - 合計は 1836 行で、冒頭の 63 行を足すと 1899 行。
+  - C' は 498-620 行で、B の中に挟まっている。J と K は交互に並ぶ（critical_blow と player_saves のあいだに mmove）。
+- **K の中身は性質が 3 通り:**
+  - find_range は持ち物への問い合わせ。呼び手は 10 ファイル（creature dungeon eat magic potions prayer scrolls spells staffs wands）。
+  - mmove は幾何に近い。呼び手は 7 ファイル（creature dungeon generate moria2-4 spells）。
+  - teleport は移動。
+- layout.md が hit_rolls を「副作用が無い」とするのは不正確。tot_dam は recall_update_characteristics を、critical_blow は msg_print を呼ぶ。
+- 外から呼ばれていないのに static でない関数が 3 つある: modify_stat、prt_field、spell_chance。
+- **外向きの依存（-O0 の再配置を定義元の .o に対応づけた）:**
+  - A: desc dungeon_level dungeon_map dungeon_size floor_items geometry io item_enchant object_levels object_place player_pos rnd sets treasure
+  - B: abilities command_state dungeon_level io map_view player、player_* 約 15 本、progress save_state score_death variable。B からほかの塊は呼ばない。
+  - C': moria1（calc_bonuses）player_class player_status_flags rnd py。塊をまたいで B（prt_stat）、F（calc_spells・calc_mana）、G（calc_hitpoints）を呼ぶ。
+  - D: files player_bio io、B の display_char、blank_string
+  - E: burden desc dungeon_map floor_items inventory io item_ident moria1（calc_bonuses change_speed takeoff）moria3（delete_object）object_place（popt）player_body_weight player_pos player_status_flags rnd
+  - F: inventory io moria1（no_light）player player_class player_level player_mana player_spells_to_learn player_status_flags player_timed_effects rnd spells_known stats variable
+  - G: hp_table io player_class player_hp player_level player_status_flags stats。塊をまたいで F（calc_mana calc_spells）と B（prt_level prt_title、static の prt_long）を呼ぶ。
+  - I: io progress score_death
+  - J: io monsters player player_class player_level player_saving_throw rnd stats tables variable
+  - K: creature dungeon_map dungeon_size geometry inventory map_view moria1（lite_spot move_rec）pending_teleport player_pos rnd
+- **層の規則:** `layer_deps.py --check` は 827 辺・違反 0。規則があるのは core/ だけで、core/ へ行く塊は無いので、どの塊も規則を破らない。combat/ は LAYER_ORDER には既にあるが、ディレクトリはまだ無い。作るなら sources.mk の SRC_SUBDIRS に足す。
+- **ビルド定義:** externs.h:316-376 に「// misc3.c」の見出しと 70 宣言。ほかに makefile:187（`misc3.o: burden.h $(HEADERS_FULL)`）、makefile.win:105、sources.mk:22。
+- **テスト:** `--who misc3.o` は 9 本で、EXTRA = misc3_stubs.c の 9 本とちょうど一致する。
+
+| テスト | misc3.o を引く関数 | 件数 |
+|---|---|---:|
+| calc_hitpoints | calc_hitpoints | 13 |
+| calc_spells | calc_spells | 17 |
+| check_strength | weight_limit | 24 |
+| gain_spells | gain_spells | 13 |
+| haggle_comment | draw_cave（`#include "store2.c"` 経由） | 25 |
+| inven_stack | inven_check_num | 40 |
+| objdes | prt_experience（item_ident.o 経由） | 21 |
+| object_levels | get_obj_num | 18 |
+| put_misc3 | put_misc3 | 24 |
+
+  - `--count` は各 45 メンバー、haggle だけ 49。
+  - `#include "misc3.c"` するテストは 0 本。REFACTORING_PLAN:262 の「calc_spells_test・gain_spells_test が include する」は古い。
+  - `tests/misc3_stubs.c` は 516 行・大域シンボル 55 個。冒頭コメントは今も「2212 行・6 責務」。
+- **`--shadows`（9 本とも）:** 代役が本物を覆うメンバーは 13 個（creature files geometry inscription io item_enchant map_view monsters moria3 object_place rnd sets variable）。moria1 系の代役は moria1 が libcore に無いので表に出ない。
+- **misc3.o を引かずに misc3 の名前を代役にしているテスト:**
+  - item_ident_test（fixture.c）: prt_experience
+  - movement_rate_test（creature_stubs.c）: dec_stat find_range inven_destroy mmove player_saves prt_cmana prt_experience prt_gold
+  - save_bool_test・store_save_test（save_stubs.c）: check_strength prt_experience
+- **本物に届くテスト（gcov、全 1671 件）:** 77 関数のうち通るのは 15 で、**残る 62 は 0%**。
+
+| テスト | 通る関数（行カバレッジ） |
+|---|---|
+| calc_hitpoints_test | calc_hitpoints 100% |
+| calc_spells_test | calc_spells 95.65% |
+| check_strength_test | check_strength 100%、inven_check_weight 100%、weight_limit 80% |
+| gain_spells_test | gain_spells 97.14%、calc_mana 39.39%、print_spells 64.29%、spell_chance 71.43% |
+| inven_stack_test | inven_carry、inven_check_num、items_can_stack（いずれも 100%） |
+| object_levels_test | get_obj_num 91.67% |
+| put_misc3_test | put_misc3 100%、likert 88.89% |
+
+  - haggle_comment と objdes は misc3 のコードを 1 行も通らない。
+  - 塊で見ると、A・B・E・F・G は一部が保護されている。C'・D・I・J・K は保護が 0。
+- **-O2 で溶けるもの（nm）:** 非 static の 70 関数は全部 T で残る。static 7 つはすべて溶けている。clone が 3 つ: calc_mana.part.0、prt_state.part.0、get_obj_num.part.0。
+  - 塊をまたぐインライン展開:
+    - inc_stat・dec_stat・res_stat が prt_stat（B）を展開
+    - change_name が display_char（B）を展開
+    - prt_experience の中の gain_level が calc_mana・calc_spells（F）、prt_level・prt_title（B）、prt_long を展開
+  - 塊の中だけの展開: A の alloc_object が place_rubble・place_trap を、E が items_can_stack・weight_limit を展開する。B の中にも多数。
+  - -O2 -fno-inline でも ICF が prt_int を prt_long に、prt_num を prt_lnum に畳む。prt_7lnum と prt_long は .constprop.0 になる。
+- **試しの移動（/tmp/m3s の写し。塊ごとに新ファイル src/trial_X.c へ出し、畳まれない 73 関数を dis_compare）:**
+  - **-O2 -fno-inline:** B と G の試しで prt_experience だけが DIFFERENT、ほかは全部 same。prt_long が 2 ファイルに複写されるため、ipa-cp の定数伝播（`mov $0xe,%esi` が消える）と ICF の別名が変わる。
+    - `-fno-ipa-cp` を足しても `jmp <prt_int>` と `<prt_long>` の差が残る。
+    - `-fno-ipa-icf` を足すと prt_gold と prt_experience が DIFFERENT。
+    - **`-O2 -fno-inline -fno-ipa-cp -fno-ipa-icf` で B も G も 73/73 same。**
+  - **素の -O2:** A・E・I・J・K は 70/70 same。変わるもの:
+    - B: inc/dec/res_stat、change_name、prt_experience
+    - C': set_use_stat、inc/dec/res_stat
+    - D: change_name
+    - F・G: それぞれ set_use_stat、gain_spells、calc_mana、prt_experience
+  - 健全性の確認: 移した critical_blow の文字列を 1 つ変えると DIFFERENT になった。
+  - **既存ファイルへの合流（-O2 -fno-inline）:** I → ui/wizard.c は 4/4 same、A → dungeon/object_place.c は 10/10 same。**ただし A を合流させると object_levels_test がリンクで落ちる（`multiple definition of 'popt'`）。** misc3_stubs.c の popt と、get_obj_num が引きこむ本物の object_place.o がぶつかる。
+  - **新ファイルへの試し（10 塊すべて）は GREEN:** 1671 件、失敗 0、multiple definition も undefined reference も 0。
+    - 新しい .o を引くテスト: trial_A は object_levels、trial_B・F・G は 9 本すべて、trial_E は check_strength・haggle・inven_stack。trial_C'・D・I・J・K は 0 本。
+    - 最後まで misc3.o は 9 本とも引かれたまま。
+- **字を変えずに運ぶもの:**
+  - B1 / #10: items_can_stack と「must agree」のコメント（970-982）
+  - #39: `known1_p(existing) == known1_p(incoming)` は今は :982（計画の :1052 は古い）
+  - B8: inven_carry の `for (locn = 0;; locn++)`（:1070）
+  - B9: inven_check_num の inventory_slot_count の判定と inven_carry の食いちがい
+  - B18: prt_winner の「Duplicate」の分岐（`& 0x4`、:491）には到達しない。0x2 は enter_wiz_mode（:1652）が立てる。
+- **番号の衝突:** gain_spells の :1410 のコメントにある「バグ候補 B22」（magic_spell[-1] のアドレスを職業の判定より先に作る）は worklog #18-12-28（2026-09-28）で付いた名前で、bugs.md には入っていない。bugs.md の B22（b62de9df）は store_sell のマスクで、別物。calc_spells:1262 も同じアドレスを作る。
+- **行番号がもう合わない記述:** bugs.md の B10・B11 が指す「misc3.c:973/977」のコメントは src のどこにも無い。
+- **日本語のコメント:** 424-426、624-625、643-646、667-671、822-826、957-959、1292-1293、1379-1380、1404-1406、1410-1412、1828-1830。
+- **孤立したコメント:** :1659 の「// Weapon weight VS strength and dexterity -RAK-」は、attack_blows と空行 1 行で離れている。
+- **古い行番号のコメント:** src と tests で「misc3.c」を名指しするのは 52 ファイル・135 行（misc3.c 自身を除く）。「misc3.c:N」の形は 24 ファイルに 46 箇所。
+  - 関数を名指しする 23 箇所のうち、21 箇所がずれていて、2 箇所はほぼ合う（calc_hitpoints_test:17 の 1582 は今 1579、player_bio_test:221 の 817 は今 818）。残りの 23 箇所は関数を名指ししない。
+  - 例: calc_hitpoints_test「1624」（今 1616）、fixture.c と item_ident_test「1838」（prt_experience は今 1603）、misc3_stubs「2103」（teleport は今 1873）、player_class_test:280「1404」、src/player/player_body_weight.h:64,74、player_class.h:88,89,115。
+  - 文書側も古い行を指す: REFACTORING_PLAN #10 #11 #17 #23 #39 #40 #41、bugs.md。
+- **順番の案（推測）:**
+  1. I: 18 行・届くテスト 0・wizard.c への合流で same
+  2. J: combat/ を今作るなら SRC_SUBDIRS を足す
+  3. K: 3 関数の置き場を決めてから
+  4. A: object_place.c には合流させず新ファイルへ。合流させるなら先に popt の代役を片づける
+  5. E: inventory.c の兄弟ファイル
+  6. D と B: static の補助関数と blank_string の扱いを決めてから
+  7. C'・F・G は最後にまとめて: 互いに呼び合い、-O2 で互いに展開される。B と G は `-fno-ipa-cp -fno-ipa-icf` で比べる
+
+  A・E・I・J・K は素の -O2 でも same なので、比べやすい順でもある。
+
+### 迷いどころ
+
+1. C'・E・G の行き先。表どおり stats.c・inventory.c・player_level.c に入れると葉モジュールの規則に反する。兄弟ファイル（例: stat_ops.c・inven_ops.c・level_ops.c）にするか。
+2. B を 1 ファイル（char_screen）にするか、ステータス行とキャラ画面に割るか。置くディレクトリ（ui/ か）。
+3. D を B と同じファイルに置くか。
+4. K の 3 関数を 1 ファイルに置くか。find_range は持ち物への問い合わせ、mmove は幾何、teleport は移動。
+5. A を object_place.c に合流させるか（先に misc3_stubs の popt を片づける）、新ファイルにするか。
+6. combat/ を今作るか。hit_rolls を「副作用が無い」とする layout.md の記述を直すか。
+7. prt_long・blank_string・stat_names を複写するか、公開するか、B と一緒に動かすか。
+8. 比べるフラグ。B・G は `-O2 -fno-inline -fno-ipa-cp -fno-ipa-icf`、その他は -O2 -fno-inline か素の -O2 で足りる。
+9. 「B22」の番号の衝突（gain_spells:1410 のコメントと bugs.md）。バグ候補に新しい番号を振るか。
+10. 古い行番号のコメント（24 ファイル・46 箇所）と日本語のコメント（11 箇所）を移動と一緒に直すか、別のコミットにするか。
+11. 移動の前に、届くテストが 0 の 62 関数（とくに C'・D・I・J・K）へステップ A として保護を足すか。
+12. 外から呼ばれない modify_stat・prt_field・spell_chance を、このとき static にするか（ふるまいは変わらないが、純粋な移動ではなくなる）。
+13. misc3_stubs.c の冒頭コメントの数字（2212 行・6 責務）と、REFACTORING_PLAN:262 の #include の記述が古い。直す時期をいつにするか。
 
 ## combat/
 
@@ -587,6 +732,6 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | L1〜L3 | 済み（2026-09-29、`develop` へマージ `5e0cd6e`） | `refactor/52-test-library`、`e7c3a9c`〜`c188e58`（7 コミット）。74 本の Map は 72 本が旧 recipe と一致、残る 2 本は旧 recipe が誰も参照しない `tables.c`・`treasure.c` を並べていた差（`worklog.md`） |
 | D0 | 済み（2026-09-29、迷いどころ 10 点はすべて案のとおり。マージ `111d2e7`） | `docs/53-d0-destinations`、`2dfa7b8`・`89395b0` |
 | D | 済み（2026-09-29、`develop` へマージ `99fe489`）。D0 の表のとおり `.c` 96 本・`.h` 70 本を 10 個のディレクトリーへ（`combat/` は 0 本なのでまだ無い）。どのコミットでも本体の `objdump -d` が変更前と一致 | `refactor/53-directories`、`68dbae9`〜`cfaadc4`（13 コミット。makefile の仕組み 1・`layer_deps.py --matrix` 1・`git mv` 10・コメント 1。`worklog.md`） |
-| R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 は値段から作業中 | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット） |
+| R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 済み（2026-09-30、マージ `59e0c92`・`ced26a4`）。次は misc3（#42）で、下の下調べの迷いどころをユーザーに見せてから | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット）、`refactor/55-store-price`（`855c998`・`36ae8e9`）、`refactor/55-store-stock`（`8351ce2`・`0ea41fd`）と `refactor/55-store2`（`a341211`〜`3eaa18b`、3 コミット） |
 | combat の残り | 未着手 | |
 | 後始末 | 未着手 | |
