@@ -129,7 +129,7 @@ void player_timed_set(player_timed_effect effect, int turns);
 
 // No turns left. Not the same as the state ending: the mark is untouched, which
 // is what the two callers want -- dungeon.c cancelling fear a hero should not
-// feel, and moria4.c stepping onto a trap without being pushed sideways by
+// feel, and traps.c stepping onto a trap without being pushed sideways by
 // confusion (it puts the turns back afterwards).
 void player_timed_clear(player_timed_effect effect);
 

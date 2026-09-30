@@ -44,7 +44,7 @@ struct player_abilities calc_player_abilities(void) {
     // 武器の下駄も窓口へ（#18-12-24B）。**2 行が同じ数を読むので入口で 1 度に
     // 畳んだ** —— あいだに下駄を動かすものは無い（→ 所見 35 の 1 つめの形）。
     // **BTH_PLUS_ADJ（3）を掛けるのはこの画面の規則**で、窓口には入れない ——
-    // 殴りと投げは下駄をそのまま足す（moria3.c:595・moria4.c:676）。
+    // 殴りと投げは下駄をそのまま足す（moria3.c:595・throw.c）。
     const int to_hit_bonus = player_to_hit_bonus();
     a.bth = player_base_to_hit() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTH] * player_level());
     a.bthb = player_base_to_hit_with_bows() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTHB] * player_level());

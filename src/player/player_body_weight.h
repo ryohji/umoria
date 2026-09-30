@@ -20,8 +20,8 @@
 // NOT VANITY -- A PHYSICAL QUANTITY. The number is on the character sheet, but
 // four of the six readers are rules, not display: a heavier character carries
 // more (inven_ops.c's weight_limit()), bashes monsters with a shield harder
-// (moria4.c's py_bash(), twice) and breaks doors down more easily
-// (moria4.c:1000).
+// (player_melee.c's py_bash(), twice) and breaks doors down more easily
+// (terrain_commands.c's bash()).
 //
 // WRITTEN ONCE IN A NORMAL CHARACTER'S LIFE, at creation (create.c, one line for
 // each sex), plus a saved game being read back and the wizard's tweak.
@@ -34,10 +34,10 @@
 // three.
 
 // The weight in pounds. EIGHT CALLERS: the carrying limit (inven_ops.c), the shield
-// bash's to-hit and damage (moria4.c, twice, folded into one call), the door bash
-// (moria4.c), the character sheet (char_screen.c), the dumped character file
-// (files.c), the saved file being written (save.c) and the wizard's prompt
-// (wizard.c).
+// bash's to-hit and damage (player_melee.c, twice, folded into one call), the door
+// bash (terrain_commands.c), the character sheet (char_screen.c), the dumped
+// character file (files.c), the saved file being written (save.c) and the
+// wizard's prompt (wizard.c).
 //
 // An int, though the field is a uint16_t: every caller either divides it
 // (`/ 10`, `/ 60`, `/ 2`), adds it to an int, or prints it with `(int)` already
@@ -68,10 +68,10 @@ void player_body_weight_set(int pounds);
 //      term. It also needs py.stats.use_stat[], which has no window yet, so even
 //      if it belonged here it would have to wait (ledger observation 42) -- but
 //      there is only one such site, so nothing is piling up.
-//   2. HOW HARD A BASH LANDS. moria4.c:910 (`/ 10`), :920 (`/ 60 + 3`) and
-//      :1000 (`/ 2`). Three different divisors for three different rules: those
-//      are facts about bashing, not about the body, and there is no shared
-//      expression to fold.
+//   2. HOW HARD A BASH LANDS. py_bash() (`/ 10`, `/ 60 + 3`) and bash() (`/ 2`).
+//      Three different divisors for three different rules: those are facts
+//      about bashing, not about the body, and there is no shared expression to
+//      fold.
 //   3. HOW THE NUMBER IS SHOWN. char_screen.c:109 hands it to prt_num(), files.c:209
 //      to fprintf("%6d"). Unlike the race's name, THE TWO SITES HAVE NO COMMON
 //      EXPRESSION -- the receivers differ -- so there is no display window here.

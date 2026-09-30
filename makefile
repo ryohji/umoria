@@ -257,7 +257,8 @@ run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h \
             player_light.h player_pos.h player_timed_effects.h running.h \
             $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
-moria4.o: burden.h $(HEADERS_FULL)
+look.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
+        player_timed_effects.h $(HEADERS_FULL)
 # object_place.c came out of misc1.c (#54). It includes externs.h, and reads
 # the map, its size, what lies on the floor and where the player stands.
 object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h $(HEADERS_FULL)
@@ -373,3 +374,17 @@ rest_command.o: command_state.h player_food.h player_resting.h \
 direction.o: command_state.h $(HEADERS_FULL)
 lighting.o: dungeon_map.h floor_items.h panel.h player_light.h player_pos.h \
             player_timed_effects.h running.h $(HEADERS_FULL)
+player_melee.o: dungeon_map.h equipment.h monster_list.h player_body_weight.h \
+                player_class.h player_level.h player_timed_effects.h \
+                $(HEADERS_FULL)
+throw.o: dungeon_map.h equipment.h floor_items.h inventory.h monster_list.h \
+         panel.h player_attack_bonuses.h player_base_to_hit.h player_class.h \
+         player_level.h player_pos.h player_status_flags.h \
+         player_timed_effects.h $(HEADERS_FULL)
+traps.o: dungeon_map.h floor_items.h monster_list.h player_class.h \
+         player_disarm.h player_level.h player_pos.h player_timed_effects.h \
+         stats.h $(HEADERS_FULL)
+terrain_commands.o: burden.h command_state.h dungeon_map.h equipment.h \
+                    floor_items.h monster_list.h player_body_weight.h \
+                    player_pos.h player_search_skill.h player_timed_effects.h \
+                    $(HEADERS_FULL)

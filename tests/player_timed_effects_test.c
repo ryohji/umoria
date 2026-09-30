@@ -570,7 +570,7 @@ TEST(counting_down_from_zero_brings_no_ending) {
 }
 
 /* 数を 0 にしても印はそのまま —— 消すのは数えおとしの仕事で、
- * player_timed_clear() は数だけを触る（moria4.c が罠の上で混乱を預けて戻せるのも
+ * player_timed_clear() は数だけを触る（traps.c が罠の上で混乱を預けて戻せるのも
  * これがあってこそ）。 */
 TEST(clearing_the_clock_leaves_the_mark_set) {
     given_no_state_at_all();

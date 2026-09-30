@@ -25,7 +25,7 @@
 //
 //   - THE MELEE NUMBER is used when the character swings what is wielded.
 //   - THE BOWS NUMBER is used when something is fired or thrown, and it is the
-//     one the game leans on more heavily -- moria4.c picks it out again for every
+//     one the game leans on more heavily -- throw.c picks it out again for every
 //     kind of launcher.
 //
 // THE MIRROR IMAGE OF THE ARMOUR CLASS (player_armour_class.h). There, two fields
@@ -42,13 +42,13 @@
 // are one question with two answers.
 //
 // WHO ASKS: the four places a to-hit roll is made. moria3.c for a swing (twice,
-// because an unlit target is harder to hit), moria4.c for a shot or a throw (seven
+// because an unlit target is harder to hit), throw.c for a shot or a throw (seven
 // times, once per launcher), abilities.c for the two ratings on the character
 // sheet, and the saved file.
 
 // The two answers. FIVE CALLERS FOR THE MELEE NUMBER (abilities.c's rating,
 // moria3.c's two branches, the wizard screen, the saved file) and TEN FOR THE BOWS
-// NUMBER (abilities.c, moria4.c's seven, the wizard screen, the saved file).
+// NUMBER (abilities.c, throw.c's seven, the wizard screen, the saved file).
 //
 // Both are ints, as `p_ptr->bth` always was once C had widened it: every caller
 // puts the number straight into a larger sum.
@@ -113,7 +113,7 @@ void player_base_to_hit_adjust_both(int amount);
 //      BTH_PLUS_ADJ and the class's per-level column on top of these numbers, and
 //      likert() turns the total into words. That sum is the sheet's question.
 //   3. THE BARE-HANDED AND UNLIT PENALTIES. moria3.c halves the melee number and
-//      subtracts when the target cannot be seen; moria4.c takes 75 percent of the
+//      subtracts when the target cannot be seen; throw.c takes 75 percent of the
 //      bows number for a thing merely thrown. Each of those rules has exactly one
 //      reader, and it stays with that reader.
 //   4. HOW LONG A SPELL LASTS. player_timed_effects.c keeps the clocks.
