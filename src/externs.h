@@ -470,9 +470,11 @@ void rest_off(void);
 bool test_hit(int, int, int, int, int);
 void take_hit(int, const char *);
 
-// moria2.c
+// dungeon/search.c
 void change_trap(int, int);
 void search(int, int, int);
+
+// moria2.c
 void find_init(int);
 void find_run(void);
 void end_find(void);
