@@ -174,9 +174,9 @@ TEST_HEADERS = $(wildcard $(TESTDIR)/*.h)
 # 実行形式ごとに、tests/<name>.c と一緒にリンクする tests/ のファイル。
 # 書いていない実行形式は tests/<name>.c だけ（＋ libcore.a）。
 EXTRA_calc_hitpoints_test = level_ops_fixture.c
-EXTRA_calc_spells_test = spellbook_fixture.c
+EXTRA_calc_spells_test = shared_stubs.c spellbook_fixture.c
 EXTRA_check_strength_test = inven_ops_fixture.c
-EXTRA_gain_spells_test = spellbook_fixture.c
+EXTRA_gain_spells_test = shared_stubs.c spellbook_fixture.c
 EXTRA_haggle_comment_test = store_haggle_fixture.c
 EXTRA_inven_stack_test = inven_ops_fixture.c
 EXTRA_objdes_test = desc_fixture.c
