@@ -155,7 +155,7 @@ player_max_depth.o: player_max_depth.h constant.h types.h config.h
 player_hit_die.o: player_hit_die.h constant.h types.h config.h
 player_armour_class.o: player_armour_class.h constant.h types.h config.h
 player_base_to_hit.o: player_base_to_hit.h constant.h types.h config.h
-player_damage.o: player_class.h player_level.h player_saving_throw.h stats.h constant.h types.h externs.h config.h
+player_damage.o: equipment.h player_abilities.h player_class.h player_level.h player_saving_throw.h player_timed_effects.h stats.h constant.h types.h externs.h config.h
 player_disarm.o: player_disarm.h constant.h types.h config.h
 player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h constant.h types.h externs.h config.h
 player_saving_throw.o: player_saving_throw.h constant.h types.h config.h
