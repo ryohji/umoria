@@ -140,16 +140,15 @@ help:
 HEADERS_COMMON = constant.h types.h config.h
 HEADERS_FULL = $(HEADERS_COMMON) externs.h
 
-# bits.c came out of misc1.c (#54). It needs nothing but <stdint.h> and its own
-# header -- not even constant.h (the same as dungeon_size.o below).
+# bits.c needs nothing but <stdint.h> and its own header -- not even constant.h
+# (the same as dungeon_size.o below).
 bits.o: bits.h
 # burden.c does not include externs.h either, so HEADERS_COMMON is enough.
 burden.o: burden.h $(HEADERS_COMMON)
 create.o: $(HEADERS_FULL)
 creature.o: $(HEADERS_FULL)
 death.o: $(HEADERS_FULL)
-# dice.c is what was left of misc1.c (#54). It includes externs.h for
-# randint().
+# dice.c includes externs.h for randint().
 dice.o: $(HEADERS_FULL)
 desc.o: $(HEADERS_FULL)
 device.o: device.h $(HEADERS_FULL)
@@ -157,18 +156,18 @@ dungeon.o: $(HEADERS_FULL)
 eat.o: $(HEADERS_FULL)
 files.o: $(HEADERS_FULL)
 game_state.o: game_state.h burden.h $(HEADERS_FULL)
-# food_ops.c came out of misc1.c (#54). It includes externs.h, and reads the
-# stomach and the timed effects (the slowness that overeating costs).
+# food_ops.c includes externs.h, and reads the stomach and the timed effects
+# (the slowness that overeating costs).
 food_ops.o: player_food.h player_timed_effects.h $(HEADERS_FULL)
 generate.o: $(HEADERS_FULL)
-# geometry.c came out of misc1.c (#54). It includes externs.h, and reads the
-# map, its size and what lies on the floor.
+# geometry.c includes externs.h, and reads the map, its size and what lies on
+# the floor.
 geometry.o: dungeon_map.h dungeon_size.h floor_items.h $(HEADERS_FULL)
 help.o: $(HEADERS_FULL)
 # hp_table.c does not include externs.h either, so HEADERS_COMMON is enough.
 hp_table.o: hp_table.h $(HEADERS_COMMON)
-# inscription.c came out of misc4.c (#54). It includes externs.h, and reads
-# the pack through both windows of inventory.c.
+# inscription.c includes externs.h, and reads the pack through both windows of
+# inventory.c.
 inscription.o: inventory.h equipment.h $(HEADERS_FULL)
 # inventory.c does not include externs.h, so HEADERS_COMMON is enough here
 # (the same as stats.o and str_insert.o below). It provides both windows on the
@@ -179,9 +178,9 @@ item_enchant.o: floor_items.h missile_serial.h $(HEADERS_FULL)
 item_ident.o: item_ident.h $(HEADERS_FULL)
 magic.o: $(HEADERS_FULL)
 main.o: $(HEADERS_FULL)
-# map_view.c came out of misc4.c and misc1.c (#54). It includes externs.h, and
-# reads the map, what lies on it (items and monsters), the panel, where the
-# player stands, whether the player is blind, hallucinating or running.
+# map_view.c includes externs.h, and reads the map, what lies on it (items and
+# monsters), the panel, where the player stands, whether the player is blind,
+# hallucinating or running.
 map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
             player_status_flags.h player_timed_effects.h running.h $(HEADERS_FULL)
 # missile_serial.c does not include externs.h either (MAX_SHORT comes from
@@ -224,9 +223,9 @@ monster_breeding.o: monster_breeding.h $(HEADERS_COMMON)
 # (#18-14-4). Does not include externs.h -- during A/B it reaches the storage in
 # monsters.c through three hand-written externs, and in C the storage moves here.
 monster_list.o: monster_list.h $(HEADERS_COMMON)
-# monster_place.c came out of misc1.c (#54). It includes externs.h, and reads
-# the map and its size, the depth, the monster list and levels, whose turn it
-# is, where the player stands, the player's speed and whether the game is won.
+# monster_place.c includes externs.h, and reads the map and its size, the depth,
+# the monster list and levels, whose turn it is, where the player stands, the
+# player's speed and whether the game is won.
 monster_place.o: dungeon_level.h dungeon_map.h dungeon_size.h monster_levels.h \
                  monster_list.h monster_turn.h player_pos.h player_speed.h \
                  score_death.h $(HEADERS_FULL)
@@ -260,8 +259,8 @@ monster_death.o: dungeon_map.h monster_breeding.h monster_list.h score_death.h \
                  $(HEADERS_FULL)
 look.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
         player_timed_effects.h $(HEADERS_FULL)
-# object_place.c came out of misc1.c (#54). It includes externs.h, and reads
-# the map, its size, what lies on the floor and where the player stands.
+# object_place.c includes externs.h, and reads the map, its size, what lies on
+# the floor and where the player stands.
 object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h $(HEADERS_FULL)
 options_menu.o: options.h $(HEADERS_FULL)
 panel.o: panel.h $(HEADERS_FULL)
@@ -276,8 +275,7 @@ prayer.o: $(HEADERS_FULL)
 recall.o: $(HEADERS_FULL)
 render.o: render.h
 render_ncurses.o: render.h backend_ncurses.h
-# rnd.c includes externs.h, and since #54 also holds what was misc1.c's
-# randint() and the rest.
+# rnd.c includes externs.h.
 rnd.o: $(HEADERS_FULL)
 view_observer.o: view_observer.h
 input.o: input.h
@@ -302,18 +300,17 @@ score_death.o: score_death.h $(HEADERS_COMMON)
 save_state.o: save_state.h progress.h \
               score_death.h $(HEADERS_COMMON)
 stores.o: stores.h $(HEADERS_FULL)
-# store_price.c came out of store1.c (#55). It includes externs.h, and reads
-# the stores and the race of the customer (a column of the price table).
+# store_price.c includes externs.h, and reads the stores and the race of the
+# customer (a column of the price table).
 store_price.o: stores.h player_race.h $(HEADERS_FULL)
-# store_stock.c is the rest of store1.c (#55). It includes externs.h, and
-# makes candidate items on the floor list to restock the stores.
+# store_stock.c includes externs.h, and makes candidate items on the floor list
+# to restock the stores.
 store_stock.o: stores.h floor_items.h $(HEADERS_FULL)
-# store_haggle.c is what was left of store2.c (#55). It includes externs.h,
-# and reads the price of the item and the race of the player.
+# store_haggle.c includes externs.h, and reads the price of the item and the
+# race of the player.
 store_haggle.o: stores.h store_haggle.h player_race.h progress.h stats.h \
                 str_insert.h $(HEADERS_FULL)
-# store_ui.c came out of store2.c (#55). It includes externs.h, and calls the
-# haggling through store_haggle.h.
+# store_ui.c includes externs.h, and calls the haggling through store_haggle.h.
 store_ui.o: inven_command_state.h inventory.h stores.h store_haggle.h messages.h \
             player_gold.h progress.h stats.h $(HEADERS_FULL)
 stats.o: stats.h $(HEADERS_COMMON)
@@ -324,17 +321,16 @@ tables.o: $(HEADERS_COMMON)
 treasure.o: $(HEADERS_COMMON)
 variable.o: $(HEADERS_COMMON)
 wands.o: device.h $(HEADERS_FULL)
-# enter_wiz_mode() came from misc3.c (#42).
 wizard.o: progress.h score_death.h $(HEADERS_FULL)
-# hit_rolls.c and player_damage.c came from misc3.c (#42). They include externs.h.
+# hit_rolls.c and player_damage.c include externs.h.
 hit_rolls.o: player_class.h player_level.h $(HEADERS_FULL)
 player_damage.o: equipment.h level_exit.h player_abilities.h player_class.h \
                  player_hp.h player_level.h player_saving_throw.h \
                  player_timed_effects.h score_death.h stats.h $(HEADERS_FULL)
-# object_alloc.c came from misc3.c (#42). It includes externs.h.
+# object_alloc.c includes externs.h.
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
                 object_levels.h player_pos.h $(HEADERS_FULL)
-# inven_ops.c and player_move.c came from misc3.c (#42). They include externs.h.
+# inven_ops.c and player_move.c include externs.h.
 inven_ops.o: burden.h dungeon_map.h equipment.h floor_items.h inventory.h \
              item_ident.h player_body_weight.h player_pos.h \
              player_status_flags.h $(HEADERS_FULL)
@@ -342,27 +338,27 @@ player_move.o: dungeon_map.h dungeon_size.h floor_items.h inventory.h \
                monster_list.h pending_teleport.h player_gold.h player_pos.h \
                player_search_skill.h player_status_flags.h \
                player_timed_effects.h running.h $(HEADERS_FULL)
-# screen_fields.c came from misc3.c (#42). It includes externs.h.
+# screen_fields.c includes externs.h.
 screen_fields.o: screen_fields.h $(HEADERS_FULL)
-# char_screen.c came from misc3.c (#42). It includes externs.h.
+# char_screen.c includes externs.h.
 char_screen.o: abilities.h player_bio.h player_body_weight.h player_class.h \
               player_display_numbers.h player_gold.h player_hp.h \
               player_level.h player_mana.h player_race.h save_state.h \
               screen_fields.h $(HEADERS_FULL)
-# status_line.c came from misc3.c (#42). It includes externs.h.
+# status_line.c includes externs.h.
 status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h \
               player_display_numbers.h player_gold.h player_hp.h \
               player_level.h player_mana.h player_race.h player_resting.h \
               player_speed.h player_spells_to_learn.h player_status_flags.h \
               player_timed_effects.h progress.h score_death.h screen_fields.h \
               $(HEADERS_FULL)
-# stat_ops.c came from misc3.c (#42). It includes externs.h.
+# stat_ops.c includes externs.h.
 stat_ops.o: player_class.h player_status_flags.h $(HEADERS_FULL)
-# spellbook.c came from misc3.c (#42). It includes externs.h.
+# spellbook.c includes externs.h.
 spellbook.o: inventory.h player_class.h player_level.h player_mana.h \
             player_spells_to_learn.h player_status_flags.h \
             player_timed_effects.h spells_known.h stats.h $(HEADERS_FULL)
-# level_ops.c is what was left of misc3.c (#42). It includes externs.h.
+# level_ops.c includes externs.h.
 level_ops.o: hp_table.h player_class.h player_hp.h player_level.h \
              player_status_flags.h screen_fields.h stats.h $(HEADERS_FULL)
 search.o: dungeon_map.h floor_items.h player_timed_effects.h $(HEADERS_FULL)
