@@ -24,7 +24,7 @@
 #include "player_timed_effects.h"
 
 // Make a bash attack on someone. -CJS-
-// Used to be part of bash above.
+// Used to be part of bash().
 void py_bash(int y, int x) {
 
     int monster = square_at(y, x)->cptr;
@@ -35,9 +35,8 @@ void py_bash(int y, int x) {
     // Does the player know what he's fighting?
     const char *cdesc = monster_name_lower((vtype){0}, m_ptr);
 
-    // 体の重さは窓口ごしに（#18-12-23B）。**この関数で 2 度使うので入口で
-    // 1 度だけ読む** —— 命中に `/ 10`、打撃に `/ 60 + 3`。あいだに重さを書く
-    // ものは無い（所見 35）。割る数が違う 2 つの規則は打ちかかりの側の話。
+    // Read once, used twice: `/ 10` for the to-hit, `/ 60 + 3` for the damage.
+    // Nothing in between changes the weight.
     const int body_weight = player_body_weight();
 
     int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + body_weight / 10;

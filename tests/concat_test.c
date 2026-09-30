@@ -12,7 +12,8 @@
  * 代役がある）。このテストが引く本体の .o は str_insert.o の 1 本だけ。
  *
  * 直接の呼び手は 0 で、呼ばれるのはいつも externs.h の CONCAT マクロ越し
- * （88 か所。creature 40・spells 34・moria3 7・moria4 7）:
+ * （88 か所。creature 40・spells 34・moria3 7・player_melee 5・traps 1・
+ * terrain_commands 1）:
  *   #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
  * だから第 1 引数はいつも vtype（80 バイト）で、最後はいつも NULL。
  *

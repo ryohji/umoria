@@ -55,12 +55,12 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
 
     // Throwing objects
     *tdam = pdamroll(i_ptr->damage) + i_ptr->todam;
-    // 投げるだけなら 75 パーセント。**この割りかたはこの 1 行のもの**で、
-    // 窓口には入れない（#18-12-19B）。
+    // A plain throw gets 75 percent of the bows number; the cut is this line's
+    // own rule.
     *tbth = player_base_to_hit_with_bows() * 75 / 100;
-    // 命中の下駄は窓口へ（#18-12-24B）。**そのまま足す**（3 倍は人物画面だけ）。
-    // すぐ下の `-=` は投げ道具でない武器の分を引きもどす計算で、**局所の
-    // *tpth を直すだけ**なので下駄そのものは動かない。
+    // The to-hit bonus is added as it is (only the character sheet triples it).
+    // The `-=` below takes the wielded weapon's part back out of the local *tpth
+    // only; the bonus itself is not changed.
     *tpth = player_to_hit_bonus() + i_ptr->tohit;
 
     // Add this back later if the correct throwing device. -CJS-

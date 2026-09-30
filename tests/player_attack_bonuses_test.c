@@ -222,7 +222,7 @@ TEST(setting_the_pair_wipes_whatever_the_equipment_had_added) {
 
 /* 人物画面だけが命中の下駄を **BTH_PLUS_ADJ（3）倍**する
  * （abilities.c:47・:48。B で入口の 1 度読みに畳んだ）。**掛けるのは呼び手の仕事** —— 殴りと投げは
- * そのまま足す（moria3.c:598・moria4.c:680）。 */
+ * そのまま足す（moria3.c:598・throw.c）。 */
 TEST(the_character_sheet_multiplies_the_aim_by_three_but_the_window_does_not) {
     given_bonuses_of(4, 0);
 

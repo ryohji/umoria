@@ -147,7 +147,6 @@ void tunnel(int dir) {
                     // Secret doors.
 
                     count_msg_print("You tunnel into the granite wall.");
-                    // 探索の腕は窓口へ（#18-12-25B）。
                     search(player_row(), player_col(), player_search_chance());
                 } else {
                     abort();
@@ -207,8 +206,8 @@ void bash(void) {
 
             if (t_ptr->tval == TV_CLOSED_DOOR) {
                 count_msg_print("You smash into the door!");
-                // 扉への体当たりも窓口へ（#18-12-23B）。盾での打ちかかりとは
-                // 別の関数で、割る数も違う（`/ 2`）。
+                // The door bash has its own rule for the body weight (`/ 2`),
+                // not the shield bash's.
                 int tmp = py.stats.use_stat[A_STR] + player_body_weight() / 2;
 
                 // Use (roughly) similar method as for monsters.

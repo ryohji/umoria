@@ -22,9 +22,9 @@
 // (player_base_to_hit.h) and the attack bonuses (player_attack_bonuses.h), and the
 // opposite of the armour class (where two fields held one answer because every
 // reader added them up). NOT ONE READER HERE COMBINES THEM. The two do stand next
-// to each other in one place (moria3.c, and again in moria4.c), and even there they
-// are asked different things: THE FREQUENCY DECIDES WHETHER TO LOOK AT ALL, AND THE
-// CHANCE DECIDES WHETHER THE LOOK FINDS ANYTHING.
+// to each other in one place (moria3.c, and again in terrain_commands.c), and even
+// there they are asked different things: THE FREQUENCY DECIDES WHETHER TO LOOK AT
+// ALL, AND THE CHANCE DECIDES WHETHER THE LOOK FINDS ANYTHING.
 //
 //   - THE CHANCE is handed straight to search(). Bigger is better.
 //   - THE FREQUENCY is a one-in-n: a look happens when randint(n) comes up 1, so
@@ -37,9 +37,9 @@
 // touches one alone, and it is the debugging editor.
 //
 // WHO ASKS: search mode's own turn (dungeon.c), the automatic look while running
-// (moria3.c) and while resting or tunnelling (moria4.c), the character sheet's two
-// ratings (abilities.c, which is where the upside-down arithmetic lives), the
-// debugging editor (wizard.c), and the saved file.
+// (moria3.c) and while resting or tunnelling (terrain_commands.c), the character
+// sheet's two ratings (abilities.c, which is where the upside-down arithmetic
+// lives), the debugging editor (wizard.c), and the saved file.
 //
 // NOT THE SAME QUESTION AS "IS THIS CHARACTER SEARCHING RIGHT NOW". That is a flag,
 // it already has a window (player_is_searching() in player_status_flags.h), and
@@ -100,7 +100,7 @@ void player_search_skill_adjust(int chance_amount, int frequency_amount);
 //      SHEET'S QUESTION, and so is the floor -- the same division of labour as the
 //      attack bonuses (where BTH_PLUS_ADJ and a damage floor stayed with callers).
 //   3. WHETHER A LOOK HAPPENS THIS TURN. randint() and the searching flag decide
-//      that (moria3.c, moria4.c, dungeon.c, player_status_flags.h).
+//      that (moria3.c, terrain_commands.c, dungeon.c, player_status_flags.h).
 //   4. WHAT A LOOK FINDS. search() in moria3.c takes the chance and works against
 //      the dungeon; this module never sees a square.
 

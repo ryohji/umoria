@@ -238,7 +238,7 @@ TEST(dropping_the_last_row_moves_the_mark_back_by_one) {
 }
 
 /* **返す窓口は末尾の行を空にする。** ここを飛ばすと、行ごと写す呼び手
- * （wizard.c・inven_ops.c・moria4.c）以外は invcopy() で全部書くので普段は
+ * （wizard.c・inven_ops.c・throw.c）以外は invcopy() で全部書くので普段は
  * 見えないが、pusht() が末尾を空にしている字面はこれ。 */
 TEST(dropping_the_last_row_blanks_it) {
     given_slots_claimed(5);

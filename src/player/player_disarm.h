@@ -22,7 +22,7 @@
 // simplest shape there is, and the same shape as the hit die.
 //
 // ONE NUMBER, TWO USES, AND THE GAME NEVER SEPARATES THEM: a trap and a lock are
-// the same skill here. moria4.c uses it on traps and chests, moria3.c on locked
+// the same skill here. traps.c uses it on traps and chests, moria3.c on locked
 // doors and closed chests, and no caller has ever wanted one without the other.
 //
 // WHERE THE STARTING NUMBER COMES FROM -- two tables, both at creation:
@@ -40,11 +40,11 @@
 // has always behaved; this module keeps the number, it does not tidy the rule.
 //
 // WHO ASKS: the three places a lock or a trap is worked on (moria3.c twice,
-// moria4.c once), the character sheet, the wizard screen and the saved file.
+// traps.c once), the character sheet, the wizard screen and the saved file.
 
 // The number. SIX CALLERS: the character sheet's "Disarming" rating
 // (abilities.c), the locked door and the closed chest (moria3.c), the trap and
-// the trapped chest (moria4.c), the wizard screen and the saved file.
+// the trapped chest (traps.c), the wizard screen and the saved file.
 //
 // An int, as `p_ptr->disarm` always was once C had widened it: all four of the
 // game's readers drop it straight into a larger sum.
@@ -75,7 +75,7 @@ void player_disarm_adjust(int chance);
 //                + class_level_adj[pclass][CLA_DISARM] * player_level() / 3
 //
 //      and they are identical down to the last character (abilities.c:52,
-//      moria3.c:876, moria3.c:901, moria4.c:182). FOLDING THE FOUR INTO ONE
+//      moria3.c:876, moria3.c:901, traps.c). FOLDING THE FOUR INTO ONE
 //      WINDOW WAITED FOR #18-12-28 and that wait is over: the subscript is
 //      player_class() now, so the fold no longer means reaching `py`. IT IS STILL
 //      NOT MADE -- making it means player_disarm.c calling player_class.c, which
@@ -83,7 +83,7 @@ void player_disarm_adjust(int chance);
 //      (ledger observation 42).
 //   2. WHETHER THE ATTEMPT SUCCEEDS. `(i - t_ptr->p1) > randint(100)` is the
 //      caller's, and so is the trap's own difficulty.
-//   3. BEING BLIND, CONFUSED OR HALLUCINATING. moria4.c divides the total by ten
+//   3. BEING BLIND, CONFUSED OR HALLUCINATING. traps.c divides the total by ten
 //      for each of those, up to three times over. One reader, one place.
 //   4. WHAT THE CHARACTER SHEET SAYS. likert() turns the total into a word with
 //      a divisor of eight; that is the sheet's question (abilities.h).
