@@ -1134,7 +1134,3 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
 
     return item;
 }
-
-// I may have written the town level code, but I'm not exactly
-// proud of it.   Adding the stores required some real slucky
-// hooks which I have not had time to re-think. -RAK-

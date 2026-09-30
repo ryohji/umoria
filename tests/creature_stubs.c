@@ -7,24 +7,25 @@
 
 /* creature.c をテストに取りこむための代役
  *
- * movement_rate() の依存は turn（src/data/progress.c）と休息の残りターン
- * （src/player/player_resting.c。#18-12-10C）の 2 つだけだが、
- * static 関数なので外から呼べない。実体を検証するにはテスト側が
- * src/monster/creature.c を #include して翻訳単位ごと取りこむしかなく、そうすると
- * creature.c 全体（モンスターの移動と呪文）が持ちこまれ、
- * 70 個のシンボルが未解決になる。
+ * moves_this_turn() の依存は turn（src/data/progress.c）と休息の残りターン
+ * （src/player/player_resting.c）の 2 つだけだが、static 関数なので外から
+ * 呼べない。そこでテスト側が src/monster/creature.c を #include して翻訳単位
+ * ごと取りこむ。すると creature.c 全体（モンスターの移動と呪文）が呼ぶ先が
+ * 未解決になる。
  *
- * ここに置くのはその代役。movement_rate() はどれも呼ばないので、すべて
+ * ここに置くのはその代役。moves_this_turn() はどれも呼ばないので、すべて
  * 「呼ばれたら何もしない／固定値を返す」で足りる。一覧はリンカに出させた
  * もので、手で数えあげたわけではない:
- *   gcc -std=c17 -Isrc -c -o /tmp/c.o src/creature.c
+ *   gcc -std=c17 -Isrc $(find src -mindepth 1 -maxdepth 1 -type d -printf '-I%p ') \
+ *     -c -o /tmp/c.o src/monster/creature.c
  *   gcc -o /tmp/t probe.c /tmp/c.o \
  *     2>&1 | grep 'undefined reference' | sed 's/.*to //' | sort -u
+ * 代役の無い名前は、ライブラリ（tests/build/libcore.a）から本物が引かれる
+ * （make_attack() の monster_melee.o など）。
  *
  * misc3_stubs.c / fixture.c と分けている理由: どちらも creature.c が要求する
  * シンボルの一部（msg_print・randint・py）しか持たず、逆に creature.c 側と
- * 重複するものも持つ。creature.c だけをリンクするなら本物のソースを 1 つも
- * 足す必要がないので、この 1 ファイルで完結させるのが最も小さい構成になる。
+ * 重複するものも持つ。
  * 窓口の名前は fixture.h と同じにそろえてある。
  */
 #include <stddef.h>

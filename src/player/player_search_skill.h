@@ -101,7 +101,7 @@ void player_search_skill_adjust(int chance_amount, int frequency_amount);
 //      attack bonuses (where BTH_PLUS_ADJ and a damage floor stayed with callers).
 //   3. WHETHER A LOOK HAPPENS THIS TURN. randint() and the searching flag decide
 //      that (player_move.c, terrain_commands.c, dungeon.c, player_status_flags.h).
-//   4. WHAT A LOOK FINDS. search() in moria3.c takes the chance and works against
+//   4. WHAT A LOOK FINDS. search() in search.c takes the chance and works against
 //      the dungeon; this module never sees a square.
 
 #endif // PLAYER_SEARCH_SKILL_H
