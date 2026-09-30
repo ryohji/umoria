@@ -349,7 +349,7 @@ void place_object(int, int, bool);
 void alloc_object(bool (*)(int), int, int);
 void random_object(int, int, int);
 
-// misc3.c
+// ui/status_line.c
 void cnv_stat(uint8_t, char *);
 void prt_stat(int);
 void prt_field(const char *, int, int);
@@ -371,14 +371,16 @@ void prt_state(void);
 void prt_speed(void);
 void prt_study(void);
 void prt_winner(void);
+void prt_stat_block(void);
+void draw_cave(void);
+
+// misc3.c
 uint8_t modify_stat(int, int16_t);
 void set_use_stat(int);
 bool inc_stat(int);
 bool dec_stat(int);
 bool res_stat(int);
 void bst_stat(int, int);
-void prt_stat_block(void);
-void draw_cave(void);
 void put_character(void);
 void put_stats(void);
 const char *likert(int, int);

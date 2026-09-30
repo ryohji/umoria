@@ -336,3 +336,10 @@ player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h \
                $(HEADERS_FULL)
 # screen_fields.c came from misc3.c (#42). It includes externs.h.
 screen_fields.o: screen_fields.h $(HEADERS_FULL)
+# status_line.c came from misc3.c (#42). It includes externs.h.
+status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h \
+              player_display_numbers.h player_gold.h player_hp.h \
+              player_level.h player_mana.h player_race.h player_resting.h \
+              player_speed.h player_spells_to_learn.h player_status_flags.h \
+              player_timed_effects.h progress.h score_death.h screen_fields.h \
+              $(HEADERS_FULL)
