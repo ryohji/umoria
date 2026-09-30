@@ -554,16 +554,44 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
 | check_strength・inven_stack | 44 | 38 |
 | object_levels | 45 | 38 |
 
-- **残る芋づるの根（段階 B の候補、未着手）：** `item_ident.o` が品物を覚えたときに経験値を
-  足して `prt_experience()`（`level_ops.o`）を呼び、そこから `status_line.o`（窓口 12 個ほど）と
-  `spellbook.o` が付いてくる。これを切ると objdes 32→9、check_strength・inven_stack・
-  object_levels 38→16 になる見こみ（`nm` での試算）。src の設計変更なので、やるかは
-  ユーザーと決める。
+- **段階 B（src）も済ませた。** 芋づるの根は `item_ident.o` の `learn_item_effect()` だった。
+  品物を覚えたときに経験値を足して `prt_experience()`（`level_ops.o`）を呼び、そこから
+  `status_line.o` と `spellbook.o` が付いてくる。
+  - 切りかたは「関数ごと新しい `src/item/item_learn.c`・`.h` へ移す」（ユーザーの判断）。
+    ふるまいは変えない。`item_ident.c` は覚えの記録だけになり、`externs.h` を読まない。
+    呼び出し側 5 ファイル（staffs・scrolls・wands・eat・potions）は `item_learn.h` を読む。
+  - 移しただけでは objdes 16・ほか 22〜23 で、試算（9・16）に届かなかった。足場の
+    `fixture_reset()` が、もう誰もリンクしない窓口（レベル・状態・種族など）を片づけていて、
+    それが引いていた。その片づけを外した。
+
+| テスト | 段階 A の後 | 段階 B の後 |
+|---|---|---|
+| check_strength・inven_stack | 38 | 15 |
+| object_levels | 38 | 14 |
+| objdes | 32 | 7 |
+| item_ident | 7 | 8（`item_learn.o` の分） |
+
 - **変えなかったもの：** save_bool・store_save（51。save.c がもともと全部の状態に触れる）、
-  movement_rate（24。creature.c を代役 28 本で囲って切りはなしている）、item_ident（7）。
+  movement_rate（24。creature.c を代役で囲って切りはなしている）、calc_hitpoints（27。
+  `level_ops.o` そのものが対象）、put_misc3（32。`char_screen.o` から `status_line.o` へ）。
 - **#37：** 重なりは `creature_stubs.c` と `shared_stubs.c` のあいだの 12 本（定義を `nm` で
   突きあわせた数。`fixture_reset` を除く）。前に書いた「18 本」は、後始末で消した 7 本の
   うち `distance` しか引いていなかった。
+  **済ませた**（ユーザーの判断）。`shared_stubs.c` のほうへ寄せ、`creature_stubs.c` から 12 本を
+  消した。movement_rate は `shared_stubs.c creature_stubs.c` をリンクし、`fixture_reset()` が
+  `shared_stubs_reset()` を呼ぶ。引くメンバー 24 個は変わらない。いつも `""`・0 を返していた
+  観測窓口 3 つは、本当に記録する版になった。
+- **#44（調べただけ。コードは変えていない）：** 定数を返す代役は 57 本（shared 15・creature 29・
+  save 7・fixture.c 6）。全部を「呼ばれたら abort」にして走らせると、呼ばれたのは `no_light`
+  （gain_spells）と `set_large`（object_levels）の 2 本だけ。残る 55 本は呼び出し側がどの
+  テストでも動かない。穴の大半は代役のせいではなく、呼び出し側にテストが無いこと。
+  - 代役のせいの穴 1：`object_alloc.c:111` の「小さい品だけ」ループ。`set_large` がいつも偽で
+    ループが回らず、引数の取りちがえ（位置と番号）を入れても緑。本物の `sets.o` にしても
+    緑のまま。
+  - 代役のせいの穴 2：`spellbook.c:358` の「明かりが無くて読めない」。どこでも試されていない。
+  - 手を入れるなら：`set_large` は受けた指し先を記録し答えを台本にする、`no_light` は
+    テストから切りかえられるようにする。ほかの 55 本は「呼ばれたら abort」にしても全部緑。
+    `sets.o` は未解決 0 で、13 定義（shared 7・fixture.c 6）を本物に替えられる。
 - **#44：** 定数を返す代役は中身を変えずに運んだ。
 - **気づいたこと：** 古い `fixture_reset()` には、赤外視の距離を 0 に戻す理由のコメントだけが
   あり、呼びだしは無かった。新しい足場にも無い。いまのテストは自分で値を置いてから読むので
@@ -721,7 +749,8 @@ D のあいだは `src/` に置いたまま。分け先は上の「番号つき�
 |---|---|---|
 | `inventory.c`・`.h` | 86・55 | 持ち物。葉 |
 | `equipment.h` | 45 | 装備の窓口。ヘッダだけ。`inventory.c` に実体があるので隣へ |
-| `item_ident.c`・`.h` | 152・66 | 鑑定の記録 |
+| `item_ident.c`・`.h` | 115・54 | 鑑定の記録 |
+| `item_learn.c`・`.h` | 41・29 | 使って覚えたときの経験値と鑑定。`item_ident.c` から分けた（`level_ops.o` に届くため） |
 | `object_levels.c`・`.h` | 80・41 | レベルごとの品物の索引 |
 | `desc.c` | 609 | 品物の名前 |
 | `device.c`・`.h` | 45・28 | 杖と棒の成功率。`nm -u` が 0 |
@@ -895,4 +924,6 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 済み（2026-09-30、マージ `59e0c92`・`ced26a4`）。misc3 済み（2026-09-30、マージ `cb5279a`）。moria1〜4 済み（2026-10-01、マージ `c0fe8d3`・`7a2bc35`・`ce9251e`・`3787dc4`）。**R は終わった** | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット）、`refactor/55-store-price`（`855c998`・`36ae8e9`）、`refactor/55-store-stock`（`8351ce2`・`0ea41fd`）と `refactor/55-store2`（`a341211`〜`3eaa18b`、3 コミット）、`refactor/42-misc3`（`b3c0ad6`〜`38325a1`、19 コミット）、`refactor/56-moria2`（`b9bc379`〜`8c06bfa`、5 コミット）と `refactor/56-moria1`（`012cb46`〜`ae2f40a`、8 コミット）、`refactor/56-moria4`（`0a4ce56`〜`0105184`、7 コミット）と `refactor/56-moria3`（`0083e5e`〜`27e871c`、9 コミット） |
 | combat の残り | 済み（2026-10-01、マージ `0416bb0`） | `refactor/57-combat`（`6b23689`〜`0a04327`、4 コミット） |
 | 後始末 | 済み（2026-10-01、マージ `acdcd51`・`77c8182`・`082b0e4`）。#37・#44 は #38 まで棚上げ | `refactor/cleanup-static`（`6a6e343`〜`996f256`、10 コミット）、`refactor/cleanup-stubs`（`688e0a5`・`e63445c`）、`refactor/cleanup-comments`（`b698337`〜`40811f7`、4 コミット） |
-| #38 段階 A | 済み（2026-10-01、マージ `48af494`）。段階 B は未定 | `refactor/38-fixtures`（`61b98ee`〜`cfbb67b`、17 コミット） |
+| #38 段階 A | 済み（2026-10-01、マージ `48af494`） | `refactor/38-fixtures`（`61b98ee`〜`cfbb67b`、17 コミット） |
+| #37 | 済み（2026-10-01、マージ `df6de6d`） | `refactor/37-stubs`（`3fb28ad`） |
+| #38 段階 B | 済み（2026-10-01、マージ `65773e1`） | `refactor/38-item-learn`（`fd89496`・`32f8706`） |
