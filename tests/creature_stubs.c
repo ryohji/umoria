@@ -23,10 +23,8 @@
  * 代役の無い名前は、ライブラリ（tests/build/libcore.a）から本物が引かれる
  * （make_attack() の monster_melee.o など）。
  *
- * fixture.c と分けている理由: fixture.c は creature.c が要求する
- * シンボルの一部（msg_print・randint・py）しか持たず、逆に creature.c 側と
- * 重複するものも持つ。
- * 窓口の名前は fixture.h と同じにそろえてある。
+ * 画面・乱数などの代役は tests/shared_stubs.c にあり、一緒にリンクする。
+ * ここに置くのは creature.c の呼び先に固有のものだけ。
  */
 #include <stddef.h>
 #include <string.h>
@@ -41,6 +39,7 @@
 #include "player_infra_range.h"
 #include "player_resting.h"
 #include "player_status_flags.h"
+#include "shared_stubs.h"
 
 /* --- グローバル状態 ---
  * turn と wizard はここに無い。#19B で creature.c が progress_turn() /
@@ -108,33 +107,15 @@ monster_type blank_monster;
  * static で持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 
 /* --- 画面出力・メッセージ --- */
-void msg_print(const char *str) { (void)str; }
 void lite_spot(int y, int x) { (void)y; (void)x; }
 void disturb(int a, int b) { (void)a; (void)b; }
 void prt_cmana(void) {}
 void prt_experience(void) {}
 void prt_gold(void) {}
 
-/* --- 乱数。テストから制御できるように固定値を返す --- */
-static int fixture_randint_value = 1;
-static int fixture_randint_last_max = 0;
-static int fixture_randint_calls = 0;
-
-int randint(int maxval)
-{
-    fixture_randint_last_max = maxval;
-    fixture_randint_calls++;
-    return fixture_randint_value;
-}
-
-void fixture_set_randint(int value) { fixture_randint_value = value; }
-int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
-int fixture_randint_call_count(void) { return fixture_randint_calls; }
-
 int damroll(int num, int sides) { (void)num; (void)sides; return 0; }
 
 /* --- ダンジョン・座標 --- */
-bool in_bounds(int y, int x) { (void)y; (void)x; return true; }
 bool panel_contains(int y, int x) { (void)y; (void)x; return true; }
 bool los(int a, int b, int c, int d) { (void)a; (void)b; (void)c; (void)d; return false; }
 /* distance は代役にしない。creature.c が `m_ptr->cdis` に
@@ -207,16 +188,13 @@ bool test_hit(int a, int b, int c, int d, int e) {
 bool dec_stat(int s) { (void)s; return false; }
 void lose_exp(int32_t amount) { (void)amount; }
 bool player_saves(void) { return false; }
-void calc_bonuses(void) {}
 void teleport_away(int m, int d) { (void)m; (void)d; }
 void teleport_to(int y, int x) { (void)y; (void)x; }
 
 /* --- 持ち物 --- */
-int delete_object(int y, int x) { (void)y; (void)x; return 0; }
 void invcopy(inven_type *i, int id) { (void)i; (void)id; }
 void inven_destroy(int item) { (void)item; }
 int known2_p(inven_type *i) { (void)i; return 0; }
-void add_inscribe(inven_type *i, uint8_t flag) { (void)i; (void)flag; }
 
 /* --- ビット操作・文字列 --- */
 int bit_pos(uint32_t *test) { (void)test; return 0; }
@@ -256,12 +234,5 @@ void fixture_reset(void)
      * generate.c の blank_cave() の写しだった —— いまは本物と同じ窓口を
      * 呼ぶ（上の置き場を掃く）。 */
     dungeon_map_reset();
-    fixture_randint_last_max = 0;
-    fixture_randint_calls = 0;
+    shared_stubs_reset();
 }
-
-/* fixture.h の窓口のうち、creature.c 側では観測に使わないもの。
- * 宣言があるので定義だけそろえておく。 */
-const char *fixture_screen_text(int row, int col) { (void)row; (void)col; return ""; }
-const char *fixture_message_text(int index) { (void)index; return ""; }
-int fixture_message_count(void) { return 0; }
