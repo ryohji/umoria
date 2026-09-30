@@ -55,7 +55,7 @@ bool msg_pending(void);
 
 // msg_print() decides this for the message it prints. Others only ever clear
 // it, meaning "the player has seen what is up there": both command loops
-// (dungeon.c, store2.c) do so before reading a key, and inkey() does so on EOF,
+// (dungeon.c, store_ui.c) do so before reading a key, and inkey() does so on EOF,
 // where nobody is left to answer a -more- prompt.
 void msg_set_pending(bool pending);
 

@@ -22,7 +22,7 @@
 // prototypes of the five that are not static stay in externs.h. None of them
 // prints or asks for input. The callers are main.c (store_init), the main
 // loop, the level generator and the save file loader (store_maint), and the
-// buying and selling in store2.c (the other three).
+// buying and selling in store_ui.c (the other three).
 
 static void insert_store(int, int, int32_t, inven_type *);
 static void store_create(int);

@@ -42,7 +42,7 @@
 // The row number. EIGHT CALLERS: the race's own row at creation three times
 // (create.c), the start of the history chart (create.c), the class menu's mask
 // (create.c), the high-score entry (death.c), and the shop prices twice
-// (store1.c, store2.c).
+// (store_price.c, store_haggle.c).
 //
 // An int, though the field was a uint8_t: every caller immediately uses it as an
 // array subscript, where an int is what C wants anyway.
@@ -91,7 +91,7 @@ const char *player_race_name(void);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- three things, all still in the callers:
 //
-//   1. WHAT THE SHOPS CHARGE. store1.c:139 and store2.c:638 index
+//   1. WHAT THE SHOPS CHARGE. store_price.c:147 and store_haggle.c:499 index
 //      rgold_adj[owner's race][this race]. That table is about A PAIR, not about
 //      one race, and the two expressions differ anyway (one is `x / 100`, the
 //      other `(200 - x) / 100`), so there is nothing to fold and the pricing

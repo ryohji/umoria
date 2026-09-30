@@ -51,7 +51,7 @@ void change_speed(int num) { (void)num; }
 void check_strength(void) {}
 void disturb(int stop_search, int flush_input) { (void)stop_search; (void)flush_input; }
 
-/* 店（store1.c / store2.c） */
+/* 店（store_stock.c）と品物の分類（sets.c） */
 void store_maint(void) {}
 bool general_store(int action) { (void)action; return false; }
 bool armory(int action) { (void)action; return false; }

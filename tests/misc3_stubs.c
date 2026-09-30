@@ -99,7 +99,7 @@ bool free_turn_flag;
 /* --- 画面描画（misc3.c の表示系 4 割がこれを呼ぶ） --- */
 
 /* msg_print も put_buffer と同じ理由で内容を記録する。値切り交渉の
- * コメント表示（store2.c の prt_comment2 / prt_comment3）は組み立てた
+ * コメント表示（store_haggle.c の prt_comment2 / prt_comment3）は組み立てた
  * 文字列を msg_print に渡すだけなので、渡された文字列を読みとらなければ
  * ふるまいを観測できない。実装は変えずに代役側で写しとる（リンクシーム）。
  * 記録は fixture_reset() で消えるので、テスト間で漏れない。 */

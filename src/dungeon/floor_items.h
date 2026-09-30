@@ -97,11 +97,11 @@ void floor_items_drop_last(void);
 //     convenience -- it is the shape the game already speaks in.
 //
 //  3. TWO CALLERS BORROW A ROW FOR SOMETHING THAT IS NOT ON THE FLOOR. The
-//     store's restocking (store_create() in store1.c) builds a candidate item
+//     store's restocking (store_create() in store_stock.c) builds a candidate item
 //     in a floor row, decides whether the shop will take it, and gives the row
 //     back; the wizard's object-sampling in files.c does the same in a loop.
 //     pusht()'s own comment warns about them ("unless the object in question is
-//     not in the dungeon, e.g. in store1.c and files.c"). The table is a
+//     not in the dungeon, e.g. in store_stock.c and files.c"). The table is a
 //     scratch pad as well as a place, and nothing here stops that.
 //
 // AND ONE HAZARD, CARRIED OVER UNCHANGED. popt() cannot fail:

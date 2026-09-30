@@ -494,7 +494,7 @@ int sell_haggle(int store_num, int32_t *price, inven_type *item) {
         owner_type *o_ptr = &owners[s_ptr->owner];
 
         cost = cost * (200 - chr_adj()) / 100;
-        // 買値と同じ表を売値の向きに引く（#18-12-22B。store1.c:139 と
+        // 買値と同じ表を売値の向きに引く（#18-12-22B。store_price.c:147 と
         // 式が違うので畳むものは無い）。
         cost = cost * (200 - rgold_adj[o_ptr->owner_race][player_race()]) / 100;
         if (cost < 1) {
