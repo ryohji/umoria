@@ -369,3 +369,5 @@ player_bonuses.o: burden.h equipment.h monster_list.h player_abilities.h \
 rest_command.o: command_state.h player_food.h player_resting.h \
                 player_status_flags.h running.h $(HEADERS_FULL)
 direction.o: command_state.h $(HEADERS_FULL)
+lighting.o: dungeon_map.h floor_items.h panel.h player_light.h player_pos.h \
+            player_timed_effects.h running.h $(HEADERS_FULL)

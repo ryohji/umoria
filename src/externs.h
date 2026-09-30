@@ -469,6 +469,13 @@ void rest_off(void);
 bool get_dir(const char *, int *);
 bool get_alldir(const char *, int *);
 
+// dungeon/lighting.c
+bool no_light(void);
+void move_rec(int, int, int, int);
+void light_room(int, int);
+void lite_spot(int, int);
+void move_light(int, int, int, int);
+
 // moria1.c
 int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
@@ -477,11 +484,6 @@ void takeoff(int, int);
 int verify(const char *, int);
 void inven_command(char);
 int get_item(int *, const char *, int, int, const char *, const char *);
-bool no_light(void);
-void move_rec(int, int, int, int);
-void light_room(int, int);
-void lite_spot(int, int);
-void move_light(int, int, int, int);
 
 // dungeon/search.c
 void change_trap(int, int);

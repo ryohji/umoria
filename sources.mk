@@ -48,7 +48,8 @@ SRCS = main.c ui/files.c ui/io.c \
 	dungeon/search.c \
 	player/player_bonuses.c \
 	player/rest_command.c \
-	ui/direction.c
+	ui/direction.c \
+	dungeon/lighting.c
 
 # 本体の実行形式にだけ入り、テストのライブラリー（makefile.test の libcore.a）
 # には入れないもの。main() を持つ main.c と、ncurses を直に呼ぶ 2 本。
