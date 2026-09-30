@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Traps: the player disarming them
+// Traps on the floor and on chests: setting them off and disarming them
 
 #include "headers.h"
 
@@ -15,9 +15,14 @@
 
 #include "externs.h"
 
+#include "dungeon_level.h"
 #include "dungeon_map.h"
 #include "floor_items.h"
+#include "level_exit.h"
 #include "monster_list.h"
+#include "pending_teleport.h"
+#include "player_abilities.h"
+#include "player_armour_class.h"
 #include "player_class.h"
 #include "player_disarm.h"
 #include "player_level.h"
@@ -123,5 +128,237 @@ void disarm_trap(void) {
             msg_print("I do not see anything to disarm there.");
             free_turn_flag = true;
         }
+    }
+}
+
+// Player hit a trap.  (Chuckle) -RAK-
+void hit_trap(int y, int x) {
+    end_find();
+    change_trap(y, x);
+
+    cave_type *c_ptr = square_at(y, x);
+    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
+
+    int dam = pdamroll(t_ptr->damage);
+
+    bigvtype tmp;
+    switch (t_ptr->subval) {
+    case 1: // Open pit
+        msg_print("You fell into a pit!");
+        if (player_takes_no_falling_damage()) {
+            msg_print("You gently float down.");
+        } else {
+            objdes(tmp, t_ptr, true);
+            take_hit(dam, tmp);
+        }
+        break;
+    case 2: // Arrow trap
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
+            objdes(tmp, t_ptr, true);
+            take_hit(dam, tmp);
+            msg_print("An arrow hits you.");
+        } else {
+            msg_print("An arrow barely misses you.");
+        }
+        break;
+    case 3: // Covered pit
+        msg_print("You fell into a covered pit.");
+        if (player_takes_no_falling_damage()) {
+            msg_print("You gently float down.");
+        } else {
+            objdes(tmp, t_ptr, true);
+            take_hit(dam, tmp);
+        }
+        place_trap(y, x, 0);
+        break;
+    case 4: // Trap door
+        msg_print("You fell through a trap door!");
+        leave_for_level(dungeon_level() + 1);
+        if (player_takes_no_falling_damage()) {
+            msg_print("You gently float down.");
+        } else {
+            objdes(tmp, t_ptr, true);
+            take_hit(dam, tmp);
+        }
+        // Force the messages to display before starting to generate the next level.
+        msg_print(CNIL);
+        break;
+    case 5: // Sleep gas
+        if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+            msg_print("A strange white mist surrounds you!");
+            if (player_never_paralyzed()) {
+                msg_print("You are unaffected.");
+            } else {
+                msg_print("You fall asleep.");
+                player_timed_add(PLAYER_TIMED_PARALYSIS, randint(10) + 4);
+            }
+        }
+        break;
+    case 6: // Hid Obj
+        (void)delete_object(y, x);
+        place_object(y, x, false);
+        msg_print("Hmmm, there was something under this rock.");
+        break;
+    case 7: // STR Dart
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
+            if (!player_stat_sustained(A_STR)) {
+                (void)dec_stat(A_STR);
+                objdes(tmp, t_ptr, true);
+                take_hit(dam, tmp);
+                msg_print("A small dart weakens you!");
+            } else {
+                msg_print("A small dart hits you.");
+            }
+        } else {
+            msg_print("A small dart barely misses you.");
+        }
+        break;
+    case 8: // Teleport
+        schedule_teleport();
+        msg_print("You hit a teleport trap!");
+
+        // Light up the teleport trap, before we teleport away.
+        move_light(y, x, y, x);
+        break;
+    case 9: // Rockfall
+        take_hit(dam, "a falling rock");
+        (void)delete_object(y, x);
+        place_rubble(y, x);
+        msg_print("You are hit by falling rock.");
+        break;
+    case 10: // Corrode gas
+        // Makes more sense to print the message first, then damage an object.
+        msg_print("A strange red gas surrounds you.");
+        corrode_gas("corrosion gas");
+        break;
+    case 11:                       // Summon mon
+        (void)delete_object(y, x); // Rune disappears.
+
+        int num = 2 + randint(3);
+        for (int i = 0; i < num; i++) {
+            int ty = y;
+            int tx = x;
+            (void)summon_monster(&ty, &tx, false);
+        }
+        break;
+    case 12: // Fire trap
+        msg_print("You are enveloped in flames!");
+        fire_dam(dam, "a fire trap");
+        break;
+    case 13: // Acid trap
+        msg_print("You are splashed with acid!");
+        acid_dam(dam, "an acid trap");
+        break;
+    case 14: // Poison gas
+        msg_print("A pungent green gas surrounds you!");
+        poison_gas(dam, "a poison gas trap");
+        break;
+    case 15: // Blind Gas
+        msg_print("A black gas surrounds you!");
+        player_timed_add(PLAYER_TIMED_BLINDNESS, randint(50) + 50);
+        break;
+    case 16: // Confuse Gas
+        msg_print("A gas of scintillating colors surrounds you!");
+        player_timed_add(PLAYER_TIMED_CONFUSION, randint(15) + 15);
+        break;
+    case 17: // Slow Dart
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
+            objdes(tmp, t_ptr, true);
+            take_hit(dam, tmp);
+            msg_print("A small dart hits you!");
+            if (player_never_paralyzed()) {
+                msg_print("You are unaffected.");
+            } else {
+                player_timed_add(PLAYER_TIMED_SLOWNESS, randint(20) + 10);
+            }
+        } else {
+            msg_print("A small dart barely misses you.");
+        }
+        break;
+    case 18: // CON Dart
+        if (test_hit(125, 0, 0, player_armour_class(), CLA_MISC_HIT)) {
+            if (!player_stat_sustained(A_CON)) {
+                (void)dec_stat(A_CON);
+                objdes(tmp, t_ptr, true);
+                take_hit(dam, tmp);
+                msg_print("A small dart saps your health!");
+            } else {
+                msg_print("A small dart hits you.");
+            }
+        } else {
+            msg_print("A small dart barely misses you.");
+        }
+        break;
+    case 19: // Secret Door
+        break;
+    case 99: // Scare Mon
+        break;
+
+    // Town level traps are special, the stores.
+    case 101: // General
+        enter_store(0);
+        break;
+    case 102: // Armory
+        enter_store(1);
+        break;
+    case 103: // Weaponsmith
+        enter_store(2);
+        break;
+    case 104: // Temple
+        enter_store(3);
+        break;
+    case 105: // Alchemy
+        enter_store(4);
+        break;
+    case 106: // Magic-User
+        enter_store(5);
+        break;
+
+    default:
+        msg_print("Unknown trap value.");
+        break;
+    }
+}
+
+// Chests have traps too. -RAK-
+// Note: Chest traps are based on the FLAGS value
+void chest_trap(int y, int x) {
+    inven_type *t_ptr = floor_item_at(square_at(y, x)->tptr);
+
+    if (CH_LOSE_STR & t_ptr->flags) {
+        msg_print("A small needle has pricked you!");
+        if (!player_stat_sustained(A_STR)) {
+            (void)dec_stat(A_STR);
+            take_hit(damroll(1, 4), "a poison needle");
+            msg_print("You feel weakened!");
+        } else {
+            msg_print("You are unaffected.");
+        }
+    }
+    if (CH_POISON & t_ptr->flags) {
+        msg_print("A small needle has pricked you!");
+        take_hit(damroll(1, 6), "a poison needle");
+        player_timed_add(PLAYER_TIMED_POISON, 10 + randint(20));
+    }
+    if (CH_PARALYSED & t_ptr->flags) {
+        msg_print("A puff of yellow gas surrounds you!");
+        if (player_never_paralyzed()) {
+            msg_print("You are unaffected.");
+        } else {
+            msg_print("You choke and pass out.");
+            player_timed_set(PLAYER_TIMED_PARALYSIS, 10 + randint(20));
+        }
+    }
+    if (CH_SUMMON & t_ptr->flags) {
+        for (int i = 0; i < 3; i++) {
+            int j = y;
+            int k = x;
+            (void)summon_monster(&j, &k, false);
+        }
+    }
+    if (CH_EXPLODE & t_ptr->flags) {
+        msg_print("There is a sudden explosion!");
+        (void)delete_object(y, x);
+        take_hit(damroll(5, 8), "an exploding chest");
     }
 }

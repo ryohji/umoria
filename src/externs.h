@@ -486,7 +486,6 @@ void light_dam(int, char *);
 void acid_dam(int, const char *);
 
 // moria3.c
-void hit_trap(int, int);
 int cast_spell(const char *, int, int *, int *);
 void delete_monster(int);
 void fix1_delete_monster(int);
@@ -496,7 +495,6 @@ uint32_t monster_death(int, int, uint32_t);
 int mon_take_hit(int, int);
 void py_attack(int, int);
 void move_char(int, bool);
-void chest_trap(int, int);
 void openobject(void);
 void closeobject(void);
 int twall(int, int, int, int);
@@ -512,6 +510,8 @@ void throw_object(void);
 
 // dungeon/traps.c
 void disarm_trap(void);
+void hit_trap(int, int);
+void chest_trap(int, int);
 
 // dungeon/terrain_commands.c
 void tunnel(int);

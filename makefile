@@ -364,9 +364,10 @@ throw.o: dungeon_map.h equipment.h floor_items.h inventory.h monster_list.h \
          panel.h player_attack_bonuses.h player_base_to_hit.h player_class.h \
          player_level.h player_pos.h player_status_flags.h \
          player_timed_effects.h $(HEADERS_FULL)
-traps.o: dungeon_map.h floor_items.h monster_list.h player_class.h \
-         player_disarm.h player_level.h player_pos.h player_timed_effects.h \
-         stats.h $(HEADERS_FULL)
+traps.o: dungeon_level.h dungeon_map.h floor_items.h level_exit.h \
+         monster_list.h pending_teleport.h player_abilities.h \
+         player_armour_class.h player_class.h player_disarm.h player_level.h \
+         player_pos.h player_timed_effects.h stats.h $(HEADERS_FULL)
 terrain_commands.o: burden.h command_state.h dungeon_map.h equipment.h \
                     floor_items.h monster_list.h player_body_weight.h \
                     player_pos.h player_search_skill.h player_timed_effects.h \
