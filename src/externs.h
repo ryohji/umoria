@@ -502,7 +502,6 @@ int twall(int, int, int, int);
 
 // moria4.c
 void tunnel(int);
-void disarm_trap(void);
 void look(void);
 void bash(void);
 
@@ -511,6 +510,9 @@ void py_bash(int, int);
 
 // combat/throw.c
 void throw_object(void);
+
+// dungeon/traps.c
+void disarm_trap(void);
 
 // potions.c
 void quaff(void);
