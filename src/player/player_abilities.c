@@ -69,7 +69,7 @@ static void grant(player_ability ability) {
 // The eleven that a worn item can grant, each with the flag that grants it. THIS
 // TABLE IS THE ONLY PLACE A TR_* CONSTANT IS NAMED, which is what lets
 // calc_bonuses() hand over one word and say nothing about what is in it. The
-// order is the order moria1.c used to test them in; nothing depends on it,
+// order is the order player_bonuses.c used to test them in; nothing depends on it,
 // because granting one ability never affects another.
 static const struct {
     uint32_t item_flag;

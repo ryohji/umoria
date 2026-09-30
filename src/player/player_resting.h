@@ -16,7 +16,7 @@
 // status word (player_status_flags.c), what the equipment grants
 // (player_abilities.c) and the eighteen clocks (player_timed_effects.c). ONE
 // field answered it -- py.flags.rest, touched from twenty-one places in five
-// files (dungeon.c twelve of them, creature.c three, moria1.c three, misc3.c
+// files (dungeon.c twelve of them, creature.c three, rest_command.c three, misc3.c
 // two, save.c two).
 //
 // THE QUESTION IS "IS THE CHARACTER RESTING, AND FOR HOW MANY MORE TURNS". The
@@ -28,7 +28,7 @@
 //
 //   - IT MOVES TOWARDS ZERO FROM BOTH SIDES. A positive count is "rest this many
 //     turns" and counts down; a NEGATIVE count is "rest until the hit points and
-//     the mana are full" and counts UP. moria1.c puts -MAX_SHORT there when the
+//     the mana are full" and counts UP. rest_command.c puts -MAX_SHORT there when the
 //     player answers the "how long" question with an asterisk.
 //   - IT HAS TWO WAYS TO END: reaching zero, and -- while it is negative --
 //     the hit points and the mana both being full. The second one reads two
@@ -44,7 +44,7 @@
 // player_status_flags.c keeps PY_REST ("the character is resting", its family
 // 3), and the two are set and cleared together. Unlike the twelve pairs in
 // player_timed_effects.c, THERE IS NOTHING TO FOLD: the count and the mark stand
-// on adjacent lines in exactly two places, both in moria1.c (rest() and
+// on adjacent lines in exactly two places, both in rest_command.c (rest() and
 // rest_off()). Folding them would win two lines and cost this module the order
 // of prt_state(), the digestion, and the "Press any key to stop resting"
 // message. So the mark keeps its own callers, and status_line.c's state line goes on
@@ -55,7 +55,7 @@
 //
 //   - -MAX_SHORT, and the check that the answer to "Rest for how long?" is
 //     either that or a positive short. THAT IS READING THE PLAYER'S INPUT, and
-//     it belongs with the question that asks it (moria1.c),
+//     it belongs with the question that asks it (rest_command.c),
 //   - what starting and stopping lead to: the state line, the message, the
 //     search mode that has to be turned off first, the digestion that speeds up
 //     and slows down again (a different question -- player_food.c),
@@ -81,7 +81,7 @@ bool player_rest_is_until_healed(void);
 
 // How long to rest. Positive is a number of turns, negative is "until healed",
 // and the save file's reader uses this too -- it puts back whatever the file
-// holds, WITHOUT the input check that moria1.c does.
+// holds, WITHOUT the input check that rest_command.c does.
 void player_rest_set(int turns);
 
 // Not resting any more. Same as putting zero there; the name says which of the

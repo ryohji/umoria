@@ -29,7 +29,7 @@
 // all the way through the save file. Four places read the mark:
 //
 //   - take_hit() subtracts the damage and asks the question straight away
-//     (moria1.c),
+//     (player_damage.c),
 //   - main.c asks it after loading, because a character can be put away dead by
 //     a signal or a hangup and has to be marked dead again on the way back in,
 //   - save.c asks it to decide whether to overwrite the "killed by" line with

@@ -8,7 +8,7 @@
  *
  * 2 つとは「明かりが燃えているか」（player_has_light）と「その輪がいま地図に
  * 描かれているか」（player_light_is_drawn。#18-11-1 で足した）。**別の問い**で、
- * 読む場所（move_light、moria1.c）が同じなので 1 本の module に同居している。
+ * 読む場所（move_light、lighting.c）が同じなので 1 本の module に同居している。
  * 食いちがう場合が 2 つあることは第 3 節で固定する。
  *
  * ここにも計算は無い。player_light は旗 1 本で、保護するのは「置き場としての

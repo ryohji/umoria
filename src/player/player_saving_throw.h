@@ -46,7 +46,7 @@
 // BEWARE THE NAME. `save` is the most crowded word in this source tree: src/save/save.c
 // and save_char() are about writing the game out, save_screen() is about the
 // display, device_use_chance()'s first parameter happens to be this very number,
-// moria1.c:1377 has a local `int save` holding a command count, and race_type.bsav,
+// direction.c has a local `int save` holding a command count, and race_type.bsav,
 // class_type.msav, CLA_SAVE and player_abilities.save are four more spellings of
 // nearby things. `grep -w save` finds eighty-three lines in src/*.c; eleven of
 // them were this question.

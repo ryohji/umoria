@@ -117,7 +117,7 @@ TEST(gear_adds_while_it_is_worn) {
     ASSERT_EQ_INT(player_stealth(), 3);
 }
 
-/* **符号は呼び手のもの**（moria1.c は `t_ptr->p1 * factor` を渡し、
+/* **符号は呼び手のもの**（player_bonuses.c は `t_ptr->p1 * factor` を渡し、
  * 外すときの factor は -1）。窓口は 1 本で両方を受けもつ。 */
 TEST(taking_the_gear_off_gives_the_number_back) {
     player_stealth_set(4);

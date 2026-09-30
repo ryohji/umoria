@@ -21,9 +21,9 @@
 // WHAT IS NEW HERE IS THAT THE ANSWER IS NOT KEPT, IT IS DERIVED. Every question
 // before this one stored something (how much gold, how many hit points, which
 // marks are set); these seventeen are WORKED OUT FROM THE EQUIPMENT, and
-// calc_bonuses() in moria1.c does it from scratch every time anything changes:
+// calc_bonuses() in player_bonuses.c does it from scratch every time anything changes:
 // it clears all seventeen and sets them again from the flags of what is worn.
-// ALL THIRTY-NINE OF moria1.c'S REFERENCES ARE THAT ONE FUNCTION.
+// ALL THIRTY-NINE OF player_bonuses.c'S REFERENCES ARE THAT ONE FUNCTION.
 // Compare player_display_numbers.c (#18-12-3), where the four numbers looked
 // derived but turned out to be REMEMBERED -- nobody recomputes them after a save
 // file is read. These seventeen are the other way round, and they are still in
@@ -55,7 +55,7 @@
 //
 // What this module deliberately does NOT do:
 //
-//   - walk the equipment. moria1.c gathers the flags of what is worn and hands
+//   - walk the equipment. player_bonuses.c gathers the flags of what is worn and hands
 //     the result over; a window that walked the slots itself would have to know
 //     about equipment, identification and curses (the same line as #18-12-3),
 //   - the digestion. calc_bonuses() asks whether the character digests slowly or

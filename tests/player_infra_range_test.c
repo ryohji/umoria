@@ -110,7 +110,7 @@ TEST(deciding_zero_squares_is_a_race_with_no_infra_vision) {
  * 足し引き -- 装備と時限の赤外視
  * ------------------------------------------------------------------ */
 
-/* TR_INFRA の品を身につけたとき（moria1.c の py_bonuses(t_ptr, 1)）。 */
+/* TR_INFRA の品を身につけたとき（player_bonuses.c の py_bonuses(t_ptr, 1)）。 */
 TEST(an_item_of_infra_vision_pushes_the_range_out_by_its_amount) {
     given_no_infra_vision();
 

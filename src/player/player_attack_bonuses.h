@@ -32,7 +32,7 @@
 //
 // SO WHY ONE MODULE AND NOT TWO? Because the WRITERS never separate. All four
 // places that write set both, in two adjacent lines: creation twice (a guess and
-// then the real values), the recalculation in moria1.c, and the saved file's two
+// then the real values), the recalculation in player_bonuses.c, and the saved file's two
 // adjacent shorts. Two questions that share every way of being replaced are one
 // question with two answers.
 //
@@ -58,7 +58,7 @@ int player_to_damage_bonus(void);
 
 // Both numbers outright. FOUR CALLERS: creation's first guess (create.c:122), the
 // real values it settles on (create.c:397), the recalculation that runs whenever
-// equipment changes (moria1.c:117), and the saved file's two shorts put back.
+// equipment changes (player_bonuses.c), and the saved file's two shorts put back.
 //
 // ONE WINDOW FOR THE PAIR, because no caller has ever set one alone -- every writer
 // is two adjacent lines, and the saved file holds the pair in two adjacent shorts
@@ -72,7 +72,7 @@ int player_to_damage_bonus(void);
 void player_attack_bonuses_set(int to_hit, int to_damage);
 
 // This much more from one piece of equipment, or less if it is negative. ONE CALLER
-// EACH, both of them the same loop in moria1.c's calc_bonuses(), which walks the
+// EACH, both of them the same loop in player_bonuses.c's calc_bonuses(), which walks the
 // worn and wielded items and adds each one's tohit and todam.
 //
 // TWO WINDOWS AND NOT ONE PAIRED WINDOW, unlike the setter, because THE LOOP DOES
@@ -89,7 +89,7 @@ void player_to_damage_bonus_adjust(int amount);
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all still in the callers:
 //
 //   1. WHERE THE NUMBERS COME FROM. stats.c's tohit_adj() and todam_adj() read the
-//      strength and dexterity tables; moria1.c reads each item's own tohit and
+//      strength and dexterity tables; player_bonuses.c reads each item's own tohit and
 //      todam. This module is told the answers, it does not derive them.
 //   2. WHAT THE CHARACTER SHEET SAYS. abilities.c multiplies the aim by
 //      BTH_PLUS_ADJ and adds the class's per-level column before likert() turns the
@@ -98,7 +98,7 @@ void player_to_damage_bonus_adjust(int amount);
 //   3. WHAT THE SHEET SHOWS WHILE EQUIPMENT IS COUNTED. player_display_numbers.c
 //      answers that, and it deliberately differs from the real numbers: it counts
 //      only what the character knows the worth of.
-//   4. WHEN THE NUMBERS ARE REBUILT. calc_bonuses() and py_bonuses() in moria1.c
+//   4. WHEN THE NUMBERS ARE REBUILT. calc_bonuses() and py_bonuses() in player_bonuses.c
 //      decide when equipment must be counted again; this module only holds what
 //      they work out.
 

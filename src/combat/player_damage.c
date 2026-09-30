@@ -5,8 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// What happens to the player when hurt: damage by element, worn armour, and
-// the saving throw
+// What happens to the player when hurt: losing hit points, damage by element,
+// worn armour, and the saving throw
 
 #include "headers.h"
 

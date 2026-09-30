@@ -17,7 +17,7 @@
 // In particular this module does not know what the equipment is, whether an item
 // is identified or cursed, or how heavy a weapon may be -- the caller decides
 // all of that and hands over an amount. It prints nothing, and it does not raise
-// PY_ARMOR when the AC moves (moria1.c still watches for that, because it cannot
+// PY_ARMOR when the AC moves (player_bonuses.c still watches for that, because it cannot
 // print inside a store).
 
 // Owned here and static: the only way in is through the windows below. The four

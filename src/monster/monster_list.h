@@ -51,7 +51,7 @@ monster_type *monster_list_at(int index);
 // monsters (rows 0 and 1 are inside the range and never hold one). The reverse
 // walk is `for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--)`, spelled
 // out fourteen times -- thirteen of them character for character (spells.c 11,
-// monster_place.c 1, moria1.c 1) and one with an extra condition (creature.c stops early
+// monster_place.c 1, player_bonuses.c 1) and one with an extra condition (creature.c stops early
 // if the player has died). The same shape the definition table got an iterator
 // for in #17; here the body needs the index itself, for removals and for hits,
 // so the loops stay written out and only the bound comes through a window.

@@ -14,7 +14,7 @@
  *
  * **この単位で新しいのは「答えが覚えてあるのではなく毎回導かれる」こと。**
  * ここまでの 7 つは何かを覚えていたが、この 17 個は calc_bonuses()
- * （moria1.c）が**装備から作りなおす**。だからテストの重心は 3 つ:
+ * （player_bonuses.c）が**装備から作りなおす**。だからテストの重心は 3 つ:
  *
  *   1. **バイトの並びはセーブファイルの書式**（save.c が 17 バイトを 1 続きで
  *      書く）。だから **どの位置がどの能力かを名指しで釘打つ** —— module の
@@ -447,7 +447,7 @@ TEST(the_fifth_kind_of_sustain_item_does_not_keep_the_constitution) {
     ASSERT_FALSE(player_stat_sustained(A_CON));
 }
 
-/* moria1.c の switch には default: break; があった —— 1 から 6 の外は何も
+/* player_bonuses.c の switch には default: break; があった —— 1 から 6 の外は何も
  * 起こらない（TR_SUST_STAT を持つのに p1 が別の意味の品もある）。 */
 TEST(a_sustain_item_numbered_zero_keeps_nothing) {
     ASSERT_EQ_INT(answers_when_sustaining(0), 0);

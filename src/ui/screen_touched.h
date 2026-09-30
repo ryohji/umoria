@@ -11,7 +11,7 @@
 
 // One bit, and it answers one question: has anything been put on the screen
 // since the flag was last forgotten? Nobody cares about the screen in general --
-// the only reader is the inventory command (moria1.c), which saves the screen,
+// the only reader is the inventory command (inven_menu.c), which saves the screen,
 // hands control back to the rest of moria for a turn, and on the way back in
 // needs to know whether what it saved is still what the player is looking at. If
 // it is, the inventory screen can be redrawn silently; if it is not, the player

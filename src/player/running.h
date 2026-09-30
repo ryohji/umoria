@@ -13,7 +13,7 @@
 // until something worth stopping for turns up. While it lasts, the game behaves
 // differently in several places that have nothing to do with moving -- the '@' is
 // not drawn (map_view.c), the lamp's glow is not painted square by square
-// (moria1.c), a monster right next to the player is noticed even in the dark
+// (lighting.c), a monster right next to the player is noticed even in the dark
 // (creature.c), blocked ways and objects underfoot are passed over in silence
 // (moria3.c), and the main loop does not wait ten seconds for a keypress before
 // looking for an interruption (dungeon.c). All of those ask the same one
@@ -33,7 +33,7 @@ void begin_run(void);
 bool player_is_running(void);
 
 // Stop. Said by find_init() when the first step turns out to be impossible, by
-// end_find() (run_path.c), and by disturb() (moria1.c). **Stopping is not the whole
+// end_find() (run_path.c), and by disturb() (rest_command.c). **Stopping is not the whole
 // of what those two do** -- end_find() also puts the light back with
 // move_light(), disturb() calls check_view(), and both of them do it only when a
 // run was actually going on. That part stays with them: the two paths differ, and

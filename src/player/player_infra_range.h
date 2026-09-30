@@ -17,7 +17,7 @@
 // grants (player_abilities.c), the eighteen clocks (player_timed_effects.c),
 // the rest (player_resting.c) and the speed (player_speed.c). ONE field
 // answered it -- py.flags.see_infra, touched from nine places in six files
-// (creature.c and dungeon.c two each, abilities.c one, create.c one, moria1.c
+// (creature.c and dungeon.c two each, abilities.c one, create.c one, player_bonuses.c
 // one, save.c two).
 //
 // THE QUESTION IS "HOW FAR AWAY CAN THE CHARACTER MAKE OUT A WARM-BLOODED
@@ -39,7 +39,7 @@
 //     first question to leave `py` whose STARTING VALUE IS NOT ZERO, which is
 //     why the deciding window below has two callers rather than only the save
 //     file's reader.
-//   - THE EQUIPMENT, by however much the item is worth (moria1.c). py_bonuses()
+//   - THE EQUIPMENT, by however much the item is worth (player_bonuses.c). py_bonuses()
 //     is called with factor 1 when something is put on and -1 when it comes
 //     off, so ONE LINE THERE COVERS BOTH DIRECTIONS.
 //   - THE POTION, by exactly one square while it lasts (dungeon.c, at the turn
@@ -76,7 +76,7 @@
 int player_infra_range(void);
 
 // Further or nearer by this many squares. NEGATIVE TAKES IT BACK: the
-// equipment's window (moria1.c) passes a negative amount when an item comes
+// equipment's window (player_bonuses.c) passes a negative amount when an item comes
 // off, and dungeon.c passes -1 when the potion runs out.
 void player_infra_range_adjust(int squares);
 

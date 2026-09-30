@@ -61,19 +61,17 @@ void py_bonuses(inven_type *t_ptr, int factor) {
         }
     }
     if (TR_SEARCH & t_ptr->flags) {
-        // 探索の腕と頻度は対で足す 1 本へ（#18-12-25B）。**逆向きはこちらに
-        // 残す** —— 探索の装備は「よく見つかり、より頻繁に見る」ので腕は上がり
-        // 頻度（1/n の n）は下がる。これは装備についての事実で、人物について
-        // の事実ではない（創成の階級ぶんは第 2 引数も正）。`amount` は呼び手の
-        // factor で符号がついているので、この 1 行が身につけるときと外すときの
-        // 両方を受けもつ。
+        // Opposite signs on purpose: search gear raises the skill and lowers
+        // the frequency number (the n of 1/n), so the player finds more and
+        // looks more often.
+        // `amount` is already signed by the caller's factor, so this one line
+        // covers putting the item on and taking it off again.
         player_search_skill_adjust(amount, -amount);
     }
     if (TR_STEALTH & t_ptr->flags) {
-        // 足音の静かさも足す 1 本へ（#18-12-27B）。`amount` は呼び手の factor で
-        // 符号がついているので、この 1 行が身につけるときと外すときの両方を
-        // 受けもつ（探索と赤外視と同じ形）。**負の p1 は 1 つも無い** ——
-        // 騒がしくする呪いは TR_AGGRAVATE という別の旗を立てる。
+        // `amount` is already signed by the caller's factor, so this one line
+        // covers putting the item on and taking it off again. No item has a
+        // negative stealth p1; the noisy curse is a separate flag, TR_AGGRAVATE.
         player_stealth_adjust(amount);
     }
     if (TR_SPEED & t_ptr->flags) {
@@ -94,12 +92,6 @@ void py_bonuses(inven_type *t_ptr, int factor) {
 
 // Recalculate the effect of all the stuff we use. -CJS-
 void calc_bonuses(void) {
-    // `struct misc *m_ptr` はここで死んだ（#18-12-24B）。**それを使っていた
-    // 5 行（素の値 2・画面の写し 1・装備の輪 2）がぜんぶ窓口になった**ので、
-    // 装備を数えなおす仕事は問いの窓口だけで書けている。**#18-12-28B で
-    // test_hit() の階級 1 行も窓口になったので、このファイルは `struct misc` を
-    // もう 1 か所も名ざしていない。**
-
     // What the old answers were doing to the digestion has to be taken back
     // before they are forgotten -- that is why the asking comes first and why
     // forgetting and deriving are two steps with work in between.
@@ -114,9 +106,9 @@ void calc_bonuses(void) {
 
     int old_dis_ac = player_display_ac();
 
-    // Real To Hit / Real To Dam（#18-12-24B）。**装備を数えなおす前に素の値へ
-    // 戻す 1 呼び** —— 下の輪が 1 つずつ足すので、ここで対を置きかえないと
-    // 前回ぶんが二重に乗る。
+    // Real To Hit / Real To Dam: reset to the base values first. The loop
+    // below adds each item's plusses, so without this reset the previous
+    // total would be counted twice.
     player_attack_bonuses_set(tohit_adj(), todam_adj());
     player_armour_class_reset(toac_adj()); // Real AC: nothing worn yet
 
@@ -126,8 +118,8 @@ void calc_bonuses(void) {
     for (int i = equipment_first_slot(); i < INVEN_LIGHT; i++) {
         inven_type *i_ptr = equipment_at(i);
         if (i_ptr->tval != TV_NOTHING) {
-            // 足すのが 2 本に分かれている唯一の理由がこの `if`（#18-12-24B）。
-            // **弓の条件は弓についての事実**なので呼び手に残す。
+            // To-hit and to-dam are added separately only because of the bow
+            // check below, which is about the item and so stays here.
             player_to_hit_bonus_adjust(i_ptr->tohit);
 
             // Bows can't damage. -CJS-

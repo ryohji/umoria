@@ -58,7 +58,7 @@ int16_t player_display_ac(void);
 
 // Start over from the real plusses: the three bonuses shown are the real ones
 // before any equipment is counted, and nothing of the armour is visible yet.
-// This is the rule that opens calc_bonuses() (moria1.c) and closes character
+// This is the rule that opens calc_bonuses() (player_bonuses.c) and closes character
 // creation (create.c) -- the same four lines in both places, which is why they
 // are in here.
 //

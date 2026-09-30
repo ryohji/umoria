@@ -7,9 +7,9 @@
 /* 「再開する持ち物コマンド」のテスト -- 現在のふるまいを保護する
  *
  * 持ち物のコマンド（着る・持ちかえる・外す・落とす・一覧・装備一覧）は専用の
- * 入力モードで動き、いくつかは turn を使う。だから inven_command()（moria1.c）は
+ * 入力モードで動き、いくつかは turn を使う。だから inven_command()（inven_menu.c）は
  * 「turn を使ったらいったん帰って、次の turn にこの文字でまた呼んでくれ」と
- * 言って戻る。その文字を覚えているのがこの module（moria1.c:527-551 に元の
+ * 言って戻る。その文字を覚えているのがこの module（inven_menu.c に元の
  * 約束が英語で書かれている）。
  *
  * 訊く側は 2 つ。本編のループ（dungeon.c:685。毎 turn 訊いて、待っていれば
@@ -20,17 +20,17 @@
  *
  *   1. **0 だけが「待っていない」**こと。' '（空白）は立派な答えで、
  *      「画面を戻すためだけにもう一度呼んでくれ」という意味
- *      （moria1.c:1140 の dummy command）。C では ' ' も真なので、
+ *      （inven_menu.c の dummy command）。C では ' ' も真なので、
  *      「待っているか」の判定を空白と比べてはいけない。
  *
  *   2. **中断は 2 つで 1 つの行い**であること。「再開する文字を覚える」と
  *      「画面が流された旗を忘れる」は必ず一緒に起きる（変更前は
- *      moria1.c:1138-1144 に 2 行として並んでいた）。片方だけ起きると:
+ *      inven_menu.c に 2 行として並んでいた）。片方だけ起きると:
  *      旗を消し忘れれば、何も起きていない画面について player に
  *      「Continuing with inventory command?」と訊いてしまう。別の場所で
  *      消せば、視界に入ったモンスターを見のがす。
  *
- *   3. **終わりは画面について何も言わない**こと（moria1.c:632,772 の
+ *   3. **終わりは画面について何も言わない**こと（inven_menu.c の
  *      doing_inven = 0）。ここで旗まで消すと、2 の逆の事故になる。
  *
  * 走りだしは 0（variable.c:95 に = 0 と書いてある）。テストは 1 プロセスで
@@ -67,7 +67,7 @@ TEST(finishing_leaves_nothing_to_resume) {
     ASSERT_EQ_INT(pending_inven_command(), 0);
 }
 
-/* moria1.c:1140 の dummy command。' ' は「待っていない」ではなく
+/* inven_menu.c の dummy command。' ' は「待っていない」ではなく
  * 「画面を戻すためだけに呼んでくれ」。dungeon.c と store_ui.c が 0 と比べて
  * いるのはこのため（C では ' ' も真）。 */
 TEST(a_blank_command_is_still_waiting) {
@@ -87,7 +87,7 @@ TEST(suspending_forgets_that_the_screen_was_flushed) {
 }
 
 /* 中断したあとに画面が流されたら、それは player に見せるべきことが起きた
- * 合図として残る（moria1.c:629 がこれを読んで訊く）。 */
+ * 合図として残る（inven_menu.c がこれを読んで訊く）。 */
 TEST(a_flush_after_suspending_is_what_prompts_the_player) {
     suspend_inven_command('d');
     note_screen_flushed();
@@ -106,7 +106,7 @@ TEST(suspending_again_forgets_the_flag_again) {
 
 /* --- 終わりは画面について何も言わない ----------------------------------- */
 
-/* moria1.c:632,772 は doing_inven = 0 だけをしていた。ここで旗も消すと、
+/* inven_menu.c は doing_inven = 0 だけをしていた。ここで旗も消すと、
  * 視界に入ったモンスターを見のがす側の事故になる。 */
 TEST(finishing_says_nothing_about_the_screen) {
     note_screen_flushed();

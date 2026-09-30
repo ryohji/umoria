@@ -25,7 +25,7 @@
  *   max_score には「大きいほうを採る」判断が無い（#18-7-1 で足した 2 個）。
  *   得点は呼ばれるたびに計算しなおされるので下がりうる。下がらないように
  *   するのは death.c:239 の呼びだし側の仕事で、窓口は入れた値をそのまま返す。
- *   total_winner は勝ったあとに死ぬと取り消される（moria1.c:1724）ので、
+ *   total_winner は勝ったあとに死ぬと取り消される（player_damage.c の take_hit()）ので、
  *   立てたものを下ろせることも固定する。
  *
  * テストは 1 プロセスで状態を共有する。走りだしの状態を見るテストは
@@ -243,7 +243,7 @@ TEST(winning_is_remembered) {
 }
 
 TEST(the_win_can_be_taken_back) {
-    /* moria1.c:1724 -- 勝ったあとに死ぬと取り消される。 */
+    /* player_damage.c の take_hit() -- 勝ったあとに死ぬと取り消される。 */
     set_player_has_won(true);
     set_player_has_won(false);
     ASSERT_FALSE(player_has_won());

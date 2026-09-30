@@ -5,12 +5,12 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// The rolls of a blow: how many blows a weapon gives, the extra damage of a
-// slaying weapon, and the critical hits
+// The rolls of a blow: whether it hits, how many blows a weapon gives, the
+// extra damage of a slaying weapon, and the critical hits
 //
-// Moved out of misc3.c unchanged (#42); their prototypes stay in externs.h.
-// Not all of them are free of side effects: tot_dam() records what the player
-// has learned about the monster, and critical_blow() prints a message.
+// Not all of them are free of side effects: test_hit() disturbs the player,
+// tot_dam() records what the player has learned about the monster, and
+// critical_blow() prints a message.
 
 #include "headers.h"
 

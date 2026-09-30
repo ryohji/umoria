@@ -11,7 +11,7 @@
 
 // The inventory commands (wear, exchange, take off, drop, inventory, equipment)
 // run in a command input mode of their own, and some of them cost a turn. So
-// inven_command() (moria1.c) is meant to be called again and again, with the
+// inven_command() (inven_menu.c) is meant to be called again and again, with the
 // rest of moria running in between: it returns after spending the turn and says
 // "call me again with this character". That is what this module remembers.
 //
@@ -34,7 +34,7 @@ char pending_inven_command(void);
 //
 // Call it after the last message has been flushed. msg_print() puts text on the
 // screen, which notes a flush of its own, so flushing first and suspending after
-// is the order that leaves the flag clear (moria1.c does exactly this).
+// is the order that leaves the flag clear (inven_menu.c does exactly this).
 void suspend_inven_command(char command);
 
 // Done -- nothing to resume. Says nothing about the screen.
