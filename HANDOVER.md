@@ -50,8 +50,11 @@
 - **後始末も済んだ**（マージ `acdcd51`・`77c8182`・`082b0e4`）。12 本の `static` 化、使われていない
   代役 13 本の削除、古いコメントと経緯だけのコメントの整理。決めごとと残したものは layout.md の
   「後始末で決まったこと・やったこと」。**L → D → R → combat → 後始末の並べなおしは終わった。**
-  #37・#44 は #38（1 実行形式 1 モジュール）まで棚上げ。次に何をするかはユーザーと決める。
   第 5 節・第 6 節と `docs/refactoring/layout.md`。
+- **#38 の段階 A も済んだ**（マージ `48af494`）。`misc3_stubs.c` を消し、9 本のテストを
+  対象 module ごとの足場 7 つ（`tests/*_fixture.c`）と共有の代役 `tests/shared_stubs.c` に
+  移した。段階 B（`item_ident` → `prt_experience` の芋づるを切る src の変更）をやるかと、
+  #37・#44 の残りをどうするかは、ユーザーと決める。layout.md の「#38 で決まったこと・やったこと」。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
 [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
@@ -560,7 +563,7 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
   作る。葉のテストが単独でリンクできることを守るため。
 
 L・D0・D は済み、層の規則は「core/ だけ守る」に決まった。R は misc4・misc2・misc1 が
-済み、store1/2・misc3・moria1〜4 も済んで R は終わった（1671 件・75 本 GREEN、警告 0）。combat の残りと後始末も済んで、並べなおしは終わった。
+済み、store1/2・misc3・moria1〜4 も済んで R は終わった（1671 件・75 本 GREEN、警告 0）。combat の残りと後始末も済んで、並べなおしは終わった。#38 の段階 A（テストの足場を対象 module ごとに）も済んだ。
 
 - **純粋な移動は `scripts/dis_compare.py 変更前の umoria 変更後の umoria 関数…`
   で確かめる。** 移す関数の多くは本物に届くテストが 0 件で（misc4 の 5 本中 4 本、

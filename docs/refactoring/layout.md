@@ -528,6 +528,47 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
   （`misc3_stubs.c` は 55 本中 43 本）、上の `calc_bonuses` だけの話ではない。引いたメンバーが
   同じ名前を定義すると二重定義で落ちる。
 
+### #38 で決まったこと・やったこと（2026-10-01）
+
+進めかたは案のとおり（ユーザーの判断）。
+
+- **「1 実行形式 1 対象 module」の意味：** 実行形式が引くのは対象の module と、対象（と
+  テスト本体）が本当に呼ぶものだけ。共有の足場がつれてくる単位は 0。
+- **段階 A（テストだけ）を済ませた。** `misc3_stubs.c` を使っていた 9 本を、対象 module ごとの
+  足場 7 つ（`level_ops`・`spellbook`・`inven_ops`・`desc`・`object_levels`・`char_screen`・
+  `store_haggle` の `_fixture.c`）に移し、`misc3_stubs.c` を消した。
+  - `fixture_reset()` は、そのテストにリンクされる窓口だけを 0 に戻す。外したのは、ほかに誰も
+    リンクしていない窓口の分だけ（読む者がいないので、ふるまいは変わらない）。
+  - 代役は `tests/shared_stubs.c` 1 つにまとめた。libcore の中を呼ばないので、
+    使わないテストにリンクしても単位は増えない。記録は `shared_stubs_reset()` で消え、
+    各足場の `fixture_reset()` が呼ぶ。
+  - 足場を分けた直後は写しが 44 本・226 定義に増えたので、まとめてからマージした
+    （ユーザーの判断）。重なりは develop と同じ 32 本・76 定義。
+
+| テスト | 前 | 後 |
+|---|---|---|
+| haggle_comment | 40 | 7 |
+| calc_spells・gain_spells | 39 | 12 |
+| calc_hitpoints | 39 | 27 |
+| put_misc3・objdes | 43・39 | 32 |
+| check_strength・inven_stack | 44 | 38 |
+| object_levels | 45 | 38 |
+
+- **残る芋づるの根（段階 B の候補、未着手）：** `item_ident.o` が品物を覚えたときに経験値を
+  足して `prt_experience()`（`level_ops.o`）を呼び、そこから `status_line.o`（窓口 12 個ほど）と
+  `spellbook.o` が付いてくる。これを切ると objdes 32→9、check_strength・inven_stack・
+  object_levels 38→16 になる見こみ（`nm` での試算）。src の設計変更なので、やるかは
+  ユーザーと決める。
+- **変えなかったもの：** save_bool・store_save（51。save.c がもともと全部の状態に触れる）、
+  movement_rate（24。creature.c を代役 28 本で囲って切りはなしている）、item_ident（7）。
+- **#37：** 重なりは `creature_stubs.c` と `shared_stubs.c` のあいだの 12 本（定義を `nm` で
+  突きあわせた数。`fixture_reset` を除く）。前に書いた「18 本」は、後始末で消した 7 本の
+  うち `distance` しか引いていなかった。
+- **#44：** 定数を返す代役は中身を変えずに運んだ。
+- **気づいたこと：** 古い `fixture_reset()` には、赤外視の距離を 0 に戻す理由のコメントだけが
+  あり、呼びだしは無かった。新しい足場にも無い。いまのテストは自分で値を置いてから読むので
+  影響はない。
+
 ## combat/
 
 `combat/` には新しく作るファイルだけを置く。どれも番号つきのファイルか、
@@ -854,3 +895,4 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 済み（2026-09-30、マージ `59e0c92`・`ced26a4`）。misc3 済み（2026-09-30、マージ `cb5279a`）。moria1〜4 済み（2026-10-01、マージ `c0fe8d3`・`7a2bc35`・`ce9251e`・`3787dc4`）。**R は終わった** | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット）、`refactor/55-store-price`（`855c998`・`36ae8e9`）、`refactor/55-store-stock`（`8351ce2`・`0ea41fd`）と `refactor/55-store2`（`a341211`〜`3eaa18b`、3 コミット）、`refactor/42-misc3`（`b3c0ad6`〜`38325a1`、19 コミット）、`refactor/56-moria2`（`b9bc379`〜`8c06bfa`、5 コミット）と `refactor/56-moria1`（`012cb46`〜`ae2f40a`、8 コミット）、`refactor/56-moria4`（`0a4ce56`〜`0105184`、7 コミット）と `refactor/56-moria3`（`0083e5e`〜`27e871c`、9 コミット） |
 | combat の残り | 済み（2026-10-01、マージ `0416bb0`） | `refactor/57-combat`（`6b23689`〜`0a04327`、4 コミット） |
 | 後始末 | 済み（2026-10-01、マージ `acdcd51`・`77c8182`・`082b0e4`）。#37・#44 は #38 まで棚上げ | `refactor/cleanup-static`（`6a6e343`〜`996f256`、10 コミット）、`refactor/cleanup-stubs`（`688e0a5`・`e63445c`）、`refactor/cleanup-comments`（`b698337`〜`40811f7`、4 コミット） |
+| #38 段階 A | 済み（2026-10-01、マージ `48af494`）。段階 B は未定 | `refactor/38-fixtures`（`61b98ee`〜`cfbb67b`、17 コミット） |
