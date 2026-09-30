@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// What the player learns by using a consumable item
+// What the player has learned about each kind of object
 
 #ifndef ITEM_IDENT_H
 #define ITEM_IDENT_H
@@ -50,17 +50,5 @@ void item_kind_clear_tried(inven_type *i_ptr);
 // For the save file, which stores the records as a fixed run of bytes.
 uint8_t *item_kind_record_bytes(void);
 int item_kind_record_count(void);
-
-// Called after a potion / food / scroll has taken effect.
-//
-// When `effect_identified` is true and the item was not known yet, the player
-// gains experience for the discovery and the item becomes identified.
-// Otherwise the item is only marked as "tried".
-//
-// `item_val` is updated in place because identify() may merge stacks and
-// renumber the inventory. The returned pointer is the item's new location;
-// callers that keep an `inven_type *` must reassign it from the return value,
-// as the old pointer can be stale.
-inven_type *learn_item_effect(bool effect_identified, int *item_val);
 
 #endif // ITEM_IDENT_H

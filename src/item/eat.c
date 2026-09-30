@@ -16,7 +16,7 @@
 #include "externs.h"
 
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_learn.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 

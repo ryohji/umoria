@@ -18,7 +18,7 @@
 #include "dungeon_level.h"
 #include "equipment.h"
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_learn.h"
 #include "level_exit.h"
 #include "player_glowing_hands.h"
 #include "player_pos.h"

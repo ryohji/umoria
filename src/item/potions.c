@@ -16,7 +16,7 @@
 #include "externs.h"
 
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_learn.h"
 #include "player_abilities.h"
 #include "player_food.h"
 #include "player_level.h"
