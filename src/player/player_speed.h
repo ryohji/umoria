@@ -25,7 +25,7 @@
 // traps come and go.
 //
 // THE SIGN IS BACKWARDS FROM WHAT THE NAME SUGGESTS: POSITIVE IS SLOW.
-// prt_speed() (misc3.c) shows "Slow" at 1 and "Very Slow" above it, blank at 0,
+// prt_speed() (status_line.c) shows "Slow" at 1 and "Very Slow" above it, blank at 0,
 // "Fast" at -1 and "Very Fast" below it. A potion of speed calls
 // change_speed(-1), an item with TR_SPEED calls change_speed(-amount), and a
 // potion of slowness calls change_speed(1). Get the sign wrong and fast and
@@ -59,8 +59,8 @@
 // How many steps from normal, SIGN AND ALL -- positive is slow, negative is
 // fast. Five of the nine places wanted the number itself: the extra food a fast
 // character burns (dungeon.c), the state line and whether it is worth drawing
-// (misc3.c twice), the number mixed into a new monster's speed (monster_place.c) and
-// the save file's writer.
+// (status_line.c twice), the number mixed into a new monster's speed
+// (monster_place.c) and the save file's writer.
 int player_speed(void);
 
 // Faster or slower by this many steps. NEGATIVE MAKES THE CHARACTER FASTER.

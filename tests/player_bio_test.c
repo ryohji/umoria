@@ -218,7 +218,7 @@ TEST(a_longer_name_is_cut_where_the_record_stopped) {
     ASSERT_EQ_INT((int)strlen(player_name()), PLAYER_NAME_SIZE - 1);
 }
 
-/* `get_name()`（misc3.c:817）は **`name[0] == 0` を見て**、空なら
+/* `get_name()`（char_screen.c:183）は **`name[0] == 0` を見て**、空なら
  * `user_name()` に既定を入れさせる。空が読めることがその判断の土台。 */
 TEST(an_empty_name_is_what_the_prompt_asks_about) {
     player_name_set("Aragorn");
@@ -440,7 +440,7 @@ TEST(the_story_line_the_save_file_reads_back_is_the_one_it_wrote) {
  * 呼び手の規則 -- 性別が持っている 3 つは module の外
  * ------------------------------------------------------------------ */
 
-/* **王か女王か**（misc3.c:291 の `**KING**`/`**QUEEN**`・death.c:154 の
+/* **王か女王か**（status_line.c:92 の `**KING**`/`**QUEEN**`・death.c:154 の
  * `*King*`/`*Queen*`・death.c:454 の `All Hail the Mighty King!`）——
  * **同じ分かれめが 3 か所に書いてあって、文字列は 3 通りとも違う**。
  * 窓口は真偽を返すだけで、どの語を出すかを知らない。 */

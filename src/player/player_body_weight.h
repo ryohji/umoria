@@ -35,8 +35,9 @@
 
 // The weight in pounds. EIGHT CALLERS: the carrying limit (misc3.c), the shield
 // bash's to-hit and damage (moria4.c, twice, folded into one call), the door bash
-// (moria4.c), the character sheet (misc3.c), the dumped character file (files.c),
-// the saved file being written (save.c) and the wizard's prompt (wizard.c).
+// (moria4.c), the character sheet (char_screen.c), the dumped character file
+// (files.c), the saved file being written (save.c) and the wizard's prompt
+// (wizard.c).
 //
 // An int, though the field is a uint16_t: every caller either divides it
 // (`/ 10`, `/ 60`, `/ 2`), adds it to an int, or prints it with `(int)` already
@@ -71,7 +72,7 @@ void player_body_weight_set(int pounds);
 //      :1000 (`/ 2`). Three different divisors for three different rules: those
 //      are facts about bashing, not about the body, and there is no shared
 //      expression to fold.
-//   3. HOW THE NUMBER IS SHOWN. misc3.c:750 hands it to prt_num(), files.c:209
+//   3. HOW THE NUMBER IS SHOWN. char_screen.c:109 hands it to prt_num(), files.c:209
 //      to fprintf("%6d"). Unlike the race's name, THE TWO SITES HAVE NO COMMON
 //      EXPRESSION -- the receivers differ -- so there is no display window here.
 

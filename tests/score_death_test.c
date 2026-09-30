@@ -162,7 +162,7 @@ TEST(being_a_duplicate_disqualifies_the_score) {
     ASSERT_EQ_INT(0x4, score_disqualifications());
 }
 
-/* prt_winner()（misc3.c:450-458）は 3 ビットを別々に見る。混ざってはいけない。 */
+/* prt_winner()（status_line.c:277-285）は 3 ビットを別々に見る。混ざってはいけない。 */
 TEST(the_three_reasons_are_separate_bits) {
     set_score_disqualifications(0x1 | 0x4);
     ASSERT_EQ_INT(0x5, score_disqualifications());

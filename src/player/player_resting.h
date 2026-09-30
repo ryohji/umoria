@@ -47,7 +47,7 @@
 // on adjacent lines in exactly two places, both in moria1.c (rest() and
 // rest_off()). Folding them would win two lines and cost this module the order
 // of prt_state(), the digestion, and the "Press any key to stop resting"
-// message. So the mark keeps its own callers, and misc3.c's state line goes on
+// message. So the mark keeps its own callers, and status_line.c's state line goes on
 // asking the MARK (the two agree in play, but the save file restores them
 // separately).
 //

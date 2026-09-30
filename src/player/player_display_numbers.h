@@ -46,8 +46,9 @@
 
 // --- what the sheet says --------------------------------------------------
 
-// Read by the status panel and the character sheet (misc3.c), the character
-// dump (files.c) and the save file's writer (save.c). Nothing else asks.
+// Read by the status panel (status_line.c) and the character sheet
+// (char_screen.c), the character dump (files.c) and the save file's writer
+// (save.c). Nothing else asks.
 int16_t player_display_to_hit(void);
 int16_t player_display_to_dam(void);
 int16_t player_display_to_ac(void);

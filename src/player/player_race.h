@@ -64,8 +64,9 @@ int player_race(void);
 void player_race_set(int row);
 
 // The race's name, as the game spells it -- "Human", "Half-Elf", ... THREE
-// CALLERS, all of them display: the character sheet's side panel (misc3.c), the
-// name/race/sex/class block (misc3.c) and the dumped character file (files.c).
+// CALLERS, all of them display: the character sheet's side panel
+// (status_line.c), the name/race/sex/class block (char_screen.c) and the dumped
+// character file (files.c).
 //
 // THIS IS THE ONE PLACE THE MODULE REACHES OUT. race[] stays where it is -- it is
 // one of the twenty read-only constant tables in externs.h, and that group is out

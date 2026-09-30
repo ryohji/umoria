@@ -57,7 +57,7 @@
 //     moria3.c twice, prayer.c).
 //   - class[row] for what the class GIVES: the whole row at creation (create.c) and
 //     first_spell_lev twice (misc3.c).
-//   - player_title[row][level - 1] once (misc3.c) and player_init[row][i] once
+//   - player_title[row][level - 1] once (status_line.c) and player_init[row][i] once
 //     (main.c, the starting pack).
 //   - the high score entry (death.c) and the saved file's byte (save.c).
 //
@@ -81,14 +81,14 @@ int player_class(void);
 void player_class_set(int row);
 
 // The class's name, as the game spells it -- "Warrior", "Mage", ... FOUR CALLERS:
-// the character sheet's side panel (misc3.c), the name/race/sex/class block
-// (misc3.c), the dumped character file (files.c) and the tomb (death.c).
+// the character sheet's side panel (status_line.c), the name/race/sex/class block
+// (char_screen.c), the dumped character file (files.c) and the tomb (death.c).
 //
 // THE MIRROR OF player_race_name(), and the two stand side by side at two of those
-// four sites -- misc3.c:619 asks for the race's name on the line above and
-// misc3.c:695 on the line two above. The same reason applies: the four callers wrote
-// the identical `class[py.misc.pclass].title`, and what they wanted was not a table
-// lookup but the class's name.
+// four sites -- status_line.c:297 asks for the race's name on the line above and
+// char_screen.c:54 on the line two above. The same reason applies: the four
+// callers wrote the identical `class[py.misc.pclass].title`, and what they wanted
+// was not a table lookup but the class's name.
 //
 // THIS AND THE NEXT WINDOW ARE THE ONLY LINES THAT REACH OUT. class[] stays where it
 // is -- it is one of the twenty read-only constant tables in externs.h, and that
@@ -146,9 +146,9 @@ int player_class_spell_type(void);
 //      adjustments, the hit die's bonus, the stealth, the experience factor and the
 //      title, and misc3.c reads first_spell_lev twice. "Which class is this?" and
 //      "what does that class give?" are two questions, and only the first is here.
-//   4. THE TITLE FOR THIS LEVEL. player_title[row][level - 1] (misc3.c) is a table
-//      about A PAIR again, and the other half of the pair is a question that already
-//      has a module of its own (player_level.h).
+//   4. THE TITLE FOR THIS LEVEL. player_title[row][level - 1] (status_line.c) is
+//      a table about A PAIR again, and the other half of the pair is a question
+//      that already has a module of its own (player_level.h).
 //   5. THE STARTING PACK. player_init[row][i] (main.c) is what a new character of
 //      this class carries, which is creation's business and is read once.
 //   6. THE SCORE FILE'S BYTE. high_scores.class holds this row number and IS NOT
