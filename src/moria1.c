@@ -24,7 +24,6 @@
 #include "inventory.h"
 #include "level_exit.h"
 #include "panel.h"
-#include "player_class.h"
 #include "player_food.h"
 #include "player_hp.h"
 #include "player_light.h"
@@ -1485,24 +1484,6 @@ void rest_off(void) {
     msg_print(CNIL);
 
     player_adjust_digestion(1);
-}
-
-// Attacker's level and plusses,  defender's AC -RAK-
-bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
-    disturb(1, 0);
-
-    // pth could be less than 0 if player wielding weapon too heavy for him
-    int i = bth + pth * BTH_PLUS_ADJ + (level * class_level_adj[player_class()][attack_type]);
-
-    // always miss 1 out of 20, always hit 1 out of 20
-    int die = randint(20);
-
-    // normal hit
-    if ((die != 1) && ((die == 20) || ((i > 0) && (randint(i) > ac)))) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 // Decreases players hit points and sets death flag if necessary -RAK-

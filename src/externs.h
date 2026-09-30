@@ -334,6 +334,7 @@ void set_options(void);
 int attack_blows(int, int *);
 int tot_dam(inven_type *, int, creature_handle);
 int critical_blow(int, int, int, int);
+bool test_hit(int, int, int, int, int);
 
 // combat/player_damage.c
 bool player_saves(void);
@@ -476,7 +477,6 @@ void search_on(void);
 void search_off(void);
 void rest(void);
 void rest_off(void);
-bool test_hit(int, int, int, int, int);
 void take_hit(int, const char *);
 
 // dungeon/search.c

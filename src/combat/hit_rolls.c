@@ -22,6 +22,24 @@
 #include "player_class.h"
 #include "player_level.h"
 
+// Attacker's level and plusses,  defender's AC -RAK-
+bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
+    disturb(1, 0);
+
+    // pth could be less than 0 if player wielding weapon too heavy for him
+    int i = bth + pth * BTH_PLUS_ADJ + (level * class_level_adj[player_class()][attack_type]);
+
+    // always miss 1 out of 20, always hit 1 out of 20
+    int die = randint(20);
+
+    // normal hit
+    if ((die != 1) && ((die == 20) || ((i > 0) && (randint(i) > ac)))) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 // Weapon weight VS strength and dexterity -RAK-
 int attack_blows(int weight, int *wtohit) {
     int s = py.stats.use_stat[A_STR];
