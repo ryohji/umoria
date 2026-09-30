@@ -173,7 +173,7 @@ TEST_HEADERS = $(wildcard $(TESTDIR)/*.h)
 # ---- 足場の表 ---------------------------------------------------------------
 # 実行形式ごとに、tests/<name>.c と一緒にリンクする tests/ のファイル。
 # 書いていない実行形式は tests/<name>.c だけ（＋ libcore.a）。
-EXTRA_calc_hitpoints_test = misc3_stubs.c
+EXTRA_calc_hitpoints_test = level_ops_fixture.c
 EXTRA_calc_spells_test = spellbook_fixture.c
 EXTRA_check_strength_test = misc3_stubs.c
 EXTRA_gain_spells_test = spellbook_fixture.c
