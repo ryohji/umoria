@@ -321,3 +321,7 @@ variable.o: $(HEADERS_COMMON)
 wands.o: device.h $(HEADERS_FULL)
 # enter_wiz_mode() came from misc3.c (#42).
 wizard.o: progress.h score_death.h $(HEADERS_FULL)
+# hit_rolls.c and player_damage.c came from misc3.c (#42). They include externs.h.
+hit_rolls.o: player_class.h player_level.h $(HEADERS_FULL)
+player_damage.o: player_class.h player_level.h player_saving_throw.h stats.h \
+                 $(HEADERS_FULL)

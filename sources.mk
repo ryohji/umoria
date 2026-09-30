@@ -17,7 +17,7 @@
 # 書いたものが VPATH と -I に入る。ディレクトリーを足したらここにも足す。
 # 名前が重なると -I の順で答えが変わるので、ファイルを足すときは
 # ls src/*/ | sort | uniq -d で同名が無いことを見る。
-SRC_SUBDIRS = core data player monster dungeon item store ui save platform
+SRC_SUBDIRS = core data player monster dungeon item store combat ui save platform
 
 SRCS = main.c misc3.c ui/files.c ui/io.c \
 	player/create.c item/desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c save/death.c \
@@ -41,7 +41,8 @@ SRCS = main.c misc3.c ui/files.c ui/io.c \
 	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c monster/monster_place.c \
 	dungeon/dungeon_size.c dungeon/dungeon_level.c dungeon/floor_items.c dungeon/dungeon_map.c dungeon/geometry.c dungeon/object_place.c \
 	moria1.c moria2.c moria3.c moria4.c data/monsters.c data/treasure.c data/variable.c \
-	core/rnd.c ui/recall.c data/player.c data/tables.c
+	core/rnd.c ui/recall.c data/player.c data/tables.c \
+	combat/hit_rolls.c combat/player_damage.c
 
 # 本体の実行形式にだけ入り、テストのライブラリー（makefile.test の libcore.a）
 # には入れないもの。main() を持つ main.c と、ncurses を直に呼ぶ 2 本。

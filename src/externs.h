@@ -313,6 +313,14 @@ void magic_treasure(int, int);
 // ui/options_menu.c
 void set_options(void);
 
+// combat/hit_rolls.c
+int attack_blows(int, int *);
+int tot_dam(inven_type *, int, creature_handle);
+int critical_blow(int, int, int, int);
+
+// combat/player_damage.c
+bool player_saves(void);
+
 // misc3.c
 void place_trap(int, int, int);
 void place_rubble(int, int);
@@ -381,11 +389,7 @@ void gain_spells(void);
 void calc_mana(int);
 void prt_experience(void);
 void calc_hitpoints(void);
-int attack_blows(int, int *);
-int tot_dam(inven_type *, int, creature_handle);
-int critical_blow(int, int, int, int);
 int mmove(int, int *, int *);
-bool player_saves(void);
 int find_range(int, int, int *, int *);
 void teleport(int);
 
