@@ -30,7 +30,7 @@
 // says an effect "has begun and has been announced" (its family 1), and twelve
 // of those fourteen marks pair with a counter here. The two halves are separate
 // because the marks are bits in one word THAT IS THE SAVE FILE'S FORMAT, while
-// the counters are eighteen shorts. spells.c:829 is the place that proves they
+// the counters are eighteen shorts. breath() in projectiles.c proves they
 // are different questions: drawing a breath weapon asks the MARK, not the
 // clock, because a monster may have just added turns of blindness that have not
 // taken effect yet.
@@ -61,8 +61,8 @@
 // and then the same turn's count-down takes it to MINUS ONE, which misses the
 // "== 0" ending, so no message is printed and the mark is never set. The minus
 // one then stays (the block only runs while the counter is above zero) and makes
-// the next fright one turn shorter, because creature.c adds to whatever is
-// there. player_timed_count_down() SUBTRACTS UNCONDITIONALLY to keep that
+// the next fright one turn shorter, because monster_melee.c adds to whatever
+// is there. player_timed_count_down() SUBTRACTS UNCONDITIONALLY to keep that
 // behaviour exactly.
 //
 // What this module deliberately does NOT do:

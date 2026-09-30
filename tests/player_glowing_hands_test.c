@@ -13,8 +13,8 @@
  * 答えは 1 バイト —— もとは py.flags.confuse_monster で、4 ファイルから
  * 8 か所が触っていた。
  *
- * **名前が関数と衝突している。** externs.h:538 に
- * `int confuse_monster(int, int, int);`（src/item/spells.c:1075。杖と巻物が向きを
+ * **名前が関数と衝突している。** externs.h に
+ * `int confuse_monster(int, int, int);`（src/item/spells.c。杖と巻物が向きを
  * 指定してモンスターを混乱させる呪文）があり、フィールドのほうは
  * **プレイヤーが持っている 1 回ぶんの蓄え**。別物なので、module も窓口も
  * game の message に合わせて「手」を名前にした（player_glowing_hands.h）。
@@ -24,7 +24,7 @@
  *
  *   1. **ターンで減らない。** 巻物 11 で立ったら、休んでも歩いても階段を
  *      降りても光ったまま。**消えるのは 1 撃が当たったときだけ**（自分が
- *      殴った player_melee.c と、モンスターに殴られた creature.c の両方）。
+ *      殴った player_melee.c と、モンスターに殴られた monster_melee.c の両方）。
  *      dungeon.c の時計の列にこのフィールドは無い。
  *   2. **2 枚めの巻物は効かない。** すでに光っていたら `ident` も立たない
  *      （scrolls.c:206 が 0 かどうかを先に訊く）ので、**この読みは鑑定の
@@ -100,7 +100,7 @@ TEST(a_second_scroll_does_not_stack_another_charge) {
  * ------------------------------------------------------------------ */
 
 /* 自分が殴って当たったとき（player_melee.c）、モンスターに殴られたとき
- * （creature.c）の両方がこれを呼ぶ。 */
+ * （monster_melee.c）の両方がこれを呼ぶ。 */
 TEST(a_blow_that_connects_puts_the_hands_out) {
     given_glowing_hands();
 

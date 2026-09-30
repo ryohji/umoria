@@ -37,7 +37,8 @@ void player_glowing_hands_begin(void);
 
 // A blow connected, so the charge is gone. Called from both sides of a fight:
 // the character's own blow (player_melee.c) and a monster's blow that actually hits
-// the character (creature.c -- a repelled attack does not spend the charge).
+// the character (monster_melee.c -- a repelled attack does not spend the
+// charge).
 void player_glowing_hands_spend(void);
 
 // Put back the byte a saved file holds. Separate from _begin() so the byte
@@ -56,8 +57,8 @@ void player_glowing_hands_restore(int charge);
 //      m_ptr->confused, and the note taken in recall are all about the
 //      monster, not about the character's hands. Folding them in here would
 //      close only half of one question and open half of another.
-//   3. WHICH BLOW IT WAS. creature.c asks adesc != 99 beside this charge. That
-//      is about the kind of attack, not about the hands.
+//   3. WHICH BLOW IT WAS. monster_melee.c asks adesc != 99 beside this charge.
+//      That is about the kind of attack, not about the hands.
 //   4. WHETHER THE SCROLL IS IDENTIFIED. scrolls.c sets ident only when the
 //      hands were dark, so reading a second scroll leaves the scroll unknown.
 //      That is the scroll's rule; this module only reports the charge.

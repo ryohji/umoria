@@ -11,8 +11,8 @@
  * （src/player/player_resting.c。#18-12-10C）の 2 つだけだが、
  * static 関数なので外から呼べない。実体を検証するにはテスト側が
  * src/monster/creature.c を #include して翻訳単位ごと取りこむしかなく、そうすると
- * creature.c 全体（1609 行、モンスターの移動・攻撃・呪文）が持ちこまれ、
- * 76 個のシンボルが未解決になる。
+ * creature.c 全体（モンスターの移動と呪文）が持ちこまれ、
+ * 70 個のシンボルが未解決になる。
  *
  * ここに置くのはその代役。movement_rate() はどれも呼ばないので、すべて
  * 「呼ばれたら何もしない／固定値を返す」で足りる。一覧はリンカに出させた
@@ -136,7 +136,7 @@ int damroll(int num, int sides) { (void)num; (void)sides; return 0; }
 bool in_bounds(int y, int x) { (void)y; (void)x; return true; }
 bool panel_contains(int y, int x) { (void)y; (void)x; return true; }
 bool los(int a, int b, int c, int d) { (void)a; (void)b; (void)c; (void)d; return false; }
-/* distance は代役にしない。creature.c:1033,1532 が `m_ptr->cdis` に
+/* distance は代役にしない。creature.c が `m_ptr->cdis` に
  * 代入しており、常に 0 を返すと「全モンスターが隣接している」状態に
  * なる。純粋関数なので もと misc1.c:210（いまは dungeon/geometry.c）の実装を写す（misc1.c 全体を
  * リンクすると依存が芋づるで付くため）。tests/distance_test.c が
@@ -244,7 +244,7 @@ void fixture_reset(void)
      * 実際に外して確かめた）。約束のために足しておく。 */
     player_infra_range_set(0);
     /* 光る手も #18-12-13C で src/player/player_glowing_hands.c の static へ移った。
-     * creature.c の attack_player() が「手が光っていて、しかもはじかれて
+     * monster_melee.c の make_attack() が「手が光っていて、しかもはじかれて
      * いない攻撃か」でモンスターを混乱させるかを決めるので、残った蓄えが
      * 次の件に漏れないように 0 に戻す（**この蓄えはターンで減らない** ——
      * 1 撃が当たるまで光ったままなので、消し忘れると次の件まで持ちこす）。

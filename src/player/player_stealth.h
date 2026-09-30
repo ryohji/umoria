@@ -101,7 +101,7 @@ void player_stealth_adjust(int amount);
 // WHAT THIS MODULE DOES NOT ANSWER -- five things, all still in the callers:
 //
 //   1. WHETHER THE SLEEPER STIRS. `notice * notice * notice <= (1L << (29 - stl))`
-//      is creature.c's (creature.c:1576), and SO IS THE WHOLE SHAPE OF THE RULE --
+//      is creature.c's, and SO IS THE WHOLE SHAPE OF THE RULE --
 //      the cube, the 1024, the 29. This is the ONLY PLACE IN THE GAME that turns
 //      stealth into anything, which is why the number itself can be so coarse.
 //   2. THE PLUS ONE ON THE CHARACTER SHEET. `a.stl = p_ptr->stl + 1` (abilities.c)

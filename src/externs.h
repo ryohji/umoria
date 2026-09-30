@@ -176,6 +176,9 @@ extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 // create.c
 void create_character(void);
 
+// combat/monster_melee.c
+void make_attack(int);
+
 // creature.c
 void update_mon(int);
 bool multiply_monster(int, int, creature_handle, int);
@@ -587,6 +590,12 @@ void signals(void);
 void init_signals(void);
 void handle_pending_signals(void);
 
+// combat/projectiles.c
+void get_flags(int, uint32_t *, int *, bool (**)(inven_type *));
+void fire_bolt(int, int, int, int, int, const char *);
+void fire_ball(int, int, int, int, int, const char *);
+void breath(int, int, int, int, char *, int);
+
 // spells.c
 int sleep_monsters1(int, int);
 int detect_treasure(void);
@@ -607,10 +616,6 @@ void light_line(int, int, int);
 void starlite(int, int);
 int disarm_all(int, int, int);
 // 第 4 引数は inven_damage() に渡す判定関数の受けとり先。
-void get_flags(int, uint32_t *, int *, bool (**)(inven_type *));
-void fire_bolt(int, int, int, int, int, const char *);
-void fire_ball(int, int, int, int, int, const char *);
-void breath(int, int, int, int, char *, int);
 int recharge(int);
 int hp_monster(int, int, int, int);
 int drain_life(int, int, int);

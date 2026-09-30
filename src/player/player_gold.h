@@ -22,8 +22,8 @@
 // with it:
 //
 //   - a shop refuses a purchase you cannot afford (store_ui.c asks first),
-//   - a thief takes a tenth and cannot take more than you have (creature.c
-//     compares first),
+//   - a thief takes a tenth and cannot take more than you have
+//     (monster_melee.c compares first),
 //   - a new character is given at least 80 gold (create.c),
 //   - the wizard command refuses a negative (wizard.c).
 
