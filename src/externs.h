@@ -400,9 +400,7 @@ bool res_stat(int);
 void bst_stat(int, int);
 
 // item/spellbook.c
-int spell_chance(int);
 void print_spells(int *, int, int, int);
-int get_spell(int *, int, int *, int *, const char *, int);
 void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
