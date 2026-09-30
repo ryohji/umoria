@@ -203,7 +203,7 @@ pending_teleport.o: pending_teleport.h $(HEADERS_COMMON)
 # a global.
 input_ended.o: input_ended.h $(HEADERS_COMMON)
 # The fourth: whether the player is running, and how far (#18-11-6). No
-# externs.h either; the direction of the run stays a static of moria2.c.
+# externs.h either; the direction of the run stays a static of run_path.c.
 running.o: running.h $(HEADERS_COMMON)
 # What the game remembers about the command being typed (#18-11-7): the repeat
 # count, whether the direction comes from memory, and the command before this
@@ -251,7 +251,9 @@ monsters.o: $(HEADERS_COMMON)
 # needs itself), so HEADERS_COMMON is enough -- the same as inventory.o above.
 object_levels.o: object_levels.h $(HEADERS_COMMON)
 moria1.o: burden.h $(HEADERS_FULL)
-moria2.o: $(HEADERS_FULL)
+run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h \
+            player_light.h player_pos.h player_timed_effects.h running.h \
+            $(HEADERS_FULL)
 moria3.o: $(HEADERS_FULL)
 moria4.o: burden.h $(HEADERS_FULL)
 # object_place.c came out of misc1.c (#54). It includes externs.h, and reads
@@ -322,7 +324,8 @@ wands.o: device.h $(HEADERS_FULL)
 wizard.o: progress.h score_death.h $(HEADERS_FULL)
 # hit_rolls.c and player_damage.c came from misc3.c (#42). They include externs.h.
 hit_rolls.o: player_class.h player_level.h $(HEADERS_FULL)
-player_damage.o: player_class.h player_level.h player_saving_throw.h stats.h \
+player_damage.o: equipment.h player_abilities.h player_class.h player_level.h \
+                 player_saving_throw.h player_timed_effects.h stats.h \
                  $(HEADERS_FULL)
 # object_alloc.c came from misc3.c (#42). It includes externs.h.
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
@@ -356,3 +359,4 @@ spellbook.o: inventory.h player_class.h player_level.h player_mana.h \
 # level_ops.c is what was left of misc3.c (#42). It includes externs.h.
 level_ops.o: hp_table.h player_class.h player_hp.h player_level.h \
              player_status_flags.h screen_fields.h stats.h $(HEADERS_FULL)
+search.o: dungeon_map.h floor_items.h player_timed_effects.h $(HEADERS_FULL)

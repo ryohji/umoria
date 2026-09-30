@@ -337,6 +337,13 @@ int critical_blow(int, int, int, int);
 
 // combat/player_damage.c
 bool player_saves(void);
+int minus_ac(uint32_t);
+void corrode_gas(const char *);
+void poison_gas(int, const char *);
+void fire_dam(int, const char *);
+void cold_dam(int, char *);
+void light_dam(int, char *);
+void acid_dam(int, const char *);
 
 // dungeon/object_alloc.c
 void place_trap(int, int, int);
@@ -470,20 +477,15 @@ void rest_off(void);
 bool test_hit(int, int, int, int, int);
 void take_hit(int, const char *);
 
-// moria2.c
+// dungeon/search.c
 void change_trap(int, int);
 void search(int, int, int);
+
+// player/run_path.c
 void find_init(int);
 void find_run(void);
 void end_find(void);
 void area_affect(int, int, int);
-int minus_ac(uint32_t);
-void corrode_gas(const char *);
-void poison_gas(int, const char *);
-void fire_dam(int, const char *);
-void cold_dam(int, char *);
-void light_dam(int, char *);
-void acid_dam(int, const char *);
 
 // moria3.c
 int cast_spell(const char *, int, int *, int *);

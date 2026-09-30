@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc code, mainly handles player movement, inventory, etc
+// Running: moving step after step until something interesting happens
 
 #include "headers.h"
 
@@ -17,89 +17,14 @@
 
 #include "command_state.h"
 #include "dungeon_map.h"
-#include "equipment.h"
 #include "floor_items.h"
 #include "monster_list.h"
-#include "player_abilities.h"
 #include "player_light.h"
 #include "player_pos.h"
 #include "player_timed_effects.h"
 #include "running.h"
 
 static bool see_wall(int, int, int);
-
-// Change a trap from invisible to visible -RAK-
-// Note: Secret doors are handled here
-void change_trap(int y, int x) {
-    cave_type *c_ptr = square_at(y, x);
-    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
-
-    if (t_ptr->tval == TV_INVIS_TRAP) {
-        t_ptr->tval = TV_VIS_TRAP;
-        lite_spot(y, x);
-    } else if (t_ptr->tval == TV_SECRET_DOOR) {
-        // change secret door to closed door
-        t_ptr->index = OBJ_CLOSED_DOOR;
-        t_ptr->tval = object_list[OBJ_CLOSED_DOOR].tval;
-        t_ptr->tchar = object_list[OBJ_CLOSED_DOOR].tchar;
-        lite_spot(y, x);
-    }
-}
-
-// Searches for hidden things. -RAK-
-void search(int y, int x, int chance) {
-    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
-        chance = chance / 10;
-    }
-    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
-        chance = chance / 10;
-    }
-    if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION)) {
-        chance = chance / 10;
-    }
-    for (int i = (y - 1); i <= (y + 1); i++) {
-        for (int j = (x - 1); j <= (x + 1); j++) {
-            // always in_bounds here
-            if (randint(100) < chance) {
-                cave_type *c_ptr = square_at(i, j);
-
-                // Search for hidden objects
-                if (c_ptr->tptr != 0) {
-                    inven_type *t_ptr = floor_item_at(c_ptr->tptr);
-
-                    // Trap on floor?
-                    if (t_ptr->tval == TV_INVIS_TRAP) {
-                        msgtype tmp_str;
-                        bigvtype tmp_str2;
-
-                        objdes(tmp_str2, t_ptr, true);
-                        (void)snprintf(tmp_str, sizeof(tmp_str), "You have found %s", tmp_str2);
-                        msg_print(tmp_str);
-                        change_trap(i, j);
-                        end_find();
-                    } else if (t_ptr->tval == TV_SECRET_DOOR) {
-                        // Secret door?
-                        msg_print("You have found a secret door.");
-                        change_trap(i, j);
-                        end_find();
-                    } else if (t_ptr->tval == TV_CHEST) {
-                        // Chest is trapped?
-
-                        // mask out the treasure bits
-                        if ((t_ptr->flags & CH_TRAPPED) > 1) {
-                            if (!known2_p(t_ptr)) {
-                                known2(t_ptr);
-                                msg_print("You have discovered a trap on the chest!");
-                            } else {
-                                msg_print("The chest is trapped!");
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 // The running algorithm: -CJS-
 //
@@ -473,135 +398,5 @@ void area_affect(int dir, int y, int x) {
                 }
             }
         }
-    }
-}
-
-// AC gets worse -RAK-
-// Note: This routine affects magical AC bonuses so
-// that stores can detect the damage.
-int minus_ac(uint32_t typ_dam) {
-    int tmp[6];
-    int i = 0;
-    if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_BODY;
-        i++;
-    }
-    if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_ARM;
-        i++;
-    }
-    if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_OUTER;
-        i++;
-    }
-    if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_HANDS;
-        i++;
-    }
-    if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_HEAD;
-        i++;
-    }
-    // also affect boots
-    if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_FEET;
-        i++;
-    }
-
-    bool minus = false;
-
-    if (i > 0) {
-        int j = tmp[randint(i) - 1];
-
-        inven_type *i_ptr = equipment_at(j);
-
-        msgtype out_val;
-        bigvtype tmp_str;
-        if (i_ptr->flags & typ_dam) {
-            objdes(tmp_str, equipment_at(j), false);
-            (void)snprintf(out_val, sizeof(out_val), "Your %s resists damage!", tmp_str);
-            msg_print(out_val);
-            minus = true;
-        } else if ((i_ptr->ac + i_ptr->toac) > 0) {
-            objdes(tmp_str, equipment_at(j), false);
-            (void)snprintf(out_val, sizeof(out_val), "Your %s is damaged!", tmp_str);
-            msg_print(out_val);
-            i_ptr->toac--;
-            calc_bonuses();
-            minus = true;
-        }
-    }
-    return minus;
-}
-
-// Corrode the unsuspecting person's armor -RAK-
-void corrode_gas(const char *kb_str) {
-    if (!minus_ac((uint32_t)TR_RES_ACID)) {
-        take_hit(randint(8), kb_str);
-    }
-
-    if (inven_damage(set_corrodes, 5) > 0) {
-        msg_print("There is an acrid smell coming from your pack.");
-    }
-}
-
-// Poison gas the idiot. -RAK-
-void poison_gas(int dam, const char *kb_str) {
-    take_hit(dam, kb_str);
-    player_timed_add(PLAYER_TIMED_POISON, 12 + randint(dam));
-}
-
-// Burn the fool up. -RAK-
-void fire_dam(int dam, const char *kb_str) {
-    if (player_resists_fire()) {
-        dam = dam / 3;
-    }
-    if (player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
-        dam = dam / 3;
-    }
-    take_hit(dam, kb_str);
-    if (inven_damage(set_flammable, 3) > 0) {
-        msg_print("There is smoke coming from your pack!");
-    }
-}
-
-// Freeze him to death. -RAK-
-void cold_dam(int dam, char *kb_str) {
-    if (player_resists_cold()) {
-        dam = dam / 3;
-    }
-    if (player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
-        dam = dam / 3;
-    }
-    take_hit(dam, kb_str);
-    if (inven_damage(set_frost_destroy, 5) > 0) {
-        msg_print("Something shatters inside your pack!");
-    }
-}
-
-// Lightning bolt the sucker away. -RAK-
-void light_dam(int dam, char *kb_str) {
-    if (player_resists_light()) {
-        take_hit((dam / 3), kb_str);
-    } else {
-        take_hit(dam, kb_str);
-    }
-    if (inven_damage(set_lightning_destroy, 3) > 0) {
-        msg_print("There are sparks coming from your pack!");
-    }
-}
-
-// Throw acid on the hapless victim -RAK-
-void acid_dam(int dam, const char *kb_str) {
-    int flag = 0;
-    if (minus_ac((uint32_t)TR_RES_ACID)) {
-        flag = 1;
-    }
-    if (player_resists_acid()) {
-        flag += 2;
-    }
-    take_hit(dam / (flag + 1), kb_str);
-    if (inven_damage(set_acid_affect, 3) > 0) {
-        msg_print("There is an acrid smell coming from your pack!");
     }
 }

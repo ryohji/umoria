@@ -37,7 +37,7 @@ void set_player_has_light(bool lit);
 // who has just gone blind still has last turn's glow on the map to erase.
 //
 // Only the two halves of move_light() write it, and only they and find_init()
-// (moria2.c) read it, which is why it was never worth deriving: the answer is
+// (run_path.c) read it, which is why it was never worth deriving: the answer is
 // "what the screen was left looking like", and nothing else knows that.
 bool player_light_is_drawn(void);
 void set_player_light_drawn(bool drawn);

@@ -108,6 +108,7 @@ missile_serial.o: missile_serial.h constant.h types.h config.h
 level_exit.o: level_exit.h constant.h types.h config.h
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h object_levels.h player_pos.h constant.h types.h externs.h config.h
 object_place.o: dungeon_map.h dungeon_size.h floor_items.h player_pos.h constant.h types.h externs.h config.h
+search.o: dungeon_map.h floor_items.h player_timed_effects.h constant.h types.h externs.h config.h
 options.o: options.h constant.h types.h externs.h config.h
 options_menu.o: options.h constant.h types.h externs.h config.h
 panel.o: panel.h constant.h types.h externs.h config.h
@@ -128,7 +129,7 @@ status_line.o: command_state.h dungeon_level.h player_bio.h player_class.h playe
 monsters.o: constant.h types.h config.h
 object_levels.o: object_levels.h constant.h types.h config.h
 moria1.o: burden.h constant.h types.h externs.h config.h
-moria2.o: constant.h types.h externs.h config.h
+run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h player_light.h player_pos.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 moria3.o: constant.h types.h externs.h config.h
 moria4.o: burden.h constant.h types.h externs.h config.h
 player.o: constant.h types.h config.h
@@ -154,7 +155,7 @@ player_max_depth.o: player_max_depth.h constant.h types.h config.h
 player_hit_die.o: player_hit_die.h constant.h types.h config.h
 player_armour_class.o: player_armour_class.h constant.h types.h config.h
 player_base_to_hit.o: player_base_to_hit.h constant.h types.h config.h
-player_damage.o: player_class.h player_level.h player_saving_throw.h stats.h constant.h types.h externs.h config.h
+player_damage.o: equipment.h player_abilities.h player_class.h player_level.h player_saving_throw.h player_timed_effects.h stats.h constant.h types.h externs.h config.h
 player_disarm.o: player_disarm.h constant.h types.h config.h
 player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h constant.h types.h externs.h config.h
 player_saving_throw.o: player_saving_throw.h constant.h types.h config.h
