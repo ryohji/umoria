@@ -486,6 +486,7 @@ void light_dam(int, char *);
 void acid_dam(int, const char *);
 
 // moria3.c
+void hit_trap(int, int);
 int cast_spell(const char *, int, int *, int *);
 void delete_monster(int);
 void fix1_delete_monster(int);

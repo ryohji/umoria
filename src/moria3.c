@@ -46,7 +46,7 @@
 #include "stats.h"
 
 // Player hit a trap.  (Chuckle) -RAK-
-static void hit_trap(int y, int x) {
+void hit_trap(int y, int x) {
     end_find();
     change_trap(y, x);
 
