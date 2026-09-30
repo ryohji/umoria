@@ -332,8 +332,8 @@ void place_rubble(int, int);
 void place_gold(int, int);
 int get_obj_num(int, bool);
 void place_object(int, int, bool);
-// 引数の関数は sets.c の set_room / set_corr / set_floor。いずれも
-// cave[][].fval（床の種類）を受けとる bool f(int) 型。
+// The function argument is set_room, set_corr or set_floor from sets.c. Each
+// is a bool f(int) that takes cave[][].fval (the kind of floor).
 void alloc_object(bool (*)(int), int, int);
 void random_object(int, int, int);
 

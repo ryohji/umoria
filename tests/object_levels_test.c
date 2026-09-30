@@ -17,7 +17,7 @@
  * に並んでいる（帯）。t_level は「どこからどこまでが レベル L か」を引くための
  * 目次で、sorted_objects がその本体。
  *
- * 読むのは get_obj_num()（misc3.c:78）だけで、組みたてるのは 1 箇所だけ。
+ * 読むのは get_obj_num()（object_alloc.c:69）だけで、組みたてるのは 1 箇所だけ。
  * その組みたてる側は main.c の static な init_t_level() で、**テストからは
  * 届かなかった**（main() があるので main.c はリンクできない）。だから
  * #18-10-A1 で押さえたのは読む側だけ（第 1〜3 節）。#18-10-A2 で
@@ -46,7 +46,7 @@
 
 #include "object_levels.h"
 
-/* 検証する本物（src/misc3.c）。externs.h は ncurses まで引きこむので、
+/* 検証する本物（src/dungeon/object_alloc.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 int get_obj_num(int level, bool must_be_small);
 
@@ -115,7 +115,7 @@ TEST(at_the_top_level_the_position_follows_the_roll)
     ASSERT_EQ_INT(get_obj_num(0, false), 2);
 }
 
-/* **返るのは位置であって品物の番号ではない。** 呼びだし側（misc3.c:134 と
+/* **返るのは位置であって品物の番号ではない。** 呼びだし側（object_alloc.c:124 と
  * files.c:136）は必ず object_at_level_position() で引きなおす。位置 1 に
  * 並んでいるのはレベル 0 の品物で、その番号は 1 ではない。
  * この 1 本が、抽出でいちばん壊れやすいところを押さえる。 */
@@ -319,7 +319,7 @@ TEST(the_positions_run_from_shallow_to_deep)
 }
 
 /* 帯の中身はそのレベルの品物だけ。get_obj_num() がレベル別に選びなおすとき
- * （misc3.c:118）、この性質だけを頼りにしている。 */
+ * （object_alloc.c:109）、この性質だけを頼りにしている。 */
 TEST(the_band_of_a_level_holds_only_objects_of_that_level)
 {
     object_levels_init();
