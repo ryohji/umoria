@@ -191,4 +191,4 @@ treasure.o: constant.h types.h config.h
 variable.o: constant.h types.h config.h
 view_observer.o: view_observer.h
 wands.o: constant.h types.h externs.h config.h
-wizard.o: constant.h types.h externs.h config.h
+wizard.o: progress.h score_death.h constant.h types.h externs.h config.h

@@ -319,4 +319,5 @@ tables.o: $(HEADERS_COMMON)
 treasure.o: $(HEADERS_COMMON)
 variable.o: $(HEADERS_COMMON)
 wands.o: device.h $(HEADERS_FULL)
-wizard.o: $(HEADERS_FULL)
+# enter_wiz_mode() came from misc3.c (#42).
+wizard.o: progress.h score_death.h $(HEADERS_FULL)

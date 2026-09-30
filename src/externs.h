@@ -381,7 +381,6 @@ void gain_spells(void);
 void calc_mana(int);
 void prt_experience(void);
 void calc_hitpoints(void);
-bool enter_wiz_mode(void);
 int attack_blows(int, int *);
 int tot_dam(inven_type *, int, creature_handle);
 int critical_blow(int, int, int, int);
@@ -656,7 +655,8 @@ void recall_increment_death(creature_handle h);
 // wands.c
 void aim(void);
 
-// wizard.c
+// ui/wizard.c
+bool enter_wiz_mode(void);
 void wizard_light(void);
 void change_character(void);
 void wizard_create(void);

@@ -27,6 +27,26 @@
 #include "player_saving_throw.h"
 #include "player_search_skill.h"
 #include "player_stealth.h"
+#include "progress.h"
+#include "score_death.h"
+
+// lets anyone enter wizard mode after a disclaimer... -JEW-
+bool enter_wiz_mode(void) {
+    bool answer = false;
+
+    if (!score_disqualifications()) {
+        msg_print("Wizard mode is for debugging and experimenting.");
+        answer = get_check("The game will not be scored if you enter wizard mode. Are you sure?");
+    }
+
+    if (score_disqualifications() || answer) {
+        set_score_disqualifications((int16_t)(score_disqualifications() | 0x2));
+        progress_set_wizard_mode(true);
+        return true;
+    }
+
+    return false;
+}
 
 // Light up the dungeon -RAK-
 void wizard_light(void) {
