@@ -22,6 +22,8 @@
 #include "floor_items.h"
 #include "missile_serial.h"
 
+static int m_bonus(int, int, int);
+
 // Chance of treasure having magic abilities -RAK-
 // Chance increases with each dungeon level
 void magic_treasure(int x, int level) {
@@ -860,7 +862,7 @@ void magic_treasure(int x, int level) {
 // magic_treasure() above is the only caller.
 
 // Enchant a bonus based on degree desired -RAK-
-int m_bonus(int base, int max_std, int level) {
+static int m_bonus(int base, int max_std, int level) {
     int stand_dev = (OBJ_STD_ADJ * level / 100) + OBJ_STD_MIN;
 
     // Check for level > max_std since that may have generated an overflow.

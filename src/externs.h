@@ -325,7 +325,6 @@ int popt(void);
 void pusht(uint8_t);
 
 // item/item_enchant.c (magic_treasure() was misc2.c until #54)
-int m_bonus(int, int, int);
 void magic_treasure(int, int);
 
 // ui/options_menu.c
