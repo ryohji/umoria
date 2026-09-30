@@ -184,7 +184,7 @@ main.o: $(HEADERS_FULL)
 # player stands, whether the player is blind, hallucinating or running.
 map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
             player_status_flags.h player_timed_effects.h running.h $(HEADERS_FULL)
-misc3.o: burden.h $(HEADERS_FULL)
+misc3.o: $(HEADERS_FULL)
 # missile_serial.c does not include externs.h either (MAX_SHORT comes from
 # constant.h), so HEADERS_COMMON is enough.
 missile_serial.o: missile_serial.h $(HEADERS_COMMON)
@@ -329,6 +329,8 @@ player_damage.o: player_class.h player_level.h player_saving_throw.h stats.h \
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
                 object_levels.h player_pos.h $(HEADERS_FULL)
 # inven_ops.c and player_move.c came from misc3.c (#42). They include externs.h.
-inven_ops.o: inventory.h $(HEADERS_FULL)
+inven_ops.o: burden.h dungeon_map.h equipment.h floor_items.h inventory.h \
+             item_ident.h player_body_weight.h player_pos.h \
+             player_status_flags.h $(HEADERS_FULL)
 player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h \
                $(HEADERS_FULL)

@@ -95,7 +95,7 @@ hp_table.o: hp_table.h constant.h types.h config.h
 input.o: input.h
 input_ncurses.o: input.h backend_ncurses.h
 inscription.o: inventory.h equipment.h constant.h types.h externs.h config.h
-inven_ops.o: inventory.h constant.h types.h externs.h config.h
+inven_ops.o: burden.h dungeon_map.h equipment.h floor_items.h inventory.h item_ident.h player_body_weight.h player_pos.h player_status_flags.h constant.h types.h externs.h config.h
 inventory.o: inventory.h equipment.h constant.h types.h config.h
 io.o: constant.h types.h externs.h config.h
 item_enchant.o: floor_items.h missile_serial.h constant.h types.h externs.h config.h
@@ -104,7 +104,7 @@ magic.o: constant.h types.h externs.h config.h
 main.o: constant.h types.h externs.h config.h
 map_view.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h player_status_flags.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 messages.o: messages.h constant.h types.h externs.h config.h
-misc3.o: burden.h constant.h types.h externs.h config.h
+misc3.o: constant.h types.h externs.h config.h
 missile_serial.o: missile_serial.h constant.h types.h config.h
 level_exit.o: level_exit.h constant.h types.h config.h
 object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h object_levels.h player_pos.h constant.h types.h externs.h config.h

@@ -287,6 +287,18 @@ int next_to_walls(int, int);
 int next_to_corr(int, int);
 int mmove(int, int *, int *);
 // item/inven_ops.c
+void inven_destroy(int);
+void take_one_item(inven_type *, inven_type *);
+void inven_drop(int, int);
+// 引数の関数は sets.c の set_corrodes / set_flammable /
+// set_frost_destroy / set_lightning_destroy / set_acid_affect。
+// いずれも持ち物 1 つを受けとる bool f(inven_type *) 型。
+int inven_damage(bool (*)(inven_type *), int);
+int weight_limit(void);
+bool inven_check_num(inven_type *);
+bool inven_check_weight(inven_type *);
+void check_strength(void);
+int inven_carry(inven_type *);
 int find_range(int, int, int *, int *);
 // player/player_move.c
 void teleport(int);
@@ -376,18 +388,6 @@ void put_misc3(void);
 void display_char(void);
 void get_name(void);
 void change_name(void);
-void inven_destroy(int);
-void take_one_item(inven_type *, inven_type *);
-void inven_drop(int, int);
-// 引数の関数は sets.c の set_corrodes / set_flammable /
-// set_frost_destroy / set_lightning_destroy / set_acid_affect。
-// いずれも持ち物 1 つを受けとる bool f(inven_type *) 型。
-int inven_damage(bool (*)(inven_type *), int);
-int weight_limit(void);
-bool inven_check_num(inven_type *);
-bool inven_check_weight(inven_type *);
-void check_strength(void);
-int inven_carry(inven_type *);
 int spell_chance(int);
 void print_spells(int *, int, int, int);
 int get_spell(int *, int, int *, int *, const char *, int);
