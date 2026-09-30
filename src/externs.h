@@ -302,6 +302,7 @@ int inven_carry(inven_type *);
 int find_range(int, int, int *, int *);
 // player/player_move.c
 void teleport(int);
+void move_char(int, bool);
 // ui/map_view.c
 // panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
 // panel_contains() は panel.h。
@@ -409,6 +410,7 @@ int get_spell(int *, int, int *, int *, const char *, int);
 void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
+int cast_spell(const char *, int, int *, int *);
 
 // player/level_ops.c
 void prt_experience(void);
@@ -495,25 +497,18 @@ void find_run(void);
 void end_find(void);
 void area_affect(int, int, int);
 
-// moria3.c
-int cast_spell(const char *, int, int *, int *);
+// monster/monster_death.c
 void delete_monster(int);
 void fix1_delete_monster(int);
 void fix2_delete_monster(int);
 int delete_object(int, int);
 uint32_t monster_death(int, int, uint32_t);
-int mon_take_hit(int, int);
-void py_attack(int, int);
-void move_char(int, bool);
-void chest_trap(int, int);
-void openobject(void);
-void closeobject(void);
-int twall(int, int, int, int);
 
 // ui/look.c
 void look(void);
 
 // combat/player_melee.c
+void py_attack(int, int);
 void py_bash(int, int);
 
 // combat/throw.c
@@ -521,10 +516,18 @@ void throw_object(void);
 
 // dungeon/traps.c
 void disarm_trap(void);
+void hit_trap(int, int);
+void chest_trap(int, int);
 
 // dungeon/terrain_commands.c
+void openobject(void);
+void closeobject(void);
+int twall(int, int, int, int);
 void tunnel(int);
 void bash(void);
+
+// combat/monster_damage.c
+int mon_take_hit(int, int);
 
 // potions.c
 void quaff(void);

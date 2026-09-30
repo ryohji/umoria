@@ -73,7 +73,7 @@ TEST(the_purse_can_be_emptied) {
 
 /* --- 増える --------------------------------------------------------------- */
 
-/* 床で拾う（moria3.c）・店が買ってくれる（store_ui.c）。 */
+/* 床で拾う（player_move.c）・店が買ってくれる（store_ui.c）。 */
 TEST(found_gold_is_added_to_the_purse) {
     player_set_gold(100);
     player_gain_gold(45);

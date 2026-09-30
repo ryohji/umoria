@@ -36,7 +36,7 @@ int player_glowing_hands(void);
 void player_glowing_hands_begin(void);
 
 // A blow connected, so the charge is gone. Called from both sides of a fight:
-// the character's own blow (moria3.c) and a monster's blow that actually hits
+// the character's own blow (player_melee.c) and a monster's blow that actually hits
 // the character (creature.c -- a repelled attack does not spend the charge).
 void player_glowing_hands_spend(void);
 

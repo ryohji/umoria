@@ -256,7 +256,8 @@ inven_menu.o: burden.h dungeon_map.h equipment.h inven_command_state.h \
 run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h \
             player_light.h player_pos.h player_timed_effects.h running.h \
             $(HEADERS_FULL)
-moria3.o: $(HEADERS_FULL)
+monster_death.o: dungeon_map.h monster_breeding.h monster_list.h score_death.h \
+                 $(HEADERS_FULL)
 look.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h \
         player_timed_effects.h $(HEADERS_FULL)
 # object_place.c came out of misc1.c (#54). It includes externs.h, and reads
@@ -337,8 +338,10 @@ object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
 inven_ops.o: burden.h dungeon_map.h equipment.h floor_items.h inventory.h \
              item_ident.h player_body_weight.h player_pos.h \
              player_status_flags.h $(HEADERS_FULL)
-player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h \
-               $(HEADERS_FULL)
+player_move.o: dungeon_map.h dungeon_size.h floor_items.h inventory.h \
+               monster_list.h pending_teleport.h player_gold.h player_pos.h \
+               player_search_skill.h player_status_flags.h \
+               player_timed_effects.h running.h $(HEADERS_FULL)
 # screen_fields.c came from misc3.c (#42). It includes externs.h.
 screen_fields.o: screen_fields.h $(HEADERS_FULL)
 # char_screen.c came from misc3.c (#42). It includes externs.h.
@@ -374,17 +377,23 @@ rest_command.o: command_state.h player_food.h player_resting.h \
 direction.o: command_state.h $(HEADERS_FULL)
 lighting.o: dungeon_map.h floor_items.h panel.h player_light.h player_pos.h \
             player_timed_effects.h running.h $(HEADERS_FULL)
-player_melee.o: dungeon_map.h equipment.h monster_list.h player_body_weight.h \
-                player_class.h player_level.h player_timed_effects.h \
+player_melee.o: dungeon_map.h equipment.h inventory.h monster_list.h \
+                player_attack_bonuses.h player_base_to_hit.h \
+                player_body_weight.h player_class.h player_glowing_hands.h \
+                player_level.h player_status_flags.h player_timed_effects.h \
                 $(HEADERS_FULL)
 throw.o: dungeon_map.h equipment.h floor_items.h inventory.h monster_list.h \
          panel.h player_attack_bonuses.h player_base_to_hit.h player_class.h \
          player_level.h player_pos.h player_status_flags.h \
          player_timed_effects.h $(HEADERS_FULL)
-traps.o: dungeon_map.h floor_items.h monster_list.h player_class.h \
-         player_disarm.h player_level.h player_pos.h player_timed_effects.h \
-         stats.h $(HEADERS_FULL)
+traps.o: dungeon_level.h dungeon_map.h floor_items.h level_exit.h \
+         monster_list.h pending_teleport.h player_abilities.h \
+         player_armour_class.h player_class.h player_disarm.h player_level.h \
+         player_pos.h player_timed_effects.h stats.h $(HEADERS_FULL)
 terrain_commands.o: burden.h command_state.h dungeon_map.h equipment.h \
-                    floor_items.h monster_list.h player_body_weight.h \
+                    floor_items.h monster_list.h panel.h player_body_weight.h \
+                    player_class.h player_disarm.h player_level.h \
                     player_pos.h player_search_skill.h player_timed_effects.h \
-                    $(HEADERS_FULL)
+                    stats.h $(HEADERS_FULL)
+monster_damage.o: monster_list.h monster_turn.h player_level.h \
+                  player_timed_effects.h $(HEADERS_FULL)

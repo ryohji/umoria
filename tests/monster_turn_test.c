@@ -18,7 +18,7 @@
  * が、creatures() が表をたどっている最中は違う —— たどっている側は番号を
  * 手に持っていて、その番号が指す相手が入れかわってしまう。
  *
- * だからモンスターを消す 2 か所（monster/monster_place.c の詰めなおしと moria3.c の死）が
+ * だからモンスターを消す 2 か所（monster/monster_place.c の詰めなおしと monster_damage.c の死）が
  * ここに訊く。**たどりがまだその席まで来ていなければ詰めてよく**
  * （delete_monster）、**来ていたら隙間を隙間のまま残す**
  * （fix1_delete_monster。こちらは mfptr を減らさない）。
@@ -106,7 +106,7 @@ TEST(any_monster_can_be_shifted_when_nobody_is_acting) {
  * ------------------------------------------------------------------ */
 
 /* **自分の席は詰めさせない。** 比較は `<` で、等しいときは偽。
- * もとの moria3.c は自分が死んだときこの答えで fix1_delete_monster() を
+ * monster_damage.c の mon_take_hit() は自分が死んだときこの答えで fix1_delete_monster() を
  * 選ぶ —— **ここを `<=` にすると、いま処理中の 1 体を消したときに
  * 末尾の 1 体がその席に来て、creatures() が同じ番号でそれを二度処理する。** */
 TEST(the_monster_being_acted_for_must_not_be_shifted) {

@@ -44,14 +44,14 @@ struct player_abilities calc_player_abilities(void) {
     // 武器の下駄も窓口へ（#18-12-24B）。**2 行が同じ数を読むので入口で 1 度に
     // 畳んだ** —— あいだに下駄を動かすものは無い（→ 所見 35 の 1 つめの形）。
     // **BTH_PLUS_ADJ（3）を掛けるのはこの画面の規則**で、窓口には入れない ——
-    // 殴りと投げは下駄をそのまま足す（moria3.c:595・throw.c）。
+    // 殴りと投げは下駄をそのまま足す（player_melee.c・throw.c）。
     const int to_hit_bonus = player_to_hit_bonus();
     a.bth = player_base_to_hit() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTH] * player_level());
     a.bthb = player_base_to_hit_with_bows() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTHB] * player_level());
 
     // 探索の腕と頻度も窓口へ（#18-12-25B）。**逆さにするのと 0 で留めるのは
     // この画面の規則**で、窓口には入れない —— 自動探索は頻度をそのまま
-    // randint() に渡す（moria3.c:729）。0 when the frequency is >= 40; exceeds 29
+    // randint() に渡す（player_move.c）。0 when the frequency is >= 40; exceeds 29
     // when it is < 11 (search gear lowers it, player_bonuses.c)
     a.fos = 40 - player_search_frequency();
     if (a.fos < 0) {

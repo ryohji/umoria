@@ -81,7 +81,7 @@ TEST(reading_either_number_twice_gives_the_same_answer) {
 
 /* **`fos` は小さいほど良い**（`randint(fos) == 1` の n）。Halfling の
  * 種族ぶんは −5（src/data/player.c:126 の表）で、探索の指輪はさらに下げる。
- * `moria3.c:728` の "fos may be negative if have good rings of searching"
+ * player_move.c の "fos may be negative if have good rings of searching"
  * がそれを言っている。ここを留めると遊びが変わる（→ 所見 24）。 */
 TEST(the_frequency_can_be_negative_because_smaller_is_better) {
     given_search_skill_of(12, -5);
@@ -250,7 +250,7 @@ TEST(setting_wipes_whatever_the_gear_had_added) {
 
 /* **人物画面だけが `40 - fos` と逆さにし、0 で下げどめる**
  * （abilities.c:51〜:54）。**逆さにするのは呼び手の仕事** ——
- * 自動探索は `fos` をそのまま `randint()` に渡す（moria3.c:729）。 */
+ * 自動探索は `fos` をそのまま `randint()` に渡す（player_move.c）。 */
 TEST(the_character_sheet_turns_the_frequency_upside_down_but_the_window_does_not) {
     given_search_skill_of(0, 22);
 
@@ -281,7 +281,7 @@ TEST(the_sheet_shows_the_chance_unchanged) {
     ASSERT_EQ_INT(32, player_search_chance());
 }
 
-/* 「今回見るか」の判断は呼び手にある（moria3.c:729）——
+/* 「今回見るか」の判断は呼び手にある（player_move.c）——
  * `fos <= 1` なら毎回見る。窓口はその 1 も知らない。 */
 TEST(the_one_or_less_shortcut_is_the_callers_rule) {
     given_search_skill_of(0, 1);

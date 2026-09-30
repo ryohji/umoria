@@ -59,7 +59,7 @@
 // REMAINDER OF A DIVISION whose divisor is the current level: killing a monster
 // is worth mexp * its level, split by how far the character has already come, so
 // what does not divide evenly is kept in 65536ths until it adds up to a point.
-// One caller writes it (mon_take_hit in moria3.c) and one reads it (the save
+// One caller writes it (mon_take_hit in monster_damage.c) and one reads it (the save
 // file). The mana's and the hit points' windows cannot be copied here.
 //
 // Five rules live inside:

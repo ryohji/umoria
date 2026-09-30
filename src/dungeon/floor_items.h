@@ -27,7 +27,7 @@
 // lies here", so the first row that may be handed out is MIN_TRIX == 1. Only
 // one row is reserved, not two: there is no player row here, because the player
 // is not a thing lying on the floor. And the reserved row is not merely unused
-// -- moria3.c reads it. After carry() picks an object up, delete_object() has
+// -- player_move.c reads it. After carry() picks an object up, delete_object() has
 // set that square's tptr back to 0, and the next line still asks
 // `t_list[c_ptr->tptr].tval == TV_RUBBLE`. That read lands on row 0 and gets
 // TV_NOTHING, which is the answer it needs. So blanking row 0 at the start of a

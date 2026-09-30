@@ -51,10 +51,10 @@
 // handed on:
 //
 //   - class_level_adj[row][column] SIXTEEN TIMES -- the to-hit columns seven times
-//     (abilities.c, hit_rolls.c, moria3.c, player_melee.c, throw.c), the
-//     disarming column four, the device column three and the saving column twice.
-//   - magic_spell[row - 1][spell] TEN TIMES (dungeon.c, magic.c, spellbook.c five times,
-//     moria3.c twice, prayer.c).
+//     (abilities.c, hit_rolls.c, player_melee.c, throw.c), the disarming
+//     column four, the device column three and the saving column twice.
+//   - magic_spell[row - 1][spell] TEN TIMES (dungeon.c, magic.c, spellbook.c seven times,
+//     prayer.c).
 //   - class[row] for what the class GIVES: the whole row at creation (create.c) and
 //     first_spell_lev twice (spellbook.c).
 //   - player_title[row][level - 1] once (status_line.c) and player_init[row][i] once

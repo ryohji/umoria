@@ -5,8 +5,9 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Player commands that act on the dungeon: tunnelling through rock and rubble,
-// and bashing doors, chests and monsters
+// Player commands that act on the dungeon: opening and closing doors and
+// chests, tunnelling through rock and rubble, and bashing doors, chests and
+// monsters
 
 #include "headers.h"
 
@@ -22,10 +23,207 @@
 #include "equipment.h"
 #include "floor_items.h"
 #include "monster_list.h"
+#include "panel.h"
 #include "player_body_weight.h"
+#include "player_class.h"
+#include "player_disarm.h"
+#include "player_level.h"
 #include "player_pos.h"
 #include "player_search_skill.h"
 #include "player_timed_effects.h"
+#include "stats.h"
+
+// Opens a closed door or closed chest. -RAK-
+void openobject(void) {
+    int y = player_row();
+    int x = player_col();
+
+    int dir;
+    if (get_dir(CNIL, &dir)) {
+        (void)mmove(dir, &y, &x);
+
+        bool no_object = false;
+        cave_type *c_ptr = square_at(y, x);
+
+        if (c_ptr->cptr > 1 && c_ptr->tptr != 0 && (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR || floor_item_at(c_ptr->tptr)->tval == TV_CHEST)) {
+            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
+            msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
+        } else if (c_ptr->tptr != 0) {
+            // Closed door
+            if (floor_item_at(c_ptr->tptr)->tval == TV_CLOSED_DOOR) {
+                inven_type *t_ptr = floor_item_at(c_ptr->tptr);
+
+                // It's locked.
+                if (t_ptr->p1 > 0) {
+                    int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
+
+                    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+                        msg_print("You are too confused to pick the lock.");
+                    } else if ((i - t_ptr->p1) > randint(100)) {
+                        msg_print("You have picked the lock.");
+                        player_gain_experience(1);
+                        prt_experience();
+                        t_ptr->p1 = 0;
+                    } else {
+                        count_msg_print("You failed to pick the lock.");
+                    }
+                } else if (t_ptr->p1 < 0) { // It's stuck
+                    msg_print("It appears to be stuck.");
+                }
+                if (t_ptr->p1 == 0) {
+                    invcopy(floor_item_at(c_ptr->tptr), OBJ_OPEN_DOOR);
+                    c_ptr->fval = CORR_FLOOR;
+                    lite_spot(y, x);
+                    cancel_command_count();
+                }
+            } else if (floor_item_at(c_ptr->tptr)->tval == TV_CHEST) {
+                // Open a closed chest.
+
+                int i = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
+
+                inven_type *t_ptr = floor_item_at(c_ptr->tptr);
+
+                bool flag = false;
+
+                if (CH_LOCKED & t_ptr->flags) {
+                    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+                        msg_print("You are too confused to pick the lock.");
+                    } else if ((i - (int)t_ptr->level) > randint(100)) {
+                        msg_print("You have picked the lock.");
+                        flag = true;
+                        player_gain_experience(t_ptr->level);
+                        prt_experience();
+                    } else {
+                        count_msg_print("You failed to pick the lock.");
+                    }
+                } else {
+                    flag = true;
+                }
+                if (flag) {
+                    t_ptr->flags &= ~CH_LOCKED;
+                    t_ptr->name2 = SN_EMPTY;
+                    known2(t_ptr);
+                    t_ptr->cost = 0;
+                }
+                flag = false;
+
+                // Was chest still trapped?   (Snicker)
+                if ((CH_LOCKED & t_ptr->flags) == 0) {
+                    chest_trap(y, x);
+                    if (c_ptr->tptr != 0) {
+                        flag = true;
+                    }
+                }
+
+                // Chest treasure is allocated as if a creature
+                // had been killed.
+                if (flag) {
+                    // clear the cursed chest/monster win flag, so that people
+                    // can not win by opening a cursed chest
+                    floor_item_at(c_ptr->tptr)->flags &= ~TR_CURSED;
+                    (void)monster_death(y, x, floor_item_at(c_ptr->tptr)->flags);
+                    floor_item_at(c_ptr->tptr)->flags = 0;
+                }
+            } else {
+                no_object = true;
+            }
+        } else {
+            no_object = true;
+        }
+
+        if (no_object) {
+            msg_print("I do not see anything you can open there.");
+            free_turn_flag = true;
+        }
+    }
+}
+
+// Closes an open door. -RAK-
+void closeobject(void) {
+    int y = player_row();
+    int x = player_col();
+
+    int dir;
+    if (get_dir(CNIL, &dir)) {
+        (void)mmove(dir, &y, &x);
+
+        cave_type *c_ptr = square_at(y, x);
+
+        bool no_object = false;
+
+        if (c_ptr->tptr != 0) {
+            if (floor_item_at(c_ptr->tptr)->tval == TV_OPEN_DOOR) {
+                if (c_ptr->cptr == 0) {
+                    if (floor_item_at(c_ptr->tptr)->p1 == 0) {
+                        invcopy(floor_item_at(c_ptr->tptr), OBJ_CLOSED_DOOR);
+                        c_ptr->fval = BLOCKED_FLOOR;
+                        lite_spot(y, x);
+                    } else {
+                        msg_print("The door appears to be broken.");
+                    }
+                } else {
+                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
+                    msg_print(CONCAT(monster_name_or_something((vtype){0}, m_ptr), " is in your way!"));
+                }
+            } else {
+                no_object = true;
+            }
+        } else {
+            no_object = true;
+        }
+
+        if (no_object) {
+            msg_print("I do not see anything you can close there.");
+            free_turn_flag = true;
+        }
+    }
+}
+
+// Tunneling through real wall: 10, 11, 12 -RAK-
+// Used by TUNNEL and WALL_TO_MUD
+int twall(int y, int x, int t1, int t2) {
+    bool found;
+    bool res = false;
+
+    if (t1 > t2) {
+        cave_type *c_ptr = square_at(y, x);
+
+        if (c_ptr->lr) {
+            // Should become a room space, check to see whether
+            // it should be LIGHT_FLOOR or DARK_FLOOR.
+            found = false;
+
+            for (int i = y - 1; i <= y + 1; i++) {
+                for (int j = x - 1; j <= x + 1; j++) {
+                    if (square_at(i, j)->fval <= MAX_CAVE_ROOM) {
+                        c_ptr->fval = square_at(i, j)->fval;
+                        c_ptr->pl = square_at(i, j)->pl;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found) {
+                c_ptr->fval = CORR_FLOOR;
+                c_ptr->pl = false;
+            }
+        } else {
+            // should become a corridor space
+            c_ptr->fval = CORR_FLOOR;
+            c_ptr->pl = false;
+        }
+        c_ptr->fm = false;
+        if (panel_contains(y, x)) {
+            if ((c_ptr->tl || c_ptr->pl) && c_ptr->tptr != 0) {
+                msg_print("You have found something!");
+            }
+        }
+        lite_spot(y, x);
+        res = true;
+    }
+    return res;
+}
 
 // Tunnels through rubble and walls -RAK-
 // Must take into account: secret doors, special tools

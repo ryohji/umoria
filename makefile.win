@@ -91,10 +91,11 @@ generate.o: constant.h types.h externs.h config.h
 geometry.o: dungeon_map.h dungeon_size.h floor_items.h constant.h types.h externs.h config.h
 help.o: constant.h types.h externs.h config.h
 hit_rolls.o: player_class.h player_level.h constant.h types.h externs.h config.h
-player_melee.o: dungeon_map.h equipment.h monster_list.h player_body_weight.h player_class.h player_level.h player_timed_effects.h constant.h types.h externs.h config.h
+player_melee.o: dungeon_map.h equipment.h inventory.h monster_list.h player_attack_bonuses.h player_base_to_hit.h player_body_weight.h player_class.h player_glowing_hands.h player_level.h player_status_flags.h player_timed_effects.h constant.h types.h externs.h config.h
 throw.o: dungeon_map.h equipment.h floor_items.h inventory.h monster_list.h panel.h player_attack_bonuses.h player_base_to_hit.h player_class.h player_level.h player_pos.h player_status_flags.h player_timed_effects.h constant.h types.h externs.h config.h
-traps.o: dungeon_map.h floor_items.h monster_list.h player_class.h player_disarm.h player_level.h player_pos.h player_timed_effects.h stats.h constant.h types.h externs.h config.h
-terrain_commands.o: burden.h command_state.h dungeon_map.h equipment.h floor_items.h monster_list.h player_body_weight.h player_pos.h player_search_skill.h player_timed_effects.h constant.h types.h externs.h config.h
+traps.o: dungeon_level.h dungeon_map.h floor_items.h level_exit.h monster_list.h pending_teleport.h player_abilities.h player_armour_class.h player_class.h player_disarm.h player_level.h player_pos.h player_timed_effects.h stats.h constant.h types.h externs.h config.h
+terrain_commands.o: burden.h command_state.h dungeon_map.h equipment.h floor_items.h monster_list.h panel.h player_body_weight.h player_class.h player_disarm.h player_level.h player_pos.h player_search_skill.h player_timed_effects.h stats.h constant.h types.h externs.h config.h
+monster_damage.o: monster_list.h monster_turn.h player_level.h player_timed_effects.h constant.h types.h externs.h config.h
 hp_table.o: hp_table.h constant.h types.h config.h
 input.o: input.h
 input_ncurses.o: input.h backend_ncurses.h
@@ -138,7 +139,7 @@ monsters.o: constant.h types.h config.h
 object_levels.o: object_levels.h constant.h types.h config.h
 inven_menu.o: burden.h dungeon_map.h equipment.h inven_command_state.h inventory.h player_pos.h player_status_flags.h screen_touched.h constant.h types.h externs.h config.h
 run_path.o: command_state.h dungeon_map.h floor_items.h monster_list.h player_light.h player_pos.h player_timed_effects.h running.h constant.h types.h externs.h config.h
-moria3.o: constant.h types.h externs.h config.h
+monster_death.o: dungeon_map.h monster_breeding.h monster_list.h score_death.h constant.h types.h externs.h config.h
 look.o: dungeon_map.h floor_items.h monster_list.h panel.h player_pos.h player_timed_effects.h constant.h types.h externs.h config.h
 player.o: constant.h types.h config.h
 player_abilities.o: player_abilities.h constant.h types.h config.h
@@ -165,7 +166,7 @@ player_armour_class.o: player_armour_class.h constant.h types.h config.h
 player_base_to_hit.o: player_base_to_hit.h constant.h types.h config.h
 player_damage.o: equipment.h level_exit.h player_abilities.h player_class.h player_hp.h player_level.h player_saving_throw.h player_timed_effects.h score_death.h stats.h constant.h types.h externs.h config.h
 player_disarm.o: player_disarm.h constant.h types.h config.h
-player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h constant.h types.h externs.h config.h
+player_move.o: dungeon_map.h dungeon_size.h floor_items.h inventory.h monster_list.h pending_teleport.h player_gold.h player_pos.h player_search_skill.h player_status_flags.h player_timed_effects.h running.h constant.h types.h externs.h config.h
 player_saving_throw.o: player_saving_throw.h constant.h types.h config.h
 player_race.o: player_race.h constant.h types.h config.h
 player_body_weight.o: player_body_weight.h constant.h types.h config.h

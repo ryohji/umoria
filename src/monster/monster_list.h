@@ -23,7 +23,7 @@
 //
 // PACKED IS A PROMISE, AND KEEPING IT IS WHY REMOVING A MONSTER IS AWKWARD.
 // A row in the middle cannot simply be emptied; the last row is moved down into
-// the hole and the table shrinks by one (moria3.c's fix2_delete_monster, which
+// the hole and the table shrinks by one (monster_death.c's fix2_delete_monster, which
 // also rewrites the moved monster's square in the cave). Any code holding a row
 // index or a row pointer across a removal is therefore holding something that
 // may now mean a different monster -- the hazard #18-14-1 named, and the reason

@@ -52,7 +52,7 @@ void consume_command_count(void);
 // Whatever was being repeated, stop. Said by nine places, and they are all the
 // same thing: a key was read (io.c), a message was printed (io.c), the player
 // was disturbed (rest_command.c), a run could not start (run_path.c), a door came open
-// (moria3.c), the turn was free or the run took the count over (dungeon.c), and
+// (terrain_commands.c), the turn was free or the run took the count over (dungeon.c), and
 // **a new level has begun** (dungeon.c). The last one is a real cancelling, not
 // a fresh start: a count can outlive a staircase, and this is what stops it.
 // That is why there is no separate "forget" window here, unlike running.h.

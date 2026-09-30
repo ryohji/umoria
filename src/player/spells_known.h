@@ -103,7 +103,7 @@ void spell_order_forget_all(void);
 
 // The spells in the given set that the character knows. The set comes from a
 // spell book (inven_type.flags holds one bit per spell), so this answers "which
-// of the spells in this book can I cast?" (moria3.c).
+// of the spells in this book can I cast?" (spellbook.c).
 uint32_t spells_learned_among(uint32_t spells);
 
 // The spells in the given set that the character does not know yet -- the

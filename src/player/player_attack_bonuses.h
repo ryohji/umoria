@@ -36,7 +36,7 @@
 // adjacent shorts. Two questions that share every way of being replaced are one
 // question with two answers.
 //
-// WHO ASKS: the character sheet's two ratings (abilities.c), a swing (moria3.c,
+// WHO ASKS: the character sheet's two ratings (abilities.c), a swing (player_melee.c,
 // once for the aim and once for the force), a throw (throw.c, the aim only), the
 // copy the sheet shows while equipment is being counted
 // (player_display_numbers.c), and the saved file.
