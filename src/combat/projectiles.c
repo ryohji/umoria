@@ -23,7 +23,7 @@
 #include "player_timed_effects.h"
 
 // Return flags for given type area affect -RAK-
-void get_flags(int typ, uint32_t *weapon_type, int *harm_type, bool (**destroy)(inven_type *)) {
+static void get_flags(int typ, uint32_t *weapon_type, int *harm_type, bool (**destroy)(inven_type *)) {
     switch (typ) {
     case GF_MAGIC_MISSILE:
         *weapon_type = 0;

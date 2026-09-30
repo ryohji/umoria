@@ -580,7 +580,6 @@ void init_signals(void);
 void handle_pending_signals(void);
 
 // combat/projectiles.c
-void get_flags(int, uint32_t *, int *, bool (**)(inven_type *));
 void fire_bolt(int, int, int, int, int, const char *);
 void fire_ball(int, int, int, int, int, const char *);
 void breath(int, int, int, int, char *, int);
