@@ -477,3 +477,9 @@
 | 2026-10-01 | #56-3-8 | **`git mv` で moria3.c を `monster/monster_death.c` に**（`cf0d9a0`）。**moria1〜4.c が無くなった。** 同じ。 |
 | 2026-10-01 | #56-3-9 | **コメント：moria3.c を指すところを移った先に**（`27e871c`）。メッセージの「src の 21 本」は誤りで、22 本。来歴として moria3.c を書くコメント 4 か所は残した。 |
 | 2026-10-01 | #56 マージ | **ユーザーの許可を得て 4 本をマージした**（`refactor/56-moria2` `c0fe8d3`・`56-moria1` `7a2bc35`・`56-moria4` `ce9251e`・`56-moria3` `3787dc4`）。後の 2 本は sources.mk・makefile・makefile.win と、コメント 5 ファイルで衝突し、両方の移り先を残して解いた。警告 0・75 本 1671 件 GREEN・globals OK 42・層 1104 本 138 単位で違反 0・起動 1。**マージ済みのブランチ 4 本と worktree 2 本を消した。** |
+| 2026-10-01 | #57 進めかた | **combat の残りの迷いどころ 5 点はすべて案のとおり**（ユーザーの判断）。movement_rate_test は変えない。 |
+| 2026-10-01 | #57-1 | **`make_attack` の `static` を外した**（`6b23689`）。違いは頭の `endbr64` と、それに続く nop と飛び先のずれだけ。creature.c のほかの 9 本は同じ。 |
+| 2026-10-01 | #57-2 | **`make_attack` を新しい `combat/monster_melee.c` へ**（`d7a0bd6`）。同じ。movement_rate_test は libcore から `monster_melee.o` を引くようになった（24 件とも通る）。 |
+| 2026-10-01 | #57-3 | **`get_flags`・`fire_bolt`・`fire_ball`・`breath` を新しい `combat/projectiles.c` へ**（`02c5f92`）。同じ。例外は spells.c の `hp_monster` の jmp 1 つ（`eb 82` → `e9 …`、飛び先は同じ）。 |
+| 2026-10-01 | #57-4 | **コメント：移った先とずれた行番号**（`0a04327`）。src 6・tests 11。サブエージェントが worktree で。 |
+| 2026-10-01 | #57 マージ | **ユーザーの許可を得て `refactor/57-combat` をマージした**（`0416bb0`）。衝突なし。警告 0・75 本 1671 件 GREEN・globals OK 42・層 1139 本 140 単位で違反 0・起動 1。**ブランチと worktree を消した。** |
