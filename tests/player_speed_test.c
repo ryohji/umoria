@@ -191,7 +191,7 @@ TEST(adjusting_carries_the_steps_across_zero) {
     ASSERT_EQ_INT(-1, player_speed());
 }
 
-/* 荷は**差**で届く（misc3.c の check_strength が
+/* 荷は**差**で届く（inven_ops.c の check_strength が
  * change_speed(新しい段数 − 覚えた段数) を呼ぶ。覚えた段数は burden.c）。
  * 荷を下ろして差が戻れば、合計も戻る。 */
 TEST(a_pack_penalty_that_arrives_as_a_difference_goes_away_the_same_way) {

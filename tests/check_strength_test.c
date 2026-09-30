@@ -5,8 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 重さに負けているかどうかの判定（misc3.c:975 の check_strength と
- * misc3.c:957 の inven_check_weight）のテスト
+/* 重さに負けているかどうかの判定（inven_ops.c:174 の check_strength と
+ * inven_ops.c:156 の inven_check_weight）のテスト
  *
  * check_strength() は「いまの装備と持ち物に体力が足りているか」を 1 か所で
  * 判定し、答えを 2 つ覚える唯一の場所（#18-7-4 の窓口 burden.h が預かる
@@ -55,7 +55,7 @@
 
 extern player_type py;
 
-/* 検証対象（src/misc3.c）。externs.h は ncurses まで引きこむので、
+/* 検証対象（src/item/inven_ops.c）。externs.h は ncurses まで引きこむので、
  * 必要な宣言だけをここに書く。 */
 void check_strength(void);
 bool inven_check_weight(inven_type *i_ptr);

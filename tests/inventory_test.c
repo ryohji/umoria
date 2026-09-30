@@ -208,7 +208,7 @@ TEST(the_pack_count_can_be_set_and_read_back)
 TEST(the_pack_count_keeps_a_negative_value)
 {
     /* 現状の記録。窓口は薄いので下限を守らない。呼びだし側は
-     * inven_ctr-- を無条件でやる箇所がある（desc.c:248、misc3.c:845,876）。 */
+     * inven_ctr-- を無条件でやる箇所がある（desc.c:248、inven_ops.c:47,78）。 */
     inventory_set_count(-1);
     ASSERT_EQ_INT(inventory_count(), -1);
 }

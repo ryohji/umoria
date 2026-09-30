@@ -7,10 +7,12 @@
 
 /* アイテムのスタック（重ね置き）可否判定のテスト -- 現在の実装を保護する
  *
- * misc3.c:1161 に「this code must be identical to the inven_carry() code
- * below」、misc3.c:1241 に対応するコメントがある。inven_check_num() と
+ * もとの misc3.c には「this code must be identical to the inven_carry() code
+ * below」と、それに対応するコメントがあった。inven_check_num() と
  * inven_carry() が同じ条件を二重に持っており、片方だけ直すとアイテムが
- * 消失する。開発者自身が同一性の必要を認識している箇所。
+ * 消失する。開発者自身が同一性の必要を認識していた箇所。いまは条件が
+ * items_can_stack()（inven_ops.c:130）の 1 つにまとまり、その注釈が
+ * 「must agree」と言う。
  *
  * このテストは写しではなく src/misc3.c の実体をリンクして検証する。
  * misc3.c は 2212 行・6 責務（画面描画・能力値計算・持ち物管理・呪文・

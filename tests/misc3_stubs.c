@@ -247,7 +247,7 @@ void recall_update_characteristics(creature_handle h, int defence) {
 /* --- プレイヤー状態の更新 --- */
 
 /* change_speed と calc_bonuses は捨てるだけでなく、渡された値と呼ばれた
- * 回数を記録する。check_strength()（misc3.c:975）の重さの判定は、結果を
+ * 回数を記録する。check_strength()（inven_ops.c:174）の重さの判定は、結果を
  * 画面（msg_print）と速度（change_speed）に流すだけで戻り値が無いので、
  * 呼ばれかたを写しとらなければふるまいを観測できない（msg_print と同じ
  * リンクシーム）。

@@ -19,7 +19,7 @@
 //
 // NOT VANITY -- A PHYSICAL QUANTITY. The number is on the character sheet, but
 // four of the six readers are rules, not display: a heavier character carries
-// more (misc3.c's weight_limit()), bashes monsters with a shield harder
+// more (inven_ops.c's weight_limit()), bashes monsters with a shield harder
 // (moria4.c's py_bash(), twice) and breaks doors down more easily
 // (moria4.c:1000).
 //
@@ -61,7 +61,7 @@ void player_body_weight_set(int pounds);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- three things, all still in the callers:
 //
-//   1. HOW MUCH THE CHARACTER CAN CARRY. misc3.c:942 computes
+//   1. HOW MUCH THE CHARACTER CAN CARRY. inven_ops.c:118 computes
 //      `use_stat[A_STR] * PLAYER_WEIGHT_CAP + weight`, capped at 3000. THE
 //      SUBJECT OF THAT SENTENCE IS STRENGTH; the body's weight is the smaller
 //      term. It also needs py.stats.use_stat[], which has no window yet, so even
