@@ -259,8 +259,10 @@ message 2 つだけで、`misc3.c` も `abilities.c` もこのバイトを読ま
 | `save.c` の読みを捨てる | 0 |
 
 **割れ方がこの項目の輪郭をもう一度なぞっている。** 捕まった 2 つはどちらも
-`src/misc3.c` を丸ごと `#include` している `tests/calc_spells_test.c`・
-`tests/gain_spells_test.c` の中で、**この 2 本は `calc_spells()` と
+`src/misc3.c` をリンクしている `tests/calc_spells_test.c`・
+`tests/gain_spells_test.c`（もとは「丸ごと `#include` している」と書いていたが、
+当時からリンクだった。#42 で misc3.c が無くなったいまは、ライブラリの
+`item/spellbook.o` を引く）の中で、**この 2 本は `calc_spells()` と
 `gain_spells()` を単体で呼べる足場を持っている** —— #18-12-5 で見えた
 「穴は呼び手を単体で呼べる足場があるかどうかで決まる」が、10 度めの 5 対 0 の
 あとで**今度は 2 つぶん**確かめられた。素通りした 3 つは**「画面に出す」

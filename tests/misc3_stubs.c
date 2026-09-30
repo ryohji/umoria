@@ -5,28 +5,49 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* misc3.c をリンクするためのスタブ
+/* 代役：もと misc3.c にあったコードを本物でリンクするテストのためのスタブ
  *
- * inven_check_num() の依存は inven_ctr / inventory / known1_p / INVEN_WIELD の
- * 4 つだけだが、C はファイル単位でリンクするので misc3.c 全体（2212 行・6 責務）
- * を持ちこむことになる。その結果、画面描画・ダンジョン・呪文・モンスターへの
- * 参照が芋づるで未解決になる。
+ * ファイルの名前は履歴のまま残している。misc3.c は #42 で次のファイルに
+ * 分かれて無くなった（ui/wizard.c・combat/hit_rolls.c・combat/player_damage.c・
+ * dungeon/geometry.c・player/player_move.c・dungeon/object_alloc.c・
+ * item/inven_ops.c・ui/screen_fields.c・ui/status_line.c・ui/char_screen.c・
+ * player/stat_ops.c・item/spellbook.c・player/level_ops.c。その前に
+ * player/stats.c（#40）と core/str_insert.c（#41）も出ている）。名前を
+ * 変えるのは代役の片づけ（#37）に残してある。
  *
- * ここに置くのはその代役。inven_check_num() は 1 つも呼ばないので、
- * すべて「呼ばれたら何もしない／固定値を返す」で足りる。一覧はリンカに
- * 出させたもので、手で数えあげたわけではない:
- *   gcc -std=c17 -Isrc -c -o /tmp/misc3.o src/misc3.c
- *   gcc -o /tmp/t probe.c /tmp/misc3.o desc.o tables.o treasure.o player.o \
- *     2>&1 | grep 'undefined reference' | sed 's/.*to //' | sort -u
+ * これを使うのは makefile.test の足場の表で EXTRA_<name>_test = misc3_stubs.c と
+ * 書いた 9 本（calc_hitpoints・calc_spells・check_strength・gain_spells・
+ * haggle_comment・inven_stack・objdes・object_levels・put_misc3 の各 _test）。
+ * どれも検証する本物（spellbook.o・level_ops.o・inven_ops.o・char_screen.o
+ * など）をライブラリ（tests/build/libcore.a）から引く。ここに置くのは、その
+ * 本物が呼ぶ先の代役で、2 種類ある。
  *
- * 本物をリンクできるもの（tables.c の定数表、treasure.c のインベントリ、
- * player.c の py と各種テーブル、desc.c の known1_p）は本物を使う。
- * ここには本物と一緒にリンクできないものだけを書く。
+ *   1. ライブラリに無い名前。makefile.test の LIB_EXCLUDE（dungeon.c・
+ *      moria1.c・signals.c）にしか無いもの（calc_bonuses・change_speed・
+ *      takeoff など）と、fixture.h の窓口（fixture_reset など）。
+ *   2. 本物より先に埋める名前。画面と入力（io.o の msg_print・put_buffer・
+ *      get_com など）、乱数（rnd.o の randint）、ダンジョンとモンスター
+ *      （geometry.o の distance・in_bounds など）。本物を引くと ncurses の
+ *      窓口などまで芋づるで付いてくるうえ、テストが呼ばれかたを読みとれない。
+ *
+ * 一覧は手で数えあげず、リンカに出させる。1 は、misc3_stubs.c を外して
+ * ライブラリだけでリンクすると undefined reference に出る:
+ *   make -f makefile.test libcore
+ *   gcc -std=c17 -Isrc $(find src -mindepth 1 -maxdepth 1 -type d -printf '-I%p ') \
+ *     -Itests -o /tmp/t tests/calc_spells_test.c tests/build/libcore.a 2>&1 |
+ *     grep -o "undefined reference to \`[^']*'" | sed "s/.*\`//; s/'//" | sort -u
+ * 出た名前のうち、ここに定義のあるものが 1 の代役。ほかの名前（get_item・
+ * show_inven・ncurses の窓口など）は、代役を外したせいで io.o などの本物が
+ * 引かれ、その先で要るようになったもので、代役があるあいだは出てこない。
+ * 2 は scripts/link_units.py --shadows で出る（先に make -f makefile.test で
+ * tests/build/ に .map を作っておく）。
  *
  * fixture.c と分けている理由: fixture.c は py・msg_print・insert_str・
- * prt_experience を自前で持つが、misc3.c と player.c は同じものを本物として
- * 持っている。両方をリンクすると multiple definition になるので、
- * misc3.c 系のテストは fixture.c をリンクせず、こちらを使う。
+ * prt_experience を自前で持つが、これらのテストがライブラリから引く本物
+ * （player.o の py、str_insert.o の insert_str、level_ops.o の prt_experience。
+ * fixture.c では画面の代役が足りず io.o の msg_print も引かれる）も同じ名前を
+ * 持っている。両方をリンクすると multiple definition になるので、これらの
+ * テストは fixture.c をリンクせず、こちらを使う。
  * fixture.h の窓口（fixture_reset / fixture_set_randint）は同じものを提供する。
  */
 #include <stddef.h>
