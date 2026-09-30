@@ -5,31 +5,14 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// What the player learns by using a consumable item
-//
-// Extracted from the identical `ident` blocks in potions.c, eat.c and
-// scrolls.c. The only difference between the three was that scrolls.c omitted
-// the `i_ptr` reassignment, because it never reads i_ptr afterwards; returning
-// the pointer lets each caller decide whether it needs it.
-//
-// This file deliberately depends on nothing but known1_p() / identify() /
-// sample() / prt_experience() and the global player and inventory, so that the
-// rule can be tested without pulling in the item effect switches.
-//
-// It also holds the records of what the player has learned about each kind of
-// object (see item_ident.h), reachable only through the windows below. The
-// table used to be a global in treasure.c, declared in externs.h, and eight
-// lines in three files read or wrote it directly.
+// What the player has learned about each kind of object (see item_ident.h),
+// reachable only through the windows below.
 
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
-#include "externs.h"
-
-#include "inventory.h"
 #include "item_ident.h"
-#include "player_level.h"
 
 // One record per kind of secret object: seven groups of sixty-four. Starting
 // out as zeroes says "nothing known, nothing tried", which is what a new
@@ -129,24 +112,4 @@ uint8_t *item_kind_record_bytes(void) {
 
 int item_kind_record_count(void) {
     return OBJECT_IDENT_SIZE;
-}
-
-inven_type *learn_item_effect(bool effect_identified, int *item_val) {
-    inven_type *i_ptr = inventory_at(*item_val);
-
-    if (effect_identified) {
-        if (!known1_p(i_ptr)) {
-            // use identified it, gain experience
-            // round half-way case up
-            player_gain_experience((i_ptr->level + (player_level() >> 1)) / player_level());
-            prt_experience();
-
-            identify(item_val);
-            i_ptr = inventory_at(*item_val);
-        }
-    } else if (!known1_p(i_ptr)) {
-        sample(i_ptr);
-    }
-
-    return i_ptr;
 }

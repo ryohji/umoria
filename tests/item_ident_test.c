@@ -7,12 +7,12 @@
 /* アイテムの効果が判明したときの処理のテスト -- 現在の実装を保護する
  *
  * potions.c / eat.c / scrolls.c に重複していた ident ブロックは
- * src/item/item_ident.c の learn_item_effect() に抽出された。このテストは
+ * src/item/item_learn.c の learn_item_effect() に抽出された。このテストは
  * その実体をリンクして検証する（写しではない）。
  *
  * potions.c / eat.c / scrolls.c 自体はリンクできない。効果処理の巨大な
  * switch が画面表示・ダンジョン・モンスターへ芋づるで依存するため。
- * item_ident.c は known1_p() / identify() / sample() / prt_experience() と
+ * item_learn.c は known1_p() / identify() / sample() / prt_experience() と
  * グローバルな py / inventory にしか依存しないので、desc.c の本物と
  * fixture.c の代役だけでリンクできる。
  *
@@ -27,6 +27,7 @@
 #include "types.h"
 
 #include "item_ident.h"
+#include "item_learn.h"
 #include "player_level.h"
 
 #include "fixture.h"
@@ -51,7 +52,7 @@ void prt_experience(void);
 
 #include "minunit.h"
 
-/* 実体（src/item/item_ident.c）への呼びだし。抽出前の呼びだし側は item_val を
+/* 実体（src/item/item_learn.c）への呼びだし。抽出前の呼びだし側は item_val を
  * 局所変数として持っていたので、ここでも同じく変数に受けて渡す。
  * 戻り値（更新後の i_ptr）はこのテストでは見ない。 */
 static void apply_ident(bool ident, int item_val)

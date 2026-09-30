@@ -23,15 +23,8 @@
 #include "shared_stubs.h"
 #include "inventory.h"
 #include "item_ident.h"
-#include "player_bio.h"
 #include "player_body_weight.h"
-#include "player_class.h"
-#include "player_level.h"
-#include "player_race.h"
-#include "player_speed.h"
-#include "player_spells_to_learn.h"
 #include "player_status_flags.h"
-#include "player_timed_effects.h"
 
 /* 各テストの前に呼ぶ。 */
 void fixture_reset(void)
@@ -42,26 +35,8 @@ void fixture_reset(void)
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     memset(&py, 0, sizeof py);
-    player_set_level(0);
-    player_set_experience(0);
-    player_set_max_experience(0);
-    player_set_experience_fraction(0);
-    player_set_experience_factor(0);
     player_set_status_word(0);
-    for (int effect = 0; effect < PLAYER_TIMED_COUNT; effect++) {
-        player_timed_clear((player_timed_effect)effect);
-    }
-    player_speed_set(0);
-    player_spells_to_learn_set(0);
-    player_race_set(0);
     player_body_weight_set(0);
-    player_name_set("");
-    player_set_male(false);
-    player_age_set(0);
-    player_height_set(0);
-    player_social_class_set(0);
-    player_history_clear();
-    player_class_set(0);
     inventory_set_count(0);
     inventory_set_weight(0);
     shared_stubs_reset();
