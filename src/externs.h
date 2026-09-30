@@ -393,7 +393,6 @@ void get_name(void);
 void change_name(void);
 
 // player/stat_ops.c
-uint8_t modify_stat(int, int16_t);
 void set_use_stat(int);
 bool inc_stat(int);
 bool dec_stat(int);
