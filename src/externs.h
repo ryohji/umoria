@@ -255,7 +255,6 @@ void save_screen(void);
 void restore_screen(void);
 void bell(void);
 void screen_map(void);
-void sleep_in_seconds(int);
 bool check_input(int);
 void user_name(char *);
 
@@ -264,7 +263,6 @@ void user_name(char *);
 #define open topen
 #define fopen tfopen
 
-int tilde(const char *, char *);
 FILE *tfopen(const char *, const char *);
 int topen(char *, int, int);
 #endif

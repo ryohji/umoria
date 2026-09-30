@@ -27,6 +27,7 @@
 #define use_value2
 
 static void wait_for_more_confirmation(void);
+static void sleep_in_seconds(int);
 
 // Dump IO to buffer -RAK-
 void put_buffer(const char *out_str, int row, int col) {
@@ -490,7 +491,7 @@ void screen_map(void) {
     restore_screen();
 }
 
-void sleep_in_seconds(int seconds) {
+static void sleep_in_seconds(int seconds) {
 #ifdef _WIN32
     Sleep(seconds * 1000);
 #else
@@ -549,6 +550,8 @@ void user_name(char *buf) {
 #undef fopen
 #undef open
 
+static int tilde(const char *, char *);
+
 // open a file just as does fopen, but allow a leading ~ to specify a home directory
 FILE *tfopen(const char *file, const char *mode) {
     // extern int errno;
@@ -574,7 +577,7 @@ int topen(char *file, int flags, int mode) {
 }
 
 // expands a tilde at the beginning of a file name to a users home directory
-int tilde(const char *file, char *exp) {
+static int tilde(const char *file, char *exp) {
     *exp = '\0';
     if (file) {
         if (*file == '~') {
