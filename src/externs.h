@@ -338,7 +338,6 @@ bool test_hit(int, int, int, int, int);
 
 // combat/player_damage.c
 bool player_saves(void);
-int minus_ac(uint32_t);
 void corrode_gas(const char *);
 void poison_gas(int, const char *);
 void fire_dam(int, const char *);
