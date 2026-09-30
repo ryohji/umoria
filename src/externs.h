@@ -493,7 +493,6 @@ void fix1_delete_monster(int);
 void fix2_delete_monster(int);
 int delete_object(int, int);
 uint32_t monster_death(int, int, uint32_t);
-int mon_take_hit(int, int);
 void py_attack(int, int);
 void openobject(void);
 void closeobject(void);
@@ -516,6 +515,9 @@ void chest_trap(int, int);
 // dungeon/terrain_commands.c
 void tunnel(int);
 void bash(void);
+
+// combat/monster_damage.c
+int mon_take_hit(int, int);
 
 // potions.c
 void quaff(void);
