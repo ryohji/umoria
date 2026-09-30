@@ -400,6 +400,7 @@ int get_spell(int *, int, int *, int *, const char *, int);
 void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
+int cast_spell(const char *, int, int *, int *);
 
 // player/level_ops.c
 void prt_experience(void);
@@ -486,7 +487,6 @@ void light_dam(int, char *);
 void acid_dam(int, const char *);
 
 // moria3.c
-int cast_spell(const char *, int, int *, int *);
 void delete_monster(int);
 void fix1_delete_monster(int);
 void fix2_delete_monster(int);

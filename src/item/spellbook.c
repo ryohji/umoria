@@ -510,3 +510,44 @@ void calc_mana(int stat) {
         player_request_mana_redraw();
     }
 }
+
+// Return spell number and failure chance -RAK-
+// returns -1 if no spells in book
+// returns  1 if choose a spell in book to cast
+// returns  0 if don't choose a spell, i.e. exit with an escape
+int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
+    int result = -1;
+    int i = 0;
+
+    uint32_t j = inventory_at(item_val)->flags;
+    int first_spell = bit_pos(&j);
+    // set j again, since bit_pos modified it
+    j = spells_learned_among(inventory_at(item_val)->flags);
+
+    // **`- 1` は表の並びの知識**で、階級についての事実ではない —— 戦士に行が
+    // 無いので magic_spell は MAX_CLASS - 1 行（player_class.h の 2 つめ。
+    // src/data/player.c:307 のコメントがこの道より古い）。
+    spell_type *s_ptr = magic_spell[player_class() - 1];
+
+    int spell[31];
+    while (j) {
+        int k = bit_pos(&j);
+        if (s_ptr[k].slevel <= player_level()) {
+            spell[i] = k;
+            i++;
+        }
+    }
+
+    if (i > 0) {
+        result = get_spell(spell, i, sn, sc, prompt, first_spell);
+        if (result &&
+            magic_spell[player_class() - 1][*sn].smana > player_mana()) {
+            if (player_class_spell_type() == MAGE) {
+                result = (int)get_check("You summon your limited strength to cast this one! Confirm?");
+            } else {
+                result = (int)get_check("The gods may think you presumptuous for this! Confirm?");
+            }
+        }
+    }
+    return result;
+}
