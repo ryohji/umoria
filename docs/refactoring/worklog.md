@@ -454,3 +454,26 @@
 | 2026-09-30 | #42-18 | **コメント：F・G と、前の段で残った misc3.c**（`bea98fe`）。「バグ候補 B22」を B23 に。移った関数の中の日本語のコメントを英語に。サブエージェントが worktree で。 |
 | 2026-09-30 | #42-19 | **`misc3_stubs.c` の冒頭と REFACTORING_PLAN:262 を今に合わせた**（`38325a1`）。 |
 | 2026-09-30 | #42 マージ | **ユーザーの許可を得て `refactor/42-misc3` をマージした**（`cb5279a`）。衝突なし。警告 0・75 本 1671 件 GREEN・globals OK 42・層 963 本 128 単位で違反 0・起動 1。**マージ済みのブランチ `refactor/42-misc3` と、作業用の worktree（`/tmp/mgd/wt-old`・サブエージェント用の 2 本）を消した。** 最上位に残る古い `.o`（`misc1.o` など）はユーザーがあとで掃除する。 |
+| 2026-10-01 | #56 進めかた | **moria1〜4 の迷いどころ 8 点はすべて案のとおり**（ユーザーの判断）。2 列で並べた：列 X（moria2 → moria1、自分）と列 Y（moria4 → moria3、worktree のサブエージェント）。どの移動も、足した行と消した行の差がファイルの頭と `#include` だけであることと、`-O2 -fno-inline` と `-O2 -fno-inline -fno-ipa-cp -fno-ipa-icf` の両方で関数の機械語が直前のコミットと一致することを確かめた。テストは足していない。 |
+| 2026-10-01 | #56-2-1 | **`change_trap`・`search` を新しい `dungeon/search.c` へ**（`b9bc379`）。同じ。 |
+| 2026-10-01 | #56-2-2 | **`minus_ac`〜`acid_dam` の 7 本を `combat/player_damage.c` の末尾へ**（`77bee3a`）。同じ。 |
+| 2026-10-01 | #56-2-3 | **`git mv` で moria2.c を `player/run_path.c` に**（`75ad428`）。**このコミットは壊れている**：`git add src/moria2.c` が消えたファイルで失敗し、名前の変更だけが入った（sources.mk が moria2.c のまま）。amend はせず、次の #56-2-3b で残りを入れた。マージの前にまとめるかはユーザーに尋ね、そのままマージと決まった。 |
+| 2026-10-01 | #56-2-3b | **改名の残り**（`69135e7`）。冒頭の説明・sources.mk・`run_path.o` の依存・externs.h の見出し `// player/run_path.c`。同じ。 |
+| 2026-10-01 | #56-2-4 | **コメント：moria2.c を指すところを移った先に**（`8c06bfa`）。 |
+| 2026-10-01 | #56-1-1 | **`change_speed`・`py_bonuses`・`calc_bonuses` を新しい `player/player_bonuses.c` へ**（`012cb46`）。同じ。コミットのメッセージは #56-2-4 と比べたと書くが、比べたのは #56-2-3b（#56-2-4 はコメントだけなので機械語は同じ）。 |
+| 2026-10-01 | #56-1-2 | **`test_hit` を `combat/hit_rolls.c` の `attack_blows` の前へ**（`fa14f99`）。同じ。 |
+| 2026-10-01 | #56-1-3 | **`take_hit` を `combat/player_damage.c` の `minus_ac` の前へ**（`feec8ff`）。同じ。 |
+| 2026-10-01 | #56-1-4 | **`disturb`・`search_on`・`search_off`・`rest`・`rest_off` を新しい `player/rest_command.c` へ**（`cfba8c0`）。同じ。 |
+| 2026-10-01 | #56-1-5 | **`map_roguedir`・`get_dir`・`get_alldir` を新しい `ui/direction.c` へ**（`d107063`）。同じ。 |
+| 2026-10-01 | #56-1-6 | **明かりの 7 本を新しい `dungeon/lighting.c` へ**（`03a8f75`）。同じ。 |
+| 2026-10-01 | #56-1-7 | **`git mv` で moria1.c を `ui/inven_menu.c` に**（`225e610`）。makefile.test の `LIB_EXCLUDE` も inven_menu.c に（中身は変えていない）。同じ。 |
+| 2026-10-01 | #56-1-8 | **コメント：moria1.c を指すところを移った先に**（`ae2f40a`）。50 ファイル。サブエージェントが worktree で。 |
+| 2026-10-01 | #56-4-1 | **`py_bash` の `static` を外した**（`0a4ce56`）。違いは頭の `endbr64` とその後ろの飛び先のずれだけ。ほかは同じ。 |
+| 2026-10-01 | #56-4-2〜5 | **`py_bash` → 新しい `combat/player_melee.c`、投げる 4 本 → 新しい `combat/throw.c`、`disarm_trap` → 新しい `dungeon/traps.c`、`tunnel`・`bash` → 新しい `dungeon/terrain_commands.c`**（`07926c0`・`339e62d`・`fb9d147`・`2a75bf0`）。同じ。 |
+| 2026-10-01 | #56-4-6 | **`git mv` で moria4.c を `ui/look.c` に**（`7068e41`）。同じ。 |
+| 2026-10-01 | #56-4-7 | **コメント：moria4.c を指すところを移った先に**（`0105184`）。メッセージの「src の 11 本」は誤りで、12 本。 |
+| 2026-10-01 | #56-3-1 | **`hit_trap` の `static` を外した**（`0083e5e`）。違いは頭の `endbr64` だけ。 |
+| 2026-10-01 | #56-3-2〜7 | **`hit_trap`・`chest_trap` → `dungeon/traps.c`、`cast_spell` → `item/spellbook.c` の末尾、`carry`・`move_char` → `player/player_move.c` の末尾、`mon_take_hit` → 新しい `combat/monster_damage.c`、`py_attack` → `player_melee.c` の `py_bash` の前、`openobject`・`closeobject`・`twall` → `terrain_commands.c` の `tunnel` の前**（`ee1b6bb`・`90377f5`・`09a44f5`・`f5f1d8c`・`3922c44`・`56b0e3a`）。同じ。 |
+| 2026-10-01 | #56-3-8 | **`git mv` で moria3.c を `monster/monster_death.c` に**（`cf0d9a0`）。**moria1〜4.c が無くなった。** 同じ。 |
+| 2026-10-01 | #56-3-9 | **コメント：moria3.c を指すところを移った先に**（`27e871c`）。メッセージの「src の 21 本」は誤りで、22 本。来歴として moria3.c を書くコメント 4 か所は残した。 |
+| 2026-10-01 | #56 マージ | **ユーザーの許可を得て 4 本をマージした**（`refactor/56-moria2` `c0fe8d3`・`56-moria1` `7a2bc35`・`56-moria4` `ce9251e`・`56-moria3` `3787dc4`）。後の 2 本は sources.mk・makefile・makefile.win と、コメント 5 ファイルで衝突し、両方の移り先を残して解いた。警告 0・75 本 1671 件 GREEN・globals OK 42・層 1104 本 138 単位で違反 0・起動 1。**マージ済みのブランチ 4 本と worktree 2 本を消した。** |

@@ -445,6 +445,30 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
 - **数:** テスト 1671 件・75 本 GREEN、警告 0、globals 42、層 963 本・128 単位で違反 0、起動 1
   （#42 の前は 834 本・118 単位）。
 
+### moria1〜4 で決まったこと・やったこと（2026-10-01）
+
+行き先は上の表のとおり。迷いどころ 8 点はすべて案のとおり（ユーザーの判断）。
+
+1. 各ファイルの最後の塊は `git mv` で残した：moria1 → `ui/inven_menu.c`、moria2 →
+   `player/run_path.c`、moria3 → `monster/monster_death.c`、moria4 → `ui/look.c`。
+2. makefile.test の `LIB_EXCLUDE` は moria1.c を `inven_menu.c` に置きかえただけ。
+3. ファイルをまたいで呼ばれるようになった `hit_trap`・`py_bash` の `static` を外した
+   （違いは頭の `endbr64` だけ）。
+4. 宣言は externs.h の新しいファイルの見出しの下へ。
+5. 2 列で並べた：moria2 → moria1 と moria4 → moria3。
+6. 確かめは `-O2 -fno-inline` と `-O2 -fno-inline -fno-ipa-cp -fno-ipa-icf` の機械語。テストは足していない。
+7. コメントは別のコミット。移った関数の中の日本語のコメントは英語に。
+8. `verify`・`minus_ac` の `static` 化は後始末で決める。
+
+- **数:** テスト 1671 件・75 本 GREEN、警告 0、globals 42、層 1104 本・138 単位で違反 0、起動 1。
+- **後始末に回したもの:** `verify`・`minus_ac`・`modify_stat`・`prt_field`・`spell_chance` の
+  `static` 化。`inven_menu.c` に残る -RAK- の「town level code」のコメント。
+  `player_search_skill.h:104`（search() の場所が誤り）、`move_char` の上の「pre-declared」、
+  `fix1_delete_monster` の呼び手の説明。
+- **代役の名前の重なり:** `misc3_stubs.c`・`save_stubs.c` の `calc_bonuses`・`change_speed` は
+  libcore の `player_bonuses.o` と同じ名前。いまはどのテストもそのメンバーを引かないので
+  リンクが通る。`py_bonuses` を要るテストができると二重定義で落ちる。
+
 ## combat/
 
 `combat/` には新しく作るファイルだけを置く。どれも番号つきのファイルか、
@@ -452,13 +476,13 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
 
 | ファイル | 中身（いまの場所） | 目安 |
 |---|---|---|
-| `hit_rolls.c` | `test_hit`（moria1）、`attack_blows`・`tot_dam`・`critical_blow`（misc3。#42 で移した） | 約 150 行。副作用が無いわけではない —— `tot_dam` は思い出（`recall_update_characteristics`）を書き、`critical_blow` は `msg_print` を呼ぶ。乱数と画面の代役を当てれば単体でテストできる |
-| `player_melee.c` | `py_attack`（moria3）、`py_bash`（moria4） | |
+| `hit_rolls.c` | `test_hit`（moria1。#56 で移した）、`attack_blows`・`tot_dam`・`critical_blow`（misc3。#42 で移した） | 約 150 行。副作用が無いわけではない —— `tot_dam` は思い出（`recall_update_characteristics`）を書き、`critical_blow` は `msg_print` を呼ぶ。乱数と画面の代役を当てれば単体でテストできる |
+| `player_melee.c` | `py_attack`（moria3）、`py_bash`（moria4）。#56 で移した | |
 | `monster_melee.c` | `make_attack`（`creature.c`。棚上げ #25）を中は割らずに移す | 約 600 行 |
-| `player_damage.c` | `take_hit`（moria1）、`minus_ac`・`*_gas`・`*_dam`（moria2）、`player_saves`（misc3。#42 で移した） | |
-| `monster_damage.c` | `mon_take_hit`（moria3） | |
+| `player_damage.c` | `take_hit`（moria1）、`minus_ac`・`*_gas`・`*_dam`（moria2。#56 で移した）、`player_saves`（misc3。#42 で移した） | |
+| `monster_damage.c` | `mon_take_hit`（moria3。#56 で移した） | |
 | `projectiles.c` | `get_flags`・`fire_bolt`・`fire_ball`・`breath`（`spells.c`） | |
-| `throw.c` | `inven_throw`・`facts`・`drop_throw`・`throw_object`（moria4） | |
+| `throw.c` | `inven_throw`・`facts`・`drop_throw`・`throw_object`（moria4。#56 で移した） | |
 
 - 重複の #51（光る手）と #29（飛翔のループ）の 2 組が、同じディレクトリーに
   並ぶ。どちらもまとめはしない（棚上げの理由は変わらない）が、見比べやすくなる。
@@ -768,6 +792,6 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | L1〜L3 | 済み（2026-09-29、`develop` へマージ `5e0cd6e`） | `refactor/52-test-library`、`e7c3a9c`〜`c188e58`（7 コミット）。74 本の Map は 72 本が旧 recipe と一致、残る 2 本は旧 recipe が誰も参照しない `tables.c`・`treasure.c` を並べていた差（`worklog.md`） |
 | D0 | 済み（2026-09-29、迷いどころ 10 点はすべて案のとおり。マージ `111d2e7`） | `docs/53-d0-destinations`、`2dfa7b8`・`89395b0` |
 | D | 済み（2026-09-29、`develop` へマージ `99fe489`）。D0 の表のとおり `.c` 96 本・`.h` 70 本を 10 個のディレクトリーへ（`combat/` は 0 本なのでまだ無い）。どのコミットでも本体の `objdump -d` が変更前と一致 | `refactor/53-directories`、`68dbae9`〜`cfaadc4`（13 コミット。makefile の仕組み 1・`layer_deps.py --matrix` 1・`git mv` 10・コメント 1。`worklog.md`） |
-| R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 済み（2026-09-30、マージ `59e0c92`・`ced26a4`）。misc3 済み（2026-09-30、マージ `cb5279a`）。次は moria1〜4 | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット）、`refactor/55-store-price`（`855c998`・`36ae8e9`）、`refactor/55-store-stock`（`8351ce2`・`0ea41fd`）と `refactor/55-store2`（`a341211`〜`3eaa18b`、3 コミット）、`refactor/42-misc3`（`b3c0ad6`〜`38325a1`、19 コミット） |
-| combat の残り | 未着手 | |
+| R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 済み（2026-09-30、マージ `59e0c92`・`ced26a4`）。misc3 済み（2026-09-30、マージ `cb5279a`）。moria1〜4 済み（2026-10-01、マージ `c0fe8d3`・`7a2bc35`・`ce9251e`・`3787dc4`）。**R は終わった** | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット）、`refactor/55-store-price`（`855c998`・`36ae8e9`）、`refactor/55-store-stock`（`8351ce2`・`0ea41fd`）と `refactor/55-store2`（`a341211`〜`3eaa18b`、3 コミット）、`refactor/42-misc3`（`b3c0ad6`〜`38325a1`、19 コミット）、`refactor/56-moria2`（`b9bc379`〜`8c06bfa`、5 コミット）と `refactor/56-moria1`（`012cb46`〜`ae2f40a`、8 コミット）、`refactor/56-moria4`（`0a4ce56`〜`0105184`、7 コミット）と `refactor/56-moria3`（`0083e5e`〜`27e871c`、9 コミット） |
+| combat の残り | 未着手（次） | |
 | 後始末 | 未着手 | |
