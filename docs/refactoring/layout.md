@@ -491,6 +491,43 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
   `movement_rate_test.c` の SUSPICIOUS の注記は、creature.c のコメントが直ったことを
   反映していない。`tables.c:89`・`save_bool_test.c:38` の externs.h の行番号が古い。
 
+### 後始末で決まったこと・やったこと（2026-10-01）
+
+進めかたは案のとおり（ユーザーの判断）。経緯だけのコメントは消す、#37・#44 は棚上げのまま。
+
+1. **12 本を `static` に。** externs.h に宣言があるのに定義したファイルの中でしか使われて
+   いなかった `sleep_in_seconds`・`tilde`（io.c）、`popm`、`m_bonus`、`minus_ac`、`prt_field`、
+   `modify_stat`、`spell_chance`・`get_spell`（spellbook.c）、`verify`、`get_rnd_seed`、`get_flags`。
+   1 ファイル 1 コミット。定義より前で使う 3 本には static の前方宣言を置いた（`tilde` の
+   ものは定義と同じ `#ifndef _WIN32` の中）。
+   - `-O2 -fno-inline -fno-ipa-cp -fno-ipa-icf` では違うのは 12 本だけ。`endbr64` と nop を除き、
+     飛び先を命令の番号に置きかえると並びは同じ。
+   - `-O2 -fno-inline` では `minus_ac`・`prt_field` に `.constprop.0` ができ、呼ぶ側 4 本
+     （`acid_dam`・`corrode_gas`・`prt_stat_block`・`prt_title`）が定数の引数を渡さなくなった。
+2. **使われていない代役 13 本を消した。** `misc3_stubs.c` の `check_view`・`creatures`・`distance`・
+   `lite_spot`・`monster_get_creature`・`move_rec`・`recall_update_characteristics`、`save_stubs.c` の
+   店の買いとり判定 6 本。リンクする各テストで `ld --cref` に参照が無いことを確かめた。
+   各テストのリンクマップに出るメンバーは変わらず、実行形式から消えたのは 13 個の名前だけ。
+3. **古いコメントを直した**（moria1〜4 と combat の残りの節の「後始末に回したもの」のうち、
+   static 化を除く全部）。
+4. **経緯だけのコメントを消した。** src と makefile の「Moved out of misc1.c unchanged (#54)」
+   「came from misc3.c (#42)」、externs.h の「were misc1.c until #54」など。同じ段落の説明は残した。
+   機械語は全関数で 1 の先端と同じ。
+
+- **数:** テスト 1671 件・75 本 GREEN、警告 0、globals 42、層 1139 本・140 単位で違反 0、起動 1。
+- **残したもの:**
+  - 窓口の理由を「前はどこに散らばっていたか」で説明している段落 13 か所（`player_speed.h`・
+    `panel.h` など）。
+  - tests のコメントの由来の記述。テストの成り立ちの説明と一体なので切り分けなかった。
+  - コメント中の `file.c:NNN` の行番号（約 280 か所）。機械では正しさを確かめられないので、
+    見つかったものだけ直した。
+  - `str_insert_test.c:40` の「#41 の移動が済むまで」（もう古い）。`fixture.c` の `py` もどのテストからも
+    参照されていない。
+- **#37・#44 は #38 まで棚上げ。** `creature_stubs.c` と `misc3_stubs.c` の重なりは 18 本
+  （`distance` を消した後）。代役が libcore の本物と同じ名前を持つのはこの組み立て全体の性質で
+  （`misc3_stubs.c` は 55 本中 43 本）、上の `calc_bonuses` だけの話ではない。引いたメンバーが
+  同じ名前を定義すると二重定義で落ちる。
+
 ## combat/
 
 `combat/` には新しく作るファイルだけを置く。どれも番号つきのファイルか、
@@ -816,4 +853,4 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | D | 済み（2026-09-29、`develop` へマージ `99fe489`）。D0 の表のとおり `.c` 96 本・`.h` 70 本を 10 個のディレクトリーへ（`combat/` は 0 本なのでまだ無い）。どのコミットでも本体の `objdump -d` が変更前と一致 | `refactor/53-directories`、`68dbae9`〜`cfaadc4`（13 コミット。makefile の仕組み 1・`layer_deps.py --matrix` 1・`git mv` 10・コメント 1。`worklog.md`） |
 | R（misc4 → moria4） | misc4・misc2 済み（2026-09-29、マージ `d437df0`・`1647652`）。misc1 済み（2026-09-30、マージ `76ced6f` と `refactor/54-misc1-rnd`）。store1/2 済み（2026-09-30、マージ `59e0c92`・`ced26a4`）。misc3 済み（2026-09-30、マージ `cb5279a`）。moria1〜4 済み（2026-10-01、マージ `c0fe8d3`・`7a2bc35`・`ce9251e`・`3787dc4`）。**R は終わった** | `refactor/54-misc4`（`427a390`〜`4d4b515`、5 コミット）、`refactor/54-misc2`（`0baa1af`〜`7479a8d`、3 コミット）、`refactor/54-misc1`（`f107639`〜`a74e12c`、11 コミット）と `refactor/54-misc1-rnd`（`c2fb744`〜`196a837`、4 コミット）、`refactor/55-store-price`（`855c998`・`36ae8e9`）、`refactor/55-store-stock`（`8351ce2`・`0ea41fd`）と `refactor/55-store2`（`a341211`〜`3eaa18b`、3 コミット）、`refactor/42-misc3`（`b3c0ad6`〜`38325a1`、19 コミット）、`refactor/56-moria2`（`b9bc379`〜`8c06bfa`、5 コミット）と `refactor/56-moria1`（`012cb46`〜`ae2f40a`、8 コミット）、`refactor/56-moria4`（`0a4ce56`〜`0105184`、7 コミット）と `refactor/56-moria3`（`0083e5e`〜`27e871c`、9 コミット） |
 | combat の残り | 済み（2026-10-01、マージ `0416bb0`） | `refactor/57-combat`（`6b23689`〜`0a04327`、4 コミット） |
-| 後始末 | 未着手（次） | |
+| 後始末 | 済み（2026-10-01、マージ `acdcd51`・`77c8182`・`082b0e4`）。#37・#44 は #38 まで棚上げ | `refactor/cleanup-static`（`6a6e343`〜`996f256`、10 コミット）、`refactor/cleanup-stubs`（`688e0a5`・`e63445c`）、`refactor/cleanup-comments`（`b698337`〜`40811f7`、4 コミット） |
