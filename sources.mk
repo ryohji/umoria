@@ -19,7 +19,7 @@
 # ls src/*/ | sort | uniq -d で同名が無いことを見る。
 SRC_SUBDIRS = core data player monster dungeon item store combat ui save platform
 
-SRCS = main.c misc3.c ui/files.c ui/io.c \
+SRCS = main.c ui/files.c ui/io.c \
 	player/create.c item/desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c save/death.c \
 	item/eat.c ui/help.c item/magic.c item/potions.c item/prayer.c save/save.c item/staffs.c item/wands.c item/device.c \
 	item/item_ident.c player/abilities.c data/options.c ui/messages.c \
@@ -44,7 +44,7 @@ SRCS = main.c misc3.c ui/files.c ui/io.c \
 	core/rnd.c ui/recall.c data/player.c data/tables.c \
 	combat/hit_rolls.c combat/player_damage.c item/inven_ops.c player/player_move.c \
 	dungeon/object_alloc.c ui/screen_fields.c ui/status_line.c ui/char_screen.c \
-	player/stat_ops.c item/spellbook.c
+	player/stat_ops.c item/spellbook.c player/level_ops.c
 
 # 本体の実行形式にだけ入り、テストのライブラリー（makefile.test の libcore.a）
 # には入れないもの。main() を持つ main.c と、ncurses を直に呼ぶ 2 本。

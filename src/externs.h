@@ -401,7 +401,7 @@ void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
 
-// misc3.c
+// player/level_ops.c
 void prt_experience(void);
 void calc_hitpoints(void);
 

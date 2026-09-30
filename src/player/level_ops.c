@@ -5,7 +5,11 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Misc code for maintaining the dungeon, printing player info
+// Going up a level: the level itself with its hit points, the experience
+// display that climbs to it, and the hit points worked out for the level
+//
+// Moved out of misc3.c unchanged (#42), where they were the last of it; their
+// prototypes stay in externs.h.
 
 #include "headers.h"
 
