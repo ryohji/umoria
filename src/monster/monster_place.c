@@ -74,7 +74,7 @@ bool compact_monsters(void) {
 
 // Returns a pointer to next free space -RAK-
 // Returns -1 if could not allocate a monster.
-int popm(void) {
+static int popm(void) {
     if (monster_list_is_full()) {
         if (!compact_monsters()) {
             return -1;

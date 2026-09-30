@@ -64,7 +64,7 @@ void take_hit(int damage, const char *hit_from) {
 // AC gets worse -RAK-
 // Note: This routine affects magical AC bonuses so
 // that stores can detect the damage.
-int minus_ac(uint32_t typ_dam) {
+static int minus_ac(uint32_t typ_dam) {
     int tmp[6];
     int i = 0;
     if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {

@@ -21,7 +21,7 @@
 #include "player_class.h"
 #include "player_status_flags.h"
 
-uint8_t modify_stat(int stat, int16_t amount) {
+static uint8_t modify_stat(int stat, int16_t amount) {
     uint8_t tmp_stat = py.stats.cur_stat[stat];
     int loop = (amount < 0 ? -amount : amount);
 

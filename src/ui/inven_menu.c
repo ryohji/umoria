@@ -288,7 +288,7 @@ void takeoff(int item_val, int posn) {
 
 // Used to verify if this really is the item we wish to -CJS-
 // wear or read.
-int verify(const char *prompt, int item) {
+static int verify(const char *prompt, int item) {
     bigvtype out_str, object;
 
     // The index crosses both windows: of the five call sites, two hand in a

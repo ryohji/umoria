@@ -255,7 +255,6 @@ void save_screen(void);
 void restore_screen(void);
 void bell(void);
 void screen_map(void);
-void sleep_in_seconds(int);
 bool check_input(int);
 void user_name(char *);
 
@@ -264,7 +263,6 @@ void user_name(char *);
 #define open topen
 #define fopen tfopen
 
-int tilde(const char *, char *);
 FILE *tfopen(const char *, const char *);
 int topen(char *, int, int);
 #endif
@@ -315,7 +313,6 @@ bool test_light(int, int);
 void prt_map(void);
 // monster/monster_place.c
 bool compact_monsters(void);
-int popm(void);
 bool place_monster(int, int, creature_handle, int);
 void place_win_monster(void);
 void alloc_monster(int, int, int);
@@ -328,7 +325,6 @@ int popt(void);
 void pusht(uint8_t);
 
 // item/item_enchant.c (magic_treasure() was misc2.c until #54)
-int m_bonus(int, int, int);
 void magic_treasure(int, int);
 
 // ui/options_menu.c
@@ -342,7 +338,6 @@ bool test_hit(int, int, int, int, int);
 
 // combat/player_damage.c
 bool player_saves(void);
-int minus_ac(uint32_t);
 void corrode_gas(const char *);
 void poison_gas(int, const char *);
 void fire_dam(int, const char *);
@@ -365,7 +360,6 @@ void random_object(int, int, int);
 // ui/status_line.c
 void cnv_stat(uint8_t, char *);
 void prt_stat(int);
-void prt_field(const char *, int, int);
 const char *title_string(void);
 void prt_title(void);
 void prt_level(void);
@@ -399,7 +393,6 @@ void get_name(void);
 void change_name(void);
 
 // player/stat_ops.c
-uint8_t modify_stat(int, int16_t);
 void set_use_stat(int);
 bool inc_stat(int);
 bool dec_stat(int);
@@ -407,9 +400,7 @@ bool res_stat(int);
 void bst_stat(int, int);
 
 // item/spellbook.c
-int spell_chance(int);
 void print_spells(int *, int, int, int);
-int get_spell(int *, int, int *, int *, const char *, int);
 void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
@@ -486,7 +477,6 @@ int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
 int show_equip(bool, int);
 void takeoff(int, int);
-int verify(const char *, int);
 void inven_command(char);
 int get_item(int *, const char *, int, int, const char *, const char *);
 
@@ -543,7 +533,6 @@ bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
 // rnd.c
-uint32_t get_rnd_seed(void);
 void set_rnd_seed(uint32_t);
 int32_t rnd(void);
 // The five below came from misc1.c (#54).
@@ -591,7 +580,6 @@ void init_signals(void);
 void handle_pending_signals(void);
 
 // combat/projectiles.c
-void get_flags(int, uint32_t *, int *, bool (**)(inven_type *));
 void fire_bolt(int, int, int, int, int, const char *);
 void fire_ball(int, int, int, int, int, const char *);
 void breath(int, int, int, int, char *, int);

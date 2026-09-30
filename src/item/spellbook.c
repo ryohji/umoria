@@ -29,7 +29,7 @@
 #include "stats.h"
 
 // Returns spell chance of failure for spell -RAK-
-int spell_chance(int spell) {
+static int spell_chance(int spell) {
     spell_type *s_ptr = &magic_spell[player_class() - 1][spell];
 
     int stat;
@@ -110,7 +110,7 @@ void print_spells(int *spell, int num, int comment, int nonconsec) {
 }
 
 // Returns spell pointer -RAK-
-int get_spell(int *spell, int num, int *sn, int *sc, const char *prompt, int first_spell) {
+static int get_spell(int *spell, int num, int *sn, int *sc, const char *prompt, int first_spell) {
     *sn = -1;
 
     vtype out_str;
