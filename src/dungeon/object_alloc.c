@@ -10,8 +10,8 @@
 //
 // These take their rows from the free list of object_place.c (popt()), but
 // are kept out of that file: object_levels_test links the real get_obj_num()
-// together with a stand-in for popt() (tests/misc3_stubs.c), and the two
-// would meet in one object file.
+// together with a stand-in for popt() (tests/object_levels_fixture.c), and
+// the two would meet in one object file.
 
 #include "headers.h"
 

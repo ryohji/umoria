@@ -23,7 +23,7 @@
  * 代役の無い名前は、ライブラリ（tests/build/libcore.a）から本物が引かれる
  * （make_attack() の monster_melee.o など）。
  *
- * misc3_stubs.c / fixture.c と分けている理由: どちらも creature.c が要求する
+ * fixture.c と分けている理由: fixture.c は creature.c が要求する
  * シンボルの一部（msg_print・randint・py）しか持たず、逆に creature.c 側と
  * 重複するものも持つ。
  * 窓口の名前は fixture.h と同じにそろえてある。
