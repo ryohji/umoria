@@ -179,11 +179,11 @@ signals.o: constant.h types.h externs.h config.h signal_flags.h
 spells.o: constant.h types.h externs.h config.h
 spells_known.o: spells_known.h constant.h types.h config.h
 staffs.o: constant.h types.h externs.h config.h
-store2.o: stores.h store_haggle.h constant.h types.h externs.h config.h
 stats.o: stats.h constant.h types.h config.h
 stores.o: stores.h constant.h types.h externs.h config.h
 store_price.o: stores.h player_race.h constant.h types.h externs.h config.h
 store_stock.o: stores.h floor_items.h constant.h types.h externs.h config.h
+store_haggle.o: stores.h store_haggle.h player_race.h progress.h stats.h str_insert.h constant.h types.h externs.h config.h
 store_ui.o: inven_command_state.h inventory.h stores.h store_haggle.h messages.h player_gold.h progress.h stats.h constant.h types.h externs.h config.h
 str_insert.o: str_insert.h constant.h types.h config.h
 tables.o: constant.h types.h config.h

@@ -636,7 +636,7 @@ int32_t sell_price(int, int32_t *, int32_t *, inven_type *);
 bool noneedtobargain(int, int32_t);
 void updatebargain(int, int32_t, int32_t);
 
-// store2.c
+// store/store_ui.c
 void enter_store(int);
 
 // tables.c

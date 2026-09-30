@@ -163,7 +163,7 @@ libcore: $(LIBCORE)
 #      ところを、archive は黙って本物で埋める。代役を消したら
 #      scripts/link_units.py で引かれた .o を見る。
 #   2. src/ の .c を丸ごと #include するテスト（save_bool_test・
-#      store_save_test は save.c、haggle_comment_test は store2.c、
+#      store_save_test は save.c、haggle_comment_test は store_haggle.c、
 #      movement_rate_test は creature.c）では、その .c の名前はテスト自身が
 #      定義しているので、archive の同じ .o は引かれない。src/ の .c が
 #      変わると libcore.a が作りなおされ、それに依存する全テストがリンクし

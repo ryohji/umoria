@@ -24,7 +24,7 @@
  * このテストで固定する。
  *
  * 観測のしかた: prt_comment2 / prt_comment3 は static なので外部から
- * 呼べない。そこで src/store2.c をこの翻訳単位に #include し、内部の
+ * 呼べない。そこで src/store/store_haggle.c をこの翻訳単位に #include し、内部の
  * static 関数を直接呼ぶ。写しではないので、ステップ B で実体を書きかえれば
  * このテストがそれを検証する。
  *
@@ -38,15 +38,15 @@
  * いまどう振るまうかを固定することが目的。
  */
 /* 検証対象。static 関数を呼ぶために実体ごと取りこむ。config.h /
- * constant.h / types.h も store2.c が連れてくる（types.h に多重取りこみの
+ * constant.h / types.h も store_haggle.c が連れてくる（types.h に多重取りこみの
  * 番人が無いので、テスト側から重ねて include できない）。
- * store2.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
+ * store_haggle.c の sprintf に -Wformat-overflow の警告が出るが、本体側の
  * 既存の事情なので makefile.test 側で 1 つだけ警告を落としている。 */
-#include "store2.c"
+#include "store_haggle.c"
 
 #include "fixture.h"
 
-/* store2.c が参照するが、代役にも本物にも無いシンボル。
+/* store_haggle.c が参照するが、代役にも本物にも無いシンボル。
  * prt_comment2 / prt_comment3 はどれも呼ばないので、
  * 「呼ばれたら何もしない／固定値を返す」で足りる。
  * 一覧はリンカに出させたもので、手で数えあげたわけではない。 */
