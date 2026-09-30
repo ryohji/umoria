@@ -385,13 +385,15 @@ void display_char(void);
 void get_name(void);
 void change_name(void);
 
-// misc3.c
+// player/stat_ops.c
 uint8_t modify_stat(int, int16_t);
 void set_use_stat(int);
 bool inc_stat(int);
 bool dec_stat(int);
 bool res_stat(int);
 void bst_stat(int, int);
+
+// misc3.c
 int spell_chance(int);
 void print_spells(int *, int, int, int);
 int get_spell(int *, int, int *, int *, const char *, int);
