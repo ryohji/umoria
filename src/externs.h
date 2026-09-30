@@ -326,7 +326,7 @@ int critical_blow(int, int, int, int);
 // combat/player_damage.c
 bool player_saves(void);
 
-// misc3.c
+// dungeon/object_alloc.c
 void place_trap(int, int, int);
 void place_rubble(int, int);
 void place_gold(int, int);
@@ -336,6 +336,8 @@ void place_object(int, int, bool);
 // cave[][].fval（床の種類）を受けとる bool f(int) 型。
 void alloc_object(bool (*)(int), int, int);
 void random_object(int, int, int);
+
+// misc3.c
 void cnv_stat(uint8_t, char *);
 void prt_stat(int);
 void prt_field(const char *, int, int);
