@@ -302,6 +302,7 @@ int inven_carry(inven_type *);
 int find_range(int, int, int *, int *);
 // player/player_move.c
 void teleport(int);
+void move_char(int, bool);
 // ui/map_view.c
 // panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
 // panel_contains() は panel.h。
@@ -494,7 +495,6 @@ int delete_object(int, int);
 uint32_t monster_death(int, int, uint32_t);
 int mon_take_hit(int, int);
 void py_attack(int, int);
-void move_char(int, bool);
 void openobject(void);
 void closeobject(void);
 int twall(int, int, int, int);

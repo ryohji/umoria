@@ -332,8 +332,10 @@ object_alloc.o: dungeon_level.h dungeon_map.h dungeon_size.h floor_items.h \
 inven_ops.o: burden.h dungeon_map.h equipment.h floor_items.h inventory.h \
              item_ident.h player_body_weight.h player_pos.h \
              player_status_flags.h $(HEADERS_FULL)
-player_move.o: dungeon_map.h dungeon_size.h pending_teleport.h player_pos.h \
-               $(HEADERS_FULL)
+player_move.o: dungeon_map.h dungeon_size.h floor_items.h inventory.h \
+               monster_list.h pending_teleport.h player_gold.h player_pos.h \
+               player_search_skill.h player_status_flags.h \
+               player_timed_effects.h running.h $(HEADERS_FULL)
 # screen_fields.c came from misc3.c (#42). It includes externs.h.
 screen_fields.o: screen_fields.h $(HEADERS_FULL)
 # char_screen.c came from misc3.c (#42). It includes externs.h.
