@@ -120,6 +120,7 @@ render_ncurses.o: render.h backend_ncurses.h
 running.o: running.h constant.h types.h config.h
 inven_command_state.o: inven_command_state.h screen_touched.h constant.h types.h config.h
 char_screen.o: abilities.h player_bio.h player_body_weight.h player_class.h player_display_numbers.h player_gold.h player_hp.h player_level.h player_mana.h player_race.h save_state.h screen_fields.h constant.h types.h externs.h config.h
+direction.o: command_state.h constant.h types.h externs.h config.h
 screen_fields.o: screen_fields.h constant.h types.h externs.h config.h
 screen_touched.o: screen_touched.h constant.h types.h config.h
 level_ops.o: hp_table.h player_class.h player_hp.h player_level.h player_status_flags.h screen_fields.h stats.h constant.h types.h externs.h config.h
