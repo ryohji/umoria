@@ -175,10 +175,10 @@ TEST_HEADERS = $(wildcard $(TESTDIR)/*.h)
 # 書いていない実行形式は tests/<name>.c だけ（＋ libcore.a）。
 EXTRA_calc_hitpoints_test = level_ops_fixture.c
 EXTRA_calc_spells_test = spellbook_fixture.c
-EXTRA_check_strength_test = misc3_stubs.c
+EXTRA_check_strength_test = inven_ops_fixture.c
 EXTRA_gain_spells_test = spellbook_fixture.c
 EXTRA_haggle_comment_test = misc3_stubs.c
-EXTRA_inven_stack_test = misc3_stubs.c
+EXTRA_inven_stack_test = inven_ops_fixture.c
 EXTRA_objdes_test = misc3_stubs.c
 EXTRA_object_levels_test = misc3_stubs.c
 EXTRA_put_misc3_test = misc3_stubs.c
