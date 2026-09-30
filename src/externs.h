@@ -493,9 +493,6 @@ void fix1_delete_monster(int);
 void fix2_delete_monster(int);
 int delete_object(int, int);
 uint32_t monster_death(int, int, uint32_t);
-void openobject(void);
-void closeobject(void);
-int twall(int, int, int, int);
 
 // ui/look.c
 void look(void);
@@ -513,6 +510,9 @@ void hit_trap(int, int);
 void chest_trap(int, int);
 
 // dungeon/terrain_commands.c
+void openobject(void);
+void closeobject(void);
+int twall(int, int, int, int);
 void tunnel(int);
 void bash(void);
 
