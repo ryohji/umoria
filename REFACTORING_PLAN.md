@@ -107,7 +107,7 @@ P1 の精査の記録（#8・#9・#12 ほか）は
 | 54 | **済み**（misc2・misc4 は 2026-09-29、マージ `1647652`・`d437df0`。misc1 は 2026-09-30、`refactor/54-misc1` をマージ `76ced6f` と `refactor/54-misc1-rnd`。3 つのファイルとも消えた。テスト 1662 → 1671 件） | 肥大化クラス／モジュール | misc1.c misc2.c misc4.c（#43 の一部） | 中身の名前のファイルへ分ける。misc4 → misc1 → misc2 の順。`concat` は先にテスト（#47）（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | Medium | Medium |
 | 55 | **済み**（2026-09-30、`refactor/55-store-price` をマージ `59e0c92`、`refactor/55-store2` をマージ `ced26a4`。`store1.c`・`store2.c` とも消え、`store/` に `store_price`・`store_stock`・`store_ui`・`store_haggle` の 4 本。確かめ方はユーザーの判断で「テストと差分の読み」） | 肥大化クラス／モジュール | store1.c store2.c | `store_stock`・`store_price`・`store_haggle`・`store_ui` の 4 本へ（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | Medium | Medium |
 | 56 | **済み**（2026-10-01、`refactor/56-moria2`・`56-moria1`・`56-moria4`・`56-moria3` をマージ `c0fe8d3`・`7a2bc35`・`ce9251e`・`3787dc4`。moria1〜4.c は無くなった。→ layout.md の「moria1〜4 で決まったこと・やったこと」） | 肥大化クラス／モジュール | moria1.c〜moria4.c（#43 の残り） | 14 の行き先へ分ける。#42 のあと（→ [layout.md](docs/refactoring/layout.md)） | モジュール分割 | High | High |
-| 57 | 未着手 | 肥大化クラス／モジュール | creature.c `make_attack`、spells.c の飛び道具 | `combat/` に 7 本。`make_attack` は中を割らずに移す（#25 の棚上げは維持）。#51・#29 の組が並ぶ（→ [layout.md](docs/refactoring/layout.md)） | Move | Medium | Medium |
+| 57 | **済み**（2026-10-01、`refactor/57-combat` をマージ `0416bb0`。`combat/monster_melee.c`・`combat/projectiles.c`。→ layout.md の「combat の残りで決まったこと・やったこと」） | 肥大化クラス／モジュール | creature.c `make_attack`、spells.c の飛び道具 | `combat/` に 7 本。`make_attack` は中を割らずに移す（#25 の棚上げは維持）。#51・#29 の組が並ぶ（→ [layout.md](docs/refactoring/layout.md)） | Move | Medium | Medium |
 
 完了した列の経過は `docs/refactoring/done/` に移した（→ 末尾の「記録の置き場」）。
 
