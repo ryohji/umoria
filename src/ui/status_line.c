@@ -63,7 +63,7 @@ void prt_stat(int stat) {
 
 // Print character info in given row, column -RAK-
 // The longest title is 13 characters, so only pad to 13
-void prt_field(const char *info, int row, int column) {
+static void prt_field(const char *info, int row, int column) {
     erase_field(13, row, column);
     put_buffer(info, row, column);
 }

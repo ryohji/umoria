@@ -360,7 +360,6 @@ void random_object(int, int, int);
 // ui/status_line.c
 void cnv_stat(uint8_t, char *);
 void prt_stat(int);
-void prt_field(const char *, int, int);
 const char *title_string(void);
 void prt_title(void);
 void prt_level(void);
