@@ -10,7 +10,7 @@
 
 ## 0. 現在地
 
-2026-09-30、`develop` は #42（misc3）をマージした上に記録（`origin` は `994818a` のまま。push はユーザーが行う）。
+2026-10-01、`develop` は #56（moria1〜4）をマージした上に記録（`origin` は `994818a` のまま。push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1671 件・75 本**、failed=0、`RESULT: GREEN`。
   `layer_deps.py --check` は core/ の違反 0。
@@ -41,7 +41,12 @@
   `combat/` もできた（`hit_rolls.c`・`player_damage.c`）。画面の欄に書く小さな操作 4 本は
   `ui/screen_fields.h` で UI 層の操作として呼べる（ユーザーの判断）。決めごとは
   layout.md の「misc3 で決まったこと・やったこと」。
-  **次は moria1〜4。** layout.md の表の行き先を下調べして、迷いどころをユーザーに見せてから始める。
+- **moria1〜4.c も消えた**（#56 は済み。マージ `c0fe8d3`・`7a2bc35`・`ce9251e`・`3787dc4`）。
+  行き先は layout.md の表のとおり。**R（番号つきファイルの分割）は終わった。**
+  決めごとは layout.md の「moria1〜4 で決まったこと・やったこと」。
+  **次は combat/ の残り**（`creature.c` の `make_attack` → `combat/monster_melee.c`、
+  `spells.c` の `get_flags`・`fire_bolt`・`fire_ball`・`breath` → `combat/projectiles.c`）。
+  別ブランチで、迷いどころをユーザーに見せてから始める。そのあと後始末。
   第 5 節・第 6 節と `docs/refactoring/layout.md`。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
@@ -551,7 +556,7 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
   作る。葉のテストが単独でリンクできることを守るため。
 
 L・D0・D は済み、層の規則は「core/ だけ守る」に決まった。R は misc4・misc2・misc1 が
-済み、store1/2・misc3 も済み（1671 件・75 本 GREEN、警告 0）。次は moria1〜4、そのあと第 6 節の順。
+済み、store1/2・misc3・moria1〜4 も済んで R は終わった（1671 件・75 本 GREEN、警告 0）。次は combat/ の残り、そのあと後始末。
 
 - **純粋な移動は `scripts/dis_compare.py 変更前の umoria 変更後の umoria 関数…`
   で確かめる。** 移す関数の多くは本物に届くテストが 0 件で（misc4 の 5 本中 4 本、
