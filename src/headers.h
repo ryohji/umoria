@@ -44,7 +44,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-// stdint.h の型を printf / scanf に渡すときの書式指定子（PRIx32 など）。
+// Format specifiers for stdint.h types (PRIx32, etc.).
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -86,10 +86,8 @@ GameState *game_state_init(void) {
     state->town_seed = progress_town_seed();
 
     // File paths
-    // strncpy は上限まで詰まったとき終端の '\0' を書かない。ここでやりたい
-    // のは「収まらなければ切り詰め、必ず終端する」なので、それをそのまま
-    // 表す snprintf を使う。戻り値は切り詰めが起きたかを示すが、状態の
-    // 写しとりに失敗の扱いはないので捨てる。
+    // snprintf ensures null termination even when truncated, unlike strncpy.
+    // The return value indicates truncation but is not relevant here.
     (void)snprintf(state->save_file_path, sizeof(vtype), "%s", save_file_path());
     (void)snprintf(state->died_from, sizeof(vtype), "%s", death_cause());
     state->birth_date = character_birth_date();

@@ -76,19 +76,14 @@ void dungeon(void) {
     // Main procedure for dungeon. -RAK-
     // Note: There is a lot of preliminary magic going on here at first
 
-    // NO POINTERS INTO py ARE LEFT HERE. `struct flags` went first (the timed
-    // infra-vision was its last reader in this file), and `struct misc` follows at
-    // #18-12-19B: the base to-hit's twelve lines were the last thing this file
-    // asked py for. The second file in the game to lose a struct alias outright,
-    // after creature.c at #18-12-18B.
+    // This file accesses player data through dedicated modules rather than reading
+    // py directly.
 
     // Check light status for setup
     inven_type *i_ptr = equipment_at(INVEN_LIGHT);
     set_player_has_light(i_ptr->p1 > 0);
 
-    // Check for a maximum level. The comparison moved inside the window at
-    // #18-12-16B: the record only ever grows, so telling it where we are is
-    // enough (src/player/player_max_depth.h).
+    // Record deepest level reached.
     player_note_depth_reached(dungeon_level());
 
     // Reset flags and initialize variables
@@ -180,8 +175,7 @@ void dungeon(void) {
             if (player_timed_beginning(PLAYER_TIMED_HEROISM)) {
                 disturb(0, 0);
                 player_gain_temporary_max_hp(10);
-                // 呪文は 2 つの数を同じだけ動かす（#18-12-19B）——
-                // 12 行が 6 呼びに畳まれた。
+                // Adjust both melee and ranged to-hit by the same amount.
                 player_base_to_hit_adjust_both(12);
                 msg_print("You feel like a HERO!");
                 prt_mhp();
@@ -249,7 +243,7 @@ void dungeon(void) {
 
         // Food consumption
         // Note: Speeded up characters really burn up the food!
-        // 2 乗はここに残す —— 速さを空腹に換える式で、窓口は段数だけを渡す。
+        // Speed is squared here before converting to food consumption.
         const int speed_steps = player_speed();
         if (speed_steps < 0) {
             player_burn_food(speed_steps * speed_steps);
@@ -691,10 +685,7 @@ void dungeon(void) {
 
                         // Get a count for a command.
                         if ((rogue_like_commands && command >= '0' && command <= '9') || (!rogue_like_commands && command == '#')) {
-                            // int の 10 進表記（符号つきで最大 11 字）と終端が
-                            // 収まる大きさ。この下のループで i は 999 までしか
-                            // 増えないが、それは分岐を追わないとわからない。
-                            // 値の範囲ではなく型で大きさを決めておく。
+                            // Buffer sized for decimal int with sign and null terminator.
                             char tmp[12];
 
                             prt("Repeat count:", 0, 0);
@@ -1326,9 +1317,7 @@ static void do_command(char com_val) {
                 for (;;) {
                     x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
                     y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                    // NOTE: the row is compared against the WIDTH. That is what this
-                    // line has always done; #18-14-5 carried it over unchanged rather
-                    // than decide an upstream bug (see dungeon_size.h).
+                    // NOTE: y is compared against width. May be a bug (see dungeon_size.h).
                     if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
                         msg_print("You've gone past the end of your map.");
                         x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
@@ -1434,8 +1423,7 @@ static void do_command(char com_val) {
         read_scroll();
         break;
     case 's': // (s)earch for a turn
-        // 探索の腕は窓口へ（#18-12-25B）。頻度のほうは要らない ——
-        // (s) は「今 1 回見る」で、見るかどうかは人が決めている。
+        // Search once with the player's skill; frequency is irrelevant for manual search.
         search(player_row(), player_col(), player_search_chance());
         break;
     case 'T': // (T)ake off something  (t)ake off
@@ -1538,9 +1526,8 @@ static void do_command(char com_val) {
                 teleport(100);
                 break;
             case '+':
-                // 素の setter を使う。**わざと約束を壊している** ——
-                // 経験値だけを動かすので、prt_experience() が数えなおすまで
-                // 階級と食いちがう（player_level.h）。
+                // Deliberately sets experience without updating level. Level recalculated
+                // by prt_experience() (see player_level.h).
                 if (command_is_repeating()) {
                     player_set_experience(take_command_count());
                 } else if (player_experience() == 0) {
