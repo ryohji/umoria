@@ -62,9 +62,8 @@
 extern player_type py;
 extern bool free_turn_flag;
 
-/* 検証対象（src/item/spellbook.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-void gain_spells(void);
+/* 検証対象（src/item/spellbook.c）の宣言は externs.h から受ける。 */
+#include "externs.h"
 
 #define MU_SETUP() fixture_reset()
 

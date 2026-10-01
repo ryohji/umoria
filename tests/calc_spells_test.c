@@ -56,9 +56,8 @@
 
 extern player_type py;
 
-/* 検証対象（src/item/spellbook.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-void calc_spells(int stat);
+/* 検証対象（src/item/spellbook.c）の宣言は externs.h から受ける。 */
+#include "externs.h"
 
 #define MU_SETUP() fixture_reset()
 

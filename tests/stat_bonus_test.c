@@ -36,8 +36,7 @@
 
 extern player_type py;
 
-/* 検証対象。宣言は module のヘッダから受ける（#40B までは externs.h が
- * ncurses まで引きこむので、必要な宣言だけをここに書いていた）。 */
+/* 検証対象。宣言は module のヘッダから受ける。 */
 #include "stats.h"
 
 #define MU_SETUP() fixture_reset()

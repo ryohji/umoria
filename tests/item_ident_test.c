@@ -36,16 +36,9 @@
 
 extern player_type py;
 
-/* 検証に使う本物（src/item/desc.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-int known1_p(inven_type *i_ptr);
-void identify(int *item);
-void sample(inven_type *i_ptr);
-void known1(inven_type *i_ptr);
-void store_bought(inven_type *i_ptr);
-
-/* fixture.c のスタブ */
-void prt_experience(void);
+/* 検証に使う本物（src/item/desc.c）と fixture.c の代役（prt_experience）の
+ * 宣言は externs.h から受ける。 */
+#include "externs.h"
 
 /* 各テストの前に必ず呼ばれる。グローバル状態が毎回まっさらに戻る。 */
 #define MU_SETUP() fixture_reset()

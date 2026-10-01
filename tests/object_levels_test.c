@@ -46,13 +46,9 @@
 
 #include "object_levels.h"
 
-/* 検証する本物（src/dungeon/object_alloc.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-int get_obj_num(int level, bool must_be_small);
-
-/* 表から引かれる品物の定数表（treasure.c）。表そのものは #18-10-C で
- * object_levels.c の static に入ったので、窓口越しにしか触れない。 */
-extern treasure_type object_list[MAX_OBJECTS];
+/* 検証する本物（src/dungeon/object_alloc.c）と、表から引かれる品物の定数表
+ * （data/treasure.c の object_list）の宣言は externs.h から受ける。 */
+#include "externs.h"
 
 /* 各テストの前に必ず呼ばれる。ただし fixture_reset() は表には触らない
  * （表を消す窓口はないし、要らない —— object_levels_init() は毎回同じ表を
