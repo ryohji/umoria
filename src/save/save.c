@@ -1006,7 +1006,7 @@ bool get_char(bool *generate) {
                 // set noscore to indicate a resurrection, and don't enter
                 // wizard mode
                 progress_set_wizard_requested(false);
-                set_score_disqualifications((int16_t)(score_disqualifications() | 0x1));
+                set_score_disqualifications((int16_t)(score_disqualifications() | SCORE_DISQUALIFY_RESURRECTED));
             } else {
                 // Make sure that this message is seen, since it is a bit
                 // more interesting than the other messages.
@@ -1193,11 +1193,11 @@ bool get_char(bool *generate) {
                 (void)sprintf(temp, "This game is from a panic save.  Score "
                                     "will not be added to scoreboard.");
                 msg_print(temp);
-            } else if (((!score_disqualifications()) & 0x04) && duplicate_character()) {
+            } else if (((!score_disqualifications()) & SCORE_DISQUALIFY_DUPLICATE) && duplicate_character()) {
                 (void)sprintf(temp, "This character is already on the "
                                     "scoreboard; it will not be scored again.");
                 msg_print(temp);
-                set_score_disqualifications((int16_t)(score_disqualifications() | 0x4));
+                set_score_disqualifications((int16_t)(score_disqualifications() | SCORE_DISQUALIFY_DUPLICATE));
             }
 
             if (save_state_character_is_in_play()) { // Only if a full restoration.

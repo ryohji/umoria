@@ -272,15 +272,15 @@ void prt_study(void) {
 
 // Prints winner status on display -RAK-
 void prt_winner(void) {
-    if (score_disqualifications() & 0x2) {
+    if (score_disqualifications() & SCORE_DISQUALIFY_WIZARD) {
         if (progress_wizard_mode()) {
             put_buffer("Is wizard  ", 22, 0);
         } else {
             put_buffer("Was wizard ", 22, 0);
         }
-    } else if (score_disqualifications() & 0x1) {
+    } else if (score_disqualifications() & SCORE_DISQUALIFY_RESURRECTED) {
         put_buffer("Resurrected", 22, 0);
-    } else if (score_disqualifications() & 0x4) {
+    } else if (score_disqualifications() & SCORE_DISQUALIFY_DUPLICATE) {
         put_buffer("Duplicate", 22, 0);
     } else if (player_has_won()) {
         put_buffer("*Winner*   ", 22, 0);

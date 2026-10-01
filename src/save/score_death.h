@@ -51,6 +51,11 @@ void set_character_birth_date(int32_t date);
 // scoreboard. Callers test single bits (prt_winner) and also the whole word
 // against zero ("is there any reason at all"), so the window hands the word
 // over rather than answering either question.
+
+#define SCORE_DISQUALIFY_RESURRECTED 0x1
+#define SCORE_DISQUALIFY_WIZARD      0x2
+#define SCORE_DISQUALIFY_DUPLICATE   0x4
+
 int16_t score_disqualifications(void);
 void set_score_disqualifications(int16_t reasons);
 
