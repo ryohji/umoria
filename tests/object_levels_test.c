@@ -208,9 +208,9 @@ TEST(landing_on_a_deeper_object_re_rolls_inside_that_levels_band)
  * 3. 小さいものだけという指定
  * ------------------------------------------------------------------ */
 
-/* set_large() の代役はつねに「大きくない」と答えるので、繰りかえしは 1 周で
- * 抜ける。指定のあるなしで結果が変わらないことを押さえる（本物の
- * set_large() を持ちこむと、どの品物が大きいかという別の話が混ざる）。 */
+/* set_large() の代役は、答えを並べなければ「大きくない」と答えるので、
+ * 繰りかえしは 1 周で抜ける。指定のあるなしで結果が変わらないことを押さえる
+ * （本物の set_large() を持ちこむと、どの品物が大きいかという別の話が混ざる）。 */
 TEST(asking_for_a_small_object_changes_nothing_when_nothing_is_large)
 {
     given_the_real_table_of_objects();
@@ -219,6 +219,43 @@ TEST(asking_for_a_small_object_changes_nothing_when_nothing_is_large)
     fixture_set_randint(1);
     int without_limit = get_obj_num(1, false);
     ASSERT_EQ_INT(with_limit, without_limit);
+}
+
+/* 大きいかどうかは、選んだ位置に並んでいる品物について訊く。位置を品物の
+ * 番号として渡すと別の品物を訊くことになる（目 2 で位置 1。位置 1 の品物の
+ * 番号は 1 ではない）。 */
+TEST(the_size_is_asked_of_the_object_at_the_chosen_position)
+{
+    given_the_real_table_of_objects();
+    fixture_set_randint(2);
+    int position = get_obj_num(1, true);
+    ASSERT_EQ_INT(position, 1);
+    ASSERT_EQ_INT(fixture_set_large_call_count(), 1);
+    ASSERT_TRUE(fixture_set_large_last_item() ==
+                &object_list[object_at_level_position(position)]);
+}
+
+/* 大きいと答えると選びなおす。選びなおすのは繰りかえしの中だけで、深さを
+ * 持ちあげる 2 回は振りなおさない（1 周 2 回なので 2 + 2 × 2 = 6 回）。 */
+TEST(a_large_object_is_chosen_again)
+{
+    given_the_real_table_of_objects();
+    fixture_set_randint(1);
+    fixture_set_large_answers("y");
+    (void)get_obj_num(1, true);
+    ASSERT_EQ_INT(fixture_set_large_call_count(), 2);
+    ASSERT_EQ_INT(fixture_randint_call_count(), 6);
+}
+
+/* 指定がなければ大きさは訊かない。大きいと答える用意があっても 1 周で抜ける。 */
+TEST(without_the_limit_the_size_is_not_asked)
+{
+    given_the_real_table_of_objects();
+    fixture_set_randint(1);
+    fixture_set_large_answers("y");
+    (void)get_obj_num(1, false);
+    ASSERT_EQ_INT(fixture_set_large_call_count(), 0);
+    ASSERT_EQ_INT(fixture_randint_call_count(), 4);
 }
 
 /* ------------------------------------------------------------------
@@ -371,6 +408,9 @@ int main(void)
     RUN_TEST(landing_on_a_deeper_object_re_rolls_inside_that_levels_band);
 
     RUN_TEST(asking_for_a_small_object_changes_nothing_when_nothing_is_large);
+    RUN_TEST(the_size_is_asked_of_the_object_at_the_chosen_position);
+    RUN_TEST(a_large_object_is_chosen_again);
+    RUN_TEST(without_the_limit_the_size_is_not_asked);
 
     RUN_TEST(building_the_table_covers_every_dungeon_object);
     RUN_TEST(every_position_holds_a_different_object);
