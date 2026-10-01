@@ -614,9 +614,10 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
       `concat` を外した。
     - リンク単位：haggle_comment・objdes +1、check_strength・inven_stack 15→19、
       object_levels 14→16、item_ident 8→9、movement_rate 24→30。
-    - **recall の 6 本は代役のまま。** `recall_get` は `variable.o` にあり、`variable.o` は
-      `free_turn_flag`・`display_counts` も定義するので `shared_stubs.c` の 2 つと重なる。
-      その 2 つを外すと shared を使う全テストが `variable.o` を引くので、別の作業にする。
+    - **recall の 6 本も本物に替えた**（マージ `c2a97d5`）。先に `shared_stubs.c` の
+      `free_turn_flag`・`display_counts` を外し、それを使うテストが `variable.o` を引く
+      （calc_hitpoints・calc_spells・gain_spells・put_misc3 +1）。そのあとで recall を外した
+      （movement_rate 30→31）。`variable.o` の他の定義とは重ならなかった。
 - **#44：** 定数を返す代役は中身を変えずに運んだ。
 - **気づいたこと：** 古い `fixture_reset()` には、赤外視の距離を 0 に戻す理由のコメントだけが
   あり、呼びだしは無かった。新しい足場にも無い。いまのテストは自分で値を置いてから読むので
@@ -954,3 +955,4 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | #38 段階 B | 済み（2026-10-01、マージ `65773e1`） | `refactor/38-item-learn`（`fd89496`・`32f8706`） |
 | #44 | 済み（2026-10-01、マージ `264d258`） | `test/44-stubs`（`4ea0a61`〜`815f8cc`、6 コミット） |
 | #44 本物へ | 済み（2026-10-01、マージ `230ddcc`） | `test/44-real`（`9db83b2`〜`11c4c17`、8 コミット） |
+| #44 recall | 済み（2026-10-01、マージ `c2a97d5`） | `test/44-recall`（`36278c9`・`cec6310`） |
