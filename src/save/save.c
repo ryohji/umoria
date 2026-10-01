@@ -115,6 +115,12 @@ static uint32_t start_time; // time that play started
 // 書式の穴で、穴はそれを読む 1 ファイルの中に置くのがいちばん小さい。
 static int16_t dead_protection_bytes;
 
+// Whether a savefile written by 5.<version_min>.<patch_level> predates
+// 5.<min>.<patch>. The major version has already been checked by then.
+static bool savefile_before(uint8_t version_min, uint8_t patch_level, uint8_t min, uint8_t patch) {
+    return version_min < min || (version_min == min && patch_level < patch);
+}
+
 // This save package was brought to by                -JWT-
 // and                                                -RAK-
 // and has been completely rewritten for UNIX by      -JEW-
@@ -583,7 +589,7 @@ bool get_char(bool *generate) {
         // Support savefiles from 5.1.0 to present.
         // As of version 5.4, accept savefiles even if they have higher version numbers.
         // The savefile format was frozen as of version 5.2.2.
-        if ((version_maj != CUR_VERSION_MAJ) || (version_min == 0 && patch_level < 14)) {
+        if ((version_maj != CUR_VERSION_MAJ) || savefile_before(version_min, patch_level, 0, 14)) {
             prt("Sorry. This savefile is from a different version of umoria.", 2, 0);
             goto error;
         }
@@ -607,7 +613,7 @@ bool get_char(bool *generate) {
         }
 
         // for save files before 5.2.2, read and ignore log_index (sic)
-        if ((version_min < 2) || (version_min == 2 && patch_level < 2)) {
+        if (savefile_before(version_min, patch_level, 2, 2)) {
             rd_short(&uint16_t_tmp);
         }
 
@@ -621,7 +627,7 @@ bool get_char(bool *generate) {
         // save files before 5.2.2 have no bit for sound_beep_flag nor for
         // display_counts, so the bits just read are meaningless. Set them on
         // for compatibility.
-        if ((version_min < 2) || (version_min == 2 && patch_level < 2)) {
+        if (savefile_before(version_min, patch_level, 2, 2)) {
             sound_beep_flag = true;
             display_counts = true;
         }
@@ -947,7 +953,7 @@ bool get_char(bool *generate) {
             set_score_disqualifications((int16_t)saved_disqualifications);
             rd_shorts(hp_table_slots(), MAX_PLAYER_LEVEL);
 
-            if ((version_min >= 2) || (version_min == 1 && patch_level >= 3)) {
+            if (!savefile_before(version_min, patch_level, 1, 3)) {
                 for (int i = 0; i < store_count(); i++) {
                     if (!rd_store(store_at(i))) {
                         goto error;
@@ -955,7 +961,7 @@ bool get_char(bool *generate) {
                 }
             }
 
-            if ((version_min >= 2) || (version_min == 1 && patch_level >= 3)) {
+            if (!savefile_before(version_min, patch_level, 1, 3)) {
                 rd_long(&time_saved);
             }
 
@@ -963,7 +969,7 @@ bool get_char(bool *generate) {
                 rd_string(death_cause());
             }
 
-            if ((version_min >= 3) || (version_min == 2 && patch_level >= 2)) {
+            if (!savefile_before(version_min, patch_level, 2, 2)) {
                 // Read into a local first: max_score is int32_t and rd_long
                 // takes a uint32_t *, so the old cast lied about the pointer's
                 // type (the same fix as panel and the player's position).
@@ -974,7 +980,7 @@ bool get_char(bool *generate) {
                 set_best_score_so_far(0);
             }
 
-            if ((version_min >= 3) || (version_min == 2 && patch_level >= 2)) {
+            if (!savefile_before(version_min, patch_level, 2, 2)) {
                 uint32_t saved_birth_date;
                 rd_long(&saved_birth_date);
                 set_character_birth_date((int32_t)saved_birth_date);
@@ -1138,7 +1144,7 @@ bool get_char(bool *generate) {
 
         *generate = false; // We have restored a cave - no need to generate.
 
-        if ((version_min == 1 && patch_level < 3) || (version_min == 0)) {
+        if (savefile_before(version_min, patch_level, 1, 3)) {
             for (int i = 0; i < store_count(); i++) {
                 if (!rd_store(store_at(i))) {
                     goto error;
@@ -1147,7 +1153,7 @@ bool get_char(bool *generate) {
         }
 
         // read the time that the file was saved
-        if (version_min == 0 && patch_level < 16) {
+        if (savefile_before(version_min, patch_level, 0, 16)) {
             time_saved = 0; // no time in file, clear to zero
         } else if (version_min == 1 && patch_level < 3) {
             rd_long(&time_saved);
