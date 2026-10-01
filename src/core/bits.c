@@ -11,17 +11,14 @@
 
 #include "bits.h"
 
-// No externs.h here, the same as str_insert.c: nothing outside this file is
-// called, so the linker reports no unresolved symbol at all.
+// This module includes no externs.h: it calls nothing outside itself.
 
 // Returns position of first set bit -RAK-
 // and clears that bit
 int bit_pos(uint32_t *test) {
     uint32_t mask = 0x1;
 
-    // i は int、sizeof(*test) * 8 は size_t（符号なし）。そのまま比べると
-    // i が符号なしに変換される。ここは i >= 0 しか通らないので値は変わらない
-    // が、変換が起きていることを明示しておく。
+    // Cast to int to avoid sign conversion in comparison.
     for (int i = 0; i < (int)(sizeof(*test) * 8); i++) {
         if (*test & mask) {
             *test &= ~mask;

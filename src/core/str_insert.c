@@ -18,12 +18,8 @@
 
 #include "str_insert.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c and stats.c.
-// Nothing outside the standard library is called from this file, so the linker
-// reports no unresolved project symbol at all; there is not even one
-// declaration left to write out by hand, as stats.c had to do for py. The only
-// thing these functions borrow from the game is the vtype typedef, and the
-// includes above bring that in.
+// This module includes no externs.h: it uses only the standard library
+// and the vtype typedef (provided through the includes above).
 
 // Inserts a string into a string
 void insert_str(char *object_str, const char *mtc_str, const char *insert) {

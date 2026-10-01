@@ -31,10 +31,8 @@ bool player_saves(void) {
     // MPW C couldn't handle the expression, so split it into two parts
     int16_t temp = class_level_adj[player_class()][CLA_SAVE];
 
-    // The number comes from the window, the roll is made here (#18-12-21B).
-    // The window answers "how good are they at resisting?", and this function
-    // answers "did they resist this time?". The roll needs both randint() and
-    // temp above (the table by class and level), so it stays out of the window.
+    // Roll to see if the player resists. The saving throw module provides
+    // the base bonus; the roll combines that with wisdom and the class/level table.
     if (randint(100) <= (player_saving_throw() + stat_adj(A_WIS) + (temp * player_level() / 3))) {
         return true;
     } else {
