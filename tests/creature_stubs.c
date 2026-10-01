@@ -170,7 +170,6 @@ void inven_destroy(int item) { (void)item; }
 int known2_p(inven_type *i) { stub_unreached(__func__); }
 
 /* --- ビット操作・文字列 --- */
-int bit_pos(uint32_t *test) { stub_unreached(__func__); }
 char *concat(char *buffer, ...) { return buffer; }
 
 /* --- テスト専用の初期化。本体（src/）には存在しない。
