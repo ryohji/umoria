@@ -14,7 +14,7 @@
 //
 //   0 Warrior   1 Mage   2 Priest   3 Rogue   4 Ranger   5 Paladin
 //
-// THIS ONE IS NOT A QUANTITY. Fifty-five callers index a table with it or hand the
+// THIS ONE IS NOT A QUANTITY. Every caller indexes a table with it or hands the
 // byte on unchanged -- not one compares it against a number and not one adds to it.
 // So there is no `_adjust` window here and there never will be: A CHARACTER DOES NOT
 // SLOWLY BECOME MORE OF A ROGUE.

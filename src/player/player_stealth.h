@@ -86,7 +86,7 @@ void player_stealth_set(int stealth);
 // This much quieter -- or louder, when the sign is negative. TWO CALLERS, and they
 // are the two that made this unit need a third window at all:
 //
-//   - THE CLASS at creation (player_bonuses.c), which is always positive.
+//   - THE CLASS at creation (create.c), which is always positive.
 //   - THE GEAR (player_bonuses.c), where `amount` is `t_ptr->p1 * factor` and
 //     THE CALLER'S factor IS -1 WHEN THE THING COMES OFF. One line covers putting
 //     it on and taking it off.

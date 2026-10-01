@@ -9,9 +9,6 @@
 #ifndef PLAYER_INFRA_RANGE_H
 #define PLAYER_INFRA_RANGE_H
 
-// Nine callers in six files (creature.c and dungeon.c two each, abilities.c one,
-// create.c one, player_bonuses.c one, save.c two).
-//
 // THE QUESTION IS "HOW FAR AWAY CAN THE CHARACTER MAKE OUT A WARM-BLOODED
 // CREATURE". THE UNIT IS SQUARES, one square being ten feet. Zero means no
 // infra-vision at all, which is where a Human starts.

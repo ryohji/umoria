@@ -9,9 +9,6 @@
 #ifndef PLAYER_RESTING_H
 #define PLAYER_RESTING_H
 
-// Twenty-one callers in five files (dungeon.c twelve of them, creature.c three,
-// rest_command.c three, misc3.c two, save.c two).
-//
 // THE QUESTION IS "IS THE CHARACTER RESTING, AND FOR HOW MANY MORE TURNS". The
 // `R` command sets it, one block in dungeon.c moves it one step per turn, and
 // reaching zero ends the rest.

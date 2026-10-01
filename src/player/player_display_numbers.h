@@ -10,7 +10,7 @@
 #define PLAYER_DISPLAY_NUMBERS_H
 
 // Four numbers: the +To Hit, +To Damage, +To AC and Total AC printed on the status
-// panel, the character sheet and the character dump. Forty-three callers.
+// panel, the character sheet and the character dump.
 //
 // These are *not* the numbers the game fights with. Those are the real plusses:
 // the aim and the force are in player_attack_bonuses.c, the two halves of the

@@ -17,8 +17,8 @@
 // time anything changes: it clears all seventeen and sets them again from the
 // flags of what is worn.
 // ALL THIRTY-NINE OF player_bonuses.c'S REFERENCES ARE THAT ONE FUNCTION.
-// These seventeen are in the save file, though nothing calls calc_bonuses()
-// when a game is loaded.
+// These seventeen are still in the save file only because nothing calls
+// calc_bonuses() when a game is loaded.
 //
 // THE TWO THINGS THAT ARE NOT HERE.
 //
