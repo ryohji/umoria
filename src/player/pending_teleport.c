@@ -12,16 +12,13 @@
 
 #include "pending_teleport.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c, inven_command_state.c and screen_touched.c:
-// one bit needs nothing from the rest of the game. In particular this module does
-// not know how to teleport anybody -- it only holds the note.
+// No externs.h here: one bit needs nothing from the rest of the game. In
+// particular this module does not know how to teleport anybody -- it only holds
+// the note.
 
 // The flag is owned here and is static: the only way in is through the four
-// windows below. It came over from variable.c (#18-11-4C) with its initial value
-// -- the old global had no initializer, so it started out false, and a new game
-// begins with no teleport waiting.
+// windows below. The initial value is false, so a new game begins with no
+// teleport waiting.
 static bool teleport_pending = false;
 
 void schedule_teleport(void) {
