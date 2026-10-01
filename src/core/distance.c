@@ -7,13 +7,9 @@
 
 // Distance between two points
 
-#include "headers.h"
+#include "distance.h"
 
-#include "config.h"
-#include "constant.h"
-#include "types.h"
-
-#include "externs.h"
+// No externs.h here, the same as bits.c: nothing outside this file is called.
 
 // Distance between two points -RAK-
 int distance(int y1, int x1, int y2, int x2) {

@@ -17,11 +17,7 @@
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、
  * この関数がいま何を返すかを固定することが目的。
  */
-#include "config.h"
-#include "constant.h"
-#include "types.h"
-
-#include "externs.h"
+#include "distance.h"
 #include "minunit.h"
 
 /* 代表値：同一点は 0 */
