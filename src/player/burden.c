@@ -14,16 +14,9 @@
 
 #include "burden.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c and
-// player_light.c: two remembered numbers need nothing from the rest of the game.
-
-// Both used to be globals in variable.c, declared in externs.h and written from
-// six files. Nothing outside this file names them now, so they are static: the
-// windows below are the only way in.
-//
-// The starting values are the ones variable.c spelled out: no weapon is too
-// heavy for an empty hand, and an empty pack costs no speed.
+// Two remembered numbers: the only way in is through the windows below.
+// The starting values are: no weapon is too heavy for an empty hand,
+// and an empty pack costs no speed.
 static bool weapon_heavy = false;
 static int pack_heavy = 0;
 

@@ -12,20 +12,17 @@
 
 #include "player_display_numbers.h"
 
-// No externs.h here, the same as player_gold.c, player_food.c and the rest:
-// four numbers that are only ever shown need nothing from the game around them.
-// In particular this module does not know what the equipment is, whether an item
-// is identified or cursed, or how heavy a weapon may be -- the caller decides
-// all of that and hands over an amount. It prints nothing, and it does not raise
-// PY_ARMOR when the AC moves (player_bonuses.c still watches for that, because it cannot
+// Four numbers that are only ever shown need nothing from the game around them. In
+// particular this module does not know what the equipment is, whether an item is
+// identified or cursed, or how heavy a weapon may be -- the caller decides all of
+// that and hands over an amount. It prints nothing, and it does not raise PY_ARMOR
+// when the AC moves (player_bonuses.c still watches for that, because it cannot
 // print inside a store).
 
 // Owned here and static: the only way in is through the windows below. The four
-// came over from the four dis_* fields of py.misc (#18-12-3C) with
-// their initial values -- the fields were inside a struct with no initializer,
-// so a sheet that says nothing is what a program starts with, and create.c puts
-// the real numbers in once the character exists (or save.c puts back the ones
-// the file remembers).
+// have their initial values: a sheet that says nothing is what a program starts
+// with, and create.c puts the real numbers in once the character exists (or save.c
+// puts back the ones the file remembers).
 //
 // The names follow the windows rather than the old fields: "dis_tac" was the
 // bonus the sheet shows and "dis_ac" the total it shows, which the old pair of

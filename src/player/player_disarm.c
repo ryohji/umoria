@@ -12,11 +12,8 @@
 
 #include "player_disarm.h"
 
-// No externs.h here, the same as the eighteen questions before this one.
-
-// THE NUMBER ITSELF. It was py.misc.disarm until #18-12-20C; now this one short
-// is the only place the answer lives, and the windows below are the only way to
-// reach it. (`struct misc` is down to fifteen fields.)
+// THE NUMBER ITSELF. This one short is the only place the answer lives, and the
+// windows below are the only way to reach it.
 //
 // ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
 // until create.c picks a race, and a Human's racial base happens to be zero too
@@ -36,8 +33,7 @@ void player_disarm_set(int chance) {
 }
 
 void player_disarm_adjust(int chance) {
-    // The class's mdis, added to whatever the race left here. This was
-    // `m_ptr->disarm += c_ptr->mdis;` in create.c: one statement then, one
-    // statement now, so the store is still touched once.
+    // The class's mdis, added to whatever the race left here. One statement, so the
+    // store is touched once.
     the_chance = (int16_t)(the_chance + chance);
 }

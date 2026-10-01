@@ -12,9 +12,8 @@
 
 #include "player_abilities.h"
 
-// No externs.h here, the same as the seven questions before this one. This module
-// does not know what any of the seventeen answers leads to -- no messages, no
-// rolls, no drawing.
+// This module does not know what any of the seventeen answers leads to -- no
+// messages, no rolls, no drawing.
 
 // The seventeen, IN THE ORDER THE SAVE FILE KEEPS THEM. save.c writes them as
 // seventeen bytes in one run, so this order is the file format and cannot move;
@@ -45,9 +44,8 @@ typedef enum {
 // a byte nobody reads back.
 _Static_assert(ABILITY_COUNT == PLAYER_ABILITIES_SAVED_BYTES, "the seventeen are seventeen bytes");
 
-// THE SEVENTEEN ANSWERS THEMSELVES. They were py.flags.see_inv through
-// py.flags.sustain_chr until #18-12-8C; now this array is the only place they
-// live, and nothing outside this file can name one of them.
+// THE SEVENTEEN ANSWERS THEMSELVES. This array is the only place they live, and
+// nothing outside this file can name one of them.
 //
 // All zero at the start, which is the same start the seventeen fields had: A
 // CHARACTER CAN DO NOTHING AND RESIST NOTHING until calc_bonuses() works the
