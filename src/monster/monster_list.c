@@ -19,15 +19,7 @@
 // are standing on this level.
 //
 // The two names are one container: a table whose rows are PACKED, and the mark
-// saying how much of it is in use
-// promise by hand.
-//
-// It took the three earlier questions in this group to get here. The previous
-// three put the storage in the module at step A, which works only when the step
-// that moves the callers fits in one commit -- otherwise half the game reads one
-// container and half reads the other. This one had 101 references in twelve
-// files, so B was split five ways and the storage waited until every caller was
-// through a window.
+// saying how much of it is in use.
 static monster_type the_monsters[MAX_MALLOC];
 static int16_t the_mark;
 

@@ -105,8 +105,8 @@ static const char *comment6[5] = {
 };
 
 // Comments vary. -RAK-
-// Number of elements of a comment table. Keeps the count next to the
-// array it belongs to, so the size is no longer written out twice.
+// Number of elements of a comment table. Keeps the count next to the array it
+// belongs to.
 #define comment_count(table) ((int)(sizeof(table) / sizeof((table)[0])))
 
 // Pick one haggling comment and show it with the two numbers filled in.
