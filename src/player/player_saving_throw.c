@@ -12,11 +12,8 @@
 
 #include "player_saving_throw.h"
 
-// No externs.h here, the same as the twenty questions before this one.
-
-// THE NUMBER ITSELF. It was py.misc.save until #18-12-21C; now this one short is
-// the only place the answer lives, and the windows below are the only way to
-// reach it. (`struct misc` is down to fourteen fields.)
+// THE NUMBER ITSELF. This one short is the only place the answer lives, and the
+// windows below are the only way to reach it.
 //
 // ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
 // until create.c picks a race, and a Human's racial base happens to be zero too.

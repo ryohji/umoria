@@ -13,9 +13,8 @@
 
 #include "player_race.h"
 
-// THE ROW NUMBER ITSELF. It was py.misc.prace until #18-12-22C; now this one byte
-// is the only place the answer lives, and the windows below are the only way to
-// reach it. (`struct misc` is down to thirteen fields.)
+// THE ROW NUMBER ITSELF. This one byte is the only place the answer lives, and
+// the windows below are the only way to reach it.
 //
 // ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
 // until the race menu is answered, and row zero happens to be Human. Unlike every
