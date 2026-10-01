@@ -5,7 +5,7 @@
 [done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1677 件・75 本、`externs.h` の global 42 個（→ `HANDOVER.md` 第 0 節）。
+- いま：テスト 1683 件・76 本、`externs.h` の global 42 個（→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
   判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
 - #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
@@ -19,9 +19,7 @@
 
 | # | 分類 | 場所 | 内容 | 手法 |
 |---|---|---|---|---|
-| 58 | 強すぎる依存（ビルド） | makefile の依存の行（`dungeon.o` は :155、`save.o` は :285）、makefile.win の同じ行 | 本体のヘッダ依存が手書きで、実際の include とずれている。`dungeon.o` は `$(HEADERS_FULL)` だけだが `dungeon.c` は 42 個、`save.c` は 54 個の `#include "…"` を持つ。共有ヘッダを変えても作りなおされない単位がある。2 本の makefile は別々に手で書かれていて、互いにも食いちがう | makefile.test:133 と同じ `-MMD -MP` にして手書きの依存を消す |
 | 59 | （テストの穴） | tests/distance_test.c:26-39、dungeon/geometry.c:23 `in_bounds`・:32 `distance`・:108 `los`・:252 `mmove` | 第一号のテストは今も `distance()` の写し（`static`）を検証していて、本物を通るテストは 0 本（:17 の「#37 で扱う」が残ったまま）。同じファイルの `mmove`・`los`・`in_bounds` にもテストが無い | 写しを本物に替え、geometry のテストを足す。tests/creature_stubs.c が `in_bounds`・`los` を代役にしているので、引く `.o` を `link_units.py --why` で見る |
-| 60 | 名前が意図を表さない | (a) `* 15` の「武器が重すぎる」：item/inven_ops.c:176、combat/hit_rolls.c:48、dungeon/terrain_commands.c:287、player/player_bonuses.c:149、ui/inven_menu.c:165、(b) 値切りの結果 0〜3：store/store_haggle.c:290-312 ほか・store/store_ui.c、(c) 得点を記録しない理由のビット：save/save.c:1009, 1196, 1200、ui/status_line.c:275, 281, 283、ui/wizard.c:43、(d) 版の比較：save/save.c の 11 行（:610〜:1152） | 生の数が 4 族ある。(a) は同じ系統の `PLAYER_WEIGHT_CAP` には名前がある。(c) の意味は score_death.h のコメントにしか無く、B18 はこれを読み落とした形。(d) は同じ境界（5.2.2・5.1.3）を毎回式で書いている | 定数・enum・述語に置きかえる（ふるまい不変）。族ごとに 1 コミット。(d) は save.c を丸ごと `#include` するテスト（`save_bool_test` と同じ手）で守れる |
 | 61 | 不要なコード（注釈・宣言） | src/externs.h（:671 `// treasur.c` などの古い見出し）、data/progress.c:18・item/object_levels.c:15・monster/monster_levels.c:23・save/score_death.c:18 ほか、src/ 全体の `#18-…` 形の注釈 225 行、日本語を含む行 379 行・23 ファイル（すべて注釈） | `externs.h` はもう ncurses を連れてこないのに、「連れてくるから」を理由に手書きの `extern` を置いた注釈が残る。経緯の注釈と日本語の注釈は「ソースのコメントは英語・要点だけ」（`HANDOVER.md` 第 3 節）とずれている | 注釈だけを書きかえる。機械語が同じことを `dis_compare.py` で確かめる。手書きの `extern` を `externs.h` に戻すかは別のコミット |
 
 ### P2（時間・合意しだい）
@@ -126,6 +124,8 @@
 | 37 | 代役の重複 12 本を `shared_stubs.c` に（`df6de6d`） | 同上 |
 | 38 | テストのリンクを 1 実行形式 1 対象に（`48af494`・`65773e1`） | 同上 |
 | 44 | 引数を見ない代役：届かないものは止め、安いものは本物に（`264d258`・`230ddcc`・`c2a97d5`） | 同上 |
+| 58 | 本体のヘッダ依存を `-MMD -MP` に（`a6b8535`） | [p1-2026-10.md](docs/refactoring/p1-2026-10.md) |
+| 60 | 生の数 4 族に名前（`b4a84c7`。(d) は作りなおした） | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
