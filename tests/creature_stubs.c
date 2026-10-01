@@ -168,8 +168,6 @@ void invcopy(inven_type *i, int id) { (void)i; (void)id; }
 void inven_destroy(int item) { (void)item; }
 int known2_p(inven_type *i) { stub_unreached(__func__); }
 
-/* --- ビット操作・文字列 --- */
-
 /* --- テスト専用の初期化。本体（src/）には存在しない。
  * MU_SETUP から呼ぶことで、先行テストの影響を受けない条件を作る。
  * turn はここでは触らない。テストごとに progress_set_turn() で制御するため
