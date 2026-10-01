@@ -13,9 +13,9 @@
  * ごと取りこむ。すると creature.c 全体（モンスターの移動と呪文）が呼ぶ先が
  * 未解決になる。
  *
- * ここに置くのはその代役。moves_this_turn() はどれも呼ばないので、すべて
- * 「呼ばれたら何もしない／固定値を返す」で足りる。一覧はリンカに出させた
- * もので、手で数えあげたわけではない:
+ * ここに置くのはその代役。moves_this_turn() はどれも呼ばないので、void の
+ * ものは何もせず、値を返すものは stub_unreached() で止まる。一覧はリンカに
+ * 出させたもので、手で数えあげたわけではない:
  *   gcc -std=c17 -Isrc $(find src -mindepth 1 -maxdepth 1 -type d -printf '-I%p ') \
  *     -c -o /tmp/c.o src/monster/creature.c
  *   gcc -o /tmp/t probe.c /tmp/c.o \
@@ -40,6 +40,7 @@
 #include "player_resting.h"
 #include "player_status_flags.h"
 #include "shared_stubs.h"
+#include "stub_unreached.h"
 
 /* --- グローバル状態 ---
  * turn と wizard はここに無い。#19B で creature.c が progress_turn() /
@@ -113,11 +114,11 @@ void prt_cmana(void) {}
 void prt_experience(void) {}
 void prt_gold(void) {}
 
-int damroll(int num, int sides) { (void)num; (void)sides; return 0; }
+int damroll(int num, int sides) { stub_unreached(__func__); }
 
 /* --- ダンジョン・座標 --- */
-bool panel_contains(int y, int x) { (void)y; (void)x; return true; }
-bool los(int a, int b, int c, int d) { (void)a; (void)b; (void)c; (void)d; return false; }
+bool panel_contains(int y, int x) { stub_unreached(__func__); }
+bool los(int a, int b, int c, int d) { stub_unreached(__func__); }
 /* distance は代役にしない。creature.c が `m_ptr->cdis` に
  * 代入しており、常に 0 を返すと「全モンスターが隣接している」状態に
  * なる。純粋関数なので もと misc1.c:210（いまは dungeon/geometry.c）の実装を写す（misc1.c 全体を
@@ -136,36 +137,31 @@ int distance(int y1, int x1, int y2, int x2) {
 
     return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
 }
-int mmove(int dir, int *y, int *x) { (void)dir; (void)y; (void)x; return 0; }
+int mmove(int dir, int *y, int *x) { stub_unreached(__func__); }
 void move_rec(int y1, int x1, int y2, int x2) { (void)y1; (void)x1; (void)y2; (void)x2; }
-int twall(int y, int x, int t, int d) { (void)y; (void)x; (void)t; (void)d; return 0; }
-int find_range(int a, int b, int *lo, int *hi) { (void)a; (void)b; (void)lo; (void)hi; return 0; }
+int twall(int y, int x, int t, int d) { stub_unreached(__func__); }
+int find_range(int a, int b, int *lo, int *hi) { stub_unreached(__func__); }
 
 /* --- モンスター --- */
 void delete_monster(int m) { (void)m; }
 void fix1_delete_monster(int m) { (void)m; }
 void fix2_delete_monster(int m) { (void)m; }
-int mon_take_hit(int m, int dam) { (void)m; (void)dam; return 0; }
-bool place_monster(int y, int x, creature_handle h, int slp) {
-    (void)y; (void)x; (void)h; (void)slp; return false;
-}
-bool summon_monster(int *y, int *x, int slp) { (void)y; (void)x; (void)slp; return false; }
-bool summon_undead(int *y, int *x) { (void)y; (void)x; return false; }
-int aggravate_monster(int d) { (void)d; return 0; }
-creature_type *monster_get_creature(creature_handle h) { (void)h; return NULL; }
-const char *monster_name(vtype buf, const monster_type *m) { (void)buf; (void)m; return ""; }
-const char *monster_name_indefinite(vtype buf, const creature_type *c) {
-    (void)buf; (void)c; return "";
-}
-bool monster_attack_is_null(attack_handle h) { (void)h; return true; }
-uint8_t monster_attack_get_type(attack_handle h) { (void)h; return 0; }
-uint8_t monster_attack_get_desc(attack_handle h) { (void)h; return 0; }
-uint8_t monster_attack_get_dice(attack_handle h) { (void)h; return 0; }
-uint8_t monster_attack_get_sides(attack_handle h) { (void)h; return 0; }
+int mon_take_hit(int m, int dam) { stub_unreached(__func__); }
+bool place_monster(int y, int x, creature_handle h, int slp) { stub_unreached(__func__); }
+bool summon_monster(int *y, int *x, int slp) { stub_unreached(__func__); }
+bool summon_undead(int *y, int *x) { stub_unreached(__func__); }
+int aggravate_monster(int d) { stub_unreached(__func__); }
+creature_type *monster_get_creature(creature_handle h) { stub_unreached(__func__); }
+const char *monster_name(vtype buf, const monster_type *m) { stub_unreached(__func__); }
+const char *monster_name_indefinite(vtype buf, const creature_type *c) { stub_unreached(__func__); }
+bool monster_attack_is_null(attack_handle h) { stub_unreached(__func__); }
+uint8_t monster_attack_get_type(attack_handle h) { stub_unreached(__func__); }
+uint8_t monster_attack_get_desc(attack_handle h) { stub_unreached(__func__); }
+uint8_t monster_attack_get_dice(attack_handle h) { stub_unreached(__func__); }
+uint8_t monster_attack_get_sides(attack_handle h) { stub_unreached(__func__); }
 
 /* --- モンスター記録（recall） --- */
-static recall_type fixture_recall;
-recall_type *recall_get(creature_handle h) { (void)h; return &fixture_recall; }
+recall_type *recall_get(creature_handle h) { stub_unreached(__func__); }
 void recall_update_characteristics(creature_handle h, int defence) { (void)h; (void)defence; }
 void recall_update_move(creature_handle h, int move) { (void)h; (void)move; }
 void recall_update_spell(creature_handle h, uint32_t type) { (void)h; (void)type; }
@@ -182,22 +178,20 @@ void corrode_gas(const char *from) { (void)from; }
 void breath(int t, int y, int x, int dam, char *dsc, int m) {
     (void)t; (void)y; (void)x; (void)dam; (void)dsc; (void)m;
 }
-bool test_hit(int a, int b, int c, int d, int e) {
-    (void)a; (void)b; (void)c; (void)d; (void)e; return false;
-}
-bool dec_stat(int s) { (void)s; return false; }
+bool test_hit(int a, int b, int c, int d, int e) { stub_unreached(__func__); }
+bool dec_stat(int s) { stub_unreached(__func__); }
 void lose_exp(int32_t amount) { (void)amount; }
-bool player_saves(void) { return false; }
+bool player_saves(void) { stub_unreached(__func__); }
 void teleport_away(int m, int d) { (void)m; (void)d; }
 void teleport_to(int y, int x) { (void)y; (void)x; }
 
 /* --- 持ち物 --- */
 void invcopy(inven_type *i, int id) { (void)i; (void)id; }
 void inven_destroy(int item) { (void)item; }
-int known2_p(inven_type *i) { (void)i; return 0; }
+int known2_p(inven_type *i) { stub_unreached(__func__); }
 
 /* --- ビット操作・文字列 --- */
-int bit_pos(uint32_t *test) { (void)test; return 0; }
+int bit_pos(uint32_t *test) { stub_unreached(__func__); }
 char *concat(char *buffer, ...) { return buffer; }
 
 /* --- テスト専用の初期化。本体（src/）には存在しない。

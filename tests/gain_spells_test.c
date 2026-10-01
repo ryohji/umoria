@@ -176,6 +176,46 @@ TEST(a_blind_mage_cannot_read_their_book) {
     ASSERT_TRUE(!any_spell_learned());
 }
 
+/* 明かりが無くても本は読めない。 */
+TEST(a_mage_without_light_cannot_read_their_book) {
+    given_no_spells_known();
+    given_a_mage_who_can_learn(1);
+    given_a_spell_book_containing(0xF);
+    fixture_set_no_light(true);
+
+    gain_spells();
+
+    ASSERT_EQ_STR("You have no light to read by.", fixture_message_text(0));
+    ASSERT_TRUE(!any_spell_learned());
+    ASSERT_EQ_INT(1, player_spells_to_learn());
+}
+
+/* 盲で暗いときは、盲のほうを告げる（盲を先に見る）。 */
+TEST(a_blind_mage_in_the_dark_is_told_about_the_blindness) {
+    given_no_spells_known();
+    given_a_mage_who_can_learn(1);
+    player_timed_set(PLAYER_TIMED_BLINDNESS, 1);
+    fixture_set_no_light(true);
+
+    gain_spells();
+
+    ASSERT_EQ_STR("You can't see to read your spell book!",
+                  fixture_message_text(0));
+    ASSERT_EQ_INT(1, fixture_message_count());
+}
+
+/* 僧侶は本を読まないので、暗くても授かる。 */
+TEST(a_priest_is_granted_a_prayer_in_the_dark) {
+    given_no_spells_known();
+    given_a_priest_who_can_learn(1);
+    fixture_set_randint(1);
+    fixture_set_no_light(true);
+
+    gain_spells();
+
+    ASSERT_TRUE(the_spell_is_learned(0));
+}
+
 /* ------------------------------------------------------------------
  * 僧侶（授かる側）
  *
@@ -332,6 +372,9 @@ int main(void) {
     RUN_TEST(a_priest_with_nothing_left_to_learn_is_refused_in_their_own_words);
     RUN_TEST(a_confused_character_cannot_learn);
     RUN_TEST(a_blind_mage_cannot_read_their_book);
+    RUN_TEST(a_mage_without_light_cannot_read_their_book);
+    RUN_TEST(a_blind_mage_in_the_dark_is_told_about_the_blindness);
+    RUN_TEST(a_priest_is_granted_a_prayer_in_the_dark);
 
     RUN_TEST(a_priest_is_granted_a_prayer_at_random);
     RUN_TEST(two_prayers_are_appended_in_the_order_they_were_granted);

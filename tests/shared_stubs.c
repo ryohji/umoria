@@ -11,6 +11,7 @@
  * 画面（ncurses）などが芋づるで付いてくるもの（io.o・rnd.o など）。
  * 画面・メッセージ・乱数・速さの代役は、呼ばれかたを記録する。
  * 記録は shared_stubs_reset() で消える（各足場の fixture_reset() が呼ぶ）。
+ * 値を返すだけで、どのテストも届かない代役は stub_unreached() で止まる。
  *
  * どの名前を代役で埋めているかは scripts/link_units.py --shadows で出る。
  */
@@ -25,6 +26,7 @@
 
 #include "fixture.h"
 #include "shared_stubs.h"
+#include "stub_unreached.h"
 
 bool display_counts;
 bool free_turn_flag;
@@ -94,7 +96,7 @@ void erase_line(int row, int col) { (void)row; (void)col; }
 void save_screen(void) {}
 void restore_screen(void) {}
 void bell(void) {}
-char inkey(void) { return ' '; }
+char inkey(void) { stub_unreached(__func__); }
 
 /* get_com はテストが並べたキーを 1 つずつ返し、使いきったら
  * 0（押されなかった）を返す。 */
@@ -120,18 +122,36 @@ int get_com(const char *p, char *c) {
     return 1;
 }
 
-bool get_check(const char *p) { (void)p; return false; }
+bool get_check(const char *p) { stub_unreached(__func__); }
 
-bool get_string(char *s, int r, int c, int l) {
-    (void)s; (void)r; (void)c; (void)l;
-    return false;
+bool get_string(char *s, int r, int c, int l) { stub_unreached(__func__); }
+
+int popt(void) { stub_unreached(__func__); }
+int delete_object(int y, int x) { stub_unreached(__func__); }
+bool in_bounds(int y, int x) { stub_unreached(__func__); }
+void magic_treasure(int x, int level) { (void)x; (void)level; }
+
+/* set_large は訊かれた品物と回数を記録し、並べた答え（'y' で大きい）を順に
+ * 返す。答えを使いきったら「大きくない」。 */
+static const char *fixture_large_answers = "";
+static const treasure_type *fixture_large_last;
+static int fixture_large_calls;
+
+bool set_large(treasure_type *t) {
+    fixture_large_last = t;
+    fixture_large_calls++;
+    if (*fixture_large_answers == '\0') {
+        return false;
+    }
+    return *fixture_large_answers++ == 'y';
 }
 
-int popt(void) { return 0; }
-int delete_object(int y, int x) { (void)y; (void)x; return 0; }
-bool in_bounds(int y, int x) { (void)y; (void)x; return true; }
-void magic_treasure(int x, int level) { (void)x; (void)level; }
-bool set_large(treasure_type *t) { (void)t; return false; }
+void fixture_set_large_answers(const char *answers) {
+    fixture_large_answers = answers == NULL ? "" : answers;
+}
+
+int fixture_set_large_call_count(void) { return fixture_large_calls; }
+const treasure_type *fixture_set_large_last_item(void) { return fixture_large_last; }
 
 /* change_speed と calc_bonuses は呼ばれかたを記録する。change_speed に渡るのは
  * 段数の差（正なら遅くなる）。 */
@@ -157,8 +177,14 @@ int fixture_speed_change_count(void) { return fixture_speed_change_calls; }
 int fixture_calc_bonuses_count(void) { return fixture_bonuses_calls; }
 
 void takeoff(int item, int posn) { (void)item; (void)posn; }
-bool no_light(void) { return false; }
-bool file_character(char *f) { (void)f; return false; }
+
+/* no_light はテストが決めた明るさを返す。既定は明るい。 */
+static bool fixture_dark;
+
+bool no_light(void) { return fixture_dark; }
+void fixture_set_no_light(bool dark) { fixture_dark = dark; }
+
+bool file_character(char *f) { stub_unreached(__func__); }
 void user_name(char *b) { (void)b; }
 
 /* randint はテストが決めた値を返し、渡された上限と呼ばれた回数を記録する。
@@ -186,12 +212,12 @@ void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
 void add_inscribe(inven_type *i, uint8_t flag) { (void)i; (void)flag; }
 
-bool general_store(int t) { (void)t; return false; }
-bool armory(int t) { (void)t; return false; }
-bool weaponsmith(int t) { (void)t; return false; }
-bool temple(int t) { (void)t; return false; }
-bool alchemist(int t) { (void)t; return false; }
-bool magic_shop(int t) { (void)t; return false; }
+bool general_store(int t) { stub_unreached(__func__); }
+bool armory(int t) { stub_unreached(__func__); }
+bool weaponsmith(int t) { stub_unreached(__func__); }
+bool temple(int t) { stub_unreached(__func__); }
+bool alchemist(int t) { stub_unreached(__func__); }
+bool magic_shop(int t) { stub_unreached(__func__); }
 
 void shared_stubs_reset(void)
 {
@@ -205,4 +231,8 @@ void shared_stubs_reset(void)
     fixture_bonuses_calls = 0;
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;
+    fixture_large_answers = "";
+    fixture_large_last = NULL;
+    fixture_large_calls = 0;
+    fixture_dark = false;
 }

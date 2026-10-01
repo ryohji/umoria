@@ -17,6 +17,10 @@
 #ifndef FIXTURE_H
 #define FIXTURE_H
 
+#include <stdbool.h>
+
+struct treasure_type;
+
 /* グローバル状態をまっさらに戻す。各テストの前に呼ぶ。 */
 void fixture_reset(void);
 
@@ -71,5 +75,20 @@ int fixture_calc_bonuses_count(void);
  * 並べたキーを使いきると 0 に戻るので、繰りかえしはそこで終わる。
  * fixture_reset() で並びは空になる。 */
 void fixture_set_get_com_keys(const char *keys);
+
+/* set_large() が返す答えを前もって並べておく（'y' で大きい、ほかは
+ * 大きくない）。使いきると「大きくない」に戻る。文字列は写さないので、
+ * 使い終わるまで残るもの（文字列リテラル）を渡す。tests/shared_stubs.c が
+ * 提供する。fixture_reset() で並びは空になる。 */
+void fixture_set_large_answers(const char *answers);
+
+/* set_large() が呼ばれた回数と、最後に訊かれた品物。fixture_reset() で
+ * 0・NULL に戻る。 */
+int fixture_set_large_call_count(void);
+const struct treasure_type *fixture_set_large_last_item(void);
+
+/* no_light() の答え（true で明かりが無い）。tests/shared_stubs.c が提供する。
+ * fixture_reset() で明るいに戻る。 */
+void fixture_set_no_light(bool dark);
 
 #endif /* FIXTURE_H */
