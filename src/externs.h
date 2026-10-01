@@ -7,9 +7,7 @@
 
 // Declarations for global variables and initialized data
 
-// 実体は variable.c:17 で 17 要素。長らく 5 と書かれていたが、変数を
-// 定義している variable.c がこのヘッダを include していなかったので
-// 誰も気づけなかった。include を入れて食いちがいを見つけた。
+// Defined in variable.c with 17 elements.
 extern const char *copyright[17];
 
 // These are options, set with set_options command -CJS-
@@ -26,15 +24,11 @@ extern bool sound_beep_flag;   // Beep for invalid character
 extern bool display_counts;    // Display rest/repeat counts
 
 // global flags
-// eof_flag moved to input_ended.c: whether the input has run out, and how many
-// EOFs it took (#18-11-5C). The windows are in input_ended.h
-// find_flag moved to running.c: whether the player is running, and how many
-// steps in (#18-11-6C). The windows are in running.h
+// eof_flag is in input_ended.c (see input_ended.h).
+// find_flag is in running.c (see running.h).
 extern bool free_turn_flag; // Used in MORIA
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
-// command_count and default_dir moved to command_state.c, together with
-// last_command: how many repeats are left and whether the direction is taken
-// from memory (#18-11-7C). The windows are in command_state.h
+// command_count and default_dir are in command_state.c (see command_state.h).
 // Which level the game is on now is not declared here. The number is private to
 // dungeon_level.c and is reached through src/dungeon/dungeon_level.h, which also answers
 // "am I in the town?" for the six callers that used to spell that question three
@@ -90,11 +84,9 @@ extern uint16_t player_init[MAX_CLASS][5];
 
 // Following are store definitions
 extern owner_type owners[MAX_OWNERS];
-// 6 軒の記録の実体は stores.c の static。窓口は stores.h の
-// store_at() / store_count()。
+// Store records are static in stores.c (see stores.h for store_at / store_count).
 extern uint16_t store_choice[MAX_STORES][STORE_CHOICES];
-// 実体は tables.c:90。店ごとの買いとり判定で、引数は品物の tval。
-// 戻り値は長らく int と書かれていたが、実体は bool を返す。
+// Defined in tables.c. Each function tests if a store will buy an item tval.
 extern bool (*store_buy[MAX_STORES])(int);
 
 // Following are treasure arrays  and variables
@@ -106,9 +98,7 @@ extern treasure_type object_list[MAX_OBJECTS];
 // traps and shop entrances are rows of it too. Everything on a square that is
 // not a monster is in there, which is why it reached seventeen files.
 extern const char *special_names[SN_ARRAY_SIZE];
-// tcptr is not declared here. How far the floor table is filled went with the
-// table itself in #18-14-7C (see above). Its one alias, save.c's
-// `rd_short((uint16_t *)&tcptr)`, went through a local uint16_t and is gone.
+// tcptr (floor table fill count) is in floor_items.c (see above).
 
 // What the player carries and wears (inventory[], inven_ctr, inven_weight,
 // equip_ctr) is not declared here. It is private to inventory.c and is
@@ -135,9 +125,7 @@ extern const char *special_names[SN_ARRAY_SIZE];
 // number it starts at -- never the raw array; the building of it used to be a
 // static of main.c, out of reach of any test.
 extern monster_type blank_monster; // Blank monster values
-// mfptr is not declared here. How far the monster list is filled went with the
-// table itself in #18-14-4C (see above). Its one alias, save.c's
-// `rd_short((uint16_t *)&mfptr)`, went through a local uint16_t and is gone.
+// mfptr (monster list fill count) is in monster_list.c (see above).
 // mon_tot_mult is not declared here. How many monsters have been bred on this
 // level is private to monster_breeding.c, reached through
 // src/monster/monster_breeding.h. Every reader wanted the question, not the count --
@@ -157,10 +145,7 @@ extern uint8_t blows_table[7][6];
 
 extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 
-// The command before this one moved to command_state.c (last_command,
-// #18-11-7C), beside the repeat count that is the reason it is remembered. Only
-// "was the previous command this key?" is asked, so the character itself no
-// longer leaves the module; the windows are in command_state.h
+// last_command is in command_state.c (see command_state.h).
 
 // function return values
 
@@ -188,9 +173,7 @@ void creatures(int);
 void display_scores(int);
 bool duplicate_character(void);
 int32_t total_points(void);
-// 末尾で exit(0) するので、呼びだしの後ろへは戻らない。それを型で表明して
-// おくと「この後は到達しない」ことをコンパイラが判断できる（main.c の
-// switch で case を貫通しているという誤検出が消える）。
+// Does not return (calls exit). Declared _Noreturn so the compiler knows.
 _Noreturn void exit_game(void);
 
 // desc.c
@@ -291,9 +274,8 @@ int mmove(int, int *, int *);
 void inven_destroy(int);
 void take_one_item(inven_type *, inven_type *);
 void inven_drop(int, int);
-// 引数の関数は sets.c の set_corrodes / set_flammable /
-// set_frost_destroy / set_lightning_destroy / set_acid_affect。
-// いずれも持ち物 1 つを受けとる bool f(inven_type *) 型。
+// Function argument is a predicate from sets.c (set_corrodes, set_flammable, etc.),
+// each taking bool f(inven_type *).
 int inven_damage(bool (*)(inven_type *), int);
 int weight_limit(void);
 bool inven_check_num(inven_type *);
@@ -305,8 +287,7 @@ int find_range(int, int, int *, int *);
 void teleport(int);
 void move_char(int, bool);
 // ui/map_view.c
-// panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
-// panel_contains() は panel.h。
+// panel_bounds is static in panel.c; panel_contains is in panel.h.
 int get_panel(int, int, int);
 uint8_t loc_symbol(int, int);
 bool test_light(int, int);
@@ -433,7 +414,7 @@ creature_handle monster_make_creature_handle(uint16_t index);
 creature_handle monster_get_creature_handle(creature_type *p);
 creature_type *monster_get_creature(creature_handle h);
 
-// モンスター定義表の逆順走査。使いかたは
+// Reverse iteration over the creature definition table. Usage:
 //   const creature_rev_iterator end = monster_creature_rend();
 //   for (creature_rev_iterator it = monster_creature_rbegin();
 //        !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
@@ -602,7 +583,6 @@ int detect_monsters(void);
 void light_line(int, int, int);
 void starlite(int, int);
 int disarm_all(int, int, int);
-// 第 4 引数は inven_damage() に渡す判定関数の受けとり先。
 int recharge(int);
 int hp_monster(int, int, int, int);
 int drain_life(int, int, int);
@@ -667,9 +647,9 @@ void updatebargain(int, int32_t, int32_t);
 // store/store_ui.c
 void enter_store(int);
 
-// tables.c
+// data/tables.c
 
-// treasur.c
+// data/treasure.c
 
 // variable.c
 recall_type *recall_get(creature_handle h);
