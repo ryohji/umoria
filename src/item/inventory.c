@@ -14,12 +14,10 @@
 #include "equipment.h"
 #include "inventory.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c and stats.c: a
-// place to keep objects needs nothing from the rest of the game. Nothing at
-// all is declared from outside now, so this file compiles on its own.
-//
-// The state is owned here and is static: the only way in is through the
-// windows below. One array holds both, pack in 0..INVEN_WIELD-1 and worn gear
+// This module includes no externs.h: it uses nothing outside itself.
+
+// The state is owned here and is static. One array holds both: pack in
+// 0..INVEN_WIELD-1 and worn gear
 // in INVEN_WIELD..INVEN_ARRAY_SIZE-1, because the save file serialises it as
 // one run and splitting the array would change that order.
 static inven_type inventory[INVEN_ARRAY_SIZE];
