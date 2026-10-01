@@ -7,37 +7,15 @@
 
 /* distance() のテスト -- 現在の実装を保護する
  *
- * distance()（もと misc1.c:217、#54 で dungeon/geometry.c へ移った）は
- * 引数だけから戻り値が決まる純粋関数で、
- * グローバル変数・乱数・I/O に依存しない。テストの第一号としてここを選んだ。
- * 被参照 16 箇所（視界判定、射程、モンスターAI）で回帰検知の価値が高い。
- *
- * misc1.c 全体をリンクするとダンジョン生成や画面表示への依存が芋づるで
- * 付いてくるので、対象関数のみをこのファイルに取りこんでテストする。
- * misc1.c は #54 で分割された（distance() は dungeon/geometry.c）。写しを
- * 本物に替えるのは #37 で扱う。
+ * distance()（core/distance.c）は引数だけから戻り値が決まる純粋関数で、
+ * グローバル変数・乱数・I/O に依存しない。被参照 16 箇所（視界判定、射程、
+ * モンスターAI）で回帰検知の価値が高い。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、
  * この関数がいま何を返すかを固定することが目的。
  */
+#include "distance.h"
 #include "minunit.h"
-
-/* --- もと misc1.c:217（いまは dungeon/geometry.c）の実装をそのまま写したもの
- * （変更していない） --- */
-static int distance(int y1, int x1, int y2, int x2) {
-    int dy = y1 - y2;
-    if (dy < 0) {
-        dy = -dy;
-    }
-
-    int dx = x1 - x2;
-    if (dx < 0) {
-        dx = -dx;
-    }
-
-    return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
-}
-/* --- ここまで --- */
 
 /* 代表値：同一点は 0 */
 TEST(distance_between_same_point_is_zero)
