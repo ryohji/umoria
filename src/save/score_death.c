@@ -13,27 +13,9 @@
 
 #include "score_death.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c and player_pos.c: a place to keep the ending of a run
-// needs nothing from the rest of the game, and externs.h would drag ncurses in
-// for six declarations. Nothing at all is declared from outside now, so this
-// file compiles on its own again (it borrowed two extern lines from variable.c
-// while the callers were being moved over).
-//
-// The state is owned here and is static: the only way in is through the windows
-// below. The initial values came over from variable.c unchanged -- died_from and
-// birth_date had none there either, because they are written before they are
-// read (character creation fills birth_date, and dying fills died_from).
-//
-// highscore_fp is not here even though it belongs to the same group of
-// globals. It never needed to be a global for the two functions that do the
-// reading and writing: display_scores() and highscores() each fopen and fclose
-// it inside the one function, and both now use a local (death.c). What is left
-// of the global belongs to init_scorefile() (files.c), which opens the file
-// while the setuid privileges are still there -- a startup concern, not this
-// module's. Keeping the file handle out means this module does no file I/O,
-// which is what lets it go without externs.h (externs.h replaces fopen with
-// tfopen).
+// State is static: the only way in is through the accessors below. died_from
+// and birth_date have no initial values because they are written before they
+// are read (character creation fills birth_date, dying fills died_from).
 static bool death = false; // True if died
 static vtype died_from;
 static int32_t birth_date;
