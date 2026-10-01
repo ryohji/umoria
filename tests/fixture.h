@@ -78,8 +78,8 @@ void fixture_set_get_com_keys(const char *keys);
 
 /* set_large() が返す答えを前もって並べておく（'y' で大きい、ほかは
  * 大きくない）。使いきると「大きくない」に戻る。文字列は写さないので、
- * 使い終わるまで残るもの（文字列リテラル）を渡す。tests/shared_stubs.c が
- * 提供する。fixture_reset() で並びは空になる。 */
+ * 使い終わるまで残るもの（文字列リテラル）を渡す。tests/object_levels_fixture.c
+ * が提供する。fixture_reset() で並びは空になる。 */
 void fixture_set_large_answers(const char *answers);
 
 /* set_large() が呼ばれた回数と、最後に訊かれた品物。fixture_reset() で

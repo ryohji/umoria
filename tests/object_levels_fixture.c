@@ -22,8 +22,40 @@
 
 #include "fixture.h"
 #include "shared_stubs.h"
+#include "stub_unreached.h"
 #include "inventory.h"
 #include "item_ident.h"
+
+/* set_large は訊かれた品物と回数を記録し、並べた答え（'y' で大きい）を順に
+ * 返す。答えを使いきったら「大きくない」。 */
+static const char *fixture_large_answers = "";
+static const treasure_type *fixture_large_last;
+static int fixture_large_calls;
+
+bool set_large(treasure_type *t) {
+    fixture_large_last = t;
+    fixture_large_calls++;
+    if (*fixture_large_answers == '\0') {
+        return false;
+    }
+    return *fixture_large_answers++ == 'y';
+}
+
+void fixture_set_large_answers(const char *answers) {
+    fixture_large_answers = answers == NULL ? "" : answers;
+}
+
+int fixture_set_large_call_count(void) { return fixture_large_calls; }
+const treasure_type *fixture_set_large_last_item(void) { return fixture_large_last; }
+
+/* set_large を代役にするので、同じ sets.o にある店の判定（tables.c の表が
+ * 名前を持つだけで、呼ばれない）も代役にして、sets.o を引かない。 */
+bool general_store(int t) { stub_unreached(__func__); }
+bool armory(int t) { stub_unreached(__func__); }
+bool weaponsmith(int t) { stub_unreached(__func__); }
+bool temple(int t) { stub_unreached(__func__); }
+bool alchemist(int t) { stub_unreached(__func__); }
+bool magic_shop(int t) { stub_unreached(__func__); }
 
 /* 各テストの前に呼ぶ。 */
 void fixture_reset(void)
@@ -33,5 +65,8 @@ void fixture_reset(void)
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     inventory_set_count(0);
     inventory_set_weight(0);
+    fixture_large_answers = "";
+    fixture_large_last = NULL;
+    fixture_large_calls = 0;
     shared_stubs_reset();
 }

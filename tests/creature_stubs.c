@@ -114,30 +114,8 @@ void prt_cmana(void) {}
 void prt_experience(void) {}
 void prt_gold(void) {}
 
-int damroll(int num, int sides) { stub_unreached(__func__); }
 
 /* --- ダンジョン・座標 --- */
-bool panel_contains(int y, int x) { stub_unreached(__func__); }
-bool los(int a, int b, int c, int d) { stub_unreached(__func__); }
-/* distance は代役にしない。creature.c が `m_ptr->cdis` に
- * 代入しており、常に 0 を返すと「全モンスターが隣接している」状態に
- * なる。純粋関数なので もと misc1.c:210（いまは dungeon/geometry.c）の実装を写す（misc1.c 全体を
- * リンクすると依存が芋づるで付くため）。tests/distance_test.c が
- * 本物のふるまいを固定しているので、乖離すればそちらで気づける。 */
-int distance(int y1, int x1, int y2, int x2) {
-    int dy = y1 - y2;
-    if (dy < 0) {
-        dy = -dy;
-    }
-
-    int dx = x1 - x2;
-    if (dx < 0) {
-        dx = -dx;
-    }
-
-    return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
-}
-int mmove(int dir, int *y, int *x) { stub_unreached(__func__); }
 void move_rec(int y1, int x1, int y2, int x2) { (void)y1; (void)x1; (void)y2; (void)x2; }
 int twall(int y, int x, int t, int d) { stub_unreached(__func__); }
 int find_range(int a, int b, int *lo, int *hi) { stub_unreached(__func__); }
@@ -189,10 +167,6 @@ void teleport_to(int y, int x) { (void)y; (void)x; }
 void invcopy(inven_type *i, int id) { (void)i; (void)id; }
 void inven_destroy(int item) { (void)item; }
 int known2_p(inven_type *i) { stub_unreached(__func__); }
-
-/* --- ビット操作・文字列 --- */
-int bit_pos(uint32_t *test) { stub_unreached(__func__); }
-char *concat(char *buffer, ...) { return buffer; }
 
 /* --- テスト専用の初期化。本体（src/）には存在しない。
  * MU_SETUP から呼ぶことで、先行テストの影響を受けない条件を作る。
