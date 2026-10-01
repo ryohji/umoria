@@ -12,11 +12,11 @@
 
 2026-10-02、`develop` の上（`origin` は `994818a` のまま。push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1677 件・75 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1699 件・78 本**、failed=0、`RESULT: GREEN`。
 - `externs.h` の global は **42 個・参照 604**（着手時 112 個・3147）。参照は `globals.py` の数で、
   注釈と文字列の中も数えている（台帳 #70）。2026-10-01 に書いた 599 との差は確かめていない。
   `scripts/globals.py --check` は 42 個すべて分類。
-- `scripts/layer_deps.py --check` は 1139 本・141 単位で core/ の違反 0。
+- `scripts/layer_deps.py --check` は 1144 本・142 単位で core/ の違反 0。
 - 済んだ列：
   - #18（データの散在）。残る 42 個の見立ては `docs/refactoring/globals_inventory.md`
     の「区分ごとの見立て」。
@@ -27,7 +27,9 @@
     `stub_unreached()` で止まり、安く替えられる代役は本物に替えた。
 - 2026-10-02 に臭いを再検出し、台帳に #58〜#76、`bugs.md` に B25・B26 を足した。
   開いている行の場所と数も今のコードに合わせた。
-- **進行中の作業は無い。** 次の候補は第 6 節。
+- **進行中の列：P1（#58〜#61）。** #58（ヘッダ依存を `-MMD -MP` に）・#59（`distance()` を
+  `core/` へ、geometry のテスト）・#60（生の数に名前）は済んだ。残りは #61。経過は
+  `docs/refactoring/p1-2026-10.md`。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -41,6 +43,7 @@
 | `docs/refactoring/findings.md` | 所見（わかったこと）と索引。作法の根拠はここを番号で指す |
 | `docs/refactoring/globals_inventory.md` | #18 の棚おろし。着手前の姿（凍結）＋区分ごとの見立て＋付録 |
 | `docs/refactoring/worklog.md` | 作業ログ（1 作業 1 行）。済んだ列の行は `done/worklog-*.md` |
+| `docs/refactoring/p1-2026-10.md` | 進行中の列（P1 の #58〜#61）の経過と、済んで移した台帳の行 |
 | `docs/refactoring/done/` | 済んだ列の経過（字を変えずに移したもの） |
 | `scripts/globals.py` | `externs.h` の global を区分に分けて数える道具。手で数えない |
 | `scripts/link_units.py` | テストの実行形式ごとに `libcore.a` から引かれた `.o` を出す |
@@ -170,9 +173,9 @@ rm -f scores.dat /tmp/probe.sav
 - `src/` の直下に残るのは `main.c`・`dungeon.c`（主ループ）・`game_state.c`（B3。判断待ち）と
   全域ヘッダ（`config.h`・`constant.h`・`types.h`・`headers.h`・`externs.h`）。
 - **`#include "…"` はヘッダの名前だけで書く。** ディレクトリーは `-I` で探す。
-- **新しい `.c` は `sources.mk` の `SRCS` に `player/foo.c` の形で 1 語足し**、`makefile` に
-  依存行（`foo.o: foo.h $(HEADERS_FULL)`。ヘッダは名前だけ）を書く。`makefile.win` も
-  `sources.mk` を読むので足す場所は無い。新しいディレクトリーなら `SRC_SUBDIRS` にも 1 語。
+- **新しい `.c` は `sources.mk` の `SRCS` に `player/foo.c` の形で 1 語足す**だけ。ヘッダの
+  依存は 3 つの makefile とも `-MMD -MP` で作る（`.d`。#58）ので、依存行は書かない。
+  新しいディレクトリーなら `SRC_SUBDIRS` にも 1 語。
 - **新しいテストは `makefile.test` の `TESTS` に `<name>_test` を足す。** `src/` の `.c` は
   書かない（`libcore.a` からリンカが要るものだけを引く）。足場を一緒にリンクするなら
   「足場の表」に 1 行。`RUN_TEST` での登録も忘れない（忘れると未使用の警告になる）。
@@ -189,8 +192,8 @@ rm -f scores.dat /tmp/probe.sav
 ## 6. その先の候補
 
 着手する前にユーザーと決める。2026-10-02 の推奨は台帳の **P1 を #58 → #59 → #60 → #61**
-の順。#58 はビルドの正しさを直し、#59 はテストが守る範囲を広げ、#60・#61 はふるまいを変えない。
-どれも小さい。そのあと P2（#62〜#70）。P3 の重い項目（#71〜#76）は #59 で保護が広がってからにする。
+の順で、#58〜#60 は済んだ。次は #61（注釈だけ。`save.c` の日本語の注釈 156 行を含む）。
+#61 で P1 の列が閉じるので、閉じたら第 9 節の時機に当たるかを見る。そのあと P2（#62〜#70）。P3 の重い項目（#71〜#76）は #59 で保護が広がってからにする。
 
 - **残る global 42 個。** 区分ごとの見立ては `globals_inventory.md`。定数表 20 個は
   「`const` 化のみ」と決めてある。
@@ -223,8 +226,8 @@ rm -f scores.dat /tmp/probe.sav
 - **窓口を足すと、その窓口を呼ぶ `.c` を引いている実行形式が全部影響を受ける。**
   数えるのは `python3 scripts/link_units.py --who <名前>.o` と、
   `grep -rln '#include "<名前>.c"' tests/` の両方。
-- **`src/` の `.c` を丸ごと `#include` するテストが 4 本ある**（`save_bool_test`・
-  `store_save_test` は `save.c`、`haggle_comment_test` は `store_haggle.c`、
+- **`src/` の `.c` を丸ごと `#include` するテストが 5 本ある**（`save_bool_test`・
+  `store_save_test`・`savefile_version_test` は `save.c`、`haggle_comment_test` は `store_haggle.c`、
   `movement_rate_test` は `creature.c`）。その `.c` の名前はテスト自身が定義するので、
   `link_units.py --who` には出ない。代役側の同名定義とも衝突する。
 - **`static` な実体と、代役側の非 `static` な同名定義は multiple definition に
