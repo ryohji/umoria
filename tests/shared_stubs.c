@@ -28,9 +28,6 @@
 #include "shared_stubs.h"
 #include "stub_unreached.h"
 
-bool display_counts;
-bool free_turn_flag;
-
 /* msg_print は渡された文字列を記録する。表示しか結果を残さない
  * 関数を観測するため。 */
 #define FIXTURE_MSG_MAX 16

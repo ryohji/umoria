@@ -138,14 +138,6 @@ uint8_t monster_attack_get_desc(attack_handle h) { stub_unreached(__func__); }
 uint8_t monster_attack_get_dice(attack_handle h) { stub_unreached(__func__); }
 uint8_t monster_attack_get_sides(attack_handle h) { stub_unreached(__func__); }
 
-/* --- モンスター記録（recall） --- */
-recall_type *recall_get(creature_handle h) { stub_unreached(__func__); }
-void recall_update_characteristics(creature_handle h, int defence) { (void)h; (void)defence; }
-void recall_update_move(creature_handle h, int move) { (void)h; (void)move; }
-void recall_update_spell(creature_handle h, uint32_t type) { (void)h; (void)type; }
-void recall_increment_spell_chance(creature_handle h) { (void)h; }
-void recall_increment_death(creature_handle h) { (void)h; }
-
 /* --- プレイヤーへの被害・状態 --- */
 void take_hit(int dam, const char *from) { (void)dam; (void)from; }
 void acid_dam(int dam, const char *from) { (void)dam; (void)from; }
