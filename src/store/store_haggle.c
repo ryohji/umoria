@@ -288,7 +288,7 @@ static bool get_haggle(const char *comment, int32_t *new_offer, int num_offer) {
 }
 
 static int receive_offer(int store_num, const char *comment, int32_t *new_offer, int32_t last_offer, int num_offer, int factor) {
-    int receive = 0;
+    int receive = HAGGLE_AGREED;
 
     bool flag = false;
     do {
@@ -296,7 +296,7 @@ static int receive_offer(int store_num, const char *comment, int32_t *new_offer,
             if (*new_offer * factor >= last_offer * factor) {
                 flag = true;
             } else if (haggle_insults(store_num)) {
-                receive = 2;
+                receive = HAGGLE_INSULTED;
                 flag = true;
             } else {
                 // new_offer rejected, reset new_offer so that incremental
@@ -304,7 +304,7 @@ static int receive_offer(int store_num, const char *comment, int32_t *new_offer,
                 *new_offer = last_offer;
             }
         } else {
-            receive = 1;
+            receive = HAGGLE_CANCELLED;
             flag = true;
         }
     } while (!flag);
@@ -318,7 +318,7 @@ int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
     bool didnt_haggle = false;
 
     *price = 0;
-    int purchase = 0;
+    int purchase = HAGGLE_AGREED;
     int final_flag = 0;
 
     store_type *s_ptr = store_at(store_num);
@@ -379,7 +379,7 @@ int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
             put_buffer(out_val, 1, 0);
 
             purchase = receive_offer(store_num, "What do you offer? ", &new_offer, last_offer, num_offer, 1);
-            if (purchase != 0) {
+            if (purchase != HAGGLE_AGREED) {
                 flag = true;
             } else {
                 if (new_offer > cur_ask) {
@@ -407,7 +407,7 @@ int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
             if (x1 < min_per) {
                 flag = haggle_insults(store_num);
                 if (flag) {
-                    purchase = 2;
+                    purchase = HAGGLE_INSULTED;
                 }
             } else if (x1 > max_per) {
                 x1 = x1 * 75 / 100;
@@ -431,11 +431,11 @@ int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
                 // a new_offer equal to the final_ask price.
                 last_store_inc = final_ask - new_offer;
                 final_flag++;
-                if (final_flag > 3) {
+                if (final_flag > HAGGLE_FINAL_OFFER_LIMIT) {
                     if (increase_insults(store_num)) {
-                        purchase = 2;
+                        purchase = HAGGLE_INSULTED;
                     } else {
-                        purchase = 1;
+                        purchase = HAGGLE_CANCELLED;
                     }
                     flag = true;
                 }
@@ -461,7 +461,7 @@ int purchase_haggle(int store_num, int32_t *price, inven_type *item) {
     } while (!flag);
 
     // update bargaining info
-    if ((purchase == 0) && (!didnt_haggle)) {
+    if ((purchase == HAGGLE_AGREED) && (!didnt_haggle)) {
         updatebargain(store_num, *price, final_ask);
     }
 
@@ -481,14 +481,14 @@ int sell_haggle(int store_num, int32_t *price, inven_type *item) {
     bool didnt_haggle = false;
 
     *price = 0;
-    int sell = 0;
+    int sell = HAGGLE_AGREED;
     int final_flag = 0;
 
     store_type *s_ptr = store_at(store_num);
 
     int32_t cost = item_value(item);
     if (cost < 1) {
-        sell = 3;
+        sell = HAGGLE_WORTHLESS;
         flag = true;
     } else {
         owner_type *o_ptr = &owners[s_ptr->owner];
@@ -577,7 +577,7 @@ int sell_haggle(int store_num, int32_t *price, inven_type *item) {
                 (void)sprintf(out_val, "%s :  %d", comment, cur_ask);
                 put_buffer(out_val, 1, 0);
                 sell = receive_offer(store_num, "What price do you ask? ", &new_offer, last_offer, num_offer, -1);
-                if (sell != 0) {
+                if (sell != HAGGLE_AGREED) {
                     flag = true;
                 } else {
                     if (new_offer < cur_ask) {
@@ -607,7 +607,7 @@ int sell_haggle(int store_num, int32_t *price, inven_type *item) {
                 if (x1 < min_per) {
                     flag = haggle_insults(store_num);
                     if (flag) {
-                        sell = 2;
+                        sell = HAGGLE_INSULTED;
                     }
                 } else if (x1 > max_per) {
                     x1 = x1 * 75 / 100;
@@ -632,11 +632,11 @@ int sell_haggle(int store_num, int32_t *price, inven_type *item) {
                     // a new_offer equal to the final_ask price.
                     last_store_inc = final_ask - new_offer;
                     final_flag++;
-                    if (final_flag > 3) {
+                    if (final_flag > HAGGLE_FINAL_OFFER_LIMIT) {
                         if (increase_insults(store_num)) {
-                            sell = 2;
+                            sell = HAGGLE_INSULTED;
                         } else {
-                            sell = 1;
+                            sell = HAGGLE_CANCELLED;
                         }
                         flag = true;
                     }
@@ -666,7 +666,7 @@ int sell_haggle(int store_num, int32_t *price, inven_type *item) {
     }
 
     // update bargaining info
-    if ((sell == 0) && (!didnt_haggle)) {
+    if ((sell == HAGGLE_AGREED) && (!didnt_haggle)) {
         updatebargain(store_num, *price, final_ask);
     }
 
