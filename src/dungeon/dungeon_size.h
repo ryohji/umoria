@@ -22,9 +22,6 @@
 // apart meant a writer could set one and forget the other, and no reader could
 // tell. So there is one setter that takes both, and no way to change half of
 // the size.
-//
-// This was `int16_t cur_height, cur_width;` in variable.c -- one line, and the
-// only line in variable.c that said anything about the shape of a level.
 
 // The size of the level being played. Before the first level is made both are
 // 0: the game always calls generate_cave() (or restores a save file) before

@@ -13,11 +13,8 @@
 
 #include "monster_breeding.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c, screen_touched.c and monster_turn.c: one
-// number needs nothing from the rest of the game. MAX_MON_MULT comes from
-// constant.h.
+// No externs.h here: one number needs nothing from the rest of the game.
+// MAX_MON_MULT comes from constant.h.
 
 // The number is owned here and is static: the only way in is through the six
 // windows. It starts out as zero, so a new game begins with nothing bred, which

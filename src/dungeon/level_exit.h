@@ -23,11 +23,8 @@
 // takes a snapshot.
 bool level_is_over(void);
 
-// This level is finished, and the next one is `level`.
-//
-// This is the pair that always moved together: six of the eight old assignments
-// to new_level_flag put a new depth in the same breath, and a
-// half-done pair is two different accidents -- a new depth the loop never goes
+// This level is finished, and the next one is `level`. A half-done pair is two
+// different accidents -- a new depth the loop never goes
 // to, or the same level generated again under a depth that has already changed.
 //
 // The limits stay with the callers, because they belong to those commands and

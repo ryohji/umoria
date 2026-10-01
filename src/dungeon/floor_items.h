@@ -32,12 +32,6 @@
 // `t_list[c_ptr->tptr].tval == TV_RUBBLE`. That read lands on row 0 and gets
 // TV_NOTHING, which is the answer it needs. So blanking row 0 at the start of a
 // level is load-bearing, not tidiness.
-//
-// This was `inven_type t_list[MAX_TALLOC];` and `int16_t tcptr;` in treasure.c
-// -- the things on this level, and the mark of how far the table is filled,
-// sitting beside object_list, the 420-row table of what a KIND of thing is.
-// Two tables with nothing to do with each other. Two names for one arrangement,
-// so one module.
 
 // A new level: nothing is lying on it. Blanks every row -- row 0 included, see
 // above -- and puts the mark back at the start. The one caller is

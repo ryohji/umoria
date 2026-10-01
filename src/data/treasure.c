@@ -549,24 +549,3 @@ const char *special_names[SN_ARRAY_SIZE] = {
     "(Summoning Runes)", "(Multiple Traps)", "(Disarmed)",
     "(Unlocked)",        "of Slay Animal"
 };
-
-// t_list (things on the floor of this level) is not here. It now lives in
-// src/dungeon/floor_items.c as static storage. The windows are in
-// src/dungeon/floor_items.h (floor_items_reset / floor_item_at /
-// floor_items_used / set_floor_items_used / floor_items_is_full /
-// floor_items_claim_slot / floor_items_drop_last). This is a separate table
-// from the definition table above: that says what each kind of item is (420
-// rows); this says what lies where on this level now. And it is not a treasure
-// table: doors, stairs, rubble, traps, and store entrances are rows too --
-// anything on a square that is not a monster.
-
-// What the player carries and wears used to live here as well
-// (inventory[], inven_ctr, inven_weight, equip_ctr). It now lives in
-// inventory.c, which owns it privately and hands it out through the pack
-// and equipment windows.
-
-// tcptr (the high-water mark of the floor-items list) is not here either. It
-// moved to src/dungeon/floor_items.c along with t_list. The mark points one
-// past the last filled row; row 0 (nothing) is never allocated, so it starts
-// at MIN_TRIX (1). Only one row is reserved: unlike the monster table, there
-// is no player row (the player is not on the floor).

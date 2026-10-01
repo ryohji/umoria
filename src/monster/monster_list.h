@@ -27,12 +27,6 @@
 // also rewrites the moved monster's square in the cave). Any code holding a row
 // index or a row pointer across a removal is therefore holding something that
 // may now mean a different monster.
-//
-// This was `monster_type m_list[MAX_MALLOC];` and `int16_t mfptr;` in monsters.c
-// -- the table of monsters standing on the level, and the mark of how far it is
-// filled, sitting next to the table of monster DEFINITIONS, which is a different
-// thing entirely (the definitions are the 279 kinds; this is the crowd on one
-// level). Two names for one arrangement, so one module.
 
 // A new level: nobody is on it. Blanks every row and puts the mark back at the
 // start. The one caller is generate_cave() in generate.c, which runs for the

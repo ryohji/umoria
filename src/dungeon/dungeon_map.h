@@ -9,9 +9,7 @@
 #ifndef DUNGEON_MAP_H
 #define DUNGEON_MAP_H
 
-// THE LAST OF THE ELEVEN, and the one the other ten pointed at. This was
-// `cave_type cave[MAX_HEIGHT][MAX_WIDTH];` in variable.c: 258 references in
-// fifteen files, more than any other global left in externs.h. It is last
+// It is last
 // because two of the seven fields in a square are indices into tables that had
 // to be closed first -- cave[y][x].cptr says which monster stands there and
 // cave[y][x].tptr says which thing lies there.

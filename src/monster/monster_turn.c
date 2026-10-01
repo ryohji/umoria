@@ -12,10 +12,7 @@
 
 #include "monster_turn.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c and screen_touched.c: one number needs
-// nothing from the rest of the game.
+// No externs.h here: one number needs nothing from the rest of the game.
 
 // The number is owned here and is static: the only way in is through the four
 // windows. It starts at -1, so a new game starts at "nobody's turn", and so

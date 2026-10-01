@@ -762,36 +762,5 @@ const char *monster_name_indefinite(vtype m_name, const creature_type *r_ptr) {
     return strcat(strcpy(m_name, article), r_ptr->name); // "The %s" | "an %s" | "a %s", r_ptr->name
 }
 
-// m_list (the monsters on this level) is not here. It now lives in
-// src/monster/monster_list.c as static storage. The windows are in
-// src/monster/monster_list.h (monster_list_reset / monster_list_at /
-// monster_list_used / set_monster_list_used / monster_list_is_full /
-// monster_list_free_slots / monster_list_claim_slot / monster_list_drop_last).
-// This is a separate table from the definition table below: that says what
-// each kind of monster is; this says which monsters stand on this level now.
-
-// m_level (the index of monster definitions by dungeon level) is not here. It
-// now lives in src/monster/monster_levels.c as static storage. The windows
-// are in src/monster/monster_levels.h (monster_levels_init /
-// monsters_up_to_level / monsters_at_level / first_monster_at_level). The
-// index assumes the definition table above is sorted in ascending level order;
-// tests/monster_levels_test.c verifies this across all levels.
-
 // Blank monster values
 monster_type blank_monster = {0, 0, 0, {0}, 0, 0, 0, false, 0, false};
-
-// mfptr (the high-water mark of the monster list) is not here either. It moved
-// to src/monster/monster_list.c along with m_list. The mark points one past
-// the last filled row; rows 0 (no monster) and 1 (the player) are never
-// allocated, so it starts at MIN_MONIX (2).
-
-// mon_tot_mult (the breeding counter for this level) is not here. It now lives
-// in src/monster/monster_breeding.c as static storage. The windows are in
-// src/monster/monster_breeding.h (monster_breeding_reset /
-// monster_breeding_allowed / monster_breeding_note_birth /
-// monster_breeding_note_death plus two save-file windows). This is a per-level
-// count unrelated to the definition table above. What it counts is explained
-// in the header: births are allowed MAX_MON_MULT + 1 times (the comparison is
-// `>=`, so 76 not 75), and this is a budget, not a census or a count of
-// children (it decrements only in fix1_delete_monster(), without asking
-// whether the monster was born).

@@ -13,15 +13,12 @@
 
 #include "progress.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c and
-// inventory.c: a place to keep the turn counter needs nothing from the rest of
-// the game, and externs.h would drag ncurses in for five declarations. Nothing
-// at all is declared from outside now, so this file compiles on its own.
+// No externs.h here: a place to keep the turn counter needs nothing from the
+// rest of the game.
 //
 // The state is owned here and is static: the only way in is through the windows
-// below. The initial values came over from variable.c unchanged -- turn starts
-// at -1 because a negative turn means no character is in play (see progress.h),
-// and the other four start off. stats.c took the same route for `py`.
+// below. Turn starts at -1 because a negative turn means no character is in
+// play (see progress.h), and the other four start off.
 static int32_t turn = -1;         // Cur turn of game
 static uint32_t randes_seed;      // for restarting randes_state
 static uint32_t town_seed;        // for restarting town_seed

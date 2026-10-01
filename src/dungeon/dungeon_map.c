@@ -15,9 +15,7 @@
 
 #include "dungeon_map.h"
 
-// THE STORAGE. It was `cave_type cave[MAX_HEIGHT][MAX_WIDTH];` in variable.c,
-// reached by name from fifteen files; now nothing outside this file can spell
-// it. It stayed in variable.c through steps A and B because moving every caller
+// THE STORAGE. Nothing outside this file can spell it. Moving every caller
 // took four commits, and while that was going on two containers would have
 // meant half the game walking around one map and half around another.
 //

@@ -13,11 +13,7 @@
 #include "dungeon_level.h"
 #include "level_exit.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c, inven_command_state.c and screen_touched.c:
-// one bit needs nothing from the rest of the game. The depth has a window of
-// its own now (dungeon_level.h), so there is nothing left to declare here.
+// No externs.h here: one bit needs nothing from the rest of the game.
 
 // The flag is owned here and is static: the only way in is through the four
 // windows below. It starts out false, so a new game begins with the level it is
