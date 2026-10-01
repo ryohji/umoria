@@ -85,25 +85,25 @@ extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 
 #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
 
-// create.c
+// player/create.c
 void create_character(void);
 
 // combat/monster_melee.c
 void make_attack(int);
 
-// creature.c
+// monster/creature.c
 void update_mon(int);
 bool multiply_monster(int, int, creature_handle, int);
 void creatures(int);
 
-// death.c
+// save/death.c
 void display_scores(int);
 bool duplicate_character(void);
 int32_t total_points(void);
 // Does not return (calls exit). Declared _Noreturn so the compiler knows.
 _Noreturn void exit_game(void);
 
-// desc.c
+// item/desc.c
 bool is_a_vowel(char);
 void magic_init(void);
 void known1(inven_type *);
@@ -125,23 +125,23 @@ void desc_remain(int);
 // dungeon.c
 void dungeon(void);
 
-// eat.c
+// item/eat.c
 void eat(void);
 
-// files.c
+// ui/files.c
 void init_scorefile(void);
 void read_times(void);
 void helpfile(const char *);
 void print_objects(void);
 bool file_character(char *);
 
-// generate.c
+// dungeon/generate.c
 void generate_cave(void);
 
-// help.c
+// ui/help.c
 void ident_char(void);
 
-// io.c
+// ui/io.c
 void put_buffer(const char *, int, int);
 void put_qio(void);
 void shell_out(void);
@@ -177,10 +177,9 @@ FILE *tfopen(const char *, const char *);
 int topen(char *, int, int);
 #endif
 
-// magic.c
+// item/magic.c
 void cast(void);
 
-// main.c
 // core/dice.c
 int damroll(int, int);
 int pdamroll(const uint8_t *);
@@ -328,7 +327,7 @@ void check_view(void);
 // expands to it
 char *concat(char *buffer, ...);
 
-// monsters.c
+// data/monsters.c
 bool monster_attack_is_null(attack_handle h);
 uint8_t monster_attack_get_type(attack_handle h);
 uint8_t monster_attack_get_desc(attack_handle h);
@@ -430,17 +429,17 @@ void bash(void);
 // combat/monster_damage.c
 int mon_take_hit(int, int);
 
-// potions.c
+// item/potions.c
 void quaff(void);
 
-// prayer.c
+// item/prayer.c
 void pray(void);
 
-// recall.c
+// ui/recall.c
 bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
-// rnd.c
+// core/rnd.c
 void set_rnd_seed(uint32_t);
 int32_t rnd(void);
 void set_seed(uint32_t);
@@ -449,7 +448,7 @@ int randint(int);
 int randnor(int, int);
 bool magik(int);
 
-// save.c
+// save/save.c
 bool save_char(void);
 bool _save_char(char *);
 bool get_char(bool *);
@@ -457,10 +456,10 @@ void set_fileptr(FILE *);
 void wr_highscore(high_scores *);
 void rd_highscore(high_scores *);
 
-// scrolls.c
+// item/scrolls.c
 void read_scroll(void);
 
-// sets.c
+// data/sets.c
 bool set_room(int);
 bool set_corr(int);
 bool set_floor(int);
@@ -480,7 +479,7 @@ bool temple(int);
 bool alchemist(int);
 bool magic_shop(int);
 
-// signals.c
+// platform/signals.c
 void nosignals(void);
 void signals(void);
 void init_signals(void);
@@ -491,7 +490,7 @@ void fire_bolt(int, int, int, int, int, const char *);
 void fire_ball(int, int, int, int, int, const char *);
 void breath(int, int, int, int, char *, int);
 
-// spells.c
+// item/spells.c
 int sleep_monsters1(int, int);
 int detect_treasure(void);
 int detect_object(void);
@@ -556,7 +555,7 @@ bool enchant(int16_t *, int16_t);
 int remove_curse(void);
 int restore_level(void);
 
-// staffs.c
+// item/staffs.c
 void use(void);
 
 // store/store_stock.c
@@ -574,11 +573,7 @@ void updatebargain(int, int32_t, int32_t);
 // store/store_ui.c
 void enter_store(int);
 
-// data/tables.c
-
-// data/treasure.c
-
-// variable.c
+// data/variable.c
 recall_type *recall_get(creature_handle h);
 void recall_update_characteristics(creature_handle h, int defence);
 void recall_update_move(creature_handle h, int move);
@@ -588,7 +583,7 @@ void recall_increment_spell_chance(creature_handle h);
 void recall_increment_kill(creature_handle h);
 void recall_increment_death(creature_handle h);
 
-// wands.c
+// item/wands.c
 void aim(void);
 
 // ui/wizard.c
