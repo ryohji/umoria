@@ -14,19 +14,9 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "monster_levels.h"
-
-// This file needs one thing from outside: a walk over the monster definitions.
-// The table itself is a static of monsters.c and has been since #17, so there is
-// no array to declare here -- only the five calls of the walk. They are declared
-// here rather than by including externs.h, which drags in ncurses for the sake
-// of one loop (the same choice object_levels.c and stats.c made).
-creature_rev_iterator monster_creature_rbegin(void);
-creature_rev_iterator monster_creature_rend(void);
-bool monster_creature_rsame(creature_rev_iterator a, creature_rev_iterator b);
-creature_rev_iterator monster_creature_rnext(creature_rev_iterator it);
-creature_type *monster_creature_rget(creature_rev_iterator it);
 
 // m_level[L] counts the monsters at level L or shallower, so level L's band runs
 // from m_level[L - 1] to m_level[L] - 1. The name came over from monsters.c

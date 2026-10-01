@@ -10,6 +10,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "monster_list.h"
 
@@ -38,11 +39,6 @@ static int16_t the_mark;
 // left where it is and noted for that group: a "blank monster" is the monster
 // table's notion of an empty row, so its home is here, and moving it would make
 // this module need no externs at all.
-//
-// Declared by hand rather than by including externs.h, which would drag in
-// ncurses for the sake of one name (the same choice monster_levels.c and
-// object_levels.c made).
-extern monster_type blank_monster;
 
 // Link all free space in monster list together
 void monster_list_reset(void) {

@@ -9,13 +9,13 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "player_level.h"
 
-// No externs.h here, the same as player_hp.c and the rest. This module knows
-// nothing about what a level is worth, about messages, about the hit points, the
-// spells or the mana, and it draws nothing. It works out what the experience has
-// paid for; the caller decides what that buys.
+// This module knows nothing about what a level is worth, about messages, about
+// the hit points, the spells or the mana, and it draws nothing. It works out what
+// the experience has paid for; the caller decides what that buys.
 //
 // The five numbers are owned here and are static (#18-12-6C): they came out of
 // py.misc, which is one field shorter for each of them, and the only way in is
@@ -36,9 +36,7 @@ static uint8_t player_experience_percentage;
 // docs/refactoring/globals_inventory.md). Bringing it in here would take the
 // ledger from fifty-three to fifty-two, but it would also need a setter that no
 // caller in the game would ever use, because unlike the hit-point table in
-// hp_table.c nothing ever writes this one. So this declaration is the one line
-// that reaches out, the same arrangement stats.c and level_exit.c have.
-extern uint32_t player_exp[MAX_PLAYER_LEVEL];
+// hp_table.c nothing ever writes this one.
 
 // The remainder is kept in 65536ths, so this is a whole point of experience.
 #define EXPERIENCE_FRACTION_FULL 0x10000L
