@@ -55,11 +55,8 @@
 
 extern player_type py;
 
-/* 検証対象（src/item/inven_ops.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-void check_strength(void);
-bool inven_check_weight(inven_type *i_ptr);
-int weight_limit(void);
+/* 検証対象（src/item/inven_ops.c）の宣言は externs.h から受ける。 */
+#include "externs.h"
 
 #define MU_SETUP() fixture_reset()
 

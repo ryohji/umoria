@@ -40,14 +40,9 @@
 #include "fixture.h"
 #include "inventory.h"
 
-/* 検証対象（src/item/inven_ops.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-bool inven_check_num(inven_type *t_ptr);
-int inven_carry(inven_type *i_ptr);
-
-/* 判定に使う本物（src/item/desc.c） */
-int known1_p(inven_type *i_ptr);
-void known1(inven_type *i_ptr);
+/* 検証対象（src/item/inven_ops.c）と、判定に使う本物（src/item/desc.c）の
+ * 宣言は externs.h から受ける。 */
+#include "externs.h"
 
 /* 各テストの前に必ず呼ばれる。グローバル状態が毎回まっさらに戻る。 */
 #define MU_SETUP() fixture_reset()

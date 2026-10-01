@@ -38,9 +38,8 @@
 
 extern player_type py;
 
-/* 検証対象（src/player/level_ops.c）。externs.h は ncurses まで引きこむので、
- * 必要な宣言だけをここに書く。 */
-void calc_hitpoints(void);
+/* 検証対象（src/player/level_ops.c）の宣言は externs.h から受ける。 */
+#include "externs.h"
 
 #define MU_SETUP() fixture_reset()
 

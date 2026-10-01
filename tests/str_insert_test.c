@@ -37,10 +37,8 @@
 
 #include "fixture.h"
 
-/* 検証対象。#41 の移動が済むまで実体は misc3.c にあり、宣言は externs.h に
- * ある。externs.h は ncurses まで引きこむので、必要な 2 つだけをここに書く。 */
-void insert_str(char *object_str, const char *mtc_str, const char *insert);
-void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show_sign);
+/* 検証対象（src/core/str_insert.c）。宣言は module のヘッダから受ける。 */
+#include "str_insert.h"
 
 #include "minunit.h"
 
