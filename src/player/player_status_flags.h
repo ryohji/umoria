@@ -10,7 +10,7 @@
 #ifndef PLAYER_STATUS_FLAGS_H
 #define PLAYER_STATUS_FLAGS_H
 
-// THE QUESTION. A word of thirty-one bits: which of these thirty things is true.
+// THE QUESTION. A word of thirty-one bits: which of these thirty-one things is true.
 // The bits are declared in constant.h as PY_HUNGRY through PY_MANA, and NONE OF
 // THEM APPEARS IN A CALLER: the mask
 // arithmetic lives here, the way spells_known.c hides `1L << spell`.
