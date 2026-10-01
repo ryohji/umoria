@@ -179,6 +179,7 @@
 #define PLAYER_REGEN_HPBASE    1442   // Min amount hp regen*2^16
 #define PLAYER_REGEN_MNBASE     524   // Min amount mana regen*2^16
 #define PLAYER_WEIGHT_CAP       130   // "#"*(1/10 pounds) per strength point
+#define WEAPON_WEIGHT_PER_STR    15   // Weapon effective weight limit per strength point
 #define PLAYER_EXIT_PAUSE         2   // Pause time before player can re-roll
 
 // class level adjustment constants

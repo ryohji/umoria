@@ -173,7 +173,7 @@ void check_strength(void) {
     inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
     if (i_ptr->tval != TV_NOTHING &&
-        (py.stats.use_stat[A_STR] * 15 < i_ptr->weight)) {
+        (py.stats.use_stat[A_STR] * WEAPON_WEIGHT_PER_STR < i_ptr->weight)) {
         if (!weapon_is_too_heavy()) {
             msg_print("You have trouble wielding such a heavy weapon.");
             set_weapon_too_heavy(true);
