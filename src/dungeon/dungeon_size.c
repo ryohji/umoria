@@ -11,9 +11,7 @@
 
 #include "dungeon_size.h"
 
-// THE STORAGE. It was `int16_t cur_height, cur_width;` in variable.c -- one
-// line, and the only line there that said anything about the shape of a level.
-//
+// THE STORAGE.
 // Two shorts, kept as shorts because that is what the save file holds and what
 // every caller's arithmetic was written against. The windows hand out plain
 // ints: every reader widens them anyway, and nothing here is close to a short's

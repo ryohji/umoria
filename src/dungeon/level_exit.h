@@ -23,11 +23,8 @@
 // takes a snapshot.
 bool level_is_over(void);
 
-// This level is finished, and the next one is `level`.
-//
-// This is the pair that always moved together: six of the eight old assignments
-// to new_level_flag put a new depth in the same breath, and a
-// half-done pair is two different accidents -- a new depth the loop never goes
+// This level is finished, and the next one is `level`. A half-done pair is two
+// different accidents -- a new depth the loop never goes
 // to, or the same level generated again under a depth that has already changed.
 //
 // The limits stay with the callers, because they belong to those commands and
@@ -35,8 +32,8 @@ bool level_is_over(void);
 // prompt says, and the deep-descent scroll stops at 1 because it may not push
 // the player above the town. Level 0 is the town, and it is a level like any
 // other here -- word-of-recall uses it.
-// The depth itself lives in src/dungeon/dungeon_level.c (#18-14-6); this window writes
-// it through set_dungeon_level().
+// The depth itself lives in src/dungeon/dungeon_level.c; this window writes it
+// through set_dungeon_level().
 void leave_for_level(int level);
 
 // This level is finished and no other one is named, so the depth is left as it

@@ -110,9 +110,7 @@ int inven_damage(bool (*typ)(inven_type *), int perc) {
 
 // Computes current weight limit -RAK-
 int weight_limit(void) {
-    // The body weight comes through its window (#18-12-23B). STRENGTH IS WHAT THIS FORMULA
-    // IS ABOUT; the body weight is only a boost on top -- so the limit stayed outside that
-    // module (use_stat[] has no window yet, so any folding comes after `struct player_stat`).
+    // Weight limit formula: strength times cap, plus body weight bonus.
     int weight_cap = py.stats.use_stat[A_STR] * PLAYER_WEIGHT_CAP + player_body_weight();
 
     if (weight_cap > 3000) {

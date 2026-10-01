@@ -20,8 +20,7 @@
 // THE FOURTH QUESTION OUT OF struct misc, after how deep the character has been,
 // how many faces the hit die has, and the armour class.
 //
-// TWO NUMBERS, AND THIS TIME BOTH OF THEM ARE ANSWERS. It was py.misc.bth ("Base
-// to hit") and py.misc.bthb ("BTH with bows") until #18-12-19C:
+// TWO NUMBERS, AND THIS TIME BOTH OF THEM ARE ANSWERS:
 //
 //   - THE MELEE NUMBER is used when the character swings what is wielded.
 //   - THE BOWS NUMBER is used when something is fired or thrown, and it is the
@@ -88,15 +87,14 @@ void player_base_to_hit_set_with_bows(int with_bows);
 void player_base_to_hit_adjust(int melee, int with_bows);
 
 // This many more to BOTH numbers, or fewer if it is negative. SIX CALLERS, all of
-// them spells, and each of them used to be two lines:
+// them spells:
 //
 //   - heroism, 12 the turn it begins and -12 the turn it runs out;
 //   - super heroism, 24 and -24;
 //   - a blessing, 5 and -5.
 //
-// TWELVE LINES FOLD INTO SIX CALLS, which is the biggest fold this module makes.
-// The reason it is safe is the reason this is one module: no spell in the game has
-// ever moved one of the two numbers by a different amount than the other.
+// The reason this is one window: no spell in the game has ever moved one of the
+// two numbers by a different amount than the other.
 //
 // THE DOUBLE BOOKKEEPING IS THE CALLER'S, the same shape as the armour class and
 // the infravision before it: whether a spell is in force, and whether this is the

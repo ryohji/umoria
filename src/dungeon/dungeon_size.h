@@ -20,12 +20,8 @@
 // (generate.c twice, save.c's restore once), and the readers almost always use
 // the pair: of 48 reads, 40 are a height and a width together. Keeping the two
 // apart meant a writer could set one and forget the other, and no reader could
-// tell -- the hazard #18-12-18 found in pac/ptoac. So there is one setter that
-// takes both, and no way to change half of the size.
-//
-// This was `int16_t cur_height, cur_width;` in variable.c -- one line, and the
-// only line in variable.c that said anything about the shape of a level.
-// #18-14-5.
+// tell. So there is one setter that takes both, and no way to change half of
+// the size.
 
 // The size of the level being played. Before the first level is made both are
 // 0: the game always calls generate_cave() (or restores a save file) before
@@ -60,7 +56,7 @@ void set_dungeon_size(int height, int width);
 //    twice, object_place.c twice, wizard.c once). They cannot be folded into one
 //    iterator: every body uses i and j themselves, and two of them keep a
 //    pointer they step along by hand. Only the two bounds come through a
-//    window (#18-14-4 found the same thing about the monster list).
+//    window.
 //
 //  - picking a random square -- in TWO DIFFERENT FORMS, which is worth
 //    knowing: `randint(height - 2)` gives 1..height-2 (monster_place.c twice,

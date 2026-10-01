@@ -12,17 +12,9 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "stats.h"
-
-// No externs.h here, the same as panel.c, stores.c and options.c: a table
-// lookup needs nothing from the rest of the game. That leaves one symbol to
-// declare, so it is declared here rather than dragging in the global header
-// (which pulls ncurses along with it) for a single line. The declaration
-// therefore appears twice, here and in externs.h; the definition is still the
-// one in player.c, so the two can not drift into different objects. Whoever
-// makes the player a parameter instead of a global deletes this line.
-extern player_type py;
 
 // A step in a stat-to-bonus table: `bonus` applies from `min_stat` upward,
 // until the next entry's `min_stat`. Entries must be in ascending order of

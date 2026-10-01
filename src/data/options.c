@@ -16,8 +16,8 @@
 #include "options.h"
 
 // The prompts are the ones the options screen has always shown, the bits are
-// the ones save files have always used, and the last column holds the values
-// the globals used to be initialized with in variable.c.
+// the ones save files have always used, and the last column holds the initial
+// values.
 const struct game_option game_options[] = {
     {"Running: cut known corners", &find_cut, 0x1, true},
     {"Running: examine potential corners", &find_examine, 0x2, true},

@@ -20,14 +20,9 @@ typedef char vtype[VTYPESIZ];
 // always be called with a bigvtype as the first paramter
 typedef char bigvtype[BIGVTYPESIZ];
 
-// 文字列を「Your %s glows faintly!」のような文に埋めこんだ結果を入れる。
-// 埋めこみ先を埋めこむ文字列と同じ大きさ（bigvtype や vtype）にすると、
-// 中身が長いときに配列の外へ書く。-Wformat-overflow が指していたのはこれ。
-// 前後に付く語の分だけ余分にとってあるので、切り詰めも溢れも起こらない。
-//
-// 埋めこむ文字列でもっとも長いのは objdes() が返すアイテム説明（bigvtype）
-// なので、それに 1 行分（vtype 1 つ分 = 画面 1 行）を足した大きさにする。
-// この種の文で前後に付く語はどれも 1 行に収まる。
+// For formatted messages like "Your %s glows faintly!" Needs extra space beyond
+// the embedded string (bigvtype) to hold prefix and suffix text. Sized to hold
+// bigvtype + vtype to prevent overflow.
 #define MSGTYPESIZ (BIGVTYPESIZ + VTYPESIZ)
 typedef char msgtype[MSGTYPESIZ];
 
@@ -80,18 +75,12 @@ typedef struct {
     uint16_t place;
 } creature_handle;
 
-// モンスター定義表を末尾から先頭へたどる反復子。
+// Reverse iterator for the creature definition table.
 //
-// 持つのは「指したい要素そのもの」ではなく「その 1 つ先」（base）。
-// std::reverse_iterator と同じ持ちかたで、先頭を指す状態でも base は先頭に
-// 留まるので、配列の直前を指すポインタが現れない。C17 6.5.6p8 が認めるのは
-// 「同じ配列の要素、または末尾の 1 つ先」までで、それより手前は参照しなくても
-// 値を作った時点で未定義動作になる。以前の実装は終端に c_list - 1 を使って
-// いた（-Warray-bounds が指していたのはこれ）。
-//
-// creature_type * を裸で持ちまわらず構造体に包んでいるのは、1 つずれた値を
-// うっかり -> で読めないようにするため。要素を得るには
-// monster_creature_rget() を通す必要がある。
+// Holds one-past the element it refers to (like std::reverse_iterator), so
+// begin points one-past the first element, avoiding undefined behavior from
+// forming pointers before an array (C17 6.5.6p8). Wrapped in a struct to
+// prevent accidental -> dereference; use monster_creature_rget() to access.
 typedef struct {
     creature_type *base;
 } creature_rev_iterator;
@@ -163,62 +152,40 @@ typedef struct inven_type {
 #define PLAYER_NAME_SIZE 27
 
 typedef struct player_type {
-    // `struct misc` AND `struct flags` BOTH STOOD HERE, AND BOTH ARE GONE: emptied one
-    // question at a time by #18-12 -- `struct flags` in #18-12-15B and `struct misc` in
-    // #18-12-28C, which deleted the struct outright rather than making it shorter,
-    // because its last field had left. The stats below are all that is left in here.
-    //
-    // THE RECORD OF A QUESTION IS IN THE MODULE THAT ANSWERS IT, not in this file. Each
-    // `src/player_*.h` opens with the question it owns: what the unit is, where the
-    // number comes from, what deliberately stayed with the callers and what the move
-    // cost. The road as a whole -- which unit went when and what each one taught -- is
-    // docs/refactoring/done/18-12-py.md and docs/refactoring/findings.md. This struct
-    // carried a copy of that story for a while, and the copy is what has now been
-    // deleted.
-    //
-    // WHERE TO LOOK WHEN OLD CODE, AN OLD NOTE OR THE SAVE FILE NAMES A FIELD THAT USED
-    // TO BE HERE:
+    // Most player fields have been moved to their own modules. For the locations of
+    // fields that used to be here (named in old code, notes, or the save file):
     //
     //   struct misc
-    //     au                               #18-12-1   player_gold.h
-    //     max_exp exp exp_frac lev expfact #18-12-6   player_level.h
-    //     max_dlv                          #18-12-16  player_max_depth.h
-    //     hitdie                           #18-12-17  player_hit_die.h
-    //     pac ptoac                        #18-12-18  player_armour_class.h
-    //     bth bthb                         #18-12-19  player_base_to_hit.h
-    //     disarm                           #18-12-20  player_disarm.h
-    //     save                             #18-12-21  player_saving_throw.h
-    //     prace                            #18-12-22  player_race.h
-    //     wt                               #18-12-23  player_body_weight.h
-    //     ptohit ptodam                    #18-12-24  player_attack_bonuses.h
-    //     srh fos                          #18-12-25  player_search_skill.h
-    //     name male age ht sc history      #18-12-26  player_bio.h
-    //     stl                              #18-12-27  player_stealth.h
-    //     pclass                           #18-12-28  player_class.h
+    //     au                               player_gold.h
+    //     max_exp exp exp_frac lev expfact player_level.h
+    //     max_dlv                          player_max_depth.h
+    //     hitdie                           player_hit_die.h
+    //     pac ptoac                        player_armour_class.h
+    //     bth bthb                         player_base_to_hit.h
+    //     disarm                           player_disarm.h
+    //     save                             player_saving_throw.h
+    //     prace                            player_race.h
+    //     wt                               player_body_weight.h
+    //     ptohit ptodam                    player_attack_bonuses.h
+    //     srh fos                          player_search_skill.h
+    //     name male age ht sc history      player_bio.h
+    //     stl                              player_stealth.h
+    //     pclass                           player_class.h
     //   struct flags
-    //     status (thirty bits)             #18-12-7   player_status_flags.h
-    //     the seventeen equipment bytes    #18-12-8   player_abilities.h
-    //     the eighteen counters            #18-12-9   player_timed_effects.h
-    //     rest                             #18-12-10  player_resting.h
-    //     speed                            #18-12-11  player_speed.h
-    //     see_infra                        #18-12-12  player_infra_range.h
-    //     confuse_monster                  #18-12-13  player_glowing_hands.h
-    //     new_spells                       #18-12-14  player_spells_to_learn.h
-    //     food food_digested               #18-12-15B struck out, dead since #18-12-2C
-    //     protection                       #18-12-15A a `static int16_t` in save.c
-    //
-    // The last two rows answer no question. The stomach had already moved to
-    // player_food.h and left only these two declarations behind, and "Protection fr.
-    // evil" was written and read by the save file and by nowhere else -- A HOLE IN THE
-    // FILE FORMAT, kept at a fixed position inside the one file that reads it.
+    //     status (thirty bits)             player_status_flags.h
+    //     the seventeen equipment bytes    player_abilities.h
+    //     the eighteen counters            player_timed_effects.h
+    //     rest                             player_resting.h
+    //     speed                            player_speed.h
+    //     see_infra                        player_infra_range.h
+    //     confuse_monster                  player_glowing_hands.h
+    //     new_spells                       player_spells_to_learn.h
+    //     food food_digested               player_food.h
+    //     protection                       static in save.c
 
-    // Stats now kept in arrays, for more efficient access. -CJS-
-    //
-    // The tag is `player_stat` rather than `stats` since #18-12-30: this is the only
-    // struct left inside the character's record, and a bare `struct stats` said
-    // nothing about whose four arrays these are (stats.h next door is a different
-    // thing again -- the tables that turn one of them into a bonus). The member is
-    // still `stats`, so every reader still spells it `py.stats.use_stat[A_STR]`.
+    // Stats kept in arrays for efficient access. -CJS-
+    // Named `player_stat` to distinguish it from the bonus tables in stats.h.
+    // Accessed as `py.stats.use_stat[A_STR]`.
     struct player_stat {
         uint8_t max_stat[6]; // What is restored
         uint8_t cur_stat[6]; // What is natural

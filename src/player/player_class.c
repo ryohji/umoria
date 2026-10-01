@@ -9,26 +9,17 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "player_class.h"
 
-// No externs.h here, the same as the twenty-seven questions before this one.
-
-// THE PLACE THE ANSWER LIVES. A byte of its own since #18-12-28C, which is also the
-// commit that DELETED `struct misc` OUTRIGHT -- this was the last of its twenty-two
-// fields, so `py.misc` stopped existing rather than getting shorter. Nothing outside
-// this file can reach the row.
+// THE PLACE THE ANSWER LIVES. A byte of its own. Nothing outside this file can
+// reach the row.
 //
 // No initialiser, so the row starts at 0: a Warrior, and also "no class picked yet".
 // Those are the same byte and always were (`py` was zeroed whole), which is why
 // get_class() can write a 0 before its menu loop without meaning anything by it.
 static uint8_t the_row;
-
-// THE TABLE STAYS WHERE IT IS. This is the one line that reaches out, the same
-// arrangement player_race.c has for the race table and player_level.c for the price
-// list -- class[] is one of the twenty read-only constant tables in externs.h and
-// that group is out of scope for #18. Nothing in the game writes it.
-extern class_type class[MAX_CLASS];
 
 int player_class(void) {
     return the_row;

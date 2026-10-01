@@ -12,13 +12,12 @@
 
 #include "player_resting.h"
 
-// No externs.h here, the same as the nine questions before this one. And no
-// player_status_flags.h either: PY_REST is a different question and its callers
-// keep it (player_resting.h says why this one does not fold the pair the way
-// player_timed_effects.c does).
+// No externs.h here. And no player_status_flags.h either: PY_REST is a different
+// question and its callers keep it (player_resting.h says why this one does not
+// fold the pair the way player_timed_effects.c does).
 
-// THE ANSWER ITSELF. It was py.flags.rest until #18-12-10C; now this one short
-// is the only place it lives, and the windows below are the only way to reach it.
+// THE ANSWER ITSELF. This one short is the only place it lives, and the windows
+// below are the only way to reach it.
 //
 // No reset window: zero means "not resting", which is where a new character
 // starts, the same as the status word and the eighteen clocks. Loading a saved

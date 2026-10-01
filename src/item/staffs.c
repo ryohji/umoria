@@ -41,7 +41,7 @@ void use(void) {
 
         inven_type *i_ptr = inventory_at(item_val);
 
-        // **杖を使う腕の土台は抵抗と同じ 1 本**（足すのは A_INT のほう）。
+        // Staff skill base is the same as saving throw (adds A_INT).
         int chance = device_use_chance(player_saving_throw(), stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_STAFF, class_level_adj[player_class()][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
 
         if (!device_use_succeeds(chance)) {

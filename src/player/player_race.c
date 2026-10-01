@@ -9,27 +9,18 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "player_race.h"
 
-// No externs.h here, the same as the twenty-one questions before this one.
-
-// THE ROW NUMBER ITSELF. It was py.misc.prace until #18-12-22C; now this one byte
-// is the only place the answer lives, and the windows below are the only way to
-// reach it. (`struct misc` is down to thirteen fields.)
+// THE ROW NUMBER ITSELF. This one byte is the only place the answer lives, and
+// the windows below are the only way to reach it.
 //
 // ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
-// until the race menu is answered, and row zero happens to be Human. Unlike every
-// question before this one the byte is NOT A QUANTITY -- it is a row, so there is
-// nothing here to add to and no `_adjust` window to go with the setter.
+// until the race menu is answered, and row zero happens to be Human. The byte is
+// NOT A QUANTITY -- it is a row, so there is nothing here to add to and no
+// `_adjust` window to go with the setter.
 static uint8_t the_row;
-
-// THE TABLE STAYS WHERE IT IS. This is the one line that reaches out, the same
-// arrangement player_level.c has for the price list -- race[] is one of the twenty
-// read-only constant tables in externs.h and that group is out of scope for #18.
-// Nothing in the game writes it, so bringing it in here would mean a setter with
-// no callers (player_race.h says the rest).
-extern race_type race[MAX_RACES];
 
 int player_race(void) {
     return the_row;

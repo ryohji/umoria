@@ -51,7 +51,7 @@ void player_max_depth_set(int level);
 // callers:
 //
 //   1. WHICH LEVEL THE CHARACTER IS ON NOW. That is the depth, which has a
-//      window of its own since #18-14-6 (dungeon_level.h), and it is the input
+//      window of its own (dungeon_level.h), and it is the input
 //      to the window above rather than something this module keeps.
 //   2. WHAT THE RECORD IS WORTH. total_points() in death.c pays 100 points per
 //      level. Scoring reads this number, but how generous the score is has

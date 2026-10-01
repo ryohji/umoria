@@ -549,24 +549,3 @@ const char *special_names[SN_ARRAY_SIZE] = {
     "(Summoning Runes)", "(Multiple Traps)", "(Disarmed)",
     "(Unlocked)",        "of Slay Animal"
 };
-
-// t_list（この階の床に載っているものの表）はここに無い。#18-14-7C で
-// src/dungeon/floor_items.c の static になった。窓口は src/dungeon/floor_items.h
-// （floor_items_reset / floor_item_at / floor_items_used /
-//  set_floor_items_used / floor_items_is_full / floor_items_claim_slot /
-//  floor_items_drop_last）。**上の定義表とは別の表**で、あちらは「その品目と
-// は何か」を 420 行で言い、こちらは「いまこの階のどこに何が載っているか」を
-// 言う。**そして宝の表ではない** —— 扉・階段・瓦礫・罠・店の入口も行で、
-// マスに載っているもののうちモンスターでないものぜんぶが入る。使っている
-// ところまでの印（tcptr）と 2 つで 1 つの入れ物だった。
-
-// What the player carries and wears used to live here as well
-// (inventory[], inven_ctr, inven_weight, equip_ctr). It now lives in
-// inventory.c, which owns it privately and hands it out through the pack
-// and equipment windows.
-
-// tcptr（表をどこまで使っているかの印）もここに無い。上の t_list と 2 つで
-// 1 つの入れ物なので、#18-14-7C で一緒に src/dungeon/floor_items.c の static に
-// なった。印は「最後に埋まった行のひとつ先」で、行 0（何も無い）は配られない
-// ので MIN_TRIX（1）から始まる。**予約は 1 行だけ** —— モンスターの表と違って
-// プレイヤーの行が無い（プレイヤーは床に落ちていない）。

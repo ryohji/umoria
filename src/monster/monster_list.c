@@ -10,17 +10,16 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "monster_list.h"
 
-// THE STORAGE. It came over from monsters.c in #18-14-4C, where it sat right
-// beside the 279-row creature definition table -- two tables that have nothing
-// to do with each other. That one says what a kind of monster is; this one says
-// which monsters are standing on this level.
+// THE STORAGE. Two tables that have nothing to do with each other: the creature
+// definition table says what a kind of monster is; this one says which monsters
+// are standing on this level.
 //
-// The two names were always one container: a table whose rows are PACKED, and
-// the mark saying how much of it is in use. Keeping them apart is what let
-// fourteen count-down loops and the two delete paths each re-derive the packing
+// The two names are one container: a table whose rows are PACKED, and the mark
+// saying how much of it is in use
 // promise by hand.
 //
 // It took the three earlier questions in this group to get here. The previous
@@ -38,11 +37,6 @@ static int16_t the_mark;
 // left where it is and noted for that group: a "blank monster" is the monster
 // table's notion of an empty row, so its home is here, and moving it would make
 // this module need no externs at all.
-//
-// Declared by hand rather than by including externs.h, which would drag in
-// ncurses for the sake of one name (the same choice monster_levels.c and
-// object_levels.c made).
-extern monster_type blank_monster;
 
 // Link all free space in monster list together
 void monster_list_reset(void) {

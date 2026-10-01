@@ -18,19 +18,13 @@
 
 #include "player_bio.h"
 
-// No externs.h here, and after #18-12-26C NOT ONE LINE THAT REACHES ANYTHING --
-// the fourth unit in a row that ends this way (the body's weight, the attack
-// bonuses, the searching skill, this). The six answers start life in the race table
-// and the background table, but this file reads neither: creation rolls them and
-// hands the answers in, and player_bio.h lists the three rules (king or queen, the
-// starting purse, which height table) that stay out there with them.
+// Not one line here reaches out to anything. The six answers start life in the race
+// table and the background table, but this file reads neither: creation rolls them
+// and hands the answers in, and player_bio.h lists the three rules (king or queen,
+// the starting purse, which height table) that stay out there with them.
 
-// THE PLACE THE SIX ANSWERS LIVE. They were six fields of the character's record
-// until #18-12-26C; now these six statics are the only place the answers live, and
-// the thirteen windows below are the only way to reach them. SIX FIELDS LEFT AT
-// ONCE, more than any unit before this one, and `struct misc` was down to two --
-// `stl` and `pclass`, which left in #18-12-27 and #18-12-28. THE STRUCT IS GONE
-// (types.h keeps the record of where its thirteen questions went).
+// THE PLACE THE SIX ANSWERS LIVE. These six statics are the only place the answers
+// live, and the thirteen windows below are the only way to reach them.
 //
 // THE SIX ARE SIX STORES AND NOT ONE STRUCT. They sat in the same struct and they
 // are set in the same breath at creation, but nothing ever reads two of them
@@ -57,7 +51,7 @@ static char the_history[PLAYER_HISTORY_LINES][PLAYER_HISTORY_LINE_SIZE];
 
 const char *player_name(void) {
     // const, and the seven callers only read. The four places that WRITE a name go
-    // through player_name_set() from #18-12-26B on -- see the header.
+    // through player_name_set() -- see the header.
     return the_name;
 }
 

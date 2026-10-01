@@ -46,9 +46,8 @@ static char *center_string(char *centered_str, const char *in_str) {
 void display_scores(int show_player) {
     char string[100];
 
-    // The score file used to be opened into a global. Nothing outside this
-    // function reads it: the handle is opened, used and closed here, and
-    // rd_highscore() reaches it through set_fileptr() below.
+    // Score file handle: opened, used and closed here. rd_highscore() reaches
+    // it through set_fileptr() below.
     FILE *score_fp = fopen(MORIA_TOP, "rb");
 
     if (score_fp == NULL) {
@@ -176,14 +175,9 @@ static void print_tomb(void) {
     put_buffer(str, 14, 9);
     put_buffer("|            killed by            |", 15, 9);
 
-    // 死因の行だけ末尾に句点を足す。もとはグローバルの died_from を
-    // 直接書きかえて表示し、そのあと元に戻していた。表示のために
-    // 状態を触る必要はないので、写しをつくって足す。
-    // もとの書きかたは died_from が 78 文字以上だと died_from[79] と
-    // died_from[80] に書いていた（配列外）。
-    //
-    // 写しは died_from（vtype）の中身と '.' と終端で 1 バイト分だけ大きく
-    // とる。ちょうど足りるので切り詰めは起こらない。
+    // Append a period to the death cause. We make a copy rather than mutating
+    // the shared state. Sized to fit the vtype content, '.', and the terminator
+    // without truncation.
     char killed_by[sizeof(vtype) + 1];
     (void)snprintf(killed_by, sizeof(killed_by), "%s.", death_cause());
     (void)sprintf(str, "| %s |", center_string(tmp_str, killed_by));
@@ -279,9 +273,8 @@ static void highscores(void) {
     new_entry.max_dlv = (uint8_t)player_max_depth();
     new_entry.sex = (player_is_male() ? 'M' : 'F');
     new_entry.race = (uint8_t)player_race();
-    // 得点表の `.class` はこの行番号を持つが、**この問いではない** ——
-    // 死んで終わった人物の記録で、得点表そのものが別の単位
-    // （player_class.h の 6 つめ）。
+    // Score table's .class field: a snapshot of the dead character's class,
+    // independent of the living player's class module.
     new_entry.class = (uint8_t)player_class();
     (void)strcpy(new_entry.name, player_name());
 
@@ -435,8 +428,8 @@ static void kingly(void) {
 
     (void)restore_level();
 
-    // 素の setter を使う。**わざと約束を壊している** —— 階級は経験値が
-    // 値する段ではなくなるが、wizard の細工はそれで良い（player_level.h）。
+    // Use the raw setter: we deliberately violate the contract that level matches
+    // experience. This is wizard cheat territory, so that's fine.
     player_set_level((uint16_t)(player_level() + MAX_PLAYER_LEVEL));
     player_gain_gold(250000L);
     player_set_max_experience(player_max_experience() + 5000000L);

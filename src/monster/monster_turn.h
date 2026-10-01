@@ -22,12 +22,10 @@
 // reached `index`, the hole may be closed (delete_monster). If it has, the hole
 // must be left where it is (fix1_delete_monster, which leaves the mark alone).
 //
-// THE OLD NAME SAID WHAT IT WAS, NOT WHAT IT ANSWERED. This was
-// `hack_monptr` in variable.c, and both readers spelled the question out by
-// hand as `hack_monptr < i`. The upstream comment above each reader is worth
-// keeping in mind -- "this is a horrible hack, the monster-list/creatures() code
-// needs to be rewritten" -- and it is still true: the windows below do not fix the
-// hack, they give it a name and one place to live. #18-14-1.
+// The upstream comment above each reader is worth keeping in mind -- "this is a
+// horrible hack, the monster-list/creatures() code needs to be rewritten" -- and
+// it is still true: the windows below do not fix the hack, they give it a name
+// and one place to live.
 //
 // NOT IN THE SAVE FILE. The number is only meaningful inside a call to
 // creatures(), and save.c never writes it. A new game, and a restored one, both

@@ -13,23 +13,19 @@
 
 #include "spells_known.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c and burden.c: what the character has learned needs nothing
-// from the rest of the game.
+// No externs.h here: what the character has learned needs nothing from the rest
+// of the game.
 
-// The four answers, reachable only through the windows below. They used to be
-// globals in player.c, declared in externs.h, and thirteen places in six files
-// read or wrote them directly.
+// The four answers, reachable only through the windows below.
 static uint32_t spell_learned = 0;   // bit mask of spells learned
 static uint32_t spell_worked = 0;    // bit mask of spells tried and worked
 static uint32_t spell_forgotten = 0; // bit mask of spells learned but forgotten
 
 // The order the spells were learned in, one spell number per place. Starting
-// out as zeroes is what player.c gave it: the game start fills it with
-// SPELL_NONE (main.c, through spell_order_forget_all) and loading a save file
-// reads it back byte for byte, and until then no spell is marked learned or
-// forgotten, so nothing looks at what is in here.
+// out as zeroes: the game start fills it with SPELL_NONE (main.c, through
+// spell_order_forget_all) and loading a save file reads it back byte for byte,
+// and until then no spell is marked learned or forgotten, so nothing looks at
+// what is in here.
 static uint8_t spell_order[32];
 
 // The bit for one spell. SPELL_NONE (and any other number outside 0..31) gets
@@ -77,8 +73,7 @@ void spell_learn(int spell) {
     spell_learned |= bit_of(spell);
 
     // Append to the history. The position is the first SPELL_NONE: there is no
-    // separate count of how many spells have been learned, and the caller
-    // (gain_spells) used to find the position by the same scan.
+    // separate count of how many spells have been learned.
     for (int n = 0; n < 32; n++) {
         if (spell_order[n] == SPELL_NONE) {
             spell_order[n] = (uint8_t)spell;
@@ -87,9 +82,8 @@ void spell_learn(int spell) {
     }
 
     // A full history drops the spell from the order rather than writing past
-    // the end of it, which is what the old `spell_order[last_known++] = ...`
-    // did once last_known reached 32. There are only 31 spells to a class and
-    // 32 slots, so neither can happen in a game that has not gone wrong.
+    // the end of it. There are only 31 spells to a class and 32 slots, so this
+    // cannot happen in a game that has not gone wrong.
 }
 
 void spell_forget(int spell) {
@@ -113,7 +107,7 @@ int spell_learned_nth(int n) {
     // calc_spells() counts down from 31 and stops when nothing is left to
     // forget, so it can only pass a negative number if a spell is marked
     // learned without being in the history -- which the windows above make
-    // impossible, and which used to read past the front of the array.
+    // impossible.
     if (n < 0 || n > 31) {
         return SPELL_NONE;
     }

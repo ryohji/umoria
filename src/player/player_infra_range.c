@@ -12,14 +12,12 @@
 
 #include "player_infra_range.h"
 
-// No externs.h here, the same as the eleven questions before this one. And no
-// player_timed_effects.h either: the potion's clock counts turns, this number
+// No player_timed_effects.h: the potion's clock counts turns, this number
 // counts squares, and dungeon.c holds both ends (player_infra_range.h says why
 // they are not two halves of one fact).
 
-// THE ANSWER ITSELF. It was py.flags.see_infra until #18-12-12C; now this one
-// short is the only place it lives, and the windows below are the only way to
-// reach it.
+// THE ANSWER ITSELF. This one short is the only place it lives, and the windows
+// below are the only way to reach it.
 //
 // No reset window: zero means "no infra-vision", which is where a Human starts.
 // The race writes its own distance through player_infra_range_set() when the

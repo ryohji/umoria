@@ -12,16 +12,12 @@
 
 #include "player_search_skill.h"
 
-// No externs.h here, and after #18-12-25C NOT ONE LINE THAT REACHES ANYTHING -- the
-// third unit in a row that ends this way (the body's weight, the attack bonuses,
-// this). The two numbers start life in the race table and the class table, but this
-// file never reads either: creation looks them up and hands the answers in.
+// No externs.h here: this module reaches nothing outside itself. The two numbers
+// start life in the race table and the class table, but this file never reads
+// either: creation looks them up and hands the answers in.
 
-// THE PLACE THE TWO NUMBERS LIVE. They were the srh and fos fields of the
-// character's record until #18-12-25C; now these two shorts are the only place the
+// THE PLACE THE TWO NUMBERS LIVE. These two shorts are the only place the
 // answers live, and the five windows below are the only way to reach them.
-// (`struct misc` is down to eight fields.) The `the_chance()` / `the_frequency()`
-// doors that step A used to reach py.misc went with the fields.
 //
 // ZERO IS TWO DIFFERENT THINGS HERE, and only for one of the two numbers. A chance
 // of 0 is an honest answer -- search() really is handed 0 and finds nothing -- so a

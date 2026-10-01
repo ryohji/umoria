@@ -12,14 +12,9 @@
 
 #include "player_light.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c and hp_table.c: one
-// remembered flag needs nothing from the rest of the game.
-
 // The flag is owned here and is static: the only way in is through the two
-// windows below. It came over from variable.c unchanged (#18-7-3C1), with its
-// comment ("Player carrying light"), and it had no initial value there either --
-// dungeon() writes it from the light slot before the first turn.
+// windows below. It has no initial value: dungeon() writes it from the light
+// slot before the first turn.
 static bool player_light;
 
 bool player_has_light(void) {
@@ -30,10 +25,8 @@ void set_player_has_light(bool lit) {
     player_light = lit;
 }
 
-// Whether the glow is on the map, owned here and static as well. It came over
-// from variable.c (#18-11-1C) with its comment ("Track if temporary light about
-// player") and its initial value: the first move_light() of a game finds no glow
-// drawn, because nothing has been drawn yet.
+// Whether the glow is on the map, owned here and static as well. The first
+// move_light() of a game finds no glow drawn, because nothing has been drawn yet.
 static bool player_light_drawn = false;
 
 bool player_light_is_drawn(void) {

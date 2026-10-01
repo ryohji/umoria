@@ -13,24 +13,12 @@
 
 #include "monster_breeding.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c, screen_touched.c and monster_turn.c: one
-// number needs nothing from the rest of the game. MAX_MON_MULT comes from
-// constant.h.
+// No externs.h here: one number needs nothing from the rest of the game.
+// MAX_MON_MULT comes from constant.h.
 
 // The number is owned here and is static: the only way in is through the six
-// windows. It came over from monsters.c (#18-14-3) with its type and with the
-// fact that it starts out as zero -- `int16_t mon_tot_mult;` -- so a new game
-// begins with nothing bred, which is also what dungeon.c asks for on every
-// level after the first.
-//
-// FOR ONE STEP THERE WERE TWO OF THESE, as with #18-14-1 and #18-14-2: the row
-// went in here at #18-14-3A while the game still read and wrote monsters.c's
-// mon_tot_mult and nothing called these windows, safe only because the unit test
-// was the only reader. #18-14-3B pointed creature.c, dungeon.c, moria3.c and
-// save.c at the windows, which moved the storage as well as the call sites, and
-// #18-14-3C deleted the old row from monsters.c and externs.h.
+// windows. It starts out as zero, so a new game begins with nothing bred, which
+// is also what dungeon.c asks for on every level after the first.
 static int16_t the_count;
 
 void monster_breeding_reset(void) {

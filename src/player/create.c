@@ -110,25 +110,25 @@ static void get_all_stats(void) {
         set_use_stat(j);
     }
 
-    // 探索の腕と頻度は窓口が 2 本（#18-12-25B）。**素の命中力と違って対では
-    // 置かない** —— wizard.c が腕だけを置きかえるので、片方だけの窓口が要る。
-    // この 2 行が離れているのもそのため（あいだに別の問いが入っている）。
+    // **Two windows for search, unlike base to-hit** — wizard.c replaces only the
+    // chance, so each needs its own window. That is why the two lines are
+    // separated (other questions in between).
     player_search_chance_set(r_ptr->srh);
-    // 素の命中力の 2 本は 1 つの窓口で（#18-12-19B）。種族は必ず両方を書く。
+    // **Base to-hit uses one window for both.** Race always sets both.
     player_base_to_hit_set(r_ptr->bth, r_ptr->bthb);
     player_search_frequency_set(r_ptr->fos);
-    // 足音の静かさも窓口へ（#18-12-27B）。**この 1 行で `player_type *p_ptr`
-    // が死んだ** —— 種族の表から置く行がぜんぶ窓口になったので、この関数はもう
-    // 人物の器を名ざさない（能力値のほうは `py.stats` と直に書いてある）。
+    // **This line made `player_type *p_ptr` unnecessary** — all race table
+    // assignments now go through windows, so this function no longer names the
+    // player record (the stat side writes `py.stats` directly).
     player_stealth_set(r_ptr->stl);
-    // 抵抗は種族の表の数そのまま（#18-12-21B）。**下駄は 1 つも混ざらない** ——
-    // 罠と鍵をはずす腕はここで DEX の下駄を焼きこむが、こちらは焼きこまない。
+    // **Saving throw from race table directly, no bonuses mixed in** — disarm
+    // bakes in the DEX bonus here, but this one does not.
     player_saving_throw_set(r_ptr->bsav);
     player_hit_die_set(r_ptr->bhitdie);
-    // 命中と打撃の下駄も 1 つの窓口で（#18-12-24B）。**種族の表は関係ない** ——
-    // どちらも DEX と STR の補正表から来る仮の値で、:397 が本物を置きなおす。
-    // **引数は命中・打撃の順**で、もとの 2 行は打撃が先だったが、どちらの
-    // `_adj()` も能力値を読むだけなので順は結果を変えない。
+    // **Attack bonuses from one window, race table not involved** — both come from
+    // the DEX and STR adjustment tables, temporary values that :397 replaces.
+    // **Arguments are to-hit, to-damage** (the original two lines had damage
+    // first, but order does not matter since both `_adj()` only read stats).
     player_attack_bonuses_set(tohit_adj(), todam_adj());
     // The one place that puts the dexterity bonus in the ARMOUR half rather
     // than the magical one -- the class table below does it the other way
@@ -181,8 +181,6 @@ static void choose_race(void) {
         }
     } while (!exit_flag);
 
-    // 別名はここで死んだ（#18-12-22B）。使っていたのは次の 1 行だけで、
-    // 種族の行を指す r_ptr のほうは下の put_buffer が使う。
     race_type *r_ptr = &race[j];
     player_race_set(j);
     put_buffer(r_ptr->trace, 3, 15);
@@ -208,9 +206,9 @@ static void get_history(void) {
     int test_roll;
     bool flag;
 
-    // 生い立ちの表の始まり。**行番号の算術はここに残す** —— これは
-    // background[] の並びの知識（上の Assumptions がそう書いている）で、
-    // 種族の性質ではない（player_race.h）。
+    // Start of the history table. **Row number arithmetic stays here** — this is
+    // knowledge of background[] ordering (the Assumptions above say so), not a
+    // property of the race (player_race.h).
     int hist_ptr = player_race() * 3 + 1;
     int social_class = randint(4);
     int cur_ptr = 0;
@@ -274,10 +272,11 @@ static void get_history(void) {
             flag = true;
         }
 
-        // 折りかえした 1 行を局所で組みたててから渡す。cur_len は上の枝で
-        // 60 に留められているので、終端を入れて PLAYER_HISTORY_LINE_SIZE に
-        // ちょうど収まる（フィールドに直に書いていたころ、60 字の行の終端は
-        // **次の行の先頭**に落ちていた —— bug candidate B21。types.h 参照）。
+        // Build one wrapped line locally before passing it. cur_len is capped at 60
+        // above, so with the terminator it fits exactly in PLAYER_HISTORY_LINE_SIZE
+        // (when writing directly to the field, the terminator of a 60-char line
+        // fell into **the start of the next line** — bug candidate B21; see
+        // types.h).
         char line[PLAYER_HISTORY_LINE_SIZE];
         (void)strncpy(line, &history_block[start_pos], (size_t)cur_len);
         line[cur_len] = '\0';
@@ -329,8 +328,8 @@ static void get_ahw(void) {
     player_age_set(race[i].b_age + randint((int)race[i].m_age));
     if (player_is_male()) {
         player_height_set(randnor((int)race[i].m_b_ht, (int)race[i].m_m_ht));
-        // 体の重さも窓口へ（#18-12-23B）。**男女で race[] の別の列**を引くので
-        // 2 行になるが、窓口から見れば同じ 1 本の置きなおし。
+        // **Male and female pull different race[] columns**, so two lines, but the
+        // window sees the same single assignment.
         player_body_weight_set(randnor((int)race[i].m_b_wt, (int)race[i].m_m_wt));
     } else {
         player_height_set(randnor((int)race[i].f_b_ht, (int)race[i].f_m_ht));
@@ -373,9 +372,9 @@ static void get_class(void) {
         mask <<= 1;
     } while (j < MAX_CLASS);
 
-    // **メニューの前の 0 は人物の答えにならない** —— このループは答えずには
-    // 出られないので、下の `player_class_set(cl[j])` がかならず上書きする
-    // （player_class.h の「一生で 2 回」）。
+    // **The 0 before the menu does not become the player's answer** — this loop
+    // cannot exit without answering, so `player_class_set(cl[j])` below always
+    // overwrites it (player_class.h, "twice in a lifetime").
     player_class_set(0);
 
     int min_value, max_value;
@@ -390,9 +389,10 @@ static void get_class(void) {
         j = s - 'a';
         if ((j < k) && (j >= 0)) {
             player_class_set(cl[j]);
-            // **階級が何をくれるかは窓口の外**（player_class.h の 3 つめ）——
-            // 窓口が返すのは行番号だけで、この 1 行から下の 6 つの補正・体力の
-            // 骰子・静かさ・経験の倍率・称号はぜんぶ表の欄。
+            // **What the class gives is outside the window** (player_class.h, third
+            // point) — the window returns only the row number; from that one line
+            // below come the six adjustments, hit die, stealth, exp factor, and
+            // title, all from the table columns.
             c_ptr = &class[player_class()];
             exit_flag = true;
             clear_from(20);
@@ -411,8 +411,8 @@ static void get_class(void) {
                 set_use_stat(i);
             }
 
-            // Real values（#18-12-24B）。:122 の仮の値を捨てて置きなおす ——
-            // 職業の madj_str / madj_dex がここまでに能力値を動かしているから。
+            // Real values. Discard the temporary values from :122 and replace them —
+            // the class's madj_str / madj_dex have moved the stats by this point.
             player_attack_bonuses_set(tohit_adj(), todam_adj());
             player_armour_class_reset(toac_adj());
             // Displayed values: a copy of the real plusses, with the visible
@@ -433,24 +433,26 @@ static void get_class(void) {
             max_value = (MAX_PLAYER_LEVEL * 5 / 8 * (player_hit_die() - 1)) + MAX_PLAYER_LEVEL;
             set_hp_total_at_level(1, (uint16_t)player_hit_die());
             do {
-                // i は添字ではなくレベル - 1 のまま回す（振る回数と順番を
-                // 変えないため）。level i + 1 の合計は、その段の振りに
-                // 1 つ下の段までの合計を足したもの。
+                // i is not an index but stays as level - 1 throughout the loop (to
+                // keep the number of rolls and their order unchanged). The total at
+                // level i + 1 is the roll for that level plus the total up to one
+                // level below.
                 for (i = 1; i < MAX_PLAYER_LEVEL; i++) {
                     set_hp_total_at_level(i + 1, (uint16_t)(randint(player_hit_die()) + hp_total_at_level(i)));
                 }
             } while ((hp_total_at_level(MAX_PLAYER_LEVEL) < min_value) ||
                      (hp_total_at_level(MAX_PLAYER_LEVEL) > max_value));
 
-            // 階級ぶんは 2 つの数が別々（振るのと射るのは別の腕）。 // RAK
+            // The class portion keeps the two numbers separate (melee and archery are
+            // different skills). -RAK-
             player_base_to_hit_adjust(c_ptr->mbth, c_ptr->mbthb);
-            // 階級ぶんは対で足す 1 本（#18-12-25B）。**どちらの引数も正** ——
-            // 装備のほうは (amount, -amount) で呼ぶが、符号は呼び手のもの。
+            // **Both arguments are positive** — equipment calls with (amount,
+            // -amount), but the sign is the caller's choice.
             player_search_skill_adjust(c_ptr->msrh, c_ptr->mfos);
             player_disarm_adjust(c_ptr->mdis);
-            // 階級ぶんは足す 1 本（#18-12-27B）。**引数は正** —— どの階級も
-            // 静かさを足すので、創成が置ける下端は -1（Half-Troll の Warrior）。
-            // **この 1 行で `struct misc *m_ptr` が死んだ**。
+            // **Argument is positive** — all classes add stealth, so the lowest
+            // creation can set is -1 (Half-Troll Warrior). **This line made `struct
+            // misc *m_ptr` unnecessary.**
             player_stealth_adjust(c_ptr->mstl);
             player_saving_throw_adjust(c_ptr->msav);
             player_set_experience_factor((uint8_t)(player_experience_factor() + c_ptr->m_exp));

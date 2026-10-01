@@ -289,8 +289,6 @@ void prt_winner(void) {
 
 // Prints character-screen info -RAK-
 void prt_stat_block(void) {
-    // The race and the class names went behind windows one after the other
-    // (#18-12-22B and #18-12-28B) -- NONE OF THESE THREE LINES NAMES `py` ANY MORE.
     prt_field(player_race_name(), 2, STAT_COLUMN);
     prt_field(player_class_title(), 3, STAT_COLUMN);
     prt_field(title_string(), 4, STAT_COLUMN);

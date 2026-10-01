@@ -323,10 +323,8 @@ static int verify(const char *prompt, int item) {
 // prompted to see if we should continue. This allows the player to see any
 // changes that take place on the screen during inventory command input.
 //
-// screen_was_flushed() (screen_touched.h) answers the question that prompt turns
-// on. Suspending clears it and a flush sets it, which is how inven_command tells
-// whether the screen it saved is still the one in front of the player. The two
-// go together, so suspend_inven_command() does both (#18-11-3).
+// screen_was_flushed() (screen_touched.h) tells whether the saved screen is still
+// current. Suspending clears it, flushing sets it. suspend_inven_command() does both.
 //
 // The display of inventory items is kept to the right of the screen to
 // minimize the work done to restore the screen afterwards. -CJS-

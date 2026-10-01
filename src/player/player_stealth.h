@@ -26,8 +26,7 @@
 // the disarming skill, the saving throw, the race, the body's weight, the attack
 // bonuses, the searching skill and the six answers of the bio. ONE FIELD WITH ONE
 // ANSWER -- the simplest shape there is, and the same shape as the hit die and the
-// disarming skill. `pclass` WAS THE ONLY FIELD LEFT AFTER THIS ONE, and #18-12-28
-// took it and the struct together.
+// disarming skill.
 //
 // WHERE THE NUMBER COMES FROM -- two tables at creation and then the gear:
 //
@@ -59,11 +58,9 @@
 // noisy curse sets TR_AGGRAVATE instead; see below). This module keeps the number
 // as it is; the checking is not its business (ledger observation 24).
 //
-// WHO ASKS, once #18-12-27B has moved the callers: creation (create.c, race then
-// class), the gear (player_bonuses.c), the sleeping monster (creature.c), the character
-// sheet and the dumped file by way of the ratings (abilities.c), the wizard screen
-// and the saved file. NINE CALLS, against the forty-four of the unit before this
-// one -- a whole question can be this small.
+// WHO ASKS: creation (create.c, race then class), the gear (player_bonuses.c), the
+// sleeping monster (creature.c), the character sheet and the dumped file by way of
+// the ratings (abilities.c), the wizard screen and the saved file.
 
 // The number. FOUR CALLERS: the ratings block that feeds the character sheet and
 // the dump (abilities.c), the sleeping monster (creature.c), the wizard screen's
@@ -115,7 +112,7 @@ void player_stealth_adjust(int amount);
 //      THE OPPOSITE OF QUIET IS A DIFFERENT ROAD, not a smaller number on this one.
 //   4. THE -1 TO 18 FENCE. wizard.c's prompt, and the only fence there is.
 //   5. WHAT TR_AGGRAVATE DOES. `player_aggravates_monsters()` already has a window
-//      of its own (#18-7-3), and creature.c asks it FIRST: an aggravating character
-//      wakes everything outright and the halvings never get looked at.
+//      of its own, and creature.c asks it FIRST: an aggravating character wakes
+//      everything outright and the halvings never get looked at.
 
 #endif // PLAYER_STEALTH_H

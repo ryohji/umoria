@@ -14,11 +14,6 @@
 
 // One option: what to call it, where its value lives, which bit holds it in a
 // save file.
-//
-// The prompt and the pointer used to live in set_options() (the options screen,
-// now ui/options_menu.c) while the bit assignment lived twice in save.c (once
-// to write, once to read).
-// Three places had to agree about eleven options; nothing made them.
 struct game_option {
     const char *prompt; // shown on the options screen; NULL ends the table
     bool *value;        // still a global, hence the pointer

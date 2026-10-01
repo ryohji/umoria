@@ -7,10 +7,6 @@
 
 // Haggling with a store owner: the comments, the insults, and reading and
 // answering offers
-//
-// The store screen and the buy and sell commands moved to store_ui.c (#55).
-// The four functions it calls lost their static and are declared in
-// store_haggle.h; nothing else changed.
 
 #include "headers.h"
 
@@ -494,8 +490,7 @@ int sell_haggle(int store_num, int32_t *price, inven_type *item) {
         owner_type *o_ptr = &owners[s_ptr->owner];
 
         cost = cost * (200 - chr_adj()) / 100;
-        // 買値と同じ表を売値の向きに引く（#18-12-22B。store_price.c:147 と
-        // 式が違うので畳むものは無い）。
+        // Adjust by race pairing table (inverse direction from buy price).
         cost = cost * (200 - rgold_adj[o_ptr->owner_race][player_race()]) / 100;
         if (cost < 1) {
             cost = 1;

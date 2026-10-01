@@ -10,19 +10,13 @@
 // The building of the table came from init_t_level() in main.c, where it was
 // static -- so the counting sort at its heart had never been reachable from a
 // test. Moving it here is what made it testable.
-//
-// This file needs one thing from outside: the object definitions. Rather than
-// include externs.h, which drags in ncurses for the sake of one line, the
-// declaration is written out here -- the same choice stats.c made and for the
-// same reason.
 
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "externs.h"
 
 #include "object_levels.h"
-
-extern treasure_type object_list[MAX_OBJECTS];
 
 // The body of the table: object_list indexes in order of level.
 static int16_t sorted_objects[MAX_DUNGEON_OBJ];

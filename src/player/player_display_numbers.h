@@ -17,9 +17,9 @@
 // touch.
 //
 // These are *not* the numbers the game fights with. Those are the real plusses,
-// and none of them is in `py` any more: the aim and the force went to
-// player_attack_bonuses.c in #18-12-24, the two halves of the armour class to
-// player_armour_class.c in #18-12-18. This question is only about what the
+// and none of them is in `py` any more: the aim and the force are in
+// player_attack_bonuses.c, the two halves of the armour class are in
+// player_armour_class.c. This question is only about what the
 // character is told. Four things make the
 // difference real, and all four are reasons the copies cannot become a
 // derivation of the real numbers:

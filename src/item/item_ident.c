@@ -21,9 +21,7 @@
 static uint8_t object_ident[OBJECT_IDENT_SIZE];
 
 // Which of the seven groups of secret kinds an item belongs to, or -1 for a
-// kind that is never secret. Moved here from desc.c in #18-9-B: the five places
-// there that called it were all working out which record to use, and this is
-// the only caller left.
+// kind that is never secret.
 static int16_t group_of(inven_type *t_ptr) {
     switch (t_ptr->tval) {
     case TV_AMULET:

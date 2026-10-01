@@ -13,9 +13,7 @@
 
 #include "floor_items.h"
 
-// THE STORAGE. It was `inven_type t_list[MAX_TALLOC];` and `int16_t tcptr;` in
-// treasure.c, next to the table of object DEFINITIONS, and it came over here at
-// step C -- after the callers were through the windows, not before. The storage
+// THE STORAGE. The storage
 // can move at step A only when that step fits in a single commit, and this
 // question had 127 references in seventeen files, so B was split five ways;
 // while it was split, two containers would have meant half the game reading one

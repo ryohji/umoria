@@ -12,16 +12,13 @@
 
 #include "player_armour_class.h"
 
-// No externs.h here, the same as the sixteen questions before this one.
+// No externs.h here.
 
-// THE TWO NUMBERS THEMSELVES. They were py.misc.pac and py.misc.ptoac until
-// #18-12-18C; now these two shorts are the only place the answer lives, and the
-// windows below are the only way to reach it.
+// THE TWO NUMBERS THEMSELVES. These two shorts are the only place the answer
+// lives, and the windows below are the only way to reach it.
 //
-// ZERO IS A REAL ANSWER HERE, which the two questions before this one could not
-// say: a character with nothing worn and a middling dexterity has no armour
-// class at all, and the game means it. (`struct misc` is down to eighteen
-// fields.)
+// ZERO IS A REAL ANSWER HERE: a character with nothing worn and a middling
+// dexterity has no armour class at all, and the game means it.
 static int16_t worn_armour;
 static int16_t magical_plusses;
 

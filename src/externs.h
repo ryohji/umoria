@@ -7,9 +7,7 @@
 
 // Declarations for global variables and initialized data
 
-// 実体は variable.c:17 で 17 要素。長らく 5 と書かれていたが、変数を
-// 定義している variable.c がこのヘッダを include していなかったので
-// 誰も気づけなかった。include を入れて食いちがいを見つけた。
+// Defined in variable.c with 17 elements.
 extern const char *copyright[17];
 
 // These are options, set with set_options command -CJS-
@@ -26,50 +24,11 @@ extern bool sound_beep_flag;   // Beep for invalid character
 extern bool display_counts;    // Display rest/repeat counts
 
 // global flags
-// eof_flag moved to input_ended.c: whether the input has run out, and how many
-// EOFs it took (#18-11-5C). The windows are in input_ended.h
-// find_flag moved to running.c: whether the player is running, and how many
-// steps in (#18-11-6C). The windows are in running.h
 extern bool free_turn_flag; // Used in MORIA
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
-// command_count and default_dir moved to command_state.c, together with
-// last_command: how many repeats are left and whether the direction is taken
-// from memory (#18-11-7C). The windows are in command_state.h
-// Which level the game is on now is not declared here. The number is private to
-// dungeon_level.c and is reached through src/dungeon/dungeon_level.h, which also answers
-// "am I in the town?" for the six callers that used to spell that question three
-// ways (!= 0, > 0, == 0). The one alias -- the save file's restore path reading
-// the short straight through a faked pointer -- is gone with it.
-// The top line (was: msg_flag, old_msg[MAX_SAVE_MSG], last_msg and
-// wait_for_more) is private to messages.c now, together with the code that
-// walks the ring and the -more- prompt; see messages.h.
-
-// How far the game has got (turn, randes_seed, town_seed, wizard,
-// to_be_wizard), how this life ended (death, died_from, birth_date, noscore)
-// and where it is saved (savefile, character_generated, character_saved,
-// panic_save) are not declared here. Each group is private to its own file and
-// is reached through src/data/progress.h, src/save/score_death.h and src/save/save_state.h.
 
 extern char days[7][29];
 extern int closing_flag; // Used for closing
-
-// How tall and how wide this level is are not declared here. The pair is
-// private to dungeon_size.c and is reached through src/dungeon/dungeon_size.h. Two
-// names, one act: one setter takes both halves, so no caller can change half
-// of a size, and the two aliases that read the pair straight out of the save
-// file (rd_short through a faked pointer) are gone with it.
-
-// Following are calculated from max dungeon sizes
-// The panel (the ten values that say which part of the dungeon is on screen)
-// is private to panel.c now, together with the arithmetic that derives the six
-// coordinates from the two indexes. See panel.h.
-
-// The floor of the level is not declared here. Every square -- what it is made
-// of, which monster stands on it, which thing lies on it, and the four light
-// bits -- is private to dungeon_map.c, handed out one square at a time by
-// square_at(y, x). See src/dungeon/dungeon_map.h. The table always covers MAX_HEIGHT x
-// MAX_WIDTH; how much of it the level in play uses is dungeon_size.c's
-// question. With it went the last of the eleven dungeon globals.
 
 // Following are player variables
 extern player_type py;
@@ -90,59 +49,17 @@ extern uint16_t player_init[MAX_CLASS][5];
 
 // Following are store definitions
 extern owner_type owners[MAX_OWNERS];
-// 6 軒の記録の実体は stores.c の static。窓口は stores.h の
-// store_at() / store_count()。
+// Store records are static in stores.c (see stores.h for store_at / store_count).
 extern uint16_t store_choice[MAX_STORES][STORE_CHOICES];
-// 実体は tables.c:90。店ごとの買いとり判定で、引数は品物の tval。
-// 戻り値は長らく int と書かれていたが、実体は bool を返す。
+// Defined in tables.c. Each function tests if a store will buy an item tval.
 extern bool (*store_buy[MAX_STORES])(int);
 
 // Following are treasure arrays  and variables
 extern treasure_type object_list[MAX_OBJECTS];
-// t_list is not declared here. What is lying on the floor of this level is
-// private to floor_items.c, reached through src/dungeon/floor_items.h. It and the mark
-// below were always one container -- a table whose rows are packed, and how far
-// it is filled -- and it is not a list of treasure: doors, staircases, rubble,
-// traps and shop entrances are rows of it too. Everything on a square that is
-// not a monster is in there, which is why it reached seventeen files.
 extern const char *special_names[SN_ARRAY_SIZE];
-// tcptr is not declared here. How far the floor table is filled went with the
-// table itself in #18-14-7C (see above). Its one alias, save.c's
-// `rd_short((uint16_t *)&tcptr)`, went through a local uint16_t and is gone.
-
-// What the player carries and wears (inventory[], inven_ctr, inven_weight,
-// equip_ctr) is not declared here. It is private to inventory.c and is
-// reached through src/item/inventory.h and src/item/equipment.h.
-
-// What the player has learned about each kind of object (object_ident[]) is not
-// declared here either. It is private to item_ident.c, reached through
-// src/item/item_ident.h.
-
-// Which kinds of object the dungeon can produce, in order of depth
-// (sorted_objects[], t_level[]) is private to object_levels.c, reached through
-// src/item/object_levels.h. The two were always one table -- an index and a body --
-// and every reader wanted a band out of them, never the raw arrays.
 
 // Following are creature arrays and variables
-// m_list is not declared here. Which monsters are standing on this level is
-// private to monster_list.c, reached through src/monster/monster_list.h. It and the mark
-// below were always one container -- a table whose rows are packed, and how far
-// it is filled -- and every reader wanted a row, a bound or a free slot, never
-// the raw array.
-// m_level is not declared here. Where each level's monsters sit in the
-// definition table is private to monster_levels.c, reached through
-// src/monster/monster_levels.h. Every reader wanted a band -- a count, a width or the
-// number it starts at -- never the raw array; the building of it used to be a
-// static of main.c, out of reach of any test.
 extern monster_type blank_monster; // Blank monster values
-// mfptr is not declared here. How far the monster list is filled went with the
-// table itself in #18-14-4C (see above). Its one alias, save.c's
-// `rd_short((uint16_t *)&mfptr)`, went through a local uint16_t and is gone.
-// mon_tot_mult is not declared here. How many monsters have been bred on this
-// level is private to monster_breeding.c, reached through
-// src/monster/monster_breeding.h. Every reader wanted the question, not the count --
-// may another be bred, one has been, one is gone, a new level -- and only
-// save.c wanted the number itself.
 
 // Following are arrays for descriptive pieces
 extern const char *colors[MAX_COLORS];
@@ -157,11 +74,6 @@ extern uint8_t blows_table[7][6];
 
 extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 
-// The command before this one moved to command_state.c (last_command,
-// #18-11-7C), beside the repeat count that is the reason it is remembered. Only
-// "was the previous command this key?" is asked, so the character itself no
-// longer leaves the module; the windows are in command_state.h
-
 // function return values
 
 // only extern functions declared here, static functions
@@ -173,27 +85,25 @@ extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 
 #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
 
-// create.c
+// player/create.c
 void create_character(void);
 
 // combat/monster_melee.c
 void make_attack(int);
 
-// creature.c
+// monster/creature.c
 void update_mon(int);
 bool multiply_monster(int, int, creature_handle, int);
 void creatures(int);
 
-// death.c
+// save/death.c
 void display_scores(int);
 bool duplicate_character(void);
 int32_t total_points(void);
-// 末尾で exit(0) するので、呼びだしの後ろへは戻らない。それを型で表明して
-// おくと「この後は到達しない」ことをコンパイラが判断できる（main.c の
-// switch で case を貫通しているという誤検出が消える）。
+// Does not return (calls exit). Declared _Noreturn so the compiler knows.
 _Noreturn void exit_game(void);
 
-// desc.c
+// item/desc.c
 bool is_a_vowel(char);
 void magic_init(void);
 void known1(inven_type *);
@@ -215,23 +125,23 @@ void desc_remain(int);
 // dungeon.c
 void dungeon(void);
 
-// eat.c
+// item/eat.c
 void eat(void);
 
-// files.c
+// ui/files.c
 void init_scorefile(void);
 void read_times(void);
 void helpfile(const char *);
 void print_objects(void);
 bool file_character(char *);
 
-// generate.c
+// dungeon/generate.c
 void generate_cave(void);
 
-// help.c
+// ui/help.c
 void ident_char(void);
 
-// io.c
+// ui/io.c
 void put_buffer(const char *, int, int);
 void put_qio(void);
 void shell_out(void);
@@ -267,10 +177,9 @@ FILE *tfopen(const char *, const char *);
 int topen(char *, int, int);
 #endif
 
-// magic.c
+// item/magic.c
 void cast(void);
 
-// main.c
 // core/dice.c
 int damroll(int, int);
 int pdamroll(const uint8_t *);
@@ -291,9 +200,8 @@ int mmove(int, int *, int *);
 void inven_destroy(int);
 void take_one_item(inven_type *, inven_type *);
 void inven_drop(int, int);
-// 引数の関数は sets.c の set_corrodes / set_flammable /
-// set_frost_destroy / set_lightning_destroy / set_acid_affect。
-// いずれも持ち物 1 つを受けとる bool f(inven_type *) 型。
+// Function argument is a predicate from sets.c (set_corrodes, set_flammable, etc.),
+// each taking bool f(inven_type *).
 int inven_damage(bool (*)(inven_type *), int);
 int weight_limit(void);
 bool inven_check_num(inven_type *);
@@ -305,8 +213,7 @@ int find_range(int, int, int *, int *);
 void teleport(int);
 void move_char(int, bool);
 // ui/map_view.c
-// panel_bounds() は panel.c の static になった（外から呼ぶ必要が無かった）。
-// panel_contains() は panel.h。
+// panel_bounds is static in panel.c; panel_contains is in panel.h.
 int get_panel(int, int, int);
 uint8_t loc_symbol(int, int);
 bool test_light(int, int);
@@ -420,7 +327,7 @@ void check_view(void);
 // expands to it
 char *concat(char *buffer, ...);
 
-// monsters.c
+// data/monsters.c
 bool monster_attack_is_null(attack_handle h);
 uint8_t monster_attack_get_type(attack_handle h);
 uint8_t monster_attack_get_desc(attack_handle h);
@@ -433,7 +340,7 @@ creature_handle monster_make_creature_handle(uint16_t index);
 creature_handle monster_get_creature_handle(creature_type *p);
 creature_type *monster_get_creature(creature_handle h);
 
-// モンスター定義表の逆順走査。使いかたは
+// Reverse iteration over the creature definition table. Usage:
 //   const creature_rev_iterator end = monster_creature_rend();
 //   for (creature_rev_iterator it = monster_creature_rbegin();
 //        !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
@@ -522,17 +429,17 @@ void bash(void);
 // combat/monster_damage.c
 int mon_take_hit(int, int);
 
-// potions.c
+// item/potions.c
 void quaff(void);
 
-// prayer.c
+// item/prayer.c
 void pray(void);
 
-// recall.c
+// ui/recall.c
 bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
-// rnd.c
+// core/rnd.c
 void set_rnd_seed(uint32_t);
 int32_t rnd(void);
 void set_seed(uint32_t);
@@ -541,7 +448,7 @@ int randint(int);
 int randnor(int, int);
 bool magik(int);
 
-// save.c
+// save/save.c
 bool save_char(void);
 bool _save_char(char *);
 bool get_char(bool *);
@@ -549,10 +456,10 @@ void set_fileptr(FILE *);
 void wr_highscore(high_scores *);
 void rd_highscore(high_scores *);
 
-// scrolls.c
+// item/scrolls.c
 void read_scroll(void);
 
-// sets.c
+// data/sets.c
 bool set_room(int);
 bool set_corr(int);
 bool set_floor(int);
@@ -572,7 +479,7 @@ bool temple(int);
 bool alchemist(int);
 bool magic_shop(int);
 
-// signals.c
+// platform/signals.c
 void nosignals(void);
 void signals(void);
 void init_signals(void);
@@ -583,7 +490,7 @@ void fire_bolt(int, int, int, int, int, const char *);
 void fire_ball(int, int, int, int, int, const char *);
 void breath(int, int, int, int, char *, int);
 
-// spells.c
+// item/spells.c
 int sleep_monsters1(int, int);
 int detect_treasure(void);
 int detect_object(void);
@@ -602,7 +509,6 @@ int detect_monsters(void);
 void light_line(int, int, int);
 void starlite(int, int);
 int disarm_all(int, int, int);
-// 第 4 引数は inven_damage() に渡す判定関数の受けとり先。
 int recharge(int);
 int hp_monster(int, int, int, int);
 int drain_life(int, int, int);
@@ -649,7 +555,7 @@ bool enchant(int16_t *, int16_t);
 int remove_curse(void);
 int restore_level(void);
 
-// staffs.c
+// item/staffs.c
 void use(void);
 
 // store/store_stock.c
@@ -667,11 +573,7 @@ void updatebargain(int, int32_t, int32_t);
 // store/store_ui.c
 void enter_store(int);
 
-// tables.c
-
-// treasur.c
-
-// variable.c
+// data/variable.c
 recall_type *recall_get(creature_handle h);
 void recall_update_characteristics(creature_handle h, int defence);
 void recall_update_move(creature_handle h, int move);
@@ -681,7 +583,7 @@ void recall_increment_spell_chance(creature_handle h);
 void recall_increment_kill(creature_handle h);
 void recall_increment_death(creature_handle h);
 
-// wands.c
+// item/wands.c
 void aim(void);
 
 // ui/wizard.c

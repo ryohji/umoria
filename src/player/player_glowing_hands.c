@@ -12,14 +12,12 @@
 
 #include "player_glowing_hands.h"
 
-// No externs.h here, the same as the twelve questions before this one -- which
-// matters more here than usual, because externs.h is where the unrelated
-// function confuse_monster() is declared (player_glowing_hands.h says why the
-// names collide).
+// No externs.h here -- which matters more than usual, because externs.h is where
+// the unrelated function confuse_monster() is declared (player_glowing_hands.h
+// says why the names collide).
 
-// THE ANSWER ITSELF. It was py.flags.confuse_monster until #18-12-13C; now this
-// one byte is the only place it lives, and the windows below are the only way to
-// reach it.
+// THE ANSWER ITSELF. This one byte is the only place it lives, and the windows
+// below are the only way to reach it.
 //
 // No reset window: zero means "the hands are not glowing", which is where every
 // character starts and where every blow that connects leaves them. Only scroll

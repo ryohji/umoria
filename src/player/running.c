@@ -12,19 +12,14 @@
 
 #include "running.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c, inven_command_state.c, screen_touched.c,
-// level_exit.c, pending_teleport.c and input_ended.c: counting steps needs
-// nothing from the rest of the game. In particular this module does not know how
-// to move anybody, nor which way the run is going (find_direction is a static of
-// run_path.c, next to the corridor-following rules that are the only user of it).
+// No externs.h here: counting steps needs nothing from the rest of the game.
+// In particular this module does not know how to move anybody, nor which way the
+// run is going (find_direction is a static of run_path.c, next to the
+// corridor-following rules that are the only user of it).
 
 // The count is owned here and is static: the only way in is through the six
-// windows below. It came over from variable.c (#18-11-6C) with its initial value
-// -- the old global was written "int find_flag" with no initializer, and a game
-// begins with nobody running. The name follows the windows: it is a number of
-// steps, not a flag.
+// windows below. The initial value is zero, which is how a game begins with nobody
+// running. The name follows the windows: it is a number of steps, not a flag.
 static int run_steps = 0;
 
 // How many steps a run is allowed. Stated once, here, and nowhere else: see

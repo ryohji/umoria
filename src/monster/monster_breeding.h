@@ -35,9 +35,6 @@
 //
 // PER LEVEL. Going anywhere new resets it (dungeon.c), which is the whole
 // meaning of the constant's comment, "Maximum reproductions on a level".
-//
-// This was `mon_tot_mult` in monsters.c -- an int16_t sitting next to the monster
-// definition table, which is not where a per-level counter belongs. #18-14-3.
 
 // A new level. Nothing has been bred here yet.
 void monster_breeding_reset(void);

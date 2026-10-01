@@ -12,17 +12,9 @@
 
 #include "input_ended.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c, inven_command_state.c, screen_touched.c,
-// level_exit.c and pending_teleport.c: counting EOFs needs nothing from the rest
-// of the game. In particular this module does not read the terminal -- it only
-// keeps the tally io.c hands it.
+// This module includes no externs.h: it uses nothing outside itself.
 
-// The count is owned here and is static: the only way in is through the four
-// windows below. It came over from variable.c (#18-11-5C) with its initial value
-// -- the old global was written "int eof_flag = 0", and a game begins with input
-// that is still coming.
+// EOF counter. Starts at 0.
 static int eof_count = 0;
 
 // The number of EOFs io.c has put up with before it panic-saves and dies. Stated

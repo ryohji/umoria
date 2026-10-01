@@ -12,19 +12,17 @@
 
 #include "player_mana.h"
 
-// No externs.h here, the same as player_food.c and the rest. This module knows
-// nothing about spells, classes, stats, hunger or resting -- the caller works
-// out what the maximum should be and how fast the store refills, and hands over
-// a number. It prints nothing and raises no status flag.
+// No externs.h here. This module knows nothing about spells, classes, stats,
+// hunger or resting -- the caller works out what the maximum should be and how
+// fast the store refills, and hands over a number. It prints nothing and raises
+// no status flag.
 
 // PLAYER_REGEN_MNBASE and the factor the caller passes are both in 65536ths,
 // which is why everything below shifts by 16.
 #define MANA_FRACTION_FULL 0x10000L
 
-// The three numbers themselves (#18-12-4C). They used to be py.misc.mana,
-// py.misc.cmana and py.misc.cmana_frac, and nothing outside this file can reach
-// them now. All three start at nothing, exactly as they did inside the
-// uninitialised struct: the real values arrive when calc_mana() sees the first
+// The three numbers themselves. Nothing outside this file can reach them. All
+// three start at nothing: the real values arrive when calc_mana() sees the first
 // spell learned, or when the save file is read.
 static int16_t max_mana = 0;
 static int16_t current_mana = 0;

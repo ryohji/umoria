@@ -12,24 +12,10 @@
 
 #include "command_state.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c, missile_serial.c, inven_command_state.c, screen_touched.c,
-// level_exit.c, pending_teleport.c, input_ended.c and running.c: remembering a
-// count, a "reuse the direction" answer and one character needs nothing from the
-// rest of the game. In particular this module does not read the keyboard, does
-// not know which commands accept a count (dungeon.c decides that), and does not
-// know which direction is remembered (get_dir() keeps that itself).
+// This module includes no externs.h: it uses nothing outside itself.
 
-// All three are owned here and are static: the only way in is through the
-// thirteen windows below. They came over from variable.c (#18-11-7C) with their
-// initial values -- the old globals were written "int command_count" with no
-// initializer, "bool default_dir = false" and "char last_command = ' '", and a
-// game begins with no count typed, no direction remembered and no command yet.
-//
-// The names follow the windows. The count is a number of repeats left, not a
-// count of anything else; the direction answer is about remembering, not about a
-// default; and the character is the command before this one.
+// State: repeats left, remembered direction flag, and last command character.
+// All start at 0 or false.
 static int repeats_left = 0;
 static bool direction_remembered = false;
 static char previous_command = ' ';

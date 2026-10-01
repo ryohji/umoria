@@ -14,9 +14,8 @@
 // purse (player_gold.c), the stomach (player_food.c) and the four numbers the
 // character sheet shows (player_display_numbers.c). Three numbers answer it
 // together: what is left, what it can reach and the part of a point still on
-// its way back. They were py.misc.cmana, py.misc.mana and py.misc.cmana_frac,
-// touched from seventy-one places in ten files; since #18-12-4C they are
-// statics in player_mana.c and these windows are the only way in.
+// its way back. They are statics in player_mana.c and these windows are the
+// only way in.
 //
 // THE FRACTION IS THE REASON THIS MODULE HAS RULES IN IT. Regeneration gives
 // back a tiny amount each turn -- the whole maximum multiplied by a factor of

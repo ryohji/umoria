@@ -12,21 +12,19 @@
 
 #include "player_hp.h"
 
-// No externs.h here, the same as player_mana.c and the rest. This module knows
-// nothing about levels, the constitution, poison, resting or what dying does --
-// the caller works out what the maximum should be and how fast the store
-// refills, and hands over a number. It prints nothing and raises no status flag.
+// This module knows nothing about levels, the constitution, poison, resting or
+// what dying does -- the caller works out what the maximum should be and how
+// fast the store refills, and hands over a number. It prints nothing and raises
+// no status flag.
 
 // PLAYER_REGEN_HPBASE and the factor the caller passes are both in 65536ths,
 // which is why everything below shifts by 16.
 #define HP_FRACTION_FULL 0x10000L
 
-// The three numbers themselves (#18-12-5C). They used to be py.misc.mhp,
-// py.misc.chp and py.misc.chp_frac, and nothing outside this file can reach them
-// now. All three start at nothing, exactly as they did inside the uninitialised
-// struct: the real values arrive when create.c makes a character, or when the
-// save file is read. A START OF ZERO IS NOT THE MARK OF DEATH -- the mark is a
-// negative number, so a character who has not been made yet is alive.
+// The three numbers themselves. Nothing outside this file can reach them. All
+// three start at nothing: the real values arrive when create.c makes a character,
+// or when the save file is read. A START OF ZERO IS NOT THE MARK OF DEATH -- the
+// mark is a negative number, so a character who has not been made yet is alive.
 static int16_t max_hp = 0;
 static int16_t current_hp = 0;
 static uint16_t hp_fraction = 0;

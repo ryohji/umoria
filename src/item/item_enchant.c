@@ -8,8 +8,8 @@
 // Making an object magical: the pluses, the curses and the ego names that an
 // object may be given when it is created
 //
-// magic_treasure() is one long switch on the object's type and is not split
-// here (ledger #26). m_bonus() gives the size of a plus.
+// magic_treasure() is one long switch on the object's type. m_bonus() gives
+// the size of a plus.
 
 #include "headers.h"
 

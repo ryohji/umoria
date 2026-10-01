@@ -48,7 +48,7 @@ void aim(void) {
             }
             bool ident = false;
 
-            // 杖（staffs.c）とまったく同じ形。
+            // Same structure as staffs (see staffs.c).
             int chance = device_use_chance(player_saving_throw(), stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[player_class()][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
 
             if (!device_use_succeeds(chance)) {

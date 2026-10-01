@@ -12,9 +12,8 @@
 
 #include "dungeon_level.h"
 
-// THE STORAGE. It was a short named dun_level in variable.c, and one of the few
-// lines there with an initializer of its own: a new game starts in the town.
-// (The initializer is spelled out in dungeon_level.h, where writing it does not
+// THE STORAGE. A new game starts in the town. (The initializer is spelled out
+// in dungeon_level.h, where writing it does not
 // look like an assignment to the ledger that counts writes.)
 //
 // A short, because that is what the save file holds. The window hands out a

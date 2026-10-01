@@ -9,7 +9,7 @@
 
 #include "distance.h"
 
-// No externs.h here, the same as bits.c: nothing outside this file is called.
+// This module includes no externs.h: it calls nothing outside itself.
 
 // Distance between two points -RAK-
 int distance(int y1, int x1, int y2, int x2) {

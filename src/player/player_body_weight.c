@@ -12,15 +12,11 @@
 
 #include "player_body_weight.h"
 
-// No externs.h here, the same as the twenty-two questions before this one. This
-// one does not even need the read-only table the race reached for -- creation
-// looks up the race's weight columns itself and hands the result in, so from
-// #18-12-23C on this file reaches out to nothing at all.
+// This file reaches out to nothing at all. Creation looks up the race's weight
+// columns itself and hands the result in.
 
-// THE POUNDS THEMSELVES. It was the weight field of the character's record until
-// #18-12-23C; now this one short is the only place the answer lives, and the two
-// windows below are the only way to reach it. (`struct misc` is down to twelve
-// fields.)
+// THE POUNDS THEMSELVES. This one short is the only place the answer lives, and the
+// two windows below are the only way to reach it.
 //
 // ZERO IS WHERE A CHARACTER STARTS and it is not a real answer -- a body with no
 // weight is a character that creation has not reached yet. THE TESTS LEAN ON THAT
