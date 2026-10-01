@@ -12,12 +12,10 @@
 
 #include "player_base_to_hit.h"
 
-// No externs.h here, the same as the seventeen questions before this one.
+// No externs.h here.
 
-// THE TWO NUMBERS THEMSELVES. They were py.misc.bth and py.misc.bthb until
-// #18-12-19C; now these two shorts are the only place the answer lives, and the
-// windows below are the only way to reach it. (`struct misc` is down to sixteen
-// fields.)
+// THE TWO NUMBERS THEMSELVES. These two shorts are the only place the answer lives,
+// and the windows below are the only way to reach it.
 //
 // ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
 // until create.c picks a race, and a Human's racial base happens to be zero too.
