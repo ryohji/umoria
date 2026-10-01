@@ -72,8 +72,7 @@ static void rand_dir(int *rdir, int *cdir) {
 static void fill_cave(int fval) {
     // no need to check the border of the cave
     for (int i = dungeon_height() - 2; i > 0; i--) {
-        // columns 1 .. width - 2, the row without its two border squares --
-        // the same range upstream's pointer covered from column 1 (#18-14-8)
+        // columns 1 .. width - 2, the row without its two border squares
         for (int j = 1; j <= dungeon_width() - 2; j++) {
             cave_type *c_ptr = square_at(i, j);
             if ((c_ptr->fval == NULL_WALL) || (c_ptr->fval == TMP1_WALL) ||
@@ -1182,9 +1181,9 @@ void generate_cave(void) {
     panel_forget_bounds();
     player_pos_forget();
 
-    // Link all free space in treasure list together (tlink(), #18-14-7)
+    // Link all free space in treasure list together
     floor_items_reset();
-    // Link all free space in monster list together (mlink(), #18-14-4)
+    // Link all free space in monster list together
     monster_list_reset();
     dungeon_map_reset();
 

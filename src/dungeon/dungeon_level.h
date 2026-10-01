@@ -28,7 +28,7 @@
 // in, so `!= 0` and `> 0` really are the same test: going up from the town is
 // impossible because the town has no up staircase, not because anybody compares.
 //
-// This was `int16_t dun_level = 0;` in variable.c. #18-14-6.
+// This was `int16_t dun_level = 0;` in variable.c.
 
 // Which level the game is on. 0 is the town.
 int dungeon_level(void);

@@ -13,18 +13,14 @@
 // `cave_type cave[MAX_HEIGHT][MAX_WIDTH];` in variable.c: 258 references in
 // fifteen files, more than any other global left in externs.h. It is last
 // because two of the seven fields in a square are indices into tables that had
-// to be closed first -- cave[y][x].cptr says which monster stands there
-// (#18-14-4) and cave[y][x].tptr says which thing lies there (#18-14-7) -- and
-// until those two had windows there was no way to say what handing out a square
-// ought to mean. #18-14-8.
+// to be closed first -- cave[y][x].cptr says which monster stands there and
+// cave[y][x].tptr says which thing lies there.
 //
 // IT HOLDS THE TOWN TOO, so the name was narrower than the thing. The table is
 // always MAX_HEIGHT x MAX_WIDTH (66 x 198); the town is generated into the top
 // left 22 x 66 of the same table, and generate_cave() blanks the whole of it
 // before either kind of level is built. What varies is how much of the table is
-// in play, and that is dungeon_size.c's question, not this one. (The same shape
-// of misnaming as t_list in #18-14-7: a name that says less than the container
-// holds.)
+// in play, and that is dungeon_size.c's question, not this one.
 //
 // WHAT ONE SQUARE HOLDS -- seven fields, and the counts of how often the tree
 // touches each (measured over src/*.c with comments stripped):
@@ -80,10 +76,7 @@
 // else's. The casts, the asserts and both comments went with them.
 
 // A new level: every square blank. Called by generate_cave() in generate.c for
-// the town and for every dungeon level, before anything is built. It was a
-// static wrapper there, blank_cave(), whose whole body was one memset -- the
-// third such wrapper this group has absorbed, after mlink() (#18-14-4) and
-// tlink() (#18-14-7).
+// the town and for every dungeon level, before anything is built.
 //
 // THE WHOLE TABLE IS BLANKED, not the part the level in play uses. The town
 // occupies 22 x 66 and the next dungeon level 66 x 198, so a reset that stopped
@@ -118,8 +111,8 @@ cave_type *square_at(int y, int x);
 //     fval <= MAX_CAVE_FLOOR        9   is this a floor of some kind?
 //
 // Those are the same question written in two directions (open/blocked) and the
-// same boundary spelled two ways, which is the shape #18-14-6 found for "is the
-// player in town". They are not folded here: each of them is a question about
+// same boundary spelled two ways. They are not folded here: each of them is a
+// question about
 // ONE SQUARE, answerable from the struct alone, and none of them needs this
 // table to be private. Naming them is a separate unit's work, and the numbers
 // above are written down so that unit does not have to measure again.
@@ -127,9 +120,9 @@ cave_type *square_at(int y, int x);
 // TWO THINGS THIS QUESTION INHERITED AND KEPT:
 //
 //  1. THE SWEEP IN pusht(). A floor row does not know which square it lies on,
-//     so when object_place.c moves the last row down into a hole it sweeps the level
-//     looking for the square whose tptr is the row it moved. #18-14-7 left that
-//     sweep here on purpose, because it needs this table. It is still a sweep;
+//     so when object_place.c moves the last row down into a hole it sweeps the
+//     level looking for the square whose tptr is the row it moved. It is still a
+//     sweep;
 //     it now walks through this window. Removing it means putting y and x in
 //     the row, which upstream already wrote down as a wish at the struct
 //     itself (types.h:136), and that is a change to what is stored, not to who

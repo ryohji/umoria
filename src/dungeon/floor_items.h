@@ -12,8 +12,8 @@
 // THE SAME ARRANGEMENT AS THE MONSTERS, FOR THE OTHER HALF OF A SQUARE. One
 // table whose rows are kept PACKED, and one mark saying how far the packing
 // reaches. Every square of the level carries two indices into two such tables:
-// cave[y][x].cptr says which monster stands there (#18-14-4) and
-// cave[y][x].tptr says which thing lies there. This is that second table.
+// cave[y][x].cptr says which monster stands there and cave[y][x].tptr says
+// which thing lies there. This is that second table.
 //
 // IT IS NOT A LIST OF TREASURE, whatever upstream's name for it said. Doors,
 // staircases, rubble, traps, the entrances to the six shops and the mushrooms a
@@ -36,9 +36,8 @@
 // This was `inven_type t_list[MAX_TALLOC];` and `int16_t tcptr;` in treasure.c
 // -- the things on this level, and the mark of how far the table is filled,
 // sitting beside object_list, the 420-row table of what a KIND of thing is.
-// Two tables with nothing to do with each other, the same neighbours #18-14-4
-// found for the monsters. Two names for one arrangement, so one module.
-// #18-14-7.
+// Two tables with nothing to do with each other. Two names for one arrangement,
+// so one module.
 
 // A new level: nothing is lying on it. Blanks every row -- row 0 included, see
 // above -- and puts the mark back at the start. The one caller is

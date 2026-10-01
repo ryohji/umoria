@@ -35,8 +35,8 @@ bool level_is_over(void);
 // prompt says, and the deep-descent scroll stops at 1 because it may not push
 // the player above the town. Level 0 is the town, and it is a level like any
 // other here -- word-of-recall uses it.
-// The depth itself lives in src/dungeon/dungeon_level.c (#18-14-6); this window writes
-// it through set_dungeon_level().
+// The depth itself lives in src/dungeon/dungeon_level.c; this window writes it
+// through set_dungeon_level().
 void leave_for_level(int level);
 
 // This level is finished and no other one is named, so the depth is left as it
