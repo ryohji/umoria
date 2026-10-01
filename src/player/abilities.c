@@ -37,38 +37,38 @@
 struct player_abilities calc_player_abilities(void) {
     struct player_abilities a;
 
-    // 素の命中力は窓口へ（#18-12-19B）。**この 2 行が税 9 本の出どころ** ——
-    // このファイルを 9 つの recipe がリンクしている。足している残りは
-    // この画面の問いのほう（階級の段ごとの列）。
+    // **Base to-hit is from the window.** Nine recipes link this file. What is
+    // added here is the per-level column from the class table.
     //
-    // 武器の下駄も窓口へ（#18-12-24B）。**2 行が同じ数を読むので入口で 1 度に
-    // 畳んだ** —— あいだに下駄を動かすものは無い（→ 所見 35 の 1 つめの形）。
-    // **BTH_PLUS_ADJ（3）を掛けるのはこの画面の規則**で、窓口には入れない ——
-    // 殴りと投げは下駄をそのまま足す（player_melee.c・throw.c）。
+    // **Equipment bonus folded once at entry** — nothing between the two lines
+    // moves the bonus (observation 35, first form). **Multiplying by BTH_PLUS_ADJ
+    // (3) is this screen's rule**, not the window's — melee and throwing add
+    // the bonus as-is (player_melee.c, throw.c).
     const int to_hit_bonus = player_to_hit_bonus();
     a.bth = player_base_to_hit() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTH] * player_level());
     a.bthb = player_base_to_hit_with_bows() + to_hit_bonus * BTH_PLUS_ADJ + (class_level_adj[player_class()][CLA_BTHB] * player_level());
 
-    // 探索の腕と頻度も窓口へ（#18-12-25B）。**逆さにするのと 0 で留めるのは
-    // この画面の規則**で、窓口には入れない —— 自動探索は頻度をそのまま
-    // randint() に渡す（player_move.c）。0 when the frequency is >= 40; exceeds 29
-    // when it is < 11 (search gear lowers it, player_bonuses.c)
+    // **Inverting and clamping to 0 are this screen's rule**, not the window's —
+    // auto-search passes frequency as-is to randint() (player_move.c). 0 when the
+    // frequency is >= 40; exceeds 29 when it is < 11 (search gear lowers it,
+    // player_bonuses.c)
     a.fos = 40 - player_search_frequency();
     if (a.fos < 0) {
         a.fos = 0;
     }
 
-    // 腕のほうは補正が 1 つも乗らない（下駄に 3 を掛ける命中力とは違う）。
+    // Search chance has no modifiers applied (unlike to-hit, which multiplies
+    // the bonus by 3).
     a.srh = player_search_chance();
 
-    // 足音の静かさも窓口へ（#18-12-27B）。**+1 はこの画面の規則**で、窓口には
-    // 入れない —— likert() の除数が 1 なので、この 1 つで語が 1 段動く
-    // （stl + 1, so the minimum is 1 (not 0)）。
+    // **The +1 is this screen's rule**, not the window's — likert() divides by 1,
+    // so this single increment moves the word one step (stl + 1, so the minimum
+    // is 1 (not 0)).
     a.stl = player_stealth() + 1;
 
     a.dis = player_disarm() + 2 * todis_adj() + stat_adj(A_INT) + (class_level_adj[player_class()][CLA_DISARM] * player_level() / 3);
-    // 抵抗は窓口へ（#18-12-21B）。**同じ 1 本が下の道具の腕にも答える** ——
-    // 足すものが違うだけ（A_WIS と CLA_SAVE ／ A_INT と CLA_DEVICE）。
+    // **The same window answers both saving throw and device skill** — only what
+    // is added differs (A_WIS and CLA_SAVE vs. A_INT and CLA_DEVICE).
     a.save = player_saving_throw() + stat_adj(A_WIS) + (class_level_adj[player_class()][CLA_SAVE] * player_level() / 3);
 
     // Based on the SAVING THROW, not `disarm`. Preserved as it stands; the

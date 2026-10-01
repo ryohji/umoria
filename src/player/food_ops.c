@@ -24,9 +24,9 @@
 // Add to the players food time -RAK-
 void add_food(int num) {
 
-    // 飢えの借金を消すのは窓口の中（#18-12-2A）。腹だけの規則で、ほかに
-    // 訊く人がいないので内側に入れた。ここに残るのは食べすぎの罰 ——
-    // 画面に言い、速さを落とす。どちらも腹の話ではない。
+    // Repaying starvation debt is inside the window (player_food.h). What remains
+    // here is the penalty for overeating: message and slowness, which are not
+    // about the stomach itself.
     player_gain_food(num);
 
     if (player_food() > PLAYER_FOOD_MAX) {
