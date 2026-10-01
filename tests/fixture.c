@@ -16,7 +16,6 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_level.h"
-#include "stub_unreached.h"
 
 player_type py;         /* 本体では player.c（530行の巨大データと同居） */
 /* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
@@ -103,11 +102,3 @@ void reset_seed(void) {}
 /* 文字列組み立て。desc.c 内の別関数用で、今回の対象は呼ばない */
 void insert_str(char *o, const char *m, const char *i) { (void)o; (void)m; (void)i; }
 void add_inscribe(inven_type *i, int flag) { (void)i; (void)flag; }
-
-/* 店舗の商品判定。tables.c の表が名前を持つだけで、呼ばれない */
-bool general_store(int t) { stub_unreached(__func__); }
-bool armory(int t) { stub_unreached(__func__); }
-bool weaponsmith(int t) { stub_unreached(__func__); }
-bool temple(int t) { stub_unreached(__func__); }
-bool alchemist(int t) { stub_unreached(__func__); }
-bool magic_shop(int t) { stub_unreached(__func__); }
