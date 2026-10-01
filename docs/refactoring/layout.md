@@ -604,6 +604,19 @@ object_place）→ ④ map_view と monster_place → ⑤ 最後に rnd と geom
       「55 本」から減ったのは、#37 で観測窓口 3 つが記録する版になり、`in_bounds`・
       `delete_object` の写し 2 本が `shared_stubs.c` の 1 本にまとまったため。
     - 本物に替える案（`sets.o` など）はやっていない。
+  - **本物に替えた**（ユーザーの判断。マージ `230ddcc`）。
+    - `sets.o`：店の判定 12 本（shared 6・fixture.c 6）を外した。`set_large` の代役は
+      object_levels_test だけが使うので `object_levels_fixture.c` に移し、そこでは店の判定も
+      代役のまま（`sets.o` を引かないため）。
+    - `geometry.o`：`in_bounds`・`popt`（shared）と `los`・`mmove`・`distance`（creature）は
+      1 コミットで外す。どれか 1 本だけ外すと、引かれた `geometry.o` と重なって定義が二重になる。
+    - `dice.o`・`bits.o`・`panel.o`・`str_insert.o`：`damroll`・`bit_pos`・`panel_contains`・
+      `concat` を外した。
+    - リンク単位：haggle_comment・objdes +1、check_strength・inven_stack 15→19、
+      object_levels 14→16、item_ident 8→9、movement_rate 24→30。
+    - **recall の 6 本は代役のまま。** `recall_get` は `variable.o` にあり、`variable.o` は
+      `free_turn_flag`・`display_counts` も定義するので `shared_stubs.c` の 2 つと重なる。
+      その 2 つを外すと shared を使う全テストが `variable.o` を引くので、別の作業にする。
 - **#44：** 定数を返す代役は中身を変えずに運んだ。
 - **気づいたこと：** 古い `fixture_reset()` には、赤外視の距離を 0 に戻す理由のコメントだけが
   あり、呼びだしは無かった。新しい足場にも無い。いまのテストは自分で値を置いてから読むので
@@ -940,3 +953,4 @@ D0 の案のうち迷いどころ 10 点を問い合わせ、**すべて上の�
 | #37 | 済み（2026-10-01、マージ `df6de6d`） | `refactor/37-stubs`（`3fb28ad`） |
 | #38 段階 B | 済み（2026-10-01、マージ `65773e1`） | `refactor/38-item-learn`（`fd89496`・`32f8706`） |
 | #44 | 済み（2026-10-01、マージ `264d258`） | `test/44-stubs`（`4ea0a61`〜`815f8cc`、6 コミット） |
+| #44 本物へ | 済み（2026-10-01、マージ `230ddcc`） | `test/44-real`（`9db83b2`〜`11c4c17`、8 コミット） |
