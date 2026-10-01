@@ -114,7 +114,6 @@ void prt_cmana(void) {}
 void prt_experience(void) {}
 void prt_gold(void) {}
 
-int damroll(int num, int sides) { stub_unreached(__func__); }
 
 /* --- ダンジョン・座標 --- */
 bool panel_contains(int y, int x) { stub_unreached(__func__); }
