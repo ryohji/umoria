@@ -12,21 +12,17 @@
 
 #include "player_spells_to_learn.h"
 
-// No externs.h here, the same as the thirteen questions before this one. And no
+// No externs.h here: this module reaches nothing outside itself. And no
 // spells_known.h either: calc_spells() subtracts the number of spells already
 // known to make this count, but it does that once and remembers the answer
 // (player_spells_to_learn.h says why the two are not halves of one fact).
 
-// THE ANSWER ITSELF. It was py.flags.new_spells until #18-12-14C; now this one
-// byte is the only place it lives, and the windows below are the only way to
-// reach it.
+// THE ANSWER ITSELF. This one byte is the only place it lives, and the windows
+// below are the only way to reach it.
 //
 // No reset window: zero means "nothing may be learned right now", which is where
 // every character starts, where every fighter stays, and where gain_spells()
 // leaves a character who has studied everything the level allows.
-//
-// With this byte moved, py.flags holds only three fields, and all three are
-// dead (types.h says so).
 static uint8_t the_count;
 
 int player_spells_to_learn(void) {

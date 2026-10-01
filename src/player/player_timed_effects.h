@@ -17,8 +17,8 @@
 // (player_abilities.c). EIGHTEEN fields answered it -- py.flags.blind through
 // py.flags.tim_infra, touched from two hundred and eighty-one places in eighteen
 // files (dungeon.c seventy-five of them, save.c thirty-eight, creature.c
-// thirty-two). Since #18-12-9C they are a static array in
-// player_timed_effects.c and the windows below are the only way to reach them.
+// thirty-two). They are a static array in player_timed_effects.c and the windows
+// below are the only way to reach them.
 //
 // THE QUESTION IS "HOW MANY TURNS ARE LEFT". A cause adds turns (a potion, a
 // bite, a trap, a prayer), one block in dungeon.c takes one turn off every
@@ -35,9 +35,9 @@
 // clock, because a monster may have just added turns of blindness that have not
 // taken effect yet.
 //
-// WHAT #18-12-7 LEFT HERE. That unit wrote down that dungeon.c repeats one
-// skeleton twelve times and that folding it needs both halves, so it belongs to
-// whichever module owns the counters -- this one. The skeleton is
+// FOLDING THE TWELVE-TIMES SKELETON. dungeon.c repeats one skeleton twelve times
+// and folding it needs both halves, so it belongs to whichever module owns the
+// counters -- this one. The skeleton is
 //
 //     if (f_ptr->hero > 0) {
 //         if (player_note_effect_started(PLAYER_EFFECT_HERO)) { ...once... }

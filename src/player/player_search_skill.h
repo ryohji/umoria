@@ -38,8 +38,8 @@
 //
 // WHO ASKS: search mode's own turn (dungeon.c), the automatic look while running
 // (player_move.c) and while resting or tunnelling (terrain_commands.c), the character
-// sheet's two ratings (abilities.c, which is where the upside-down arithmetic
-// lives), the debugging editor (wizard.c), and the saved file.
+// sheet's two ratings (abilities.c, which is where the upside-down arithmetic lives),
+// the debugging editor (wizard.c), and the saved file.
 //
 // NOT THE SAME QUESTION AS "IS THIS CHARACTER SEARCHING RIGHT NOW". That is a flag,
 // it already has a window (player_is_searching() in player_status_flags.h), and
@@ -51,8 +51,6 @@
 // automatic looks, the character sheet, the debugging editor's prompt, the saved
 // file) and THREE FOR THE FREQUENCY (the automatic look, which asks twice in one
 // condition and has it folded to one read, the character sheet, the saved file).
-// Both counts were checked against the callers after #18-12-25B; the step-A note
-// said four for the frequency and listed three.
 //
 // Both are ints, though the fields are int16_t: every caller either passes the
 // number to a function taking int (`search(row, col, chance)`, `randint(n)`) or

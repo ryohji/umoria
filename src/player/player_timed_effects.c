@@ -13,20 +13,18 @@
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 
-// No externs.h here, the same as the eight questions before this one. This module
-// does not know what any of the eighteen counters leads to -- no messages, no
-// rolls, no drawing.
+// No externs.h here: this module reaches nothing outside itself. This module does
+// not know what any of the eighteen counters leads to -- no messages, no rolls,
+// no drawing.
 //
 // player_status_flags.h IS included, and it is the first time one of these
 // modules calls another. That is the point of this unit: the mark and the clock
 // are two halves of one fact, and the table below is the only place in the
 // program that says which mark belongs to which clock.
 
-// THE EIGHTEEN ANSWERS THEMSELVES. They were py.flags.blind through
-// py.flags.tim_infra until #18-12-9C; now this array is the only place they
-// live, and the windows below are the only way to reach them. The order is the
-// save file's (player_timed_effects.h), but save.c names each one, so nothing
-// here depends on it.
+// THE EIGHTEEN ANSWERS THEMSELVES. This array is the only place they live, and the
+// windows below are the only way to reach them. The order is the save file's
+// (player_timed_effects.h), but save.c names each one, so nothing here depends on it.
 //
 // No reset window: a new character starts the program over, the same as the
 // status word and the seventeen abilities. Loading a saved game writes all

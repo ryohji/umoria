@@ -12,15 +12,12 @@
 
 #include "player_stealth.h"
 
-// No externs.h here, and after #18-12-27C NOT ONE LINE THAT REACHES ANYTHING --
-// the fifth unit in a row that ends this way. The two tables the number starts in
-// (race[] and class[]) are read by creation, which hands the answer in; this file
-// reads neither.
+// No externs.h here: this module reaches nothing outside itself. The two tables
+// the number starts in (race[] and class[]) are read by creation, which hands the
+// answer in; this file reads neither.
 
-// THE PLACE THE ANSWER LIVES. It was `py.misc.stl` until #18-12-27C; now this one
-// short is the only place the answer lives, and the three windows below are the only
-// way to reach it. `struct misc` WAS DOWN TO ONE FIELD -- `pclass`, which left in
-// #18-12-28 and took the struct with it, as promised.
+// THE PLACE THE ANSWER LIVES. This one short is the only place the answer lives,
+// and the three windows below are the only way to reach it.
 //
 // int16_t, WHICH IS THE FIELD'S OWN WIDTH and far more room than the answer needs:
 // the game can only reach -1 through 18. The width is kept because the saved file

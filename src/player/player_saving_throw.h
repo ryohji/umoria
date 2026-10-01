@@ -80,8 +80,8 @@ int player_saving_throw(void);
 void player_saving_throw_set(int chance);
 
 // This much better -- the class's msav, added to whatever the race left here.
-// ONE CALLER, create.c, which used to spell it `m_ptr->save += c_ptr->msav;`.
-// A window of its own rather than read-add-write, so the store is touched once.
+// ONE CALLER, create.c. A window of its own rather than read-add-write, so the
+// store is touched once.
 void player_saving_throw_adjust(int chance);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all still in the callers:
@@ -96,12 +96,9 @@ void player_saving_throw_adjust(int chance);
 //        save + stat_adj(A_WIS or A_INT)
 //             + class_level_adj[pclass][CLA_SAVE or CLA_DEVICE] * player_level() / 3
 //
-//      FOLDING THOSE FIVE WAITED FOR #18-12-28 and that wait is over: the
-//      subscript is player_class() now, so the fold no longer means reaching `py`.
-//      IT IS STILL NOT MADE, for the same reason as the disarming skill's four --
-//      it means player_saving_throw.c calling player_class.c, which is a unit of
-//      its own. This was the second of the two folds waiting on the class, and
-//      #18-12-28 unlocked both without making either (ledger observation 42).
+//      FOLDING THOSE FIVE IS NOT DONE, for the same reason as the disarming
+//      skill's four: it means player_saving_throw.c calling player_class.c,
+//      which is a unit of its own.
 //   3. THE REST OF THE DEVICE CHANCE. device_use_chance() (device.c) takes this
 //      number as its first argument and then subtracts the item's level and a
 //      penalty, and halves what is left when the character is confused. That

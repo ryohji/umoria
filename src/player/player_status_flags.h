@@ -22,15 +22,12 @@
 // before this one was "how much" or "how far"; this one is "which of these
 // thirty things is true". The bits are declared in constant.h as PY_HUNGRY
 // through PY_MANA, and NONE OF THEM APPEARS IN A CALLER ANY MORE: the mask
-// arithmetic lives here, the way spells_known.c hid `1L << spell` (#18-8).
+// arithmetic lives here, the way spells_known.c hides `1L << spell`.
 //
 // THE BIT LAYOUT IS THE SAVE FILE'S FORMAT. save.c writes and reads the whole
 // word with wr_long/rd_long, so the numbering cannot move. That is what
-// player_status_word() and player_set_status_word() are for, and once the callers
-// were rewired THEY HAVE ONLY TWO CALLERS, both halves of the save file. The
-// third one was expected -- prt_stat_block() used to take a copy of the whole
-// word and read eight bits out of it -- but asking window by window turned out to
-// give the same answer, so the copy went away (#18-12-7B2).
+// player_status_word() and player_set_status_word() are for, and THEY HAVE ONLY
+// TWO CALLERS, both halves of the save file.
 //
 // The thirty bits fall into four families, and telling them apart is most of
 // what this module is for. Reading the field alone does not reveal them: the
@@ -175,8 +172,8 @@ void player_start_searching(void);
 void player_stop_searching(void);
 
 // Rest mode. The bit says the character is resting; how much longer is behind
-// player_resting.h, which is a different question (and since #18-12-10 nothing
-// in this module touches it -- the two halves keep their own callers).
+// player_resting.h, which is a different question. The two halves keep their
+// own callers.
 bool player_is_resting(void);
 void player_start_resting(void);
 void player_stop_resting(void);

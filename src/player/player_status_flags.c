@@ -12,16 +12,15 @@
 
 #include "player_status_flags.h"
 
-// No externs.h here, the same as the six questions before this one. This module
+// No externs.h here: this module reaches nothing outside itself. This module
 // knows nothing about what a mark means -- no messages, no counters, no drawing.
 // It keeps the set and hides the mask arithmetic.
 
-// THE WORD ITSELF, and the only copy of it. It was a field in py.flags until
-// #18-12-7C; now the thirty bits live here and nothing outside this file can
-// name them. Zero is where a character starts -- no mark set, no request
-// waiting, not searching, not resting -- which is what py's own zero-initialised
-// storage used to give; create.c sets the real state when it makes a character,
-// and save.c puts the saved word back through player_set_status_word().
+// THE WORD ITSELF, and the only copy of it. The thirty bits live here and nothing
+// outside this file can name them. Zero is where a character starts -- no mark set,
+// no request waiting, not searching, not resting. create.c sets the real state when
+// it makes a character, and save.c puts the saved word back through
+// player_set_status_word().
 static uint32_t status;
 
 // The fourteen marks, in the order of the enum. THE MAPPING IS THE ONLY PLACE

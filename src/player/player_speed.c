@@ -12,13 +12,13 @@
 
 #include "player_speed.h"
 
-// No externs.h here, the same as the ten questions before this one. And no
+// No externs.h here: this module reaches nothing outside itself. And no
 // player_status_flags.h either: search mode's one step is a different question
 // and the state line keeps it (player_speed.h says why this one does not fold
 // the pair the way player_timed_effects.c does).
 
-// THE ANSWER ITSELF. It was py.flags.speed until #18-12-11C; now this one short
-// is the only place it lives, and the windows below are the only way to reach it.
+// THE ANSWER ITSELF. This one short is the only place it lives, and the windows
+// below are the only way to reach it.
 //
 // No reset window: zero means "normal speed", which is where a new character
 // starts, the same as the status word, the eighteen clocks and the rest. Loading
