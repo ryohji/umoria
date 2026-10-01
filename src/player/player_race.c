@@ -31,7 +31,7 @@ void player_race_set(int row) {
     // because both are a plain replacement -- and there is no `_adjust` to go with
     // it, because a character does not become more of a Dwarf.
     //
-    // The cast keeps the width as a uint8_t.
+    // The cast is the store's own width (uint8_t), not a rule this window adds.
     the_row = (uint8_t)row;
 }
 

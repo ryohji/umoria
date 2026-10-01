@@ -214,6 +214,7 @@ void quaff(void) {
                 case 31:
                     ident = cure_poison();
                     break;
+                // case 33: break; // this is no longer useful, now that there is a 'G'ain magic spells command
                 case 34:
                     if (player_experience() > 0) {
                         int32_t m, scale;

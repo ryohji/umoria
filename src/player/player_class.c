@@ -29,7 +29,7 @@ void player_class_set(int row) {
     // The class menu, the zero it writes before the menu loop, and a saved byte put
     // back. One sentence for all three, because all three are a plain replacement.
     //
-    // The cast keeps the width as a uint8_t.
+    // The cast is the store's own width (uint8_t), not a rule this window adds.
     the_row = (uint8_t)row;
 }
 

@@ -114,7 +114,7 @@ void player_set_male(bool male) {
 }
 
 void player_age_set(int age) {
-    // The cast keeps the width as a uint16_t.
+    // The cast is the store's own width (uint16_t), not a rule this window adds.
     the_age = (uint16_t)age;
 }
 

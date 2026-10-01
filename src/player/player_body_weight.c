@@ -34,6 +34,6 @@ void player_body_weight_set(int pounds) {
     // replacement -- and there is no `_adjust` to go with it, because NOBODY ADDS
     // TO THIS NUMBER. The character does not put on weight.
     //
-    // The cast keeps the width as a uint16_t.
+    // The cast is the store's own width (uint16_t), not a rule this window adds.
     the_pounds = (uint16_t)pounds;
 }
