@@ -80,9 +80,8 @@ int player_infra_range(void);
 // off, and dungeon.c passes -1 when the potion runs out.
 void player_infra_range_adjust(int squares);
 
-// How far, as an outright answer rather than a change. TWO CALLERS, unlike the
-// ten questions before this one: the race, when the character is made
-// (create.c), and the save file's reader.
+// How far, as an outright answer rather than a change. TWO CALLERS: the race,
+// when the character is made (create.c), and the save file's reader.
 void player_infra_range_set(int squares);
 
 #endif

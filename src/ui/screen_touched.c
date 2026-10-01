@@ -12,10 +12,7 @@
 
 #include "screen_touched.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c and missile_serial.c: one bit needs nothing from the rest of
-// the game.
+// No externs.h here: one bit needs nothing from the rest of the game.
 
 // Flag indicating whether the screen has been flushed. Starts false.
 static bool screen_flushed = false;

@@ -17,9 +17,9 @@
 // the windows below are the only way to reach it.
 //
 // ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
-// until the race menu is answered, and row zero happens to be Human. Unlike every
-// question before this one the byte is NOT A QUANTITY -- it is a row, so there is
-// nothing here to add to and no `_adjust` window to go with the setter.
+// until the race menu is answered, and row zero happens to be Human. The byte is
+// NOT A QUANTITY -- it is a row, so there is nothing here to add to and no
+// `_adjust` window to go with the setter.
 static uint8_t the_row;
 
 int player_race(void) {

@@ -89,10 +89,8 @@ void player_class_set(int row);
 // callers wrote the identical `class[py.misc.pclass].title`, and what they wanted
 // was not a table lookup but the class's name.
 //
-// THIS AND THE NEXT WINDOW ARE THE ONLY LINES THAT REACH OUT. class[] stays where it
-// is: it is one of the twenty read-only constant tables in externs.h, so
-// player_class.c has a single `extern` line for it, the arrangement player_race.c
-// and player_level.c already have.
+// THIS AND THE NEXT WINDOW ARE THE ONLY LINES THAT REACH OUT: class[] is one of
+// the read-only constant tables declared in externs.h.
 //
 // const char *, which is what class_type.title already is (types.h:501) and what
 // both receivers -- prt_field() and put_buffer() -- already take.

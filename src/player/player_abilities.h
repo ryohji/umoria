@@ -18,11 +18,10 @@
 // they were py.flags.see_inv through py.flags.sustain_chr -- touched from a
 // hundred and six places in eight files.
 //
-// WHAT IS NEW HERE IS THAT THE ANSWER IS NOT KEPT, IT IS DERIVED. Every question
-// before this one stored something (how much gold, how many hit points, which
-// marks are set); these seventeen are WORKED OUT FROM THE EQUIPMENT, and
-// calc_bonuses() in player_bonuses.c does it from scratch every time anything changes:
-// it clears all seventeen and sets them again from the flags of what is worn.
+// THE ANSWER IS NOT KEPT, IT IS DERIVED. These seventeen are WORKED OUT FROM THE
+// EQUIPMENT, and calc_bonuses() in player_bonuses.c does it from scratch every
+// time anything changes: it clears all seventeen and sets them again from the
+// flags of what is worn.
 // ALL THIRTY-NINE OF player_bonuses.c'S REFERENCES ARE THAT ONE FUNCTION.
 // Compare player_display_numbers.c: the four numbers there looked derived but
 // turned out to be REMEMBERED -- nobody recomputes them after a save file is read.

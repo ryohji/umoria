@@ -18,8 +18,7 @@
 // Rows 0 and 1 are never handed out: cave[y][x].cptr uses 0 for "no monster" and
 // 1 for "the player", so MIN_MONIX is 2 and the table starts filling there.
 // (cave[y][x].cptr is the index into this table -- the two are one structure
-// seen from two sides, which is why the last of this group's questions cannot be
-// settled before this one.)
+// seen from two sides.)
 //
 // PACKED IS A PROMISE, AND KEEPING IT IS WHY REMOVING A MONSTER IS AWKWARD.
 // A row in the middle cannot simply be emptied; the last row is moved down into

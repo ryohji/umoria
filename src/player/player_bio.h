@@ -15,12 +15,6 @@
 // ARE MALE, HOW OLD THEY ARE, HOW TALL THEY ARE, WHAT THEY WERE BORN INTO, and
 // THE FOUR LINES OF LIFE STORY the background table spun for them.
 //
-// THE ELEVENTH QUESTION OUT OF struct misc, after the purse, how far the character
-// has come, how deep they have been, the hit die, the armour class, the base
-// to-hit, the disarming skill, the saving throw, the race, the body's weight, the
-// attack bonuses and the searching skill. SIX FIELDS LEAVE AT ONCE, which is more
-// than any unit before this one.
-//
 // SIX ANSWERS AND ONE MODULE, and the usual rule for splitting says nothing here.
 // The rule is "does anything read one without the other" -- and all six are read
 // apart, every time. NOTHING ADDS TWO OF THEM UP, nothing compares two of them,
@@ -124,9 +118,8 @@ const char *player_history_line(int line);
 // the height (creation's two height tables, the save file), TWO for the social
 // class.
 //
-// THE SEX'S WINDOW IS SPELLED THE OTHER WAY ROUND on purpose. The eight units
-// before this one all end their setters in `_set`, and this one would be
-// `player_male_set()` -- a name for a thing called "the male", which this module
+// THE SEX'S WINDOW IS SPELLED THE OTHER WAY ROUND on purpose. The other setters
+// end in `_set`, and this one would be `player_male_set()` -- a name for a thing called "the male", which this module
 // never says. Its reader is a question (`player_is_male()`), so its writer is an
 // instruction (`player_set_male()`).
 //

@@ -79,9 +79,8 @@ void player_attack_bonuses_set(int to_hit, int to_damage);
 // NOT ALWAYS ADD BOTH: a bow's todam is skipped ("Bows can't damage. -CJS-"), and
 // an item's two amounts are different numbers anyway.
 //
-// THE `_adjust` WINDOWS EXIST AT ALL because somebody adds to these numbers, which
-// the body's weight (the unit before this one) had nobody to do -- see ledger
-// observation 45. The condition that skips bows stays in the caller: it is a fact
+// THE `_adjust` WINDOWS EXIST because somebody adds to these numbers (findings.md
+// 45). The condition that skips bows stays in the caller: it is a fact
 // about bows, not about this character.
 void player_to_hit_bonus_adjust(int amount);
 void player_to_damage_bonus_adjust(int amount);

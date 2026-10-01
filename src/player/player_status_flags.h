@@ -18,9 +18,7 @@
 // field carries THIRTY-ONE NAMES, touched from a hundred and five places in ten
 // files (dungeon.c sixty of them).
 //
-// WHAT IS NEW HERE IS THAT THE QUESTION IS A SET, NOT A NUMBER. Every question
-// before this one was "how much" or "how far"; this one is "which of these
-// thirty things is true". The bits are declared in constant.h as PY_HUNGRY
+// THE QUESTION IS A SET, NOT A NUMBER: "which of these thirty things is true". The bits are declared in constant.h as PY_HUNGRY
 // through PY_MANA, and NONE OF THEM APPEARS IN A CALLER ANY MORE: the mask
 // arithmetic lives here, the way spells_known.c hides `1L << spell`.
 //
