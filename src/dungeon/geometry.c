@@ -28,21 +28,6 @@ bool in_bounds(int y, int x) {
     }
 }
 
-// Distance between two points -RAK-
-int distance(int y1, int x1, int y2, int x2) {
-    int dy = y1 - y2;
-    if (dy < 0) {
-        dy = -dy;
-    }
-
-    int dx = x1 - x2;
-    if (dx < 0) {
-        dx = -dx;
-    }
-
-    return ((((dy + dx) << 1) - (dy > dx ? dx : dy)) >> 1);
-}
-
 // Checks points north, south, east, and west for a wall -RAK-
 // note that y,x is always in_bounds(), i.e. inside the boundary ring:
 // 0 < y < height-1 and 0 < x < width-1 (see dungeon_size.h)

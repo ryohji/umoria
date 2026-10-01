@@ -279,9 +279,10 @@ int max_hp(const uint8_t *);
 void init_seeds(uint32_t);
 // core/bits.c, which declares it in bits.h as well
 int bit_pos(uint32_t *);
+// core/distance.c, which declares it in distance.h as well
+int distance(int, int, int, int);
 // dungeon/geometry.c
 bool in_bounds(int, int);
-int distance(int, int, int, int);
 bool los(int, int, int, int);
 int next_to_walls(int, int);
 int next_to_corr(int, int);
