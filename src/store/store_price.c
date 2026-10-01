@@ -140,10 +140,7 @@ int32_t sell_price(int snum, int32_t *max_sell, int32_t *min_sell, inven_type *i
 
     // check item->cost in case it is cursed, check i in case it is damaged
     if ((item->cost > 0) && (i > 0)) {
-        // 値段の表は店の問い（#18-12-22B）。**組みあわせの表**なので窓口の
-        // 外に残す —— 引くのは客の種族の列だけ（player_race.h）。
-        // **このファイルが人物の器を名ざしていたのはこの 1 行だけで、
-        // これで丸ごと消えた。**
+        // Adjust by race pairing table (owner's race vs player's race).
         i = i * rgold_adj[owners[s_ptr->owner].owner_race][player_race()] / 100;
         if (i < 1) {
             i = 1;
