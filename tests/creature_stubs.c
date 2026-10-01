@@ -116,7 +116,6 @@ void prt_gold(void) {}
 
 
 /* --- ダンジョン・座標 --- */
-bool panel_contains(int y, int x) { stub_unreached(__func__); }
 void move_rec(int y1, int x1, int y2, int x2) { (void)y1; (void)x1; (void)y2; (void)x2; }
 int twall(int y, int x, int t, int d) { stub_unreached(__func__); }
 int find_range(int a, int b, int *lo, int *hi) { stub_unreached(__func__); }
