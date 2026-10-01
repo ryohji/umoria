@@ -10,9 +10,9 @@
 
 ## 0. 現在地
 
-2026-10-01、`develop` は後始末をマージした上に記録（`origin` は `994818a` のまま。push はユーザーが行う）。
+2026-10-01、`develop` は #44 をマージした上に記録（`origin` は `994818a` のまま。push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1671 件・75 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1677 件・75 本**、failed=0、`RESULT: GREEN`。
   `layer_deps.py --check` は core/ の違反 0。
 - `externs.h` の global は **42 個・参照 599**（着手時 112 個・3147）。
   `scripts/globals.py --check` は 42 個すべて分類。
@@ -56,7 +56,8 @@
   移した。
 - **#37 と #38 の段階 B も済んだ**（マージ `df6de6d`・`65773e1`）。代役の重なりは
   `shared_stubs.c` に寄せ、`learn_item_effect()` は `src/item/item_learn.c` に移した。
-  #44 は調べただけで、手を入れるかはユーザーと決める。layout.md の「#38 で決まったこと・やったこと」。
+  #44 も済んだ（マージ `264d258`）。代役のせいの穴 2 か所にテストを足し、どのテストも届かない
+  代役は `stub_unreached()` で止まる。layout.md の「#38 で決まったこと・やったこと」。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
 [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
@@ -565,7 +566,7 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
   作る。葉のテストが単独でリンクできることを守るため。
 
 L・D0・D は済み、層の規則は「core/ だけ守る」に決まった。R は misc4・misc2・misc1 が
-済み、store1/2・misc3・moria1〜4 も済んで R は終わった（1671 件・75 本 GREEN、警告 0）。combat の残りと後始末も済んで、並べなおしは終わった。#38 の段階 A（テストの足場を対象 module ごとに）と段階 B（`item_learn.c` を分けた）、#37 も済んだ。
+済み、store1/2・misc3・moria1〜4 も済んで R は終わった（1671 件・75 本 GREEN、警告 0）。combat の残りと後始末も済んで、並べなおしは終わった。#38 の段階 A（テストの足場を対象 module ごとに）と段階 B（`item_learn.c` を分けた）、#37・#44 も済んだ（1677 件）。
 
 - **純粋な移動は `scripts/dis_compare.py 変更前の umoria 変更後の umoria 関数…`
   で確かめる。** 移す関数の多くは本物に届くテストが 0 件で（misc4 の 5 本中 4 本、
