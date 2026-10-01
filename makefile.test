@@ -101,7 +101,7 @@ $(BUILDDIR):
 # makefile.win も同じものを読む）。そのうち CORE_SRCS（main.c と ncurses を
 # 直に呼ぶ 2 本を除いたもの）を、テストと同じ CFLAGS で 1 本ずつ .o にして
 # 1 つの archive にまとめる。archive は 1 つだけにする（分けると互いに呼び
-# あってリンクの順番が壊れる。docs/refactoring/layout.md の L）。
+# あってリンクの順番が壊れる。docs/refactoring/done/layout.md の L）。
 #
 # LIB_EXCLUDE の 3 本は入れない。どのテストもリンクしておらず、テストの
 # CFLAGS（-O2 も -D_DEFAULT_SOURCE も無い）でコンパイルすると警告が出る

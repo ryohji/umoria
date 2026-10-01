@@ -1,7 +1,7 @@
 # 引きつぎ資料
 
 次にこのリファクタリングを続ける担当へ。**この資料 → `REFACTORING_PLAN.md` →
-`docs/refactoring/layout.md`** の順に読めば、前提と作法と次の一手が揃う。
+`docs/refactoring/done/layout.md`** の順に読めば、前提と作法と次の一手が揃う。
 済んだ列の経過は `docs/refactoring/done/` にあり、要るときだけ開けばよい。
 
 作成日: 2026-09-13（`develop` の `a89c97d` 時点）
@@ -32,7 +32,7 @@
   inscription → `item/inscription.c`、`check_view` → `ui/map_view.c`、`concat` は
   テスト 9 件を足してから `core/str_insert.c`（#47 も済んだ）。どのコミットも
   動かした関数の機械語が変更前と一致（`scripts/dis_compare.py`）。
-- **misc1.c も消えた**（#54 は済み。2026-09-30）。行き先は layout.md の表のとおりで、
+- **misc1.c も消えた**（#54 は済み。2026-09-30）。行き先は done/layout.md の表のとおりで、
   乱数は `core/rnd.c`（`normal_table` ごと）、`damroll` など 3 本は `core/dice.c`。
 - **store1.c・store2.c も消えた**（#55 は済み。マージ `59e0c92`・`ced26a4`）。`store/` に
   値段 `store_price.c`・品ぞろえ `store_stock.c`・画面 `store_ui.c`・値切り `store_haggle.c`。
@@ -40,17 +40,17 @@
 - **misc3.c も消えた**（#42 は済み。マージ `cb5279a`、19 コミット）。行き先は 13 本で、
   `combat/` もできた（`hit_rolls.c`・`player_damage.c`）。画面の欄に書く小さな操作 4 本は
   `ui/screen_fields.h` で UI 層の操作として呼べる（ユーザーの判断）。決めごとは
-  layout.md の「misc3 で決まったこと・やったこと」。
+  done/layout.md の「misc3 で決まったこと・やったこと」。
 - **moria1〜4.c も消えた**（#56 は済み。マージ `c0fe8d3`・`7a2bc35`・`ce9251e`・`3787dc4`）。
-  行き先は layout.md の表のとおり。**R（番号つきファイルの分割）は終わった。**
-  決めごとは layout.md の「moria1〜4 で決まったこと・やったこと」。
+  行き先は done/layout.md の表のとおり。**R（番号つきファイルの分割）は終わった。**
+  決めごとは done/layout.md の「moria1〜4 で決まったこと・やったこと」。
 - **combat の残りも済んだ**（#57。マージ `0416bb0`）。`make_attack` → `combat/monster_melee.c`、
-  飛び道具の 4 本 → `combat/projectiles.c`。決めごとは layout.md の
+  飛び道具の 4 本 → `combat/projectiles.c`。決めごとは done/layout.md の
   「combat の残りで決まったこと・やったこと」。
 - **後始末も済んだ**（マージ `acdcd51`・`77c8182`・`082b0e4`）。12 本の `static` 化、使われていない
-  代役 13 本の削除、古いコメントと経緯だけのコメントの整理。決めごとと残したものは layout.md の
+  代役 13 本の削除、古いコメントと経緯だけのコメントの整理。決めごとと残したものは done/layout.md の
   「後始末で決まったこと・やったこと」。**L → D → R → combat → 後始末の並べなおしは終わった。**
-  第 5 節・第 6 節と `docs/refactoring/layout.md`。
+  第 5 節・第 6 節と `docs/refactoring/done/layout.md`。
 - **#38 の段階 A も済んだ**（マージ `48af494`）。`misc3_stubs.c` を消し、9 本のテストを
   対象 module ごとの足場 7 つ（`tests/*_fixture.c`）と共有の代役 `tests/shared_stubs.c` に
   移した。
@@ -58,7 +58,7 @@
   `shared_stubs.c` に寄せ、`learn_item_effect()` は `src/item/item_learn.c` に移した。
   #44 も済んだ（マージ `264d258`）。代役のせいの穴 2 か所にテストを足し、どのテストも届かない
   代役は `stub_unreached()` で止まる。続けて `sets.o`・`geometry.o` などの代役を本物に替えた
-  （マージ `230ddcc`・`c2a97d5`）。layout.md の「#38 で決まったこと・やったこと」。
+  （マージ `230ddcc`・`c2a97d5`）。done/layout.md の「#38 で決まったこと・やったこと」。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
 [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
@@ -71,7 +71,7 @@
 |---|---|
 | `HANDOVER.md`（この資料） | 現在地・作法・約束・地雷・次の順番 |
 | `REFACTORING_PLAN.md` | 台帳（P1/P2/P3/棚上げ）。1 項目 1 行と、その項目の今の状態 |
-| `docs/refactoring/layout.md` | 実装の再配置の計画（ディレクトリー・移し先・ライブラリー化・順番） |
+| `docs/refactoring/done/layout.md` | 実装の再配置の計画（ディレクトリー・移し先・ライブラリー化・順番） |
 | `docs/refactoring/bugs.md` | バグ候補（B2〜B19。B1 は #10-B で解消）。**直さない** |
 | `docs/refactoring/findings.md` | 所見（わかったこと）1〜55 と索引。作法の根拠はここを番号で指す |
 | `docs/refactoring/globals_inventory.md` | #18 の棚おろし。着手前の姿（凍結）＋区分ごとの見立て＋付録 |
@@ -544,7 +544,7 @@ mutation を必ず 3〜5 個試し、素通りしたものを台帳に送る）�
 ## 5. いまの作業
 
 **実装の再配置**（台帳の #52〜。#42・#43・#38 を束ねる）。計画の全体は
-[docs/refactoring/layout.md](docs/refactoring/layout.md)。要点だけ：
+[docs/refactoring/done/layout.md](docs/refactoring/done/layout.md)。要点だけ：
 
 - `misc1〜4`・`store1/2`・`moria1〜4` を**中身の名前**のファイルへ分ける。
   新しいファイルは最初から行き先のサブディレクトリーに作る。
