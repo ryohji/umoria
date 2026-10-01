@@ -2,7 +2,7 @@
 """Who calls whom between the object files of src/, read with `nm`.
 
 NOTE: this is the frame of the layer check planned in
-docs/refactoring/layout.md (step L3). The layers are the subdirectories of
+docs/refactoring/done/layout.md (step L3). The layers are the subdirectories of
 src/ (core/, data/, player/, ui/, ...), read from the paths in sources.mk;
 a file directly in src/ (main.c, dungeon.c, the numbered files until step R)
 is in the layer "src". Step D (#53) moves the files, and --matrix shows who
@@ -49,7 +49,7 @@ RULES = {
              'combat', 'ui', 'save', 'platform'},
 }
 
-# The order of the rows and columns of --matrix (docs/refactoring/layout.md).
+# The order of the rows and columns of --matrix (docs/refactoring/done/layout.md).
 # A layer that is not here (a new directory) is appended in name order.
 LAYER_ORDER = ['src', 'core', 'data', 'player', 'monster', 'dungeon', 'item',
                'store', 'combat', 'ui', 'save', 'platform']
