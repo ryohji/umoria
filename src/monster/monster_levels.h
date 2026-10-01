@@ -26,8 +26,7 @@
 // place_win_monster() is the only reader that wants that number.
 //
 // This was the global m_level, an int16_t array built once at startup by a
-// static function in main.c -- out of reach of any test, the same as
-// init_t_level() before #18-10. Nothing saves it: loading a game rebuilds it.
+// static function in main.c. Nothing saves it: loading a game rebuilds it.
 
 // Build the index. Call once, before anything asks for a band.
 void monster_levels_init(void);

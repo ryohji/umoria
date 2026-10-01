@@ -26,19 +26,17 @@
 // the hole and the table shrinks by one (monster_death.c's fix2_delete_monster, which
 // also rewrites the moved monster's square in the cave). Any code holding a row
 // index or a row pointer across a removal is therefore holding something that
-// may now mean a different monster -- the hazard #18-14-1 named, and the reason
-// that question had to come first.
+// may now mean a different monster.
 //
 // This was `monster_type m_list[MAX_MALLOC];` and `int16_t mfptr;` in monsters.c
 // -- the table of monsters standing on the level, and the mark of how far it is
 // filled, sitting next to the table of monster DEFINITIONS, which is a different
 // thing entirely (the definitions are the 279 kinds; this is the crowd on one
-// level). Two names for one arrangement, so one module. #18-14-4.
+// level). Two names for one arrangement, so one module.
 
 // A new level: nobody is on it. Blanks every row and puts the mark back at the
 // start. The one caller is generate_cave() in generate.c, which runs for the
-// town and for every dungeon level. (It used to call a static wrapper, mlink(),
-// whose whole body was these two loops; #18-14-4B dropped the wrapper.)
+// town and for every dungeon level.
 void monster_list_reset(void);
 
 // The row at INDEX. This is the plain `&m_list[index]` it replaces: no bounds
@@ -51,14 +49,14 @@ monster_type *monster_list_at(int index);
 // monsters (rows 0 and 1 are inside the range and never hold one). The reverse
 // walk is `for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--)`, spelled
 // out fourteen times -- thirteen of them character for character (spells.c 11,
-// monster_place.c 1, player_bonuses.c 1) and one with an extra condition (creature.c stops early
-// if the player has died). The same shape the definition table got an iterator
-// for in #17; here the body needs the index itself, for removals and for hits,
-// so the loops stay written out and only the bound comes through a window.
+// monster_place.c 1, player_bonuses.c 1) and one with an extra condition
+// (creature.c stops early if the player has died). Here the body needs the
+// index itself, for removals and for hits, so the loops stay written out and
+// only the bound comes through a window.
 //
 // This is also the number in the save file: save.c writes it, then writes that
-// many rows, and reads the pair back the same way. Unlike #18-14-3's counter,
-// THIS ONE IS REALLY USED after a restore -- the restored level's monsters are
+// many rows, and reads the pair back the same way. THIS ONE IS REALLY USED after
+// a restore -- the restored level's monsters are
 // the rows that were written, and the mark is what says how many to read.
 int16_t monster_list_used(void);
 void set_monster_list_used(int16_t used);

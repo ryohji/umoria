@@ -973,12 +973,10 @@ void creatures(int attack) {
                                 m_ptr->csleep = 0;
                             } else if ((!player_resting() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) || (randint(50) == 1)) {
                                 notice = randint(1024);
-                                // 足音の静かさも窓口へ（#18-12-27B）。**遊びの中で
-                                // この数を使うのはここ 1 か所だけ** —— 1 点ごとに
-                                // 右辺が半分になるので、-1〜18 の 20 段で足りている。
-                                // ずらしの余裕もちょうど使いきっていて、stl = -1 の
-                                // 1L << 30 は randint(1024) の 3 乗の最大とぴったり
-                                // 同じ（つまり必ず気づかれる）。
+                                // Stealth ranges from -1 to 18, giving 20 steps. Each point halves
+                                // the right-hand side. At stl = -1, the threshold 1L << 30 exactly
+                                // equals the maximum of randint(1024) cubed, so the monster always
+                                // wakes.
                                 if (notice * notice * notice <= (1L << (29 - player_stealth()))) {
                                     m_ptr->csleep -= (100 / m_ptr->cdis);
                                     if (m_ptr->csleep > 0) {

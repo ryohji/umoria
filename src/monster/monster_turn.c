@@ -18,20 +18,12 @@
 // nothing from the rest of the game.
 
 // The number is owned here and is static: the only way in is through the four
-// windows. It came over from variable.c (#18-14-1) with its type and its
-// initial value -- `int hack_monptr = -1;` -- so a new game starts at "nobody's
-// turn", and so does a restored one (save.c never wrote it).
+// windows. It starts at -1, so a new game starts at "nobody's turn", and so
+// does a restored one (save.c never wrote it).
 //
 // -1 IS NOT A MONSTER AND CANNOT BE ONE. Monster numbers start at MIN_MONIX (2),
 // which is what lets one comparison serve as both "the walk has not got here
 // yet" and "there is no walk".
-//
-// FOR ONE STEP THERE WERE TWO OF THESE. The row went in here at #18-14-1A,
-// while the game was still using `hack_monptr` in variable.c and nothing called
-// the windows -- safe only because the unit test was the row's only reader.
-// Pointing creature.c, misc1.c, moria3.c and game_state.c at the windows
-// (#18-14-1B) moved the storage as well as the call sites, and #18-14-1C deleted
-// the old line from variable.c and externs.h.
 static int the_turn = -1;
 
 void monster_turn_begin(int index) {
