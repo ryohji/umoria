@@ -68,9 +68,8 @@
 // For debugging the savefile code on systems with broken compilers.
 #define SAVE_LOG(x)
 
-// セミコロンをマクロ引数の内側に置く。SAVE_LOG(x) は空に展開されるので、
-// 外側に書くとファイル直下に裸の ';' が残り、ISO C では認められない
-// （関数の中なら空文になるので、下の SAVE_LOG(...) 群はそのままでよい）。
+// Semicolon inside the macro argument: SAVE_LOG(x) expands to nothing, so a
+// semicolon outside would leave a bare ';' at file scope (forbidden in ISO C).
 SAVE_LOG(static FILE *logfile;)
 
 static bool sv_write(void);
@@ -101,18 +100,11 @@ static uint8_t xor_byte;
 static int from_savefile;   // can overwrite old savefile when save
 static uint32_t start_time; // time that play started
 
-// セーブファイルの死んだ 2 バイト。#18-12-15 まで `py.flags.protection`
-// （"Protection fr. evil"）だったが、**ゲームはこの数を一度も見ない** ——
-// 読み手も書き手も下の 2 行だけで、悪からの守りそのものは
-// PLAYER_TIMED_PROTECTION_FROM_EVIL（別の数）が持っている。
-//
-// それでも 0 を書き捨てにせず読んだ値を覚えるのは、**この 2 バイトの位置が
-// ファイルの書式**だからで、他が書いたファイルを読んで書き戻すときに中身を
-// 落としたくない（前後の 23 個の short と同じ理由 —— player_timed_effects.h）。
-//
-// **新しい module を作らないのは、これが「問い」ではないから。** 窓口の向こうに
-// 置く値には必ず「誰が何を訊くか」があるが、これを訊く者はいない。ここにあるのは
-// 書式の穴で、穴はそれを読む 1 ファイルの中に置くのがいちばん小さい。
+// Dead 2-byte hole in the savefile. The game never uses this value: only the
+// two lines below touch it. We preserve what we read so that load-then-save
+// doesn't corrupt files written elsewhere. This is part of the file format,
+// just like the 23 other shorts around it. Not worth a dedicated module: no
+// one asks for it, and keeping it here is smallest.
 static int16_t dead_protection_bytes;
 
 // Whether a savefile written by 5.<version_min>.<patch_level> predates
@@ -169,39 +161,34 @@ static bool sv_write(void) {
 
     wr_long(l);
 
-    // 人物の身上書きも窓口へ（#18-12-26B）。**並びはファイルの形なので
-    // 動かせない** —— 名前・性別がここ、年齢と身長が下、階層はさらに下、
-    // 生い立ち 4 行がいちばんあと。
+    // Player bio fields. Their order in the file cannot move: name and sex here,
+    // age and height below, depth further down, history lines at the end.
     wr_string(player_name());
-    // 生のバイトではなく真偽から 1 か 0 を書く。手で 2 を書きこんだ
-    // セーブファイルは 1 になって戻る（player_bio.h の性別の項）。
+    // Write 1 or 0, not the raw byte. A hand-edited 2 will round-trip as 1.
     wr_byte((uint8_t)(player_is_male() ? 1 : 0));
     wr_long((uint32_t)player_gold());
     wr_long((uint32_t)player_max_experience());
     wr_long((uint32_t)player_experience());
     wr_short(player_experience_fraction());
-    // **年齢が先、身長があと** —— 並びは動かせない。
+    // Age first, then height. Order is part of the file format.
     wr_short((uint16_t)player_age());
     wr_short((uint16_t)player_height());
     wr_short((uint16_t)player_body_weight());
     wr_short(player_level());
     wr_short((uint16_t)player_max_depth());
-    // 探索の腕と頻度も窓口へ（#18-12-25B）。**腕が先、頻度があと** ——
-    // 並びは動かせない。
+    // Search: chance first, then frequency. Order cannot move.
     wr_short((uint16_t)player_search_chance());
     wr_short((uint16_t)player_search_frequency());
-    // 素の命中力も窓口へ（#18-12-19B）。**近接が先、弓があと** ——
-    // 並びは動かせない。
+    // Base to-hit: melee first, then bows. Order cannot move.
     wr_short((uint16_t)player_base_to_hit());
     wr_short((uint16_t)player_base_to_hit_with_bows());
     wr_short((uint16_t)player_max_mana());
     wr_short((uint16_t)player_max_hp());
-    // 命中と打撃の下駄も窓口へ（#18-12-24B）。**命中が先、打撃があと** ——
-    // 並びは動かせない。読みは 2 本だが、置きなおす窓口は対で 1 本。
+    // Attack bonuses: to-hit first, then to-dam. Order cannot move.
     wr_short((uint16_t)player_to_hit_bonus());
     wr_short((uint16_t)player_to_damage_bonus());
-    // 守りの点数も窓口へ（#18-12-18B）。**半分が 2 つあるのでファイルにも
-    // 2 本ある** —— 着ているものぶんが先、魔法ぶんがあと。並びは動かせない。
+    // Armor class: two parts in the file. Armor first, then magical. Order
+    // cannot move.
     wr_short((uint16_t)player_armour_class_armour());
     wr_short((uint16_t)player_armour_class_magical());
     // The four numbers the sheet shows. Their place in the file cannot move.
@@ -212,15 +199,11 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_disarm());
     wr_short((uint16_t)player_saving_throw());
     wr_short((uint16_t)player_social_class());
-    // 足音の静かさも窓口へ（#18-12-27B）。**手前の階層と同じ幅で隣りあっている**
-    // ので、2 本を入れちがえてもテストは 1 件も落ちない（所見 46）—— 網は人物
-    // 画面のほうで、入れかわると Stealth が Superb に、Social Class が 1 桁になる。
+    // Stealth follows social class: both are shorts, so swapping them silently
+    // produces bogus values instead of a test failure.
     wr_short((uint16_t)player_stealth());
-    // 階級も窓口へ（#18-12-28B）。**ここから byte が 4 本つづく** ——
-    // 階級・種族・体力の骰子・経験の倍率で、どの 2 本を入れちがえても幅では
-    // 気づけない（所見 46）。**4 本が 4 つの別の module にあるので、並びを
-    // 固定する 1 件はここには書けない** —— 網は人物画面のほうで、階級と種族が
-    // 入れかわると Class 行と Race 行が同時にずれる。
+    // Four bytes in a row: class, race, hit die, experience factor. Swapping any
+    // pair is undetectable by width; the character sheet catches it.
     wr_byte((uint8_t)player_class());
     wr_byte((uint8_t)player_race());
     wr_byte((uint8_t)player_hit_die());
@@ -240,18 +223,16 @@ static bool sv_write(void) {
     wr_bytes(s_ptr->use_stat, 6);
 
     wr_long(player_status_word());
-    // 一時的な状態の十八個も窓口へ。**この二十四個の並びがこのファイルの
-    // 書式**なので、能力の 17 バイトのように位置で訊くことはできない（十八個
-    // の間に rest・腹の具合の二つ・protection・speed・see_infra が挟まって
-    // いる）。だから一つずつ名前で書く。並びは元のまま。
+    // Timed effects and related fields: twenty-four values with rest, food, speed,
+    // and infra_range interspersed. Write each by name; order is part of the file
+    // format.
     wr_short((uint16_t)player_rest_turns());
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_BLINDNESS));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_PARALYSIS));
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_CONFUSION));
     wr_short((uint16_t)player_food());
     wr_short((uint16_t)player_digestion());
-    // 死んだ 2 バイトはこのファイルの static から（読んだ値をそのまま返す。
-    // 上の dead_protection_bytes に理由を書いた）。
+    // Dead 2-byte hole: write back what we read (see dead_protection_bytes above).
     wr_short((uint16_t)dead_protection_bytes);
     wr_short((uint16_t)player_speed());
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_HASTE));
@@ -270,9 +251,8 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL));
     wr_short((uint16_t)player_infra_range());
     wr_short((uint16_t)player_timed_turns(PLAYER_TIMED_INFRA_VISION));
-    // 装備で決まる耐性・能力 17 個も窓口へ。**この 17 バイトの並びがこの
-    // ファイルの書式**なので、一つずつ名前で書くのをやめて、モジュールが
-    // 持っている並び順に位置で 17 回訊く（旗の 1 語と同じ考え方）。
+    // Seventeen ability bytes: their order is part of the file format, so we write
+    // them by position rather than one-by-one.
     for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
         wr_byte(player_abilities_saved_byte(i));
     }
@@ -297,8 +277,7 @@ static bool sv_write(void) {
     wr_bytes(item_kind_record_bytes(), item_kind_record_count());
     wr_long(progress_color_seed());
     wr_long(progress_town_seed());
-    // The file format is the raw ring: the index of the newest message, then
-    // every slot in storage order.
+    // Message history: newest index, then all slots in storage order.
     wr_short((uint16_t)msg_history_newest_slot());
     for (int i = 0; i < msg_history_slot_count(); i++) {
         wr_string(msg_history_slot(i));
@@ -642,25 +621,18 @@ bool get_char(bool *generate) {
         }
 
         if ((l & 0x80000000L) == 0) {
-            // 人物の身上書きも窓口へ（#18-12-26B）。読みは器の番地を要る
-            // ので、名前は局所の器に受けてから置く。**並びはファイルの形
-            // なので動かせない**。
+            // Player bio fields. Read into locals, then set through accessors. Order
+            // is part of the file format.
             char name[PLAYER_NAME_SIZE];
             rd_string(name);
             player_name_set(name);
-            // 生のバイトを受けて「0 でなければ男」に落とす。2 は真だった
-            // ので遊びの上のふるまいは変わらない（player_bio.h の性別の項）。
+            // Male flag: nonzero means male. A hand-edited 2 still works.
             uint8_t male;
             rd_byte(&male);
             player_set_male(male != 0);
-            // 金は py.misc.au ではなく窓口へ入れる。読みは器の番地を要る
-            // ので、いったん受けてから置く（幅と符号の扱いは元のまま）。
             uint32_t gold;
             rd_long(&gold);
             player_set_gold((int32_t)gold);
-            // 階級と経験値の 5 つも窓口へ入れる。読みは器の番地を要るので、
-            // いったん受けてから置く（幅と符号の扱いは元のまま。並び順は
-            // ファイルの形なので動かせない）。
             uint32_t max_exp;
             rd_long(&max_exp);
             player_set_max_experience((int32_t)max_exp);
@@ -670,73 +642,59 @@ bool get_char(bool *generate) {
             uint16_t exp_frac;
             rd_short(&exp_frac);
             player_set_experience_fraction(exp_frac);
-            // **年齢が先、身長があと** —— 並びは動かせない。
+            // Age first, then height. Order cannot move.
             uint16_t age;
             rd_short(&age);
             player_age_set(age);
             uint16_t height;
             rd_short(&height);
             player_height_set(height);
-            // 体の重さも窓口へ（#18-12-23B）。番地に読んでいたので局所の
-            // short に受けてから置く。**置きなおす窓口は創成と同じ 1 本**。
             uint16_t body_weight;
             rd_short(&body_weight);
             player_body_weight_set(body_weight);
             uint16_t lev;
             rd_short(&lev);
             player_set_level(lev);
-            // どこまで潜ったかも窓口へ（#18-12-16B）。読みもどしは置きなおし
-            // なので player_max_depth_set() —— 深いほうを残す窓口ではない。
+            // Max depth: _set replaces the value, doesn't take the deeper of the two.
             uint16_t max_depth;
             rd_short(&max_depth);
             player_max_depth_set(max_depth);
-            // 読みもどしも置く窓口が 2 本（#18-12-25B）——
-            // wizard.c が腕だけを置きかえるので対にはできない。
+            // Search: two setters (wizard.c only replaces chance, not both).
             uint16_t search_chance;
             uint16_t search_frequency;
             rd_short(&search_chance);
             rd_short(&search_frequency);
             player_search_chance_set((int16_t)search_chance);
             player_search_frequency_set((int16_t)search_frequency);
-            // 読みもどしは種族の土台と同じ文なので、置きなおしの窓口が
-            // 1 本で足りる（#18-12-19B。守りの点数だけが 2 本要った）。
+            // Base to-hit: one setter takes both values.
             uint16_t base_to_hit;
             uint16_t base_to_hit_with_bows;
             rd_short(&base_to_hit);
             rd_short(&base_to_hit_with_bows);
             player_base_to_hit_set((int16_t)base_to_hit, (int16_t)base_to_hit_with_bows);
-            // 魔力の 3 つも窓口へ（#18-12-4B）。並びは動かせないので位置は
-            // そのまま —— 上限はここ、残りと端数は階級・種族のあと。
+            // Mana: max here, current and fraction below (after class/race).
             uint16_t max_mana;
             rd_short(&max_mana);
             player_set_max_mana((int16_t)max_mana);
-            // 体力も窓口へ（#18-12-5B）。並びは動かせないので位置はそのまま
-            // —— 上限はここ、残りと端数は階級・種族のあと。
+            // HP: max here, current and fraction below (after class/race).
             uint16_t max_hp;
             rd_short(&max_hp);
             player_set_max_hp((int16_t)max_hp);
-            // 下駄の 2 本。器の番地に読んでいたので局所に受けてから対で置く
-            // （#18-12-24B）。**ファイルの並びが命中・打撃なので窓口の引数の
-            // 並びもこれ** —— 15 つめが立てた問いへの 8 度めの答えで、
-            // 遊びのときと同じ窓口を使う側。
+            // Attack bonuses: to-hit first, then to-dam. One setter takes both.
             uint16_t to_hit_bonus;
             uint16_t to_damage_bonus;
             rd_short(&to_hit_bonus);
             rd_short(&to_damage_bonus);
             player_attack_bonuses_set((int16_t)to_hit_bonus, (int16_t)to_damage_bonus);
-            // 守りの点数の 2 本。読みは器の番地を要るのでいったん受けてから
-            // 窓口へ渡す。**_reset() ではなく _set_parts()** —— ファイルの数は
-            // もう着ているものを含んでいるので、着ているものぶんを 0 に
-            // する規則には従えない（player_armour_class.h）。
+            // Armor class: _set_parts, not _reset. The file's values already include
+            // worn armor, so we can't zero out that part first.
             uint16_t armour_class;
             uint16_t magical_armour_class;
             rd_short(&armour_class);
             rd_short(&magical_armour_class);
             player_armour_class_set_parts((int16_t)armour_class, (int16_t)magical_armour_class);
-            // 画面に出す 4 つも窓口へ入れる。読みは器の番地を要るので、
-            // いったん受けてから 1 つずつ置く（セーブデータの並びは動かせない
-            // のでこの位置のまま。**書きだしと同じ順**で、AC の合計が修正より
-            // 先に来る）。
+            // Display values: four shorts, same order as written. AC total comes
+            // before modifier.
             uint16_t dis_th;
             rd_short(&dis_th);
             player_display_set_to_hit((int16_t)dis_th);
@@ -749,43 +707,27 @@ bool get_char(bool *generate) {
             uint16_t dis_tac;
             rd_short(&dis_tac);
             player_display_set_to_ac((int16_t)dis_tac);
-            /* 罠と鍵をはずす腕。読みは器の番地を要るのでいったん受けて
-             * から窓口へ渡す（置きなおしは種族の土台と同じ 1 本 ——
-             * どちらもただの置きかえ。player_disarm.h）。 */
             uint16_t disarm;
             rd_short(&disarm);
             player_disarm_set((int16_t)disarm);
-            /* 抵抗も同じ形（#18-12-21B）。読みは器の番地を要るので受けて
-             * から窓口へ渡す。置きなおしは種族の土台と同じ 1 本
-             * （player_saving_throw.h）。 */
             uint16_t saving_throw;
             rd_short(&saving_throw);
             player_saving_throw_set((int16_t)saving_throw);
             uint16_t social_class;
             rd_short(&social_class);
             player_social_class_set((int16_t)social_class);
-            /* 番地を渡していた 1 か所。読んでから窓口へ渡す —— **符号なしで
-             * 読んで符号つきに戻すので、負の静かさもそのまま往復する**
-             * （Half-Troll の Warrior は -1）。 */
+            // Stealth: signed value round-trips through uint16_t (Half-Troll Warrior
+            // can be -1).
             uint16_t stealth;
             rd_short(&stealth);
             player_stealth_set((int16_t)stealth);
-            /* 番地を渡していた 1 か所。読んでから窓口へ渡す —— **置きなおしは
-             * 階級のメニューと同じ窓口**（種族・体力の骰子・素の命中力・
-             * 罠と鍵をはずす腕・抵抗・足音の静かさと同じで、守りの点数だけが
-             * ちがう。player_class.h）。**ここから byte が 4 本つづく**（所見 46）。 */
+            // Four bytes in a row: class, race, hit die, experience factor.
             uint8_t pclass;
             rd_byte(&pclass);
             player_class_set(pclass);
-            /* 番地を渡していた 1 か所。読んでから窓口へ渡す
-             * （置きなおしは種族のメニューと同じ窓口 —— どちらもただの
-             * 置きかえ。player_race.h）。 */
             uint8_t prace;
             rd_byte(&prace);
             player_race_set(prace);
-            /* 番地を渡していた 1 か所。読んでから窓口へ渡す
-             * （置きなおしは種族の土台と同じ窓口 —— どちらもただの
-             * 置きかえ。player_hit_die.h）。 */
             uint8_t hit_die;
             rd_byte(&hit_die);
             player_hit_die_set(hit_die);
@@ -816,40 +758,28 @@ bool get_char(bool *generate) {
             rd_shorts((uint16_t *)s_ptr->mod_stat, 6);
             rd_bytes(s_ptr->use_stat, 6);
 
-            // 旗の 1 語も窓口へ。**ビットの番号はこのファイルの書式**なので、
-            // 30 の旗を 1 つずつではなく 1 語まるごと運ぶ窓口を使う。読みは
-            // 器の番地を要るので、いったん受けてから置く（腹の具合と同じ形。
-            // 並びは動かせないのでこの位置のまま）。
+            // Status word: bit positions are part of the file format, so we move the
+            // whole word instead of thirty individual flags.
             uint32_t status;
             rd_long(&status);
             player_set_status_word(status);
-            // 休息の残りも窓口の向こうなので器の番地を渡せない。いったん
-            // 受けてから置く（十八個の rd_timed() と同じ形）。**符号のある数**
-            // なので、元の rd_short((uint16_t *)&f_ptr->rest) と同じく
-            // 16 ビットをそのまま移す。
+            // Rest: signed value, so we preserve all sixteen bits.
             uint16_t rest_turns;
             rd_short(&rest_turns);
             player_rest_set((int16_t)rest_turns);
-            // 一時的な状態の十八個も窓口へ。書くほうと同じ理由で位置ではなく
-            // 名前で、rd_timed() が受けてから置く（並びはこのまま）。
+            // Eighteen timed effects: read each by name, same as when writing.
             rd_timed(PLAYER_TIMED_BLINDNESS);
             rd_timed(PLAYER_TIMED_PARALYSIS);
             rd_timed(PLAYER_TIMED_CONFUSION);
-            // 腹の具合は（#18-12-2C まで f_ptr 越しだったが）窓口へ入れる。
-            // 読みは器の番地を要るので、いったん受けてから置く（幅と符号の
-            // 扱いは元のまま。並びは動かせないのでこの位置のまま）。
             uint16_t food;
             rd_short(&food);
             player_set_food((int16_t)food);
             uint16_t food_digested;
             rd_short(&food_digested);
             player_set_digestion((int16_t)food_digested);
-            // 死んだ 2 バイトはこのファイルの static へ。**ここだけは窓口の
-            // 向こうではないので器の番地をそのまま渡せる**（上の
-            // dead_protection_bytes に、module を作らない理由を書いた）。
+            // Dead 2-byte hole: this one goes to a local static, so we can read
+            // directly to its address (see dead_protection_bytes above).
             rd_short((uint16_t *)&dead_protection_bytes);
-            // 速さも器の番地が要るのでいったん受けてから置く（腹の具合と同じ。
-            // 並びは動かせないのでこの位置のまま）。
             uint16_t speed;
             rd_short(&speed);
             player_speed_set((int16_t)speed);
@@ -867,29 +797,19 @@ bool get_char(bool *generate) {
             rd_timed(PLAYER_TIMED_COLD_RESISTANCE);
             rd_timed(PLAYER_TIMED_SEEING_INVISIBLE);
             rd_timed(PLAYER_TIMED_WORD_OF_RECALL);
-            // 赤外視の距離も器の番地が要るのでいったん受けてから置く
-            // （速さ・腹の具合と同じ。並びは動かせないのでこの位置のまま）。
             uint16_t infra_range;
             rd_short(&infra_range);
             player_infra_range_set((int16_t)infra_range);
             rd_timed(PLAYER_TIMED_INFRA_VISION);
-            // 17 個も窓口へ。読みは器の番地を要るので、いったん受けてから
-            // 位置で置く（腹の具合と旗の 1 語と同じ形。並びは動かせないので
-            // この位置のまま）。
+            // Seventeen ability bytes: read by position, same as when writing.
             for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
                 uint8_t ability;
                 rd_byte(&ability);
                 player_abilities_restore_byte(i, ability);
             }
-            // 光る手も（#18-12-13C まで f_ptr 越しだったが）窓口へ。器の番地を要るので
-            // いったん局所で受けて、そのまま窓口に渡す（0/1 に丸めない ——
-            // src/player/player_glowing_hands.h）。
             uint8_t saved_glowing_hands;
             rd_byte(&saved_glowing_hands);
             player_glowing_hands_restore(saved_glowing_hands);
-            // あと何個覚えられるかも窓口へ。光る手と同じ形 —— 読みは器の番地を
-            // 要るのでいったん局所で受け、そのまま渡す（0 も 255 もそのまま。
-            // 留めはもとから無い —— src/player/player_spells_to_learn.h）。
             uint8_t saved_spells_to_learn;
             rd_byte(&saved_spells_to_learn);
             player_spells_to_learn_set(saved_spells_to_learn);
@@ -1029,28 +949,21 @@ bool get_char(bool *generate) {
         prt("Restoring Character...", 0, 0);
         put_qio();
 
-        // only level specific info should follow,
-        // not present for dead characters
+        // Level-specific data follows (not present for dead characters).
 
-        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた
-        // （この global の別名はこの 1 か所だけ）。下の 2 つと同じ形。
+        // Read through uint16_t, then set as int16_t (the old code lied about
+        // pointer types).
         uint16_t dungeon_level_read;
         rd_short(&dungeon_level_read);
         set_dungeon_level((int16_t)dungeon_level_read);
         uint16_t char_row_read, char_col_read;
         rd_short(&char_row_read);
         rd_short(&char_col_read);
-        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた。
-        // 同じ値を渡すために int16_t を通す（panel の 2 つと同じ形）。
         player_place((int16_t)char_row_read, (int16_t)char_col_read);
-        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた
-        // （この global の別名はこの 1 か所だけ）。上の 2 つと同じ形。
         uint16_t mon_tot_mult_read;
         rd_short(&mon_tot_mult_read);
         set_monster_breeding_count((int16_t)mon_tot_mult_read);
-        // 変更前は int16_t のグローバル 2 つへポインタ型を偽って直に読んでいた
-        // （この対の別名はこの 2 か所だけ）。上の 2 つと同じ形。**窓口は
-        // 両方を取る 1 本**なので、半分だけ置きなおす道がそもそも無い。
+        // Dungeon size: one setter takes both height and width.
         uint16_t level_height_read, level_width_read;
         rd_short(&level_height_read);
         rd_short(&level_width_read);
@@ -1058,8 +971,6 @@ bool get_char(bool *generate) {
         uint16_t max_panel_rows_read, max_panel_cols_read;
         rd_short(&max_panel_rows_read);
         rd_short(&max_panel_cols_read);
-        // 変更前は int16_t のグローバルへポインタ型を偽って直に読んでいた。
-        // 同じ値を渡すために int16_t を通す（正しいセーブファイルなら 0〜4）。
         panel_set_max_indexes((int16_t)max_panel_rows_read, (int16_t)max_panel_cols_read);
 
         uint8_t char_tmp, ychar, xchar, count;
@@ -1090,16 +1001,9 @@ bool get_char(bool *generate) {
             rd_byte(&char_tmp);
         }
 
-        // read in the rest of the fval / light bits, run-length encoded
-        //
-        // ファイルの中ではマスが行優先の 1 本の並びになっているので、
-        // **これまでに置いた数がそのまま次のマスの番地になる** ——
-        // n 番めは (n / MAX_WIDTH, n % MAX_WIDTH)。変更前は表の上をポインタ
-        // 1 本で走らせ、END_OF() で作った末尾と比べて行きすぎを見ていた
-        // （「番地としては &cave[MAX_HEIGHT][0] だが、そう書くと存在しない
-        // 行の添字になる（-Warray-bounds）」という註つきで）。表が 1 枚の
-        // 連続した領域だという約束は src/dungeon/dungeon_map.c の持ちものになったので、
-        // ここは数だけで書ける（#18-14-8）。
+        // Run-length encoded fval and light bits. The file stores squares in
+        // row-major order, so total_count directly indexes the grid: square n is
+        // (n / MAX_WIDTH, n % MAX_WIDTH).
         int total_count = 0;
         while (total_count != MAX_HEIGHT * MAX_WIDTH) {
             rd_byte(&count);
@@ -1307,9 +1211,8 @@ static void wr_bytes(uint8_t *c, int count) {
     SAVE_LOG(fprintf(logfile, "\n"));
 }
 
-// 人物の名前と生い立ちが窓口ごしに来るので const になった（#18-12-26B。
-// player_bio.h の名前の項 —— 窓口が書ける番地を渡さないのが要点で、
-// この関数は読むだけなのだから元から const でよかった）。
+// Parameter is const because the function only reads. Player name and history
+// come through accessors, so we never write through the pointer.
 static void wr_string(const char *str) {
     SAVE_LOG(const char *s = str);
     SAVE_LOG(fprintf(logfile, "STRING:"));
@@ -1410,19 +1313,17 @@ static void rd_short(uint16_t *ptr) {
     SAVE_LOG(fprintf(logfile, "SHORT: %02X %02X = %d\n", (int)c, (int)xor_byte, (int)s));
 }
 
-// 真偽値は wr_short() で 2 バイトとして書かれている（save.c:247）ので、
-// 読むほうも 2 バイト消費する。ただし bool は 1 バイトなので、そこへ直接
-// 読ませると隣まで書きつぶす。いったん uint16_t で受けてから詰める。
+// Bools are written as two bytes by wr_short(), so reading consumes two bytes.
+// Since bool is one byte, reading directly would overwrite adjacent memory. Read
+// into uint16_t, then pack into bool.
 static void rd_bool(bool *ptr) {
     uint16_t value;
     rd_short(&value);
     *ptr = (value != 0);
 }
 
-// 一時的な状態の残り時間も窓口の向こうにあるので、器の番地を渡せない。
-// 十八回くり返すことになるので、腹の具合と同じ形（いったん受けてから置く）
-// をここに一つだけ書いておく。幅と符号の扱いは元の
-// rd_short((uint16_t *)&f_ptr->blind) と同じ、16 ビットをそのまま移すだけ。
+// Timed effect helper: read into a local, then set through the accessor. Called
+// eighteen times, so factored into one place.
 static void rd_timed(player_timed_effect effect) {
     uint16_t turns;
     rd_short(&turns);
