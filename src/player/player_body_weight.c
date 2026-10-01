@@ -34,7 +34,6 @@ void player_body_weight_set(int pounds) {
     // replacement -- and there is no `_adjust` to go with it, because NOBODY ADDS
     // TO THIS NUMBER. The character does not put on weight.
     //
-    // The cast is the field's own width, not a rule this window adds: `wt` is a
-    // uint16_t and `py.misc.wt = randnor(...)` truncated exactly like this.
+    // The cast keeps the width as a uint16_t.
     the_pounds = (uint16_t)pounds;
 }

@@ -117,9 +117,8 @@ static void get_all_stats(void) {
     // **Base to-hit uses one window for both.** Race always sets both.
     player_base_to_hit_set(r_ptr->bth, r_ptr->bthb);
     player_search_frequency_set(r_ptr->fos);
-    // **This line made `player_type *p_ptr` unnecessary** — all race table
-    // assignments now go through windows, so this function no longer names the
-    // player record (the stat side writes `py.stats` directly).
+    // **All race table assignments go through windows** — this function does not
+    // name the player record (the stat side writes `py.stats` directly).
     player_stealth_set(r_ptr->stl);
     // **Saving throw from race table directly, no bonuses mixed in** — disarm
     // bakes in the DEX bonus here, but this one does not.

@@ -41,8 +41,7 @@ void player_stealth_set(int stealth) {
 
 void player_stealth_adjust(int amount) {
     // The class's mstl at creation and the gear in py_bonuses(), where the caller's
-    // factor has already made `amount` negative if the thing is coming off. This was
-    // `m_ptr->stl += c_ptr->mstl;` and `py.misc.stl += amount;`: one statement each
-    // then, one statement now, so the store is still touched once.
+    // factor has already made `amount` negative if the thing is coming off. One
+    // statement, so the store is touched once.
     the_halvings = (int16_t)(the_halvings + amount);
 }

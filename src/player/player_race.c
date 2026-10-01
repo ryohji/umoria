@@ -31,15 +31,12 @@ void player_race_set(int row) {
     // because both are a plain replacement -- and there is no `_adjust` to go with
     // it, because a character does not become more of a Dwarf.
     //
-    // The cast is the field's own width, not a rule this window adds: `prace` was
-    // a uint8_t and `p_ptr->misc.prace = j;` truncated exactly like this.
+    // The cast keeps the width as a uint8_t.
     the_row = (uint8_t)row;
 }
 
 const char *player_race_name(void) {
-    // Not bounds-checked, deliberately. All three callers used to write
-    // `race[py.misc.prace].trace` with no check of their own, and a window that
-    // started checking would be a different game (ledger observation 24). The menu
-    // cannot produce a bad row and nothing else writes this but a saved file.
+    // Not bounds-checked, deliberately (findings.md 24). The menu cannot produce a
+    // bad row and nothing else writes this but a saved file.
     return race[the_row].trace;
 }

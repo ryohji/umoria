@@ -26,10 +26,9 @@
 // THE PLACE THE SIX ANSWERS LIVE. These six statics are the only place the answers
 // live, and the thirteen windows below are the only way to reach them.
 //
-// THE SIX ARE SIX STORES AND NOT ONE STRUCT. They sat in the same struct and they
-// are set in the same breath at creation, but nothing ever reads two of them
-// together, so there is nothing for a struct to say here. The `the_name()` ...
-// `the_history_line()` doors that step A used to reach py.misc went with the fields.
+// THE SIX ARE SIX STORES AND NOT ONE STRUCT. They are set in the same breath at
+// creation, but nothing ever reads two of them together, so there is nothing for
+// a struct to say here.
 //
 // THE SEX IS A bool NOW, where the field was a uint8_t. The byte's width was the
 // save file's business ("anything but zero is male"), and the save file still reads
@@ -78,9 +77,8 @@ int player_social_class(void) {
 }
 
 const char *player_history_line(int line) {
-    // No bounds check, the same as the field had none (ledger observation 24). The
-    // three callers all loop to PLAYER_HISTORY_LINES, which is the array's own bound
-    // now rather than a number said twice.
+    // No bounds check (findings.md 24). The three callers all loop to
+    // PLAYER_HISTORY_LINES, which is the array's own bound.
     return the_history[line];
 }
 
@@ -116,9 +114,7 @@ void player_set_male(bool male) {
 }
 
 void player_age_set(int age) {
-    // The cast is the store's own width, not a rule this window adds: the field was
-    // uint16_t and `py.misc.age = race[i].b_age + randint(...)` truncated exactly
-    // like this, so the static is uint16_t as well.
+    // The cast keeps the width as a uint16_t.
     the_age = (uint16_t)age;
 }
 
