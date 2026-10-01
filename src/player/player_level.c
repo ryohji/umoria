@@ -17,26 +17,21 @@
 // the hit points, the spells or the mana, and it draws nothing. It works out what
 // the experience has paid for; the caller decides what that buys.
 //
-// The five numbers are owned here and are static (#18-12-6C): they came out of
-// py.misc, which is one field shorter for each of them, and the only way in is
-// through the windows in player_level.h. Their initial value is nothing, the same
-// as it was inside the uninitialised struct -- a level of zero means no character
-// exists yet, and neither the price (player_exp[lev - 1]) nor the share of a
-// kill (divided by lev) means anything until creation writes a level of one.
+// The five numbers are owned here and are static; the only way in is through the
+// windows in player_level.h. Their initial value is nothing -- a level of zero
+// means no character exists yet, and neither the price (player_exp[lev - 1]) nor
+// the share of a kill (divided by lev) means anything until creation writes a
+// level of one.
 static uint16_t player_level_reached;
 static int32_t player_experience_held;
 static int32_t player_experience_high_water_mark;
 static uint16_t player_experience_remainder;
 static uint8_t player_experience_percentage;
 
-// The price list stays where it is. It is one of the twenty read-only constant
-// tables in externs.h (with player_title, race, class and class_level_adj), and
-// those are out of scope for #18 -- the inventory's own line for them says
-// "const-ification only" (the per-group table in
-// docs/refactoring/globals_inventory.md). Bringing it in here would take the
-// ledger from fifty-three to fifty-two, but it would also need a setter that no
-// caller in the game would ever use, because unlike the hit-point table in
-// hp_table.c nothing ever writes this one.
+// The price list stays where it is. It is one of the read-only constant tables
+// in externs.h (with player_title, race, class and class_level_adj). Bringing it
+// in here would need a setter that no caller in the game would ever use, because
+// unlike the hit-point table in hp_table.c nothing ever writes this one.
 
 // The remainder is kept in 65536ths, so this is a whole point of experience.
 #define EXPERIENCE_FRACTION_FULL 0x10000L

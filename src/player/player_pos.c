@@ -12,14 +12,10 @@
 
 #include "player_pos.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, inventory.c and
-// progress.c: two coordinates need nothing from the rest of the game. This file
-// now needs nothing declared at all -- the record it hands out is its own.
-//
-// The two were `int16_t char_row; int16_t char_col;` in player.c, reachable from
-// anywhere through externs.h. Every caller in src/ and tests/ goes through the
-// four entry points below, so the record moved in here and became static: the
-// compiler is now what guarantees nobody reaches around the window.
+// This file needs nothing declared at all -- the record it hands out is its own.
+// Every caller in src/ and tests/ goes through the four entry points below; the
+// record is static, and the compiler is what guarantees nobody reaches around the
+// window.
 //
 // No initialiser, which is what player.c had as well. The game writes the
 // position (generate.c, or the save file's reader) before anything reads it.
