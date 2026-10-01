@@ -199,8 +199,9 @@ static bool sv_write(void) {
     wr_short((uint16_t)player_disarm());
     wr_short((uint16_t)player_saving_throw());
     wr_short((uint16_t)player_social_class());
-    // Stealth follows social class: both are shorts, so swapping them silently
-    // produces bogus values instead of a test failure.
+    // Stealth sits next to social class at the same width, so swapping the two
+    // fails no test (findings.md 46). The character screen shows it: Stealth
+    // turns Superb and Social Class drops to one digit.
     wr_short((uint16_t)player_stealth());
     // Four bytes in a row: class, race, hit die, experience factor. Swapping any
     // pair is undetectable by width; the character sheet catches it.
@@ -949,10 +950,10 @@ bool get_char(bool *generate) {
         prt("Restoring Character...", 0, 0);
         put_qio();
 
-        // Level-specific data follows (not present for dead characters).
+        // only level specific info should follow,
+        // not present for dead characters
 
-        // Read through uint16_t, then set as int16_t (the old code lied about
-        // pointer types).
+        // Read into a local uint16_t, then set through the window.
         uint16_t dungeon_level_read;
         rd_short(&dungeon_level_read);
         set_dungeon_level((int16_t)dungeon_level_read);

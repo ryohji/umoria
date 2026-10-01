@@ -228,7 +228,8 @@ void change_character(void) {
         return;
     }
 
-    // Prompt says (0-100) but accepts 0-200. UI inconsistency (bugs.md B24).
+    // The prompt says (0-100) but the check accepts 0-200. The range belongs to this
+    // screen; the window clamps nothing (findings.md 24).
     (void)sprintf(tmp_str, "Current=%d  (0-100) Save = ", player_saving_throw());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
@@ -272,7 +273,7 @@ void change_character(void) {
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if (tmp_val > -1 && (*tmp_str != '\0')) {
-            // Validation in the prompt's convention (bugs.md B24).
+            // Refusing bad input is the prompt's rule, so it stays here (findings.md 24).
             player_body_weight_set(tmp_val);
         }
     } else {
