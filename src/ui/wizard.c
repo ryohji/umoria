@@ -40,7 +40,7 @@ bool enter_wiz_mode(void) {
     }
 
     if (score_disqualifications() || answer) {
-        set_score_disqualifications((int16_t)(score_disqualifications() | 0x2));
+        set_score_disqualifications((int16_t)(score_disqualifications() | SCORE_DISQUALIFY_WIZARD));
         progress_set_wizard_mode(true);
         return true;
     }

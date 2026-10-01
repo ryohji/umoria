@@ -162,7 +162,7 @@ int show_equip(bool weight, int col) {
             // Get position
             switch (i) {
             case INVEN_WIELD:
-                if (py.stats.use_stat[A_STR] * 15 < i_ptr->weight) {
+                if (py.stats.use_stat[A_STR] * WEAPON_WEIGHT_PER_STR < i_ptr->weight) {
                     prt1 = "Just lifting";
                 } else {
                     prt1 = "Wielding";

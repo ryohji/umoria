@@ -45,8 +45,8 @@ int attack_blows(int weight, int *wtohit) {
     int s = py.stats.use_stat[A_STR];
     int d = py.stats.use_stat[A_DEX];
 
-    if (s * 15 < weight) {
-        *wtohit = s * 15 - weight;
+    if (s * WEAPON_WEIGHT_PER_STR < weight) {
+        *wtohit = s * WEAPON_WEIGHT_PER_STR - weight;
         return 1;
     } else {
         int str_index, dex_index;

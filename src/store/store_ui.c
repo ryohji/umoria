@@ -210,7 +210,7 @@ static bool store_purchase(int store_num, int *cur_top) {
                 choice = purchase_haggle(store_num, &price, &sell_obj);
             }
 
-            if (choice == 0) {
+            if (choice == HAGGLE_AGREED) {
                 if (player_gold() >= price) {
                     prt_comment1();
                     decrease_insults(store_num);
@@ -251,7 +251,7 @@ static bool store_purchase(int store_num, int *cur_top) {
                         msg_print("Liar!  You have not the gold!");
                     }
                 }
-            } else if (choice == 2) {
+            } else if (choice == HAGGLE_INSULTED) {
                 purchase = true;
             }
 
@@ -308,7 +308,7 @@ static bool store_sell(int store_num, int *cur_top) {
             int32_t price;
 
             int choice = sell_haggle(store_num, &price, &sold_obj);
-            if (choice == 0) {
+            if (choice == HAGGLE_AGREED) {
                 prt_comment1();
                 decrease_insults(store_num);
                 player_gain_gold(price);
@@ -347,9 +347,9 @@ static bool store_sell(int store_num, int *cur_top) {
                     }
                 }
                 store_prt_gold();
-            } else if (choice == 2) {
+            } else if (choice == HAGGLE_INSULTED) {
                 sell = true;
-            } else if (choice == 3) {
+            } else if (choice == HAGGLE_WORTHLESS) {
                 msg_print("How dare you!");
                 msg_print("I will not buy that!");
                 sell = increase_insults(store_num);

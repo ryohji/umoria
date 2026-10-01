@@ -284,7 +284,7 @@ void tunnel(int dir) {
         // also make it harder to dig with it.
 
         if (weapon_is_too_heavy()) {
-            tabil += (py.stats.use_stat[A_STR] * 15) - i_ptr->weight;
+            tabil += (py.stats.use_stat[A_STR] * WEAPON_WEIGHT_PER_STR) - i_ptr->weight;
             if (tabil < 0) {
                 tabil = 0;
             }
