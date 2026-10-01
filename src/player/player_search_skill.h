@@ -67,9 +67,8 @@ int player_search_frequency(void);
 // never asks for the frequency. Creation's two are three lines apart as well (the
 // base to-hit's window sits between them), so nothing here is written as a pair.
 //
-// THEY REFUSE NOTHING, because the fields refused nothing (ledger observation 24).
-// The debugging editor bounds its own prompt at 0..200 before it calls, and that
-// bound is the editor's, not this question's.
+// THEY REFUSE NOTHING (findings.md 24). The debugging editor bounds its own prompt
+// at 0..200 before it calls, and that bound is the editor's, not this question's.
 void player_search_chance_set(int chance);
 void player_search_frequency_set(int frequency);
 

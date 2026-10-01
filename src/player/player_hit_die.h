@@ -14,9 +14,7 @@
 // `randint(faces)` is rolled once per level, so the number is the largest a
 // single level can add.
 //
-// THE SECOND QUESTION OUT OF struct misc, after how deep the character has ever
-// been (player_max_depth.c). Like that one it is not a body part or a skill; it
-// is the SHAPE OF ONE ROLL.
+// Not a body part or a skill: the SHAPE OF ONE ROLL.
 //
 // TWO TABLES DECIDE IT, both at character creation and never again:
 //
@@ -32,9 +30,8 @@
 // NOBODY READS IT WHILE THE GAME IS BEING PLAYED. All five readers sit in the
 // twenty lines of create.c that roll the hit points, and the only other two
 // places are the saved file. THAT STILL MAKES IT A QUESTION rather than a byte
-// the save file happens to need (compare the ledger's observation 37, which is
-// about `protection`: nobody decided it and nobody read it). Here two tables
-// decide it, and the whole hit point table is built out of it.
+// the save file happens to need (findings.md 37). Here two tables decide it, and
+// the whole hit point table is built out of it.
 
 // How many faces. Five callers, all of them in create.c's hit point rolling:
 // the level-one hit points, the two bounds on the total, the level-one row of
@@ -55,9 +52,7 @@ void player_hit_die_set(int faces);
 // applied straight after the race's base is in place. A window of its own
 // rather than read-add-write, so the store is touched once.
 //
-// NOTHING REFUSES A NEGATIVE, because nothing did before: every adj_hd in the
-// class table is zero or more, and the original code did not check (the same
-// rule as the mana, the hit points and the speed).
+// NOTHING REFUSES A NEGATIVE: every adj_hd in the class table is zero or more.
 void player_hit_die_adjust(int faces);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- four things, all still in the callers:

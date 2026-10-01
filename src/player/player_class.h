@@ -14,30 +14,21 @@
 //
 //   0 Warrior   1 Mage   2 Priest   3 Rogue   4 Ranger   5 Paladin
 //
-// THE THIRTEENTH AND LAST QUESTION OUT OF struct misc, after the purse, how far the
-// character has come, how deep they have been, the hit die, the armour class, the
-// base to-hit, the disarming skill, the saving throw, the race, the body's weight,
-// the attack bonuses, the searching skill, the six answers of the bio and how
-// quietly the character moves. types.h keeps the record of where all thirteen
-// questions went.
+// THIS ONE IS NOT A QUANTITY. Fifty-five callers index a table with it or hand the
+// byte on unchanged -- not one compares it against a number and not one adds to it.
+// So there is no `_adjust` window here and there never will be: A CHARACTER DOES NOT
+// SLOWLY BECOME MORE OF A ROGUE.
 //
-// THIS ONE IS NOT A QUANTITY, the same as the race and unlike everything else on
-// this road. ALL FIFTY-FIVE PLACES that named py.misc.pclass either indexed a table
-// with it or handed the byte on unchanged -- not one compared it against a number
-// and not one added to it. So there is no `_adjust` window here and there never
-// will be: A CHARACTER DOES NOT SLOWLY BECOME MORE OF A ROGUE.
+// FIFTY-FIVE CALLS. The reason is not that the answer is complicated -- it is one
+// byte written twice -- but that FOUR CONSTANT TABLES ARE INDEXED BY IT: class[]
+// itself, class_level_adj[][], magic_spell[][] and player_title[][], plus
+// player_init[][] at the very start of a game.
 //
-// FIFTY-FIVE CALLS, WHICH IS MORE THAN ANY UNIT BEFORE THIS ONE (the six answers of
-// the bio needed forty-four and the stealth needed nine). The reason is not that the
-// answer is complicated -- it is one byte written twice -- but that FOUR CONSTANT
-// TABLES ARE INDEXED BY IT: class[] itself, class_level_adj[][], magic_spell[][] and
-// player_title[][], plus player_init[][] at the very start of a game.
-//
-// WRITTEN EXACTLY TWICE IN A CHARACTER'S LIFE, again like the race: once when the
-// class menu is answered (create.c) and once when a saved game is read back
-// (save.c). There is a third write in the source and it is a zero -- get_class()
-// clears the field before the menu loop, and the loop cannot be left without an
-// answer, so the zero is never the answer a character keeps.
+// WRITTEN EXACTLY TWICE IN A CHARACTER'S LIFE: once when the class menu is answered
+// (create.c) and once when a saved game is read back (save.c). There is a third write
+// in the source and it is a zero -- get_class() clears the byte before the menu loop,
+// and the loop cannot be left without an answer, so the zero is never the answer a
+// character keeps.
 //
 // BEWARE THE NAME, and this time it is the table's name rather than the field's.
 // `grep -w pclass` finds sixty-two lines and fifty-five of them are this field (the
@@ -67,16 +58,10 @@ int player_class(void);
 // The row outright. THREE CALLERS: the class menu (create.c), the zero it writes
 // before the menu loop, and the saved file's byte put back (save.c).
 //
-// THAT IS THE SEVENTH AND LAST ANSWER to the question the fifteenth unit raised --
-// "does loading a saved game use the same window the game does?" -- and it is "the
-// same", agreeing with the hit die, the base to-hit, the disarming skill, the saving
-// throw, the race and the stealth rather than with the armour class.
-//
-// IT REFUSES NOTHING, because the field refused nothing (ledger observation 24). The
-// menu can only produce 0..MAX_CLASS-1 and a saved file can only hold a byte, but
-// neither end was ever checked and this window does not start checking. WIDTH IS
-// STILL A BYTE, so 256 lands on 0 and -1 lands on 255, exactly as
-// `py.misc.pclass = cl[j];` behaved.
+// IT REFUSES NOTHING (findings.md 24). The menu can only produce 0..MAX_CLASS-1 and
+// a saved file can only hold a byte, but neither end was ever checked and this window
+// does not start checking. WIDTH IS STILL A BYTE, so 256 lands on 0 and -1 lands on
+// 255.
 void player_class_set(int row);
 
 // The class's name, as the game spells it -- "Warrior", "Mage", ... FOUR CALLERS:
@@ -85,9 +70,8 @@ void player_class_set(int row);
 //
 // THE MIRROR OF player_race_name(), and the two stand side by side at two of those
 // four sites -- status_line.c:297 asks for the race's name on the line above and
-// char_screen.c:54 on the line two above. The same reason applies: the four
-// callers wrote the identical `class[py.misc.pclass].title`, and what they wanted
-// was not a table lookup but the class's name.
+// char_screen.c:54 on the line two above. The four callers want the class's name, not
+// a table lookup.
 //
 // THIS AND THE NEXT WINDOW ARE THE ONLY LINES THAT REACH OUT: class[] is one of
 // the read-only constant tables declared in externs.h.
@@ -97,20 +81,18 @@ void player_class_set(int row);
 const char *player_class_title(void);
 
 // Which school of magic this class uses, if any: NONE, MAGE or PRIEST as
-// constant.h spells them. FIFTEEN CALLERS, the most of any window in this header,
-// and the reason it exists is that all fifteen wrote the same subscript to ask the
-// same question -- `class[py.misc.pclass].spell` compared against MAGE or PRIEST.
+// constant.h spells them. FIFTEEN CALLERS, the most of any window in this header.
+// All fifteen ask which school: compared against MAGE or PRIEST.
 //
 // THE VALUE AND NOT A PAIR OF YES-OR-NO WINDOWS. `player_class_casts_spells()` and
 // `player_class_says_prayers()` would read better at eleven of the fifteen sites,
 // and they are wrong: THE THREE ANSWERS ARE ONE NUMBER, and four sites branch on
 // all three at once (main.c, dungeon.c, stat_ops.c, level_ops.c) where a pair of predicates
-// would have to be asked twice and could disagree. One number, one window (ledger
-// observation 43).
+// would have to be asked twice and could disagree. One number, one window (findings.md
+// 43).
 //
-// TWO ALIASES DIE HERE. gain_level() (misc3.c:1587 then, level_ops.c:45 now) and
-// lose_exp() (spells.c) take `class_type *c_ptr = &class[p_ptr->pclass]` and
-// then read NOTHING BUT c_ptr->spell, twice each.
+// TWO CALLERS THAT READ ONLY THIS. gain_level() (level_ops.c:45) and lose_exp()
+// (spells.c) read nothing but this window, twice each.
 //
 // WHAT THE SCHOOL DECIDES stays with the callers, all of it: which stat the spells
 // hang off (A_INT or A_WIS), which word to print ("spell" or "prayer"), which half
@@ -120,25 +102,20 @@ const char *player_class_title(void);
 // is the spell code's business.
 int player_class_spell_type(void);
 
-// WHAT THIS MODULE DOES NOT ANSWER -- SIX things, more than any unit on this road,
-// and that is what fifty-seven calls (on fifty-five lines) with six different
-// questions buys:
+// WHAT THIS MODULE DOES NOT ANSWER -- SIX things: fifty-seven calls (on fifty-five
+// lines) ask six different questions:
 //
 //   1. WHAT THE CLASS IS WORTH IN A SKILL. class_level_adj[row][column] is read at
 //      sixteen sites and stays at all sixteen. It is a table about A PAIR (a class
-//      and a skill), like the shop prices the race left behind, and the expressions
-//      around it differ at every site. NINE OF THE SIXTEEN ARE COPIES OF EACH OTHER
-//      that have been waiting for this unit (ledger observation 42): four spell out
-//      the disarming total and five the saving throw and the device chance. THIS
-//      UNIT UNLOCKS THOSE FOLDS AND DOES NOT MAKE THEM -- folding them means
+//      and a skill), and the expressions around it differ at every site. NINE OF THE
+//      SIXTEEN ARE COPIES OF EACH OTHER (findings.md 42): four spell out the disarming
+//      total and five the saving throw and the device chance. Folding them means
 //      player_disarm.c calling player_class.c, which is a unit of its own.
 //   2. WHERE THIS CLASS'S SPELLS ARE. magic_spell[row - 1][spell] is read at ten
 //      sites and THE MINUS ONE IS THE TABLE'S OWN LAYOUT, not a fact about the
-//      class: the table has MAX_CLASS - 1 rows because a Warrior has no spells, and
-//      src/data/player.c:307 says so in a comment older than this road. The same call as
-//      the race made about `prace * 3 + 1` into background[] -- with ten sites
-//      rather than one, so if these ever fold it should be into a module for the
-//      spell table, not this one.
+//      class: the table has MAX_CLASS - 1 rows because a Warrior has no spells
+//      (src/data/player.c:307). With ten sites, if these ever fold it should be into a
+//      module for the spell table, not this one.
 //   3. WHAT THE CLASS GIVES. create.c reads the row whole for the six stat
 //      adjustments, the hit die's bonus, the stealth, the experience factor and the
 //      title, and spellbook.c reads first_spell_lev twice. "Which class is this?" and
