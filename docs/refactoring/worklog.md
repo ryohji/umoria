@@ -504,3 +504,5 @@
 | 2026-10-01 | #44 マージ | **ユーザーの許可を得てマージした**（`264d258`）。6 コミットそれぞれを空の状態から組んで、警告 0（本体・テスト）・75 本 1677 件 GREEN・globals OK 42・層 1139 本 141 単位で違反 0。**ブランチと worktree を消した。** |
 | 2026-10-01 | #44-7〜14 | **代役を本物（`sets.o`・`geometry.o`・`dice.o`・`bits.o`・`panel.o`・`str_insert.o`）に替えた**（`9db83b2`〜`11c4c17`、ユーザーの判断）。recall の 6 本は `variable.o` が `shared_stubs.c` の 2 つの global と重なるので代役のまま。**`9db83b2` の説明の「ほかの 8 本は本物を引く」は誤り**で、`sets.o` を引くのは 4 本（haggle_comment・check_strength・inven_stack・objdes）。 |
 | 2026-10-01 | #44 本物へ マージ | **ユーザーの許可を得てマージした**（`230ddcc`）。8 コミットそれぞれを空の状態から組んで、警告 0（本体・テスト）・75 本 1677 件 GREEN・globals OK 42・層 1139 本 141 単位で違反 0。**ブランチと worktree を消した。** 誤って本体側に作られた `tests/build/`（無視対象）も消した。 |
+| 2026-10-01 | #44-15・16 | **recall の 6 本も本物（`variable.o`）に替えた**（`36278c9`・`cec6310`、ユーザーの判断）。先に `shared_stubs.c` の `free_turn_flag`・`display_counts` を外した。`variable.o` を引くのは 5 本（calc_hitpoints・calc_spells・gain_spells・put_misc3 +1、movement_rate 30→31）。 |
+| 2026-10-01 | #44 recall マージ | **ユーザーの許可を得てマージした**（`c2a97d5`）。2 コミットそれぞれを空の状態から組んで、警告 0（本体・テスト）・75 本 1677 件 GREEN・globals OK 42・層 1139 本 141 単位で違反 0。**ブランチと worktree を消した。** |

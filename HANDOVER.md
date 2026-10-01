@@ -58,7 +58,7 @@
   `shared_stubs.c` に寄せ、`learn_item_effect()` は `src/item/item_learn.c` に移した。
   #44 も済んだ（マージ `264d258`）。代役のせいの穴 2 か所にテストを足し、どのテストも届かない
   代役は `stub_unreached()` で止まる。続けて `sets.o`・`geometry.o` などの代役を本物に替えた
-  （マージ `230ddcc`。recall は代役のまま）。layout.md の「#38 で決まったこと・やったこと」。
+  （マージ `230ddcc`・`c2a97d5`）。layout.md の「#38 で決まったこと・やったこと」。
 
 2026-09-29 までの第 0 節（#18 の各単位の数字の推移）は
 [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
