@@ -36,8 +36,7 @@
 // A new level: nothing is lying on it. Blanks every row -- row 0 included, see
 // above -- and puts the mark back at the start. The one caller is
 // generate_cave() in generate.c, which runs for the town and for every dungeon
-// level. (It used to call a static wrapper, tlink(), whose whole body was these
-// two statements, exactly as mlink() was for the monsters.)
+// level.
 void floor_items_reset(void);
 
 // The row at INDEX. This is the plain `&t_list[index]` it replaces: no bounds

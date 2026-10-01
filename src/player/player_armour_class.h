@@ -37,12 +37,11 @@
 // character in plate takes less from a blow that did land.
 
 // The answer: both halves added up. TWENTY-SIX CALLERS, which is what this
-// module is for -- each of them used to spell out `p_ptr->pac + p_ptr->ptoac`.
+// module is for.
 //
-// The sum is an int rather than an int16_t on purpose. The old expression was an
-// int too (C widens both halves before adding them), so nothing has changed; it
-// is worth saying because 100 points of invulnerability on top of a heavy suit
-// is the one place the halves get large.
+// The sum is an int rather than an int16_t on purpose (C widens both halves
+// before adding them). It is worth saying because 100 points of invulnerability
+// on top of a heavy suit is the one place the halves get large.
 int player_armour_class(void);
 
 // One half at a time. THREE CALLERS FOR THE MAGICAL HALF -- the character

@@ -13,11 +13,7 @@
 
 #include "floor_items.h"
 
-// THE STORAGE. The storage
-// can move at step A only when that step fits in a single commit, and this
-// question had 127 references in seventeen files, so B was split five ways;
-// while it was split, two containers would have meant half the game reading one
-// table and half reading the other.
+// THE STORAGE.
 //
 // Two names, one container. The table's rows are kept PACKED, and the mark says
 // how far the packing reaches; neither means anything without the other, so

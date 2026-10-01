@@ -18,8 +18,7 @@
 #include "messages.h"
 
 // The ring itself, and the slot holding the newest message. Private: the wrap
-// -around rule below is the only code that may name them. They used to be
-// globals in variable.c, walked by hand in three other files.
+// -around rule below is the only code that may name them.
 static vtype old_msg[MAX_SAVE_MSG];
 static int16_t last_msg = 0;
 

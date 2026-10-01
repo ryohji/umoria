@@ -76,7 +76,7 @@ void player_base_to_hit_set_melee(int melee);
 void player_base_to_hit_set_with_bows(int with_bows);
 
 // The class's worth added to whatever the race left here. ONE CALLER, create.c,
-// which used to spell it as `m_ptr->bth += c_ptr->mbth;` and the same for bows.
+// for the melee and the bow amounts alike.
 //
 // The two amounts differ (a Warrior's class is worth 70 to swinging and 55 to
 // shooting), which is why this window takes two numbers where the next one takes

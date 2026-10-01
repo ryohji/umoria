@@ -6,10 +6,6 @@
 // for further details.
 
 // The kinds of object the dungeon can produce, ordered by depth
-//
-// The building of the table came from init_t_level() in main.c, where it was
-// static -- so the counting sort at its heart had never been reachable from a
-// test. Moving it here is what made it testable.
 
 #include "config.h"
 #include "constant.h"

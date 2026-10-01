@@ -24,8 +24,7 @@
 //   1. CREATION SETS EACH ONE ONCE AND NOBODY EVER MOVES IT. There is no place in
 //      the game that adds to an age or a height, so THERE IS NO `_adjust` WINDOW
 //      IN THIS HEADER AT ALL -- six answers, and not one of them can be nudged.
-//      (The body's weight was the first question shaped like that; here the shape
-//      arrives six times over.) The one exception is the name, which change_name()
+//      The one exception is the name, which change_name()
 //      SETS AGAIN -- replacing it, not moving it.
 //   2. THE SAME FOUR PLACES ASK FOR THEM. The character sheet (put_character() and
 //      put_misc1()), the file the player dumps their character to
@@ -36,8 +35,7 @@
 // WHO ASKS: creation (create.c, which sets all six and reads three of them back),
 // the character sheet and the name prompt (char_screen.c), the character dump
 // (files.c), the tomb and the high score entry (death.c), the '@' line of the
-// symbol help (help.c), and the save file (save.c). FORTY-FOUR CALLS, the most of
-// any unit on this road.
+// symbol help (help.c), and the save file (save.c).
 //
 // THE SEX IS THE ONLY ONE OF THE SIX WITH RULES ATTACHED, and all three of them
 // stay with their callers:

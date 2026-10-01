@@ -343,7 +343,7 @@ void gain_spells(void) {
 
     // THIS ADDRESS IS FORMED BEFORE THE SCHOOL IS ASKED (bug candidate B23) -- for
     // a warrior it is `magic_spell[-1]`, but it is never read, because the if below
-    // goes into neither school. DO NOT REORDER IT -- a step B changes no behaviour.
+    // goes into neither school. DO NOT REORDER IT in a change that keeps behaviour.
     spell_type *msp_ptr = &magic_spell[player_class() - 1][0];
 
     int stat, offset;

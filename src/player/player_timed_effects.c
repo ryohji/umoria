@@ -17,8 +17,7 @@
 // not know what any of the eighteen counters leads to -- no messages, no rolls,
 // no drawing.
 //
-// player_status_flags.h IS included, and it is the first time one of these
-// modules calls another. That is the point of this unit: the mark and the clock
+// player_status_flags.h IS included: the mark and the clock
 // are two halves of one fact, and the table below is the only place in the
 // program that says which mark belongs to which clock.
 

@@ -23,10 +23,9 @@ typedef struct inven_type inven_type;
 // is the point: drinking one unknown potion teaches the player about every
 // potion of that sort, in the pack, on the floor or still in the dungeon.
 //
-// Which record a kind uses is not the caller's business. It used to be: the
-// same three lines of index arithmetic appeared in five places in desc.c and a
-// sixth in objdes(), and each of them had to remember that some kinds have no
-// record at all. The windows below take the item and work it out.
+// Which record a kind uses is not the caller's business, and neither is the
+// fact that some kinds have no record at all. The windows below take the item
+// and work it out.
 //
 // A kind with no record is one that is never secret -- weapons, armour, and
 // the foods above the mushrooms. Asking about one answers "not known, not

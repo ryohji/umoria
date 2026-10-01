@@ -10,10 +10,8 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-// The history is a ring buffer. Three files used to walk it, each with its own
-// copy of the wrap-around rule: msg_print() advanced the index, the ^P command
-// stepped backwards through it, and the save file dumped the raw slots. The
-// rule now lives here only.
+// The history is a ring buffer. The wrap-around rule lives here only:
+// msg_print(), the ^P command and the save file go through the windows below.
 
 // --- newest-first view: for whoever wants to read the messages back ---
 

@@ -23,8 +23,8 @@ static int16_t worn_armour;
 static int16_t magical_plusses;
 
 int player_armour_class(void) {
-    // The whole point of the module: twenty-six callers used to write this sum
-    // out by hand. It is an int, as `p_ptr->pac + p_ptr->ptoac` always was.
+    // The whole point of the module: callers ask for the sum instead of adding
+    // the halves. It is an int.
     return worn_armour + magical_plusses;
 }
 

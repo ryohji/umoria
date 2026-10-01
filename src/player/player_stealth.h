@@ -21,10 +21,7 @@
 // through 200, this one runs -1 through 18, and one point of it is worth as much as
 // the whole of that range.
 //
-// THE TWELFTH QUESTION OUT OF struct misc, after the purse, how far the character
-// has come, how deep they have been, the hit die, the armour class, the base to-hit,
-// the disarming skill, the saving throw, the race, the body's weight, the attack
-// bonuses, the searching skill and the six answers of the bio. ONE FIELD WITH ONE
+// ONE FIELD WITH ONE
 // ANSWER -- the simplest shape there is, and the same shape as the hit die and the
 // disarming skill.
 //
@@ -83,8 +80,7 @@ int player_stealth(void);
 // number, and this window is handed the value that comes out.
 void player_stealth_set(int stealth);
 
-// This much quieter -- or louder, when the sign is negative. TWO CALLERS, and they
-// are the two that made this unit need a third window at all:
+// This much quieter -- or louder, when the sign is negative. TWO CALLERS:
 //
 //   - THE CLASS at creation (create.c), which is always positive.
 //   - THE GEAR (player_bonuses.c), where `amount` is `t_ptr->p1 * factor` and

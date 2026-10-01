@@ -48,8 +48,8 @@ void player_glowing_hands_restore(int charge);
 // callers:
 //
 //   1. THE TWO MESSAGES. "Your hands begin to glow." and "Your hands stop
-//      glowing." belong to msg_print(), which lives behind externs.h, and no
-//      module on this road includes externs.h. The callers say it.
+//      glowing." belong to msg_print(), which lives behind externs.h, and this
+//      module does not include externs.h. The callers say it.
 //   2. WHETHER THE MONSTER IS CONFUSED. The resistance roll (its level against
 //      randint(MAX_MONS_LEVEL), and CD_NO_SLEEP), the turns added to
 //      m_ptr->confused, and the note taken in recall are all about the

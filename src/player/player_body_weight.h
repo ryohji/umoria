@@ -26,8 +26,7 @@
 // one. THE RACE WAS NOT A NUMBER; THIS IS A NUMBER THAT NOBODY ADDS TO. Nothing
 // in the game makes the character heavier or lighter -- not food, not the pack,
 // not a curse. THE CHARACTER DOES NOT PUT ON WEIGHT. So the two windows below are
-// the whole question, and this is the first unit on this road with fewer than
-// three.
+// the whole question.
 
 // The weight in pounds. EIGHT CALLERS: the carrying limit (inven_ops.c), the shield
 // bash's to-hit and damage (player_melee.c, twice, folded into one call), the door
@@ -61,7 +60,7 @@ void player_body_weight_set(int pounds);
 //      `use_stat[A_STR] * PLAYER_WEIGHT_CAP + weight`, capped at 3000. THE
 //      SUBJECT OF THAT SENTENCE IS STRENGTH; the body's weight is the smaller
 //      term. It also needs py.stats.use_stat[], which has no window yet, so even
-//      if it belonged here it would have to wait (ledger observation 42) -- but
+//      if it belonged here it would have to wait (findings.md 42) -- but
 //      there is only one such site, so nothing is piling up.
 //   2. HOW HARD A BASH LANDS. py_bash() (`/ 10`, `/ 60 + 3`) and bash() (`/ 2`).
 //      Three different divisors for three different rules: those are facts

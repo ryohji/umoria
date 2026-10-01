@@ -16,8 +16,8 @@
 // character has learned is history, and the only way to find out is to have
 // kept it.
 //
-// Four globals used to hold it -- three bit fields over the 31 spells and one
-// list of 32 spell numbers -- and they belong together because they answer one
+// Three bit fields over the 31 spells and one list of 32 spell numbers hold it,
+// and they belong together because they answer one
 // question between them ("what does this character know, and in what order did
 // they come to know it?"). calc_spells() (spellbook.c) moves spells between learned
 // and forgotten as the character's level changes, gain_spells() appends to the
@@ -25,9 +25,8 @@
 //
 // The bit arithmetic (1L << spell) is on this side of the windows. The callers
 // ask about a spell by its number, which is what they have: the index into
-// magic_spell[] and into spell_names[]. Three of them used to spell out the
-// shift themselves, and two had to remember that shifting by SPELL_NONE would
-// be undefined.
+// magic_spell[] and into spell_names[]. Shifting by SPELL_NONE would be
+// undefined, so that case is handled on this side too (spells_known.c).
 
 // The value that stands for "no spell learned here yet" in the learned-in order
 // (spell_order). The order is filled with it at the start of a game

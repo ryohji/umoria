@@ -88,8 +88,7 @@ int16_t player_max_hp(void);
 // The part of a point still on its way back. Only the save file asks.
 uint16_t player_hp_fraction(void);
 
-// Whether what is left is the mark of a dead character. The same question the
-// four callers used to ask as `chp < 0`, with a name on it.
+// Whether what is left is the mark of a dead character: less than zero.
 bool player_hp_marks_death(void);
 
 // Takes a wound and says whether it was fatal. Nothing is clamped: a fatal

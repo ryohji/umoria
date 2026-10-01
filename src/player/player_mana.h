@@ -10,12 +10,9 @@
 #ifndef PLAYER_MANA_H
 #define PLAYER_MANA_H
 
-// One question, one module -- the fourth question to leave `py`, after the
-// purse (player_gold.c), the stomach (player_food.c) and the four numbers the
-// character sheet shows (player_display_numbers.c). Three numbers answer it
-// together: what is left, what it can reach and the part of a point still on
-// its way back. They are statics in player_mana.c and these windows are the
-// only way in.
+// THE QUESTION. Three numbers answer it together: what is left, what it can
+// reach and the part of a point still on its way back. They are statics in
+// player_mana.c and these windows are the only way in.
 //
 // THE FRACTION IS THE REASON THIS MODULE HAS RULES IN IT. Regeneration gives
 // back a tiny amount each turn -- the whole maximum multiplied by a factor of
@@ -31,15 +28,15 @@
 // Three rules live inside, and each of them is a rule about the fraction:
 //
 //   - regeneration (player_regenerate_mana) is the fixed-point sum above, plus
-//     the guard the old code had for a maximum so large that the short wraps
+//     a guard for a maximum so large that the short wraps
 //     round to negative, plus the stop at the top, WHERE THE FRACTION IS
 //     CLEARED ("must set frac to zero even if equal" -- a full store has
 //     nothing on its way back),
 //   - spending (player_spend_mana) empties the fraction ONLY when it cannot
 //     pay in full. An ordinary cast takes the cost off and LEAVES THE FRACTION
 //     ALONE, so progress towards the next point survives being spent. Three
-//     places did this with the same six lines: casting a spell (magic.c),
-//     saying a prayer (prayer.c) and a monster drinking the mana (creature.c),
+//     places spend: casting a spell (magic.c), saying a prayer (prayer.c) and a
+//     monster drinking the mana (creature.c),
 //   - a new maximum (player_change_max_mana) carries what is left across in
 //     proportion, fraction included, because the old maximum and the new one
 //     are rarely a whole multiple apart. Going up a level does this.

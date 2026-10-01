@@ -60,7 +60,7 @@ int player_disarm(void);
 void player_disarm_set(int chance);
 
 // This much better -- the class's mdis, added to whatever the race left here.
-// ONE CALLER, create.c, which used to spell it `m_ptr->disarm += c_ptr->mdis;`.
+// ONE CALLER, create.c.
 // A window of its own rather than read-add-write, so the store is touched once.
 void player_disarm_adjust(int chance);
 

@@ -1267,8 +1267,8 @@ static void wr_item(inven_type *item) {
 
 // One shop: the counters at the front, then only the shelves it actually has
 // something on. Written once and read twice (the current file format and the
-// pre-5.1.3 one both store shops this way), so all three places used to carry
-// their own copy of this field list.
+// pre-5.1.3 one both store shops this way), so all three places share this
+// field list.
 static void wr_store(store_type *store) {
     SAVE_LOG(fprintf(logfile, "STORE:\n"));
     wr_long((uint32_t)store->store_open);

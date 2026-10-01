@@ -14,14 +14,10 @@
 // for? Two small numbers, both of them from the race table and the class table and
 // then moved by whatever is worn.
 //
-// THE TENTH QUESTION OUT OF struct misc, after how deep the character has been, the
-// hit die, the armour class, the base to-hit, the disarming skill, the saving
-// throw, the race, the body's weight and the attack bonuses.
-//
 // TWO NUMBERS, AND BOTH OF THEM ARE ANSWERS -- the same shape as the base to-hit
 // (player_base_to_hit.h) and the attack bonuses (player_attack_bonuses.h), and the
-// opposite of the armour class (where two fields held one answer because every
-// reader added them up). NOT ONE READER HERE COMBINES THEM. The two do stand next
+// opposite of the armour class (where two fields hold one answer because every
+// reader adds them up). NOT ONE READER HERE COMBINES THEM. The two do stand next
 // to each other in one place (player_move.c, and again in terrain_commands.c), and even
 // there they are asked different things: THE FREQUENCY DECIDES WHETHER TO LOOK AT
 // ALL, AND THE CHANCE DECIDES WHETHER THE LOOK FINDS ANYTHING.
