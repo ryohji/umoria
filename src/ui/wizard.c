@@ -188,31 +188,28 @@ void change_character(void) {
         return;
     }
 
-    // 探索の腕は窓口へ（#18-12-25B）。**この入り口は頻度を訊かない** ——
-    // 片方だけ置く書き手はここだけで、それが置く窓口を 2 本に分けている。
+    // Set search chance (frequency not asked; uses separate accessor).
     (void)sprintf(tmp_str, "Current=%d  (0-200) Searching = ", player_search_chance());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0')) {
-            // 0..200 に囲うのはこの入り口の規則で、窓口は何も断らない。
+            // Range validated here (0-200); accessor does not validate.
             player_search_chance_set(tmp_val);
         }
     } else {
         return;
     }
 
-    // 足音の静かさも窓口へ（#18-12-27B）。**この入り口の「-1-18」は遊びが
-    // 届く幅とぴったり同じ**（種族 -2〜+4 ＋ 階級 +1〜+5 ＋ 装備 3 か所 × 1〜3）——
-    // 上の探索と罠の「0-200」はどちらも上端に届かないので、そこが違う。
+    // Set stealth. Range -1 to 18 covers the full gameplay range.
     (void)sprintf(tmp_str, "Current=%d  (-1-18) Stealth = ", player_stealth());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > -2) && (tmp_val < 19) && (*tmp_str != '\0')) {
-            // -1〜18 に囲うのはこの入り口の規則で、窓口は何も断らない。
+            // Range validated here; accessor does not validate.
             player_stealth_set(tmp_val);
         }
     } else {
@@ -231,9 +228,7 @@ void change_character(void) {
         return;
     }
 
-    // **文と留めが食いちがっている** —— 「(0-100)」と出しておいて受けるのは
-    // 0〜200（上の罠と鍵をはずす腕とまったく同じ検査で、文だけが違う）。
-    // この食いちがいは画面のもので、窓口は何も留めない（→ 所見 24）。
+    // Prompt says (0-100) but accepts 0-200. UI inconsistency (bugs.md B24).
     (void)sprintf(tmp_str, "Current=%d  (0-100) Save = ", player_saving_throw());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
@@ -246,8 +241,7 @@ void change_character(void) {
         return;
     }
 
-    // 遊びのなかで唯一、2 つの数を片方ずつ置く場所（#18-12-19B）。
-    // **0〜200 の留めはこの画面のもの**で、窓口は持たない。
+    // Set melee and ranged to-hit separately (0-200 range validated here).
     (void)sprintf(tmp_str, "Current=%d  (0-200) Base to hit = ", player_base_to_hit());
     tmp_val = (int)strlen(tmp_str);
     prt(tmp_str, 0, 0);
@@ -278,7 +272,7 @@ void change_character(void) {
     if (get_string(tmp_str, 0, tmp_val, 3)) {
         tmp_val = atoi(tmp_str);
         if (tmp_val > -1 && (*tmp_str != '\0')) {
-            // 断りは prompt の規則なので呼び手に残す（所見 24）。
+            // Validation in the prompt's convention (bugs.md B24).
             player_body_weight_set(tmp_val);
         }
     } else {
@@ -400,13 +394,9 @@ void wizard_create(void) {
         return;
     }
 
-    // もとは書式を配列に写してから渡していた（「定数文字列だと GCC と
-    // 一部の scanf で問題が出る」という註が付いていた）。書式が変数だと
-    // 書式と引数の対応をコンパイラが検査できず（-Wformat-nonliteral）、
-    // 実際そこに不具合があった。"%lx" は unsigned long * を要求するが
-    // 渡していたのは int32_t * なので、long が 8 バイトの環境では 4 バイトの
-    // 変数に 8 バイト書きこんでいた。書式をリテラルに戻し、受け手の型に
-    // 合う指定子を使う。
+    // Format string is now a literal (not a variable) so the compiler can check
+    // argument types (-Wformat-nonliteral). Use SCNx32 for uint32_t to avoid size
+    // mismatches on platforms where long is 64-bit.
     uint32_t item_flags = 0;
     (void)sscanf(tmp_str, "%" SCNx32, &item_flags);
     i_ptr->flags = item_flags;

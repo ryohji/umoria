@@ -13,17 +13,9 @@
 #include "inven_command_state.h"
 #include "screen_touched.h"
 
-// No externs.h here, the same as panel.c, stores.c, options.c, stats.c,
-// inventory.c, progress.c, score_death.c, player_pos.c, hp_table.c,
-// player_light.c and missile_serial.c. The one thing this module needs from
-// elsewhere is the screen flag, and it asks for that through its window.
+// This module includes no externs.h besides the screen flag (via its accessor).
 
-// The character is owned here and is static: the only way in is through the three
-// windows below. It came over from variable.c (#18-11-3C) with its initial value,
-// so a new game starts with nothing waiting. The FIXME that sat on the old global
-// (doing_inven: "was a bool, but also holds an ASCII character") is answered by
-// the type being what it always was, a command character, with 0 for "none" --
-// see the header.
+// Pending inventory command character. 0 means none pending.
 static char pending_command = 0;
 
 char pending_inven_command(void) {
