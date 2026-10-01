@@ -19,8 +19,7 @@
 // has come, how deep they have been, the hit die, the armour class, the base
 // to-hit, the disarming skill, the saving throw, the race, the body's weight, the
 // attack bonuses and the searching skill. SIX FIELDS LEAVE AT ONCE, which is more
-// than any unit before this one, and they left `stl` and `pclass` behind -- those
-// two went in #18-12-27 and #18-12-28, and the second took the struct with it.
+// than any unit before this one.
 //
 // SIX ANSWERS AND ONE MODULE, and the usual rule for splitting says nothing here.
 // The rule is "does anything read one without the other" -- and all six are read
@@ -40,11 +39,11 @@
 //      modules, every one of the six would be read from those same four places and
 //      none of them would stand on its own.
 //
-// WHO ASKS, once #18-12-26B has moved the callers: creation (create.c, which sets
-// all six and reads three of them back), the character sheet and the name prompt
-// (char_screen.c), the character dump (files.c), the tomb and the high score entry
-// (death.c), the '@' line of the symbol help (help.c), and the save file
-// (save.c). FORTY-FOUR CALLS, the most of any unit on this road.
+// WHO ASKS: creation (create.c, which sets all six and reads three of them back),
+// the character sheet and the name prompt (char_screen.c), the character dump
+// (files.c), the tomb and the high score entry (death.c), the '@' line of the
+// symbol help (help.c), and the save file (save.c). FORTY-FOUR CALLS, the most of
+// any unit on this road.
 //
 // THE SEX IS THE ONLY ONE OF THE SIX WITH RULES ATTACHED, and all three of them
 // stay with their callers:
@@ -66,11 +65,10 @@
 // SIXTY CHARACTERS AND A TERMINATOR: get_history() wraps at sixty, and 8,057 of
 // those stories really do have a line of exactly sixty.
 //
-// The field in types.h was one byte narrower than that until #18-12-26A, and
-// player_bio.c holds a _Static_assert so these two numbers and that field cannot
-// drift apart while both exist. THE NAME'S WIDTH IS NOT HERE: PLAYER_NAME_SIZE
-// stays in types.h because the high score table's own name field is that wide too,
-// and that field is not this question.
+// player_bio.c holds a _Static_assert so these two numbers and the field in types.h
+// cannot drift apart. THE NAME'S WIDTH IS NOT HERE: PLAYER_NAME_SIZE stays in
+// types.h because the high score table's own name field is that wide too, and that
+// field is not this question.
 #define PLAYER_HISTORY_LINES 4
 #define PLAYER_HISTORY_LINE_SIZE 61
 
@@ -85,8 +83,7 @@
 // window's back, and the window would be an ornament. (msg_history_slot() and
 // death_cause() do return `char *`; THIS MODULE DELIBERATELY DOES NOT COPY THEM.)
 // Each of those four takes a local buffer instead and hands the finished name to
-// player_name_set() -- which is why save.c's wr_string() takes a `const char *`
-// from #18-12-26B on.
+// player_name_set() -- which is why save.c's wr_string() takes a `const char *`.
 const char *player_name(void);
 
 // WHETHER THIS CHARACTER IS MALE. NINE CALLERS: the three king-or-queen forks, the
@@ -94,11 +91,10 @@ const char *player_name(void);
 // entry, the height table's choice, the extra fifty gold, and the save file.
 //
 // A bool, though the field was a uint8_t, because NOT ONE OF THE NINE USES IT AS A
-// NUMBER -- three are `? :` and six are `if`. ONE THING DOES CHANGE BY A HAIR: the
-// save file's byte used to be written back exactly as it was read, so a
-// hand-edited 2 made a round trip as 2, and through a bool it comes back as 1.
-// Nothing in the game can tell (2 was already true, and only creation ever writes
-// this byte, with true or false), so the round trip is not worth two raw windows.
+// NUMBER -- three are `? :` and six are `if`. ONE THING DOES CHANGE BY A HAIR: a
+// hand-edited save file's 2 comes back as 1 through a bool. Nothing in the game can
+// tell (2 was already true, and only creation ever writes this byte, with true or
+// false), so the round trip is not worth two raw windows.
 bool player_is_male(void);
 
 // HOW OLD AND HOW TALL. THREE CALLERS EACH (the sheet, the dump, the save file).
@@ -173,7 +169,7 @@ void player_history_clear(void);
 //      the rows, the columns and the words "Male" and "Female"; file_character()
 //      owns the dump's layout.
 //   5. WHAT CLASS THIS CHARACTER IS. It is read beside the name and the sex in
-//      three of these places and it is still not this question: `pclass` went to
-//      player_class.h in #18-12-28, the last of the thirteen.
+//      three of these places and it is still not this question: player_class.h
+//      answers that, the last of the thirteen.
 
 #endif // PLAYER_BIO_H

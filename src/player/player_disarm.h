@@ -75,12 +75,10 @@ void player_disarm_adjust(int chance);
 //                + class_level_adj[pclass][CLA_DISARM] * player_level() / 3
 //
 //      and they are identical down to the last character (abilities.c:52,
-//      terrain_commands.c twice, traps.c). FOLDING THE FOUR INTO ONE
-//      WINDOW WAITED FOR #18-12-28 and that wait is over: the subscript is
-//      player_class() now, so the fold no longer means reaching `py`. IT IS STILL
-//      NOT MADE -- making it means player_disarm.c calling player_class.c, which
-//      is a unit of its own. #18-12-28 unlocked the fold and deliberately left it
-//      (ledger observation 42).
+//      terrain_commands.c twice, traps.c). FOLDING THE FOUR INTO ONE WINDOW is
+//      possible now: the subscript is player_class(), so the fold no longer means
+//      reaching `py`. IT IS STILL NOT MADE -- making it means player_disarm.c
+//      calling player_class.c, which is a unit of its own (ledger observation 42).
 //   2. WHETHER THE ATTEMPT SUCCEEDS. `(i - t_ptr->p1) > randint(100)` is the
 //      caller's, and so is the trap's own difficulty.
 //   3. BEING BLIND, CONFUSED OR HALLUCINATING. traps.c divides the total by ten

@@ -18,9 +18,8 @@
 // character has come, how deep they have been, the hit die, the armour class, the
 // base to-hit, the disarming skill, the saving throw, the race, the body's weight,
 // the attack bonuses, the searching skill, the six answers of the bio and how
-// quietly the character moves. THE STRUCT WENT WITH IT in #18-12-28C: this was the
-// only field left, so `py.misc` stopped existing rather than getting shorter, and
-// types.h keeps the record of where all thirteen questions went.
+// quietly the character moves. types.h keeps the record of where all thirteen
+// questions went.
 //
 // THIS ONE IS NOT A QUANTITY, the same as the race and unlike everything else on
 // this road. ALL FIFTY-FIVE PLACES that named py.misc.pclass either indexed a table
@@ -91,10 +90,9 @@ void player_class_set(int row);
 // was not a table lookup but the class's name.
 //
 // THIS AND THE NEXT WINDOW ARE THE ONLY LINES THAT REACH OUT. class[] stays where it
-// is -- it is one of the twenty read-only constant tables in externs.h, and that
-// group is out of scope for #18 (const-ification only; see the per-group table in
-// docs/refactoring/globals_inventory.md) -- so player_class.c has a single `extern`
-// line for it, the arrangement player_race.c and player_level.c already have.
+// is: it is one of the twenty read-only constant tables in externs.h, so
+// player_class.c has a single `extern` line for it, the arrangement player_race.c
+// and player_level.c already have.
 //
 // const char *, which is what class_type.title already is (types.h:501) and what
 // both receivers -- prt_field() and put_buffer() -- already take.

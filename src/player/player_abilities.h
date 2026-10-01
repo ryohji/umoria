@@ -24,10 +24,10 @@
 // calc_bonuses() in player_bonuses.c does it from scratch every time anything changes:
 // it clears all seventeen and sets them again from the flags of what is worn.
 // ALL THIRTY-NINE OF player_bonuses.c'S REFERENCES ARE THAT ONE FUNCTION.
-// Compare player_display_numbers.c (#18-12-3), where the four numbers looked
-// derived but turned out to be REMEMBERED -- nobody recomputes them after a save
-// file is read. These seventeen are the other way round, and they are still in
-// the save file only because nothing calls calc_bonuses() on the way in either.
+// Compare player_display_numbers.c: the four numbers there looked derived but
+// turned out to be REMEMBERED -- nobody recomputes them after a save file is read.
+// These seventeen are the other way round, and they are still in the save file
+// only because nothing calls calc_bonuses() on the way in either.
 //
 // THE TWO FIELDS THAT ARE NOT HERE. py.flags kept nineteen one-byte fields next
 // to each other, and they are not one question:
@@ -57,7 +57,7 @@
 //
 //   - walk the equipment. player_bonuses.c gathers the flags of what is worn and hands
 //     the result over; a window that walked the slots itself would have to know
-//     about equipment, identification and curses (the same line as #18-12-3),
+//     about equipment, identification and curses,
 //   - the digestion. calc_bonuses() asks whether the character digests slowly or
 //     regenerates BEFORE it clears the seventeen, so that the old answer's effect
 //     on the digestion rate can be taken back, and pays the new one in again at
