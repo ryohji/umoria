@@ -9,11 +9,9 @@
 #ifndef PLAYER_GLOWING_HANDS_H
 #define PLAYER_GLOWING_HANDS_H
 
-// THE NAME. The field this came from was called py.flags.confuse_monster, but
-// externs.h already declares a function of that name -- confuse_monster(dir,
-// row, col) in spells.c, the spell a wand or a scroll aims at one monster.
-// Those are two different things that happened to share a name: the function is
-// something the character DOES to a monster now, and this is something the
+// THE NAME. externs.h declares a function named confuse_monster(dir, row, col)
+// in spells.c, the spell a wand or a scroll aims at one monster. That function
+// is something the character DOES to a monster now, and this is something the
 // character HAS until the next blow lands. The game's own messages name the
 // hands ("Your hands begin to glow.", "Your hands stop glowing."), so the
 // module is named after the hands too.
@@ -50,8 +48,8 @@ void player_glowing_hands_restore(int charge);
 // callers:
 //
 //   1. THE TWO MESSAGES. "Your hands begin to glow." and "Your hands stop
-//      glowing." belong to msg_print(), which lives behind externs.h, and no
-//      module on this road includes externs.h. The callers say it.
+//      glowing." belong to msg_print(), which lives behind externs.h, and this
+//      module does not include externs.h. The callers say it.
 //   2. WHETHER THE MONSTER IS CONFUSED. The resistance roll (its level against
 //      randint(MAX_MONS_LEVEL), and CD_NO_SLEEP), the turns added to
 //      m_ptr->confused, and the note taken in recall are all about the

@@ -32,9 +32,8 @@ void monster_turn_end(void) {
 }
 
 bool monster_delete_may_shift(int index) {
-    // This is the comparison both readers used to spell out for themselves,
-    // `hack_monptr < i`, and it is unchanged: strictly less than, so a monster
-    // asking about its own entry gets a no.
+    // `hack_monptr < i`: strictly less than, so a monster asking about its own
+    // entry gets a no.
     return the_turn < index;
 }
 

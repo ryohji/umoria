@@ -306,8 +306,7 @@ void prt_stat_block(void) {
     prt_lnum("GOLD", player_gold(), 20, STAT_COLUMN);
     prt_winner();
 
-    // This used to copy one word and then look at eight bits in it. Asking each
-    // window in turn gives the same answers -- the only calls below that change
+    // Each window is asked in turn. The only calls below that change
     // any state are prt_state() (what it remembers of Repeat) and prt_study()
     // (the Study request), and neither touches the bits looked at here.
     if (player_effect_in_force(PLAYER_EFFECT_HUNGRY) || player_effect_in_force(PLAYER_EFFECT_WEAK)) {
@@ -330,11 +329,10 @@ void prt_stat_block(void) {
     }
 
     // if speed non zero, print it, modify speed if Searching
-    // This used to be `py.flags.speed - ((PY_SEARCH & status) >> 8)`: IT KNEW WHERE THE
-    // BIT WAS (0x100) AND SHIFTED IT DOWN BY EIGHT TO MAKE A 1. It means "one less while
-    // searching", the same as the i-- in prt_speed(). THE SAME RULE IS WRITTEN IN TWO
-    // PLACES, AND IT IS NOT FOLDED -- searching and speed are separate questions, and
-    // neither is half of the other (src/player/player_speed.h).
+    // One less while searching, the same as the i-- in prt_speed(). THE SAME
+    // RULE IS WRITTEN IN TWO PLACES, AND IT IS NOT FOLDED -- searching and speed
+    // are separate questions, and neither is half of the other
+    // (src/player/player_speed.h).
     if (player_speed() - (player_is_searching() ? 1 : 0) != 0) {
         prt_speed();
     }

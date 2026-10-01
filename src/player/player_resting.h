@@ -9,16 +9,6 @@
 #ifndef PLAYER_RESTING_H
 #define PLAYER_RESTING_H
 
-// One question, one module -- the tenth question to leave `py`, after the purse
-// (player_gold.c), the stomach (player_food.c), the four numbers the character
-// sheet shows (player_display_numbers.c), the mana (player_mana.c), the hit
-// points (player_hp.c), how far the character has come (player_level.c), the
-// status word (player_status_flags.c), what the equipment grants
-// (player_abilities.c) and the eighteen clocks (player_timed_effects.c). ONE
-// field answered it -- py.flags.rest, touched from twenty-one places in five
-// files (dungeon.c twelve of them, creature.c three, rest_command.c three, misc3.c
-// two, save.c two).
-//
 // THE QUESTION IS "IS THE CHARACTER RESTING, AND FOR HOW MANY MORE TURNS". The
 // `R` command sets it, one block in dungeon.c moves it one step per turn, and
 // reaching zero ends the rest.

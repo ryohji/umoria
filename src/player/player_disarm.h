@@ -16,10 +16,7 @@
 // SUCCEED. The wizard screen admits to 0 through 200; a Human Warrior starts
 // near 25 and a Halfling Rogue near 60.
 //
-// THE FIFTH QUESTION OUT OF struct misc, after how deep the character has been,
-// how many faces the hit die has, the armour class and the base to-hit. Unlike
-// the two before it this one is A SINGLE FIELD WITH A SINGLE ANSWER -- the
-// simplest shape there is, and the same shape as the hit die.
+// A SINGLE FIELD WITH A SINGLE ANSWER -- the simplest shape there is.
 //
 // ONE NUMBER, TWO USES, AND THE GAME NEVER SEPARATES THEM: a trap and a lock are
 // the same skill here. traps.c uses it on traps and chests, terrain_commands.c on locked
@@ -59,11 +56,11 @@ int player_disarm(void);
 // agrees with the hit die and the base to-hit rather than with the armour class.
 //
 // THE 0 TO 200 RANGE IS THE WIZARD SCREEN'S OWN and stays there: this window
-// refuses nothing, because the field refused nothing (ledger observation 24).
+// refuses nothing (findings.md 24).
 void player_disarm_set(int chance);
 
 // This much better -- the class's mdis, added to whatever the race left here.
-// ONE CALLER, create.c, which used to spell it `m_ptr->disarm += c_ptr->mdis;`.
+// ONE CALLER, create.c.
 // A window of its own rather than read-add-write, so the store is touched once.
 void player_disarm_adjust(int chance);
 
@@ -76,9 +73,8 @@ void player_disarm_adjust(int chance);
 //
 //      and they are identical down to the last character (abilities.c:52,
 //      terrain_commands.c twice, traps.c). FOLDING THE FOUR INTO ONE WINDOW is
-//      possible now: the subscript is player_class(), so the fold no longer means
-//      reaching `py`. IT IS STILL NOT MADE -- making it means player_disarm.c
-//      calling player_class.c, which is a unit of its own (ledger observation 42).
+//      possible. IT IS STILL NOT MADE -- making it means player_disarm.c
+//      calling player_class.c, which is a unit of its own (findings.md 42).
 //   2. WHETHER THE ATTEMPT SUCCEEDS. `(i - t_ptr->p1) > randint(100)` is the
 //      caller's, and so is the trap's own difficulty.
 //   3. BEING BLIND, CONFUSED OR HALLUCINATING. traps.c divides the total by ten

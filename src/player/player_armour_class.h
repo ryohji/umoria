@@ -12,17 +12,10 @@
 // THE QUESTION. How much armour class does this character really have? The unit
 // is armour class, and BIGGER MEANS HARDER TO HIT: every reader hands the number
 // to test_hit() as the amount an attacker has to beat, or takes it as the
-// percentage-like amount that shaves a blow down.
+// percentage-like amount that shaves a blow down. Read from twenty-six places.
 //
-// THE THIRD QUESTION OUT OF struct misc, after how deep the character has been
-// (player_max_depth.c) and how many faces the hit die has (player_hit_die.c).
-// This is the first one of the three that is READ WHILE THE GAME IS PLAYED, and
-// it is read a great deal: twenty-six places, more than any single question
-// taken out of py.misc so far.
-//
-// TWO FIELDS, ONE QUESTION. The answer used to live in py.misc.pac ("Total AC")
-// and py.misc.ptoac ("Magical AC"), and the split is BY WHERE THE POINTS CAME
-// FROM, not by what they mean:
+// TWO FIELDS, ONE QUESTION. The split is BY WHERE THE POINTS CAME FROM, not by
+// what they mean:
 //
 //   - THE ARMOUR HALF is what is worn: the `ac` of every worn item added up,
 //     plus the temporary points a spell lends (invulnerability 100, blessing 2).
@@ -44,12 +37,11 @@
 // character in plate takes less from a blow that did land.
 
 // The answer: both halves added up. TWENTY-SIX CALLERS, which is what this
-// module is for -- each of them used to spell out `p_ptr->pac + p_ptr->ptoac`.
+// module is for.
 //
-// The sum is an int rather than an int16_t on purpose. The old expression was an
-// int too (C widens both halves before adding them), so nothing has changed; it
-// is worth saying because 100 points of invulnerability on top of a heavy suit
-// is the one place the halves get large.
+// The sum is an int rather than an int16_t on purpose (C widens both halves
+// before adding them). It is worth saying because 100 points of invulnerability
+// on top of a heavy suit is the one place the halves get large.
 int player_armour_class(void);
 
 // One half at a time. THREE CALLERS FOR THE MAGICAL HALF -- the character

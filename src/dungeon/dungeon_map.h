@@ -115,16 +115,14 @@ cave_type *square_at(int y, int x);
 // table to be private. Naming them is a separate unit's work, and the numbers
 // above are written down so that unit does not have to measure again.
 //
-// TWO THINGS THIS QUESTION INHERITED AND KEPT:
+// TWO THINGS TO KNOW ABOUT THIS QUESTION:
 //
 //  1. THE SWEEP IN pusht(). A floor row does not know which square it lies on,
 //     so when object_place.c moves the last row down into a hole it sweeps the
-//     level looking for the square whose tptr is the row it moved. It is still a
-//     sweep;
-//     it now walks through this window. Removing it means putting y and x in
-//     the row, which upstream already wrote down as a wish at the struct
-//     itself (types.h:136), and that is a change to what is stored, not to who
-//     may reach it.
+//     level looking for the square whose tptr is the row it moved. It walks
+//     through this window. Removing it means putting y and x in the row, which
+//     upstream wrote down as a wish at the struct itself (types.h:136), and that
+//     is a change to what is stored, not to who may reach it.
 //
 //  2. FOUR BITS FOR fval IN THE SAVE FILE. save.c packs fval into the low
 //     nibble of a byte and lr, fm, pl, tl into four of the high bits, then

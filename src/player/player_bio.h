@@ -24,8 +24,7 @@
 //   1. CREATION SETS EACH ONE ONCE AND NOBODY EVER MOVES IT. There is no place in
 //      the game that adds to an age or a height, so THERE IS NO `_adjust` WINDOW
 //      IN THIS HEADER AT ALL -- six answers, and not one of them can be nudged.
-//      (The body's weight was the first question shaped like that; here the shape
-//      arrives six times over.) The one exception is the name, which change_name()
+//      The one exception is the name, which change_name()
 //      SETS AGAIN -- replacing it, not moving it.
 //   2. THE SAME FOUR PLACES ASK FOR THEM. The character sheet (put_character() and
 //      put_misc1()), the file the player dumps their character to
@@ -36,8 +35,7 @@
 // WHO ASKS: creation (create.c, which sets all six and reads three of them back),
 // the character sheet and the name prompt (char_screen.c), the character dump
 // (files.c), the tomb and the high score entry (death.c), the '@' line of the
-// symbol help (help.c), and the save file (save.c). FORTY-FOUR CALLS, the most of
-// any unit on this road.
+// symbol help (help.c), and the save file (save.c).
 //
 // THE SEX IS THE ONLY ONE OF THE SIX WITH RULES ATTACHED, and all three of them
 // stay with their callers:
@@ -108,9 +106,9 @@ int player_social_class(void);
 // in a loop (creation printing them, the dump writing them, the save file).
 //
 // `const char *` for the same reason the name is, and NO BOUNDS CHECK on the line
-// number: the fields refused nothing (ledger observation 24), the three loops all
-// run to PLAYER_HISTORY_LINES, and a window that quietly returned "" for a fifth
-// line would be inventing an answer the record never had.
+// number: the three loops all run to PLAYER_HISTORY_LINES, and a window that
+// quietly returned "" for a fifth line would be inventing an answer the record
+// never had (findings.md 24).
 const char *player_history_line(int line);
 
 // SETTING THE SIX. TWO CALLERS for the name (the name prompt, the save file), THREE
@@ -137,10 +135,8 @@ void player_social_class_set(int social_class);
 // block of story text and hands over one finished line at a time, and the save
 // file's reader.
 //
-// Creation used to write the line in two steps -- strncpy() of the characters, then
-// the terminator by hand -- and those two steps are what wrote one byte past a
-// sixty-character line (bug candidate B21, which never reached anything; see
-// types.h). Through this window a line arrives as a string and leaves as a string.
+// Through this window a line arrives as a string and leaves as a string (bugs.md
+// B21: writing past a sixty-character line; see types.h).
 void player_history_line_set(int line, const char *text);
 
 // NO LIFE STORY AT ALL. ONE CALLER: get_history(), which empties the four lines

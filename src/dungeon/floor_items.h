@@ -36,8 +36,7 @@
 // A new level: nothing is lying on it. Blanks every row -- row 0 included, see
 // above -- and puts the mark back at the start. The one caller is
 // generate_cave() in generate.c, which runs for the town and for every dungeon
-// level. (It used to call a static wrapper, tlink(), whose whole body was these
-// two statements, exactly as mlink() was for the monsters.)
+// level.
 void floor_items_reset(void);
 
 // The row at INDEX. This is the plain `&t_list[index]` it replaces: no bounds
@@ -79,9 +78,9 @@ void floor_items_drop_last(void);
 //  1. WHICH SQUARE A ROW IS ON. It is not in the row. pusht() has to sweep the
 //     whole level looking for the square whose tptr is the row it moved, and
 //     upstream wrote the reason down at the struct itself (types.h:136: "extra
-//     fields x and y for location in dungeon would simplify pusht()"). That
-//     sweep needs cave, which is the last question of this group, so pusht()
-//     keeps the move and the sweep and this module only takes the tail.
+//     fields x and y for location in dungeon would simplify pusht()"). That sweep
+//     needs cave, so pusht() keeps the move and the sweep and this module only
+//     takes the tail.
 //
 //  2. A ROW NUMBER IS A CURRENCY BETWEEN FUNCTIONS. popt() returns one, and
 //     magic_treasure(x, level) in item_enchant.c takes one: its first act is

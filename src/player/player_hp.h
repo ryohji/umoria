@@ -10,13 +10,8 @@
 #ifndef PLAYER_HP_H
 #define PLAYER_HP_H
 
-// One question, one module -- the fifth question to leave `py`, after the purse
-// (player_gold.c), the stomach (player_food.c), the four numbers the character
-// sheet shows (player_display_numbers.c) and the mana (player_mana.c). Three
-// numbers answer it together, in the same shape the mana has: what is left, what
-// it can reach and the part of a point still on its way back. They were
-// py.misc.chp, py.misc.mhp and py.misc.chp_frac, touched from eighty-one places
-// in ten files.
+// THE QUESTION. Three numbers answer it together: what is left, what it can reach
+// and the part of a point still on its way back.
 //
 // The fraction is here for the reason it is in player_mana.h -- regeneration
 // hands back a few hundred 65536ths of the maximum each turn, so without
@@ -93,8 +88,7 @@ int16_t player_max_hp(void);
 // The part of a point still on its way back. Only the save file asks.
 uint16_t player_hp_fraction(void);
 
-// Whether what is left is the mark of a dead character. The same question the
-// four callers used to ask as `chp < 0`, with a name on it.
+// Whether what is left is the mark of a dead character: less than zero.
 bool player_hp_marks_death(void);
 
 // Takes a wound and says whether it was fatal. Nothing is clamped: a fatal

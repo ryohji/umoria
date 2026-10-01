@@ -15,9 +15,8 @@
 // first appears at. Positions run from 0 to MAX_DUNGEON_OBJ - 1, and the ones
 // belonging to a single level sit together in a band.
 //
-// This used to be two globals, sorted_objects and t_level, and neither meant
-// anything without the other: t_level was the index and sorted_objects the body
-// of one table. Five places read them, all of them working out a band.
+// Two arrays make the one table, and neither means anything without the other:
+// t_level is the index and sorted_objects the body (object_levels.c).
 //
 // The table is built once at startup from object_list and never changes, so
 // nothing saves it -- loading a game rebuilds it.

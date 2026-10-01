@@ -9,11 +9,8 @@
 #ifndef PLAYER_SPELLS_TO_LEARN_H
 #define PLAYER_SPELLS_TO_LEARN_H
 
-// THE NAME. The field this came from was called py.flags.new_spells, which reads
-// like "the new spells" -- a list of them. It is not: it is a COUNT, and which
-// spells are known lives elsewhere (spells_known.h). The tests written before
-// this module already called the number spells_to_learn
-// (tests/gain_spells_test.c), so that is the name.
+// THE NAME. It is a COUNT, not a list of spells -- which spells are known lives
+// elsewhere (spells_known.h).
 //
 // THE QUESTION. How many more spells may be learned right now? calc_spells()
 // works out how many the character's class, level and stat allow, subtracts the
@@ -51,7 +48,7 @@ void player_spells_to_learn_set(int count);
 //      back. "Which spells are in this book" is the book's business.
 //   4. THE THREE MESSAGES. "You can learn some new %ss now.", "You can't learn
 //      any new %ss!" and "You seem to be missing a book." belong to msg_print(),
-//      which lives behind externs.h, and no module on this road includes it.
+//      which lives behind externs.h, and this module does not include it.
 //   5. REDRAWING THE STATUS LINE. PY_STUDY is already its own question
 //      (player_status_flags.h). The two move together, but whether the screen
 //      needs repainting is about showing, not about the count.

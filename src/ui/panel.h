@@ -12,12 +12,8 @@
 #include <stdbool.h>
 
 // Two indexes say which panel we are looking at; six dungeon coordinates say
-// what that panel covers. The six are derived from the two, but every one of
-// them used to be a global, and four files each did their own arithmetic on
-// them: misc1.c derived them, io.c subtracted the two print offsets to reach
-// screen coordinates, spells.c and misc1.c walked between the four edges, and
-// generate.c set four of them by hand without deriving them at all. Only this
-// module now knows how the six follow from the two.
+// what that panel covers. The six are derived from the two, and only this
+// module knows how the six follow from the two.
 
 // The map does not fill the terminal: the message line is above it and the
 // status column to its left. prt_map() draws from here, and the two print

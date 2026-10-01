@@ -29,15 +29,13 @@ void player_class_set(int row) {
     // The class menu, the zero it writes before the menu loop, and a saved byte put
     // back. One sentence for all three, because all three are a plain replacement.
     //
-    // The cast is the store's own width, not a rule this window adds: the field is a
-    // uint8_t and `py.misc.pclass = cl[j];` truncated exactly like this.
+    // The cast is the store's own width (uint8_t), not a rule this window adds.
     the_row = (uint8_t)row;
 }
 
 const char *player_class_title(void) {
-    // No bounds check on the row, the same as the four callers had none (ledger
-    // observation 24). A row past the end of the table is a row past the end of the
-    // table, exactly as `class[py.misc.pclass].title` was.
+    // No bounds check on the row (findings.md 24). A row past the end of the table
+    // is a row past the end of the table.
     return class[the_row].title;
 }
 

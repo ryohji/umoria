@@ -13,10 +13,6 @@
 // pound -- a male Halfling is about sixty, a male Human about a hundred and
 // eighty (src/data/player.c:107, the m_b_wt / f_b_wt columns of race[]).
 //
-// THE EIGHTH QUESTION OUT OF struct misc, after how deep the character has been,
-// the hit die, the armour class, the base to-hit, the disarming skill, the saving
-// throw and the race.
-//
 // NOT VANITY -- A PHYSICAL QUANTITY. The number is on the character sheet, but
 // four of the six readers are rules, not display: a heavier character carries
 // more (inven_ops.c's weight_limit()), bashes monsters with a shield harder
@@ -30,8 +26,7 @@
 // one. THE RACE WAS NOT A NUMBER; THIS IS A NUMBER THAT NOBODY ADDS TO. Nothing
 // in the game makes the character heavier or lighter -- not food, not the pack,
 // not a curse. THE CHARACTER DOES NOT PUT ON WEIGHT. So the two windows below are
-// the whole question, and this is the first unit on this road with fewer than
-// three.
+// the whole question.
 
 // The weight in pounds. EIGHT CALLERS: the carrying limit (inven_ops.c), the shield
 // bash's to-hit and damage (player_melee.c, twice, folded into one call), the door
@@ -53,11 +48,10 @@ int player_body_weight(void);
 // same", agreeing with the hit die, the base to-hit, the disarming skill, the
 // saving throw and the race rather than with the armour class.
 //
-// IT REFUSES NOTHING, because the field refused nothing (ledger observation 24).
+// IT REFUSES NOTHING (findings.md 24).
 // The wizard's caller keeps its own `tmp_val > -1` check, which is about what
 // that prompt will accept, not about what a body may weigh. WIDTH IS STILL A
-// SHORT, so 65536 lands on 0 and -1 lands on 65535, exactly as
-// `py.misc.wt = randnor(...)` behaved.
+// SHORT, so 65536 lands on 0 and -1 lands on 65535.
 void player_body_weight_set(int pounds);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- three things, all still in the callers:
@@ -66,7 +60,7 @@ void player_body_weight_set(int pounds);
 //      `use_stat[A_STR] * PLAYER_WEIGHT_CAP + weight`, capped at 3000. THE
 //      SUBJECT OF THAT SENTENCE IS STRENGTH; the body's weight is the smaller
 //      term. It also needs py.stats.use_stat[], which has no window yet, so even
-//      if it belonged here it would have to wait (ledger observation 42) -- but
+//      if it belonged here it would have to wait (findings.md 42) -- but
 //      there is only one such site, so nothing is piling up.
 //   2. HOW HARD A BASH LANDS. py_bash() (`/ 10`, `/ 60 + 3`) and bash() (`/ 2`).
 //      Three different divisors for three different rules: those are facts

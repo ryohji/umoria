@@ -18,8 +18,8 @@
 // level 0. So zero means "has never gone below the town", which is where every
 // character starts.
 //
-// THE FIRST QUESTION OUT OF struct misc that is not about the character's body
-// or skill at all: it is a record of where the character has been. Three
+// NOT ABOUT THE CHARACTER'S BODY OR SKILL AT ALL: it is a record of where the
+// character has been. Three
 // different files ask it for three unrelated reasons (the score, the scroll of
 // word-of-recall, and the saved file), and only one place answers it.
 
@@ -27,17 +27,16 @@
 int player_max_depth(void);
 
 // Remember that this level has been reached. KEEPS THE DEEPER OF THE TWO -- the
-// comparison used to sit in dungeon.c ("Check for a maximum level"), and it is
-// in here now because there is one caller, the reason can be said in the words
-// of this module, and afterwards no `>` against this number is left outside.
+// comparison is in here because there is one caller, the reason can be said in
+// the words of this module, and no `>` against this number is left outside.
 //
 // Going back up the stairs therefore cannot lower the record, which is what the
 // question means.
 void player_note_depth_reached(int level);
 
 // Put a record back, REPLACING whatever is there. For the saved file only, the
-// same as hp_table_slots(): rd_short() used to write straight into the field, and
-// a load has to restore the number that was written rather than merge with it.
+// same as hp_table_slots(): a load has to restore the number that was written
+// rather than merge with it.
 //
 // Play may not use this -- the window above is the only way a character records
 // having got deeper, and it cannot go backwards. (Today the two would agree
@@ -60,7 +59,6 @@ void player_max_depth_set(int level);
 //      to leave_for_level(); the "nowhere to be yanked to" branch for a
 //      character still in town is about what the scroll does, not about the
 //      record.
-//   4. THE POSITION OF THE SHORT IN THE SAVED FILE. save.c keeps the byte order,
-//      as it does for every question on this road.
+//   4. THE POSITION OF THE SHORT IN THE SAVED FILE. save.c keeps the byte order.
 
 #endif // PLAYER_MAX_DEPTH_H

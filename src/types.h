@@ -152,8 +152,8 @@ typedef struct inven_type {
 #define PLAYER_NAME_SIZE 27
 
 typedef struct player_type {
-    // Most player fields have been moved to their own modules. For the locations of
-    // fields that used to be here (named in old code, notes, or the save file):
+    // Most player fields are in their own modules. Field names (from old code,
+    // notes, or the save file) and their locations:
     //
     //   struct misc
     //     au                               player_gold.h

@@ -13,10 +13,8 @@
 // store_type comes from types.h, which has to be included before this header.
 
 // There is nothing to derive here -- unlike the panel or the message history,
-// this is storage and only storage. What it buys is a single owner: four files
-// used to name the array, and store1.c, store2.c and save.c each began by
-// turning an index into a pointer. Now only this module knows where the
-// records are.
+// this is storage and only storage. What it buys is a single owner: only this
+// module knows where the records are.
 
 // The number of shops in the town, and the number of records below. Doors 1..6
 // on the town map lead to index 0..5, which is also how store_choice[] (what a

@@ -21,10 +21,7 @@
 // through 200, this one runs -1 through 18, and one point of it is worth as much as
 // the whole of that range.
 //
-// THE TWELFTH QUESTION OUT OF struct misc, after the purse, how far the character
-// has come, how deep they have been, the hit die, the armour class, the base to-hit,
-// the disarming skill, the saving throw, the race, the body's weight, the attack
-// bonuses, the searching skill and the six answers of the bio. ONE FIELD WITH ONE
+// ONE FIELD WITH ONE
 // ANSWER -- the simplest shape there is, and the same shape as the hit die and the
 // disarming skill.
 //
@@ -56,7 +53,7 @@
 // undefined for a signed long -- AND NOTHING CAN TAKE THAT STEP, because the two
 // tables cannot add up to less than -1 and no item in the game lowers stealth (the
 // noisy curse sets TR_AGGRAVATE instead; see below). This module keeps the number
-// as it is; the checking is not its business (ledger observation 24).
+// as it is; the checking is not its business (findings.md 24).
 //
 // WHO ASKS: creation (create.c, race then class), the gear (player_bonuses.c), the
 // sleeping monster (creature.c), the character sheet and the dumped file by way of
@@ -83,14 +80,12 @@ int player_stealth(void);
 // number, and this window is handed the value that comes out.
 void player_stealth_set(int stealth);
 
-// This much quieter -- or louder, when the sign is negative. TWO CALLERS, and they
-// are the two that made this unit need a third window at all:
+// This much quieter -- or louder, when the sign is negative. TWO CALLERS:
 //
-//   - THE CLASS at creation (`m_ptr->stl += c_ptr->mstl;`), which is always positive.
-//   - THE GEAR (`py.misc.stl += amount;` in py_bonuses()), where `amount` is
-//     `t_ptr->p1 * factor` and THE CALLER'S factor IS -1 WHEN THE THING COMES OFF.
-//     One line covers putting it on and taking it off, the same as the searching
-//     gear and the infra-vision gear.
+//   - THE CLASS at creation (create.c), which is always positive.
+//   - THE GEAR (player_bonuses.c), where `amount` is `t_ptr->p1 * factor` and
+//     THE CALLER'S factor IS -1 WHEN THE THING COMES OFF. One line covers putting
+//     it on and taking it off.
 //
 // A window of its own rather than read-add-write, so the store is touched once.
 void player_stealth_adjust(int amount);

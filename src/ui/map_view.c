@@ -113,9 +113,8 @@ bool test_light(int y, int x) {
 
 // Prints the map of the dungeon -RAK-
 void prt_map(void) {
-    // Top to bottom. The row counter used to be kept here (starting at 1, one
-    // step per dungeon row), which is the same walk print() makes when it
-    // converts a dungeon row into a screen row -- so ask for that instead.
+    // Top to bottom. The screen row is the same walk print() makes when it
+    // converts a dungeon row into a screen row, so ask for that.
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         erase_line(panel_screen_row(i), PANEL_MAP_LEFT_COL);
 

@@ -15,18 +15,14 @@
 
 #include "dungeon_map.h"
 
-// THE STORAGE. Nothing outside this file can spell it. Moving every caller
-// took four commits, and while that was going on two containers would have
-// meant half the game walking around one map and half around another.
+// THE STORAGE. Nothing outside this file can spell it.
 //
-// The table is one contiguous row-major block, and that is now this file's
-// promise alone: nineteen loops used to walk it with a pointer, and none do
-// any more. See src/dungeon/dungeon_map.h.
+// The table is one contiguous row-major block, and that is this file's promise
+// alone. See src/dungeon/dungeon_map.h.
 static cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 
-// Blank the whole table -- upstream's blank_cave(), one memset, moved here
-// unchanged. sizeof(cave) is the whole 66 x 198, not the part the level in play
-// uses; see dungeon_map.h for why that matters.
+// Blank the whole table -- one memset. sizeof(cave) is the whole 66 x 198, not
+// the part the level in play uses; see dungeon_map.h for why that matters.
 void dungeon_map_reset(void) { memset(cave, 0, sizeof(cave)); }
 
 cave_type *square_at(int y, int x) { return &cave[y][x]; }

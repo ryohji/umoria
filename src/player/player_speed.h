@@ -9,17 +9,7 @@
 #ifndef PLAYER_SPEED_H
 #define PLAYER_SPEED_H
 
-// One question, one module -- the eleventh question to leave `py`, after the
-// purse (player_gold.c), the stomach (player_food.c), the four numbers the
-// character sheet shows (player_display_numbers.c), the mana (player_mana.c),
-// the hit points (player_hp.c), how far the character has come
-// (player_level.c), the status word (player_status_flags.c), what the equipment
-// grants (player_abilities.c), the eighteen clocks (player_timed_effects.c) and
-// the rest (player_resting.c). ONE field answered it -- py.flags.speed, touched
-// from nine places in five files (dungeon.c three of them, misc3.c two,
-// save.c two, misc1.c one, player_bonuses.c one).
-//
-// THE QUESTION IS "HOW MANY STEPS FROM NORMAL SPEED IS THE CHARACTER". Zero is
+// THE QUESTION. HOW MANY STEPS FROM NORMAL SPEED IS THE CHARACTER. Zero is
 // normal. It is NOT one of the eighteen clocks and not a count of turns: nothing
 // ticks it down, it is ADDED TO AND SUBTRACTED FROM while potions, items and
 // traps come and go.

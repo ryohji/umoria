@@ -16,10 +16,8 @@
 // Warrior at eighteen, and a Half-Troll Warrior -- the worst pair the class
 // table allows that race -- at ten.
 //
-// THE SIXTH QUESTION OUT OF struct misc, after how deep the character has been,
-// the hit die, the armour class, the base to-hit and the disarming skill. ONE
-// FIELD WITH ONE ANSWER, the same simple shape as the hit die and the disarming
-// skill.
+// ONE FIELD WITH ONE ANSWER, the same simple shape as the hit die and the
+// disarming skill.
 //
 // ONE NUMBER, BUT THE CHARACTER SHEET TURNS IT INTO TWO RATINGS:
 //
@@ -75,8 +73,8 @@ int player_saving_throw(void);
 // THE WIZARD SCREEN'S RANGE STAYS THERE, and it is worth knowing that the screen
 // contradicts itself: the prompt says "(0-100)" while the check that follows
 // admits anything from 0 to 200 -- the same check the disarming prompt uses, with
-// a different sentence above it. This window refuses nothing either way, because
-// the field refused nothing (ledger observation 24).
+// a different sentence above it. This window refuses nothing either way
+// (findings.md 24).
 void player_saving_throw_set(int chance);
 
 // This much better -- the class's msav, added to whatever the race left here.

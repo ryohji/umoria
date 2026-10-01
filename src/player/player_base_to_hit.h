@@ -17,10 +17,7 @@
 // Human Mage at 34 and 20. NEGATIVE IS POSSIBLE AND REAL: an Elf's racial base is
 // -5 for swinging and +15 for shooting, so an Elven Mage begins at 29.
 //
-// THE FOURTH QUESTION OUT OF struct misc, after how deep the character has been,
-// how many faces the hit die has, and the armour class.
-//
-// TWO NUMBERS, AND THIS TIME BOTH OF THEM ARE ANSWERS:
+// TWO NUMBERS, BOTH OF THEM ANSWERS:
 //
 //   - THE MELEE NUMBER is used when the character swings what is wielded.
 //   - THE BOWS NUMBER is used when something is fired or thrown, and it is the
@@ -79,7 +76,7 @@ void player_base_to_hit_set_melee(int melee);
 void player_base_to_hit_set_with_bows(int with_bows);
 
 // The class's worth added to whatever the race left here. ONE CALLER, create.c,
-// which used to spell it as `m_ptr->bth += c_ptr->mbth;` and the same for bows.
+// for the melee and the bow amounts alike.
 //
 // The two amounts differ (a Warrior's class is worth 70 to swinging and 55 to
 // shooting), which is why this window takes two numbers where the next one takes

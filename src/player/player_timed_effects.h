@@ -9,18 +9,11 @@
 #ifndef PLAYER_TIMED_EFFECTS_H
 #define PLAYER_TIMED_EFFECTS_H
 
-// One question, one module -- the ninth question to leave `py`, after the purse
-// (player_gold.c), the stomach (player_food.c), the four numbers the character
-// sheet shows (player_display_numbers.c), the mana (player_mana.c), the hit
-// points (player_hp.c), how far the character has come (player_level.c), the
-// status word (player_status_flags.c) and what the equipment grants
-// (player_abilities.c). EIGHTEEN fields answered it -- py.flags.blind through
-// py.flags.tim_infra, touched from two hundred and eighty-one places in eighteen
-// files (dungeon.c seventy-five of them, save.c thirty-eight, creature.c
-// thirty-two). They are a static array in player_timed_effects.c and the windows
+// THE QUESTION. HOW MANY TURNS ARE LEFT for each of the eighteen temporary
+// states. They are a static array in player_timed_effects.c and the windows
 // below are the only way to reach them.
 //
-// THE QUESTION IS "HOW MANY TURNS ARE LEFT". A cause adds turns (a potion, a
+// A cause adds turns (a potion, a
 // bite, a trap, a prayer), one block in dungeon.c takes one turn off every
 // eighteen counters once per turn, and reaching zero ends the state. Nothing
 // else in the game counts anything down like this: it is the only clock the
@@ -108,8 +101,7 @@ typedef enum {
     PLAYER_TIMED_COUNT
 } player_timed_effect;
 
-// Whether the state is in force at all: more than zero turns left. A hundred and
-// thirty-six of the two hundred and eighty-one places were this comparison.
+// Whether the state is in force at all: more than zero turns left.
 bool player_timed_in_force(player_timed_effect effect);
 
 // The number itself, for the four places that need more than "is it in force":

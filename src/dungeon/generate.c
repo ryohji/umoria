@@ -84,9 +84,6 @@ static void fill_cave(int fval) {
 }
 
 // Places indestructible rock around edges of dungeon -RAK-
-//
-// The two casts and the four #ifdef DEBUG asserts that used to stand here were
-// checking pointer arithmetic that no longer happens; see src/dungeon/dungeon_map.h.
 static void place_boundary(void) {
     // put permanent wall on leftmost row and rightmost row
     for (int i = 0; i < dungeon_height(); i++) {

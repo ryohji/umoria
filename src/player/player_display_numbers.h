@@ -9,20 +9,14 @@
 #ifndef PLAYER_DISPLAY_NUMBERS_H
 #define PLAYER_DISPLAY_NUMBERS_H
 
-// One question, one module -- the third question to leave `py`, after the purse
-// (player_gold.c) and the stomach (player_food.c). Four numbers answer it
-// together: the +To Hit, +To Damage, +To AC and Total AC printed on the status
-// panel, the character sheet and the character dump. They came from
-// py.misc.dis_th, dis_td, dis_tac and dis_ac, which forty-three places used to
-// touch.
+// Four numbers: the +To Hit, +To Damage, +To AC and Total AC printed on the status
+// panel, the character sheet and the character dump.
 //
-// These are *not* the numbers the game fights with. Those are the real plusses,
-// and none of them is in `py` any more: the aim and the force are in
-// player_attack_bonuses.c, the two halves of the armour class are in
-// player_armour_class.c. This question is only about what the
-// character is told. Four things make the
-// difference real, and all four are reasons the copies cannot become a
-// derivation of the real numbers:
+// These are *not* the numbers the game fights with. Those are the real plusses:
+// the aim and the force are in player_attack_bonuses.c, the two halves of the
+// armour class are in player_armour_class.c. This question is only about what the
+// character is told. Four things make the difference real, and all four are reasons
+// the copies cannot become a derivation of the real numbers:
 //
 //   - **They are filtered by what the character knows.** calc_bonuses() adds
 //     every worn item's plusses to the real numbers, but adds them here only

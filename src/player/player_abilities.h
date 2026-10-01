@@ -10,35 +10,25 @@
 #ifndef PLAYER_ABILITIES_H
 #define PLAYER_ABILITIES_H
 
-// One question, one module -- the eighth question to leave `py`, after the purse
-// (player_gold.c), the stomach (player_food.c), the four numbers the character
-// sheet shows (player_display_numbers.c), the mana (player_mana.c), the hit
-// points (player_hp.c), how far the character has come (player_level.c) and the
-// status word (player_status_flags.c). SEVENTEEN one-byte fields answer it --
-// they were py.flags.see_inv through py.flags.sustain_chr -- touched from a
-// hundred and six places in eight files.
+// SEVENTEEN yes-or-no answers about what the character can do and resist.
 //
 // THE ANSWER IS NOT KEPT, IT IS DERIVED. These seventeen are WORKED OUT FROM THE
 // EQUIPMENT, and calc_bonuses() in player_bonuses.c does it from scratch every
 // time anything changes: it clears all seventeen and sets them again from the
 // flags of what is worn.
 // ALL THIRTY-NINE OF player_bonuses.c'S REFERENCES ARE THAT ONE FUNCTION.
-// Compare player_display_numbers.c: the four numbers there looked derived but
-// turned out to be REMEMBERED -- nobody recomputes them after a save file is read.
-// These seventeen are the other way round, and they are still in the save file
-// only because nothing calls calc_bonuses() on the way in either.
+// These seventeen are still in the save file only because nothing calls
+// calc_bonuses() when a game is loaded.
 //
-// THE TWO FIELDS THAT ARE NOT HERE. py.flags kept nineteen one-byte fields next
-// to each other, and they are not one question:
+// THE TWO THINGS THAT ARE NOT HERE.
 //
 //   - confuse_monster ("glowing hands", eight references) is a CHARGE THAT IS
 //     SPENT: scrolls.c sets it, the next blow that lands clears it. No equipment
 //     grants it and calc_bonuses() does not touch it. It goes with the timed
-//     states, the ninth question.
+//     states (player_timed_effects.h).
 //   - new_spells (nine references, plus twenty in tests/) is a COUNT, not an
 //     ability -- how many spells may still be learnt. It pairs with the study
-//     request and spells_known.c; its seven misc3.c references (six now in spellbook.c,
-//     one in status_line.c) are all that arithmetic. It waits for its own question.
+//     request and spells_known.c, and has its own module (player_spells_to_learn.h).
 //
 // The seventeen fall into four kinds, and the reading windows are named after
 // what the caller wants to know, not after the field:
@@ -65,9 +55,8 @@
 //     AND NOT ONE: work happens between them.
 //   - know why. Nothing here announces anything or rolls anything.
 
-// No includes: the callers bring config.h, constant.h and types.h in first, the
-// same as player_status_flags.h and the six before it. types.h has no guard of
-// its own.
+// No includes: the callers bring config.h, constant.h and types.h in first.
+// types.h has no guard of its own.
 
 // --- what the character can do right now ---------------------------------
 
@@ -127,9 +116,7 @@ void player_grant_see_invisible(void);
 
 // The seventeen are seventeen bytes in the save file, in one run, in the order
 // this module keeps them. THE ORDER IS THE FORMAT, so these two windows are what
-// the save file's writer and reader use and nothing else -- the same shape as
-// player_status_word() in player_status_flags.h, where the bit numbering was the
-// format.
+// the save file's writer and reader use and nothing else.
 #define PLAYER_ABILITIES_SAVED_BYTES 17
 
 uint8_t player_abilities_saved_byte(int position);

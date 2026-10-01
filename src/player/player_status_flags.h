@@ -10,16 +10,9 @@
 #ifndef PLAYER_STATUS_FLAGS_H
 #define PLAYER_STATUS_FLAGS_H
 
-// One question, one module -- the seventh question to leave `py`, after the
-// purse (player_gold.c), the stomach (player_food.c), the four numbers the
-// character sheet shows (player_display_numbers.c), the mana (player_mana.c),
-// the hit points (player_hp.c) and how far the character has come
-// (player_level.c). ONE field answers it -- it was py.flags.status -- but that
-// field carries THIRTY-ONE NAMES, touched from a hundred and five places in ten
-// files (dungeon.c sixty of them).
-//
-// THE QUESTION IS A SET, NOT A NUMBER: "which of these thirty things is true". The bits are declared in constant.h as PY_HUNGRY
-// through PY_MANA, and NONE OF THEM APPEARS IN A CALLER ANY MORE: the mask
+// THE QUESTION. A word of thirty-one bits: which of these thirty-one things is true.
+// The bits are declared in constant.h as PY_HUNGRY through PY_MANA, and NONE OF
+// THEM APPEARS IN A CALLER: the mask
 // arithmetic lives here, the way spells_known.c hides `1L << spell`.
 //
 // THE BIT LAYOUT IS THE SAVE FILE'S FORMAT. save.c writes and reads the whole
