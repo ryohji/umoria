@@ -131,28 +131,6 @@ int delete_object(int y, int x) { stub_unreached(__func__); }
 bool in_bounds(int y, int x) { stub_unreached(__func__); }
 void magic_treasure(int x, int level) { (void)x; (void)level; }
 
-/* set_large は訊かれた品物と回数を記録し、並べた答え（'y' で大きい）を順に
- * 返す。答えを使いきったら「大きくない」。 */
-static const char *fixture_large_answers = "";
-static const treasure_type *fixture_large_last;
-static int fixture_large_calls;
-
-bool set_large(treasure_type *t) {
-    fixture_large_last = t;
-    fixture_large_calls++;
-    if (*fixture_large_answers == '\0') {
-        return false;
-    }
-    return *fixture_large_answers++ == 'y';
-}
-
-void fixture_set_large_answers(const char *answers) {
-    fixture_large_answers = answers == NULL ? "" : answers;
-}
-
-int fixture_set_large_call_count(void) { return fixture_large_calls; }
-const treasure_type *fixture_set_large_last_item(void) { return fixture_large_last; }
-
 /* change_speed と calc_bonuses は呼ばれかたを記録する。change_speed に渡るのは
  * 段数の差（正なら遅くなる）。 */
 static int fixture_speed_change_last;
@@ -212,13 +190,6 @@ void set_seed(uint32_t seed) { (void)seed; }
 void reset_seed(void) {}
 void add_inscribe(inven_type *i, uint8_t flag) { (void)i; (void)flag; }
 
-bool general_store(int t) { stub_unreached(__func__); }
-bool armory(int t) { stub_unreached(__func__); }
-bool weaponsmith(int t) { stub_unreached(__func__); }
-bool temple(int t) { stub_unreached(__func__); }
-bool alchemist(int t) { stub_unreached(__func__); }
-bool magic_shop(int t) { stub_unreached(__func__); }
-
 void shared_stubs_reset(void)
 {
     memset(fixture_messages, 0, sizeof fixture_messages);
@@ -231,8 +202,5 @@ void shared_stubs_reset(void)
     fixture_bonuses_calls = 0;
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;
-    fixture_large_answers = "";
-    fixture_large_last = NULL;
-    fixture_large_calls = 0;
     fixture_dark = false;
 }
