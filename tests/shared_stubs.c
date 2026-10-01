@@ -178,7 +178,13 @@ int fixture_speed_change_count(void) { return fixture_speed_change_calls; }
 int fixture_calc_bonuses_count(void) { return fixture_bonuses_calls; }
 
 void takeoff(int item, int posn) { (void)item; (void)posn; }
-bool no_light(void) { return false; }
+
+/* no_light はテストが決めた明るさを返す。既定は明るい。 */
+static bool fixture_dark;
+
+bool no_light(void) { return fixture_dark; }
+void fixture_set_no_light(bool dark) { fixture_dark = dark; }
+
 bool file_character(char *f) { (void)f; return false; }
 void user_name(char *b) { (void)b; }
 
@@ -229,4 +235,5 @@ void shared_stubs_reset(void)
     fixture_large_answers = "";
     fixture_large_last = NULL;
     fixture_large_calls = 0;
+    fixture_dark = false;
 }

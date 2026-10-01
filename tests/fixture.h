@@ -87,4 +87,8 @@ void fixture_set_large_answers(const char *answers);
 int fixture_set_large_call_count(void);
 const struct treasure_type *fixture_set_large_last_item(void);
 
+/* no_light() の答え（true で明かりが無い）。tests/shared_stubs.c が提供する。
+ * fixture_reset() で明るいに戻る。 */
+void fixture_set_no_light(bool dark);
+
 #endif /* FIXTURE_H */
