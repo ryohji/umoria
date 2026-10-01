@@ -12,9 +12,9 @@
 // ONE PAIR OF NUMBERS, AND IT ONLY EVER TAKES TWO VALUES. generate_cave()
 // picks 22 x 66 for the town and 66 x 198 for a dungeon level, so the pair is
 // really a cache of "am I in the town?" -- the same thing the depth says, and
-// that question got a window of its own at the next step in this group
-// (player_is_in_town(), dungeon_level.h). Nothing else ever writes it, and
-// nothing scales it: a level is one of those two shapes for its whole life.
+// that question has its own window (player_is_in_town(), dungeon_level.h).
+// Nothing else ever writes it, and nothing scales it: a level is one of those two
+// shapes for its whole life.
 //
 // TWO NAMES, ONE ACT. Both writers set both halves, one line after the other
 // (generate.c twice, save.c's restore once), and the readers almost always use

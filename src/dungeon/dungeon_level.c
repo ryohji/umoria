@@ -12,9 +12,7 @@
 
 #include "dungeon_level.h"
 
-// THE STORAGE. A new game starts in the town. (The initializer is spelled out
-// in dungeon_level.h, where writing it does not
-// look like an assignment to the ledger that counts writes.)
+// THE STORAGE. A new game starts in the town.
 //
 // A short, because that is what the save file holds. The window hands out a
 // plain int: every caller widens it anyway, and the deepest level the game can
