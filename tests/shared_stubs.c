@@ -126,9 +126,7 @@ bool get_check(const char *p) { stub_unreached(__func__); }
 
 bool get_string(char *s, int r, int c, int l) { stub_unreached(__func__); }
 
-int popt(void) { stub_unreached(__func__); }
 int delete_object(int y, int x) { stub_unreached(__func__); }
-bool in_bounds(int y, int x) { stub_unreached(__func__); }
 void magic_treasure(int x, int level) { (void)x; (void)level; }
 
 /* change_speed と calc_bonuses は呼ばれかたを記録する。change_speed に渡るのは
