@@ -13,10 +13,6 @@
 // pound -- a male Halfling is about sixty, a male Human about a hundred and
 // eighty (src/data/player.c:107, the m_b_wt / f_b_wt columns of race[]).
 //
-// THE EIGHTH QUESTION OUT OF struct misc, after how deep the character has been,
-// the hit die, the armour class, the base to-hit, the disarming skill, the saving
-// throw and the race.
-//
 // NOT VANITY -- A PHYSICAL QUANTITY. The number is on the character sheet, but
 // four of the six readers are rules, not display: a heavier character carries
 // more (inven_ops.c's weight_limit()), bashes monsters with a shield harder
@@ -53,11 +49,10 @@ int player_body_weight(void);
 // same", agreeing with the hit die, the base to-hit, the disarming skill, the
 // saving throw and the race rather than with the armour class.
 //
-// IT REFUSES NOTHING, because the field refused nothing (ledger observation 24).
+// IT REFUSES NOTHING (findings.md 24).
 // The wizard's caller keeps its own `tmp_val > -1` check, which is about what
 // that prompt will accept, not about what a body may weigh. WIDTH IS STILL A
-// SHORT, so 65536 lands on 0 and -1 lands on 65535, exactly as
-// `py.misc.wt = randnor(...)` behaved.
+// SHORT, so 65536 lands on 0 and -1 lands on 65535.
 void player_body_weight_set(int pounds);
 
 // WHAT THIS MODULE DOES NOT ANSWER -- three things, all still in the callers:

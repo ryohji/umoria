@@ -10,13 +10,8 @@
 #ifndef PLAYER_HP_H
 #define PLAYER_HP_H
 
-// One question, one module -- the fifth question to leave `py`, after the purse
-// (player_gold.c), the stomach (player_food.c), the four numbers the character
-// sheet shows (player_display_numbers.c) and the mana (player_mana.c). Three
-// numbers answer it together, in the same shape the mana has: what is left, what
-// it can reach and the part of a point still on its way back. They were
-// py.misc.chp, py.misc.mhp and py.misc.chp_frac, touched from eighty-one places
-// in ten files.
+// THE QUESTION. Three numbers answer it together: what is left, what it can reach
+// and the part of a point still on its way back.
 //
 // The fraction is here for the reason it is in player_mana.h -- regeneration
 // hands back a few hundred 65536ths of the maximum each turn, so without

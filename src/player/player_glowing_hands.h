@@ -9,11 +9,9 @@
 #ifndef PLAYER_GLOWING_HANDS_H
 #define PLAYER_GLOWING_HANDS_H
 
-// THE NAME. The field this came from was called py.flags.confuse_monster, but
-// externs.h already declares a function of that name -- confuse_monster(dir,
-// row, col) in spells.c, the spell a wand or a scroll aims at one monster.
-// Those are two different things that happened to share a name: the function is
-// something the character DOES to a monster now, and this is something the
+// THE NAME. externs.h declares a function named confuse_monster(dir, row, col)
+// in spells.c, the spell a wand or a scroll aims at one monster. That function
+// is something the character DOES to a monster now, and this is something the
 // character HAS until the next blow lands. The game's own messages name the
 // hands ("Your hands begin to glow.", "Your hands stop glowing."), so the
 // module is named after the hands too.

@@ -15,14 +15,8 @@
 //   0 Human   1 Half-Elf   2 Elf        3 Halfling
 //   4 Gnome   5 Dwarf      6 Half-Orc   7 Half-Troll
 //
-// THE SEVENTH QUESTION OUT OF struct misc, after how deep the character has been,
-// the hit die, the armour class, the base to-hit, the disarming skill and the
-// saving throw.
-//
-// THIS ONE IS NOT A QUANTITY. Every other question so far has been a number that
-// something adds to, compares or scales. NOTHING IN THE GAME DOES ARITHMETIC ON
-// THIS ONE except to find a row: all thirteen places that named py.misc.prace
-// either indexed a table with it or handed the byte on unchanged. There is no
+// THIS ONE IS NOT A QUANTITY. NOTHING IN THE GAME DOES ARITHMETIC ON THIS ONE
+// except to find a row. There is no
 // `_adjust` window here and there never will be -- A CHARACTER DOES NOT BECOME
 // MORE OF A DWARF.
 //
@@ -31,11 +25,7 @@
 // that it never changes, which is why the three readers below can cache nothing
 // and need nothing.
 //
-// BEWARE THE NAME, but less than usual. The spelling `prace` belongs to this one
-// field and nothing else, so `grep -w prace` finds exactly the thirteen lines
-// that were the question -- the first unit on this road where the count was not
-// inflated (the saving throw's `grep -w save` found eighty-three lines for eleven
-// real ones). WHAT IS CROWDED IS `race`: the constant table race[], the shop
+// BEWARE THE NAME. WHAT IS CROWDED IS `race`: the constant table race[], the shop
 // owner's own owner_race, race_type.trace, and high_scores.race in death.c are
 // four different things spelled with the same word.
 
@@ -56,11 +46,10 @@ int player_race(void);
 // same", agreeing with the hit die, the base to-hit, the disarming skill and the
 // saving throw rather than with the armour class.
 //
-// IT REFUSES NOTHING, because the field refused nothing (ledger observation 24).
+// IT REFUSES NOTHING (findings.md 24).
 // The menu can only produce 0..MAX_RACES-1 and a saved file can only hold a byte,
 // but neither end was ever checked and this window does not start checking.
-// WIDTH IS STILL A BYTE, so 256 lands on 0 and -1 lands on 255, exactly as
-// `p_ptr->misc.prace = j;` behaved.
+// WIDTH IS STILL A BYTE, so 256 lands on 0 and -1 lands on 255.
 void player_race_set(int row);
 
 // The race's name, as the game spells it -- "Human", "Half-Elf", ... THREE
@@ -71,16 +60,14 @@ void player_race_set(int row);
 // THIS IS THE ONE PLACE THE MODULE REACHES OUT: race[] is one of the read-only
 // constant tables declared in externs.h.
 //
-// WHY THE NAME IS IN HERE AND THE REST OF THE ROW IS NOT: the three callers wrote
-// the identical `race[py.misc.prace].trace`, and what they wanted was not a table
-// lookup but the race's name. The other readers of race[] want the race's *stats*
+// WHY THE NAME IS IN HERE AND THE REST OF THE ROW IS NOT: what the callers want
+// is the race's name. The other readers of race[] want the race's *stats*
 // (the age spread, the height, the classes it may take), which is a different
 // question and stays in create.c where the character is built.
 //
 // NOTE: this does not fold three calls into one. Each of the three sites still
 // calls once, so the call count does not move -- the gain is that none of the
-// three spells out a subscript any more. FIRST UNIT ON THIS ROAD WHERE A FOLD
-// BUYS CLARITY WITHOUT BUYING A SMALLER NUMBER.
+// three spells out a subscript.
 //
 // const char *, which is what race_type.trace already is (types.h:331) and what
 // both receivers -- prt_field() and put_buffer() -- already take, so not one cast

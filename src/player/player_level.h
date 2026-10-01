@@ -10,15 +10,11 @@
 #ifndef PLAYER_LEVEL_H
 #define PLAYER_LEVEL_H
 
-// One question, one module -- the sixth question to leave `py`, after the purse
-// (player_gold.c), the stomach (player_food.c), the four numbers the character
-// sheet shows (player_display_numbers.c), the mana (player_mana.c) and the hit
-// points (player_hp.c). Five numbers answer it together -- they were py.misc.lev,
-// py.misc.exp, py.misc.max_exp, py.misc.exp_frac and py.misc.expfact, touched
-// from a hundred and fifty-one places in eighteen files. It is the largest of
-// the questions so far -- roughly twice the hit points.
+// THE QUESTION. Five numbers answer it together: the level, the experience behind
+// it, the most experience ever held, the fraction of a point not yet added up, and
+// the factor that scales the table.
 //
-// WHAT IS NEW HERE IS THAT ONE OF THE FIVE NUMBERS IS ALSO A CONCLUSION. The
+// ONE OF THE FIVE NUMBERS IS ALSO A CONCLUSION. The
 // level is stored (the save file reads and writes it) and yet it is fixed by the
 // experience:
 //

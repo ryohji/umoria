@@ -17,10 +17,7 @@
 // Human Mage at 34 and 20. NEGATIVE IS POSSIBLE AND REAL: an Elf's racial base is
 // -5 for swinging and +15 for shooting, so an Elven Mage begins at 29.
 //
-// THE FOURTH QUESTION OUT OF struct misc, after how deep the character has been,
-// how many faces the hit die has, and the armour class.
-//
-// TWO NUMBERS, AND THIS TIME BOTH OF THEM ARE ANSWERS:
+// TWO NUMBERS, BOTH OF THEM ANSWERS:
 //
 //   - THE MELEE NUMBER is used when the character swings what is wielded.
 //   - THE BOWS NUMBER is used when something is fired or thrown, and it is the
