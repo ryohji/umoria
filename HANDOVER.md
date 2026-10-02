@@ -30,7 +30,7 @@
   開いている行の場所と数も今のコードに合わせた。
 - **P1（#58〜#61）は閉じた。** #58（ヘッダ依存を `-MMD -MP` に）・#59（`distance()` を
   `core/` へ、geometry のテスト）・#60（生の数に名前）・#61（注釈の経緯と日本語を外し、
-  手書きの宣言を `externs.h` の include に）。経過は `docs/refactoring/p1-2026-10.md`。
+  手書きの宣言を `externs.h` の include に）。経過は [done/p1-2026-10.md](docs/refactoring/done/p1-2026-10.md)。
   次の候補は第 6 節。
 
 ## 1. 資料の役割分担
@@ -45,7 +45,6 @@
 | `docs/refactoring/findings.md` | 所見（わかったこと）と索引。作法の根拠はここを番号で指す |
 | `docs/refactoring/globals_inventory.md` | #18 の棚おろし。着手前の姿（凍結）＋区分ごとの見立て＋付録 |
 | `docs/refactoring/worklog.md` | 作業ログ（1 作業 1 行）。済んだ列の行は `done/worklog-*.md` |
-| `docs/refactoring/p1-2026-10.md` | P1 の #58〜#61 の経過と、済んで移した台帳の行（列は閉じた。第 9 節で `done/` へ） |
 | `docs/refactoring/done/` | 済んだ列の経過（字を変えずに移したもの） |
 | `scripts/globals.py` | `externs.h` の global を区分に分けて数える道具。手で数えない |
 | `scripts/link_units.py` | テストの実行形式ごとに `libcore.a` から引かれた `.o` を出す |
