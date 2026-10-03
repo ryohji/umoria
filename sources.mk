@@ -49,6 +49,7 @@ SRCS = main.c ui/files.c ui/io.c \
 	player/player_bonuses.c \
 	player/rest_command.c \
 	ui/direction.c \
+	ui/direction_keys.c \
 	dungeon/lighting.c \
 	combat/player_melee.c \
 	combat/throw.c \
