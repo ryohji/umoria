@@ -16,7 +16,7 @@
 
 #include "minunit.h"
 
-// Legacy switches copied verbatim from dungeon.c (original_commands, case '.').
+// 書きかえる前の original_commands() の '.'（走る）の switch の写し。
 static char legacy_run(int dir_val) {
     char com_val;
     switch (dir_val) {
@@ -51,7 +51,7 @@ static char legacy_run(int dir_val) {
     return com_val;
 }
 
-// Legacy switches copied verbatim from dungeon.c (original_commands, case 'T').
+// 書きかえる前の original_commands() の 'T'（掘る）の switch の写し。
 static char legacy_tunnel(int dir_val) {
     char com_val;
     switch (dir_val) {
@@ -86,7 +86,7 @@ static char legacy_tunnel(int dir_val) {
     return com_val;
 }
 
-// Legacy switches copied verbatim from dungeon.c (do_command, case '-').
+// 書きかえる前の do_command() の '-'（拾わずに歩く）の switch の写し。
 static char legacy_walk(int dir_val) {
     char com_val;
     switch (dir_val) {
