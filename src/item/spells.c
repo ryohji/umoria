@@ -64,6 +64,35 @@ int sleep_monsters1(int y, int x) {
     return sleep;
 }
 
+// Handle a monster caught in a newly-created wall or earthquake.
+// Non-phasing monsters take damage and may die; earth elementals heal.
+static void monster_caught_in_wall(int monster_index) {
+    monster_type *m_ptr = monster_list_at(monster_index);
+    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+
+    if (!(r_ptr->cmove & CM_PHASE)) {
+        int damage;
+
+        if (r_ptr->cmove & CM_ATTACK_ONLY) {
+            // this will kill everything
+            damage = 3000;
+        } else {
+            damage = damroll(4, 8);
+        }
+
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
+        msg_print(CONCAT(cdesc, " wails out in pain!"));
+        if (mon_take_hit(monster_index, damage)) {
+            msg_print(CONCAT(cdesc, " is embedded in the rock."));
+            prt_experience();
+        }
+    } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
+        // must be an earth elemental or an earth spirit, or a Xorn
+        // increase its hit points
+        m_ptr->hp += damroll(4, 8);
+    }
+}
+
 // Detect any treasure on the current panel -RAK-
 int detect_treasure(void) {
     bool detect = false;
@@ -987,32 +1016,7 @@ int build_wall(int dir, int y, int x) {
             if (c_ptr->cptr > 1) {
                 // stop the wall building
                 flag = true;
-
-                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                creature_type *r_ptr = monster_get_creature(m_ptr->creature);
-
-                if (!(r_ptr->cmove & CM_PHASE)) {
-                    int damage;
-
-                    // monster does not move, can't escape the wall
-                    if (r_ptr->cmove & CM_ATTACK_ONLY) {
-                        // this will kill everything
-                        damage = 3000;
-                    } else {
-                        damage = damroll(4, 8);
-                    }
-
-                    const char *cdesc = monster_name((vtype){0}, m_ptr);
-                    msg_print(CONCAT(cdesc, " wails out in pain!"));
-                    if (mon_take_hit(c_ptr->cptr, damage)) {
-                        msg_print(CONCAT(cdesc, " is embedded in the rock."));
-                        prt_experience();
-                    }
-                } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
-                    // must be an earth elemental or an earth spirit, or a Xorn
-                    // increase its hit points
-                    m_ptr->hp += damroll(4, 8);
-                }
+                monster_caught_in_wall(c_ptr->cptr);
             }
 
             c_ptr->fval = MAGMA_WALL;
@@ -1387,30 +1391,7 @@ void earthquake(void) {
                 }
 
                 if (c_ptr->cptr > 1) {
-                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
-
-                    if (!(r_ptr->cmove & CM_PHASE)) {
-                        int damage;
-
-                        if (r_ptr->cmove & CM_ATTACK_ONLY) {
-                            // this will kill everything
-                            damage = 3000;
-                        } else {
-                            damage = damroll(4, 8);
-                        }
-
-                        const char *cdesc = monster_name((vtype){0}, m_ptr);
-                        msg_print(CONCAT(cdesc, " wails out in pain!"));
-                        if (mon_take_hit(c_ptr->cptr, damage)) {
-                            msg_print(CONCAT(cdesc, " is embedded in the rock."));
-                            prt_experience();
-                        }
-                    } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
-                        // must be an earth elemental or an earth spirit, or a
-                        // Xorn increase its hit points
-                        m_ptr->hp += damroll(4, 8);
-                    }
+                    monster_caught_in_wall(c_ptr->cptr);
                 }
 
                 if ((c_ptr->fval >= MIN_CAVE_WALL) && (c_ptr->fval != BOUNDARY_WALL)) {
