@@ -38,7 +38,7 @@ SRCS = main.c ui/files.c ui/io.c \
 	player/player_disarm.c player/player_saving_throw.c player/player_race.c player/player_body_weight.c \
 	player/player_attack_bonuses.c player/player_search_skill.c player/player_bio.c \
 	player/player_stealth.c player/player_class.c \
-	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c monster/monster_place.c \
+	monster/monster_turn.c monster/monster_levels.c monster/monster_breeding.c monster/monster_list.c monster/monster_place.c monster/monster_recall.c \
 	dungeon/dungeon_size.c dungeon/dungeon_level.c dungeon/floor_items.c dungeon/dungeon_map.c dungeon/geometry.c dungeon/object_place.c \
 	ui/inven_menu.c player/run_path.c monster/monster_death.c ui/look.c data/monsters.c data/treasure.c data/variable.c \
 	core/rnd.c ui/recall.c data/player.c data/tables.c \
