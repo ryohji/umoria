@@ -46,6 +46,7 @@ BUILDDIR = $(TESTDIR)/build
 # fixture）を一緒にリンクするなら、下の「足場の表」に 1 行書く。src/ の
 # .c はどこにも書かない（libcore.a からリンカが要るものだけを引く）。
 TESTS = distance_test geometry_test los_test device_chance_test item_ident_test inven_stack_test \
+        armor_selection_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test \
         options_test messages_test panel_test stores_test store_save_test \
@@ -174,6 +175,7 @@ TEST_HEADERS = $(wildcard $(TESTDIR)/*.h)
 # ---- 足場の表 ---------------------------------------------------------------
 # 実行形式ごとに、tests/<name>.c と一緒にリンクする tests/ のファイル。
 # 書いていない実行形式は tests/<name>.c だけ（＋ libcore.a）。
+EXTRA_armor_selection_test = shared_stubs.c
 EXTRA_calc_hitpoints_test = shared_stubs.c level_ops_fixture.c
 EXTRA_calc_spells_test = shared_stubs.c spellbook_fixture.c
 EXTRA_check_strength_test = shared_stubs.c inven_ops_fixture.c

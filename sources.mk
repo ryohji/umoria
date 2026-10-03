@@ -26,7 +26,7 @@ SRCS = main.c ui/files.c ui/io.c \
 	item/scrolls.c item/spells.c ui/wizard.c platform/signals.c platform/signal_flags.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c game_state.c \
 	ui/input.c platform/input_ncurses.c platform/platform.c ui/panel.c ui/map_view.c store/stores.c store/store_price.c store/store_stock.c store/store_ui.c store/store_haggle.c player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
-	item/inventory.c data/progress.c save/score_death.c save/save_state.c player/player_pos.c \
+	item/inventory.c item/armor_selection.c data/progress.c save/score_death.c save/save_state.c player/player_pos.c \
 	player/hp_table.c player/player_light.c player/burden.c player/spells_known.c item/object_levels.c item/inscription.c item/item_enchant.c \
 	item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c ui/options_menu.c \
 	dungeon/level_exit.c player/pending_teleport.c ui/input_ended.c player/running.c \
