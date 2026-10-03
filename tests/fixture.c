@@ -101,4 +101,4 @@ void reset_seed(void) {}
 
 /* 文字列組み立て。desc.c 内の別関数用で、今回の対象は呼ばない */
 void insert_str(char *o, const char *m, const char *i) { (void)o; (void)m; (void)i; }
-void add_inscribe(inven_type *i, int flag) { (void)i; (void)flag; }
+void add_inscribe(inven_type *i, uint8_t flag) { (void)i; (void)flag; }
