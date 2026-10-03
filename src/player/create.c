@@ -376,7 +376,6 @@ static void get_class(void) {
     player_class_set(0);
 
     int min_value, max_value;
-    player_type *p_ptr;
     class_type *c_ptr;
     char s;
 
@@ -397,7 +396,6 @@ static void get_class(void) {
             put_buffer(c_ptr->title, 5, 15);
 
             // Adjust the stats for the class adjustment -RAK-
-            p_ptr = &py;
             change_stat(A_STR, c_ptr->madj_str);
             change_stat(A_INT, c_ptr->madj_int);
             change_stat(A_WIS, c_ptr->madj_wis);
@@ -405,7 +403,7 @@ static void get_class(void) {
             change_stat(A_CON, c_ptr->madj_con);
             change_stat(A_CHR, c_ptr->madj_chr);
             for (i = 0; i < 6; i++) {
-                p_ptr->stats.cur_stat[i] = p_ptr->stats.max_stat[i];
+                player_stat_set_cur(i, player_stat_max(i));
                 set_use_stat(i);
             }
 
@@ -477,7 +475,7 @@ static void get_money(void) {
 
     int gold = player_social_class() * 6 + randint(25) + 325; // Social Class adj
     gold -= tmp;                                   // Stat adj
-    gold += monval(player_stat_max(A_CHR));                  // Charisma adj
+    gold += monval(player_stat_max(A_CHR)); // Charisma adj
 
     // She charmed the banker into it! -CJS-
     if (!player_is_male()) {
