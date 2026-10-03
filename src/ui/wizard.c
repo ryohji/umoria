@@ -83,13 +83,11 @@ void change_character(void) {
     int tmp_val;
     vtype tmp_str;
 
-    uint8_t *a_ptr = py.stats.max_stat;
-
     prt("(3 - 118) Strength     = ", 0, 0);
     if (get_string(tmp_str, 0, 25, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > 2) && (tmp_val < 119)) {
-            a_ptr[A_STR] = tmp_val;
+            player_stat_set_max(A_STR, tmp_val);
             (void)res_stat(A_STR);
         }
     } else {
@@ -100,7 +98,7 @@ void change_character(void) {
     if (get_string(tmp_str, 0, 25, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > 2) && (tmp_val < 119)) {
-            a_ptr[A_INT] = tmp_val;
+            player_stat_set_max(A_INT, tmp_val);
             (void)res_stat(A_INT);
         }
     } else {
@@ -111,7 +109,7 @@ void change_character(void) {
     if (get_string(tmp_str, 0, 25, 3)) {
         tmp_val = atoi(tmp_str);
         if ((tmp_val > 2) && (tmp_val < 119)) {
-            a_ptr[A_WIS] = tmp_val;
+            player_stat_set_max(A_WIS, tmp_val);
             (void)res_stat(A_WIS);
         }
     } else {
