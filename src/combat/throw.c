@@ -29,6 +29,7 @@
 #include "player_pos.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
+#include "stats.h"
 
 static void inven_throw(int item_val, inven_type *t_ptr) {
     inven_type *i_ptr = inventory_at(item_val);
@@ -68,7 +69,7 @@ static void facts(inven_type *i_ptr, int *tbth, int *tpth, int *tdam, int *tdis)
         *tpth -= equipment_at(INVEN_WIELD)->tohit;
     }
 
-    *tdis = (((py.stats.use_stat[A_STR] + 20) * 10) / tmp_weight);
+    *tdis = (((player_stat_use(A_STR) + 20) * 10) / tmp_weight);
     if (*tdis > 10) {
         *tdis = 10;
     }

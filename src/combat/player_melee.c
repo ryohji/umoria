@@ -28,6 +28,7 @@
 #include "player_level.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
+#include "stats.h"
 
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {
@@ -156,16 +157,16 @@ void py_bash(int y, int x) {
     // Nothing in between changes the weight.
     const int body_weight = player_body_weight();
 
-    int base_tohit = py.stats.use_stat[A_STR] + equipment_at(INVEN_ARM)->weight / 2 + body_weight / 10;
+    int base_tohit = player_stat_use(A_STR) + equipment_at(INVEN_ARM)->weight / 2 + body_weight / 10;
 
     if (!m_ptr->ml) {
-        base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX] * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[player_class()][CLA_BTH] / 2);
+        base_tohit = (base_tohit / 2) - (player_stat_use(A_DEX) * (BTH_PLUS_ADJ - 1)) - (player_level() * class_level_adj[player_class()][CLA_BTH] / 2);
     }
 
-    if (test_hit(base_tohit, (int)player_level(), (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH)) {
+    if (test_hit(base_tohit, (int)player_level(), (int)player_stat_use(A_DEX), (int)c_ptr->ac, CLA_BTH)) {
         msg_print(CONCAT("You hit ", cdesc, "."));
         int k = pdamroll(equipment_at(INVEN_ARM)->damage);
-        k = critical_blow((equipment_at(INVEN_ARM)->weight / 4 + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
+        k = critical_blow((equipment_at(INVEN_ARM)->weight / 4 + player_stat_use(A_STR)), 0, k, CLA_BTH);
         k += body_weight / 60 + 3;
         if (k < 0) {
             k = 0;
@@ -195,7 +196,7 @@ void py_bash(int y, int x) {
     } else {
         msg_print(CONCAT("You miss ", cdesc, "."));
     }
-    if (randint(150) > py.stats.use_stat[A_DEX]) {
+    if (randint(150) > player_stat_use(A_DEX)) {
         msg_print("You are off balance.");
         player_timed_set(PLAYER_TIMED_PARALYSIS, 1 + randint(2));
     }

@@ -26,6 +26,7 @@
 #include "player_level.h"
 #include "player_timed_effects.h"
 #include "score_death.h"
+#include "stats.h"
 
 // Make an attack on the player (chuckle.) -RAK-
 void make_attack(int monptr) {
@@ -399,7 +400,7 @@ void make_attack(int monptr) {
                 break;
             case 12: // Steal Money
                 if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) &&
-                    (randint(124) < py.stats.use_stat[A_DEX])) {
+                    (randint(124) < player_stat_use(A_DEX))) {
                     msg_print("You quickly protect your money pouch!");
                 } else {
                     gold = (player_gold() / 10) + randint(25);
@@ -418,7 +419,7 @@ void make_attack(int monptr) {
                 break;
             case 13: // Steal Object
                 if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) &&
-                    (randint(124) < py.stats.use_stat[A_DEX])) {
+                    (randint(124) < player_stat_use(A_DEX))) {
                     msg_print("You grab hold of your backpack!");
                 } else {
                     i = randint(inventory_count()) - 1;
