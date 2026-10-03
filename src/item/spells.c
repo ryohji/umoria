@@ -93,15 +93,16 @@ static void monster_caught_in_wall(int monster_index) {
     }
 }
 
-// Detect any treasure on the current panel -RAK-
-int detect_treasure(void) {
+// Mark and show every unlit floor item on the current panel whose tval the
+// predicate accepts.
+static bool detect_floor_items(bool (*wanted)(int tval)) {
     bool detect = false;
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             cave_type *c_ptr = square_at(i, j);
 
-            if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval == TV_GOLD) &&
+            if ((c_ptr->tptr != 0) && wanted(floor_item_at(c_ptr->tptr)->tval) &&
                 !test_light(i, j)) {
                 c_ptr->fm = true;
                 lite_spot(i, j);
@@ -113,25 +114,22 @@ int detect_treasure(void) {
     return detect;
 }
 
+static bool is_gold(int tval) {
+    return tval == TV_GOLD;
+}
+
+static bool is_object(int tval) {
+    return tval < TV_MAX_OBJECT;
+}
+
+// Detect any treasure on the current panel -RAK-
+int detect_treasure(void) {
+    return detect_floor_items(is_gold);
+}
+
 // Detect all objects on the current panel -RAK-
 int detect_object(void) {
-    bool detect = false;
-
-    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
-        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = square_at(i, j);
-
-            if ((c_ptr->tptr != 0) &&
-                (floor_item_at(c_ptr->tptr)->tval < TV_MAX_OBJECT) &&
-                !test_light(i, j)) {
-                c_ptr->fm = true;
-                lite_spot(i, j);
-                detect = true;
-            }
-        }
-    }
-
-    return detect;
+    return detect_floor_items(is_object);
 }
 
 // Locates and displays traps on current panel -RAK-
