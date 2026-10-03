@@ -21,6 +21,7 @@
 #include "inventory.h"
 #include "monster_levels.h"
 #include "monster_list.h"
+#include "monster_recall.h"
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_class.h"
