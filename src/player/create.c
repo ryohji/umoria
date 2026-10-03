@@ -475,7 +475,7 @@ static void get_money(void) {
 
     int gold = player_social_class() * 6 + randint(25) + 325; // Social Class adj
     gold -= tmp;                                   // Stat adj
-    gold += monval(player_stat_max(A_CHR)); // Charisma adj
+    gold += monval(player_stat_max(A_CHR));        // Charisma adj
 
     // She charmed the banker into it! -CJS-
     if (!player_is_male()) {
