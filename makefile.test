@@ -58,7 +58,7 @@ TESTS = distance_test geometry_test los_test device_chance_test item_ident_test 
         spells_known_test object_levels_test missile_serial_test \
         screen_touched_test inven_command_state_test \
         level_exit_test pending_teleport_test input_ended_test \
-        running_test command_state_test player_gold_test player_food_test \
+        running_test command_state_test direction_keys_test player_gold_test player_food_test \
         player_display_numbers_test player_mana_test player_hp_test \
         player_level_test player_status_flags_test player_abilities_test \
         player_timed_effects_test player_resting_test player_speed_test \
