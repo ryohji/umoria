@@ -1341,51 +1341,36 @@ int hp_player(int num) {
     return res;
 }
 
+// Shorten a timed effect to one turn, returning true if it was active.
+// One turn is left on purpose: the message that the effect has passed
+// comes out of the count-down in dungeon.c, so putting zero here would
+// cure the character in silence.
+static bool cure_timed_effect(player_timed_effect id) {
+    if (player_timed_turns(id) > 1) {
+        player_timed_shorten_to(id, 1);
+        return true;
+    }
+    return false;
+}
+
 // Cure players confusion -RAK-
 int cure_confusion(void) {
-    bool cure = false;
-
-    // One turn is left on purpose: the message that the confusion has passed
-    // comes out of the count-down in dungeon.c, so putting zero here would
-    // cure the character in silence.
-    if (player_timed_turns(PLAYER_TIMED_CONFUSION) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_CONFUSION, 1);
-        cure = true;
-    }
-    return cure;
+    return cure_timed_effect(PLAYER_TIMED_CONFUSION);
 }
 
 // Cure players blindness -RAK-
 int cure_blindness(void) {
-    bool cure = false;
-
-    if (player_timed_turns(PLAYER_TIMED_BLINDNESS) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_BLINDNESS, 1);
-        cure = true;
-    }
-    return cure;
+    return cure_timed_effect(PLAYER_TIMED_BLINDNESS);
 }
 
 // Cure poisoning -RAK-
 int cure_poison(void) {
-    bool cure = false;
-
-    if (player_timed_turns(PLAYER_TIMED_POISON) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
-        cure = true;
-    }
-    return cure;
+    return cure_timed_effect(PLAYER_TIMED_POISON);
 }
 
 // Cure the players fear -RAK-
 int remove_fear(void) {
-    bool result = false;
-
-    if (player_timed_turns(PLAYER_TIMED_FEAR) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_FEAR, 1);
-        result = true;
-    }
-    return result;
+    return cure_timed_effect(PLAYER_TIMED_FEAR);
 }
 
 // This is a fun one.  In a given block, pick some walls and
