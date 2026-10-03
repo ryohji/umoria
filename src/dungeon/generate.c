@@ -384,6 +384,25 @@ static void build_type1(int yval, int xval) {
     }
 }
 
+// Place a secret door on one of the four sides of an inner room
+static void place_inner_room_secret_door(int y_height, int y_depth, int yval,
+                                          int x_left, int x_right, int xval) {
+    int tmp = randint(4);
+    if (tmp < 3) {
+        if (tmp == 1) {
+            place_secret_door(y_height - 1, xval);
+        } else {
+            place_secret_door(y_depth + 1, xval);
+        }
+    } else {
+        if (tmp == 3) {
+            place_secret_door(yval, x_left - 1);
+        } else {
+            place_secret_door(yval, x_right + 1);
+        }
+    }
+}
+
 // Builds an unusual room at a row, column coordinate -RAK-
 // Type 2 unusual rooms all have an inner room:
 //   1 - Just an inner room with one door
@@ -450,39 +469,11 @@ static void build_type2(int yval, int xval) {
     // Inner room variations
     switch (randint(5)) {
     case 1: // Just an inner room.
-        tmp = randint(4);
-        if (tmp < 3) { // Place a door
-            if (tmp == 1) {
-                place_secret_door(y_height - 1, xval);
-            } else {
-                place_secret_door(y_depth + 1, xval);
-            }
-        } else {
-            if (tmp == 3) {
-                place_secret_door(yval, x_left - 1);
-            } else {
-                place_secret_door(yval, x_right + 1);
-            }
-        }
+        place_inner_room_secret_door(y_height, y_depth, yval, x_left, x_right, xval);
         vault_monster(yval, xval, 1);
         break;
     case 2: // Treasure Vault
-        tmp = randint(4);
-
-        // Place a door
-        if (tmp < 3) {
-            if (tmp == 1) {
-                place_secret_door(y_height - 1, xval);
-            } else {
-                place_secret_door(y_depth + 1, xval);
-            }
-        } else {
-            if (tmp == 3) {
-                place_secret_door(yval, x_left - 1);
-            } else {
-                place_secret_door(yval, x_right + 1);
-            }
-        }
+        place_inner_room_secret_door(y_height, y_depth, yval, x_left, x_right, xval);
 
         for (int i = yval - 1; i <= yval + 1; i++) {
             square_at(i, xval - 1)->fval = TMP1_WALL;
@@ -517,22 +508,7 @@ static void build_type2(int yval, int xval) {
         vault_trap(yval, xval, 4, 10, 2 + randint(3));
         break;
     case 3: // Inner pillar(s).
-        tmp = randint(4);
-
-        // Place a door
-        if (tmp < 3) {
-            if (tmp == 1) {
-                place_secret_door(y_height - 1, xval);
-            } else {
-                place_secret_door(y_depth + 1, xval);
-            }
-        } else {
-            if (tmp == 3) {
-                place_secret_door(yval, x_left - 1);
-            } else {
-                place_secret_door(yval, x_right + 1);
-            }
-        }
+        place_inner_room_secret_door(y_height, y_depth, yval, x_left, x_right, xval);
 
         for (int i = yval - 1; i <= yval + 1; i++) {
             for (int j = xval - 1; j <= xval + 1; j++) {
@@ -574,22 +550,7 @@ static void build_type2(int yval, int xval) {
         }
         break;
     case 4: // Maze inside.
-        tmp = randint(4);
-
-        // Place a door
-        if (tmp < 3) {
-            if (tmp == 1) {
-                place_secret_door(y_height - 1, xval);
-            } else {
-                place_secret_door(y_depth + 1, xval);
-            }
-        } else {
-            if (tmp == 3) {
-                place_secret_door(yval, x_left - 1);
-            } else {
-                place_secret_door(yval, x_right + 1);
-            }
-        }
+        place_inner_room_secret_door(y_height, y_depth, yval, x_left, x_right, xval);
         for (int i = y_height; i <= y_depth; i++) {
             for (int j = x_left; j <= x_right; j++) {
                 if (0x1 & (j + i)) {
