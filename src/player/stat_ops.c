@@ -18,9 +18,10 @@
 
 #include "player_class.h"
 #include "player_status_flags.h"
+#include "stats.h"
 
 static uint8_t modify_stat(int stat, int16_t amount) {
-    uint8_t tmp_stat = py.stats.cur_stat[stat];
+    uint8_t tmp_stat = player_stat_cur(stat);
     int loop = (amount < 0 ? -amount : amount);
 
     for (int i = 0; i < loop; i++) {
@@ -48,7 +49,7 @@ static uint8_t modify_stat(int stat, int16_t amount) {
 
 // Set the value of the stat which is actually used. -CJS-
 void set_use_stat(int stat) {
-    py.stats.use_stat[stat] = modify_stat(stat, py.stats.mod_stat[stat]);
+    player_stat_set_use(stat, modify_stat(stat, player_stat_mod(stat)));
 
     if (stat == A_STR) {
         player_request_strength_check();
@@ -68,7 +69,7 @@ void set_use_stat(int stat) {
 
 // Increases a stat by one randomized level -RAK-
 bool inc_stat(int stat) {
-    int tmp_stat = py.stats.cur_stat[stat];
+    int tmp_stat = player_stat_cur(stat);
     if (tmp_stat < 118) {
         if (tmp_stat < 18) {
             tmp_stat++;
@@ -80,10 +81,10 @@ bool inc_stat(int stat) {
             tmp_stat++;
         }
 
-        py.stats.cur_stat[stat] = tmp_stat;
+        player_stat_set_cur(stat, tmp_stat);
 
-        if (tmp_stat > py.stats.max_stat[stat]) {
-            py.stats.max_stat[stat] = tmp_stat;
+        if (tmp_stat > player_stat_max(stat)) {
+            player_stat_set_max(stat, tmp_stat);
         }
         set_use_stat(stat);
         prt_stat(stat);
@@ -95,7 +96,7 @@ bool inc_stat(int stat) {
 
 // Decreases a stat by one randomized level -RAK-
 bool dec_stat(int stat) {
-    int tmp_stat = py.stats.cur_stat[stat];
+    int tmp_stat = player_stat_cur(stat);
     if (tmp_stat > 3) {
         if (tmp_stat < 19) {
             tmp_stat--;
@@ -109,7 +110,7 @@ bool dec_stat(int stat) {
             tmp_stat--;
         }
 
-        py.stats.cur_stat[stat] = tmp_stat;
+        player_stat_set_cur(stat, tmp_stat);
         set_use_stat(stat);
         prt_stat(stat);
         return true;
@@ -120,10 +121,10 @@ bool dec_stat(int stat) {
 
 // Restore a stat.  Return true only if this actually makes a difference.
 bool res_stat(int stat) {
-    int i = py.stats.max_stat[stat] - py.stats.cur_stat[stat];
+    int i = player_stat_max(stat) - player_stat_cur(stat);
 
     if (i) {
-        py.stats.cur_stat[stat] += i;
+        player_stat_set_cur(stat, player_stat_cur(stat) + i);
         set_use_stat(stat);
         prt_stat(stat);
         return true;
@@ -135,7 +136,7 @@ bool res_stat(int stat) {
 // Boost a stat artificially (by wearing something). If the display
 // argument is true, then increase is shown on the screen.
 void bst_stat(int stat, int amount) {
-    py.stats.mod_stat[stat] += amount;
+    player_stat_add_mod(stat, amount);
 
     set_use_stat(stat);
 
