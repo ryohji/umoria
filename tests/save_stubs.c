@@ -18,9 +18,8 @@
  * 本体の宣言（externs.h）は include しない。save.c 側が include するので、
  * 型が合わなければリンクではなくコンパイルで落ちる。
  *
- * shared_stubs.c と重複していた代役 8 個（msg_print, prt, put_buffer,
- * clear_screen, get_check, get_string, change_speed, randint）は #66 で削除し、
- * shared_stubs.c に統一した。
+ * 画面・入力・乱数・速さの代役は shared_stubs.c のものを一緒にリンクする。
+ * randint はこの 3 本のテストからは呼ばれない。
  */
 #include <stdbool.h>
 #include <stdint.h>

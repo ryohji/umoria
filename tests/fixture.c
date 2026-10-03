@@ -54,10 +54,8 @@ void fixture_reset(void)
 /* --- スタブ ---
  * テスト対象が呼ぶが、テストしたいふるまいには関係しない関数。
  * 本物をリンクすると画面や乱数への依存が芋づるで付いてくるので、
- * ここで最小限の代役を置く。
- *
- * shared_stubs.c と重複していた代役（msg_print, randint, set_seed,
- * reset_seed, add_inscribe）は #66 で削除し、shared_stubs.c に統一した。 */
+ * ここで最小限の代役を置く。shared_stubs.c にある代役（msg_print・randint・
+ * set_seed・reset_seed・add_inscribe）はそちらを使う。 */
 
 /* 経験値の表示。本物（level_ops.c:55）は表示のついでに上限の打ち切りと
  * レベルアップ判定（gain_level）も行うので、リンクすると画面・呪文・
