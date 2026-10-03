@@ -49,7 +49,6 @@
 #include "player_stealth.h"
 #include "stats.h"
 
-extern player_type py;
 
 /* 検証対象（src/ui/char_screen.c）の宣言は externs.h から受ける。 */
 #include "externs.h"

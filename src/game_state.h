@@ -23,9 +23,6 @@ typedef struct GameState GameState;
 // Game state structure
 // This encapsulates the main game state that was previously global
 struct GameState {
-    // Player state
-    player_type *player;  // Player data (points to existing py global for now)
-
     // World state
     cave_type *cave;                // Dungeon map (square (0,0) of dungeon_map.c's table)
     monster_type *monsters;         // Monster list (row 0 of monster_list.c's table)
@@ -116,10 +113,6 @@ void game_state_free(GameState *state);
 
 // Accessor functions (for gradual migration)
 // These provide access to state through the GameState structure
-
-static inline player_type *game_state_get_player(GameState *state) {
-    return state->player;
-}
 
 static inline int16_t game_state_get_dungeon_level(GameState *state) {
     return state->dungeon_level;

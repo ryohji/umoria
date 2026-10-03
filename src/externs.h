@@ -31,7 +31,6 @@ extern char days[7][29];
 extern int closing_flag; // Used for closing
 
 // Following are player variables
-extern player_type py;
 extern const char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL];
 extern race_type race[MAX_RACES];
 extern background_type background[MAX_BACKGROUND];

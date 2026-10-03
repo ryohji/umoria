@@ -54,7 +54,6 @@
 #include "player_status_flags.h"
 #include "stats.h"
 
-extern player_type py;
 
 /* 検証対象（src/item/inven_ops.c）の宣言は externs.h から受ける。 */
 #include "externs.h"

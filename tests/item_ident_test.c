@@ -34,7 +34,6 @@
 
 #include "inventory.h"
 
-extern player_type py;
 
 /* 検証に使う本物（src/item/desc.c）と fixture.c の代役（prt_experience）の
  * 宣言は externs.h から受ける。 */

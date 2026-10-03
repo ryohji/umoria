@@ -34,7 +34,6 @@
 
 #include "fixture.h"
 
-extern player_type py;
 
 /* 検証対象。宣言は module のヘッダから受ける。 */
 #include "stats.h"

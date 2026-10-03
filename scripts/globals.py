@@ -73,8 +73,8 @@ GROUPS = {
         rogue_like_commands find_cut find_examine find_prself find_bound
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
         sound_beep_flag display_counts""",
-    "プレイヤー状態": """
-        py""",
+    # プレイヤーの記録（py）は #67 で能力値の 4 配列だけになり、それが stats.c の
+    # static になって externs.h から外れた。窓口は src/player/stats.h。
     # 覚えている呪文 4 個（spell_learned・spell_worked・spell_forgotten・
     # spell_order）は #18-8-C で spells_known.c の static になり、externs.h から
     # 外れた。窓口は src/player/spells_known.h。導出する形にはしていない —— 何を覚えた

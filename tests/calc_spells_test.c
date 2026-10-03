@@ -55,7 +55,6 @@
 #include "spells_known.h"
 #include "stats.h"
 
-extern player_type py;
 
 /* 検証対象（src/item/spellbook.c）の宣言は externs.h から受ける。 */
 #include "externs.h"

@@ -53,7 +53,6 @@ GameState *game_state_init(void) {
 
     // Point to existing global variables (for backward compatibility during migration)
     // These will eventually be moved into the GameState structure itself
-    state->player = &py;
     state->cave = square_at(0, 0);
     state->monsters = monster_list_at(0);
     state->treasure = floor_item_at(0);
