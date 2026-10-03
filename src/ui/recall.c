@@ -14,7 +14,6 @@
 #include "types.h"
 
 #include "externs.h"
-
 #include "monster_recall.h"
 #include "player_level.h"
 #include "progress.h"

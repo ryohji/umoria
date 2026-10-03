@@ -1,5 +1,10 @@
-// tests/monster_recall_test.c
-// Tests for monster recall (memory) functions
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
+// モンスターの記憶（monster_recall.c）の規則：OR で足す、最大を保つ、上限で止まる。
 
 #include "config.h"
 #include "constant.h"
