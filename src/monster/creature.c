@@ -19,6 +19,7 @@
 #include "floor_items.h"
 #include "monster_breeding.h"
 #include "monster_list.h"
+#include "monster_recall.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "player_abilities.h"

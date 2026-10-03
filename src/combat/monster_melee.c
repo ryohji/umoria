@@ -18,6 +18,7 @@
 #include "equipment.h"
 #include "inventory.h"
 #include "monster_list.h"
+#include "monster_recall.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_glowing_hands.h"
