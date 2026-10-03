@@ -15,6 +15,7 @@
 
 #include "externs.h"
 
+#include "armor_selection.h"
 #include "dungeon_level.h"
 #include "equipment.h"
 #include "inventory.h"
@@ -29,7 +30,6 @@ void read_scroll(void) {
     bool flag;
     int j, k, l, y, x;
     int item_val;
-    int tmp[6];
 
     free_turn_flag = true;
 
@@ -102,44 +102,10 @@ void read_scroll(void) {
                 }
                 break;
             case 3:
-                k = 0;
-                l = 0;
-                if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_BODY;
-                }
-                if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_ARM;
-                }
-                if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_OUTER;
-                }
-                if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_HANDS;
-                }
-                if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_HEAD;
-                }
-                // also enchant boots
-                if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_FEET;
-                }
-
-                if (k > 0) {
-                    l = tmp[randint(k) - 1];
-                }
-
-                if (TR_CURSED & equipment_at(INVEN_BODY)->flags) {
-                    l = INVEN_BODY;
-                } else if (TR_CURSED & equipment_at(INVEN_ARM)->flags) {
-                    l = INVEN_ARM;
-                } else if (TR_CURSED & equipment_at(INVEN_OUTER)->flags) {
-                    l = INVEN_OUTER;
-                } else if (TR_CURSED & equipment_at(INVEN_HEAD)->flags) {
-                    l = INVEN_HEAD;
-                } else if (TR_CURSED & equipment_at(INVEN_HANDS)->flags) {
-                    l = INVEN_HANDS;
-                } else if (TR_CURSED & equipment_at(INVEN_FEET)->flags) {
-                    l = INVEN_FEET;
+                l = pick_random_worn_armor();
+                k = pick_first_cursed_armor();
+                if (k != 0) {
+                    l = k;
                 }
 
                 if (l > 0) {
@@ -333,44 +299,10 @@ void read_scroll(void) {
                 }
                 break;
             case 35:
-                k = 0;
-                l = 0;
-                if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_BODY;
-                }
-                if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_ARM;
-                }
-                if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_OUTER;
-                }
-                if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_HANDS;
-                }
-                if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_HEAD;
-                }
-                // also enchant boots
-                if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
-                    tmp[k++] = INVEN_FEET;
-                }
-
-                if (k > 0) {
-                    l = tmp[randint(k) - 1];
-                }
-
-                if (TR_CURSED & equipment_at(INVEN_BODY)->flags) {
-                    l = INVEN_BODY;
-                } else if (TR_CURSED & equipment_at(INVEN_ARM)->flags) {
-                    l = INVEN_ARM;
-                } else if (TR_CURSED & equipment_at(INVEN_OUTER)->flags) {
-                    l = INVEN_OUTER;
-                } else if (TR_CURSED & equipment_at(INVEN_HEAD)->flags) {
-                    l = INVEN_HEAD;
-                } else if (TR_CURSED & equipment_at(INVEN_HANDS)->flags) {
-                    l = INVEN_HANDS;
-                } else if (TR_CURSED & equipment_at(INVEN_FEET)->flags) {
-                    l = INVEN_FEET;
+                l = pick_random_worn_armor();
+                k = pick_first_cursed_armor();
+                if (k != 0) {
+                    l = k;
                 }
 
                 if (l > 0) {

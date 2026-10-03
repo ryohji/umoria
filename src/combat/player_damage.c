@@ -15,6 +15,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "armor_selection.h"
 #include "equipment.h"
 #include "level_exit.h"
 #include "player_abilities.h"
@@ -63,38 +64,10 @@ void take_hit(int damage, const char *hit_from) {
 // Note: This routine affects magical AC bonuses so
 // that stores can detect the damage.
 static int minus_ac(uint32_t typ_dam) {
-    int tmp[6];
-    int i = 0;
-    if (equipment_at(INVEN_BODY)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_BODY;
-        i++;
-    }
-    if (equipment_at(INVEN_ARM)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_ARM;
-        i++;
-    }
-    if (equipment_at(INVEN_OUTER)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_OUTER;
-        i++;
-    }
-    if (equipment_at(INVEN_HANDS)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_HANDS;
-        i++;
-    }
-    if (equipment_at(INVEN_HEAD)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_HEAD;
-        i++;
-    }
-    // also affect boots
-    if (equipment_at(INVEN_FEET)->tval != TV_NOTHING) {
-        tmp[i] = INVEN_FEET;
-        i++;
-    }
-
     bool minus = false;
 
-    if (i > 0) {
-        int j = tmp[randint(i) - 1];
+    int j = pick_random_worn_armor();
+    if (j > 0) {
 
         inven_type *i_ptr = equipment_at(j);
 
