@@ -17,6 +17,9 @@
  *
  * 本体の宣言（externs.h）は include しない。save.c 側が include するので、
  * 型が合わなければリンクではなくコンパイルで落ちる。
+ *
+ * 画面・入力・乱数・速さの代役は shared_stubs.c のものを一緒にリンクする。
+ * randint はこの 3 本のテストからは呼ばれない。
  */
 #include <stdbool.h>
 #include <stdint.h>
@@ -26,13 +29,7 @@
 #include "stub_unreached.h"
 
 /* 画面表示・入力（io.c） */
-void clear_screen(void) {}
-void put_buffer(const char *str, int row, int col) { (void)str; (void)row; (void)col; }
 void put_qio(void) {}
-void prt(const char *str, int row, int col) { (void)str; (void)row; (void)col; }
-void msg_print(const char *str) { (void)str; }
-bool get_check(const char *prompt) { stub_unreached(__func__); }
-bool get_string(char *in_str, int row, int col, int slen) { stub_unreached(__func__); }
 
 /* ファイル入出力の差しかえ層（io.c）。externs.h が fopen / open を
  * これらに置きかえている。テストは tmpfile() を使うので通らない。 */
@@ -48,15 +45,11 @@ _Noreturn void exit_game(void) { (void)fflush(NULL); abort(); }
 int32_t total_points(void) { stub_unreached(__func__); }
 
 /* プレイヤーの状態更新（inven_ops.c / player_bonuses.c / rest_command.c） */
-void change_speed(int num) { (void)num; }
 void check_strength(void) {}
 void disturb(int stop_search, int flush_input) { (void)stop_search; (void)flush_input; }
 
 /* 店（store_stock.c） */
 void store_maint(void) {}
-
-/* 乱数（core/rnd.c） */
-int randint(int maxval) { return maxval; }
 
 /* 名前に付ける冠詞の判定（desc.c）。monsters.c が求めるだけで、desc.c を
  * リンクすると定数表とインベントリまで芋づるで付いてくるので代役を置く。 */

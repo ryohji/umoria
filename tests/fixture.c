@@ -16,6 +16,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_level.h"
+#include "shared_stubs.h"
 
 player_type py;         /* 本体では player.c（530行の巨大データと同居） */
 /* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
@@ -29,9 +30,6 @@ uint32_t player_exp[MAX_PLAYER_LEVEL];
 
 /* テスト専用。オリジナルには存在しない。
  * setUp から呼ぶことで、先行テストの影響を受けない条件を作る。 */
-/* 記録変数はこの下で定義するので、先に宣言だけしておく。 */
-static void fixture_clear_randint_record(void);
-
 void fixture_reset(void)
 {
     /* 品目ごとの覚えは #18-9-C で src/item/item_ident.c が static で持つように
@@ -50,16 +48,14 @@ void fixture_reset(void)
     player_set_experience_fraction(0);
     player_set_experience_factor(0);
     inventory_set_count(0);
-    fixture_clear_randint_record();
+    shared_stubs_reset();
 }
 
 /* --- スタブ ---
  * テスト対象が呼ぶが、テストしたいふるまいには関係しない関数。
  * 本物をリンクすると画面や乱数への依存が芋づるで付いてくるので、
- * ここで最小限の代役を置く。 */
-
-/* 画面出力。テストでは捨てる */
-void msg_print(const char *str) { (void)str; }
+ * ここで最小限の代役を置く。shared_stubs.c にある代役（msg_print・randint・
+ * set_seed・reset_seed・add_inscribe）はそちらを使う。 */
 
 /* 経験値の表示。本物（level_ops.c:55）は表示のついでに上限の打ち切りと
  * レベルアップ判定（gain_level）も行うので、リンクすると画面・呪文・
@@ -67,38 +63,5 @@ void msg_print(const char *str) { (void)str; }
  * 不要なので捨てる。 */
 void prt_experience(void) {}
 
-/* 乱数。テストから制御できるように固定値を返す。
- * 値を変えたいテストは fixture_set_randint() で差しかえる。 */
-static int fixture_randint_value = 1;
-/* 戻り値を固定するだけでは、呼びだし側が渡した上限が正しいかを検証できない。
- * 配列の要素数を取りちがえても返る値が同じで気づけないので、上限と
- * 呼びだし回数も記録する。tests/shared_stubs.c と同じ窓口を提供する。 */
-static int fixture_randint_last_max = 0;
-static int fixture_randint_calls = 0;
-
-int randint(int maxval)
-{
-    fixture_randint_last_max = maxval;
-    fixture_randint_calls++;
-    return fixture_randint_value;
-}
-
-void fixture_set_randint(int value) { fixture_randint_value = value; }
-
-int fixture_randint_last_maxval(void) { return fixture_randint_last_max; }
-int fixture_randint_call_count(void) { return fixture_randint_calls; }
-
-static void fixture_clear_randint_record(void)
-{
-    fixture_randint_last_max = 0;
-    fixture_randint_calls = 0;
-}
-
-/* 種の代役。#19B で desc.c が progress_color_seed() 越しに読むように
- * なったので、randes_seed の実体は src/data/progress.c が static で持つ（#19C1）。 */
-void set_seed(uint32_t seed) { (void)seed; }
-void reset_seed(void) {}
-
 /* 文字列組み立て。desc.c 内の別関数用で、今回の対象は呼ばない */
 void insert_str(char *o, const char *m, const char *i) { (void)o; (void)m; (void)i; }
-void add_inscribe(inven_type *i, int flag) { (void)i; (void)flag; }
