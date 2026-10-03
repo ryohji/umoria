@@ -50,14 +50,13 @@ static void get_stats(void) {
     } while (tot <= 42 || tot >= 54);
 
     for (int i = 0; i < 6; i++) {
-        py.stats.max_stat[i] =
-            5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
+        player_stat_set_max(i, 5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2]);
     }
 }
 
 // Changes stats by given amount -JWT-
 static void change_stat(int stat, int16_t amount) {
-    int tmp_stat = py.stats.max_stat[stat];
+    int tmp_stat = player_stat_max(stat);
 
     if (amount < 0) {
         for (int i = 0; i > amount; i--) {
@@ -87,7 +86,7 @@ static void change_stat(int stat, int16_t amount) {
             }
         }
     }
-    py.stats.max_stat[stat] = tmp_stat;
+    player_stat_set_max(stat, tmp_stat);
 }
 
 // generate all stats and modify for race. needed in a separate
@@ -106,7 +105,7 @@ static void get_all_stats(void) {
     player_set_level(1);
 
     for (int j = 0; j < 6; j++) {
-        py.stats.cur_stat[j] = py.stats.max_stat[j];
+        player_stat_set_cur(j, player_stat_max(j));
         set_use_stat(j);
     }
 
@@ -470,16 +469,15 @@ static int monval(uint8_t i) {
 }
 
 static void get_money(void) {
-    uint8_t *a_ptr = py.stats.max_stat;
-    int tmp = monval(a_ptr[A_STR]) +
-              monval(a_ptr[A_INT]) +
-              monval(a_ptr[A_WIS]) +
-              monval(a_ptr[A_CON]) +
-              monval(a_ptr[A_DEX]);
+    int tmp = monval(player_stat_max(A_STR)) +
+              monval(player_stat_max(A_INT)) +
+              monval(player_stat_max(A_WIS)) +
+              monval(player_stat_max(A_CON)) +
+              monval(player_stat_max(A_DEX));
 
     int gold = player_social_class() * 6 + randint(25) + 325; // Social Class adj
     gold -= tmp;                                   // Stat adj
-    gold += monval(a_ptr[A_CHR]);                  // Charisma adj
+    gold += monval(player_stat_max(A_CHR));                  // Charisma adj
 
     // She charmed the banker into it! -CJS-
     if (!player_is_male()) {
