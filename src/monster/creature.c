@@ -744,6 +744,15 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
     return false;
 }
 
+// Fill movement array with five random directions (1-9)
+static void random_moves(int *mm) {
+    mm[0] = randint(9);
+    mm[1] = randint(9);
+    mm[2] = randint(9);
+    mm[3] = randint(9);
+    mm[4] = randint(9);
+}
+
 // Move the critters about the dungeon -RAK-
 static void mon_move(int monptr, uint32_t *rcmove) {
     int i, k;
@@ -846,11 +855,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
             mm[3] = randint(9); // May attack only if cornered
             mm[4] = randint(9);
         } else {
-            mm[0] = randint(9);
-            mm[1] = randint(9);
-            mm[2] = randint(9);
-            mm[3] = randint(9);
-            mm[4] = randint(9);
+            random_moves(mm);
         }
 
         // don't move him if he is not supposed to move!
@@ -867,39 +872,23 @@ static void mon_move(int monptr, uint32_t *rcmove) {
     if (!move_test) {
         if ((r_ptr->cmove & CM_75_RANDOM) && (randint(100) < 75)) {
             // 75% random movement
-            mm[0] = randint(9);
-            mm[1] = randint(9);
-            mm[2] = randint(9);
-            mm[3] = randint(9);
-            mm[4] = randint(9);
+            random_moves(mm);
             *rcmove |= CM_75_RANDOM;
             make_move(monptr, mm, rcmove);
         } else if ((r_ptr->cmove & CM_40_RANDOM) && (randint(100) < 40)) {
             // 40% random movement
-            mm[0] = randint(9);
-            mm[1] = randint(9);
-            mm[2] = randint(9);
-            mm[3] = randint(9);
-            mm[4] = randint(9);
+            random_moves(mm);
             *rcmove |= CM_40_RANDOM;
             make_move(monptr, mm, rcmove);
         } else if ((r_ptr->cmove & CM_20_RANDOM) && (randint(100) < 20)) {
             // 20% random movement
-            mm[0] = randint(9);
-            mm[1] = randint(9);
-            mm[2] = randint(9);
-            mm[3] = randint(9);
-            mm[4] = randint(9);
+            random_moves(mm);
             *rcmove |= CM_20_RANDOM;
             make_move(monptr, mm, rcmove);
         } else if (r_ptr->cmove & CM_MOVE_NORMAL) {
             // Normal movement
             if (randint(200) == 1) {
-                mm[0] = randint(9);
-                mm[1] = randint(9);
-                mm[2] = randint(9);
-                mm[3] = randint(9);
-                mm[4] = randint(9);
+                random_moves(mm);
             } else {
                 get_moves(monptr, mm);
             }
