@@ -753,6 +753,19 @@ static void random_moves(int *mm) {
     mm[4] = randint(9);
 }
 
+// Try erratic movement: test flag, roll randint(100) < percent, then move if true.
+// Returns true if the move was attempted (preserves short-circuit order).
+static bool try_erratic_move(int monptr, int *mm, uint32_t *rcmove,
+                              uint32_t flag, int percent, creature_type *r_ptr) {
+    if ((r_ptr->cmove & flag) && (randint(100) < percent)) {
+        random_moves(mm);
+        *rcmove |= flag;
+        make_move(monptr, mm, rcmove);
+        return true;
+    }
+    return false;
+}
+
 // Move the critters about the dungeon -RAK-
 static void mon_move(int monptr, uint32_t *rcmove) {
     int i, k;
@@ -870,21 +883,11 @@ static void mon_move(int monptr, uint32_t *rcmove) {
     }
 
     if (!move_test) {
-        if ((r_ptr->cmove & CM_75_RANDOM) && (randint(100) < 75)) {
-            // 75% random movement
-            random_moves(mm);
-            *rcmove |= CM_75_RANDOM;
-            make_move(monptr, mm, rcmove);
-        } else if ((r_ptr->cmove & CM_40_RANDOM) && (randint(100) < 40)) {
-            // 40% random movement
-            random_moves(mm);
-            *rcmove |= CM_40_RANDOM;
-            make_move(monptr, mm, rcmove);
-        } else if ((r_ptr->cmove & CM_20_RANDOM) && (randint(100) < 20)) {
-            // 20% random movement
-            random_moves(mm);
-            *rcmove |= CM_20_RANDOM;
-            make_move(monptr, mm, rcmove);
+        // Try erratic movement (75%, 40%, 20%) in order; if none fire, fall through
+        if (try_erratic_move(monptr, mm, rcmove, CM_75_RANDOM, 75, r_ptr) ||
+            try_erratic_move(monptr, mm, rcmove, CM_40_RANDOM, 40, r_ptr) ||
+            try_erratic_move(monptr, mm, rcmove, CM_20_RANDOM, 20, r_ptr)) {
+            // Erratic move handled
         } else if (r_ptr->cmove & CM_MOVE_NORMAL) {
             // Normal movement
             if (randint(200) == 1) {
