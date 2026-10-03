@@ -50,6 +50,7 @@ uint8_t player_stat_use(int stat);
 // Write player stat fields.
 void player_stat_set_max(int stat, uint8_t value);
 void player_stat_set_cur(int stat, uint8_t value);
+void player_stat_set_mod(int stat, int16_t value);
 void player_stat_add_mod(int stat, int16_t amount);
 void player_stat_set_use(int stat, uint8_t value);
 

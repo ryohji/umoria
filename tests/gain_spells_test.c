@@ -58,6 +58,7 @@
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "spells_known.h"
+#include "stats.h"
 
 extern player_type py;
 extern bool free_turn_flag;
@@ -90,7 +91,7 @@ static void given_no_spells_known(void) {
 static void given_a_mage_who_can_learn(int spells_to_learn) {
     player_class_set(1); /* class[1] は Mage（MAGE 系） */
     player_set_level(1);
-    py.stats.use_stat[A_INT] = 18;
+    player_stat_set_use(A_INT, 18);
     player_set_max_mana(1);
     player_spells_to_learn_set(spells_to_learn);
 }
@@ -99,7 +100,7 @@ static void given_a_mage_who_can_learn(int spells_to_learn) {
 static void given_a_priest_who_can_learn(int spells_to_learn) {
     player_class_set(2); /* class[2] は Priest（PRIEST 系） */
     player_set_level(1);
-    py.stats.use_stat[A_WIS] = 18;
+    player_stat_set_use(A_WIS, 18);
     player_set_max_mana(1);
     player_spells_to_learn_set(spells_to_learn);
 }

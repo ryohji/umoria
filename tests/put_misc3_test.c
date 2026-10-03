@@ -47,6 +47,7 @@
 #include "player_level.h"
 #include "player_saving_throw.h"
 #include "player_stealth.h"
+#include "stats.h"
 
 extern player_type py;
 
@@ -98,7 +99,7 @@ static void given_class_and_level(int pclass, int lev)
  * 18..67 -> 3、68..87 -> 4。 */
 static void given_stat(int which, int value)
 {
-    py.stats.use_stat[which] = (uint8_t)value;
+    player_stat_set_use(which, (uint8_t)value);
 }
 
 /* todis_adj()（src/player/stats.c:125）は A_DEX を見る。既定の 0 では -8 を

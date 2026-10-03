@@ -64,6 +64,7 @@
 #include "save_state.h"
 #include "score_death.h"
 #include "spells_known.h"
+#include "stats.h"
 #include "stores.h"
 
 // For debugging the savefile code on systems with broken compilers.
@@ -218,11 +219,18 @@ static bool sv_write(void) {
         wr_string(player_history_line(i));
     }
 
-    struct player_stat *s_ptr = &py.stats;
-    wr_bytes(s_ptr->max_stat, 6);
-    wr_bytes(s_ptr->cur_stat, 6);
-    wr_shorts((uint16_t *)s_ptr->mod_stat, 6);
-    wr_bytes(s_ptr->use_stat, 6);
+    for (int i = 0; i < 6; i++) {
+        wr_byte(player_stat_max(i));
+    }
+    for (int i = 0; i < 6; i++) {
+        wr_byte(player_stat_cur(i));
+    }
+    for (int i = 0; i < 6; i++) {
+        wr_short((uint16_t)player_stat_mod(i));
+    }
+    for (int i = 0; i < 6; i++) {
+        wr_byte(player_stat_use(i));
+    }
 
     wr_long(player_status_word());
     // Timed effects and related fields: twenty-four values with rest, food, speed,
@@ -754,11 +762,24 @@ bool get_char(bool *generate) {
                 player_history_line_set(i, line);
             }
 
-            struct player_stat *s_ptr = &py.stats;
-            rd_bytes(s_ptr->max_stat, 6);
-            rd_bytes(s_ptr->cur_stat, 6);
-            rd_shorts((uint16_t *)s_ptr->mod_stat, 6);
-            rd_bytes(s_ptr->use_stat, 6);
+            uint8_t max_val, cur_val, use_val;
+            uint16_t mod_val;
+            for (int i = 0; i < 6; i++) {
+                rd_byte(&max_val);
+                player_stat_set_max(i, max_val);
+            }
+            for (int i = 0; i < 6; i++) {
+                rd_byte(&cur_val);
+                player_stat_set_cur(i, cur_val);
+            }
+            for (int i = 0; i < 6; i++) {
+                rd_short(&mod_val);
+                player_stat_set_mod(i, (int16_t)mod_val);
+            }
+            for (int i = 0; i < 6; i++) {
+                rd_byte(&use_val);
+                player_stat_set_use(i, use_val);
+            }
 
             // Status word: bit positions are part of the file format, so we move the
             // whole word instead of thirty individual flags.

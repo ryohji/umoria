@@ -53,7 +53,7 @@ extern player_type py;
 
 static void given_stat(int which, int value)
 {
-    py.stats.use_stat[which] = (uint8_t)value;
+    player_stat_set_use(which, (uint8_t)value);
 }
 
 /* ------------------------------------------------------------------
@@ -818,7 +818,7 @@ TEST(tohit_adj_returns_minus_six_when_both_stats_are_zero)
 
 static void given_charisma(int value)
 {
-    py.stats.use_stat[A_CHR] = (uint8_t)value;
+    player_stat_set_use(A_CHR, (uint8_t)value);
 }
 
 /* switch の default。3 未満はすべて 100（等倍） */
@@ -948,7 +948,7 @@ TEST(chr_adj_returns_ninety_at_maximum_charisma)
 
 static void given_constitution(int value)
 {
-    py.stats.use_stat[A_CON] = (uint8_t)value;
+    player_stat_set_use(A_CON, (uint8_t)value);
 }
 
 /* 最下段は con - 7。use_stat は uint8_t なので 0 が下限で、返る値の下限は -7 */
@@ -1049,42 +1049,42 @@ TEST(con_adj_returns_four_at_maximum_constitution)
 
 static void given_distinct_max_stats(void)
 {
-    py.stats.max_stat[A_STR] = 10;
-    py.stats.max_stat[A_INT] = 11;
-    py.stats.max_stat[A_WIS] = 12;
-    py.stats.max_stat[A_DEX] = 13;
-    py.stats.max_stat[A_CON] = 14;
-    py.stats.max_stat[A_CHR] = 15;
+    player_stat_set_max(A_STR, 10);
+    player_stat_set_max(A_INT, 11);
+    player_stat_set_max(A_WIS, 12);
+    player_stat_set_max(A_DEX, 13);
+    player_stat_set_max(A_CON, 14);
+    player_stat_set_max(A_CHR, 15);
 }
 
 static void given_distinct_cur_stats(void)
 {
-    py.stats.cur_stat[A_STR] = 20;
-    py.stats.cur_stat[A_INT] = 21;
-    py.stats.cur_stat[A_WIS] = 22;
-    py.stats.cur_stat[A_DEX] = 23;
-    py.stats.cur_stat[A_CON] = 24;
-    py.stats.cur_stat[A_CHR] = 25;
+    player_stat_set_cur(A_STR, 20);
+    player_stat_set_cur(A_INT, 21);
+    player_stat_set_cur(A_WIS, 22);
+    player_stat_set_cur(A_DEX, 23);
+    player_stat_set_cur(A_CON, 24);
+    player_stat_set_cur(A_CHR, 25);
 }
 
 static void given_distinct_mod_stats(void)
 {
-    py.stats.mod_stat[A_STR] = -3;
-    py.stats.mod_stat[A_INT] = -2;
-    py.stats.mod_stat[A_WIS] = -1;
-    py.stats.mod_stat[A_DEX] = 0;
-    py.stats.mod_stat[A_CON] = 1;
-    py.stats.mod_stat[A_CHR] = 2;
+    player_stat_set_mod(A_STR, -3);
+    player_stat_set_mod(A_INT, -2);
+    player_stat_set_mod(A_WIS, -1);
+    player_stat_set_mod(A_DEX, 0);
+    player_stat_set_mod(A_CON, 1);
+    player_stat_set_mod(A_CHR, 2);
 }
 
 static void given_distinct_use_stats(void)
 {
-    py.stats.use_stat[A_STR] = 30;
-    py.stats.use_stat[A_INT] = 31;
-    py.stats.use_stat[A_WIS] = 32;
-    py.stats.use_stat[A_DEX] = 33;
-    py.stats.use_stat[A_CON] = 34;
-    py.stats.use_stat[A_CHR] = 35;
+    player_stat_set_use(A_STR, 30);
+    player_stat_set_use(A_INT, 31);
+    player_stat_set_use(A_WIS, 32);
+    player_stat_set_use(A_DEX, 33);
+    player_stat_set_use(A_CON, 34);
+    player_stat_set_use(A_CHR, 35);
 }
 
 TEST(player_stat_max_returns_max_stat_for_str)
@@ -1237,33 +1237,33 @@ TEST(player_stat_use_returns_use_stat_for_chr)
 TEST(player_stat_set_max_writes_to_max_stat)
 {
     player_stat_set_max(A_DEX, 99);
-    ASSERT_EQ_INT(py.stats.max_stat[A_DEX], 99);
+    ASSERT_EQ_INT(player_stat_max(A_DEX), 99);
 }
 
 TEST(player_stat_set_cur_writes_to_cur_stat)
 {
     player_stat_set_cur(A_WIS, 88);
-    ASSERT_EQ_INT(py.stats.cur_stat[A_WIS], 88);
+    ASSERT_EQ_INT(player_stat_cur(A_WIS), 88);
 }
 
 TEST(player_stat_add_mod_adds_to_mod_stat)
 {
-    py.stats.mod_stat[A_STR] = 5;
+    player_stat_set_mod(A_STR, 5);
     player_stat_add_mod(A_STR, 3);
-    ASSERT_EQ_INT(py.stats.mod_stat[A_STR], 8);
+    ASSERT_EQ_INT(player_stat_mod(A_STR), 8);
 }
 
 TEST(player_stat_add_mod_can_subtract)
 {
-    py.stats.mod_stat[A_CON] = 10;
+    player_stat_set_mod(A_CON, 10);
     player_stat_add_mod(A_CON, -4);
-    ASSERT_EQ_INT(py.stats.mod_stat[A_CON], 6);
+    ASSERT_EQ_INT(player_stat_mod(A_CON), 6);
 }
 
 TEST(player_stat_set_use_writes_to_use_stat)
 {
     player_stat_set_use(A_CHR, 77);
-    ASSERT_EQ_INT(py.stats.use_stat[A_CHR], 77);
+    ASSERT_EQ_INT(player_stat_use(A_CHR), 77);
 }
 
 /* 読み・書きの往復。窓口で書いて窓口で読んだら値が保たれることを確かめる。 */

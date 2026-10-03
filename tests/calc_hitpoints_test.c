@@ -35,6 +35,7 @@
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_status_flags.h"
+#include "stats.h"
 
 extern player_type py;
 
@@ -52,12 +53,12 @@ extern player_type py;
 /* con_adj()（src/player/stats.c:80）は A_CON を見る。7..16 なら 0 を返すので、
  * 表の値だけを見たいテストはこれを使う。 */
 static void given_neutral_constitution(void) {
-    py.stats.use_stat[A_CON] = 10;
+    player_stat_set_use(A_CON, 10);
 }
 
 /* con_adj() が 2 を返す値。18..93 の範囲。 */
 static void given_constitution_adding_two_per_level(void) {
-    py.stats.use_stat[A_CON] = 18;
+    player_stat_set_use(A_CON, 18);
 }
 
 /* いまのレベルと、0 でない上限。上限が 0 だと calc_hitpoints() は

@@ -34,6 +34,7 @@
 #include "types.h"
 
 #include "fixture.h"
+#include "stats.h"
 
 player_type py; /* 本体では player.c */
 
@@ -41,5 +42,11 @@ player_type py; /* 本体では player.c */
  * setUp から呼ぶことで、先行テストの影響を受けない条件を作る。 */
 void fixture_reset(void)
 {
-    memset(&py, 0, sizeof py);
+    // Initialize all stats to zero via window functions.
+    for (int i = 0; i < 6; i++) {
+        player_stat_set_max(i, 0);
+        player_stat_set_cur(i, 0);
+        player_stat_set_mod(i, 0);
+        player_stat_set_use(i, 0);
+    }
 }

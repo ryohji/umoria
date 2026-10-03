@@ -52,6 +52,7 @@
 #include "fixture.h"
 #include "inventory.h"
 #include "player_status_flags.h"
+#include "stats.h"
 
 extern player_type py;
 
@@ -79,7 +80,7 @@ extern player_type py;
 /* STR 10・体重 0。武器の境目 150、持てる重さの上限 1300。
  * fixture_reset() が py を 0 で埋めるので、STR だけ入れれば足りる。 */
 static void given_a_character_of_average_strength(void) {
-    py.stats.use_stat[A_STR] = 10;
+    player_stat_set_use(A_STR, 10);
 }
 
 /* 手に持っている武器。重さ 150 までなら振れる。 */
@@ -207,7 +208,7 @@ TEST(becoming_strong_enough_for_the_weapon_is_announced) {
     given_a_character_of_average_strength();
     given_a_wielded_weapon_weighing(200);
     given_the_remembered_answers(true, 0);
-    py.stats.use_stat[A_STR] = 20; /* 境目が 300 に上がる */
+    player_stat_set_use(A_STR, 20); /* 境目が 300 に上がる */
 
     check_strength();
 
