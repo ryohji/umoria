@@ -34,6 +34,7 @@
 #include "progress.h"
 #include "score_death.h"
 #include "screen_fields.h"
+#include "stats.h"
 
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {
@@ -54,7 +55,7 @@ void cnv_stat(uint8_t stat, char *out_val) {
 // Print character stat in given row, column -RAK-
 void prt_stat(int stat) {
     stat_type out_val1;
-    cnv_stat(py.stats.use_stat[stat], out_val1);
+    cnv_stat(player_stat_use(stat), out_val1);
     prt_stat_name(stat, 6 + stat, STAT_COLUMN);
     put_buffer(out_val1, 6 + stat, STAT_COLUMN + 6);
 }

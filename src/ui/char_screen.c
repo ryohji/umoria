@@ -28,6 +28,7 @@
 #include "player_race.h"
 #include "save_state.h"
 #include "screen_fields.h"
+#include "stats.h"
 
 // Print long number (7 digits of space) with header at given row, column
 static void prt_7lnum(const char *header, int32_t num, int row, int column) {
@@ -58,11 +59,11 @@ void put_stats(void) {
     for (int i = 0; i < 6; i++) {
         vtype buf;
 
-        cnv_stat(py.stats.use_stat[i], buf);
+        cnv_stat(player_stat_use(i), buf);
         prt_stat_name(i, 2 + i, 61);
         put_buffer(buf, 2 + i, 66);
-        if (py.stats.max_stat[i] > py.stats.cur_stat[i]) {
-            cnv_stat(py.stats.max_stat[i], buf);
+        if (player_stat_max(i) > player_stat_cur(i)) {
+            cnv_stat(player_stat_max(i), buf);
             put_buffer(buf, 2 + i, 73);
         }
     }

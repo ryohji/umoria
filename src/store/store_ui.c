@@ -404,7 +404,7 @@ void enter_store(int store_num) {
                 case 'T': case 't': // Take off
                 case 'W': case 'w': // Wear
                 case 'X': case 'x': // Switch weapon
-                    tmp_chr = py.stats.use_stat[A_CHR];
+                    tmp_chr = player_stat_use(A_CHR);
 
                     do {
                         inven_command(command);
@@ -412,7 +412,7 @@ void enter_store(int store_num) {
                     } while (command);
 
                     // redisplay store prices if charisma changes
-                    if (tmp_chr != py.stats.use_stat[A_CHR]) {
+                    if (tmp_chr != player_stat_use(A_CHR)) {
                         display_inventory(store_num, cur_top);
                     }
                     free_turn_flag = false; // No free moves here. -CJS-
