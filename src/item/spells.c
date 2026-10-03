@@ -64,15 +64,45 @@ int sleep_monsters1(int y, int x) {
     return sleep;
 }
 
-// Detect any treasure on the current panel -RAK-
-int detect_treasure(void) {
+// Handle a monster caught in a newly-created wall or earthquake.
+// Non-phasing monsters take damage and may die; earth elementals heal.
+static void monster_caught_in_wall(int monster_index) {
+    monster_type *m_ptr = monster_list_at(monster_index);
+    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+
+    if (!(r_ptr->cmove & CM_PHASE)) {
+        int damage;
+
+        if (r_ptr->cmove & CM_ATTACK_ONLY) {
+            // this will kill everything
+            damage = 3000;
+        } else {
+            damage = damroll(4, 8);
+        }
+
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
+        msg_print(CONCAT(cdesc, " wails out in pain!"));
+        if (mon_take_hit(monster_index, damage)) {
+            msg_print(CONCAT(cdesc, " is embedded in the rock."));
+            prt_experience();
+        }
+    } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
+        // must be an earth elemental or an earth spirit, or a Xorn
+        // increase its hit points
+        m_ptr->hp += damroll(4, 8);
+    }
+}
+
+// Mark and show every unlit floor item on the current panel whose tval the
+// predicate accepts.
+static bool detect_floor_items(bool (*wanted)(int tval)) {
     bool detect = false;
 
     for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
         for (int j = panel_left_col(); j <= panel_right_col(); j++) {
             cave_type *c_ptr = square_at(i, j);
 
-            if ((c_ptr->tptr != 0) && (floor_item_at(c_ptr->tptr)->tval == TV_GOLD) &&
+            if ((c_ptr->tptr != 0) && wanted(floor_item_at(c_ptr->tptr)->tval) &&
                 !test_light(i, j)) {
                 c_ptr->fm = true;
                 lite_spot(i, j);
@@ -84,25 +114,22 @@ int detect_treasure(void) {
     return detect;
 }
 
+static bool is_gold(int tval) {
+    return tval == TV_GOLD;
+}
+
+static bool is_object(int tval) {
+    return tval < TV_MAX_OBJECT;
+}
+
+// Detect any treasure on the current panel -RAK-
+int detect_treasure(void) {
+    return detect_floor_items(is_gold);
+}
+
 // Detect all objects on the current panel -RAK-
 int detect_object(void) {
-    bool detect = false;
-
-    for (int i = panel_top_row(); i <= panel_bottom_row(); i++) {
-        for (int j = panel_left_col(); j <= panel_right_col(); j++) {
-            cave_type *c_ptr = square_at(i, j);
-
-            if ((c_ptr->tptr != 0) &&
-                (floor_item_at(c_ptr->tptr)->tval < TV_MAX_OBJECT) &&
-                !test_light(i, j)) {
-                c_ptr->fm = true;
-                lite_spot(i, j);
-                detect = true;
-            }
-        }
-    }
-
-    return detect;
+    return detect_floor_items(is_object);
 }
 
 // Locates and displays traps on current panel -RAK-
@@ -158,23 +185,24 @@ int detect_sdoor(void) {
     return detect;
 }
 
-// Locates and displays all invisible creatures on current panel -RAK-
-int detect_invisible(void) {
+// Scan monsters on panel, reveal those matching predicate, show message if any found.
+static bool detect_monsters_by_predicate(bool (*predicate)(const creature_type *), const char *message) {
     bool flag = false;
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
+        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && (CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove)) {
+        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && predicate(r_ptr)) {
             m_ptr->ml = true;
             // works correctly even if hallucinating
-            print((char)monster_get_creature(m_ptr->creature)->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
+            print((char)r_ptr->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
             flag = true;
         }
     }
 
     if (flag) {
-        msg_print("You sense the presence of invisible creatures!");
+        msg_print(message);
         msg_print(CNIL);
 
         // must unlight every monster just lighted
@@ -182,6 +210,23 @@ int detect_invisible(void) {
     }
 
     return flag;
+}
+
+static bool is_invisible(const creature_type *r_ptr) {
+    return (r_ptr->cmove & CM_INVISIBLE) != 0;
+}
+
+static bool is_visible(const creature_type *r_ptr) {
+    return (r_ptr->cmove & CM_INVISIBLE) == 0;
+}
+
+static bool is_evil(const creature_type *r_ptr) {
+    return (r_ptr->cdefense & CD_EVIL) != 0;
+}
+
+// Locates and displays all invisible creatures on current panel -RAK-
+int detect_invisible(void) {
+    return detect_monsters_by_predicate(is_invisible, "You sense the presence of invisible creatures!");
 }
 
 // Light an area: -RAK-
@@ -430,28 +475,7 @@ int td_destroy(void) {
 
 // Display all creatures on the current panel -RAK-
 int detect_monsters(void) {
-    bool detect = false;
-
-    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = monster_list_at(i);
-
-        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && ((CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove) == 0)) {
-            m_ptr->ml = true;
-            // works correctly even if hallucinating
-            print((char)monster_get_creature(m_ptr->creature)->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
-            detect = true;
-        }
-    }
-
-    if (detect) {
-        msg_print("You sense the presence of monsters!");
-        msg_print(CNIL);
-
-        // must unlight every monster just lighted
-        creatures(false);
-    }
-
-    return detect;
+    return detect_monsters_by_predicate(is_visible, "You sense the presence of monsters!");
 }
 
 // Leave a line of light in given dir, blue light can sometimes
@@ -987,32 +1011,7 @@ int build_wall(int dir, int y, int x) {
             if (c_ptr->cptr > 1) {
                 // stop the wall building
                 flag = true;
-
-                monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                creature_type *r_ptr = monster_get_creature(m_ptr->creature);
-
-                if (!(r_ptr->cmove & CM_PHASE)) {
-                    int damage;
-
-                    // monster does not move, can't escape the wall
-                    if (r_ptr->cmove & CM_ATTACK_ONLY) {
-                        // this will kill everything
-                        damage = 3000;
-                    } else {
-                        damage = damroll(4, 8);
-                    }
-
-                    const char *cdesc = monster_name((vtype){0}, m_ptr);
-                    msg_print(CONCAT(cdesc, " wails out in pain!"));
-                    if (mon_take_hit(c_ptr->cptr, damage)) {
-                        msg_print(CONCAT(cdesc, " is embedded in the rock."));
-                        prt_experience();
-                    }
-                } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
-                    // must be an earth elemental or an earth spirit, or a Xorn
-                    // increase its hit points
-                    m_ptr->hp += damroll(4, 8);
-                }
+                monster_caught_in_wall(c_ptr->cptr);
             }
 
             c_ptr->fval = MAGMA_WALL;
@@ -1287,29 +1286,7 @@ int mass_poly(void) {
 
 // Display evil creatures on current panel -RAK-
 int detect_evil(void) {
-    bool flag = false;
-
-    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = monster_list_at(i);
-        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) &&
-            (CD_EVIL & monster_get_creature(m_ptr->creature)->cdefense)) {
-            m_ptr->ml = true;
-
-            // works correctly even if hallucinating
-            print((char)monster_get_creature(m_ptr->creature)->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
-            flag = true;
-        }
-    }
-
-    if (flag) {
-        msg_print("You sense the presence of evil!");
-        msg_print(CNIL);
-
-        // must unlight every monster just lighted
-        creatures(false);
-    }
-
-    return flag;
+    return detect_monsters_by_predicate(is_evil, "You sense the presence of evil!");
 }
 
 // Change players hit points in some manner -RAK-
@@ -1341,51 +1318,36 @@ int hp_player(int num) {
     return res;
 }
 
+// Shorten a timed effect to one turn, returning true if it was active.
+// One turn is left on purpose: the message that the effect has passed
+// comes out of the count-down in dungeon.c, so putting zero here would
+// cure the character in silence.
+static bool cure_timed_effect(player_timed_effect id) {
+    if (player_timed_turns(id) > 1) {
+        player_timed_shorten_to(id, 1);
+        return true;
+    }
+    return false;
+}
+
 // Cure players confusion -RAK-
 int cure_confusion(void) {
-    bool cure = false;
-
-    // One turn is left on purpose: the message that the confusion has passed
-    // comes out of the count-down in dungeon.c, so putting zero here would
-    // cure the character in silence.
-    if (player_timed_turns(PLAYER_TIMED_CONFUSION) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_CONFUSION, 1);
-        cure = true;
-    }
-    return cure;
+    return cure_timed_effect(PLAYER_TIMED_CONFUSION);
 }
 
 // Cure players blindness -RAK-
 int cure_blindness(void) {
-    bool cure = false;
-
-    if (player_timed_turns(PLAYER_TIMED_BLINDNESS) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_BLINDNESS, 1);
-        cure = true;
-    }
-    return cure;
+    return cure_timed_effect(PLAYER_TIMED_BLINDNESS);
 }
 
 // Cure poisoning -RAK-
 int cure_poison(void) {
-    bool cure = false;
-
-    if (player_timed_turns(PLAYER_TIMED_POISON) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
-        cure = true;
-    }
-    return cure;
+    return cure_timed_effect(PLAYER_TIMED_POISON);
 }
 
 // Cure the players fear -RAK-
 int remove_fear(void) {
-    bool result = false;
-
-    if (player_timed_turns(PLAYER_TIMED_FEAR) > 1) {
-        player_timed_shorten_to(PLAYER_TIMED_FEAR, 1);
-        result = true;
-    }
-    return result;
+    return cure_timed_effect(PLAYER_TIMED_FEAR);
 }
 
 // This is a fun one.  In a given block, pick some walls and
@@ -1402,30 +1364,7 @@ void earthquake(void) {
                 }
 
                 if (c_ptr->cptr > 1) {
-                    monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
-
-                    if (!(r_ptr->cmove & CM_PHASE)) {
-                        int damage;
-
-                        if (r_ptr->cmove & CM_ATTACK_ONLY) {
-                            // this will kill everything
-                            damage = 3000;
-                        } else {
-                            damage = damroll(4, 8);
-                        }
-
-                        const char *cdesc = monster_name((vtype){0}, m_ptr);
-                        msg_print(CONCAT(cdesc, " wails out in pain!"));
-                        if (mon_take_hit(c_ptr->cptr, damage)) {
-                            msg_print(CONCAT(cdesc, " is embedded in the rock."));
-                            prt_experience();
-                        }
-                    } else if (r_ptr->cchar == 'E' || r_ptr->cchar == 'X') {
-                        // must be an earth elemental or an earth spirit, or a
-                        // Xorn increase its hit points
-                        m_ptr->hp += damroll(4, 8);
-                    }
+                    monster_caught_in_wall(c_ptr->cptr);
                 }
 
                 if ((c_ptr->fval >= MIN_CAVE_WALL) && (c_ptr->fval != BOUNDARY_WALL)) {
