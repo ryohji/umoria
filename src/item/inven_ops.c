@@ -28,6 +28,7 @@
 #include "player_body_weight.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
+#include "stats.h"
 
 // Destroy an item in the inventory -RAK-
 void inven_destroy(int item_val) {
@@ -111,7 +112,7 @@ int inven_damage(bool (*typ)(inven_type *), int perc) {
 // Computes current weight limit -RAK-
 int weight_limit(void) {
     // Weight limit formula: strength times cap, plus body weight bonus.
-    int weight_cap = py.stats.use_stat[A_STR] * PLAYER_WEIGHT_CAP + player_body_weight();
+    int weight_cap = player_stat_use(A_STR) * PLAYER_WEIGHT_CAP + player_body_weight();
 
     if (weight_cap > 3000) {
         weight_cap = 3000;
@@ -171,7 +172,7 @@ void check_strength(void) {
     inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
     if (i_ptr->tval != TV_NOTHING &&
-        (py.stats.use_stat[A_STR] * WEAPON_WEIGHT_PER_STR < i_ptr->weight)) {
+        (player_stat_use(A_STR) * WEAPON_WEIGHT_PER_STR < i_ptr->weight)) {
         if (!weapon_is_too_heavy()) {
             msg_print("You have trouble wielding such a heavy weapon.");
             set_weapon_too_heavy(true);

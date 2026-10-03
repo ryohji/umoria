@@ -241,7 +241,7 @@ void tunnel(int dir) {
 
     // Compute the digging ability of player; based on
     // strength, and type of tool used
-    int tabil = py.stats.use_stat[A_STR];
+    int tabil = player_stat_use(A_STR);
 
     inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
@@ -284,7 +284,7 @@ void tunnel(int dir) {
         // also make it harder to dig with it.
 
         if (weapon_is_too_heavy()) {
-            tabil += (py.stats.use_stat[A_STR] * WEAPON_WEIGHT_PER_STR) - i_ptr->weight;
+            tabil += (player_stat_use(A_STR) * WEAPON_WEIGHT_PER_STR) - i_ptr->weight;
             if (tabil < 0) {
                 tabil = 0;
             }
@@ -406,7 +406,7 @@ void bash(void) {
                 count_msg_print("You smash into the door!");
                 // The door bash has its own rule for the body weight (`/ 2`),
                 // not the shield bash's.
-                int tmp = py.stats.use_stat[A_STR] + player_body_weight() / 2;
+                int tmp = player_stat_use(A_STR) + player_body_weight() / 2;
 
                 // Use (roughly) similar method as for monsters.
                 if (randint(tmp * (20 + abs(t_ptr->p1))) < 10 * (tmp - abs(t_ptr->p1))) {
@@ -419,7 +419,7 @@ void bash(void) {
                     } else {
                         lite_spot(y, x);
                     }
-                } else if (randint(150) > py.stats.use_stat[A_DEX]) {
+                } else if (randint(150) > player_stat_use(A_DEX)) {
                     msg_print("You are off-balance.");
                     player_timed_set(PLAYER_TIMED_PARALYSIS, 1 + randint(2));
                 } else if (!command_is_repeating()) {
