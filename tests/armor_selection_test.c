@@ -8,21 +8,20 @@
  * 着用の全 2^6 = 64 通り × 呪われかた × randint の答え 1..k の総当たりで、
  * 変更前の scrolls.c case 3 の字面を写した関数と突きあわせる。 */
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
+#include "externs.h"
+
 #include "armor_selection.h"
 #include "equipment.h"
+#include "fixture.h"
+#include "shared_stubs.h"
+
+#define MU_SETUP() shared_stubs_reset()
 
 #include "minunit.h"
-
-/* 変更前の scrolls.c が使っていた宣言 */
-int randint(int n);
 
 /* scrolls.c case 3 の選択部分（:104-143）をそのまま写した legacy 関数。
  * 変更前の実装を凍結したもので、理想の書きかたではない。 */
@@ -71,11 +70,6 @@ static int legacy_random_and_cursed_armor(void) {
     return l;
 }
 
-/* randint の代役は armor_selection_stubs.c で定義。
- * テストの台本から答えを 1 つずつ返す。 */
-extern int mock_randint_answer[32];
-extern int mock_randint_index;
-
 /* 装備スロット 6 つの着用/非着用を指定して、各 TV_HARD_ARMOR で埋める。 */
 static void set_armor_worn(bool body, bool arm, bool outer, bool hands, bool head, bool feet) {
     equipment_at(INVEN_BODY)->tval = body ? TV_HARD_ARMOR : TV_NOTHING;
@@ -99,7 +93,10 @@ static void set_armor_cursed(bool body, bool arm, bool outer, bool hands, bool h
 TEST(nothing_worn_gives_zero) {
     set_armor_worn(false, false, false, false, false, false);
 
-    ASSERT_EQ_INT(pick_random_worn_armor(), 0);
+    int result = pick_random_worn_armor();
+
+    ASSERT_EQ_INT(result, 0);
+    ASSERT_EQ_INT(fixture_randint_call_count(), 0);
 }
 
 TEST(one_worn_returns_that_slot_calling_randint_once) {
@@ -110,11 +107,12 @@ TEST(one_worn_returns_that_slot_calling_randint_once) {
 
     for (int i = 0; i < 6; i++) {
         set_armor_worn(i == 0, i == 1, i == 2, i == 3, i == 4, i == 5);
-        mock_randint_answer[0] = 1;  /* randint(1) の答えは常に 1 */
-        mock_randint_index = 0;
+        shared_stubs_reset();
+        fixture_set_randint(1);
 
         int result = pick_random_worn_armor();
-        if (result != slots[i] || mock_randint_index != 1) {
+        if (result != slots[i] || fixture_randint_call_count() != 1 ||
+            fixture_randint_last_maxval() != 1) {
             mismatch++;
         }
     }
@@ -144,28 +142,35 @@ TEST(all_64_worn_patterns_match_legacy_for_every_randint_answer) {
 
         if (count == 0) {
             /* 0 個なら randint を呼ばず、両方 0 を返す。 */
-            mock_randint_index = 0;
+            shared_stubs_reset();
             int result = pick_random_worn_armor();
+            int calls = fixture_randint_call_count();
 
-            mock_randint_index = 0;
+            shared_stubs_reset();
             int legacy = legacy_random_and_cursed_armor();
+            int legacy_calls = fixture_randint_call_count();
 
-            if (result != 0 || legacy != 0) {
+            if (result != 0 || legacy != 0 || calls != 0 || legacy_calls != 0) {
                 mismatch++;
             }
         } else {
             /* count > 0 なら、randint の答え 1..count のすべてを試す。 */
             for (int answer = 1; answer <= count; answer++) {
-                mock_randint_answer[0] = answer;
+                shared_stubs_reset();
+                fixture_set_randint(answer);
 
-                mock_randint_index = 0;
                 int result = pick_random_worn_armor();
+                int calls = fixture_randint_call_count();
+                int maxval = fixture_randint_last_maxval();
 
-                mock_randint_answer[0] = answer;
-                mock_randint_index = 0;
+                shared_stubs_reset();
+                fixture_set_randint(answer);
                 int legacy = legacy_random_and_cursed_armor();
+                int legacy_calls = fixture_randint_call_count();
+                int legacy_maxval = fixture_randint_last_maxval();
 
-                if (result != legacy) {
+                if (result != legacy || calls != 1 || legacy_calls != 1 ||
+                    maxval != count || legacy_maxval != count) {
                     mismatch++;
                 }
             }
@@ -201,13 +206,13 @@ TEST(cursed_override_matches_legacy) {
                     (hands ? 1 : 0) + (head ? 1 : 0) + (feet ? 1 : 0);
 
         if (count > 0) {
-            mock_randint_answer[0] = 1;
-            mock_randint_index = 0;
+            shared_stubs_reset();
+            fixture_set_randint(1);
             int result_random = pick_random_worn_armor();
             int result_cursed = pick_first_cursed_armor();
 
-            mock_randint_answer[0] = 1;
-            mock_randint_index = 0;
+            shared_stubs_reset();
+            fixture_set_randint(1);
             int legacy = legacy_random_and_cursed_armor();
 
             /* legacy は cursed override を含むので、cursed が 0 なら
@@ -232,13 +237,13 @@ TEST(cursed_override_matches_legacy) {
             set_armor_cursed(cursed_body, cursed_arm, cursed_outer,
                            cursed_hands, cursed_head, cursed_feet);
 
-            mock_randint_answer[0] = count;  /* 乱数では最後を選ぶ */
-            mock_randint_index = 0;
+            shared_stubs_reset();
+            fixture_set_randint(count);  /* 乱数では最後を選ぶ */
             int result_random = pick_random_worn_armor();
             int result_cursed = pick_first_cursed_armor();
 
-            mock_randint_answer[0] = count;
-            mock_randint_index = 0;
+            shared_stubs_reset();
+            fixture_set_randint(count);
             int legacy = legacy_random_and_cursed_armor();
 
             int expected = (result_cursed != 0) ? result_cursed : result_random;
@@ -252,13 +257,13 @@ TEST(cursed_override_matches_legacy) {
         if (count > 0) {
             set_armor_cursed(body, arm, outer, hands, head, feet);
 
-            mock_randint_answer[0] = count;
-            mock_randint_index = 0;
+            shared_stubs_reset();
+            fixture_set_randint(count);
             int result_random = pick_random_worn_armor();
             int result_cursed = pick_first_cursed_armor();
 
-            mock_randint_answer[0] = count;
-            mock_randint_index = 0;
+            shared_stubs_reset();
+            fixture_set_randint(count);
             int legacy = legacy_random_and_cursed_armor();
 
             int expected = (result_cursed != 0) ? result_cursed : result_random;
