@@ -13,10 +13,10 @@
  * potions.c / eat.c / scrolls.c 自体はリンクできない。効果処理の巨大な
  * switch が画面表示・ダンジョン・モンスターへ芋づるで依存するため。
  * item_learn.c は known1_p() / identify() / sample() / prt_experience() と
- * グローバルな py / inventory にしか依存しないので、desc.c の本物と
+ * 能力値と inventory にしか依存しないので、desc.c の本物と
  * fixture.c の代役だけでリンクできる。
  *
- * グローバル状態（inventory, 品目ごとの覚え, py）に依存するので
+ * グローバル状態（inventory, 品目ごとの覚え, 能力値）に依存するので
  * MU_SETUP で fixture_reset() を呼ぶ。これがないと実行順で結果が変わる。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、

@@ -16,8 +16,7 @@
 
 #include "stats.h"
 
-// Player stat storage. The layout matches struct player_stat in types.h
-// for save file compatibility (30 bytes: 18 uint8_t + 12 bytes for 6 int16_t).
+// The four values of each stat (see stats.h).
 static uint8_t max_stat[6];
 static uint8_t cur_stat[6];
 static int16_t mod_stat[6];

@@ -32,7 +32,7 @@ struct player_abilities {
     char infra[24]; // "%d feet"; 24 covers the whole int16_t range times ten
 };
 
-// Computes the ratings from the global player (py) and class_level_adj.
+// Computes the ratings from the player's windows and class_level_adj.
 // Reads the player rather than taking it as a parameter, so that the two
 // callers stay as they were.
 struct player_abilities calc_player_abilities(void);

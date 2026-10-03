@@ -17,8 +17,8 @@
 // reach the row.
 //
 // No initialiser, so the row starts at 0: a Warrior, and also "no class picked yet".
-// Those are the same byte and always were (`py` was zeroed whole), which is why
-// get_class() can write a 0 before its menu loop without meaning anything by it.
+// Those are the same byte, which is why get_class() can write a 0 before its
+// menu loop without meaning anything by it.
 static uint8_t the_row;
 
 int player_class(void) {

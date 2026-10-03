@@ -77,7 +77,7 @@
  * ------------------------------------------------------------------ */
 
 /* STR 10・体重 0。武器の境目 150、持てる重さの上限 1300。
- * fixture_reset() が py を 0 で埋めるので、STR だけ入れれば足りる。 */
+ * fixture_reset() が能力値を 0 にするので、STR だけ入れれば足りる。 */
 static void given_a_character_of_average_strength(void) {
     player_stat_set_use(A_STR, 10);
 }
@@ -110,7 +110,7 @@ static void given_the_remembered_answers(bool weapon_too_heavy, int pack_steps) 
 
 /* 「2 度目は黙る」を見るテストは check_strength を 2 回呼んで、メッセージの
  * **合計**が 1 件のままであることを見る（記録を途中で消す窓口は無く、
- * fixture_reset() では py まで消えてしまうので、合計で見るのが確実）。 */
+ * fixture_reset() では能力値まで消えてしまうので、合計で見るのが確実）。 */
 
 /* 上限の計算そのもの。段数の期待値がどこから来たのかを読む人に示す。 */
 static int the_weight_limit(void) { return weight_limit(); }

@@ -12,7 +12,7 @@
 
 // Seven stat-to-bonus tables.
 //
-// Every one of them reads the player's used stat (py.stats.use_stat) rather
+// Every one of them reads the player's used stat (player_stat_use()) rather
 // than taking it as a parameter. Only stat_adj() takes an argument, and that
 // argument is which stat to read.
 
@@ -39,15 +39,15 @@ int todis_adj(void);
 // Returns a character's adjustment to damage -JWT-
 int todam_adj(void);
 
-// Read player stat fields.
-// Each returns the value of one of the four arrays in py.stats for the given
-// stat index (A_STR, A_INT, A_WIS, A_DEX, A_CON, or A_CHR).
+// The four values of each stat, indexed A_STR .. A_CHR: what is restored (max),
+// what is natural (cur), what worn items add (mod) and what is used (use).
+// The save file writes them in this order, six of each.
 uint8_t player_stat_max(int stat);
 uint8_t player_stat_cur(int stat);
 int16_t player_stat_mod(int stat);
 uint8_t player_stat_use(int stat);
 
-// Write player stat fields.
+// The windows store what they are given and check nothing.
 void player_stat_set_max(int stat, uint8_t value);
 void player_stat_set_cur(int stat, uint8_t value);
 void player_stat_set_mod(int stat, int16_t value);

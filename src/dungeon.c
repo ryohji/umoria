@@ -77,9 +77,6 @@ void dungeon(void) {
     // Main procedure for dungeon. -RAK-
     // Note: There is a lot of preliminary magic going on here at first
 
-    // This file accesses player data through dedicated modules rather than reading
-    // py directly.
-
     // Check light status for setup
     inven_type *i_ptr = equipment_at(INVEN_LIGHT);
     set_player_has_light(i_ptr->p1 > 0);

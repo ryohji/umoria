@@ -59,9 +59,7 @@ void player_body_weight_set(int pounds);
 //   1. HOW MUCH THE CHARACTER CAN CARRY. inven_ops.c:118 computes
 //      `use_stat[A_STR] * PLAYER_WEIGHT_CAP + weight`, capped at 3000. THE
 //      SUBJECT OF THAT SENTENCE IS STRENGTH; the body's weight is the smaller
-//      term. It also needs py.stats.use_stat[], which has no window yet, so even
-//      if it belonged here it would have to wait (findings.md 42) -- but
-//      there is only one such site, so nothing is piling up.
+//      term, and there is only one such site, so nothing is piling up.
 //   2. HOW HARD A BASH LANDS. py_bash() (`/ 10`, `/ 60 + 3`) and bash() (`/ 2`).
 //      Three different divisors for three different rules: those are facts
 //      about bashing, not about the body, and there is no shared expression to
