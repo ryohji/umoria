@@ -1035,6 +1035,257 @@ TEST(con_adj_returns_four_at_maximum_constitution)
     ASSERT_EQ_INT(con_adj(), 4);
 }
 
+/* ------------------------------------------------------------------
+ * player_stat_* 窓口関数のテスト
+ *
+ * #67A で足した読み書きの窓口関数。py.stats の 4 配列（max_stat,
+ * cur_stat, mod_stat, use_stat）への直接アクセスをこれらの窓口越しに
+ * 変える。窓口が正しく格納域とつながっていることを検証する。
+ * ------------------------------------------------------------------ */
+
+/* 読み窓口：各関数が正しい配列の正しい要素を返すことを確かめる。
+ * 6 能力値すべてに異なる値を入れ、どの能力値を読んでも別の値になるように
+ * 配置することで、配列・要素の取りちがえを検出する。 */
+
+static void given_distinct_max_stats(void)
+{
+    py.stats.max_stat[A_STR] = 10;
+    py.stats.max_stat[A_INT] = 11;
+    py.stats.max_stat[A_WIS] = 12;
+    py.stats.max_stat[A_DEX] = 13;
+    py.stats.max_stat[A_CON] = 14;
+    py.stats.max_stat[A_CHR] = 15;
+}
+
+static void given_distinct_cur_stats(void)
+{
+    py.stats.cur_stat[A_STR] = 20;
+    py.stats.cur_stat[A_INT] = 21;
+    py.stats.cur_stat[A_WIS] = 22;
+    py.stats.cur_stat[A_DEX] = 23;
+    py.stats.cur_stat[A_CON] = 24;
+    py.stats.cur_stat[A_CHR] = 25;
+}
+
+static void given_distinct_mod_stats(void)
+{
+    py.stats.mod_stat[A_STR] = -3;
+    py.stats.mod_stat[A_INT] = -2;
+    py.stats.mod_stat[A_WIS] = -1;
+    py.stats.mod_stat[A_DEX] = 0;
+    py.stats.mod_stat[A_CON] = 1;
+    py.stats.mod_stat[A_CHR] = 2;
+}
+
+static void given_distinct_use_stats(void)
+{
+    py.stats.use_stat[A_STR] = 30;
+    py.stats.use_stat[A_INT] = 31;
+    py.stats.use_stat[A_WIS] = 32;
+    py.stats.use_stat[A_DEX] = 33;
+    py.stats.use_stat[A_CON] = 34;
+    py.stats.use_stat[A_CHR] = 35;
+}
+
+TEST(player_stat_max_returns_max_stat_for_str)
+{
+    given_distinct_max_stats();
+    ASSERT_EQ_INT(player_stat_max(A_STR), 10);
+}
+
+TEST(player_stat_max_returns_max_stat_for_int)
+{
+    given_distinct_max_stats();
+    ASSERT_EQ_INT(player_stat_max(A_INT), 11);
+}
+
+TEST(player_stat_max_returns_max_stat_for_wis)
+{
+    given_distinct_max_stats();
+    ASSERT_EQ_INT(player_stat_max(A_WIS), 12);
+}
+
+TEST(player_stat_max_returns_max_stat_for_dex)
+{
+    given_distinct_max_stats();
+    ASSERT_EQ_INT(player_stat_max(A_DEX), 13);
+}
+
+TEST(player_stat_max_returns_max_stat_for_con)
+{
+    given_distinct_max_stats();
+    ASSERT_EQ_INT(player_stat_max(A_CON), 14);
+}
+
+TEST(player_stat_max_returns_max_stat_for_chr)
+{
+    given_distinct_max_stats();
+    ASSERT_EQ_INT(player_stat_max(A_CHR), 15);
+}
+
+TEST(player_stat_cur_returns_cur_stat_for_str)
+{
+    given_distinct_cur_stats();
+    ASSERT_EQ_INT(player_stat_cur(A_STR), 20);
+}
+
+TEST(player_stat_cur_returns_cur_stat_for_int)
+{
+    given_distinct_cur_stats();
+    ASSERT_EQ_INT(player_stat_cur(A_INT), 21);
+}
+
+TEST(player_stat_cur_returns_cur_stat_for_wis)
+{
+    given_distinct_cur_stats();
+    ASSERT_EQ_INT(player_stat_cur(A_WIS), 22);
+}
+
+TEST(player_stat_cur_returns_cur_stat_for_dex)
+{
+    given_distinct_cur_stats();
+    ASSERT_EQ_INT(player_stat_cur(A_DEX), 23);
+}
+
+TEST(player_stat_cur_returns_cur_stat_for_con)
+{
+    given_distinct_cur_stats();
+    ASSERT_EQ_INT(player_stat_cur(A_CON), 24);
+}
+
+TEST(player_stat_cur_returns_cur_stat_for_chr)
+{
+    given_distinct_cur_stats();
+    ASSERT_EQ_INT(player_stat_cur(A_CHR), 25);
+}
+
+TEST(player_stat_mod_returns_mod_stat_for_str)
+{
+    given_distinct_mod_stats();
+    ASSERT_EQ_INT(player_stat_mod(A_STR), -3);
+}
+
+TEST(player_stat_mod_returns_mod_stat_for_int)
+{
+    given_distinct_mod_stats();
+    ASSERT_EQ_INT(player_stat_mod(A_INT), -2);
+}
+
+TEST(player_stat_mod_returns_mod_stat_for_wis)
+{
+    given_distinct_mod_stats();
+    ASSERT_EQ_INT(player_stat_mod(A_WIS), -1);
+}
+
+TEST(player_stat_mod_returns_mod_stat_for_dex)
+{
+    given_distinct_mod_stats();
+    ASSERT_EQ_INT(player_stat_mod(A_DEX), 0);
+}
+
+TEST(player_stat_mod_returns_mod_stat_for_con)
+{
+    given_distinct_mod_stats();
+    ASSERT_EQ_INT(player_stat_mod(A_CON), 1);
+}
+
+TEST(player_stat_mod_returns_mod_stat_for_chr)
+{
+    given_distinct_mod_stats();
+    ASSERT_EQ_INT(player_stat_mod(A_CHR), 2);
+}
+
+TEST(player_stat_use_returns_use_stat_for_str)
+{
+    given_distinct_use_stats();
+    ASSERT_EQ_INT(player_stat_use(A_STR), 30);
+}
+
+TEST(player_stat_use_returns_use_stat_for_int)
+{
+    given_distinct_use_stats();
+    ASSERT_EQ_INT(player_stat_use(A_INT), 31);
+}
+
+TEST(player_stat_use_returns_use_stat_for_wis)
+{
+    given_distinct_use_stats();
+    ASSERT_EQ_INT(player_stat_use(A_WIS), 32);
+}
+
+TEST(player_stat_use_returns_use_stat_for_dex)
+{
+    given_distinct_use_stats();
+    ASSERT_EQ_INT(player_stat_use(A_DEX), 33);
+}
+
+TEST(player_stat_use_returns_use_stat_for_con)
+{
+    given_distinct_use_stats();
+    ASSERT_EQ_INT(player_stat_use(A_CON), 34);
+}
+
+TEST(player_stat_use_returns_use_stat_for_chr)
+{
+    given_distinct_use_stats();
+    ASSERT_EQ_INT(player_stat_use(A_CHR), 35);
+}
+
+/* 書き窓口：各関数が正しい配列の正しい要素に書きこむことを確かめる。
+ * 書きこんだあと、直接読んで期待値と一致することを見る。 */
+
+TEST(player_stat_set_max_writes_to_max_stat)
+{
+    player_stat_set_max(A_DEX, 99);
+    ASSERT_EQ_INT(py.stats.max_stat[A_DEX], 99);
+}
+
+TEST(player_stat_set_cur_writes_to_cur_stat)
+{
+    player_stat_set_cur(A_WIS, 88);
+    ASSERT_EQ_INT(py.stats.cur_stat[A_WIS], 88);
+}
+
+TEST(player_stat_add_mod_adds_to_mod_stat)
+{
+    py.stats.mod_stat[A_STR] = 5;
+    player_stat_add_mod(A_STR, 3);
+    ASSERT_EQ_INT(py.stats.mod_stat[A_STR], 8);
+}
+
+TEST(player_stat_add_mod_can_subtract)
+{
+    py.stats.mod_stat[A_CON] = 10;
+    player_stat_add_mod(A_CON, -4);
+    ASSERT_EQ_INT(py.stats.mod_stat[A_CON], 6);
+}
+
+TEST(player_stat_set_use_writes_to_use_stat)
+{
+    player_stat_set_use(A_CHR, 77);
+    ASSERT_EQ_INT(py.stats.use_stat[A_CHR], 77);
+}
+
+/* 読み・書きの往復。窓口で書いて窓口で読んだら値が保たれることを確かめる。 */
+
+TEST(player_stat_max_roundtrip)
+{
+    player_stat_set_max(A_INT, 66);
+    ASSERT_EQ_INT(player_stat_max(A_INT), 66);
+}
+
+TEST(player_stat_cur_roundtrip)
+{
+    player_stat_set_cur(A_STR, 55);
+    ASSERT_EQ_INT(player_stat_cur(A_STR), 55);
+}
+
+TEST(player_stat_use_roundtrip)
+{
+    player_stat_set_use(A_DEX, 44);
+    ASSERT_EQ_INT(player_stat_use(A_DEX), 44);
+}
+
 int main(void)
 {
     /* --- stat_adj: 8 段の境界を両側から押さえる --- */
@@ -1193,6 +1444,50 @@ int main(void)
     RUN_TEST(con_adj_returns_three_at_constitution_one_hundred_sixteen);
     RUN_TEST(con_adj_returns_four_at_constitution_one_hundred_seventeen);
     RUN_TEST(con_adj_returns_four_at_maximum_constitution);
+
+    /* --- player_stat_* 窓口関数: 読み窓口が正しい配列・要素を返すこと --- */
+
+    RUN_TEST(player_stat_max_returns_max_stat_for_str);
+    RUN_TEST(player_stat_max_returns_max_stat_for_int);
+    RUN_TEST(player_stat_max_returns_max_stat_for_wis);
+    RUN_TEST(player_stat_max_returns_max_stat_for_dex);
+    RUN_TEST(player_stat_max_returns_max_stat_for_con);
+    RUN_TEST(player_stat_max_returns_max_stat_for_chr);
+
+    RUN_TEST(player_stat_cur_returns_cur_stat_for_str);
+    RUN_TEST(player_stat_cur_returns_cur_stat_for_int);
+    RUN_TEST(player_stat_cur_returns_cur_stat_for_wis);
+    RUN_TEST(player_stat_cur_returns_cur_stat_for_dex);
+    RUN_TEST(player_stat_cur_returns_cur_stat_for_con);
+    RUN_TEST(player_stat_cur_returns_cur_stat_for_chr);
+
+    RUN_TEST(player_stat_mod_returns_mod_stat_for_str);
+    RUN_TEST(player_stat_mod_returns_mod_stat_for_int);
+    RUN_TEST(player_stat_mod_returns_mod_stat_for_wis);
+    RUN_TEST(player_stat_mod_returns_mod_stat_for_dex);
+    RUN_TEST(player_stat_mod_returns_mod_stat_for_con);
+    RUN_TEST(player_stat_mod_returns_mod_stat_for_chr);
+
+    RUN_TEST(player_stat_use_returns_use_stat_for_str);
+    RUN_TEST(player_stat_use_returns_use_stat_for_int);
+    RUN_TEST(player_stat_use_returns_use_stat_for_wis);
+    RUN_TEST(player_stat_use_returns_use_stat_for_dex);
+    RUN_TEST(player_stat_use_returns_use_stat_for_con);
+    RUN_TEST(player_stat_use_returns_use_stat_for_chr);
+
+    /* --- player_stat_* 窓口関数: 書き窓口が正しい配列・要素に書きこむこと --- */
+
+    RUN_TEST(player_stat_set_max_writes_to_max_stat);
+    RUN_TEST(player_stat_set_cur_writes_to_cur_stat);
+    RUN_TEST(player_stat_add_mod_adds_to_mod_stat);
+    RUN_TEST(player_stat_add_mod_can_subtract);
+    RUN_TEST(player_stat_set_use_writes_to_use_stat);
+
+    /* --- player_stat_* 窓口関数: 読み書きの往復 --- */
+
+    RUN_TEST(player_stat_max_roundtrip);
+    RUN_TEST(player_stat_cur_roundtrip);
+    RUN_TEST(player_stat_use_roundtrip);
 
     return TEST_SUMMARY();
 }

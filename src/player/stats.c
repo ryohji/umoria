@@ -133,3 +133,37 @@ int todam_adj(void) {
 
     return lookup_stat_bonus(py.stats.use_stat[A_STR], by_strength, STAT_BONUS_STEPS(by_strength));
 }
+
+// Read player stat fields.
+uint8_t player_stat_max(int stat) {
+    return py.stats.max_stat[stat];
+}
+
+uint8_t player_stat_cur(int stat) {
+    return py.stats.cur_stat[stat];
+}
+
+int16_t player_stat_mod(int stat) {
+    return py.stats.mod_stat[stat];
+}
+
+uint8_t player_stat_use(int stat) {
+    return py.stats.use_stat[stat];
+}
+
+// Write player stat fields.
+void player_stat_set_max(int stat, uint8_t value) {
+    py.stats.max_stat[stat] = value;
+}
+
+void player_stat_set_cur(int stat, uint8_t value) {
+    py.stats.cur_stat[stat] = value;
+}
+
+void player_stat_add_mod(int stat, int16_t amount) {
+    py.stats.mod_stat[stat] += amount;
+}
+
+void player_stat_set_use(int stat, uint8_t value) {
+    py.stats.use_stat[stat] = value;
+}

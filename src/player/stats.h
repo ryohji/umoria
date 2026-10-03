@@ -39,4 +39,18 @@ int todis_adj(void);
 // Returns a character's adjustment to damage -JWT-
 int todam_adj(void);
 
+// Read player stat fields.
+// Each returns the value of one of the four arrays in py.stats for the given
+// stat index (A_STR, A_INT, A_WIS, A_DEX, A_CON, or A_CHR).
+uint8_t player_stat_max(int stat);
+uint8_t player_stat_cur(int stat);
+int16_t player_stat_mod(int stat);
+uint8_t player_stat_use(int stat);
+
+// Write player stat fields.
+void player_stat_set_max(int stat, uint8_t value);
+void player_stat_set_cur(int stat, uint8_t value);
+void player_stat_add_mod(int stat, int16_t amount);
+void player_stat_set_use(int stat, uint8_t value);
+
 #endif // STATS_H
