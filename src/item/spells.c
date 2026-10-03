@@ -187,23 +187,24 @@ int detect_sdoor(void) {
     return detect;
 }
 
-// Locates and displays all invisible creatures on current panel -RAK-
-int detect_invisible(void) {
+// Scan monsters on panel, reveal those matching predicate, show message if any found.
+static bool detect_monsters_by_predicate(bool (*predicate)(const creature_type *), const char *message) {
     bool flag = false;
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
+        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
 
-        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && (CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove)) {
+        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && predicate(r_ptr)) {
             m_ptr->ml = true;
             // works correctly even if hallucinating
-            print((char)monster_get_creature(m_ptr->creature)->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
+            print((char)r_ptr->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
             flag = true;
         }
     }
 
     if (flag) {
-        msg_print("You sense the presence of invisible creatures!");
+        msg_print(message);
         msg_print(CNIL);
 
         // must unlight every monster just lighted
@@ -211,6 +212,23 @@ int detect_invisible(void) {
     }
 
     return flag;
+}
+
+static bool is_invisible(const creature_type *r_ptr) {
+    return (r_ptr->cmove & CM_INVISIBLE) != 0;
+}
+
+static bool is_visible(const creature_type *r_ptr) {
+    return (r_ptr->cmove & CM_INVISIBLE) == 0;
+}
+
+static bool is_evil(const creature_type *r_ptr) {
+    return (r_ptr->cdefense & CD_EVIL) != 0;
+}
+
+// Locates and displays all invisible creatures on current panel -RAK-
+int detect_invisible(void) {
+    return detect_monsters_by_predicate(is_invisible, "You sense the presence of invisible creatures!");
 }
 
 // Light an area: -RAK-
@@ -459,28 +477,7 @@ int td_destroy(void) {
 
 // Display all creatures on the current panel -RAK-
 int detect_monsters(void) {
-    bool detect = false;
-
-    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = monster_list_at(i);
-
-        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && ((CM_INVISIBLE & monster_get_creature(m_ptr->creature)->cmove) == 0)) {
-            m_ptr->ml = true;
-            // works correctly even if hallucinating
-            print((char)monster_get_creature(m_ptr->creature)->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
-            detect = true;
-        }
-    }
-
-    if (detect) {
-        msg_print("You sense the presence of monsters!");
-        msg_print(CNIL);
-
-        // must unlight every monster just lighted
-        creatures(false);
-    }
-
-    return detect;
+    return detect_monsters_by_predicate(is_visible, "You sense the presence of monsters!");
 }
 
 // Leave a line of light in given dir, blue light can sometimes
@@ -1291,29 +1288,7 @@ int mass_poly(void) {
 
 // Display evil creatures on current panel -RAK-
 int detect_evil(void) {
-    bool flag = false;
-
-    for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
-        monster_type *m_ptr = monster_list_at(i);
-        if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) &&
-            (CD_EVIL & monster_get_creature(m_ptr->creature)->cdefense)) {
-            m_ptr->ml = true;
-
-            // works correctly even if hallucinating
-            print((char)monster_get_creature(m_ptr->creature)->cchar, (int)m_ptr->fy, (int)m_ptr->fx);
-            flag = true;
-        }
-    }
-
-    if (flag) {
-        msg_print("You sense the presence of evil!");
-        msg_print(CNIL);
-
-        // must unlight every monster just lighted
-        creatures(false);
-    }
-
-    return flag;
+    return detect_monsters_by_predicate(is_evil, "You sense the presence of evil!");
 }
 
 // Change players hit points in some manner -RAK-
