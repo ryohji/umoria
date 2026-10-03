@@ -17,7 +17,9 @@ scripts/warnings.sh と同じ位置づけ（現状を数字で見るための道
   $ python3 scripts/globals.py --check    # 分類の網羅性だけ確認（CI 向け）
 
 数えるもの
-  参照数     src/ の .c（サブディレクトリーを含む）に現れる回数（定義そのものを含む）
+  参照数     src/ の .c（サブディレクトリーを含む）に現れる回数（定義そのものを含む）。
+             注釈と文字列の中も数える（過去の記録はこの数）
+  参照（コード） 同じ数を、注釈・文字列・文字定数を除いた字面で数えたもの
   参照ファイル数
   書きこみ数 代入・++・-- のほか、strcpy 系の第 1 引数に渡る形
   書きこみファイル数
@@ -300,9 +302,39 @@ ASSIGN = r"(?:(?<![=!<>+\-*/%&|^])=(?!=)|\+\+|--|[+\-*/|&^]=|>>=|<<=)"
 STR_WRITERS = r"(?:strcpy|strncpy|strcat|strncat|sprintf|snprintf|memcpy|memmove|memset)"
 
 
+def code_only(text):
+    """注釈・文字列・文字定数の中身を空白にした字面を返す。改行は残す。"""
+    out = []
+    i, n = 0, len(text)
+    while i < n:
+        c = text[i]
+        if text.startswith("//", i):
+            j = text.find("\n", i)
+            j = n if j < 0 else j
+            out.append(" " * (j - i))
+            i = j
+        elif text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            j = n if j < 0 else j + 2
+            out.append(re.sub(r"[^\n]", " ", text[i:j]))
+            i = j
+        elif c in "\"'":
+            j = i + 1
+            while j < n and text[j] != c and text[j] != "\n":
+                j += 2 if text[j] == "\\" else 1
+            j = min(j + 1, n)
+            out.append(c + " " * (j - i - 2) + c if j - i >= 2 else text[i:j])
+            i = j
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
 def counts(names, sources):
-    """名前ごとに (参照数, 参照ファイル, 書きこみ数, 書きこみファイル, 別名数) を返す。"""
+    """名前ごとに (参照数, 参照ファイル, 書きこみ数, 書きこみファイル, 別名数, 参照（コード）) を返す。"""
     text = {f: open(f, errors="replace").read() for f in sources}
+    code = {f: code_only(t) for f, t in text.items()}
     result = {}
     for name in names:
         n_ = re.escape(name)
@@ -313,9 +345,10 @@ def counts(names, sources):
         strwrite = re.compile(r"\b%s\s*\(\s*(?<![.\w>])\b%s\b%s\s*," % (STR_WRITERS, n_, SUFFIX))
         # &x / &x[i] は書きこみ可能な別名。配列名を裸で渡すのも同じ
         alias = re.compile(r"&\s*(?<![.\w>])\b%s\b%s" % (n_, SUFFIX))
-        refs, ref_files, writes, write_files, aliases = 0, [], 0, [], 0
+        refs, ref_files, writes, write_files, aliases, code_refs = 0, [], 0, [], 0, 0
         for path in sources:
             base = os.path.basename(path)
+            code_refs += len(ref.findall(code[path]))
             n = len(ref.findall(text[path]))
             if n:
                 refs += n
@@ -327,7 +360,7 @@ def counts(names, sources):
                 writes += n
                 write_files.append(base)
             aliases += len(alias.findall(text[path]))
-        result[name] = (refs, ref_files, writes, write_files, aliases)
+        result[name] = (refs, ref_files, writes, write_files, aliases, code_refs)
     return result
 
 
@@ -361,29 +394,31 @@ def main():
     stats = counts(names, sorted(glob.glob("src/**/*.c", recursive=True)))
 
     if mode == "--full":
-        print(f"{'名前':<22}{'参照':>5}{'参照f':>6}{'書き':>5}{'書きf':>6}{'別名':>5}  区分")
+        print(f"{'名前':<22}{'参照':>5}{'参照f':>6}{'書き':>5}{'書きf':>6}{'別名':>5}{'コード':>6}  区分")
         for group in GROUPS:
             for name in [n for n in names if belongs[n] == group]:
-                refs, ref_files, writes, write_files, aliases = stats[name]
+                refs, ref_files, writes, write_files, aliases, code_refs = stats[name]
                 print(f"{name:<22}{refs:>5}{len(ref_files):>6}"
-                      f"{writes:>5}{len(write_files):>6}{aliases:>5}  {group}")
+                      f"{writes:>5}{len(write_files):>6}{aliases:>5}{code_refs:>6}  {group}")
         return 0
 
-    print(f"{'区分':<32}{'個数':>5}{'参照':>7}{'書き':>6}{'別名':>6}{'最多参照':>10}")
-    total = [0, 0, 0, 0]
+    print(f"{'区分':<32}{'個数':>5}{'参照':>7}{'書き':>6}{'別名':>6}{'コード':>7}{'最多参照':>10}")
+    total = [0, 0, 0, 0, 0]
     for group in GROUPS:
         members = [n for n in names if belongs[n] == group]
         refs = sum(stats[n][0] for n in members)
         writes = sum(stats[n][2] for n in members)
         aliases = sum(stats[n][4] for n in members)
+        code_refs = sum(stats[n][5] for n in members)
         top = max(members, key=lambda n: stats[n][0])
-        print(f"{group:<32}{len(members):>5}{refs:>7}{writes:>6}{aliases:>6}"
+        print(f"{group:<32}{len(members):>5}{refs:>7}{writes:>6}{aliases:>6}{code_refs:>7}"
               f"   {top}({stats[top][0]})")
         total[0] += len(members)
         total[1] += refs
         total[2] += writes
         total[3] += aliases
-    print(f"{'合計':<32}{total[0]:>5}{total[1]:>7}{total[2]:>6}{total[3]:>6}")
+        total[4] += code_refs
+    print(f"{'合計':<32}{total[0]:>5}{total[1]:>7}{total[2]:>6}{total[3]:>6}{total[4]:>7}")
 
     never = [n for n in names if stats[n][2] == 0 and stats[n][4] == 0]
     wide = [n for n in names if len(stats[n][3]) >= 3]
