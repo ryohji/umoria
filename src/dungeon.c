@@ -15,6 +15,7 @@
 
 #include "externs.h"
 #include "command_state.h"
+#include "direction_keys.h"
 #include "dungeon_level.h"
 #include "dungeon_map.h"
 #include "dungeon_size.h"
@@ -827,34 +828,9 @@ static char original_commands(char com_val) {
         break;
     case '.':
         if (get_dir(CNIL, &dir_val)) {
-            switch (dir_val) {
-            case 1:
-                com_val = 'B';
-                break;
-            case 2:
-                com_val = 'J';
-                break;
-            case 3:
-                com_val = 'N';
-                break;
-            case 4:
-                com_val = 'H';
-                break;
-            case 6:
-                com_val = 'L';
-                break;
-            case 7:
-                com_val = 'Y';
-                break;
-            case 8:
-                com_val = 'K';
-                break;
-            case 9:
-                com_val = 'U';
-                break;
-            default:
+            com_val = direction_command_key(dir_val, DIR_KEY_RUN);
+            if (com_val == 0) {
                 com_val = ' ';
-                break;
             }
         } else {
             com_val = ' ';
@@ -917,34 +893,9 @@ static char original_commands(char com_val) {
         break;
     case 'T':
         if (get_dir(CNIL, &dir_val)) {
-            switch (dir_val) {
-            case 1:
-                com_val = CTRL_KEY('B');
-                break;
-            case 2:
-                com_val = CTRL_KEY('J');
-                break;
-            case 3:
-                com_val = CTRL_KEY('N');
-                break;
-            case 4:
-                com_val = CTRL_KEY('H');
-                break;
-            case 6:
-                com_val = CTRL_KEY('L');
-                break;
-            case 7:
-                com_val = CTRL_KEY('Y');
-                break;
-            case 8:
-                com_val = CTRL_KEY('K');
-                break;
-            case 9:
-                com_val = CTRL_KEY('U');
-                break;
-            default:
+            com_val = direction_command_key(dir_val, DIR_KEY_TUNNEL);
+            if (com_val == 0) {
                 com_val = ' ';
-                break;
             }
         } else {
             com_val = ' ';
@@ -1043,34 +994,9 @@ static void do_command(char com_val) {
 
         if (get_dir(CNIL, &dir_val)) {
             resume_command_count(i);
-            switch (dir_val) {
-            case 1:
-                com_val = 'b';
-                break;
-            case 2:
-                com_val = 'j';
-                break;
-            case 3:
-                com_val = 'n';
-                break;
-            case 4:
-                com_val = 'h';
-                break;
-            case 6:
-                com_val = 'l';
-                break;
-            case 7:
-                com_val = 'y';
-                break;
-            case 8:
-                com_val = 'k';
-                break;
-            case 9:
-                com_val = 'u';
-                break;
-            default:
+            com_val = direction_command_key(dir_val, DIR_KEY_WALK);
+            if (com_val == 0) {
                 com_val = '~';
-                break;
             }
         } else {
             com_val = ' ';
