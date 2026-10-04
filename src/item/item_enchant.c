@@ -18,8 +18,8 @@
 #include "types.h"
 
 #include "externs.h"
-#include "item_flags.h"
 #include "floor_items.h"
+#include "item_flags.h"
 #include "missile_serial.h"
 
 static int m_bonus(int, int, int);

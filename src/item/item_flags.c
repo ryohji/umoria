@@ -1,7 +1,17 @@
+// Copyright (c) 2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
+// The display hints and the notes kept in an item's ident byte
+
 #include "headers.h"
+
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+
 #include "item_flags.h"
 
 // Display hint setters
