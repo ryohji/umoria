@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 #include "stub_unreached.h"
 
@@ -32,9 +33,10 @@
 void put_qio(void) {}
 
 /* ファイル入出力の差しかえ層（io.c）。externs.h が fopen / open を
- * これらに置きかえている。テストは tmpfile() を使うので通らない。 */
-FILE *tfopen(const char *file, const char *mode) { stub_unreached(__func__); }
-int topen(char *file, int flags, int mode) { stub_unreached(__func__); }
+ * これらに置きかえている。ここは externs.h を引かないので、中で呼ぶのは本物。
+ * get_char() が名前でファイルを開くテスト（savefile_layout_test）が通る。 */
+FILE *tfopen(const char *file, const char *mode) { return fopen(file, mode); }
+int topen(char *file, int flags, int mode) { return open(file, flags, mode); }
 
 /* シグナル（signals.c） */
 void nosignals(void) {}
@@ -42,7 +44,10 @@ void signals(void) {}
 
 /* 終了処理（death.c） */
 _Noreturn void exit_game(void) { (void)fflush(NULL); abort(); }
-int32_t total_points(void) { stub_unreached(__func__); }
+/* sv_write() が書く得点。テストが決める（savefile_layout_test）。 */
+static int32_t stub_total_points;
+int32_t total_points(void) { return stub_total_points; }
+void save_stubs_set_total_points(int32_t points) { stub_total_points = points; }
 
 /* プレイヤーの状態更新（inven_ops.c / player_bonuses.c / rest_command.c） */
 void check_strength(void) {}
