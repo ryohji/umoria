@@ -110,17 +110,17 @@ void known1(inven_type *i_ptr) {
     item_kind_mark_known(i_ptr);
 }
 
-int known1_p(inven_type *i_ptr) {
+bool known1_p(inven_type *i_ptr) {
     // Items which don't have a 'color' are always known1,
     // so that they can be carried in order in the inventory.
     if (!item_kind_has_record(i_ptr)) {
-        return OD_KNOWN1;
+        return true;
     }
     if (store_bought_p(i_ptr)) {
-        return OD_KNOWN1;
+        return true;
     }
 
-    return item_kind_is_known(i_ptr) ? OD_KNOWN1 : 0;
+    return item_kind_is_known(i_ptr);
 }
 
 // Remove "Secret" symbol for identity of plusses
@@ -129,8 +129,8 @@ void known2(inven_type *i_ptr) {
     i_ptr->ident |= ID_KNOWN2;
 }
 
-int known2_p(inven_type *i_ptr) {
-    return (i_ptr->ident & ID_KNOWN2);
+bool known2_p(inven_type *i_ptr) {
+    return (i_ptr->ident & ID_KNOWN2) != 0;
 }
 
 void clear_known2(inven_type *i_ptr) {
@@ -146,8 +146,8 @@ void store_bought(inven_type *i_ptr) {
     known2(i_ptr);
 }
 
-int store_bought_p(inven_type *i_ptr) {
-    return (i_ptr->ident & ID_STOREBOUGHT);
+bool store_bought_p(inven_type *i_ptr) {
+    return (i_ptr->ident & ID_STOREBOUGHT) != 0;
 }
 
 // Remove an automatically generated inscription. -CJS-
