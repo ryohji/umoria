@@ -114,7 +114,7 @@
 | 59 | `distance()` を `core/` へ、geometry に本物のテスト（`8afcf63`） | 同上 |
 | 60 | 生の数 4 族に名前（`b4a84c7`。(d) は作りなおした） | 同上 |
 | 61 | 注釈の経緯・作業番号・日本語を外し、手書きの宣言を `externs.h` の include に（`f9d283b`・`babd322`・`01f0a98`） | 同上 |
-| 62 | 方向 → コマンド文字の switch 3 本を `ui/direction_keys.c` の表に（`8a65714`） | [p2-2026-10.md](docs/refactoring/p2-2026-10.md) |
+| 62 | 方向 → コマンド文字の switch 3 本を `ui/direction_keys.c` の表に（`8a65714`） | [done/p2-2026-10.md](docs/refactoring/done/p2-2026-10.md) |
 | 63 | `build_type2` の秘密の扉 4 か所を static 関数に（`9642d4b`） | 同上 |
 | 64 | `mon_move` の乱数 5 か所と気まぐれな移動 3 分岐を static 関数に（`e111365`） | 同上 |
 | 65 | `recall_*` を `monster/monster_recall.c` へ、テストを足す（`a8dc7df`） | 同上 |

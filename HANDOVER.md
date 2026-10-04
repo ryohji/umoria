@@ -34,7 +34,7 @@
     [done/p1-2026-10.md](docs/refactoring/done/p1-2026-10.md)。
 - 再検出で足した台帳の行は #58〜#76、`bugs.md` は B25・B26。
 - **P2 は #13（棚上げ）のほか済んだ。** 第 1 波（#62〜#66・#68・#70・#45）と第 2 波（#69 の `spells.c`、
-  #67 で `py` を消した）。経過は `docs/refactoring/p2-2026-10.md`。次の候補は第 6 節。
+  #67 で `py` を消した）。経過は [done/p2-2026-10.md](docs/refactoring/done/p2-2026-10.md)。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -48,7 +48,6 @@
 | `docs/refactoring/findings.md` | 所見（わかったこと）と索引。作法の根拠はここを番号で指す |
 | `docs/refactoring/globals_inventory.md` | #18 の棚おろし。着手前の姿（凍結）＋区分ごとの見立て＋付録 |
 | `docs/refactoring/worklog.md` | 作業ログ（1 作業 1 行）。済んだ列の行は `done/worklog-*.md` |
-| `docs/refactoring/p2-2026-10.md` | 進行中の列（P2）の経過と、済んで移した台帳の行 |
 | `docs/refactoring/done/` | 済んだ列の経過（字を変えずに移したもの） |
 | `scripts/globals.py` | `externs.h` の global を区分に分けて数える道具。手で数えない |
 | `scripts/link_units.py` | テストの実行形式ごとに `libcore.a` から引かれた `.o` を出す |
