@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "command_state.h"
 #include "direction_keys.h"
+#include "item_flags.h"
 #include "dungeon_level.h"
 #include "dungeon_map.h"
 #include "dungeon_size.h"
@@ -1614,7 +1615,7 @@ static bool enchanted(inven_type *t_ptr) {
     if (known2_p(t_ptr)) {
         return false;
     }
-    if (t_ptr->ident & ID_MAGIK) {
+    if (item_noted_magical(t_ptr)) {
         return false;
     }
     if (t_ptr->tohit > 0 || t_ptr->todam > 0 || t_ptr->toac > 0) {
