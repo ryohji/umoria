@@ -28,8 +28,7 @@ void insert_str(char *object_str, const char *mtc_str, const char *insert) {
     char *bound = object_str + obj_len - mtc_len;
 
     char *found = NULL;
-    char *pc;
-    for (pc = object_str; pc <= bound; pc++) {
+    for (char *pc = object_str; pc <= bound; pc++) {
         char *temp_obj = pc;
         const char *temp_mtc = mtc_str;
 
