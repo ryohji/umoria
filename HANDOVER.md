@@ -12,7 +12,7 @@
 
 2026-10-05、`develop` の上（`origin/develop` は `28ab4e2b`。push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1749 件・81 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1752 件・82 本**、failed=0、`RESULT: GREEN`。
 - `externs.h` の global は **41 個・参照 493**（着手時 112 個・3147）。参照は `globals.py` の数で、
   注釈と文字列の中も数えている（台帳 #70）。#61 で注釈を書きかえて 604 → 560、#67 で `py` が消えて 493。
   2026-10-01 に書いた 599 と 604 の差は確かめていない。
@@ -213,9 +213,9 @@ rm -f scores.dat /tmp/probe.sav
   「`const` 化のみ」と決めてある。
 - **台帳の P3 で着手コストの低いもの。** #48（`insert_str` の条件の二重表現。保護 22 件・
   リンク 2 単位）、#39 と #24（鑑定の述語と生のビット操作。一緒に扱う）。
-- **テストの穴（#49・#50 の族）。** セーブの並びと `calc_bonuses()` の呼び手を守るテストが
-  無い。埋めるには状態を丸ごと組みたてる足場が要る。#67 では、種と時刻を固定して `_save_char()` で
-  保存したファイルを前後でバイト比較した（`done/p2-2026-10.md`）。#49 の足場の出発点になる。
+- **テストの穴（#50 の族）。** `calc_bonuses()` の呼び手を守るテストが無い。埋めるには状態を
+  丸ごと組みたてる足場が要る。セーブの並び（#49）は 2026-10-05 に `savefile_layout_test` で埋めた
+  （`done/49-savefile-layout.md`）。
 - **呼ばれたら止まる代役の残り。** 呼び出し側がテストされていないので代役のままに
   してある（`twall`・`mon_take_hit`・`summon_*` など）。本物に替えるには、引く `.o` が多い。
 
@@ -241,8 +241,8 @@ rm -f scores.dat /tmp/probe.sav
 - **窓口を足すと、その窓口を呼ぶ `.c` を引いている実行形式が全部影響を受ける。**
   数えるのは `python3 scripts/link_units.py --who <名前>.o` と、
   `grep -rln '#include "<名前>.c"' tests/` の両方。
-- **`src/` の `.c` を丸ごと `#include` するテストが 5 本ある**（`save_bool_test`・
-  `store_save_test`・`savefile_version_test` は `save.c`、`haggle_comment_test` は `store_haggle.c`、
+- **`src/` の `.c` を丸ごと `#include` するテストが 6 本ある**（`save_bool_test`・
+  `store_save_test`・`savefile_version_test`・`savefile_layout_test` は `save.c`、`haggle_comment_test` は `store_haggle.c`、
   `movement_rate_test` は `creature.c`）。その `.c` の名前はテスト自身が定義するので、
   `link_units.py --who` には出ない。代役側の同名定義とも衝突する。
 - **`static` な実体と、代役側の非 `static` な同名定義は multiple definition に
@@ -308,8 +308,8 @@ rm -f scores.dat /tmp/probe.sav
 - **一致だけでは「その道を通っていない」と区別できない。** 窓口の中身を壊した
   変異の binary も並べ、変異だけが違うことを見る。
 - **起動の確認は、通す入力で捕まえる件数が変わる**（→ `findings.md` の所見 39）。
-- **セーブファイルの並びを守るテストは無い**（台帳 #49）。`save.c` を触るときは、
-  `wr_*` / `rd_*` の呼びだしを順番どおりに並べて変更前と `diff` する。
+- **セーブファイルの並びは `savefile_layout_test` が守る**（台帳 #49）。項目を足すときは、
+  その表（`expect_*` の並び）にも同じ位置で足す。古い版を読む分岐と復活の道は守っていない。
 - `save.c` の `SAVE_LOG(...)` は空に展開されるデバッグ用。
 
 **数字と報告**
