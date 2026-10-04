@@ -42,7 +42,10 @@ void signals(void) {}
 
 /* 終了処理（death.c） */
 _Noreturn void exit_game(void) { (void)fflush(NULL); abort(); }
-int32_t total_points(void) { stub_unreached(__func__); }
+/* sv_write() が書く得点。テストが決める（savefile_layout_test）。 */
+static int32_t stub_total_points;
+int32_t total_points(void) { return stub_total_points; }
+void save_stubs_set_total_points(int32_t points) { stub_total_points = points; }
 
 /* プレイヤーの状態更新（inven_ops.c / player_bonuses.c / rest_command.c） */
 void check_strength(void) {}
