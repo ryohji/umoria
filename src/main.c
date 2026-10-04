@@ -16,6 +16,7 @@
 #include "externs.h"
 #include "input_ended.h"
 #include "inventory.h"
+#include "item_flags.h"
 #include "monster_levels.h"
 #include "object_levels.h"
 #include "options.h"
@@ -252,7 +253,7 @@ static void char_inven_init(void) {
         store_bought(&inven_init);
         // must set this bit to display tohit/todam for stiletto
         if (inven_init.tval == TV_SWORD) {
-            inven_init.ident |= ID_SHOW_HITDAM;
+            item_show_hit_dam(&inven_init);
         }
         (void)inven_carry(&inven_init);
     }
