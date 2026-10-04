@@ -16,6 +16,7 @@
 #include "externs.h"
 
 #include "inventory.h"
+#include "item_flags.h"
 #include "item_ident.h"
 #include "progress.h"
 #include "str_insert.h"
@@ -110,17 +111,17 @@ void known1(inven_type *i_ptr) {
     item_kind_mark_known(i_ptr);
 }
 
-int known1_p(inven_type *i_ptr) {
+bool known1_p(inven_type *i_ptr) {
     // Items which don't have a 'color' are always known1,
     // so that they can be carried in order in the inventory.
     if (!item_kind_has_record(i_ptr)) {
-        return OD_KNOWN1;
+        return true;
     }
     if (store_bought_p(i_ptr)) {
-        return OD_KNOWN1;
+        return true;
     }
 
-    return item_kind_is_known(i_ptr) ? OD_KNOWN1 : 0;
+    return item_kind_is_known(i_ptr);
 }
 
 // Remove "Secret" symbol for identity of plusses
@@ -129,8 +130,8 @@ void known2(inven_type *i_ptr) {
     i_ptr->ident |= ID_KNOWN2;
 }
 
-int known2_p(inven_type *i_ptr) {
-    return (i_ptr->ident & ID_KNOWN2);
+bool known2_p(inven_type *i_ptr) {
+    return (i_ptr->ident & ID_KNOWN2) != 0;
 }
 
 void clear_known2(inven_type *i_ptr) {
@@ -146,8 +147,8 @@ void store_bought(inven_type *i_ptr) {
     known2(i_ptr);
 }
 
-int store_bought_p(inven_type *i_ptr) {
-    return (i_ptr->ident & ID_STOREBOUGHT);
+bool store_bought_p(inven_type *i_ptr) {
+    return (i_ptr->ident & ID_STOREBOUGHT) != 0;
 }
 
 // Remove an automatically generated inscription. -CJS-
@@ -437,7 +438,7 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
         }
         if (known2_p(i_ptr)) {
             // originally used %+d, but several machines don't support it
-            if (i_ptr->ident & ID_SHOW_HITDAM) {
+            if (item_shows_hit_dam(i_ptr)) {
                 (void)sprintf(tmp_str, " (%c%d,%c%d)",
                               (i_ptr->tohit < 0) ? '-' : '+', abs(i_ptr->tohit),
                               (i_ptr->todam < 0) ? '-' : '+', abs(i_ptr->todam));
@@ -467,9 +468,9 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
         }
 
         // override defaults, check for p1 flags in the ident field
-        if (i_ptr->ident & ID_NOSHOW_P1) {
+        if (item_hides_p1(i_ptr)) {
             p1_use = IGNORED;
-        } else if (i_ptr->ident & ID_SHOW_P1) {
+        } else if (item_shows_p1(i_ptr)) {
             p1_use = Z_PLUSSES;
         }
         tmp_str[0] = '\0';
@@ -529,14 +530,14 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
         if (item_kind_was_tried(i_ptr) && !store_bought_p(i_ptr)) {
             (void)strcat(tmp_str, "tried ");
         }
-        if (i_ptr->ident & (ID_MAGIK | ID_EMPTY | ID_DAMD)) {
-            if (i_ptr->ident & ID_MAGIK) {
+        if (item_has_any_note(i_ptr)) {
+            if (item_noted_magical(i_ptr)) {
                 (void)strcat(tmp_str, "magik ");
             }
-            if (i_ptr->ident & ID_EMPTY) {
+            if (item_noted_empty(i_ptr)) {
                 (void)strcat(tmp_str, "empty ");
             }
-            if (i_ptr->ident & ID_DAMD) {
+            if (item_noted_damned(i_ptr)) {
                 (void)strcat(tmp_str, "damned ");
             }
         }

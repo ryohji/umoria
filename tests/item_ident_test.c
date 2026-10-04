@@ -212,7 +212,7 @@ TEST(experience_gain_is_added_to_existing_experience)
 TEST(item_prepared_by_fixture_starts_unknown)
 {
     given_unknown_item(5, 1);
-    ASSERT_EQ_INT(known1_p(inventory_at(0)), 0);
+    ASSERT_FALSE(known1_p(inventory_at(0)));
 }
 
 /* ident が真で未鑑定なら identify() が呼ばれ、既知になる。 */
@@ -220,7 +220,7 @@ TEST(unknown_item_becomes_known_when_effect_is_identified)
 {
     given_unknown_item(5, 1);
     apply_ident(true, 0);
-    ASSERT_EQ_INT(known1_p(inventory_at(0)), OD_KNOWN1);
+    ASSERT_TRUE(known1_p(inventory_at(0)));
 }
 
 /* すでに既知なら経験値はつかない。二重取得を防ぐ分岐。 */
@@ -247,7 +247,7 @@ TEST(already_known_item_stays_known_after_identifying_effect)
     given_unknown_item(5, 1);
     identify(&(int){0});
     apply_ident(true, 0);
-    ASSERT_EQ_INT(known1_p(inventory_at(0)), OD_KNOWN1);
+    ASSERT_TRUE(known1_p(inventory_at(0)));
 }
 
 /* ------------------------------------------------------------------
@@ -287,7 +287,7 @@ TEST(item_stays_unknown_when_effect_is_not_identified)
 {
     given_unknown_item(5, 1);
     apply_ident(false, 0);
-    ASSERT_EQ_INT(known1_p(inventory_at(0)), 0);
+    ASSERT_FALSE(known1_p(inventory_at(0)));
 }
 
 /* 既知のアイテムには sample() が呼ばれない（else if の条件が偽）。
@@ -322,7 +322,7 @@ TEST(two_kinds_of_the_same_sort_keep_separate_records)
     inven_type *untried = given_a_kind_of_item(1, TV_SCROLL1, ITEM_SINGLE_STACK_MIN + 1);
     sample(tried);
     ASSERT_FALSE(item_kind_was_tried(untried));
-    ASSERT_EQ_INT(known1_p(untried), 0);
+    ASSERT_FALSE(known1_p(untried));
 }
 
 /* 種類が違えば、同じ番号でも別の枠（6 ビット左へずらすのがこのため）。
@@ -343,7 +343,7 @@ TEST(the_stacking_bit_of_the_number_does_not_choose_the_record)
     inven_type *stacking = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
     inven_type *plain = given_a_kind_of_item(1, TV_SCROLL1, 0);
     known1(stacking);
-    ASSERT_EQ_INT(known1_p(plain), OD_KNOWN1);
+    ASSERT_TRUE(known1_p(plain));
 }
 
 /* 表の 7 並びのいちばん上（食べ物、7 つめの群）も枠を持つ。ここが落ちると
@@ -360,7 +360,7 @@ TEST(the_last_sort_of_the_table_has_records_of_its_own)
 TEST(a_sort_with_no_record_is_always_known)
 {
     inven_type *sword = given_a_kind_of_item(0, TV_SWORD, 0);
-    ASSERT_EQ_INT(known1_p(sword), OD_KNOWN1);
+    ASSERT_TRUE(known1_p(sword));
 }
 
 /* 食べ物は番号で分かれる。MAX_MUSH（22）以上はキノコではないので枠を
@@ -368,14 +368,14 @@ TEST(a_sort_with_no_record_is_always_known)
 TEST(food_above_the_mushroom_range_has_no_record_and_is_always_known)
 {
     inven_type *bread = given_a_kind_of_item(0, TV_FOOD, MAX_MUSH);
-    ASSERT_EQ_INT(known1_p(bread), OD_KNOWN1);
+    ASSERT_TRUE(known1_p(bread));
 }
 
 /* 三角測量：同じ食べ物でも MAX_MUSH の 1 つ下なら枠を持つので未鑑定。 */
 TEST(food_inside_the_mushroom_range_has_a_record_and_starts_unknown)
 {
     inven_type *mushroom = given_a_kind_of_item(0, TV_FOOD, MAX_MUSH - 1);
-    ASSERT_EQ_INT(known1_p(mushroom), 0);
+    ASSERT_FALSE(known1_p(mushroom));
 }
 
 /* 店で買った品は**表を引かずに**既知（店は品名を言うので）。枠は未鑑定の
@@ -385,8 +385,8 @@ TEST(a_store_bought_item_is_known_without_marking_its_record)
     inven_type *bought = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
     inven_type *found = given_a_kind_of_item(1, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
     store_bought(bought);
-    ASSERT_EQ_INT(known1_p(bought), OD_KNOWN1);
-    ASSERT_EQ_INT(known1_p(found), 0);
+    ASSERT_TRUE(known1_p(bought));
+    ASSERT_FALSE(known1_p(found));
 }
 
 /* 鑑定は「試した」を落とす（両方の印が同じ枠の別のビットにある）。
@@ -416,7 +416,7 @@ TEST(marking_a_kind_known_through_the_window_is_seen_by_the_old_reader)
 {
     inven_type *i_ptr = given_a_kind_of_item(0, TV_SCROLL1, ITEM_SINGLE_STACK_MIN);
     item_kind_mark_known(i_ptr);
-    ASSERT_EQ_INT(known1_p(i_ptr), OD_KNOWN1);
+    ASSERT_TRUE(known1_p(i_ptr));
 }
 
 /* 逆向き：desc.c が立てた「試した」印が窓口からも見える。 */

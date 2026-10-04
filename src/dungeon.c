@@ -24,6 +24,7 @@
 #include "input_ended.h"
 #include "inven_command_state.h"
 #include "inventory.h"
+#include "item_flags.h"
 #include "level_exit.h"
 #include "monster_list.h"
 #include "monster_breeding.h"
@@ -1614,7 +1615,7 @@ static bool enchanted(inven_type *t_ptr) {
     if (known2_p(t_ptr)) {
         return false;
     }
-    if (t_ptr->ident & ID_MAGIK) {
+    if (item_noted_magical(t_ptr)) {
         return false;
     }
     if (t_ptr->tohit > 0 || t_ptr->todam > 0 || t_ptr->toac > 0) {

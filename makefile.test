@@ -45,7 +45,7 @@ BUILDDIR = $(TESTDIR)/build
 # 対象を増やすときは、ここに <name>_test を足す。tests/ の足場（代役・
 # fixture）を一緒にリンクするなら、下の「足場の表」に 1 行書く。src/ の
 # .c はどこにも書かない（libcore.a からリンカが要るものだけを引く）。
-TESTS = distance_test geometry_test los_test device_chance_test item_ident_test inven_stack_test \
+TESTS = distance_test geometry_test los_test device_chance_test item_ident_test item_flags_test inven_stack_test \
         armor_selection_test \
         put_misc3_test haggle_comment_test movement_rate_test \
         stat_bonus_test objdes_test creature_iterator_test save_bool_test savefile_layout_test \

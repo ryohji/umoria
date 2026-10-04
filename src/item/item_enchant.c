@@ -19,6 +19,7 @@
 
 #include "externs.h"
 #include "floor_items.h"
+#include "item_flags.h"
 #include "missile_serial.h"
 
 static int m_bonus(int, int, int);
@@ -90,7 +91,7 @@ void magic_treasure(int x, int level) {
         break;
     case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
         // always show tohit/todam values if identified
-        t_ptr->ident |= ID_SHOW_HITDAM;
+        item_show_hit_dam(t_ptr);
         if (magik(chance)) {
             t_ptr->tohit += m_bonus(0, 40, level);
 
@@ -185,7 +186,7 @@ void magic_treasure(int x, int level) {
 
     case TV_BOW:
         // always show tohit/todam values if identified
-        t_ptr->ident |= ID_SHOW_HITDAM;
+        item_show_hit_dam(t_ptr);
         if (magik(chance)) {
             t_ptr->tohit += m_bonus(1, 30, level);
             t_ptr->todam += m_bonus(1, 20, level); // add damage. -CJS-
@@ -198,7 +199,7 @@ void magic_treasure(int x, int level) {
         break;
     case TV_DIGGING:
         // always show tohit/todam values if identified
-        t_ptr->ident |= ID_SHOW_HITDAM;
+        item_show_hit_dam(t_ptr);
         if (magik(chance)) {
             tmp = randint(3);
             if (tmp < 3) {
@@ -220,7 +221,7 @@ void magic_treasure(int x, int level) {
                     t_ptr->name2 = SN_FREE_ACTION;
                     t_ptr->cost += 1000;
                 } else {
-                    t_ptr->ident |= ID_SHOW_HITDAM;
+                    item_show_hit_dam(t_ptr);
                     t_ptr->tohit += 1 + randint(3);
                     t_ptr->todam += 1 + randint(3);
                     t_ptr->name2 = SN_SLAYING;
@@ -236,7 +237,7 @@ void magic_treasure(int x, int level) {
                     t_ptr->flags |= TR_STR;
                     t_ptr->name2 = SN_WEAKNESS;
                 }
-                t_ptr->ident |= ID_SHOW_P1;
+                item_show_p1(t_ptr);
                 t_ptr->p1 = -m_bonus(1, 10, level);
             }
             t_ptr->toac -= m_bonus(1, 40, level);
@@ -256,13 +257,13 @@ void magic_treasure(int x, int level) {
                 } else if (tmp == 1) {
                     t_ptr->flags |= TR_SPEED;
                     t_ptr->name2 = SN_SPEED;
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     t_ptr->p1 = 1;
                     t_ptr->cost += 5000;
                 } else // 2 - 5
                 {
                     t_ptr->flags |= TR_STEALTH;
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     t_ptr->p1 = randint(3);
                     t_ptr->name2 = SN_STEALTH;
                     t_ptr->cost += 500;
@@ -273,7 +274,7 @@ void magic_treasure(int x, int level) {
             if (tmp == 1) {
                 t_ptr->flags |= TR_SPEED;
                 t_ptr->name2 = SN_SLOWNESS;
-                t_ptr->ident |= ID_SHOW_P1;
+                item_show_p1(t_ptr);
                 t_ptr->p1 = -1;
             } else if (tmp == 2) {
                 t_ptr->flags |= TR_AGGRAVATE;
@@ -298,7 +299,7 @@ void magic_treasure(int x, int level) {
             if (magik(special)) {
                 if (t_ptr->subval < 6) {
                     tmp = randint(3);
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     if (tmp == 1) {
                         t_ptr->p1 = randint(2);
                         t_ptr->flags |= TR_INT;
@@ -318,35 +319,35 @@ void magic_treasure(int x, int level) {
                 } else {
                     switch (randint(6)) {
                     case 1:
-                        t_ptr->ident |= ID_SHOW_P1;
+                        item_show_p1(t_ptr);
                         t_ptr->p1 = randint(3);
                         t_ptr->flags |= (TR_FREE_ACT | TR_CON | TR_DEX | TR_STR);
                         t_ptr->name2 = SN_MIGHT;
                         t_ptr->cost += 1000 + t_ptr->p1 * 500;
                         break;
                     case 2:
-                        t_ptr->ident |= ID_SHOW_P1;
+                        item_show_p1(t_ptr);
                         t_ptr->p1 = randint(3);
                         t_ptr->flags |= (TR_CHR | TR_WIS);
                         t_ptr->name2 = SN_LORDLINESS;
                         t_ptr->cost += 1000 + t_ptr->p1 * 500;
                         break;
                     case 3:
-                        t_ptr->ident |= ID_SHOW_P1;
+                        item_show_p1(t_ptr);
                         t_ptr->p1 = randint(3);
                         t_ptr->flags |= (TR_RES_LIGHT | TR_RES_COLD | TR_RES_ACID | TR_RES_FIRE | TR_INT);
                         t_ptr->name2 = SN_MAGI;
                         t_ptr->cost += 3000 + t_ptr->p1 * 500;
                         break;
                     case 4:
-                        t_ptr->ident |= ID_SHOW_P1;
+                        item_show_p1(t_ptr);
                         t_ptr->p1 = randint(3);
                         t_ptr->flags |= TR_CHR;
                         t_ptr->name2 = SN_BEAUTY;
                         t_ptr->cost += 750;
                         break;
                     case 5:
-                        t_ptr->ident |= ID_SHOW_P1;
+                        item_show_p1(t_ptr);
                         t_ptr->p1 = 5 * (1 + randint(4));
                         t_ptr->flags |= (TR_SEE_INVIS | TR_SEARCH);
                         t_ptr->name2 = SN_SEEING;
@@ -367,13 +368,13 @@ void magic_treasure(int x, int level) {
             if (magik(special)) {
                 switch (randint(7)) {
                 case 1:
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     t_ptr->p1 = -randint(5);
                     t_ptr->flags |= TR_INT;
                     t_ptr->name2 = SN_STUPIDITY;
                     break;
                 case 2:
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     t_ptr->p1 = -randint(5);
                     t_ptr->flags |= TR_WIS;
                     t_ptr->name2 = SN_DULLNESS;
@@ -387,7 +388,7 @@ void magic_treasure(int x, int level) {
                     t_ptr->name2 = SN_TIMIDNESS;
                     break;
                 case 5:
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     t_ptr->p1 = -randint(5);
                     t_ptr->flags |= TR_STR;
                     t_ptr->name2 = SN_WEAKNESS;
@@ -397,7 +398,7 @@ void magic_treasure(int x, int level) {
                     t_ptr->name2 = SN_TELEPORTATION;
                     break;
                 case 7:
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     t_ptr->p1 = -randint(5);
                     t_ptr->flags |= TR_CHR;
                     t_ptr->name2 = SN_UGLINESS;
@@ -467,10 +468,10 @@ void magic_treasure(int x, int level) {
             }
             break;
         case 24: case 25: case 26: case 27: case 28: case 29:
-            t_ptr->ident |= ID_NOSHOW_P1;
+            item_hide_p1(t_ptr);
             break;
         case 30: // Slaying
-            t_ptr->ident |= ID_SHOW_HITDAM;
+            item_show_hit_dam(t_ptr);
             t_ptr->todam += m_bonus(1, 25, level);
             t_ptr->tohit += m_bonus(1, 25, level);
             t_ptr->cost += (t_ptr->tohit + t_ptr->todam) * 100;
@@ -683,7 +684,7 @@ void magic_treasure(int x, int level) {
                     t_ptr->cost += 250;
                 } else {
                     t_ptr->toac += m_bonus(1, 20, level);
-                    t_ptr->ident |= ID_SHOW_P1;
+                    item_show_p1(t_ptr);
                     t_ptr->p1 = randint(3);
                     t_ptr->flags |= TR_STEALTH;
                     t_ptr->name2 = SN_STEALTH;
@@ -698,7 +699,7 @@ void magic_treasure(int x, int level) {
                 t_ptr->flags |= TR_AGGRAVATE;
                 t_ptr->name2 = SN_IRRITATION;
                 t_ptr->toac -= m_bonus(1, 10, level);
-                t_ptr->ident |= ID_SHOW_HITDAM;
+                item_show_hit_dam(t_ptr);
                 t_ptr->tohit -= m_bonus(1, 10, level);
                 t_ptr->todam -= m_bonus(1, 10, level);
                 t_ptr->cost = 0;
@@ -709,7 +710,7 @@ void magic_treasure(int x, int level) {
             } else {
                 t_ptr->name2 = SN_ENVELOPING;
                 t_ptr->toac -= m_bonus(1, 10, level);
-                t_ptr->ident |= ID_SHOW_HITDAM;
+                item_show_hit_dam(t_ptr);
                 t_ptr->tohit -= m_bonus(2, 40, level + 10);
                 t_ptr->todam -= m_bonus(2, 40, level + 10);
                 t_ptr->cost = 0;
@@ -762,7 +763,7 @@ void magic_treasure(int x, int level) {
         if (t_ptr->tval == TV_SLING_AMMO || t_ptr->tval == TV_BOLT ||
             t_ptr->tval == TV_ARROW) {
             // always show tohit/todam values if identified
-            t_ptr->ident |= ID_SHOW_HITDAM;
+            item_show_hit_dam(t_ptr);
 
             if (magik(chance)) {
                 t_ptr->tohit += m_bonus(1, 35, level);

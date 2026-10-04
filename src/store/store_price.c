@@ -15,6 +15,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "item_flags.h"
 #include "player_race.h"
 #include "stores.h"
 
@@ -27,7 +28,7 @@ int32_t item_value(inven_type *i_ptr) {
     int32_t value = i_ptr->cost;
 
     // don't purchase known cursed items
-    if (i_ptr->ident & ID_DAMD) {
+    if (item_noted_damned(i_ptr)) {
         value = 0;
     } else if (((i_ptr->tval >= TV_BOW) && (i_ptr->tval <= TV_SWORD)) || ((i_ptr->tval >= TV_BOOTS) && (i_ptr->tval <= TV_SOFT_ARMOR))) {
         // Weapons and armor
