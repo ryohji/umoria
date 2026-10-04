@@ -22,7 +22,7 @@ SRC_SUBDIRS = core data player monster dungeon item store combat ui save platfor
 SRCS = main.c ui/files.c ui/io.c \
 	player/create.c item/desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c save/death.c \
 	item/eat.c ui/help.c item/magic.c item/potions.c item/prayer.c save/save.c item/staffs.c item/wands.c item/device.c \
-	item/item_ident.c item/item_learn.c player/abilities.c data/options.c ui/messages.c \
+	item/item_ident.c item/item_learn.c item/item_flags.c player/abilities.c data/options.c ui/messages.c \
 	item/scrolls.c item/spells.c ui/wizard.c platform/signals.c platform/signal_flags.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c game_state.c \
 	ui/input.c platform/input_ncurses.c platform/platform.c ui/panel.c ui/map_view.c store/stores.c store/store_price.c store/store_stock.c store/store_ui.c store/store_haggle.c player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
