@@ -9,7 +9,9 @@
  * 保存するすべての項目に、ほかと重ならない値を窓口から入れて sv_write() で書き、
  * できたバイト列を頭から「項目名・幅・値」の表で読んで突きあわせる。表はいまの
  * 並びを写したもので、書き手と読み手を同じ向きに入れかえても赤になる
- * （往復させるだけのテストでは通ってしまう）。
+ * （往復させるだけのテストでは通ってしまう）。往復のテストは読み手だけの誤りを
+ * 受けもつ：読む前に全部を別の値で塗りつぶし、get_char() で読み、書きなおしたものを
+ * 同じ表で読む。
  *
  * 書き手は save.c の static 関数なので、このテストが src/save/save.c を #include する。
  * XOR の難読化は wr_byte() が 1 つ前に書いたバイトとの XOR を書く形なので、
@@ -119,17 +121,19 @@ static void expect_end(void)
 /* --- 書く側の状態 --------------------------------------------------------- */
 
 /* 項目ごとに番号 i を振り、幅ごとにほかと重ならない値にする。入れる側と
- * 突きあわせる側が同じ番号を使う。 */
-#define B(i) ((uint8_t)(0x40 + (i)))
-#define W(i) ((uint16_t)(0x2000 + (i)))
-#define L(i) ((uint32_t)(0x30000000u + (i)))
+ * 突きあわせる側が同じ番号を使う。shift をずらすと全部の値が別の値になる
+ * （往復のテストが、読む前の状態を塗りつぶすのに使う）。 */
+static int shift;
+#define B(i) ((uint8_t)(0x40 + (i) + shift))
+#define W(i) ((uint16_t)(0x2000 + (i) + shift))
+#define L(i) ((uint32_t)(0x30000000u + (i) + shift))
 
 /* 品物は 19 項目。seed は 20 ずつ離して使う。 */
 static void fill_item(inven_type *t, int seed)
 {
     t->index = W(seed);
     t->name2 = B(seed + 1);
-    (void)snprintf(t->inscrip, sizeof t->inscrip, "i%d", seed);
+    (void)snprintf(t->inscrip, sizeof t->inscrip, "i%d", seed + shift);
     t->flags = L(seed + 2);
     t->tval = B(seed + 3);
     t->tchar = B(seed + 4);
@@ -151,7 +155,7 @@ static void fill_item(inven_type *t, int seed)
 static void expect_item(int seed)
 {
     char inscrip[16];
-    (void)snprintf(inscrip, sizeof inscrip, "i%d", seed);
+    (void)snprintf(inscrip, sizeof inscrip, "i%d", seed + shift);
     expect_short("item.index", W(seed));
     expect_byte("item.name2", B(seed + 1));
     expect_string("item.inscrip", inscrip);
@@ -230,7 +234,9 @@ static const player_timed_effect timed_after_speed[14] = {
 
 static void fill_player(void)
 {
-    player_name_set("Tester");
+    char name[16];
+    (void)snprintf(name, sizeof name, "Tester%d", shift);
+    player_name_set(name);
     player_set_male(true);
     player_set_gold((int32_t)L(100));
     player_set_max_experience((int32_t)L(101));
@@ -266,7 +272,7 @@ static void fill_player(void)
     player_set_hp_fraction(W(130));
     for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
         char line[16];
-        (void)snprintf(line, sizeof line, "history %d", i);
+        (void)snprintf(line, sizeof line, "history %d", (i + shift) % 100);
         player_history_line_set(i, line);
     }
     for (int i = 0; i < 6; i++) {
@@ -299,7 +305,9 @@ static void fill_player(void)
 
 static void expect_player(void)
 {
-    expect_string("name", "Tester");
+    char name[16];
+    (void)snprintf(name, sizeof name, "Tester%d", shift);
+    expect_string("name", name);
     expect_byte("male", 1);
     expect_long("gold", L(100));
     expect_long("max_exp", L(101));
@@ -338,7 +346,7 @@ static void expect_player(void)
     expect_short("hp_fraction", W(130));
     for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
         char line[16];
-        (void)snprintf(line, sizeof line, "history %d", i);
+        (void)snprintf(line, sizeof line, "history %d", (i + shift) % 100);
         expect_string("history", line);
     }
     for (int i = 0; i < 6; i++) {
@@ -404,7 +412,7 @@ static void fill_rest(void)
     progress_set_town_seed(L(208));
     msg_history_set_newest_slot(W(209) & 0x0F);
     for (int i = 0; i < msg_history_slot_count(); i++) {
-        (void)snprintf(msg_history_slot(i), 16, "message %d", i % 100);
+        (void)snprintf(msg_history_slot(i), 16, "message %d", (i + shift) % 100);
     }
     set_panic_save(true);
     set_player_has_won(true);
@@ -426,12 +434,12 @@ static void fill_rest(void)
             fill_item(&st->store_inven[j].sitem, 700 + 60 * i + 20 * j);
         }
     }
-    (void)strcpy(death_cause(), "a layout test");
+    (void)snprintf(death_cause(), 32, "a layout test %d", shift);
     save_stubs_set_total_points((int32_t)L(400));
     set_character_birth_date((int32_t)L(401));
 }
 
-static void expect_rest(uint32_t before, uint32_t after)
+static void expect_rest(uint32_t before, uint32_t after, const char *cause)
 {
     expect_short("missile_serial", W(200));
     expect_long("turn", L(201));
@@ -458,7 +466,7 @@ static void expect_rest(uint32_t before, uint32_t after)
     expect_short("newest message slot", W(209) & 0x0F);
     for (int i = 0; i < msg_history_slot_count(); i++) {
         char text[16];
-        (void)snprintf(text, sizeof text, "message %d", i % 100);
+        (void)snprintf(text, sizeof text, "message %d", (i + shift) % 100);
         expect_string("message", text);
     }
     expect_short("panic save", 1);
@@ -481,7 +489,7 @@ static void expect_rest(uint32_t before, uint32_t after)
         }
     }
     expect_time("time saved", before, after);
-    expect_string("death cause", "a layout test");
+    expect_string("death cause", cause);
     expect_long("total points", L(400));
     expect_long("birth date", L(401));
 }
@@ -607,6 +615,13 @@ static void expect_level(void)
 
 /* --- テスト ---------------------------------------------------------------- */
 
+static const char *cause_written(void)
+{
+    static char cause[32];
+    (void)snprintf(cause, sizeof cause, "a layout test %d", shift);
+    return cause;
+}
+
 /* 選択肢の 11 ビット。どの選択肢がどのビットかは options.c が決めるので、ここでは
  * 「読んだ値が書いた値に戻る」形で決める。 */
 #define OPTION_BITS 0x2A5u
@@ -635,7 +650,7 @@ TEST(dead_character_file_has_every_field_in_order) {
     bool ok = write_and_decode();
     uint32_t after = (uint32_t)time(NULL);
     expect_head(true);
-    expect_rest(before, after);
+    expect_rest(before, after, cause_written());
     expect_end();
     ASSERT_EQ_STR(ok ? first_mismatch : "sv_write() failed", "");
 }
@@ -647,15 +662,80 @@ TEST(living_character_file_has_every_field_in_order) {
     bool ok = write_and_decode();
     uint32_t after = (uint32_t)time(NULL);
     expect_head(false);
-    expect_rest(before, after);
+    expect_rest(before, after, cause_written());
     expect_level();
     expect_end();
     ASSERT_EQ_STR(ok ? first_mismatch : "sv_write() failed", "");
+}
+
+/* 名前つきの一時ファイルに、_save_char() と同じ頭の 4 バイト（版の 3 バイトと、
+ * 0 にした種）と sv_write() の中身を書く。 */
+static bool write_save_file(const char *path)
+{
+    fileptr = fopen(path, "wb");
+    if (fileptr == NULL) {
+        return false;
+    }
+    xor_byte = 0;
+    wr_byte((uint8_t)CUR_VERSION_MAJ);
+    xor_byte = 0;
+    wr_byte((uint8_t)CUR_VERSION_MIN);
+    xor_byte = 0;
+    wr_byte((uint8_t)PATCH_LEVEL);
+    xor_byte = 0;
+    wr_byte(0);
+    start_time = 0;
+    bool ok = sv_write();
+    ok = (fclose(fileptr) == 0) && ok;
+    fileptr = NULL;
+    return ok;
+}
+
+/* 往復：値 A で書いたファイルを、全部を値 B で塗りつぶした状態に get_char() で読み、
+ * もう一度書いたものを値 A の表で読む。読み手が拾いわすれた項目は B のまま残って赤になる。
+ * 生きている人物の死因は、読んだあと get_char() が "(alive and well)" に書きかえる。 */
+TEST(living_character_round_trips_through_get_char) {
+    char path[64];
+    (void)snprintf(path, sizeof path, "/tmp/savefile_layout_test_%ld", (long)getpid());
+
+    shift = 0;
+    fill_all(false);
+    bool written = write_save_file(path);
+
+    shift = 7;
+    fill_all(false);
+    progress_set_turn(-1); /* まだ遊んでいない（読む前の本体と同じ） */
+    (void)strcpy(save_file_path(), path);
+    bool generate = true;
+    bool read = get_char(&generate);
+    (void)unlink(path);
+
+    /* 書くときの得点は total_points() の答えで、読むと「これまでの最高点」に入る。
+     * 書きなおす前に代役の答えを値 A に戻し、最高点は別に見る。 */
+    shift = 0;
+    bool best_restored = best_score_so_far() == (int32_t)L(400);
+    save_stubs_set_total_points((int32_t)L(400));
+    uint32_t before = (uint32_t)time(NULL);
+    bool rewritten = write_and_decode();
+    uint32_t after = (uint32_t)time(NULL);
+    expect_head(false);
+    expect_rest(before, after, "(alive and well)");
+    expect_level();
+    expect_end();
+
+    const char *problem = !written ? "writing the file failed"
+                          : !read  ? "get_char() failed"
+                          : generate ? "get_char() asked for a new level"
+                          : !best_restored ? "best score not restored"
+                          : !rewritten ? "sv_write() failed"
+                                       : first_mismatch;
+    ASSERT_EQ_STR(problem, "");
 }
 
 int main(void)
 {
     RUN_TEST(dead_character_file_has_every_field_in_order);
     RUN_TEST(living_character_file_has_every_field_in_order);
+    RUN_TEST(living_character_round_trips_through_get_char);
     return TEST_SUMMARY();
 }

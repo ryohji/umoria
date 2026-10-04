@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 #include "stub_unreached.h"
 
@@ -32,9 +33,10 @@
 void put_qio(void) {}
 
 /* ファイル入出力の差しかえ層（io.c）。externs.h が fopen / open を
- * これらに置きかえている。テストは tmpfile() を使うので通らない。 */
-FILE *tfopen(const char *file, const char *mode) { stub_unreached(__func__); }
-int topen(char *file, int flags, int mode) { stub_unreached(__func__); }
+ * これらに置きかえている。ここは externs.h を引かないので、中で呼ぶのは本物。
+ * get_char() が名前でファイルを開くテスト（savefile_layout_test）が通る。 */
+FILE *tfopen(const char *file, const char *mode) { return fopen(file, mode); }
+int topen(char *file, int flags, int mode) { return open(file, flags, mode); }
 
 /* シグナル（signals.c） */
 void nosignals(void) {}
