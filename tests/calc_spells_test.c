@@ -53,8 +53,8 @@
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
 #include "spells_known.h"
+#include "stats.h"
 
-extern player_type py;
 
 /* 検証対象（src/item/spellbook.c）の宣言は externs.h から受ける。 */
 #include "externs.h"
@@ -78,7 +78,7 @@ extern player_type py;
  * 68〜87 が 4（ここから 1.5 倍）、88〜107 が 5、108〜117 が 6、118 以上が 7。
  * ------------------------------------------------------------------ */
 
-/* fixture_reset() は py を 0 で埋めるが、呪文の 4 個は消さない
+/* fixture_reset() は能力値を 0 にするが、呪文の 4 個は消さない
  * （置き場は src/player/spells_known.c で、代役の管轄ではない）。どのテストも同じ
  * 地点から始まるように、ここで 4 個とも自分で初期化する。覚えた順を
  * SPELL_NONE で埋めるのは main.c:256 がゲーム開始時にするのと同じこと。 */
@@ -93,14 +93,14 @@ static void given_no_spells_known(void) {
 static void given_a_mage_of_level(int level) {
     player_class_set(1); /* class[1] は Mage（MAGE 系・初級レベル 1） */
     player_set_level((uint16_t)level);
-    py.stats.use_stat[A_INT] = 18;
+    player_stat_set_use(A_INT, 18);
 }
 
 /* 賢さ 18（段 3 = 1 倍）の僧侶。言いかたが "prayer" になる。 */
 static void given_a_priest_of_level(int level) {
     player_class_set(2); /* class[2] は Priest（PRIEST 系・初級レベル 1） */
     player_set_level((uint16_t)level);
-    py.stats.use_stat[A_WIS] = 18;
+    player_stat_set_use(A_WIS, 18);
 }
 
 /* 覚えている呪文を 1 つ足す（覚えた順の末尾に積むところまで窓口がやる）。 */
@@ -161,7 +161,7 @@ TEST(a_character_at_the_limit_neither_learns_nor_forgets) {
 TEST(a_character_without_the_wits_for_it_may_keep_no_spells) {
     given_no_spells_known();
     given_a_mage_of_level(5);
-    py.stats.use_stat[A_INT] = 7; /* 段 0 */
+    player_stat_set_use(A_INT, 7); /* 段 0 */
     given_a_learned_spell(0);
 
     calc_spells(A_INT);
@@ -175,7 +175,7 @@ TEST(a_character_without_the_wits_for_it_may_keep_no_spells) {
 TEST(a_high_stat_allows_one_and_a_half_spells_per_level) {
     given_no_spells_known();
     given_a_mage_of_level(4);
-    py.stats.use_stat[A_INT] = 68; /* 段 4 → 3 * 4 / 2 = 6 個 */
+    player_stat_set_use(A_INT, 68); /* 段 4 → 3 * 4 / 2 = 6 個 */
 
     calc_spells(A_INT);
 
@@ -340,7 +340,7 @@ TEST(a_forgotten_spell_after_the_marker_is_reached_when_the_scan_is_longer) {
 TEST(the_number_to_learn_is_capped_by_the_spells_within_reach) {
     given_no_spells_known();
     given_a_mage_of_level(2);
-    py.stats.use_stat[A_INT] = 118; /* 段 7 → 5 * 2 / 2 = 5 枠 */
+    player_stat_set_use(A_INT, 118); /* 段 7 → 5 * 2 / 2 = 5 枠 */
 
     calc_spells(A_INT);
 

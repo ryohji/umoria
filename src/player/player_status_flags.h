@@ -25,7 +25,7 @@
 // same `status & PY_X` stands for four different kinds of fact.
 //
 //   1. A MARK THAT AN EFFECT IS IN FORCE (fourteen bits). Twelve of them pair
-//      with a counter in py.flags -- hero, shero, blind, confused, afraid,
+//      with a counter in player_timed_effects.h -- hero, shero, blind, confused, afraid,
 //      poisoned, fast, slow, invulnerability, blessing, see-invisible and
 //      infra-vision -- and two pair with the stomach (hungry, weak). The mark
 //      says "this has begun and has been announced", which is why the caller's
@@ -147,8 +147,8 @@ bool player_take_hp_redraw_request(void);
 void player_request_mana_redraw(void);
 bool player_take_mana_redraw_request(void);
 
-// The six stat requests. The caller names a stat by its index (0 to 5, the order
-// of py.stats), and the shift that turns an index into a bit stays in here --
+// The six stat requests. The caller names a stat by its index (0 to 5, A_STR
+// .. A_CHR), and the shift that turns an index into a bit stays in here --
 // constant.h's "these 6 stat flags must be adjacent" is now a fact about one
 // file instead of three.
 void player_request_stat_redraw(int stat);

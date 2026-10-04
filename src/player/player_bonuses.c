@@ -146,7 +146,7 @@ void calc_bonuses(void) {
     player_display_fold_to_ac();
 
     if (weapon_is_too_heavy()) {
-        player_display_add_to_hit(py.stats.use_stat[A_STR] * WEAPON_WEIGHT_PER_STR - equipment_at(INVEN_WIELD)->weight);
+        player_display_add_to_hit(player_stat_use(A_STR) * WEAPON_WEIGHT_PER_STR - equipment_at(INVEN_WIELD)->weight);
     }
 
     // Add in temporary spell increases

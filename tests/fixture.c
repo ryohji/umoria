@@ -17,12 +17,12 @@
 #include "item_ident.h"
 #include "player_level.h"
 #include "shared_stubs.h"
+#include "stats_reset.h"
 
-player_type py;         /* 本体では player.c（530行の巨大データと同居） */
 /* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
  * 要る。src/data/player.c をリンクする足場（tests/level_ops_fixture.c
- * などを使う側）は本物の 40 個を持っているが、この足場は py を自分で
- * 定義する = player.c と一緒にはリンクされないので、ここにも空の表を置く。 */
+ * などを使う側）は本物の 40 個を持っているが、この足場は player.c と一緒には
+ * リンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
  * しない。#18-5C で src/item/inventory.c が static で持つようになったので、
@@ -38,9 +38,9 @@ void fixture_reset(void)
     /* 持ち物と装備は 1 本の配列なので、跨ぎの窓口で全域を消す。 */
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
-    memset(&py, 0, sizeof py);
+    stats_reset();
     /* 階級と経験値の 5 つは #18-12-6C で src/player/player_level.c が static で
-     * 持つようになったので、py を消しても届かない。窓口越しに 0 へ戻す
+     * 持つようになったので、ここでは届かない。窓口越しに 0 へ戻す
      * （実体は初期化子なしの static なので、走りだしの値は 0 のまま）。 */
     player_set_level(0);
     player_set_experience(0);

@@ -22,13 +22,12 @@
 #include "fixture.h"
 #include "shared_stubs.h"
 #include "player_race.h"
+#include "stats_reset.h"
 
 /* 各テストの前に呼ぶ。 */
 void fixture_reset(void)
 {
-    extern player_type py;
-
-    memset(&py, 0, sizeof py);
+    stats_reset();
     player_race_set(0);
     shared_stubs_reset();
 }

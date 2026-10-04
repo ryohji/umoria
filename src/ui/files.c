@@ -31,6 +31,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_race.h"
+#include "stats.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later
@@ -204,27 +205,27 @@ bool file_character(char *filename1) {
 
         (void)fprintf(file1, " Name%9s %-23s", colon, player_name());
         (void)fprintf(file1, " Age%11s %6d", colon, player_age());
-        cnv_stat(py.stats.use_stat[A_STR], prt1);
+        cnv_stat(player_stat_use(A_STR), prt1);
         (void)fprintf(file1, "   STR : %s\n", prt1);
         (void)fprintf(file1, " Race%9s %-23s", colon, player_race_name());
         (void)fprintf(file1, " Height%8s %6d", colon, player_height());
-        cnv_stat(py.stats.use_stat[A_INT], prt1);
+        cnv_stat(player_stat_use(A_INT), prt1);
         (void)fprintf(file1, "   INT : %s\n", prt1);
         (void)fprintf(file1, " Sex%10s %-23s", colon, (player_is_male() ? "Male" : "Female"));
         (void)fprintf(file1, " Weight%8s %6d", colon, player_body_weight());
-        cnv_stat(py.stats.use_stat[A_WIS], prt1);
+        cnv_stat(player_stat_use(A_WIS), prt1);
         (void)fprintf(file1, "   WIS : %s\n", prt1);
         (void)fprintf(file1, " Class%8s %-23s", colon, player_class_title());
         (void)fprintf(file1, " Social Class : %6d", player_social_class());
-        cnv_stat(py.stats.use_stat[A_DEX], prt1);
+        cnv_stat(player_stat_use(A_DEX), prt1);
         (void)fprintf(file1, "   DEX : %s\n", prt1);
         (void)fprintf(file1, " Title%8s %-23s", colon, title_string());
         (void)fprintf(file1, "%22s", blank);
-        cnv_stat(py.stats.use_stat[A_CON], prt1);
+        cnv_stat(player_stat_use(A_CON), prt1);
         (void)fprintf(file1, "   CON : %s\n", prt1);
         (void)fprintf(file1, "%34s", blank);
         (void)fprintf(file1, "%26s", blank);
-        cnv_stat(py.stats.use_stat[A_CHR], prt1);
+        cnv_stat(player_stat_use(A_CHR), prt1);
         (void)fprintf(file1, "   CHR : %s\n\n", prt1);
 
         (void)fprintf(file1, " + To Hit    : %6d", player_display_to_hit());

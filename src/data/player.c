@@ -13,9 +13,6 @@
 #include "constant.h"
 #include "types.h"
 
-// Player record for most player related info
-player_type py;
-
 // Class titles for different levels
 const char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL] = {
     // Warrior

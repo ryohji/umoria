@@ -151,48 +151,38 @@ typedef struct inven_type {
 
 #define PLAYER_NAME_SIZE 27
 
-typedef struct player_type {
-    // Most player fields are in their own modules. Field names (from old code,
-    // notes, or the save file) and their locations:
-    //
-    //   struct misc
-    //     au                               player_gold.h
-    //     max_exp exp exp_frac lev expfact player_level.h
-    //     max_dlv                          player_max_depth.h
-    //     hitdie                           player_hit_die.h
-    //     pac ptoac                        player_armour_class.h
-    //     bth bthb                         player_base_to_hit.h
-    //     disarm                           player_disarm.h
-    //     save                             player_saving_throw.h
-    //     prace                            player_race.h
-    //     wt                               player_body_weight.h
-    //     ptohit ptodam                    player_attack_bonuses.h
-    //     srh fos                          player_search_skill.h
-    //     name male age ht sc history      player_bio.h
-    //     stl                              player_stealth.h
-    //     pclass                           player_class.h
-    //   struct flags
-    //     status (thirty bits)             player_status_flags.h
-    //     the seventeen equipment bytes    player_abilities.h
-    //     the eighteen counters            player_timed_effects.h
-    //     rest                             player_resting.h
-    //     speed                            player_speed.h
-    //     see_infra                        player_infra_range.h
-    //     confuse_monster                  player_glowing_hands.h
-    //     new_spells                       player_spells_to_learn.h
-    //     food food_digested               player_food.h
-    //     protection                       static in save.c
-
-    // Stats kept in arrays for efficient access. -CJS-
-    // Named `player_stat` to distinguish it from the bonus tables in stats.h.
-    // Accessed as `py.stats.use_stat[A_STR]`.
-    struct player_stat {
-        uint8_t max_stat[6]; // What is restored
-        uint8_t cur_stat[6]; // What is natural
-        int16_t mod_stat[6]; // What is modified, may be +/-
-        uint8_t use_stat[6]; // What is used
-    } stats;
-} player_type;
+// The player's state lives in modules of its own. Field names (from old code,
+// notes, or the save file) and their locations:
+//
+//   struct misc
+//     au                               player_gold.h
+//     max_exp exp exp_frac lev expfact player_level.h
+//     max_dlv                          player_max_depth.h
+//     hitdie                           player_hit_die.h
+//     pac ptoac                        player_armour_class.h
+//     bth bthb                         player_base_to_hit.h
+//     disarm                           player_disarm.h
+//     save                             player_saving_throw.h
+//     prace                            player_race.h
+//     wt                               player_body_weight.h
+//     ptohit ptodam                    player_attack_bonuses.h
+//     srh fos                          player_search_skill.h
+//     name male age ht sc history      player_bio.h
+//     stl                              player_stealth.h
+//     pclass                           player_class.h
+//   struct flags
+//     status (thirty-one bits)         player_status_flags.h
+//     the seventeen equipment bytes    player_abilities.h
+//     the eighteen counters            player_timed_effects.h
+//     rest                             player_resting.h
+//     speed                            player_speed.h
+//     see_infra                        player_infra_range.h
+//     confuse_monster                  player_glowing_hands.h
+//     new_spells                       player_spells_to_learn.h
+//     food food_digested               player_food.h
+//     protection                       static in save.c
+//   struct player_stat
+//     max_stat cur_stat mod_stat use_stat stats.h
 
 // spell name is stored in spell_names[] array at index i, +31 if priest
 typedef struct spell_type {

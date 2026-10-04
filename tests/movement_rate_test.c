@@ -32,9 +32,8 @@
 
 #include "fixture.h"
 
-/* 各テストの前に必ず呼ばれる。py がクリアされ、休息の残りも窓口越しに 0 に
- * 戻る（#18-12-10C。py の memset では module の static に届かないので、
- * tests/creature_stubs.c が player_rest_stop() を呼ぶ）。
+/* 各テストの前に必ず呼ばれる。能力値と休息の残りが窓口越しに 0 に戻る
+ * （tests/creature_stubs.c が stats_reset() と player_rest_stop() を呼ぶ）。
  * turn は意図的に触らないので、テストごとに代入して制御する。 */
 #define MU_SETUP() fixture_reset()
 

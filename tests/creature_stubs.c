@@ -40,6 +40,7 @@
 #include "player_resting.h"
 #include "player_status_flags.h"
 #include "shared_stubs.h"
+#include "stats_reset.h"
 #include "stub_unreached.h"
 
 /* --- グローバル状態 ---
@@ -48,9 +49,8 @@
  * src/data/progress.c の static である（#19C1。ここで定義しても窓口には届かない
  * 別の器になるだけ）。テストは progress_set_turn() で turn を動かす。 */
 
-player_type py;
 /* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
- * 要る。この足場は py を自分で定義する = src/data/player.c（本物の 40 個の持ち主）と
+ * 要る。この足場は src/data/player.c（本物の 40 個の持ち主）と
  * 一緒にはリンクされないので、ここにも空の表を置く。 */
 uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* マスの表（cave）もここに無い。#18-14-8C で置き場が src/dungeon/dungeon_map.c の
@@ -166,15 +166,15 @@ int known2_p(inven_type *i) { stub_unreached(__func__); }
  * （fixture_reset が値を決めると、テストの前提が見えなくなる）。 --- */
 void fixture_reset(void)
 {
-    memset(&py, 0, sizeof py);
+    stats_reset();
     /* 状態の旗は #18-12-7C で src/player/player_status_flags.c の static に入ったので、
-     * py を消しても届かない。セーブファイル用の窓口で 30 bit まとめて降ろす
+     * ここでは届かない。セーブファイル用の窓口で 30 bit まとめて降ろす
      * （creature.c が読むのは PY_BLIND と PY_SEARCH あたり）。 */
     player_set_status_word(0);
     /* 休息の残りターンも #18-12-10C で src/player/player_resting.c の static へ移った。
      * **movement_rate_test の 3 件がこの 0 戻しに頼っている** —— 1 件が
      * player_rest_set(1) を置き、次の件は「休んでいない」前提で始まる
-     * （py を memset しても module の static には届かない）。 */
+     * （module の static なので）。 */
     /* 赤外視の距離も #18-12-12C で src/player/player_infra_range.c の static へ移った。
      * creature.c の update_mon() が「距離のうちで、しかも温かいか」でモンスターを
      * 見せるかを決めるので、残った距離が次の件に漏れないように 0 に戻す

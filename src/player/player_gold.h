@@ -9,11 +9,8 @@
 #ifndef PLAYER_GOLD_H
 #define PLAYER_GOLD_H
 
-// One question, one module. `py` is a struct of eighty-odd fields answering
-// dozens of unrelated questions, so it is not being replaced by one module;
-// each question leaves it separately, and this is the first. The purse is the
-// smallest and the most independent of them: twenty-two places read or write
-// it, none of them alongside another field of the struct.
+// One question, one module. The purse is read and written on its own, never
+// alongside another of the player's values.
 
 // This is storage and only storage. The windows do not clamp, do not refuse a
 // negative, and do not guard against overflow, because the old code did none

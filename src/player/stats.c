@@ -16,6 +16,12 @@
 
 #include "stats.h"
 
+// The four values of each stat (see stats.h).
+static uint8_t max_stat[6];
+static uint8_t cur_stat[6];
+static int16_t mod_stat[6];
+static uint8_t use_stat[6];
+
 // A step in a stat-to-bonus table: `bonus` applies from `min_stat` upward,
 // until the next entry's `min_stat`. Entries must be in ascending order of
 // `min_stat`, and the first entry must be 0 so that every stat value matches.
@@ -49,7 +55,7 @@ int stat_adj(int stat) {
         {0, 0}, {8, 1}, {15, 2}, {18, 3}, {68, 4}, {88, 5}, {108, 6}, {118, 7},
     };
 
-    return lookup_stat_bonus(py.stats.use_stat[stat], by_stat, STAT_BONUS_STEPS(by_stat));
+    return lookup_stat_bonus(use_stat[stat], by_stat, STAT_BONUS_STEPS(by_stat));
 }
 
 // Adjustment for charisma -RAK-
@@ -66,12 +72,12 @@ int chr_adj(void) {
         {68, 96},  {88, 94},  {108, 92}, {118, 90},
     };
 
-    return lookup_stat_bonus(py.stats.use_stat[A_CHR], by_charisma, STAT_BONUS_STEPS(by_charisma));
+    return lookup_stat_bonus(use_stat[A_CHR], by_charisma, STAT_BONUS_STEPS(by_charisma));
 }
 
 // Returns a character's adjustment to hit points -JWT-
 int con_adj(void) {
-    int con = py.stats.use_stat[A_CON];
+    int con = use_stat[A_CON];
 
     if (con < 7) {
         return (con - 7);
@@ -100,8 +106,8 @@ int tohit_adj(void) {
         {0, -3}, {4, -2}, {5, -1}, {7, 0}, {18, 1}, {94, 2}, {109, 3}, {117, 4},
     };
 
-    return lookup_stat_bonus(py.stats.use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity)) +
-           lookup_stat_bonus(py.stats.use_stat[A_STR], by_strength, STAT_BONUS_STEPS(by_strength));
+    return lookup_stat_bonus(use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity)) +
+           lookup_stat_bonus(use_stat[A_STR], by_strength, STAT_BONUS_STEPS(by_strength));
 }
 
 // Returns a character's adjustment to armor class -JWT-
@@ -110,7 +116,7 @@ int toac_adj(void) {
         {0, -4}, {4, -3}, {5, -2}, {6, -1}, {7, 0}, {15, 1}, {18, 2}, {59, 3}, {94, 4}, {117, 5},
     };
 
-    return lookup_stat_bonus(py.stats.use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity));
+    return lookup_stat_bonus(use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity));
 }
 
 // Returns a character's adjustment to disarm -RAK-
@@ -122,7 +128,7 @@ int todis_adj(void) {
         {13, 1}, {16, 2}, {18, 4}, {59, 5}, {94, 6}, {117, 8},
     };
 
-    return lookup_stat_bonus(py.stats.use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity));
+    return lookup_stat_bonus(use_stat[A_DEX], by_dexterity, STAT_BONUS_STEPS(by_dexterity));
 }
 
 // Returns a character's adjustment to damage -JWT-
@@ -131,5 +137,43 @@ int todam_adj(void) {
         {0, -2}, {4, -1}, {5, 0}, {16, 1}, {17, 2}, {18, 3}, {94, 4}, {109, 5}, {117, 6},
     };
 
-    return lookup_stat_bonus(py.stats.use_stat[A_STR], by_strength, STAT_BONUS_STEPS(by_strength));
+    return lookup_stat_bonus(use_stat[A_STR], by_strength, STAT_BONUS_STEPS(by_strength));
+}
+
+// Read player stat fields.
+uint8_t player_stat_max(int stat) {
+    return max_stat[stat];
+}
+
+uint8_t player_stat_cur(int stat) {
+    return cur_stat[stat];
+}
+
+int16_t player_stat_mod(int stat) {
+    return mod_stat[stat];
+}
+
+uint8_t player_stat_use(int stat) {
+    return use_stat[stat];
+}
+
+// Write player stat fields.
+void player_stat_set_max(int stat, uint8_t value) {
+    max_stat[stat] = value;
+}
+
+void player_stat_set_cur(int stat, uint8_t value) {
+    cur_stat[stat] = value;
+}
+
+void player_stat_set_mod(int stat, int16_t value) {
+    mod_stat[stat] = value;
+}
+
+void player_stat_add_mod(int stat, int16_t amount) {
+    mod_stat[stat] += amount;
+}
+
+void player_stat_set_use(int stat, uint8_t value) {
+    use_stat[stat] = value;
 }

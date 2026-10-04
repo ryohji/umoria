@@ -27,15 +27,14 @@
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
+#include "stats_reset.h"
 
 /* 各テストの前に呼ぶ。 */
 void fixture_reset(void)
 {
-    extern player_type py;
-
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
-    memset(&py, 0, sizeof py);
+    stats_reset();
     player_set_level(0);
     player_set_experience(0);
     player_set_max_experience(0);

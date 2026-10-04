@@ -22,6 +22,7 @@
 #include "monster_recall.h"
 #include "player_class.h"
 #include "player_level.h"
+#include "stats.h"
 
 // Attacker's level and plusses,  defender's AC -RAK-
 bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
@@ -43,8 +44,8 @@ bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
 
 // Weapon weight VS strength and dexterity -RAK-
 int attack_blows(int weight, int *wtohit) {
-    int s = py.stats.use_stat[A_STR];
-    int d = py.stats.use_stat[A_DEX];
+    int s = player_stat_use(A_STR);
+    int d = player_stat_use(A_DEX);
 
     if (s * WEAPON_WEIGHT_PER_STR < weight) {
         *wtohit = s * WEAPON_WEIGHT_PER_STR - weight;
