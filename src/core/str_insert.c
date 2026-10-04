@@ -27,6 +27,7 @@ void insert_str(char *object_str, const char *mtc_str, const char *insert) {
     int obj_len = (int)strlen(object_str);
     char *bound = object_str + obj_len - mtc_len;
 
+    char *found = NULL;
     char *pc;
     for (pc = object_str; pc <= bound; pc++) {
         char *temp_obj = pc;
@@ -39,20 +40,21 @@ void insert_str(char *object_str, const char *mtc_str, const char *insert) {
             }
         }
         if (i == mtc_len) {
+            found = pc;
             break;
         }
     }
 
-    if (pc <= bound) {
+    if (found) {
         char out_val[80];
 
-        (void)strncpy(out_val, object_str, (pc - object_str));
+        (void)strncpy(out_val, object_str, (found - object_str));
         // Turbo C needs int for array index.
-        out_val[(int)(pc - object_str)] = '\0';
+        out_val[(int)(found - object_str)] = '\0';
         if (insert) {
             (void)strcat(out_val, insert);
         }
-        (void)strcat(out_val, (pc + mtc_len));
+        (void)strcat(out_val, (found + mtc_len));
         (void)strcpy(object_str, out_val);
     }
 }
