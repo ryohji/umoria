@@ -5,7 +5,7 @@
 [done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1752 件・82 本、`externs.h` の global 41 個（→ `HANDOVER.md` 第 0 節）。
+- いま：テスト 1762 件・83 本、`externs.h` の global 41 個（→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
   判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
 - #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
@@ -34,9 +34,6 @@
 | 20 | 重複コード | item/spells.c:1547-1605 | `lose_str/int/wis/dex/con/chr` の 6 関数が同型。`lose_str` と `lose_con` はメッセージまで一致。**`lose_dex` の呼び手は item/eat.c:92 の `#if 0` の中だけ**なので、生きているのは 5 関数 | 表で 6 → 1 にできるが、人物の状態に依存するので足場が要る |
 | 21 | 複雑な条件分岐 | monster/creature.c:471-679 `mon_cast_spell`（switch は :534） | switch 20 ケース。ケース番号がビット位置の生の数で、魔法 ID が前段の分岐に直書き | 変更頻度が低く、テストのコストが高い |
 | 22 | 長すぎるメソッド | item/desc.c:251-559 `objdes` | 309 行。被参照 約 51 か所で、表示文字列を全域が頼る | 影響は大きいが、分割には広いテストが要る |
-| 24 | データの散在 | item/desc.c:109-153 ほか | 鑑定の状態が生のビット操作とアクセサで不統一。`known1_p` などはアクセサになったが、生の `ident` 操作が desc.c の外に 31 か所残る（item_enchant.c 24、save.c 2、main.c・dungeon.c・inscription.c・store_price.c・ui/wizard.c 各 1）。staffs.c・scrolls.c の `ident` は局所の `bool` で別物 | 影響度 Low。#39 と一緒に扱う |
-| 39 | 名前が意図を表さない | item/desc.c:113, 132, 149（`known1_p` `known2_p` `store_bought_p`） | 述語なのに `int` でフラグの値そのものを返す。真のとき 1 でなくビット値。**item/inven_ops.c:138 `items_can_stack()` は 2 つの戻り値を `==` で比べている**（両辺が同じビット位なので今は正しい） | 実害は無い。危ういのは片方だけ 0/1 に正規化する掃除で、そのとき `:138` が静かに壊れる。#24 を動かすときに一緒に扱う |
-| 48 | 理解しづらいロジック | core/str_insert.c:29-61 `insert_str`（走査 :35-48、再評価 :50） | 走査の終端と置きかえの可否が 2 つの独立した条件で書かれている。「見つかったか」の変数が無く、抜けた理由を条件の再評価で言いあてる | ふるまいを変えずに直せる（`char *found = NULL;`）。#41 は純粋な移動に限ったので混ぜなかった。保護 22 件・リンク 2 単位で、**P3 で着手コストが最も低い部類** |
 | 50 | （テストの穴） | player/player_bonuses.c:94-200 `calc_bonuses`、player/create.c:422-423、dungeon.c:466, 473, 485, 493、save/save.c:734-745 | **窓口を呼ぶ順番と条件（呼び手に残した規則）を見るテストが無い。** 窓口の中は `player_display_numbers_test` が守るが、呼び手は守られていない | もとから空いていた穴。呼び手を単体で呼べる足場が要る。経過は下の「#50 の族」 |
 | 51 | 重複コード | combat/monster_melee.c:592-609（モンスターの攻撃）と combat/player_melee.c:93-111（プレイヤーの攻撃） | 光る手が当たったときの約 18 行がほぼ写し。差は 4 つ：(1) 前者だけ `adesc != 99` を見る、(2) 大文字化の手が違う、(3) 見えているかの条件が `visible && !player_is_dead()` か `m_ptr->ml` か、(4) `msg_print("Your hands stop glowing.")` と `player_glowing_hands_spend()` の順が逆（monster_melee.c:593-594 と player_melee.c:94-95） | (1) は意図がコメントにある。(2)〜(4) は意図か分からず、畳むと決めた時点でふるまいが変わる。まず「どちらが正しいか」の判断が要る |
 | 71 | 長すぎるメソッド | dungeon.c:73-817 `dungeon()`（745 行）、dungeon.c:1042 `do_command`（536 行） | `dungeon()` の約 420 行は、時間で切れる効果 18 種の同じ形の並び（#50 の :466-493 もこの中）。局所の `i` を 3 つの用途に使いまわす。:229 の `else if (player_food() < PLAYER_FOOD_WEAK)` は外側の条件で必ず真。`do_command` はウィザード用の switch を入れ子に持つ | dungeon.c には単体テストが届かない。効果ごとの塊を窓口の側へ出す足場が先。ウィザードの塊を ui/wizard.c へ移すだけなら軽い |
@@ -123,6 +120,8 @@
 | 69 | `spells.c` の壁に埋まる処理・`cure_*` 4 本・`detect_*` 5 本を static 関数に（`c9807f7`） | 同上 |
 | 67 | `py` を消す：能力値の 4 配列を `player/stats.c` の static に、窓口 9 本（`cdefbe0`。global 42 → 41） | 同上 |
 | 49 | セーブファイルの並びを表と往復で守る `savefile_layout_test`（`35b59f1`） | [done/49-savefile-layout.md](docs/refactoring/done/49-savefile-layout.md) |
+| 48 | `insert_str` の「見つかったか」を変数 `found` に（`f6f8e7d`） | [done/p3-48-39-24.md](docs/refactoring/done/p3-48-39-24.md) |
+| 39・24 | 鑑定の述語を `bool` に、`ident` の生のビット操作を `item/item_flags.c` の窓口に（`f4f2453`） | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、

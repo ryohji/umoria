@@ -12,14 +12,14 @@
 
 2026-10-05、`develop` の上（`origin/develop` は `28ab4e2b`。push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1752 件・82 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1762 件・83 本**、failed=0、`RESULT: GREEN`。
 - `externs.h` の global は **41 個・参照 493**（着手時 112 個・3147）。参照は `globals.py` の数で、
   注釈と文字列の中も数えている（台帳 #70）。#61 で注釈を書きかえて 604 → 560、#67 で `py` が消えて 493。
   2026-10-01 に書いた 599 と 604 の差は確かめていない。
   注釈と文字列を除いた数は列「コード」で 352、`&` が単項の別名は列「単項」で 27（#70・#45。
   今までの列「参照」「別名」は過去の記録と比べるために残した）。
   `scripts/globals.py --check` は 41 個すべて分類。
-- `scripts/layer_deps.py --check` は 1151 本・145 単位で core/ の違反 0。
+- `scripts/layer_deps.py --check` は 1156 本・146 単位で core/ の違反 0。
 - 済んだ列：
   - #18（データの散在）。残る 41 個の見立ては `docs/refactoring/globals_inventory.md`
     の「区分ごとの見立て」。
@@ -211,8 +211,8 @@ rm -f scores.dat /tmp/probe.sav
 
 - **残る global 41 個。** 区分ごとの見立ては `globals_inventory.md`。定数表 20 個は
   「`const` 化のみ」と決めてある。
-- **台帳の P3 で着手コストの低いもの。** #48（`insert_str` の条件の二重表現。保護 22 件・
-  リンク 2 単位）、#39 と #24（鑑定の述語と生のビット操作。一緒に扱う）。
+- **P3 で済ませたもの。** #49（セーブの並び）、#48（`insert_str`）、#39・#24（鑑定の述語と `ident` の
+  窓口 `item/item_flags.c`）。経過は `done/49-savefile-layout.md`・`done/p3-48-39-24.md`。
 - **テストの穴（#50 の族）。** `calc_bonuses()` の呼び手を守るテストが無い。埋めるには状態を
   丸ごと組みたてる足場が要る。セーブの並び（#49）は 2026-10-05 に `savefile_layout_test` で埋めた
   （`done/49-savefile-layout.md`）。
