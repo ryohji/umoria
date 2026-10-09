@@ -67,8 +67,6 @@ extern const char *syllables[MAX_SYLLABLES];
 
 extern uint8_t blows_table[7][6];
 
-extern uint16_t normal_table[NORMAL_TABLE_SIZE];
-
 // function return values
 
 // only extern functions declared here, static functions
