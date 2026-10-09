@@ -7,9 +7,6 @@
 
 // Declarations for global variables and initialized data
 
-// Defined in variable.c with 17 elements.
-extern const char *copyright[17];
-
 // These are options, set with set_options command -CJS-
 extern bool rogue_like_commands;
 extern bool find_cut;          // Cut corners on a run
