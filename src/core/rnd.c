@@ -16,9 +16,6 @@
 #include "externs.h"
 #include "rnd.h"
 
-// Define this to compile as a standalone test
-// #define TEST_RNG
-
 // This alg uses a prime modulus multiplicative congruential generator
 //
 // (PMMLCG), also known as a Lehmer Grammer, which satisfies the following
@@ -225,21 +222,3 @@ bool magik(int chance) {
         return false;
     }
 }
-
-#ifdef TEST_RNG
-
-main() {
-    set_rnd_seed(0L);
-
-    for (int32_t i = 1; i < 10000; i++) {
-        (void)rnd();
-    }
-
-    int32_t random = rnd();
-    printf("z[10001] = %ld, should be 1043618065\n", random);
-    if (random == 1043618065L) {
-        printf("success!!!\n");
-    }
-}
-
-#endif
