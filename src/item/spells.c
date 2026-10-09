@@ -1483,66 +1483,6 @@ void warding_glyph(void) {
     }
 }
 
-// Lose a strength point. -RAK-
-void lose_str(void) {
-    if (!player_stat_sustained(A_STR)) {
-        (void)dec_stat(A_STR);
-        msg_print("You feel very sick.");
-    } else {
-        msg_print("You feel sick for a moment,  it passes.");
-    }
-}
-
-// Lose an intelligence point. -RAK-
-void lose_int(void) {
-    if (!player_stat_sustained(A_INT)) {
-        (void)dec_stat(A_INT);
-        msg_print("You become very dizzy.");
-    } else {
-        msg_print("You become dizzy for a moment,  it passes.");
-    }
-}
-
-// Lose a wisdom point. -RAK-
-void lose_wis(void) {
-    if (!player_stat_sustained(A_WIS)) {
-        (void)dec_stat(A_WIS);
-        msg_print("You feel very naive.");
-    } else {
-        msg_print("You feel naive for a moment,  it passes.");
-    }
-}
-
-// Lose a dexterity point. -RAK-
-void lose_dex(void) {
-    if (!player_stat_sustained(A_DEX)) {
-        (void)dec_stat(A_DEX);
-        msg_print("You feel very sore.");
-    } else {
-        msg_print("You feel sore for a moment,  it passes.");
-    }
-}
-
-// Lose a constitution point. -RAK-
-void lose_con(void) {
-    if (!player_stat_sustained(A_CON)) {
-        (void)dec_stat(A_CON);
-        msg_print("You feel very sick.");
-    } else {
-        msg_print("You feel sick for a moment,  it passes.");
-    }
-}
-
-// Lose a charisma point. -RAK-
-void lose_chr(void) {
-    if (!player_stat_sustained(A_CHR)) {
-        (void)dec_stat(A_CHR);
-        msg_print("Your skin starts to itch.");
-    } else {
-        msg_print("Your skin starts to itch, but feels better now.");
-    }
-}
-
 // Lose experience -RAK-
 void lose_exp(int32_t amount) {
     player_lose_experience(amount);

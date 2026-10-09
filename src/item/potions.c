@@ -22,6 +22,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_timed_effects.h"
+#include "stat_loss.h"
 
 // Potions for the quaffing -RAK-
 void quaff(void) {
@@ -58,7 +59,7 @@ void quaff(void) {
                     break;
                 case 2:
                     ident = true;
-                    lose_str();
+                    lose_stat(A_STR);
                     break;
                 case 3:
                     if (res_stat(A_STR)) {
@@ -74,7 +75,7 @@ void quaff(void) {
                     break;
                 case 5:
                     ident = true;
-                    lose_int();
+                    lose_stat(A_INT);
                     break;
                 case 6:
                     if (res_stat(A_INT)) {
@@ -90,7 +91,7 @@ void quaff(void) {
                     break;
                 case 8:
                     ident = true;
-                    lose_wis();
+                    lose_stat(A_WIS);
                     break;
                 case 9:
                     if (res_stat(A_WIS)) {
@@ -106,7 +107,7 @@ void quaff(void) {
                     break;
                 case 11:
                     ident = true;
-                    lose_chr();
+                    lose_stat(A_CHR);
                     break;
                 case 12:
                     if (res_stat(A_CHR)) {

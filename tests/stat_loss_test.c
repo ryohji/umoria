@@ -6,9 +6,8 @@
 
 /* 能力値を 1 点失う lose_stat（src/player/stat_loss.c）のテスト
  *
- * もとは spells.c の lose_str・lose_int・lose_wis・lose_dex・lose_con・lose_chr の
- * 6 本で、違うのは能力値とメッセージ 2 つだけだった。期待するメッセージは
- * 6 本の字面そのまま（STR と CON は同じ文）。
+ * 能力値ごとに違うのはメッセージ 2 つだけ。期待するメッセージは、1 本に
+ * まとめる前の 6 本（lose_str〜lose_chr）の字面そのまま（STR と CON は同じ文）。
  *
  * dec_stat() は代役で、渡された能力値を記録する（本物の stat_ops.c は
  * calc_bonuses などを巻きこむ）。維持の有無は本物の player_abilities.c に、

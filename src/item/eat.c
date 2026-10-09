@@ -19,6 +19,7 @@
 #include "item_learn.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
+#include "stat_loss.h"
 
 // Eat some food. -RAK-
 void eat(void) {
@@ -83,28 +84,28 @@ void eat(void) {
                 break;
             case 10:
                 ident = true;
-                lose_str();
+                lose_stat(A_STR);
                 break;
             case 11:
                 ident = true;
-                lose_con();
+                lose_stat(A_CON);
                 break;
 #if 0 // 12 through 15 are no longer used
             case 12:
                 ident = true;
-                lose_int();
+                lose_stat(A_INT);
                 break;
             case 13:
                 ident = true;
-                lose_wis();
+                lose_stat(A_WIS);
                 break;
             case 14:
                 ident = true;
-                lose_dex();
+                lose_stat(A_DEX);
                 break;
             case 15:
                 ident = true;
-                lose_chr();
+                lose_stat(A_CHR);
                 break;
 #endif
             case 16:
