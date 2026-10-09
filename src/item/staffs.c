@@ -16,159 +16,127 @@
 #include "externs.h"
 
 #include "device.h"
-#include "inventory.h"
-#include "item_learn.h"
-#include "player_class.h"
-#include "player_level.h"
+#include "device_use.h"
 #include "player_pos.h"
-#include "player_saving_throw.h"
 #include "player_timed_effects.h"
-#include "stats.h"
+
+static void staff_effect(int pos, int dir, uint32_t *flags, bool *ident) {
+    int k, y, x;
+
+    switch (pos) {
+    case 1:
+        *ident = light_area(player_row(), player_col());
+        break;
+    case 2:
+        *ident = detect_sdoor();
+        break;
+    case 3:
+        *ident = detect_trap();
+        break;
+    case 4:
+        *ident = detect_treasure();
+        break;
+    case 5:
+        *ident = detect_object();
+        break;
+    case 6:
+        teleport(100);
+        *ident = true;
+        break;
+    case 7:
+        *ident = true;
+        earthquake();
+        break;
+    case 8:
+        *ident = false;
+        for (k = 0; k < randint(4); k++) {
+            y = player_row();
+            x = player_col();
+            *ident |= summon_monster(&y, &x, false);
+        }
+        break;
+    case 10:
+        *ident = true;
+        destroy_area(player_row(), player_col());
+        break;
+    case 11:
+        *ident = true;
+        starlite(player_row(), player_col());
+        break;
+    case 12:
+        *ident = speed_monsters(1);
+        break;
+    case 13:
+        *ident = speed_monsters(-1);
+        break;
+    case 14:
+        *ident = sleep_monsters2();
+        break;
+    case 15:
+        *ident = hp_player(randint(8));
+        break;
+    case 16:
+        *ident = detect_invisible();
+        break;
+    case 17:
+        if (!player_timed_in_force(PLAYER_TIMED_HASTE)) {
+            *ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_HASTE, randint(30) + 15);
+        break;
+    case 18:
+        if (!player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
+            *ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_SLOWNESS, randint(30) + 15);
+        break;
+    case 19:
+        *ident = mass_poly();
+        break;
+    case 20:
+        if (remove_curse()) {
+            if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+                msg_print("The staff glows blue for a moment..");
+            }
+            *ident = true;
+        }
+        break;
+    case 21:
+        *ident = detect_evil();
+        break;
+    case 22:
+        if ((cure_blindness()) || (cure_poison()) ||
+            (cure_confusion())) {
+            *ident = true;
+        }
+        break;
+    case 23:
+        *ident = dispel_creature(CD_EVIL, 60);
+        break;
+    case 25:
+        *ident = unlight_area(player_row(), player_col());
+        break;
+    case 32:
+        // store bought flag
+        break;
+    default:
+        msg_print("Internal error in staffs()");
+        break;
+    }
+}
+
+static const device_kind staff = {
+    TV_STAFF,
+    DEVICE_PENALTY_STAFF,
+    "You are not carrying any staffs.",
+    "Use which staff?",
+    "You failed to use the staff properly.",
+    "The staff has no charges left.",
+    NULL,
+    staff_effect,
+};
 
 // Use a staff. -RAK-
 void use(void) {
-    int j, k, y, x;
-    int item_val;
-
-    free_turn_flag = true;
-
-    if (inventory_count() == 0) {
-        msg_print("But you are not carrying anything.");
-    } else if (!find_range(TV_STAFF, TV_NEVER, &j, &k)) {
-        msg_print("You are not carrying any staffs.");
-    } else if (get_item(&item_val, "Use which staff?", j, k, CNIL, CNIL)) {
-        free_turn_flag = false;
-
-        inven_type *i_ptr = inventory_at(item_val);
-
-        // Staff skill base is the same as saving throw (adds A_INT).
-        int chance = device_use_chance(player_saving_throw(), stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_STAFF, class_level_adj[player_class()][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
-
-        if (!device_use_succeeds(chance)) {
-            msg_print("You failed to use the staff properly.");
-        } else if (i_ptr->p1 > 0) {
-            bool ident = false;
-
-            uint32_t i = i_ptr->flags;
-            (i_ptr->p1)--;
-
-            while (i != 0) {
-                int pos = bit_pos(&i) + 1;
-
-                // Staffs.
-                switch (pos) {
-                case 1:
-                    ident = light_area(player_row(), player_col());
-                    break;
-                case 2:
-                    ident = detect_sdoor();
-                    break;
-                case 3:
-                    ident = detect_trap();
-                    break;
-                case 4:
-                    ident = detect_treasure();
-                    break;
-                case 5:
-                    ident = detect_object();
-                    break;
-                case 6:
-                    teleport(100);
-                    ident = true;
-                    break;
-                case 7:
-                    ident = true;
-                    earthquake();
-                    break;
-                case 8:
-                    ident = false;
-                    for (k = 0; k < randint(4); k++) {
-                        y = player_row();
-                        x = player_col();
-                        ident |= summon_monster(&y, &x, false);
-                    }
-                    break;
-                case 10:
-                    ident = true;
-                    destroy_area(player_row(), player_col());
-                    break;
-                case 11:
-                    ident = true;
-                    starlite(player_row(), player_col());
-                    break;
-                case 12:
-                    ident = speed_monsters(1);
-                    break;
-                case 13:
-                    ident = speed_monsters(-1);
-                    break;
-                case 14:
-                    ident = sleep_monsters2();
-                    break;
-                case 15:
-                    ident = hp_player(randint(8));
-                    break;
-                case 16:
-                    ident = detect_invisible();
-                    break;
-                case 17:
-                    if (!player_timed_in_force(PLAYER_TIMED_HASTE)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_HASTE, randint(30) + 15);
-                    break;
-                case 18:
-                    if (!player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_SLOWNESS, randint(30) + 15);
-                    break;
-                case 19:
-                    ident = mass_poly();
-                    break;
-                case 20:
-                    if (remove_curse()) {
-                        if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
-                            msg_print("The staff glows blue for a moment..");
-                        }
-                        ident = true;
-                    }
-                    break;
-                case 21:
-                    ident = detect_evil();
-                    break;
-                case 22:
-                    if ((cure_blindness()) || (cure_poison()) ||
-                        (cure_confusion())) {
-                        ident = true;
-                    }
-                    break;
-                case 23:
-                    ident = dispel_creature(CD_EVIL, 60);
-                    break;
-                case 25:
-                    ident = unlight_area(player_row(), player_col());
-                    break;
-                case 32:
-                    // store bought flag
-                    break;
-                default:
-                    msg_print("Internal error in staffs()");
-                    break;
-                }
-                // End of staff actions.
-            }
-
-            // NOTE: the returned i_ptr is never read after this, so it is
-            // discarded. -MRC-
-            (void)learn_item_effect(ident, &item_val);
-
-            desc_charges(item_val);
-        } else {
-            msg_print("The staff has no charges left.");
-            if (!known2_p(i_ptr)) {
-                add_inscribe(i_ptr, ID_EMPTY);
-            }
-        }
-    }
+    use_charged_device(&staff);
 }
