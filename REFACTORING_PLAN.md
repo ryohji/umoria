@@ -5,11 +5,12 @@
 [done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1762 件・83 本、`externs.h` の global 41 個（→ `HANDOVER.md` 第 0 節）。
+- いま：テスト 1826 件・87 本、`externs.h` の global 38 個（→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
   判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
 - #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
   場所は 2026-10-02 の行。同じ日に、開いている行の場所と数を今のコードに合わせた。
+- #77〜#79 は 2026-10-10 の下調べ（どのテストも引かない `.o` と、使い手の少ない global）で足し、同じ日に済んだ。
 
 ## 開いている項目
 
@@ -31,14 +32,12 @@
 | # | 分類 | 場所 | 内容 | 着手しない理由 |
 |---|---|---|---|---|
 | 19 | 重複コード | item/spells.c の `light_line` `disarm_all` `hp_monster` `drain_life` `speed_monster` `confuse_monster` `sleep_monster` `wall_to_mud` `td_destroy2` `poly_monster` `build_wall` `clone_monster` `teleport_monster`、combat/projectiles.c:69-141 `fire_bolt`・:144-268 `fire_ball` | 「方向に飛ばして最初の対象を探す」骨格の写し。うち 5 関数はほぼ行単位で一致 | 終了条件に微妙な差がある（`fire_ball` は `fval` の判定を else 側に置く）。テストの保護なしの抽出は危険 |
-| 20 | 重複コード | item/spells.c:1547-1605 | `lose_str/int/wis/dex/con/chr` の 6 関数が同型。`lose_str` と `lose_con` はメッセージまで一致。**`lose_dex` の呼び手は item/eat.c:92 の `#if 0` の中だけ**なので、生きているのは 5 関数 | 表で 6 → 1 にできるが、人物の状態に依存するので足場が要る |
 | 21 | 複雑な条件分岐 | monster/creature.c:471-679 `mon_cast_spell`（switch は :534） | switch 20 ケース。ケース番号がビット位置の生の数で、魔法 ID が前段の分岐に直書き | 変更頻度が低く、テストのコストが高い |
 | 22 | 長すぎるメソッド | item/desc.c:251-559 `objdes` | 309 行。被参照 約 51 か所で、表示文字列を全域が頼る | 影響は大きいが、分割には広いテストが要る |
 | 50 | （テストの穴） | player/player_bonuses.c:94-200 `calc_bonuses`、player/create.c:422-423、dungeon.c:466, 473, 485, 493、save/save.c:734-745 | **窓口を呼ぶ順番と条件（呼び手に残した規則）を見るテストが無い。** 窓口の中は `player_display_numbers_test` が守るが、呼び手は守られていない | もとから空いていた穴。呼び手を単体で呼べる足場が要る。経過は下の「#50 の族」 |
 | 51 | 重複コード | combat/monster_melee.c:592-609（モンスターの攻撃）と combat/player_melee.c:93-111（プレイヤーの攻撃） | 光る手が当たったときの約 18 行がほぼ写し。差は 4 つ：(1) 前者だけ `adesc != 99` を見る、(2) 大文字化の手が違う、(3) 見えているかの条件が `visible && !player_is_dead()` か `m_ptr->ml` か、(4) `msg_print("Your hands stop glowing.")` と `player_glowing_hands_spend()` の順が逆（monster_melee.c:593-594 と player_melee.c:94-95） | (1) は意図がコメントにある。(2)〜(4) は意図か分からず、畳むと決めた時点でふるまいが変わる。まず「どちらが正しいか」の判断が要る |
-| 71 | 長すぎるメソッド | dungeon.c:73-817 `dungeon()`（745 行）、dungeon.c:1042 `do_command`（536 行） | `dungeon()` の約 420 行は、時間で切れる効果 18 種の同じ形の並び（#50 の :466-493 もこの中）。局所の `i` を 3 つの用途に使いまわす。:229 の `else if (player_food() < PLAYER_FOOD_WEAK)` は外側の条件で必ず真。`do_command` はウィザード用の switch を入れ子に持つ | dungeon.c には単体テストが届かない。効果ごとの塊を窓口の側へ出す足場が先。ウィザードの塊を ui/wizard.c へ移すだけなら軽い |
+| 71 | 長すぎるメソッド | dungeon.c:75-806 `dungeon()`（732 行）、dungeon.c:982-1380 `do_command`（399 行） | `dungeon()` の約 420 行は、時間で切れる効果 18 種の同じ形の並び（#50 の族もこの中）。局所の `i` を 3 つの用途に使いまわす。2026-10-10 にウィザード用の switch を ui/wizard.c へ移し、必ず真の判定を `else` にした（#71-1・#71-2） | dungeon.c には単体テストが届かない。効果ごとの塊を窓口の側へ出す足場が先 |
 | 72 | 長すぎるメソッド | ui/inven_menu.c:394-970 `inven_command`（577 行）、ui/recall.c:163-655 `roff_recall`（493 行）、save/save.c:524-1259 `get_char`（736 行）、item/potions.c `quaff`・item/eat.c `eat` | 台帳の #22・#25〜#27 に無い長い関数。`get_char` は版の分岐と goto が入りまじる | どれも externs.h・画面・乱数に全面的に依存する。`get_char` は #49 と同じ足場が要る |
-| 73 | 重複コード | item/staffs.c:29-174 `use`、item/wands.c:29-173 `aim` | 杖と魔法棒の手順の骨格がまるごと写し。差は魔法棒だけが方向を訊くこと。`aim` は `find_range` の出力の `j,k` を別の用途に使いまわす | 両方とも spells.c と `fire_*` を呼ぶのでリンクが重い |
 | 74 | データの散在 | `free_turn_flag`（externs.h の外で 80 か所、dungeon.c に 32） | 中身は「このコマンドで turn を使ったか」という戻り値で、それを global で伝えている | `do_command()` の戻り値をどうするかの設計判断が先（`globals_inventory.md` の見立てでは残置） |
 | 75 | 不適切な責務配置 | platform/signals.c:145 `handle_pending_signals`、ui/io.c:86-94 `inkey` | platform 層が save・ui・player を呼ぶ。パニックセーブの手順が signals.c:204-212 と io.c:86-94 で写し | 関数ポインタで向きを逆にできるが、#13 と一緒に設計を決める。層の規則はいま core/ しか見ていない（ユーザーの判断） |
 | 76 | 肥大化モジュール（分けすぎ） | player/player_disarm.c・player_saving_throw.c・player_stealth.c ほか技能の module | `static` な値 1 つと get/set/adjust の 3 本だけの module が名前のほかは同じ字。save.c は player の .h を 28 本 include する | 「1 問 1 module」の方針とぶつかる。方針を見なおすかの判断が先 |
@@ -122,6 +121,12 @@
 | 49 | セーブファイルの並びを表と往復で守る `savefile_layout_test`（`35b59f1`） | [done/49-savefile-layout.md](docs/refactoring/done/49-savefile-layout.md) |
 | 48 | `insert_str` の「見つかったか」を変数 `found` に（`f6f8e7d`） | [done/p3-48-39-24.md](docs/refactoring/done/p3-48-39-24.md) |
 | 39・24 | 鑑定の述語を `bool` に、`ident` の生のビット操作を `item/item_flags.c` の窓口に（`f4f2453`） | 同上 |
+| 77 | 乱数 `core/rnd.c` にテスト、使われていない自己検査 `TEST_RNG` を外す | [done/2026-10-10.md](docs/refactoring/done/2026-10-10.md) |
+| 78 | global 41 → 38：`days` の宣言・`copyright` の表を消し、`normal_table` を `rnd.c` の `static const` に（ユーザーの判断） | 同上 |
+| 79 | `combat/hit_rolls.c` と `store/store_price.c` にテスト | 同上 |
+| 71（一部） | ウィザード用の switch を `ui/wizard.c` の `wizard_command` に、食料の枝の必ず真の判定を `else` に。行は開いたまま | 同上 |
+| 20 | `lose_str`〜`lose_chr` の 6 本を `player/stat_loss.c` の `lose_stat` 1 本と表に | 同上 |
+| 73 | 杖と魔法棒の骨格を `item/device_use.c` の `use_charged_device` に | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
