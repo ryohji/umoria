@@ -220,7 +220,7 @@ void dungeon(void) {
                     regen_amount = 0;
                 } else if (player_food() < PLAYER_FOOD_FAINT) {
                     regen_amount = PLAYER_REGEN_FAINT;
-                } else if (player_food() < PLAYER_FOOD_WEAK) {
+                } else {
                     regen_amount = PLAYER_REGEN_WEAK;
                 }
                 if (player_note_effect_started(PLAYER_EFFECT_WEAK)) {
