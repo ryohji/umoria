@@ -57,7 +57,7 @@ import sys
 # externs.h の宣言を意味で分けたもの。名前順ではなく「誰のものか」で分ける。
 GROUPS = {
     "定数表（読みとり専用データ）": """
-        copyright days player_title race background player_exp class class_level_adj
+        copyright player_title race background player_exp class class_level_adj
         magic_spell spell_names player_init rgold_adj owners store_choice store_buy
         special_names syllables blows_table normal_table blank_monster""",
     # 見た目は定数表だが起動時に一度書きかえる。「定数」として扱うと壊す。

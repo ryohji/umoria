@@ -27,7 +27,6 @@ extern bool display_counts;    // Display rest/repeat counts
 extern bool free_turn_flag; // Used in MORIA
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 
-extern char days[7][29];
 extern int closing_flag; // Used for closing
 
 // Following are player variables
