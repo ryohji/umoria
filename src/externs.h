@@ -438,7 +438,7 @@ void pray(void);
 bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
-// core/rnd.c
+// core/rnd.c, which declares them in rnd.h as well
 void set_rnd_seed(uint32_t);
 int32_t rnd(void);
 void set_seed(uint32_t);

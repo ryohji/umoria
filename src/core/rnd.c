@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "rnd.h"
 
 // Define this to compile as a standalone test
 // #define TEST_RNG
