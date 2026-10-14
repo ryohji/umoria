@@ -38,8 +38,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 
-#include "monster_list.h"
 
 #include "minunit.h"
 

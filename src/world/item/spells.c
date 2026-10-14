@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 
 #include "equipment.h"
 #include "dungeon_level.h"
@@ -21,9 +22,6 @@
 #include "item_picker.h"
 #include "floor_items.h"
 #include "inventory.h"
-#include "monster_levels.h"
-#include "monster_list.h"
-#include "monster_recall.h"
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_class.h"

@@ -66,4 +66,14 @@ This is storage and only storage. The window does not range-check or clamp, and 
 
 ## model/monster — monster state and knowledge
 
-(To be filled in when monster modules are merged)
+### monster_state (monster_levels + monster_list + monster_recall)
+
+The monster modules track three independent pieces of state: the level index (which monsters appear at which dungeon levels), the list of monsters currently on the level, and what the player has learned about each monster kind.
+
+**Level index (monster_levels):** The m_level array counts monsters at each level or shallower (cumulative). Level L's monsters run from m_level[L-1] to m_level[L]-1. The monster definitions are already sorted by level, so the counts form bands and no second table is needed (unlike objects which need sorted_objects). monster_levels_init() scans the creature table once at startup to build the index.
+
+**Monster list (monster_list):** The list of monsters standing on the current level. The table is kept PACKED (no gaps) with a mark saying how far it's filled. Rows 0 and 1 are never used: cave[y][x].cptr uses 0 for "no monster" and 1 for "the player", so MIN_MONIX is 2. The table starts filling there. This is the monster equivalent of the floor_items table — both are indexed by cave squares.
+
+blank_monster (the value for an empty row) stays in model/data/monsters.c with the creature definition table, since it belongs to the read-only-data group rather than this state module.
+
+**Monster recall (monster_recall):** What the player has learned about each kind of monster. The c_recall array parallels the creature definition table. Each entry tracks characteristics seen (r_cdefense, r_cmove), spells cast (r_spells, with frequency counter), treasure carried, kills, and deaths. Update functions set bits, increment counters (capped at MAX_SHORT for kills/deaths and CS_FREQ for spell frequency), and merge the maximum treasure carry count seen.

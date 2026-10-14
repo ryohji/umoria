@@ -13,6 +13,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 #include "game_status.h"
 
 #include "burden.h"
@@ -28,8 +29,6 @@
 #include "item_ident.h"
 #include "missile_serial.h"
 #include "monster_breeding.h"
-#include "monster_list.h"
-#include "monster_recall.h"
 #include "panel.h"
 #include "messages.h"
 #include "player_abilities.h"

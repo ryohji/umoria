@@ -13,13 +13,13 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 #include "game_status.h"
 
 #include "externs.h"
 
 #include "dungeon_map.h"
 #include "monster_breeding.h"
-#include "monster_list.h"
 
 // Deletes a monster entry from the level -RAK-
 void delete_monster(int j) {

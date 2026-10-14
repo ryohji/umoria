@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 #include "game_status.h"
 
 #include "externs.h"
@@ -20,7 +21,6 @@
 #include "dungeon_level.h"
 #include "dungeon_map.h"
 #include "dungeon_size.h"
-#include "monster_list.h"
 #include "panel.h"
 #include "player_pos.h"
 

@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 #include "game_status.h"
 
 #include "dungeon_map.h"
@@ -20,8 +21,6 @@
 #include "object_copy.h"
 #include "floor_items.h"
 #include "monster_breeding.h"
-#include "monster_list.h"
-#include "monster_recall.h"
 #include "monster_turn.h"
 #include "panel.h"
 #include "player_abilities.h"

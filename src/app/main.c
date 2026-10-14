@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 #include "game_status.h"
 
 #include "externs.h"
@@ -19,7 +20,6 @@
 #include "input_ended.h"
 #include "inventory.h"
 #include "item_flags.h"
-#include "monster_levels.h"
 #include "object_levels.h"
 #include "game_settings.h"
 #include "player_class.h"

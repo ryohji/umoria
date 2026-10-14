@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 
 #include "externs.h"
 #include "object_copy.h"
@@ -19,8 +20,6 @@
 #include "dungeon_map.h"
 #include "equipment.h"
 #include "inventory.h"
-#include "monster_list.h"
-#include "monster_recall.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"

@@ -13,11 +13,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 
 #include "externs.h"
 
-#include "monster_list.h"
-#include "monster_recall.h"
 #include "monster_turn.h"
 #include "player_level.h"
 #include "player_timed_effects.h"
