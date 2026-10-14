@@ -44,3 +44,8 @@ void handle_input_end(void) {
         exit_game();
     }
 }
+
+// Handle user-initiated quit (e.g., 'Q' during character creation)
+void handle_quit(void) {
+    exit_game();
+}

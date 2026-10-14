@@ -30,10 +30,19 @@ static void sleep_in_seconds(int);
 // Handler for input-end game logic (registered by app layer)
 static void (*input_end_handler)(void) = NULL;
 
+// Handler for quit action (registered by app layer)
+static void (*quit_handler)(void) = NULL;
+
 // Register handler for input-end game logic
 // Must be called before any inkey() can encounter EOF
 void io_set_input_end_handler(void (*handler)(void)) {
     input_end_handler = handler;
+}
+
+// Register handler for quit action
+// Must be called before any pause_exit() can be called
+void io_set_quit_handler(void (*handler)(void)) {
+    quit_handler = handler;
 }
 
 // Dump IO to buffer -RAK-
@@ -354,7 +363,10 @@ void pause_exit(int prt_line, int delay) {
             sleep_in_seconds(delay);
         }
 
-        exit_game();
+        // Call registered quit handler
+        if (quit_handler != NULL) {
+            quit_handler();
+        }
     }
     erase_line(prt_line, 0);
 }
