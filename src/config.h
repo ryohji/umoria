@@ -8,6 +8,9 @@
 // Basic Configuration
 
 // Data files used by Umoria - relative to the executable binary.
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #define MORIA_GPL "LICENSE"
 #define MORIA_TOP "scores.dat"
 #define MORIA_SAV "game.sav"
@@ -24,3 +27,5 @@
 // to use the rogue-like key bindings (vi style movement) set ROGUE_LIKE to true.
 // If you change this, you only need to recompile options.c.
 #define ROGUE_LIKE false
+
+#endif // CONFIG_H

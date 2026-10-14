@@ -8,6 +8,9 @@
 // Global constants used by Moria
 
 // Current version number of Moria
+#ifndef CONSTANT_H
+#define CONSTANT_H
+
 #define CUR_VERSION_MAJ  5
 #define CUR_VERSION_MIN  7
 #define PATCH_LEVEL      0
@@ -599,3 +602,5 @@
 
 // Number of entries allowed in the scorefile.
 #define SCOREFILE_SIZE      1000
+
+#endif // CONSTANT_H
