@@ -19,12 +19,10 @@
 #include "inventory.h"
 #include "monster_list.h"
 #include "monster_recall.h"
-#include "player_abilities.h"
-#include "player_armour_class.h"
+#include "player_stats.h"
 #include "player_condition.h"
 #include "player_progress.h"
 #include "score_death.h"
-#include "stats.h"
 
 // Make an attack on the player (chuckle.) -RAK-
 void make_attack(int monptr) {

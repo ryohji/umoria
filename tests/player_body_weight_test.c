@@ -39,7 +39,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_body_weight.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 

@@ -20,7 +20,7 @@
 #include "player_identity.h"
 #include "player_condition.h"
 #include "screen_fields.h"
-#include "stats.h"
+#include "player_stats.h"
 
 // Increases hit points and level -RAK-
 static void gain_level(void) {

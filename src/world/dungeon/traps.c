@@ -21,12 +21,10 @@
 #include "level_exit.h"
 #include "monster_list.h"
 #include "player_condition.h"
-#include "player_abilities.h"
-#include "player_armour_class.h"
+#include "player_stats.h"
 #include "player_identity.h"
 #include "player_skills.h"
 #include "player_progress.h"
-#include "stats.h"
 
 // Disarms a trap -RAK-
 void disarm_trap(void) {

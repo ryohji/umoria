@@ -23,7 +23,7 @@
 #include "player_progress.h"
 #include "player_skills.h"
 #include "player_condition.h"
-#include "stats.h"
+#include "player_stats.h"
 
 void use_charged_device(const device_kind *kind) {
     int j, k, item_val;

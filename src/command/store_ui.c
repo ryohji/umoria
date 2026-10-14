@@ -24,7 +24,7 @@
 #include "messages.h"
 #include "player_progress.h"
 #include "progress.h"
-#include "stats.h"
+#include "player_stats.h"
 
 static const char *comment1[14] = {
     "Done!",

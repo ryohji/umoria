@@ -52,7 +52,7 @@
 #include "player_progress.h"
 #include "player_spells.h"
 #include "player_condition.h"
-#include "stats.h"
+#include "player_stats.h"
 
 
 /* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */

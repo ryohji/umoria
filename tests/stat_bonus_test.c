@@ -36,7 +36,7 @@
 
 
 /* 検証対象。宣言は module のヘッダから受ける。 */
-#include "stats.h"
+#include "player_stats.h"
 
 #define MU_SETUP() fixture_reset()
 

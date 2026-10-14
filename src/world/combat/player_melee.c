@@ -20,13 +20,10 @@
 #include "inventory.h"
 #include "monster_list.h"
 #include "monster_recall.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
-#include "player_body_weight.h"
+#include "player_stats.h"
 #include "player_identity.h"
 #include "player_condition.h"
 #include "player_progress.h"
-#include "stats.h"
 
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {

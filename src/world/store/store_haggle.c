@@ -19,7 +19,7 @@
 #include "store_haggle.h"
 #include "player_identity.h"
 #include "progress.h"
-#include "stats.h"
+#include "player_stats.h"
 #include "str_insert.h"
 
 static const char *comment2a[3] = {

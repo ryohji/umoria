@@ -8,7 +8,7 @@
 
 #include "app/game_state.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "command_state.h"
 #include "dungeon_level.h"
 #include "dungeon_map.h"

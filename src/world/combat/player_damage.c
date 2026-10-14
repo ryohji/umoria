@@ -18,13 +18,12 @@
 #include "armor_selection.h"
 #include "equipment.h"
 #include "level_exit.h"
-#include "player_abilities.h"
+#include "player_stats.h"
 #include "player_identity.h"
 #include "player_progress.h"
 #include "player_skills.h"
 #include "player_condition.h"
 #include "score_death.h"
-#include "stats.h"
 
 // Saving throws for player character. -RAK-
 bool player_saves(void) {

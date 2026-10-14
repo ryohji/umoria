@@ -30,17 +30,13 @@
 #include "monster_breeding.h"
 #include "panel.h"
 #include "player_condition.h"
-#include "player_abilities.h"
-#include "player_armour_class.h"
-#include "player_base_to_hit.h"
+#include "player_stats.h"
 #include "player_identity.h"
-#include "player_display_numbers.h"
 #include "player_progress.h"
 #include "player_skills.h"
 #include "progress.h"
 #include "score_death.h"
 #include "messages.h"
-#include "stats.h"
 
 static char original_commands(char);
 static void do_command(char);

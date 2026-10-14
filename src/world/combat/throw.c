@@ -22,12 +22,10 @@
 #include "inventory.h"
 #include "monster_list.h"
 #include "panel.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
+#include "player_stats.h"
 #include "player_identity.h"
 #include "player_progress.h"
 #include "player_condition.h"
-#include "stats.h"
 
 static void inven_throw(int item_val, inven_type *t_ptr) {
     inven_type *i_ptr = inventory_at(item_val);

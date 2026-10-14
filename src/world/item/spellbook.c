@@ -21,7 +21,7 @@
 #include "player_progress.h"
 #include "player_spells.h"
 #include "player_condition.h"
-#include "stats.h"
+#include "player_stats.h"
 
 // Returns spell chance of failure for spell -RAK-
 static int spell_chance(int spell) {

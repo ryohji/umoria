@@ -18,7 +18,7 @@
 
 #include "player_identity.h"
 #include "player_condition.h"
-#include "stats.h"
+#include "player_stats.h"
 
 static uint8_t modify_stat(int stat, int16_t amount) {
     uint8_t tmp_stat = player_stat_cur(stat);

@@ -15,16 +15,11 @@
 
 #include "externs.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "equipment.h"
 #include "monster_list.h"
-#include "player_abilities.h"
-#include "player_armour_class.h"
-#include "player_attack_bonuses.h"
-#include "player_display_numbers.h"
 #include "player_condition.h"
 #include "player_skills.h"
-#include "stats.h"
 
 // Changes speed of monsters relative to player -RAK-
 // Note: When the player is sped up or slowed down, I simply change

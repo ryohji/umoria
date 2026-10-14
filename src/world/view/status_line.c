@@ -19,7 +19,7 @@
 #include "command_state.h"
 #include "dungeon_level.h"
 #include "player_identity.h"
-#include "player_display_numbers.h"
+#include "player_stats.h"
 #include "player_progress.h"
 #include "player_condition.h"
 #include "player_skills.h"
@@ -27,7 +27,6 @@
 #include "progress.h"
 #include "score_death.h"
 #include "screen_fields.h"
-#include "stats.h"
 
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {

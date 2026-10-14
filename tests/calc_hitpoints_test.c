@@ -33,7 +33,7 @@
 #include "fixture.h"
 #include "player_progress.h"
 #include "player_condition.h"
-#include "stats.h"
+#include "player_stats.h"
 
 
 /* 検証対象（src/world/player/level_ops.c）の宣言は externs.h から受ける。 */

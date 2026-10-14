@@ -19,15 +19,13 @@
 #include "types.h"
 
 #include "externs.h"
-#include "burden.h"
+#include "player_stats.h"
 #include "dungeon_map.h"
 #include "equipment.h"
 #include "floor_items.h"
 #include "inventory.h"
 #include "item_ident.h"
-#include "player_body_weight.h"
 #include "player_condition.h"
-#include "stats.h"
 
 // Destroy an item in the inventory -RAK-
 void inven_destroy(int item_val) {

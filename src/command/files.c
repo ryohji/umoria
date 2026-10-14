@@ -17,16 +17,13 @@
 // systems.  Otherwise, the `open' prototype conflicts with the `topen' declaration.
 #include "externs.h"
 
-#include "abilities.h"
+#include "player_stats.h"
 #include "equipment.h"
 #include "floor_items.h"
 #include "inventory.h"
 #include "object_levels.h"
 #include "player_identity.h"
-#include "player_body_weight.h"
-#include "player_display_numbers.h"
 #include "player_progress.h"
-#include "stats.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later

@@ -15,14 +15,13 @@
 
 #include "externs.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "dungeon_map.h"
 #include "equipment.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "player_condition.h"
 #include "screen_touched.h"
-#include "stats.h"
 
 // Displays inventory items from r1 to r2 -RAK-
 // Designed to keep the display as far to the right as possible. -CJS-

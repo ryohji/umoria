@@ -23,7 +23,7 @@
 #include "monster_list.h"
 #include "monster_recall.h"
 #include "panel.h"
-#include "player_abilities.h"
+#include "player_stats.h"
 #include "player_identity.h"
 #include "player_progress.h"
 #include "player_condition.h"

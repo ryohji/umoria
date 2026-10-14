@@ -40,7 +40,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "burden.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 

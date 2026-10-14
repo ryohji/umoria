@@ -24,7 +24,7 @@
 #include "player_identity.h"
 #include "player_progress.h"
 #include "shared_stubs.h"
-#include "stats.h"
+#include "player_stats.h"
 
 #define MU_SETUP()                                                             \
     do {                                                                       \

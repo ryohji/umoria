@@ -15,7 +15,7 @@
 
 #include "externs.h"
 
-#include "player_abilities.h"
+#include "player_stats.h"
 #include "stat_loss.h"
 
 // Indexed by A_STR to A_CHR.

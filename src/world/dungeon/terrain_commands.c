@@ -17,19 +17,17 @@
 
 #include "externs.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "command_state.h"
 #include "dungeon_map.h"
 #include "equipment.h"
 #include "floor_items.h"
 #include "monster_list.h"
 #include "panel.h"
-#include "player_body_weight.h"
 #include "player_identity.h"
 #include "player_skills.h"
 #include "player_progress.h"
 #include "player_condition.h"
-#include "stats.h"
 
 // Opens a closed door or closed chest. -RAK-
 void openobject(void) {

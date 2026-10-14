@@ -55,7 +55,7 @@
 #include "player_progress.h"
 #include "player_spells.h"
 #include "player_condition.h"
-#include "stats.h"
+#include "player_stats.h"
 
 extern bool free_turn_flag;
 

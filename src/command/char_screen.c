@@ -16,14 +16,11 @@
 
 #include "externs.h"
 
-#include "abilities.h"
+#include "player_stats.h"
 #include "player_identity.h"
-#include "player_body_weight.h"
-#include "player_display_numbers.h"
 #include "player_progress.h"
 #include "save_state.h"
 #include "screen_fields.h"
-#include "stats.h"
 
 // Print long number (7 digits of space) with header at given row, column
 static void prt_7lnum(const char *header, int32_t num, int row, int column) {

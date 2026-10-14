@@ -23,7 +23,7 @@
 #include "shared_stubs.h"
 #include "inventory.h"
 #include "item_ident.h"
-#include "player_body_weight.h"
+#include "player_stats.h"
 #include "player_condition.h"
 #include "stats_reset.h"
 

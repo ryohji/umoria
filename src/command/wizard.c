@@ -19,14 +19,12 @@
 #include "dungeon_size.h"
 #include "floor_items.h"
 #include "level_exit.h"
-#include "player_base_to_hit.h"
-#include "player_body_weight.h"
+#include "player_stats.h"
 #include "player_skills.h"
 #include "player_progress.h"
 #include "player_condition.h"
 #include "progress.h"
 #include "score_death.h"
-#include "stats.h"
 
 // lets anyone enter wizard mode after a disclaimer... -JEW-
 bool enter_wiz_mode(void) {

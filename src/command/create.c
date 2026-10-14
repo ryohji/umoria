@@ -16,14 +16,9 @@
 #include "externs.h"
 
 #include "player_progress.h"
-#include "player_armour_class.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
+#include "player_stats.h"
 #include "player_identity.h"
-#include "player_body_weight.h"
 #include "player_skills.h"
-#include "player_display_numbers.h"
-#include "stats.h"
 
 // Generates character's stats -JWT-
 static void get_stats(void) {

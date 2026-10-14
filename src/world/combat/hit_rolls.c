@@ -22,7 +22,7 @@
 #include "monster_recall.h"
 #include "player_identity.h"
 #include "player_progress.h"
-#include "stats.h"
+#include "player_stats.h"
 
 // Attacker's level and plusses,  defender's AC -RAK-
 bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
