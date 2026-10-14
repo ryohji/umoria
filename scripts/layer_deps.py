@@ -40,19 +40,16 @@ from collections import defaultdict
 SOURCES_MK = 'sources.mk'
 
 # Layer rules. Each entry says which layers a layer may NOT depend on.
-# Only core/ is ruled for now (decided 2026-09-29 from --matrix after step D):
-# core/ depends on nothing else in the game, and it had 0 outgoing edges.
-# The other layers still call into the numbered files in src/, so their rules
-# are to be added one by one as step R splits those files.
+# core/ depends on nothing else in the game (decided 2026-09-29).
+# The full layer order is core < model < platform < ui < world < command < app.
+# Ticket #81 will add the rules for the other layers.
 RULES = {
-    'core': {'src', 'data', 'player', 'monster', 'dungeon', 'item', 'store',
-             'combat', 'ui', 'save', 'platform'},
+    'core': {'model', 'platform', 'ui', 'world', 'command', 'app'},
 }
 
-# The order of the rows and columns of --matrix (docs/refactoring/done/layout.md).
+# The order of the rows and columns of --matrix.
 # A layer that is not here (a new directory) is appended in name order.
-LAYER_ORDER = ['src', 'core', 'data', 'player', 'monster', 'dungeon', 'item',
-               'store', 'combat', 'ui', 'save', 'platform']
+LAYER_ORDER = ['core', 'model', 'platform', 'ui', 'world', 'command', 'app']
 
 
 def read_sources(path=SOURCES_MK):
