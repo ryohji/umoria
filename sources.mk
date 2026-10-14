@@ -17,6 +17,11 @@
 # 書いたものが VPATH と -I に入る。ディレクトリーを足したらここにも足す。
 # 名前が重なると -I の順で答えが変わるので、ファイルを足すときは
 # ls src/*/ src/*/*/ | sort | uniq -d で同名が無いことを見る。
+# Libraries with an internal/ header directory. It is on the include path only
+# while compiling that library's own .c files (and the tests), so another
+# library that includes an internal header does not compile.
+INTERNAL_LIBS = world
+
 SRC_SUBDIRS = core model/data model/game model/player model/monster model/dungeon model/item model/store platform ui world/combat world/dungeon world/item world/monster world/player world/store world/view command app
 
 SRCS = app/main.c command/files.c ui/io.c \

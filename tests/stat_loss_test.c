@@ -16,11 +16,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "stat_ops.h"
+#include "world_player.h"
+#include "world_internal.h"
 #include "fixture.h"
 #include "player_stats.h"
 #include "shared_stubs.h"
-#include "stat_loss.h"
 
 #define MU_SETUP()                                                             \
     do {                                                                       \

@@ -11,7 +11,7 @@
 #include "types.h"
 #include "dungeon_state.h"
 
-#include "level_exit.h"
+#include "world_dungeon.h"
 
 // No externs.h here: one bit needs nothing from the rest of the game.
 

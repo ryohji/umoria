@@ -13,9 +13,9 @@
 #include "constant.h"
 #include "types.h"
 #include "monster_state.h"
-#include "desc.h"
-#include "player_bonuses.h"
-#include "stat_ops.h"
+#include "world_item.h"
+#include "world_player.h"
+#include "world_internal.h"
 
 #include "inventory.h"
 #include "player_stats.h"

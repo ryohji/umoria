@@ -56,7 +56,8 @@
 
 
 /* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
-#include "spellbook.h"
+#include "world_item.h"
+#include "world_internal.h"
 
 #define MU_SETUP() fixture_reset()
 

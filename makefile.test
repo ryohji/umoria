@@ -37,7 +37,7 @@ WARNINGS = -Wall -Wextra -Wno-unused-parameter \
 # #include "..." はヘッダの名前だけで書いてあるので、ヘッダのあるディレクトリー
 # はすべて要る。src/ の .c を丸ごと #include するテスト（下の「気をつける
 # こと」の 2）も、この -I でその .c を見つける。
-CFLAGS = $(STD) $(WARNINGS) -g -Isrc $(addprefix -Isrc/,$(SRC_SUBDIRS)) -Itests
+CFLAGS = $(STD) $(WARNINGS) -g -Isrc $(addprefix -Isrc/,$(SRC_SUBDIRS)) $(addprefix -Isrc/,$(addsuffix /internal,$(INTERNAL_LIBS))) -Itests
 TESTDIR = tests
 BUILDDIR = $(TESTDIR)/build
 

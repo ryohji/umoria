@@ -15,7 +15,7 @@
 #include "game_status.h"
 #include "death.h"
 #include "input_end_handling.h"
-#include "rest_command.h"
+#include "world_player.h"
 #include "save.h"
 #include "input_ended.h"
 

@@ -12,7 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "rest_command.h"
+#include "world_player.h"
 
 #include "hit_rolls_fixture.h"
 

@@ -45,7 +45,8 @@
 #include "constant.h"
 #include "types.h"
 
-#include "monster_breeding.h"
+#include "world_monster.h"
+#include "world_internal.h"
 
 #include "minunit.h"
 

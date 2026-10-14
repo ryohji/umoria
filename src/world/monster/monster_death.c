@@ -18,16 +18,13 @@
 #include "game_status.h"
 #include "dice.h"
 #include "geometry.h"
-#include "lighting.h"
-#include "map_view.h"
-#include "monster_death.h"
-#include "object_alloc.h"
-#include "object_place.h"
+#include "world_dungeon.h"
+#include "world_view.h"
+#include "world_monster.h"
+#include "world_internal.h"
 #include "rnd.h"
-#include "status_line.h"
 #include "ui_io.h"
 
-#include "monster_breeding.h"
 
 // Deletes a monster entry from the level -RAK-
 void delete_monster(int j) {

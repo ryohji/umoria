@@ -15,10 +15,10 @@
 #include "types.h"
 #include "bits.h"
 #include "game_settings.h"
-#include "lighting.h"
+#include "world_dungeon.h"
+#include "world_item.h"
 #include "player.h"
 #include "rnd.h"
-#include "spellbook.h"
 #include "ui_io.h"
 
 #include "inventory.h"

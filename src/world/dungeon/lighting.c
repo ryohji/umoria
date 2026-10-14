@@ -15,8 +15,9 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "game_settings.h"
-#include "lighting.h"
-#include "map_view.h"
+#include "world_dungeon.h"
+#include "world_view.h"
+#include "world_internal.h"
 #include "ui_io.h"
 
 #include "panel.h"

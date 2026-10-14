@@ -48,7 +48,8 @@
 
 /* 検証する本物（src/world/dungeon/object_alloc.c）と、表から引かれる品物の定数表
  * （model/data/treasure.c の object_list）の宣言は externs.h から受ける。 */
-#include "object_alloc.h"
+#include "world_dungeon.h"
+#include "world_internal.h"
 #include "treasure.h"
 
 /* 各テストの前に必ず呼ばれる。ただし fixture_reset() は表には触らない

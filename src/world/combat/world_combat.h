@@ -5,11 +5,23 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-#ifndef PROJECTILES_H
-#define PROJECTILES_H
+// Public interface of world/combat/.
 
+#ifndef WORLD_COMBAT_H
+#define WORLD_COMBAT_H
+
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
+// --- player_damage.c ---
+void take_hit(int, const char *);
+
+// --- projectiles.c ---
 void fire_bolt(int, int, int, int, int, const char *);
 void fire_ball(int, int, int, int, int, const char *);
-void breath(int, int, int, int, char *, int);
 
-#endif // PROJECTILES_H
+// --- throw.c ---
+void throw_object(void);
+
+#endif // WORLD_COMBAT_H

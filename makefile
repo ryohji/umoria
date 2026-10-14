@@ -55,6 +55,9 @@ include sources.mk
 
 OBJS = $(notdir $(SRCS:.c=.o))
 
+# Each library's internal/ headers are visible only to its own objects.
+$(foreach l,$(INTERNAL_LIBS),$(eval $(notdir $(patsubst %.c,%.o,$(filter $(l)/%,$(SRCS)))): INCLUDES += -I$(SRCDIR)/$(l)/internal))
+
 # app/ objects linked directly (not in any archive). APP_SRCS also includes
 # the two ncurses files (platform layer, but not in libplatform.a).
 APP_OBJS = $(notdir $(patsubst %.c,%.o,$(filter app/%,$(SRCS)))) \

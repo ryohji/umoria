@@ -13,11 +13,9 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "desc.h"
-#include "inscription.h"
+#include "world_item.h"
 #include "ui_io.h"
 #include "inventory.h"
-#include "item_picker.h"
 
 // The three prototypes are in externs.h, the same as the other files that
 // include it (desc.c, eat.c): scribe_object() asks for the item through

@@ -16,9 +16,9 @@
 #include "dungeon_state.h"
 #include "game_status.h"
 #include "game_settings.h"
-#include "map_view.h"
+#include "world_view.h"
+#include "world_internal.h"
 #include "player.h"
-#include "status_line.h"
 #include "ui_io.h"
 
 #include "command_state.h"

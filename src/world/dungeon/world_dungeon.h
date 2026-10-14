@@ -1,14 +1,27 @@
-// Copyright (c) 2026 Umoria Contributors
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2021-2026 Umoria Contributors
 //
 // Umoria is free software released under a GPL v2 license and comes with
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
+// Public interface of world/dungeon/.
+
+#ifndef WORLD_DUNGEON_H
+#define WORLD_DUNGEON_H
+
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
+// --- search.c ---
+void search(int, int, int);
+
+// --- generate.c ---
+void generate_cave(void);
+
+// --- level_exit.c ---
 // Whether the level the player is standing on is finished, and which one is next
-
-#ifndef LEVEL_EXIT_H
-#define LEVEL_EXIT_H
-
 // One bit, and one reader: the main loop (app/dungeon.c) runs turns until the bit is
 // set, then returns to play_game(), which builds a level and calls dungeon()
 // again. Everything else only sets it.
@@ -47,4 +60,32 @@ void end_level(void);
 // then already holds the level being started.
 void begin_level(void);
 
-#endif // LEVEL_EXIT_H
+// --- lighting.c ---
+bool no_light(void);
+
+// --- object_alloc.c ---
+int get_obj_num(int, bool);
+void random_object(int, int, int);
+
+// --- object_place.c ---
+int popt(void);
+void pusht(uint8_t);
+
+// --- traps.c (store entrances) ---
+// Store entrance handler registration: allows world/ to trigger store entry
+// without depending on command/ layer
+// Register the store entrance handler. Called once at startup before any
+// gameplay begins. The handler is invoked when the player steps onto a
+// store entrance trap.
+void set_store_entrance_handler(void (*handler)(int store_num));
+
+// --- terrain_commands.c ---
+void openobject(void);
+void closeobject(void);
+void tunnel(int);
+void bash(void);
+
+// --- traps.c ---
+void disarm_trap(void);
+
+#endif // WORLD_DUNGEON_H

@@ -13,10 +13,8 @@
 #include "constant.h"
 #include "types.h"
 #include "game_settings.h"
-#include "map_view.h"
-#include "player_bonuses.h"
-#include "rest_command.h"
-#include "status_line.h"
+#include "world_view.h"
+#include "world_player.h"
 #include "ui_io.h"
 
 #include "command_state.h"

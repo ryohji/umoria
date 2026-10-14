@@ -1,14 +1,24 @@
-// Copyright (c) 2026 Umoria Contributors
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2021-2026 Umoria Contributors
 //
 // Umoria is free software released under a GPL v2 license and comes with
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
+// Public interface of world/monster/.
+
+#ifndef WORLD_MONSTER_H
+#define WORLD_MONSTER_H
+
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
+// --- creature.c ---
+void creatures(int);
+
+// --- monster_breeding.c ---
 // How many monsters have been bred on this level, and what that forbids
-
-#ifndef MONSTER_BREEDING_H
-#define MONSTER_BREEDING_H
-
 // ONE NUMBER, AND IT ANSWERS ONE QUESTION: may another monster be bred here?
 //
 // Some monsters multiply (CM_MULTIPLY -- rats, flies, worm masses). One of them
@@ -39,25 +49,6 @@
 // A new level. Nothing has been bred here yet.
 void monster_breeding_reset(void);
 
-// May one more be bred? The comparison is unchanged from
-// `MAX_MON_MULT >= mon_tot_mult`, which means the budget is MAX_MON_MULT + 1
-// births, not MAX_MON_MULT: the count is allowed to equal the cap and still say
-// yes, and the birth that answer permits takes it one past. Asked once, in
-// mon_move() (creature.c), before any square is looked at.
-bool monster_breeding_allowed(void);
-
-// One has been bred. Two calls, both in multiply_monster() (creature.c), one for
-// each way the new monster gets its square: the plain empty square, and the
-// square freed by a cannibal eating what stood there. Both are counted only
-// after place_monster() has actually succeeded -- a birth that fails because the
-// monster list is full spends nothing.
-void monster_breeding_note_birth(void);
-
-// Give one back. The one call is fix1_delete_monster() (monster_death.c); see the
-// asymmetry above. Floors at zero, as the old `if (mon_tot_mult > 0)` did, so a
-// level whose monsters are killed without any breeding stays at nothing spent.
-void monster_breeding_note_death(void);
-
 // The number itself, for the save file only (save.c writes it as a short and
 // reads it back). Nothing else wants the raw count -- the readers above are the
 // question (the same arrangement as missile_serial_value()).
@@ -72,4 +63,21 @@ void monster_breeding_note_death(void);
 int16_t monster_breeding_count(void);
 void set_monster_breeding_count(int16_t count);
 
-#endif // MONSTER_BREEDING_H
+// --- monster_death.c ---
+int delete_object(int, int);
+
+// --- monster_place.c ---
+bool compact_monsters(void);
+void alloc_monster(int, int, int);
+bool summon_monster(int *, int *, int);
+bool summon_undead(int *, int *);
+
+// --- monster_turn.c ---
+// Which monster creatures() is acting for, and what that forbids
+// The raw number. One caller, the snapshot in app/game_state.c, which records it
+// with the other "temporary" fields; nothing reads it back. Kept as a window so
+// the number itself can stay private (the same arrangement as
+// missile_serial_value()).
+int monster_turn_index(void);
+
+#endif // WORLD_MONSTER_H

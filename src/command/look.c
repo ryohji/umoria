@@ -15,7 +15,7 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
-#include "desc.h"
+#include "world_item.h"
 #include "direction.h"
 #include "game_settings.h"
 #include "look.h"

@@ -12,15 +12,14 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "monster_place.h"
-#include "player_move.h"
+#include "world_monster.h"
+#include "world_player.h"
+#include "world_item.h"
 #include "rnd.h"
-#include "spells.h"
 #include "staffs.h"
 #include "ui_io.h"
 
 #include "device.h"
-#include "device_use.h"
 #include "player_condition.h"
 
 static void staff_effect(int pos, int dir, uint32_t *flags, bool *ident) {

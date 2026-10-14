@@ -17,7 +17,7 @@
 #include "files.h"
 #include "player.h"
 #include "rnd.h"
-#include "stat_ops.h"
+#include "world_player.h"
 #include "ui_io.h"
 
 #include "player_progress.h"

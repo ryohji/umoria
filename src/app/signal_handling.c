@@ -30,7 +30,7 @@
 #include "types.h"
 #include "game_status.h"
 #include "death.h"
-#include "rest_command.h"
+#include "world_player.h"
 #include "save.h"
 #include "signals.h"
 #include "ui_io.h"

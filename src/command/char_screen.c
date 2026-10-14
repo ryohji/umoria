@@ -16,7 +16,7 @@
 #include "game_status.h"
 #include "char_screen.h"
 #include "files.h"
-#include "status_line.h"
+#include "world_view.h"
 #include "ui_io.h"
 
 #include "player_stats.h"

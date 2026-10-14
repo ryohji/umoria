@@ -12,7 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "food_ops.h"
+#include "world_player.h"
 #include "ui_io.h"
 #include "player_condition.h"
 

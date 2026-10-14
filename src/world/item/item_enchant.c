@@ -17,7 +17,7 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-#include "item_enchant.h"
+#include "world_item.h"
 #include "rnd.h"
 #include "item_knowledge.h"
 #include "missile_serial.h"

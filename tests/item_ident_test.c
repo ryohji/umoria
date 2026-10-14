@@ -27,7 +27,8 @@
 #include "types.h"
 
 #include "item_knowledge.h"
-#include "item_learn.h"
+#include "world_item.h"
+#include "world_internal.h"
 #include "player_progress.h"
 
 #include "fixture.h"
@@ -37,7 +38,6 @@
 
 /* 検証に使う本物（src/world/item/desc.c）と fixture.c の代役（prt_experience）の
  * 宣言は externs.h から受ける。 */
-#include "desc.h"
 
 /* 各テストの前に必ず呼ばれる。グローバル状態が毎回まっさらに戻る。 */
 #define MU_SETUP() fixture_reset()

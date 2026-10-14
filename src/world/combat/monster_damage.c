@@ -14,11 +14,11 @@
 #include "constant.h"
 #include "types.h"
 #include "monster_state.h"
-#include "monster_damage.h"
-#include "monster_death.h"
+#include "world_combat.h"
+#include "world_monster.h"
+#include "world_internal.h"
 #include "monsters.h"
 
-#include "monster_turn.h"
 #include "player_progress.h"
 #include "player_condition.h"
 
