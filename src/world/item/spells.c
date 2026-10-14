@@ -25,8 +25,7 @@
 #include "panel.h"
 #include "player_abilities.h"
 #include "player_identity.h"
-#include "player_hp.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "player_condition.h"
 
 static void replace_spot(int, int, int);

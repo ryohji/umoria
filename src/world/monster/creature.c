@@ -25,7 +25,7 @@
 #include "player_abilities.h"
 #include "player_skills.h"
 #include "player_condition.h"
-#include "player_mana.h"
+#include "player_progress.h"
 #include "progress.h"
 #include "score_death.h"
 #include "screen_touched.h"

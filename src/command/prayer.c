@@ -16,8 +16,7 @@
 #include "externs.h"
 #include "inventory.h"
 #include "player_identity.h"
-#include "player_level.h"
-#include "player_mana.h"
+#include "player_progress.h"
 #include "player_condition.h"
 #include "player_spells.h"
 

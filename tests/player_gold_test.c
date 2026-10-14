@@ -41,7 +41,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_gold.h"
+#include "player_progress.h"
 
 #include "minunit.h"
 

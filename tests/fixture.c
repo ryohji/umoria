@@ -15,7 +15,7 @@
 
 #include "inventory.h"
 #include "item_ident.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "shared_stubs.h"
 #include "stats_reset.h"
 

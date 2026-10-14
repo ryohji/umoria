@@ -35,7 +35,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_hit_die.h"
+#include "player_progress.h"
 
 #include "minunit.h"
 

@@ -21,7 +21,7 @@
 #include "inventory.h"
 #include "monster_list.h"
 #include "player_condition.h"
-#include "player_gold.h"
+#include "player_progress.h"
 #include "player_skills.h"
 
 // Teleport the player to a new location -RAK-

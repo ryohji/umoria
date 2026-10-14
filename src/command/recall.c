@@ -15,7 +15,7 @@
 
 #include "externs.h"
 #include "monster_recall.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "progress.h"
 
 static void roff(const char *);

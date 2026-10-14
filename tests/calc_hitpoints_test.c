@@ -31,9 +31,7 @@
 #include "types.h"
 
 #include "fixture.h"
-#include "hp_table.h"
-#include "player_hp.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "player_condition.h"
 #include "stats.h"
 

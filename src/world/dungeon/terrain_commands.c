@@ -27,7 +27,7 @@
 #include "player_body_weight.h"
 #include "player_identity.h"
 #include "player_skills.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "player_condition.h"
 #include "stats.h"
 

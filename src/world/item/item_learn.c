@@ -18,7 +18,7 @@
 
 #include "inventory.h"
 #include "item_learn.h"
-#include "player_level.h"
+#include "player_progress.h"
 
 inven_type *learn_item_effect(bool effect_identified, int *item_val) {
     inven_type *i_ptr = inventory_at(*item_val);

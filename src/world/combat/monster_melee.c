@@ -22,8 +22,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_condition.h"
-#include "player_gold.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "score_death.h"
 #include "stats.h"
 

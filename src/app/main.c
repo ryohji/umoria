@@ -22,7 +22,7 @@
 #include "options.h"
 #include "player_identity.h"
 #include "player_condition.h"
-#include "player_hp.h"
+#include "player_progress.h"
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"

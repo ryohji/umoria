@@ -58,7 +58,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_mana.h"
+#include "player_progress.h"
 
 #include "minunit.h"
 

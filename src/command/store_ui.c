@@ -22,7 +22,7 @@
 #include "stores.h"
 #include "store_haggle.h"
 #include "messages.h"
-#include "player_gold.h"
+#include "player_progress.h"
 #include "progress.h"
 #include "stats.h"
 

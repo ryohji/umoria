@@ -42,7 +42,7 @@
 #include "player_base_to_hit.h"
 #include "player_identity.h"
 #include "player_skills.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "stats.h"
 
 

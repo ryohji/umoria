@@ -33,7 +33,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_max_depth.h"
+#include "player_progress.h"
 
 #include "minunit.h"
 

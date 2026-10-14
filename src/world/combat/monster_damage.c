@@ -19,7 +19,7 @@
 #include "monster_list.h"
 #include "monster_recall.h"
 #include "monster_turn.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "player_condition.h"
 
 // Decreases monsters hit points and deletes monster if needed.
