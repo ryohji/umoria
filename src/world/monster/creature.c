@@ -16,6 +16,7 @@
 #include "dungeon_map.h"
 #include "equipment.h"
 #include "externs.h"
+#include "object_copy.h"
 #include "floor_items.h"
 #include "monster_breeding.h"
 #include "monster_list.h"

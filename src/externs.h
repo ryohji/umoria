@@ -110,7 +110,6 @@ void sample(inven_type *);
 void identify(int *);
 void unmagic_name(inven_type *);
 void objdes(char *, inven_type *, int);
-void invcopy(inven_type *, int);
 void desc_charges(int);
 void desc_remain(int);
 
