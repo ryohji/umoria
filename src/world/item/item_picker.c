@@ -289,7 +289,7 @@ void takeoff(int item_val, int posn) {
 
 // Used to verify if this really is the item we wish to -CJS-
 // wear or read.
-static int verify(const char *prompt, int item) {
+int confirm_item(const char *prompt, int item) {
     bigvtype out_str, object;
 
     // The index crosses both windows: of the five call sites, two hand in a
@@ -437,7 +437,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                             } while (j >= 0);
                             *com_val = i;
                         }
-                        if (isupper((int)which) && !verify("Try", *com_val)) {
+                        if (isupper((int)which) && !confirm_item("Try", *com_val)) {
                             test_flag = true;
                             free_turn_flag = true;
                             i_scr = -1;

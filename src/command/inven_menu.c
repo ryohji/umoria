@@ -52,24 +52,6 @@
 // The display of inventory items is kept to the right of the screen to
 // minimize the work done to restore the screen afterwards. -CJS-
 
-// Used to verify if this really is the item we wish to -CJS-
-// wear or read.
-static int verify(const char *prompt, int item) {
-    bigvtype out_str, object;
-
-    // The index crosses both windows: of the five call sites, two hand in a
-    // pack slot, two an equipment slot, and get_item hands in whichever screen
-    // the player is looking at.
-    objdes(object, inventory_and_equipment_at(item), true);
-
-    // change the period to a question mark
-    object[strlen(object) - 1] = '?';
-
-    (void)sprintf(out_str, "%s %s", prompt, object);
-
-    return get_check(out_str);
-}
-
 // Inventory command screen states.
 #define BLANK_SCR 0
 #define EQUIP_SCR 1
@@ -402,7 +384,7 @@ void inven_command(char command) {
                                     tmp--;
                                 }
                             } while (tmp >= 0);
-                            if (isupper((int)which) && !verify(prompt, item)) {
+                            if (isupper((int)which) && !confirm_item(prompt, item)) {
                                 item = -1;
                             } else if (TR_CURSED & equipment_at(item)->flags) {
                                 msg_print("Hmmm, it seems to be cursed.");
@@ -438,7 +420,7 @@ void inven_command(char command) {
                         } else if (command == 'w') {
                             // Wearing. Go to a bit of trouble over replacing
                             // existing equipment.
-                            if (isupper((int)which) && !verify(prompt, item)) {
+                            if (isupper((int)which) && !confirm_item(prompt, item)) {
                                 item = -1;
                             } else {
                                 // Slot for equipment
@@ -498,7 +480,7 @@ void inven_command(char command) {
                                                     bell();
                                                 }
                                                 if (slot &&
-                                                    !verify("Replace", slot)) {
+                                                    !confirm_item("Replace", slot)) {
                                                     slot = 0;
                                                 }
                                             }
@@ -624,7 +606,7 @@ void inven_command(char command) {
                                     erase_line(MSG_LINE, 0);
                                     item = -1;
                                 }
-                            } else if (isupper((int)which) && !verify(prompt, item)) {
+                            } else if (isupper((int)which) && !confirm_item(prompt, item)) {
                                 item = -1;
                             } else {
                                 query = 'y';

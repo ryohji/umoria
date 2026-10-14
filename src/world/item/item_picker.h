@@ -28,6 +28,9 @@ void takeoff(int item_val, int posn);
 
 // Get the ID of an item and return whether an item was chosen.
 // Sets *com_val to the chosen item index.
+// Asks "<prompt> <item description>?" and returns the answer.
+int confirm_item(const char *prompt, int item);
+
 int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, const char *message);
 
 #endif // ITEM_PICKER_H
