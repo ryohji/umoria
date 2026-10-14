@@ -8,7 +8,7 @@
  *
  * calc_spells() は「いまのレベルと能力値で覚えていられる呪文の数」を数えなおし、
  * 多すぎれば忘れさせ、余裕ができれば忘れた呪文を思いださせる唯一の場所。
- * #18-8 で窓口（`src/model/player/spells_known.h`）に預けた 4 つの global
+ * #18-8 で窓口（`player_spells.h`）に預けた 4 つの global
  * （`spell_learned` `spell_worked` `spell_forgotten` `spell_order`）のうち
  * 3 つを書きかえるのはここだけなので、窓口を通す書きかえ（ステップ B）の前に
  * ここで押さえた。いまは読み書きとも窓口越し（#18-8-B2）。
@@ -55,8 +55,9 @@
 #include "player_stats.h"
 
 
-/* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+/* 検証対象（src/world/item/spellbook.c）の宣言を含める。 */
+#include "world_item.h"
+#include "world_internal.h"
 
 #define MU_SETUP() fixture_reset()
 

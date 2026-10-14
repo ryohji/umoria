@@ -14,13 +14,18 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "game_status.h"
-
-#include "externs.h"
-#include "item_picker.h"
+#include "commands.h"
+#include "app_internal.h"
+#include "world_item.h"
+#include "world_player.h"
+#include "world_view.h"
+#include "world_store.h"
+#include "player.h"
+#include "platform_signals.h"
+#include "ui_screen.h"
 #include "inventory.h"
 #include "player_identity.h"
 #include "player_progress.h"
-#include "platform.h"
 
 static void date(char *day) {
     char *tmp;
@@ -233,7 +238,7 @@ int32_t total_points(void) {
 
     // Fifty points a level. The status line multiplies the same depth by the
     // same fifty and calls the answer feet, which is a different unit for the
-    // same arithmetic -- see dungeon_level.h.
+    // same arithmetic.
     total += dungeon_level() * 50;
 
     // Don't ever let the score decrease from one save to the next.

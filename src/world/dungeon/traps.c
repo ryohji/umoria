@@ -14,16 +14,27 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
+#include "world_item.h"
+#include "world_dungeon.h"
+#include "world_combat.h"
+#include "world_player.h"
+#include "world_monster.h"
+#include "world_internal.h"
+#include "dice.h"
+#include "ui_input.h"
+#include "ui_screen.h"
+#include "game_settings.h"
+#include "geometry.h"
+#include "monsters.h"
+#include "player.h"
+#include "rnd.h"
+#include "str_insert.h"
 
-#include "externs.h"
-
-#include "level_exit.h"
 #include "player_condition.h"
 #include "player_stats.h"
 #include "player_identity.h"
 #include "player_skills.h"
 #include "player_progress.h"
-#include "store_entrance.h"
 
 // Store entrance handler, set at startup
 static void (*store_entrance_handler)(int store_num) = NULL;

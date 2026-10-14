@@ -10,12 +10,16 @@
 #ifndef MONSTER_STATE_H
 #define MONSTER_STATE_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
 // monster_type, recall_type, creature_handle come from types.h which must be included first.
 
-// --- From monster_levels.h: level index ---
+// --- Level index ---
 
 // Initializes the level index. Called once at startup.
 void monster_levels_init(void);
@@ -29,7 +33,7 @@ int monsters_at_level(int level);
 // Index of first monster at level L. Level L's band runs from first_monster_at_level(L) to monsters_up_to_level(L) - 1.
 int first_monster_at_level(int level);
 
-// --- From monster_list.h: the list on this level ---
+// --- The list on this level ---
 
 // Resets the monster list to empty. Links all free space together.
 void monster_list_reset(void);
@@ -53,7 +57,7 @@ int monster_list_claim_slot(void);
 // Drops the last claimed slot and moves the mark back.
 void monster_list_drop_last(void);
 
-// --- From monster_recall.h: what the player has learned ---
+// --- What the player has learned ---
 
 // Returns pointer to recall for the given monster kind.
 recall_type *recall_get(creature_handle h);

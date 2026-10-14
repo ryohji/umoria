@@ -38,7 +38,8 @@
 #include "constant.h"
 #include "types.h"
 
-#include "monster_turn.h"
+#include "world_monster.h"
+#include "world_internal.h"
 
 #include "minunit.h"
 

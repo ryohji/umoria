@@ -8,7 +8,7 @@
 /* 呪文を覚えるとき（spellbook.c:330 の gain_spells）のテスト
  *
  * プレイヤーが学ぶ（`G` コマンド、app/dungeon.c:1294）と呼ばれる。#18-8 で窓口
- * `src/model/player/spells_known.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
+ * `player_spells.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
  * 覚えた順（`spell_order`）に書き足すのはここだけ**なのに、単体テストが
  * 1 件も届いていなかった。窓口を通す書きかえ（ステップ B）の前に押さえた。
  * いまは読み書きとも窓口越し（#18-8-B2）。
@@ -60,7 +60,9 @@
 extern bool free_turn_flag;
 
 /* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+#include "game_settings.h"
+#include "world_item.h"
+#include "world_internal.h"
 
 #define MU_SETUP() fixture_reset()
 

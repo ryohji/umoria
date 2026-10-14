@@ -9,7 +9,7 @@
 #include "constant.h"
 #include "types.h"
 #include "player_identity.h"
-#include "externs.h"
+#include "player.h"
 
 // Six identity stores. All start at zero (empty character).
 static char the_name[PLAYER_NAME_SIZE];

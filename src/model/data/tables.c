@@ -11,8 +11,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "sets.h"
+#include "tables.h"
 
 
 // Store owners have different characteristics for pricing and haggling

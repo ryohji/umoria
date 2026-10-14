@@ -15,10 +15,15 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
-
-#include "externs.h"
-#include "panel.h"
-#include "render.h"
+#include "game_settings.h"
+#include "world_dungeon.h"
+#include "world_view.h"
+#include "world_player.h"
+#include "world_internal.h"
+#include "monsters.h"
+#include "rnd.h"
+#include "ui_screen.h"
+#include "ui_render.h"
 #include "player_condition.h"
 
 // We need to reset the view of things. -CJS-

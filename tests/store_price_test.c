@@ -17,8 +17,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "world_item.h"
+#include "world_store.h"
+#include "world_internal.h"
+#include "tables.h"
+#include "treasure.h"
 #include "item_knowledge.h"
 #include "player_identity.h"
 #include "shared_stubs.h"

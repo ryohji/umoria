@@ -15,17 +15,19 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "game_status.h"
+#include "game_settings.h"
+#include "world_view.h"
+#include "world_internal.h"
+#include "player.h"
+#include "ui_screen.h"
+#include "ui_input.h"
 
-#include "externs.h"
-
-#include "command_state.h"
 #include "player_identity.h"
 #include "player_stats.h"
 #include "player_progress.h"
 #include "player_condition.h"
 #include "player_skills.h"
 #include "player_spells.h"
-#include "screen_fields.h"
 
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {
@@ -128,7 +130,7 @@ void prt_depth(void) {
     vtype depths;
 
     // Fifty feet a level. The score multiplies the same depth by the same
-    // fifty and calls the answer points -- see dungeon_level.h.
+    // fifty and calls the answer points.
     int depth = dungeon_level() * 50;
 
     if (depth == 0) {
@@ -324,7 +326,7 @@ void prt_stat_block(void) {
     // One less while searching, the same as the i-- in prt_speed(). THE SAME
     // RULE IS WRITTEN IN TWO PLACES, AND IT IS NOT FOLDED -- searching and speed
     // are separate questions, and neither is half of the other
-    // (src/model/player/player_speed.h).
+    // (player_skills.h).
     if (player_speed() - (player_is_searching() ? 1 : 0) != 0) {
         prt_speed();
     }

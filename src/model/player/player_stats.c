@@ -9,7 +9,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "externs.h"
+#include "player.h"
 #include "player_stats.h"
 #include "player_identity.h"
 #include "player_skills.h"

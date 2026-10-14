@@ -28,7 +28,7 @@
  *
  * ふるまいを変える読み手は creature.c の 1 か所だけで、そこは
  * 「距離のうちか」と「そのモンスターが温かいか（CD_INFRA）」を一緒に訊く。
- * **後半はモンスターの話なのでこの module の外**（player_infra_range.h）。
+ * **後半はモンスターの話なのでこの module の外**（player_skills.h）。
  * フィートへの換算（abilities.c）と薬のターン数（player_timed_effects.c）も外。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に距離を置きなおす。

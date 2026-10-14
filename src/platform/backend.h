@@ -4,13 +4,64 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Rendering abstraction layer
-// Provides a backend-independent interface for all rendering operations
+// The interfaces a display backend (ncurses today, a GUI later) implements.
+// ui/render.c and ui/input.c call through them.
 
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef BACKEND_H
+#define BACKEND_H
 
 #include <stdbool.h>
+
+// Input key codes
+// These provide a normalized representation of input across different devices
+// Note: Prefixed with INPUT_ to avoid conflicts with ncurses KEY_* macros
+typedef enum {
+    // Special keys
+    INPUT_KEY_NONE = 0,
+    INPUT_KEY_ESCAPE = 27,
+
+    // Movement keys (for devices that provide directional input)
+    INPUT_KEY_UP = 256,
+    INPUT_KEY_DOWN,
+    INPUT_KEY_LEFT,
+    INPUT_KEY_RIGHT,
+
+    // Function keys
+    INPUT_KEY_F1,
+    INPUT_KEY_F2,
+    INPUT_KEY_F3,
+    INPUT_KEY_F4,
+    INPUT_KEY_F5,
+    INPUT_KEY_F6,
+    INPUT_KEY_F7,
+    INPUT_KEY_F8,
+    INPUT_KEY_F9,
+    INPUT_KEY_F10,
+    INPUT_KEY_F11,
+    INPUT_KEY_F12,
+
+    // Control keys
+    INPUT_KEY_ENTER = 13,
+    INPUT_KEY_BACKSPACE = 8,
+    INPUT_KEY_TAB = 9,
+    INPUT_KEY_DELETE,
+    INPUT_KEY_INSERT,
+    INPUT_KEY_HOME,
+    INPUT_KEY_END,
+    INPUT_KEY_PAGE_UP,
+    INPUT_KEY_PAGE_DOWN,
+
+    // Gamepad buttons (for future gamepad support)
+    INPUT_KEY_GAMEPAD_A,
+    INPUT_KEY_GAMEPAD_B,
+    INPUT_KEY_GAMEPAD_X,
+    INPUT_KEY_GAMEPAD_Y,
+    INPUT_KEY_GAMEPAD_START,
+    INPUT_KEY_GAMEPAD_SELECT,
+    INPUT_KEY_GAMEPAD_L1,
+    INPUT_KEY_GAMEPAD_R1,
+
+} InputKeyCode;
 
 // Color definitions
 // These can be mapped to different color schemes by backends
@@ -68,33 +119,20 @@ typedef struct RenderBackend {
 
 } RenderBackend;
 
-// Global rendering state
-extern RenderBackend *current_backend;
+// Input backend interface
+// Different input sources (keyboard, gamepad, network) implement this
+typedef struct InputBackend {
+    const char *name;
 
-// Initialize rendering system with a specific backend
-bool render_init(RenderBackend *backend);
+    // Lifecycle
+    bool (*init)(void);
+    void (*shutdown)(void);
 
-// Shutdown rendering system
-void render_shutdown(void);
+    // Input polling
+    int (*get_key)(void);           // Get a key (blocking)
+    bool (*check_available)(int microsec);  // Check if input is available
+    void (*flush)(void);            // Flush input buffer
 
-// High-level rendering functions (used by game code)
-// These queue rendering commands to be executed at end_frame
+} InputBackend;
 
-void render_clear(void);
-void render_erase_line(int row, int col);
-void render_clear_from(int row);
-void render_refresh(void);  // Force immediate screen update
-void render_char(int row, int col, char ch, RenderColor color);
-void render_string(int row, int col, const char *str, RenderColor color);
-void render_move_cursor(int row, int col);
-void render_present(void);  // Flush all queued commands and present frame
-void render_bell(void);  // Audio or visual bell
-
-// Screen save/restore
-void render_save_screen(void);
-void render_restore_screen(void);
-
-// Utility functions
-void render_get_size(int *rows, int *cols);
-
-#endif // RENDER_H
+#endif // BACKEND_H

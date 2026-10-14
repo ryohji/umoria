@@ -45,7 +45,8 @@
 
 
 /* 検証対象（src/command/char_screen.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+#include "commands.h"
+#include "command_internal.h"
 
 #define MU_SETUP() fixture_reset()
 

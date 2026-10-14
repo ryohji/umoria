@@ -9,6 +9,10 @@
 #ifndef PLAYER_SPELLS_H
 #define PLAYER_SPELLS_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // The value for "no spell learned here yet" in the learned-in order.
 #define SPELL_NONE 99
 

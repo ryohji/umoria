@@ -29,7 +29,7 @@
  * main() の先頭に置いてある。
  */
 /* externs.h は要らない。窓口と、型のための types.h だけで足りる。
- * progress.h / score_death.h は、述語が読む turn と death を動かすため。 */
+ * game_status.h / game_status.h は、述語が読む turn と death を動かすため。 */
 #include <string.h>
 
 #include "config.h"
@@ -231,7 +231,7 @@ TEST(a_saved_flag_without_a_character_is_not_unsaved) {
 }
 
 /* --- 生きているキャラクターがいるか -------------------------------------- */
-/* 旗 3 つなので 8 通り。死んだ旗は score_death.h 側の記録で、この窓口が
+/* 旗 3 つなので 8 通り。死んだ旗は game_status.h 側の記録で、この窓口が
  * よそを読む唯一の場所（signals.c:199 が唯一の呼びだし側）。 */
 
 TEST(the_live_question_matches_the_old_expression_everywhere) {

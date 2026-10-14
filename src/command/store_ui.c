@@ -7,8 +7,6 @@
 
 // The store screen: showing the stock and the player's gold, and the buy and
 // sell commands that hand over to the haggling in store_haggle.c
-//
-// enter_store() is declared in externs.h; the rest is static.
 
 #include "headers.h"
 
@@ -16,14 +14,17 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-
-#include "externs.h"
-#include "item_picker.h"
-#include "inven_command_state.h"
+#include "world_item.h"
+#include "world_view.h"
+#include "world_store.h"
+#include "game_settings.h"
+#include "commands.h"
+#include "rnd.h"
+#include "tables.h"
+#include "ui_screen.h"
+#include "ui_input.h"
 #include "inventory.h"
 #include "stores.h"
-#include "store_haggle.h"
-#include "messages.h"
 #include "player_progress.h"
 #include "player_stats.h"
 

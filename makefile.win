@@ -38,7 +38,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))sources.mk
 # なく -iquote にしているのは、#include <...> の探し先を前と同じ（src/ を
 # 見ない）に保つため（このリポジトリーの curses.h が <curses.h> を横取りしない）。
 VPATH = $(SRC_SUBDIRS)
-INC += -iquote . $(addprefix -iquote ,$(SRC_SUBDIRS))
+INC += -iquote . $(addprefix -iquote ,$(SRC_SUBDIRS)) $(addprefix -iquote ,$(addsuffix /internal,$(INTERNAL_LIBS)))
 
 OBJS = $(notdir $(SRCS:.c=.o))
 

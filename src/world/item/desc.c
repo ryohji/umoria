@@ -13,8 +13,12 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "world_item.h"
+#include "world_internal.h"
+#include "rnd.h"
+#include "tables.h"
+#include "treasure.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
 
 #include "inventory.h"

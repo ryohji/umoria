@@ -14,8 +14,15 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
-
-#include "externs.h"
+#include "dice.h"
+#include "world_combat.h"
+#include "world_player.h"
+#include "world_internal.h"
+#include "monsters.h"
+#include "player.h"
+#include "rnd.h"
+#include "str_insert.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
 
 #include "inventory.h"

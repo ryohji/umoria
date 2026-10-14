@@ -15,7 +15,7 @@
 
 // vtype comes from types.h, which must be included before this header.
 
-// --- From progress.h: turn counter and seeds ---
+// --- Turn counter and seeds ---
 
 // Current turn. Starts at -1 (no character in play). Raised to 0 on first turn.
 int32_t progress_turn(void);
@@ -36,7 +36,7 @@ void progress_set_wizard_mode(bool on);
 bool progress_wizard_requested(void);
 void progress_set_wizard_requested(bool requested);
 
-// --- From save_state.h: where saved and how far ---
+// --- Where saved and how far ---
 
 // Save file path. Pointer is valid for the entire run.
 char *save_file_path(void);
@@ -62,7 +62,7 @@ bool save_state_has_live_character(void);
 // Is a character in play at all? (turn >= 0)
 bool save_state_character_is_in_play(void);
 
-// --- From score_death.h: death and scoring ---
+// --- Death and scoring ---
 
 // True once player has died.
 bool player_is_dead(void);

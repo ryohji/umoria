@@ -15,10 +15,15 @@
 #include "dungeon_state.h"
 #include "monster_state.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "world_dungeon.h"
+#include "world_monster.h"
+#include "world_store.h"
+#include "world_internal.h"
+#include "geometry.h"
+#include "rnd.h"
+#include "sets.h"
 #include "item_kinds.h"
-#include "panel.h"
+#include "ui_screen.h"
 #include "player_condition.h"
 
 typedef struct coords {

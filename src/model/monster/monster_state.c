@@ -12,7 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "externs.h"
+#include "monsters.h"
 
 #include "monster_state.h"
 

@@ -13,12 +13,13 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "world_item.h"
+#include "world_player.h"
+#include "game_settings.h"
+#include "ui_screen.h"
 
 #include "player_stats.h"
 #include "inventory.h"
-#include "item_picker.h"
 #include "item_kinds.h"
 #include "player_condition.h"
 

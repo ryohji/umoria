@@ -27,7 +27,7 @@
  *
  * 印（player_status_flags.c の PY_REST）はこの module の外。**数を 0 にしても
  * 印は残る**（rest_command.c の rest_off() が両方を消す）ので、ここでは印を 1 度も
- * 触らない —— それ自身がこの単位の設計（player_resting.h）。
+ * 触らない —— それ自身がこの単位の設計（player_condition.h）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に数を置きなおす。
  */

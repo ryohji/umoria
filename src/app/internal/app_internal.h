@@ -1,22 +1,34 @@
-// Copyright (c) 2025-2026 Umoria Contributors
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2021-2026 Umoria Contributors
 //
 // Umoria is free software released under a GPL v2 license and comes with
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Game state encapsulation
-// Centralizes game state that was previously scattered in global variables
+// Declarations shared inside app/ only.
 
-#ifndef GAME_STATE_H
-#define GAME_STATE_H
+#ifndef APP_INTERNAL_H
+#define APP_INTERNAL_H
 
+#include "config.h"
 #include "constant.h"
 #include "types.h"
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
+// --- death.c ---
+void display_scores(int);
+bool duplicate_character(void);
+int32_t total_points(void);
+
+// Does not return (calls exit). Declared _Noreturn so the compiler knows.
+_Noreturn void exit_game(void);
+
+// --- dungeon.c ---
+void dungeon(void);
+
+// --- game_state.c ---
 // Forward declaration
 typedef struct GameState GameState;
 
@@ -138,4 +150,31 @@ static inline void game_state_set_death(GameState *state, bool dead) {
     state->death = dead;
 }
 
-#endif // GAME_STATE_H
+void init_seeds(uint32_t);
+
+// --- input_end_handling.c ---
+void handle_input_end(void);
+void handle_quit(void);
+
+// --- platform_init.c ---
+// Initialize platform services (rendering + input)
+// Returns true on success, false on failure
+bool platform_init(void);
+
+// Shutdown platform services
+void platform_shutdown(void);
+
+// --- save.c ---
+bool get_char(bool *);
+bool save_char(void);
+bool _save_char(char *);
+void set_fileptr(FILE *);
+void wr_highscore(high_scores *);
+void rd_highscore(high_scores *);
+
+// --- signal_handling.c ---
+// Handle pending signals in a safe context (called from main loop)
+// This performs all the I/O operations that were deferred from the signal handler
+void handle_pending_signals(void);
+
+#endif // APP_INTERNAL_H

@@ -12,12 +12,16 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
-#include "item_picker.h"
+#include "dice.h"
+#include "ui_input.h"
+#include "ui_screen.h"
+#include "player.h"
+#include "world_combat.h"
+#include "world_item.h"
+#include "rnd.h"
+#include "commands.h"
 
 #include "device.h"
-#include "device_use.h"
 #include "player_condition.h"
 
 // A confused player aims at random.

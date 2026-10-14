@@ -21,7 +21,7 @@
  * **1 つの数から等級が 2 つ出る** —— 人物画面の「Saving Throw」は
  * A_WIS と `CLA_SAVE`、「Magic Device」は **A_INT と `CLA_DEVICE`** を足す。
  * 杖と魔法棒の成功率もこの数が土台（`device_use_chance()` の第 1 引数）。
- * **どちらの等級もこの module の外**（player_saving_throw.h に書いてある）。
+ * **どちらの等級もこの module の外**（player_skills.h に書いてある）。
  *
  * 判定そのもの（`world/combat/player_damage.c` の `player_saves()`）も **この module の外** ——
  * 窓口は数を返し、`player_saves()` は真偽を返す。

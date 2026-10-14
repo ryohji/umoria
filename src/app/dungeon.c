@@ -15,25 +15,30 @@
 #include "dungeon_state.h"
 #include "monster_state.h"
 #include "game_status.h"
-
-#include "externs.h"
-#include "item_picker.h"
-#include "command_state.h"
-#include "direction_keys.h"
-#include "input_ended.h"
-#include "inven_command_state.h"
+#include "bits.h"
+#include "commands.h"
+#include "world_monster.h"
+#include "world_item.h"
+#include "world_dungeon.h"
+#include "world_view.h"
+#include "world_player.h"
+#include "world_combat.h"
+#include "world_store.h"
+#include "app_internal.h"
+#include "ui_input.h"
+#include "ui_screen.h"
+#include "game_settings.h"
+#include "geometry.h"
+#include "monsters.h"
+#include "player.h"
+#include "rnd.h"
 #include "inventory.h"
 #include "item_knowledge.h"
-#include "level_exit.h"
-#include "monster_breeding.h"
-#include "panel.h"
-#include "signal_handling.h"
 #include "player_condition.h"
 #include "player_stats.h"
 #include "player_identity.h"
 #include "player_progress.h"
 #include "player_skills.h"
-#include "messages.h"
 
 static char original_commands(char);
 static void do_command(char);
@@ -506,7 +511,7 @@ void dungeon(void) {
             if (player_timed_beginning(PLAYER_TIMED_INFRA_VISION)) {
                 // The clock counts TURNS and lives in player_timed_effects.c;
                 // the one square it is worth is this file's to add, because this
-                // is where the two ends meet (player_infra_range.h).
+                // is where the two ends meet (player_skills.h).
                 player_infra_range_adjust(1);
 
                 // light but don't move creatures
@@ -1222,7 +1227,7 @@ static void do_command(char com_val) {
                 for (;;) {
                     x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
                     y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                    // NOTE: y is compared against width. May be a bug (see dungeon_size.h).
+                    // NOTE: y is compared against width. May be a bug (see dungeon_state.h).
                     if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
                         msg_print("You've gone past the end of your map.");
                         x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;

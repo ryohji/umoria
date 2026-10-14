@@ -14,10 +14,16 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "game_status.h"
-
-#include "externs.h"
-#include "command_state.h"
-#include "level_exit.h"
+#include "world_monster.h"
+#include "world_item.h"
+#include "world_player.h"
+#include "world_view.h"
+#include "world_dungeon.h"
+#include "commands.h"
+#include "command_internal.h"
+#include "game_settings.h"
+#include "ui_screen.h"
+#include "ui_input.h"
 #include "player_stats.h"
 #include "player_skills.h"
 #include "player_progress.h"
@@ -511,7 +517,7 @@ void wizard_command(char com_val) {
         break;
     case '+':
         // Deliberately sets experience without updating level. Level recalculated
-        // by prt_experience() (see player_level.h).
+        // by prt_experience().
         if (command_is_repeating()) {
             player_set_experience(take_command_count());
         } else if (player_experience() == 0) {

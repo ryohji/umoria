@@ -13,13 +13,14 @@
 #include "constant.h"
 #include "types.h"
 
-#include "panel.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 // Which panel we are looking at, and the six coordinates that follow from it.
 // Private: recalculate_bounds() below is the only code that may derive the six,
 // and it is the only reason the six exist at all.
 
-// This module includes no externs.h: it uses nothing outside itself to track the panel.
+// This module uses nothing outside itself to track the panel.
 static int panel_row, panel_col;
 static int panel_row_min, panel_row_max;
 static int panel_col_min, panel_col_max;

@@ -13,7 +13,7 @@
 
 #include "inventory.h"
 
-// This module includes no externs.h: it uses nothing outside itself.
+// This module uses nothing outside itself.
 
 // The state is owned here and is static. One array holds both: pack in
 // 0..INVEN_WIELD-1 and worn gear

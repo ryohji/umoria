@@ -42,7 +42,7 @@
 #include "types.h"
 #include "dungeon_state.h"
 
-#include "level_exit.h"
+#include "world_dungeon.h"
 
 #include "minunit.h"
 

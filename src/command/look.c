@@ -15,12 +15,16 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
-
-#include "externs.h"
+#include "world_item.h"
+#include "ui_input.h"
+#include "ui_screen.h"
+#include "game_settings.h"
+#include "commands.h"
+#include "command_internal.h"
+#include "monsters.h"
 
 #include "str_insert.h"
 
-#include "panel.h"
 #include "player_condition.h"
 
 static bool look_ray(int, int, int);

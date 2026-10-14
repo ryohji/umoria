@@ -14,10 +14,12 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
+#include "game_settings.h"
+#include "world_dungeon.h"
+#include "world_view.h"
+#include "world_internal.h"
+#include "ui_screen.h"
 
-#include "externs.h"
-
-#include "panel.h"
 #include "player_condition.h"
 
 // Returns true if player has no light -RAK-

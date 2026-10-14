@@ -13,8 +13,13 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "bits.h"
+#include "game_settings.h"
+#include "world_dungeon.h"
+#include "world_item.h"
+#include "player.h"
+#include "rnd.h"
+#include "ui_screen.h"
 
 #include "inventory.h"
 #include "player_identity.h"
@@ -220,7 +225,7 @@ void calc_spells(int stat) {
 
     // calc number of spells allowed
     int num_allowed = 0;
-    // WHAT THE CLASS GIVES IS OUTSIDE THE WINDOW (item 3 in player_class.h) --
+    // WHAT THE CLASS GIVES IS OUTSIDE THE WINDOW (item 3 in player_identity.h) --
     // first_spell_lev is read in two places only, this line and calc_mana().
     int levels = player_level() - class[player_class()].first_spell_lev + 1;
     switch (stat_adj(stat)) {
@@ -520,7 +525,7 @@ int cast_spell(const char *prompt, int item_val, int *sn, int *sc) {
     j = spells_learned_among(inventory_at(item_val)->flags);
 
     // The `- 1` is about the table, not the class: warriors have no row, so
-    // magic_spell has MAX_CLASS - 1 rows (see player_class.h).
+    // magic_spell has MAX_CLASS - 1 rows (see player_identity.h).
     spell_type *s_ptr = magic_spell[player_class() - 1];
 
     int spell[31];

@@ -11,7 +11,7 @@
 
 #include "bits.h"
 
-// This module includes no externs.h: it calls nothing outside itself.
+// This module calls nothing outside itself.
 
 // Returns position of first set bit -RAK-
 // and clears that bit

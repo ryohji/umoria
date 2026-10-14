@@ -12,8 +12,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "game_settings.h"
+#include "commands.h"
+#include "command_internal.h"
+#include "monsters.h"
+#include "ui_screen.h"
 
 #include "player_identity.h"
 

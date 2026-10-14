@@ -6,26 +6,24 @@
 
 // Game state implementation
 
-#include "app/game_state.h"
+#include "app_internal.h"
 
 #include "player_stats.h"
-#include "command_state.h"
+#include "ui_input.h"
+#include "ui_screen.h"
 #include "dungeon_state.h"
 #include "constant.h"
-#include "externs.h"
+#include "game_settings.h"
+#include "app_internal.h"
+#include "rnd.h"
 #include "game_status.h"
-#include "input_ended.h"
 #include "monster_state.h"
-#include "inven_command_state.h"
 #include "inventory.h"
-#include "level_exit.h"
+#include "world_dungeon.h"
+#include "world_monster.h"
 #include "missile_serial.h"
-#include "monster_turn.h"
-#include "panel.h"
 #include "player_condition.h"
-#include "screen_touched.h"
 #include "stores.h"
-#include "messages.h"
 
 #include <stdlib.h>
 #include <string.h>

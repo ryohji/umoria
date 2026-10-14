@@ -7,7 +7,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "externs.h"
+#include "player.h"
 #include "player_progress.h"
 
 // Experience stores. All start at zero (no character).

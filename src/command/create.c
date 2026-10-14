@@ -12,8 +12,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "commands.h"
+#include "command_internal.h"
+#include "player.h"
+#include "rnd.h"
+#include "world_player.h"
+#include "ui_screen.h"
 
 #include "player_progress.h"
 #include "player_stats.h"
@@ -115,12 +119,12 @@ static void get_all_stats(void) {
     // The one place that puts the dexterity bonus in the ARMOUR half rather
     // than the magical one -- the class table below does it the other way
     // round. Nothing can tell the two spellings apart, because every reader
-    // only ever asks for the sum (player_armour_class.h).
+    // only ever asks for the sum (player_stats.h).
     player_armour_class_set_parts(toac_adj(), 0);
     player_set_experience_factor(r_ptr->b_exp);
     // The only question so far whose starting value is not zero: Human 0,
     // Dwarf 5, and five more in between. Deciding, not adding -- a character
-    // made twice must not see twice as far (player_infra_range.h).
+    // made twice must not see twice as far (player_skills.h).
     player_infra_range_set(r_ptr->infra);
 }
 
@@ -190,7 +194,7 @@ static void get_history(void) {
 
     // Start of the history table. **Row number arithmetic stays here** — this is
     // knowledge of background[] ordering (the Assumptions above say so), not a
-    // property of the race (player_race.h).
+    // property of the race (player_identity.h).
     int hist_ptr = player_race() * 3 + 1;
     int social_class = randint(4);
     int cur_ptr = 0;
@@ -356,7 +360,7 @@ static void get_class(void) {
 
     // **The 0 before the menu does not become the player's answer** — this loop
     // cannot exit without answering, so `player_class_set(cl[j])` below always
-    // overwrites it (player_class.h, "twice in a lifetime").
+    // overwrites it (player_identity.h, "twice in a lifetime").
     player_class_set(0);
 
     int min_value, max_value;
@@ -370,7 +374,7 @@ static void get_class(void) {
         j = s - 'a';
         if ((j < k) && (j >= 0)) {
             player_class_set(cl[j]);
-            // **What the class gives is outside the window** (player_class.h, third
+            // **What the class gives is outside the window** (player_identity.h, third
             // point) — the window returns only the row number; from that one line
             // below come the six adjustments, hit die, stealth, exp factor, and
             // title, all from the table columns.

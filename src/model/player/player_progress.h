@@ -7,6 +7,10 @@
 #ifndef PLAYER_PROGRESS_H
 #define PLAYER_PROGRESS_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // Level and experience: level is fixed by experience via advance_price(level) =
 // player_exp[level - 1] * expfact / 100. Two ways to maintain the promise: climbing
 // (player_deserves_next_level) and recounting (player_recompute_level).

@@ -8,6 +8,10 @@
 #ifndef PLAYER_STATS_H
 #define PLAYER_STATS_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // Seven stat-to-bonus tables. All read player_stat_use() internally.
 
 int stat_adj(int stat);    // Wisdom/intelligence adjustment; `stat` is A_STR..A_CHR
@@ -122,7 +126,7 @@ void player_base_to_hit_adjust(int melee, int with_bows);  // Class adjustment (
 void player_base_to_hit_adjust_both(int amount);           // Spell adjustment (same value)
 
 // Display numbers shown on sheet/panel. Filtered by identification, includes heavy weapon penalty.
-// Not the numbers used in combat (see player_attack_bonuses.h, player_armour_class.h).
+// Not the numbers used in combat (calculated separately in combat).
 int16_t player_display_to_hit(void);
 int16_t player_display_to_dam(void);
 int16_t player_display_to_ac(void);

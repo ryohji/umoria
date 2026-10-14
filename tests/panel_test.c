@@ -28,12 +28,13 @@
  * 動いたかどうかと座標 6 個すべてを比べる。
  */
 /* externs.h も variable.c も要らない。10 個の値が panel.c の static に
- * なったので、ふれる先は panel.h の窓口だけで足りる。 */
+ * なったので、ふれる先は ui_screen.h の窓口だけで足りる。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
-#include "panel.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 #include "minunit.h"
 

@@ -12,8 +12,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "dice.h"
+#include "rnd.h"
 
 // generates damage for 2d6 style dice rolls
 int damroll(int num, int sides) {

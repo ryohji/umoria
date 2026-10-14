@@ -33,8 +33,6 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
 #include "game_settings.h"
 
 #include "minunit.h"

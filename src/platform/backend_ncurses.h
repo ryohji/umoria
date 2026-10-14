@@ -10,8 +10,7 @@
 #ifndef BACKEND_NCURSES_H
 #define BACKEND_NCURSES_H
 
-#include "render.h"
-#include "input.h"
+#include "backend.h"
 
 // Get ncurses rendering backend
 RenderBackend *render_ncurses_backend(void);

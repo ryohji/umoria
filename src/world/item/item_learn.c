@@ -13,11 +13,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "world_item.h"
+#include "world_player.h"
+#include "world_internal.h"
 
 #include "inventory.h"
-#include "item_learn.h"
 #include "player_progress.h"
 
 inven_type *learn_item_effect(bool effect_identified, int *item_val) {

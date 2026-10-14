@@ -37,7 +37,7 @@ WARNINGS = -Wall -Wextra -Wno-unused-parameter \
 # #include "..." はヘッダの名前だけで書いてあるので、ヘッダのあるディレクトリー
 # はすべて要る。src/ の .c を丸ごと #include するテスト（下の「気をつける
 # こと」の 2）も、この -I でその .c を見つける。
-CFLAGS = $(STD) $(WARNINGS) -g -Isrc $(addprefix -Isrc/,$(SRC_SUBDIRS)) -Itests
+CFLAGS = $(STD) $(WARNINGS) -g -Isrc $(addprefix -Isrc/,$(SRC_SUBDIRS)) $(addprefix -Isrc/,$(addsuffix /internal,$(INTERNAL_LIBS))) -Itests
 TESTDIR = tests
 BUILDDIR = $(TESTDIR)/build
 
@@ -242,6 +242,14 @@ $(BINS): $(BUILDDIR)/%: $(TESTDIR)/%.c $$(addprefix $(TESTDIR)/,$$(EXTRA_$$*)) \
                         $(TEST_HEADERS) $(LIBS) | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/$*.c $(addprefix $(TESTDIR)/,$(EXTRA_$*)) \
 	    $(LIBS) -Wl,-Map,$@.map
+
+# Every header under src/ must compile on its own (it includes what it uses).
+.PHONY: headers
+headers:
+	@for h in $$(find src -name '*.h' | sort); do \
+	    echo "#include \"$$(basename $$h)\"" | $(CC) $(CFLAGS) -D_DEFAULT_SOURCE -Werror -fsyntax-only -x c - \
+	        || { echo "header does not compile alone: $$h"; exit 1; }; \
+	done; echo "headers: all compile alone"
 
 clean:
 	rm -rf $(BUILDDIR)

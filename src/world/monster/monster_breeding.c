@@ -11,10 +11,11 @@
 #include "constant.h"
 #include "types.h"
 
-#include "monster_breeding.h"
+#include "world_monster.h"
+#include "world_internal.h"
 
-// No externs.h here: one number needs nothing from the rest of the game.
-// MAX_MON_MULT comes from constant.h.
+// One number needs nothing from the rest of the game (MAX_MON_MULT comes from
+// constant.h).
 
 // The number is owned here and is static: the only way in is through the six
 // windows. It starts out as zero, so a new game begins with nothing bred, which

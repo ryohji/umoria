@@ -18,10 +18,14 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "world_item.h"
+#include "world_monster.h"
+#include "world_dungeon.h"
+#include "world_player.h"
+#include "world_internal.h"
+#include "rnd.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
-#include "item_picker.h"
 #include "inventory.h"
 #include "item_knowledge.h"
 #include "player_stats.h"
@@ -213,7 +217,7 @@ int inven_carry(inven_type *i_ptr) {
     int typ = i_ptr->tval;
     int subt = i_ptr->subval;
     // Kinds with no record of their own are always known by name, so they can
-    // be carried in order; see item_ident.h.
+    // be carried in order; see item_knowledge.h.
     int always_known1p = !item_kind_has_record(i_ptr);
 
     int locn;

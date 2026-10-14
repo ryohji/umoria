@@ -14,8 +14,11 @@
 #include "types.h"
 #include "monster_state.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "length_of.h"
+#include "monsters.h"
+#include "commands.h"
+#include "command_internal.h"
+#include "ui_screen.h"
 #include "player_progress.h"
 
 static void roff(const char *);

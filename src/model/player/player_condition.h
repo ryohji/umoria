@@ -10,6 +10,10 @@
 #ifndef PLAYER_CONDITION_H
 #define PLAYER_CONDITION_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // === Status Flags ===
 
 // Fourteen marks that an effect is in force. Order is not the bit order.

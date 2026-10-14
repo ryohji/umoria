@@ -13,13 +13,15 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "world_player.h"
+#include "world_item.h"
+#include "world_view.h"
+#include "world_internal.h"
+#include "ui_screen.h"
 
 #include "player_progress.h"
 #include "player_identity.h"
 #include "player_condition.h"
-#include "screen_fields.h"
 #include "player_stats.h"
 
 // Increases hit points and level -RAK-

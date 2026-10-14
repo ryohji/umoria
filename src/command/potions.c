@@ -12,16 +12,20 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
-#include "item_picker.h"
+#include "bits.h"
+#include "world_item.h"
+#include "world_player.h"
+#include "world_view.h"
+#include "dice.h"
+#include "game_settings.h"
+#include "commands.h"
+#include "rnd.h"
+#include "ui_screen.h"
 
 #include "inventory.h"
-#include "item_learn.h"
 #include "player_stats.h"
 #include "player_condition.h"
 #include "player_progress.h"
-#include "stat_loss.h"
 
 // Potions for the quaffing -RAK-
 void quaff(void) {

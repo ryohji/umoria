@@ -12,15 +12,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
-#include "command_state.h"
-#include "panel.h"
-#include "input.h"
-#include "input_ended.h"
-#include "messages.h"
-#include "render.h"
-#include "screen_touched.h"
+#include "game_settings.h"
+#include "ui_screen.h"
+#include "ui_input.h"
+#include "ui_render.h"
+#include "ui_internal.h"
 
 #define use_value2
 

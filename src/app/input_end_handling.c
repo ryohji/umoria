@@ -13,9 +13,9 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-
-#include "externs.h"
-#include "input_ended.h"
+#include "app_internal.h"
+#include "world_player.h"
+#include "ui_input.h"
 
 #include <string.h>
 

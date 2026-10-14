@@ -38,4 +38,34 @@ uint32_t game_options_pack(void);
 // Sets every option from the saved word. Bits outside the eleven are ignored.
 void game_options_unpack(uint32_t bits);
 
+// These are options, set with set_options command -CJS-
+extern bool rogue_like_commands;
+
+extern bool find_cut;          // Cut corners on a run
+
+extern bool find_examine;      // Check corners on a run
+
+extern bool find_prself;       // Print yourself on a run (slower)
+
+extern bool find_bound;        // Stop run when the map shifts
+
+extern bool prompt_carry_flag; // Prompt to pick something up
+
+extern bool show_weight_flag;  // Display weights in inventory
+
+extern bool highlight_seams;   // Highlight magma and quartz
+
+extern bool find_ignore_doors; // Run through open doors
+
+extern bool sound_beep_flag;   // Beep for invalid character
+
+extern bool display_counts;    // Display rest/repeat counts
+
+// global flags
+extern bool free_turn_flag; // Used in MORIA
+
+extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
+
+extern int closing_flag; // Used for closing
+
 #endif // GAME_SETTINGS_H

@@ -10,6 +10,10 @@
 #ifndef STORES_H
 #define STORES_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // store_type comes from types.h, which has to be included before this header.
 
 // There is nothing to derive here -- unlike the panel or the message history,

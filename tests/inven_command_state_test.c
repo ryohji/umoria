@@ -37,13 +37,13 @@
  * 状態を共有するので、走りだしを見る 1 件は main() の先頭に置く。
  */
 /* externs.h は要らない。2 つの窓口と、型のための types.h だけで足りる。
- * screen_touched.h を取りこむのは、中断が 2 つで 1 つであることを見るため。 */
+ * ui_screen.h を取りこむのは、中断が 2 つで 1 つであることを見るため。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
-#include "inven_command_state.h"
-#include "screen_touched.h"
+#include "ui_input.h"
+#include "ui_screen.h"
 
 #include "minunit.h"
 

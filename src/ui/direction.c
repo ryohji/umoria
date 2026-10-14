@@ -12,10 +12,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "ui_input.h"
+#include "ui_screen.h"
+#include "game_settings.h"
 
-#include "externs.h"
-
-#include "command_state.h"
 
 // map rogue_like direction commands into numbers
 static char map_roguedir(char comval) {

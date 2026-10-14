@@ -17,7 +17,7 @@
  * `int confuse_monster(int, int, int);`（src/world/item/spells.c。杖と巻物が向きを
  * 指定してモンスターを混乱させる呪文）があり、フィールドのほうは
  * **プレイヤーが持っている 1 回ぶんの蓄え**。別物なので、module も窓口も
- * game の message に合わせて「手」を名前にした（player_glowing_hands.h）。
+ * game の message に合わせて「手」を名前にした（player_condition.h）。
  *
  * **時計ではなく蓄え。** この列でいちばん近いのは 9 つめの数えおとしだが、
  * 重心は 3 つとも違う:
@@ -34,7 +34,7 @@
  *      そのまま通す**ことに釘を打つ（11・12 つめと同じ形）。
  *
  * 相手が混乱するかの判定（抵抗・m_ptr->confused・recall）と message 2 つと
- * `adesc != 99` の番は**この module の外**（player_glowing_hands.h）。
+ * `adesc != 99` の番は**この module の外**（player_condition.h）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に手を暗くしなおす。
  */

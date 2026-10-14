@@ -14,8 +14,12 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "world_item.h"
+#include "world_dungeon.h"
+#include "world_store.h"
+#include "world_internal.h"
+#include "rnd.h"
+#include "tables.h"
 #include "item_kinds.h"
 #include "stores.h"
 

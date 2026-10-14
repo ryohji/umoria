@@ -12,11 +12,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "world_player.h"
+#include "ui_screen.h"
 
 #include "player_stats.h"
-#include "stat_loss.h"
 
 // Indexed by A_STR to A_CHR.
 static const struct {

@@ -9,6 +9,10 @@
 #ifndef MISSILE_SERIAL_H
 #define MISSILE_SERIAL_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // Every stack of missiles made in the dungeon gets a number of its own, kept in
 // the item's p1 field. Stacking compares it: items_can_stack() (inven_ops.c) lets
 // two lots of the same arrow merge only when their p1 agree, so two batches

@@ -8,6 +8,9 @@
 // Global constants used by Moria
 
 // Current version number of Moria
+#ifndef CONSTANT_H
+#define CONSTANT_H
+
 #define CUR_VERSION_MAJ  5
 #define CUR_VERSION_MIN  7
 #define PATCH_LEVEL      0
@@ -96,7 +99,7 @@
 #define OBJ_NOTHING             417
 #define OBJ_RUINED_CHEST        418
 #define OBJ_WIZARD              419
-#define OBJECT_IDENT_SIZE       448   // 7 groups of 64 secret kinds; see item_ident.h
+#define OBJECT_IDENT_SIZE       448   // 7 groups of 64 secret kinds; see item_knowledge.h
 #define MAX_GOLD                 18   // Number of different types of gold
 
 // with MAX_TALLOC 150, it is possible to get compacting objects during
@@ -599,3 +602,5 @@
 
 // Number of entries allowed in the scorefile.
 #define SCOREFILE_SIZE      1000
+
+#endif // CONSTANT_H

@@ -35,7 +35,7 @@
  * テストは 1 プロセスで状態を共有する。走りだしの状態を見る 2 件は
  * main() の先頭に置いてある。
  */
-/* externs.h は要らない。窓口と、型のための types.h だけで足りる。 */
+/* 窓口と、型のための types.h だけで足りる。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"

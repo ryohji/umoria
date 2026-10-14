@@ -13,14 +13,18 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
-#include "item_picker.h"
+#include "bits.h"
+#include "world_item.h"
+#include "world_dungeon.h"
+#include "world_monster.h"
+#include "world_player.h"
+#include "game_settings.h"
+#include "rnd.h"
+#include "commands.h"
+#include "ui_screen.h"
 
 #include "armor_selection.h"
 #include "inventory.h"
-#include "item_learn.h"
-#include "level_exit.h"
 #include "player_condition.h"
 
 // Scrolls for the reading -RAK-

@@ -10,6 +10,10 @@
 #ifndef INVENTORY_H
 #define INVENTORY_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // inven_type comes from types.h, which has to be included before this header.
 
 // One array, two windows. The slots 0 .. 21 are the pack and the slots

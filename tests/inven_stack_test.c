@@ -42,7 +42,8 @@
 
 /* 検証対象（src/world/item/inven_ops.c）と、判定に使う本物（src/world/item/desc.c）の
  * 宣言は externs.h から受ける。 */
-#include "externs.h"
+#include "world_item.h"
+#include "world_internal.h"
 
 /* 各テストの前に必ず呼ばれる。グローバル状態が毎回まっさらに戻る。 */
 #define MU_SETUP() fixture_reset()

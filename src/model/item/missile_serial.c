@@ -14,7 +14,7 @@
 
 #include "missile_serial.h"
 
-// This module includes no externs.h: it uses nothing outside itself besides constant.h.
+// This module uses only constant.h from outside itself.
 
 // Counter for missiles. Starts at 0; first batch is stamped 1.
 static int16_t missile_ctr = 0;

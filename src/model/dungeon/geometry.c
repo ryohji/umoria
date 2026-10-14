@@ -14,8 +14,7 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "geometry.h"
 
 // Checks a co-ordinate for in bounds status -RAK-
 bool in_bounds(int y, int x) {
@@ -28,7 +27,7 @@ bool in_bounds(int y, int x) {
 
 // Checks points north, south, east, and west for a wall -RAK-
 // note that y,x is always in_bounds(), i.e. inside the boundary ring:
-// 0 < y < height-1 and 0 < x < width-1 (see dungeon_size.h)
+// 0 < y < height-1 and 0 < x < width-1 (see dungeon_state.h)
 int next_to_walls(int y, int x) {
     int i = 0;
     cave_type *c_ptr = square_at(y - 1, x);

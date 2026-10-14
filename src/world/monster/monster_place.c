@@ -16,9 +16,14 @@
 #include "dungeon_state.h"
 #include "monster_state.h"
 #include "game_status.h"
-
-#include "externs.h"
-#include "monster_turn.h"
+#include "dice.h"
+#include "distance.h"
+#include "geometry.h"
+#include "world_monster.h"
+#include "world_internal.h"
+#include "monsters.h"
+#include "rnd.h"
+#include "ui_screen.h"
 #include "player_condition.h"
 #include "player_skills.h"
 

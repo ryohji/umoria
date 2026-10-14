@@ -14,10 +14,18 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
+#include "world_monster.h"
+#include "world_player.h"
+#include "world_dungeon.h"
+#include "world_combat.h"
+#include "world_internal.h"
+#include "distance.h"
+#include "geometry.h"
+#include "monsters.h"
+#include "sets.h"
+#include "str_insert.h"
+#include "ui_screen.h"
 
-#include "externs.h"
-
-#include "panel.h"
 #include "player_condition.h"
 
 // Return flags for given type area affect -RAK-

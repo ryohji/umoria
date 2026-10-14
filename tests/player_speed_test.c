@@ -29,7 +29,7 @@
  * モンスターはこの module の外。change_speed()（player_bonuses.c）は同じ数を
  * m_list[i].cspeed 全員に足し、world/monster/monster_place.c は新しいモンスターを置くときに混ぜる。
  * **プレイヤーが遅いぶんをモンスターを速くすることで表す設計**なので、ここでは
- * モンスターを 1 匹も触らない —— それ自身がこの単位の設計（player_speed.h）。
+ * モンスターを 1 匹も触らない —— それ自身がこの単位の設計（player_skills.h）。
  * 食いけの 2 乗（app/dungeon.c）と探索の 1 段引き（status_line.c）も外。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に段数を置きなおす。

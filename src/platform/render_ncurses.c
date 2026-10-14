@@ -9,7 +9,7 @@
 #include "backend_ncurses.h"
 
 #include "curses.h"
-#include "os_signals.h"
+#include "platform_signals.h"
 
 #include <signal.h>
 #include <stdio.h>
