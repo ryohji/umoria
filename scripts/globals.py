@@ -57,9 +57,9 @@ import sys
 # externs.h の宣言を意味で分けたもの。名前順ではなく「誰のものか」で分ける。
 GROUPS = {
     "定数表（読みとり専用データ）": """
-        copyright days player_title race background player_exp class class_level_adj
+        player_title race background player_exp class class_level_adj
         magic_spell spell_names player_init rgold_adj owners store_choice store_buy
-        special_names syllables blows_table normal_table blank_monster""",
+        special_names syllables blows_table blank_monster""",
     # 見た目は定数表だが起動時に一度書きかえる。「定数」として扱うと壊す。
     #   colors 系 6 個  desc.c:34 magic_init() が randes_seed を種にシャッフル。
     #                   未鑑定アイテムの見た目をゲームごとに変える仕掛けで、
@@ -265,8 +265,7 @@ GROUPS = {
 }
 
 # 定義の置き場。ここでの代入は初期化なので「散らばった書きこみ」に数えない。
-# rnd.c は #54 で normal_table を tables.c から受けとった。
-HOME_FILES = {"variable.c", "player.c", "tables.c", "treasure.c", "monsters.c", "rnd.c"}
+HOME_FILES = {"variable.c", "player.c", "tables.c", "treasure.c", "monsters.c"}
 # 状態の写しとり。`state->x = x` は x を書かない。
 SNAPSHOT_FILES = {"game_state.c"}
 

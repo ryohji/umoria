@@ -7,9 +7,6 @@
 
 // Declarations for global variables and initialized data
 
-// Defined in variable.c with 17 elements.
-extern const char *copyright[17];
-
 // These are options, set with set_options command -CJS-
 extern bool rogue_like_commands;
 extern bool find_cut;          // Cut corners on a run
@@ -27,7 +24,6 @@ extern bool display_counts;    // Display rest/repeat counts
 extern bool free_turn_flag; // Used in MORIA
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 
-extern char days[7][29];
 extern int closing_flag; // Used for closing
 
 // Following are player variables
@@ -70,8 +66,6 @@ extern const char *amulets[MAX_AMULETS];
 extern const char *syllables[MAX_SYLLABLES];
 
 extern uint8_t blows_table[7][6];
-
-extern uint16_t normal_table[NORMAL_TABLE_SIZE];
 
 // function return values
 
