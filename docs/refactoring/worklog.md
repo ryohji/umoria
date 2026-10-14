@@ -23,3 +23,4 @@
 | 2026-10-10 | #20 | `lose_stat` と `stat_loss_test`（`b3697f9`。壊し 6 通りすべて赤）、呼び手 10 か所を替えて 6 本を消す（`296bf03`） | 1826（87 本） | 警告 0・GREEN・globals OK 38・層 1167 本 |
 | 2026-10-10 | #73 | 骨格を `use_charged_device` に（`7e164e3`。実物の出力が一致、壊した実行形式だけが違う） | 1826（87 本） | 警告 0・GREEN・globals OK 38・層 1158 本 |
 | 2026-10-10 | 確かめ | `develop..HEAD` の 12 コミットを、一時的な worktree で 1 つずつ空から組んだ（`rm -rf tests/build`・`make clean`）。どれも警告 0・GREEN・Segmentation 0・globals OK・層 OK | 1774〜1826 | 第 2 節の 1〜3 |
+| 2026-10-14 | #77〜#79・#71（一部）・#20・#73 マージ | `test/77-rnd`（`9db4824`）・`refactor/78-globals`（`7fc1510`）・`test/79-hit-store`（`b21a05c`）・`refactor/71-light`（`8668b6a`）・`refactor/20-73`（`d8322f9`）・`docs/77-79-20-71-73`（`9c629e5`）を `--no-ff` で | 1826（87 本） | 警告 0・GREEN・globals OK 38・層 1158 本（マージ後の develop で `tests/build` を消してから測った） |
