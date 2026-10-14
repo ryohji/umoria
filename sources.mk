@@ -25,7 +25,7 @@ SRCS = app/main.c command/files.c ui/io.c \
 	model/item/item_ident.c world/item/item_learn.c model/item/item_flags.c model/player/abilities.c model/game/options.c ui/messages.c \
 	command/scrolls.c world/item/spells.c command/wizard.c platform/signals.c platform/signal_flags.c app/signal_handling.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c app/game_state.c \
-	ui/input.c platform/input_ncurses.c platform/platform.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
+	ui/input.c platform/input_ncurses.c app/platform_init.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
 	model/item/inventory.c model/item/armor_selection.c model/game/progress.c model/game/score_death.c model/game/save_state.c model/player/player_pos.c \
 	model/player/hp_table.c model/player/player_light.c model/player/burden.c model/player/spells_known.c model/item/object_levels.c world/item/inscription.c world/item/item_enchant.c \
 	model/item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c command/options_menu.c \
