@@ -13,10 +13,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
 #include "externs.h"
 #include "object_copy.h"
-#include "floor_items.h"
 #include "stores.h"
 
 // None of these prints or asks for input. The callers are app/main.c (store_init),

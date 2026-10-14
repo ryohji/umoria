@@ -13,12 +13,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 #include "monster_state.h"
 
 #include "externs.h"
-#include "dungeon_map.h"
-#include "dungeon_size.h"
-#include "floor_items.h"
 #include "inventory.h"
 #include "pending_teleport.h"
 #include "player_gold.h"

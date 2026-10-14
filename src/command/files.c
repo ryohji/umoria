@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
 // This must be included after fcntl.h, which has a prototype for `open' on some
 // systems.  Otherwise, the `open' prototype conflicts with the `topen' declaration.
@@ -20,7 +21,6 @@
 
 #include "abilities.h"
 #include "equipment.h"
-#include "floor_items.h"
 #include "inventory.h"
 #include "object_levels.h"
 #include "player_bio.h"

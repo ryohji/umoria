@@ -58,7 +58,31 @@ This is storage and only storage. The window does not range-check or clamp, and 
 
 ## model/dungeon — dungeon state
 
-(To be filled in when dungeon modules are merged)
+### dungeon_state (dungeon_level + dungeon_map + dungeon_size + floor_items)
+
+The dungeon state comprises four pieces that are always updated together: which level the game is on, the map of that level, how big the map is, and what items lie on the floor.
+
+**Dungeon level (dungeon_level):** One number, and almost everything that scales with difficulty comes out of it. Level 0 is the town; 1 and deeper are the dungeon. Thirteen of thirty reads use it for difficulty: which monsters may spawn, how good objects are, gold pile size, whether rooms are lit, whether a Balrog appears. The deepest the game allows is 99 (wizard prompt) or 1 (deep-descent scroll limit). The number starts at 0 (town) and is never checked against a ceiling here — limits belong to the commands that change levels.
+
+The question "are we in town?" was written three ways: `!= 0` (store turnover), `> 0` (word of recall direction, lighting, destruction spell), and `== 0` (which size for next level). They're all one question since nothing ever puts a negative depth in, so there's one window: player_is_in_town().
+
+**Dungeon map (dungeon_map):** Every square of the level the player walks on. It holds the town too (name was narrower than the thing). The table is always MAX_HEIGHT × MAX_WIDTH (66 × 198); town is generated into top-left 22 × 66, generate_cave() blanks the whole table before building either kind of level. What varies is how much is in play (dungeon_size's question).
+
+Each square holds seven fields (usage counts over src/*.c): fval (214 uses, what the square is made of), tptr (161 uses, row in floor_items table lying here, 0 for nothing), cptr (118 uses, row in monster_list standing here, 0 for nothing/1 for player), pl (91 uses, player has seen this square), fm (66 uses, always in field of view even in dark), lr (44 uses, room is lit), tl (38 uses, torch-lit square).
+
+Two fields are indices into other tables that had to be defined first: cptr indexes monster_list, tptr indexes floor_items. That's why dungeon_map came last among the three tables.
+
+**Dungeon size (dungeon_size):** How tall and wide this level is. One pair of numbers, and it only ever takes two values: generate_cave() picks 22 × 66 for town and 66 × 198 for dungeon, so the pair is really a cache of "am I in town?" — the same thing depth says. Nothing else ever writes it, and nothing scales with it: a level is one of those two shapes for its whole life. Both writers set both halves one line after the other (generate.c twice, save.c's restore once), and readers almost always use both.
+
+**Floor items (floor_items):** The things lying on the floor of this level, and how far the table is filled. Same arrangement as monsters: one table whose rows are PACKED, and one mark saying how far packing reaches. Every square carries tptr indexing into this table (cave[y][x].tptr says which thing lies there).
+
+It's not just treasure: doors, staircases, rubble, traps, shop entrances (six shops), and spell-grown mushrooms are all rows of this table, placed by the same invcopy() call as gold piles and swords.
+
+An empty row is a copy of object_list[OBJ_NOTHING] (TV_NOTHING, character=space), not a named constant like blank_monster. Blanking a row means calling invcopy(), which lives in model/item/object_copy.c and reads the definition table. The dependency points the same way the module does (toward read-only data). Row 0 is always blank: it's where unchecked t_list[c_ptr->tptr] lands, and it must answer TV_NOTHING.
+
+### geometry
+
+Geometry on the map: whether a point is inside it, how far apart two points are, whether one can be seen from the other, and what surrounds a point. Kept separate because it's pure utility functions with no state.
 
 ## model/item — item inventory and knowledge
 

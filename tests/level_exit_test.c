@@ -40,8 +40,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
-#include "dungeon_level.h"
 #include "level_exit.h"
 
 #include "minunit.h"

@@ -10,12 +10,8 @@
 
 #include "burden.h"
 #include "command_state.h"
-#include "dungeon_level.h"
-#include "dungeon_map.h"
-#include "dungeon_size.h"
 #include "constant.h"
 #include "externs.h"
-#include "floor_items.h"
 #include "game_status.h"
 #include "input_ended.h"
 #include "monster_state.h"

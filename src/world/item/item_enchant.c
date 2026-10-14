@@ -16,9 +16,9 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
 #include "externs.h"
-#include "floor_items.h"
 #include "item_flags.h"
 #include "missile_serial.h"
 

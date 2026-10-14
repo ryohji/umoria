@@ -13,12 +13,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 #include "game_status.h"
 
 #include "externs.h"
 
 #include "command_state.h"
-#include "dungeon_level.h"
 #include "player_bio.h"
 #include "player_class.h"
 #include "player_display_numbers.h"

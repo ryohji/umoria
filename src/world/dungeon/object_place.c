@@ -12,11 +12,9 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
-#include "dungeon_map.h"
-#include "dungeon_size.h"
 #include "externs.h"
-#include "floor_items.h"
 #include "player_pos.h"
 
 // compact_objects() is static and serves only popt().

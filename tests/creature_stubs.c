@@ -32,8 +32,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
-#include "dungeon_map.h"
 #include "fixture.h"
 #include "player_glowing_hands.h"
 #include "player_infra_range.h"

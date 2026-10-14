@@ -12,12 +12,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 #include "monster_state.h"
 
 #include "externs.h"
 #include "object_copy.h"
 
-#include "dungeon_map.h"
 #include "equipment.h"
 #include "inventory.h"
 #include "player_attack_bonuses.h"

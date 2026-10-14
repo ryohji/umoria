@@ -12,11 +12,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 #include "game_status.h"
 
 #include "externs.h"
 #include "item_picker.h"
-#include "dungeon_level.h"
 #include "inventory.h"
 #include "player_bio.h"
 #include "player_class.h"
