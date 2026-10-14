@@ -17,7 +17,7 @@
 #include "input_end_handling.h"
 #include "world_player.h"
 #include "save.h"
-#include "input_ended.h"
+#include "ui_input.h"
 
 #include <string.h>
 

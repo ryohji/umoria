@@ -26,7 +26,7 @@
 #include "game_settings.h"
 #include "geometry.h"
 #include "rnd.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "inventory.h"
 #include "player_condition.h"
 #include "player_progress.h"

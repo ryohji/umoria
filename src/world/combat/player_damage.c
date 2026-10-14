@@ -23,7 +23,7 @@
 #include "player.h"
 #include "rnd.h"
 #include "sets.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "armor_selection.h"
 #include "inventory.h"
 #include "player_stats.h"

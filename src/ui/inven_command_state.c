@@ -10,8 +10,9 @@
 #include "constant.h"
 #include "types.h"
 
-#include "inven_command_state.h"
-#include "screen_touched.h"
+#include "ui_input.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 // This module includes no externs.h besides the screen flag (via its accessor).
 

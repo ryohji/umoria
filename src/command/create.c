@@ -18,7 +18,7 @@
 #include "player.h"
 #include "rnd.h"
 #include "world_player.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "player_progress.h"
 #include "player_stats.h"

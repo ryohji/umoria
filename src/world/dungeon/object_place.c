@@ -18,7 +18,7 @@
 #include "world_monster.h"
 #include "world_dungeon.h"
 #include "rnd.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "player_condition.h"
 
 // compact_objects() is static and serves only popt().

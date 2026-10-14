@@ -33,7 +33,8 @@
 #include "constant.h"
 #include "types.h"
 
-#include "panel.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 #include "minunit.h"
 

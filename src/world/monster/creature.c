@@ -31,14 +31,12 @@
 #include "monsters.h"
 #include "rnd.h"
 #include "str_insert.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
-#include "panel.h"
 #include "player_stats.h"
 #include "player_skills.h"
 #include "player_condition.h"
 #include "player_progress.h"
-#include "screen_touched.h"
 
 // Updates screen when monsters move about -RAK-
 void update_mon(int monptr) {

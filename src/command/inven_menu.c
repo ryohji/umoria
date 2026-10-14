@@ -17,14 +17,13 @@
 #include "world_player.h"
 #include "game_settings.h"
 #include "inven_menu.h"
-#include "ui_io.h"
+#include "ui_screen.h"
+#include "ui_input.h"
 #include "item_kinds.h"
 
-#include "inven_command_state.h"
 #include "inventory.h"
 #include "player_stats.h"
 #include "player_condition.h"
-#include "screen_touched.h"
 
 // All inventory commands (wear, exchange, take off, drop, inventory and
 // equipment) are handled in an alternative command input mode, which accepts

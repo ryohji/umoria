@@ -24,7 +24,7 @@
 #include "world_player.h"
 #include "world_internal.h"
 #include "rnd.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
 #include "inventory.h"
 #include "item_knowledge.h"

@@ -19,7 +19,7 @@
 #include "world_item.h"
 #include "player.h"
 #include "rnd.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "inventory.h"
 #include "player_identity.h"

@@ -23,7 +23,7 @@
 #include "rnd.h"
 #include "sets.h"
 #include "item_kinds.h"
-#include "panel.h"
+#include "ui_screen.h"
 #include "player_condition.h"
 
 typedef struct coords {

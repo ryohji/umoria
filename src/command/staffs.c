@@ -17,7 +17,7 @@
 #include "world_item.h"
 #include "rnd.h"
 #include "staffs.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "device.h"
 #include "player_condition.h"

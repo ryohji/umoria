@@ -17,12 +17,11 @@
 #include "char_screen.h"
 #include "files.h"
 #include "world_view.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "player_stats.h"
 #include "player_identity.h"
 #include "player_progress.h"
-#include "screen_fields.h"
 
 // Print long number (7 digits of space) with header at given row, column
 static void prt_7lnum(const char *header, int32_t num, int row, int column) {

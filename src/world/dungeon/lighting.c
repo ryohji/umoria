@@ -18,9 +18,8 @@
 #include "world_dungeon.h"
 #include "world_view.h"
 #include "world_internal.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
-#include "panel.h"
 #include "player_condition.h"
 
 // Returns true if player has no light -RAK-

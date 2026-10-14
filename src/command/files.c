@@ -22,7 +22,7 @@
 #include "world_view.h"
 #include "files.h"
 #include "game_settings.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
 
 #include "inventory.h"

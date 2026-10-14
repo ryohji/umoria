@@ -8,7 +8,7 @@
 // Map direction numbers to command keys.
 
 #include "constant.h"
-#include "direction_keys.h"
+#include "ui_input.h"
 
 // Map direction 1-9 to walk/run/tunnel keys. Index by direction: 0-9.
 // Walk uses lowercase, run uses uppercase, tunnel uses control keys.

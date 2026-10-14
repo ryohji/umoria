@@ -6,7 +6,8 @@
 
 // View Observer implementation
 
-#include "view_observer.h"
+#include "ui_render.h"
+#include "ui_internal.h"
 
 #include <stddef.h>
 

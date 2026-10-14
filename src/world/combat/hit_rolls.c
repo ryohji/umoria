@@ -25,7 +25,7 @@
 #include "player.h"
 #include "rnd.h"
 #include "tables.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "player_identity.h"
 #include "player_progress.h"
 #include "player_stats.h"

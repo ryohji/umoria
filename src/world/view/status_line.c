@@ -19,16 +19,15 @@
 #include "world_view.h"
 #include "world_internal.h"
 #include "player.h"
-#include "ui_io.h"
+#include "ui_screen.h"
+#include "ui_input.h"
 
-#include "command_state.h"
 #include "player_identity.h"
 #include "player_stats.h"
 #include "player_progress.h"
 #include "player_condition.h"
 #include "player_skills.h"
 #include "player_spells.h"
-#include "screen_fields.h"
 
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {

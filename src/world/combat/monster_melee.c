@@ -24,7 +24,7 @@
 #include "monsters.h"
 #include "rnd.h"
 #include "str_insert.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "inventory.h"
 #include "player_stats.h"

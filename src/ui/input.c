@@ -6,7 +6,8 @@
 
 // Input system implementation
 
-#include "input.h"
+#include "ui_input.h"
+#include "ui_internal.h"
 
 #include <stddef.h>
 #include <stdio.h>

@@ -18,7 +18,7 @@
 #include "rnd.h"
 #include "tables.h"
 #include "treasure.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
 
 #include "inventory.h"

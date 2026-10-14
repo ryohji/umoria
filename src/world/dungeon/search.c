@@ -19,7 +19,7 @@
 #include "world_internal.h"
 #include "rnd.h"
 #include "treasure.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "player_condition.h"
 

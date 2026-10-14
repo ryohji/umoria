@@ -16,16 +16,15 @@
 #include "dungeon_state.h"
 #include "monster_state.h"
 #include "world_item.h"
-#include "direction.h"
+#include "ui_input.h"
+#include "ui_screen.h"
 #include "game_settings.h"
 #include "look.h"
 #include "monsters.h"
 #include "recall.h"
-#include "ui_io.h"
 
 #include "str_insert.h"
 
-#include "panel.h"
 #include "player_condition.h"
 
 static bool look_ray(int, int, int);

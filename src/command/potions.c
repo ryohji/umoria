@@ -20,7 +20,7 @@
 #include "game_settings.h"
 #include "potions.h"
 #include "rnd.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "inventory.h"
 #include "player_stats.h"

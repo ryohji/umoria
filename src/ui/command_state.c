@@ -10,7 +10,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "command_state.h"
+#include "ui_input.h"
 
 // This module includes no externs.h: it uses nothing outside itself.
 

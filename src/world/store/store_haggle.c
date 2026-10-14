@@ -18,7 +18,7 @@
 #include "world_store.h"
 #include "world_internal.h"
 #include "tables.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "stores.h"
 #include "player_identity.h"
 #include "player_stats.h"

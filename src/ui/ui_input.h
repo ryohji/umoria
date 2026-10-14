@@ -1,14 +1,23 @@
-// Copyright (c) 2026 Umoria Contributors
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2021-2026 Umoria Contributors
 //
 // Umoria is free software released under a GPL v2 license and comes with
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
+// Public interface of ui/: ui_input.
+
+#ifndef UI_INPUT_H
+#define UI_INPUT_H
+
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+#include <stdbool.h>
+#include "backend.h"
+
+// --- command_state.c ---
 // What the game remembers about the command being typed
-
-#ifndef COMMAND_STATE_H
-#define COMMAND_STATE_H
-
 // Three things are remembered between commands, and all three exist because a
 // command can be given a repeat count ("#" or a digit, then the command).
 //
@@ -98,4 +107,85 @@ void note_command(char command);
 // needs to know what the previous command was, only whether it was this one.
 bool previous_command_was(char command);
 
-#endif // COMMAND_STATE_H
+// --- direction.c ---
+bool get_dir(const char *, int *);
+bool get_alldir(const char *, int *);
+
+// --- direction_keys.c ---
+// Map direction numbers to command keys.
+typedef enum {
+    DIR_KEY_WALK,
+    DIR_KEY_RUN,
+    DIR_KEY_TUNNEL
+} direction_key_style;
+
+// Returns the command key for the given direction (1-4, 6-9) and style.
+// Returns 0 for any other direction (including 5).
+char direction_command_key(int dir, direction_key_style style);
+
+// --- input.c ---
+// Input abstraction layer
+// Provides a device-independent interface for user input
+// Initialize input system with a specific backend
+bool input_init(InputBackend *backend);
+
+// Shutdown input system
+void input_shutdown(void);
+
+// --- input_ended.c ---
+// Whether the input has run out
+// Has the input ended? True from the first EOF onwards. This is the question all
+// four readers outside io.c ask.
+bool input_has_ended(void);
+
+// Has it gone on so long that the game must stop trying? inkey() returns ESCAPE
+// after each EOF, which lets the caller's prompt fall through, and the game may
+// well come back and ask again -- so a run of EOFs can loop. After enough of them
+// io.c gives up: it panic-saves, and dies even if that save fails.
+//
+// The number of tries lives here rather than at the call site (the opposite of
+// the clamps in level_exit.h) because it is not a rule about what io.c is doing
+// at that moment; it is the only reason the ending is counted at all, and there
+// is one caller. The original wrote it as "eof_flag > 100", "just in case, to
+// make sure that the process eventually dies".
+bool input_end_is_hopeless(void);
+
+// How many EOFs, for the game state snapshot only (app/game_state.c copies the old
+// global's value). Nothing decides anything from this -- the two questions above
+// are what the game asks.
+int input_end_count(void);
+
+// --- inven_command_state.c ---
+// Which inventory command is waiting to be resumed, if any
+// The inventory commands (wear, exchange, take off, drop, inventory, equipment)
+// run in a command input mode of their own, and some of them cost a turn. So
+// inven_command() (inven_menu.c) is meant to be called again and again, with the
+// rest of moria running in between: it returns after spending the turn and says
+// "call me again with this character". That is what this module remembers.
+//
+// The character to resume with, or 0 for "nothing is waiting". The main loop
+// (app/dungeon.c) asks every turn, and the store (store_ui.c) loops on it so that
+// inventory commands work while haggling.
+char pending_inven_command(void);
+
+// Stop for now, and resume with this command next time. ' ' is a real answer,
+// not "nothing": it means "call me again just to put the inventory screen back",
+// which is why the test for "waiting" is against 0 and not against blank.
+//
+// This also forgets that the screen was flushed (screen_touched.h). The two are
+// one act, not two: the flag means "something has been drawn since we suspended
+// ourselves", so it has to start from clear at the moment we suspend. Setting
+// one without the other is the bug this window exists to prevent -- leave the
+// flag set and the player is asked "Continuing with inventory command?" about a
+// screen nothing has touched; forget the flag somewhere else and a monster
+// walking into view goes unnoticed.
+//
+// Call it after the last message has been flushed. msg_print() puts text on the
+// screen, which notes a flush of its own, so flushing first and suspending after
+// is the order that leaves the flag clear (inven_menu.c does exactly this).
+void suspend_inven_command(char command);
+
+// Done -- nothing to resume. Says nothing about the screen.
+void finish_inven_command(void);
+
+#endif // UI_INPUT_H

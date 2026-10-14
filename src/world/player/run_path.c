@@ -20,9 +20,9 @@
 #include "world_view.h"
 #include "world_player.h"
 #include "world_internal.h"
-#include "ui_io.h"
+#include "ui_screen.h"
+#include "ui_input.h"
 
-#include "command_state.h"
 #include "player_condition.h"
 
 static bool see_wall(int, int, int);

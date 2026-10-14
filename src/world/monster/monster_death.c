@@ -23,7 +23,7 @@
 #include "world_monster.h"
 #include "world_internal.h"
 #include "rnd.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 
 // Deletes a monster entry from the level -RAK-

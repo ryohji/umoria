@@ -22,9 +22,8 @@
 #include "world_internal.h"
 #include "monsters.h"
 #include "rnd.h"
-#include "ui_io.h"
-#include "panel.h"
-#include "render.h"
+#include "ui_screen.h"
+#include "ui_render.h"
 #include "player_condition.h"
 
 // We need to reset the view of things. -CJS-

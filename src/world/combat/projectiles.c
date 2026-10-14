@@ -24,9 +24,8 @@
 #include "monsters.h"
 #include "sets.h"
 #include "str_insert.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
-#include "panel.h"
 #include "player_condition.h"
 
 // Return flags for given type area affect -RAK-

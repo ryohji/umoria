@@ -33,9 +33,8 @@
 #include "world_player.h"
 #include "save.h"
 #include "signals.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "signal_handling.h"
-#include "messages.h"
 #include "signal_flags.h"
 #include "platform.h"
 

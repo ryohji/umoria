@@ -22,7 +22,7 @@
 #include "player.h"
 #include "rnd.h"
 #include "str_insert.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
 
 #include "inventory.h"

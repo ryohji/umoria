@@ -12,7 +12,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "direction_keys.h"
+#include "ui_input.h"
 
 #include "minunit.h"
 

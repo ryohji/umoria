@@ -24,7 +24,7 @@
 #include "player.h"
 #include "save.h"
 #include "signals.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "inventory.h"
 #include "player_identity.h"
 #include "player_progress.h"

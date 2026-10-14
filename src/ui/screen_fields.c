@@ -16,8 +16,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "ui_io.h"
-#include "screen_fields.h"
+#include "ui_screen.h"
 
 static const char *stat_names[] = {
     "STR : ",

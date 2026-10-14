@@ -23,7 +23,7 @@
 #include "world_internal.h"
 #include "monsters.h"
 #include "rnd.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "player_condition.h"
 #include "player_skills.h"
 

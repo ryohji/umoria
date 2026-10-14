@@ -13,7 +13,7 @@
 #include "constant.h"
 #include "types.h"
 #include "world_player.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "player_condition.h"
 
 // It is the sibling of player_food.c rather than a part of it: the stomach is

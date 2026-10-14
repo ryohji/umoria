@@ -8,8 +8,8 @@
 // Composition root that wires backend implementations to abstraction layers
 
 #include "backend_ncurses.h"
-#include "render.h"
-#include "input.h"
+#include "ui_render.h"
+#include "ui_input.h"
 #include "platform.h"
 
 #include <stdio.h>

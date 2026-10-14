@@ -36,7 +36,8 @@
 #include "constant.h"
 #include "types.h"
 
-#include "input_ended.h"
+#include "ui_input.h"
+#include "ui_internal.h"
 
 #include "minunit.h"
 

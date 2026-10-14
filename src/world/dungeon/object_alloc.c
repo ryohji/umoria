@@ -26,7 +26,7 @@
 #include "rnd.h"
 #include "sets.h"
 #include "treasure.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "item_kinds.h"
 #include "player_condition.h"
 

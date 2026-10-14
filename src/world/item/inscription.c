@@ -14,7 +14,7 @@
 #include "constant.h"
 #include "types.h"
 #include "world_item.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "inventory.h"
 
 // The three prototypes are in externs.h, the same as the other files that

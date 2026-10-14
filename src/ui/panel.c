@@ -13,7 +13,8 @@
 #include "constant.h"
 #include "types.h"
 
-#include "panel.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 // Which panel we are looking at, and the six coordinates that follow from it.
 // Private: recalculate_bounds() below is the only code that may derive the six,

@@ -17,7 +17,7 @@
 #include "length_of.h"
 #include "monsters.h"
 #include "recall.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 #include "player_progress.h"
 
 static void roff(const char *);

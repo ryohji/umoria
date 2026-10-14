@@ -21,7 +21,7 @@
 #include "game_settings.h"
 #include "rnd.h"
 #include "scrolls.h"
-#include "ui_io.h"
+#include "ui_screen.h"
 
 #include "armor_selection.h"
 #include "inventory.h"

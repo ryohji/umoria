@@ -10,7 +10,8 @@
 #include "constant.h"
 #include "types.h"
 
-#include "screen_touched.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 // No externs.h here: one bit needs nothing from the rest of the game.
 

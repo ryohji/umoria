@@ -24,11 +24,10 @@
 #include "rnd.h"
 #include "store_ui.h"
 #include "tables.h"
-#include "ui_io.h"
-#include "inven_command_state.h"
+#include "ui_screen.h"
+#include "ui_input.h"
 #include "inventory.h"
 #include "stores.h"
-#include "messages.h"
 #include "player_progress.h"
 #include "player_stats.h"
 
