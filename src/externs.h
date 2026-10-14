@@ -574,3 +574,4 @@ bool enter_wiz_mode(void);
 void wizard_light(void);
 void change_character(void);
 void wizard_create(void);
+void wizard_command(char);
