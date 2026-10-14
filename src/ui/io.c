@@ -20,14 +20,21 @@
 #include "input_ended.h"
 #include "messages.h"
 #include "render.h"
-#include "save_state.h"
 #include "screen_touched.h"
-#include "score_death.h"
 
 #define use_value2
 
 static void wait_for_more_confirmation(void);
 static void sleep_in_seconds(int);
+
+// Handler for input-end game logic (registered by app layer)
+static void (*input_end_handler)(void) = NULL;
+
+// Register handler for input-end game logic
+// Must be called before any inkey() can encounter EOF
+void io_set_input_end_handler(void (*handler)(void)) {
+    input_end_handler = handler;
+}
 
 // Dump IO to buffer -RAK-
 void put_buffer(const char *out_str, int row, int col) {
@@ -76,23 +83,12 @@ char inkey(void) {
 
             render_refresh();
 
-            if (!save_state_has_unsaved_character()) {
-                exit_game();
+            // Call registered handler for game-level input-end logic
+            // This handles: exit if no unsaved character, disturb, panic save if hopeless
+            if (input_end_handler != NULL) {
+                input_end_handler();
             }
 
-            disturb(1, 0);
-
-            if (input_end_is_hopeless()) {
-                // just in case, to make sure that the process eventually dies
-                set_panic_save(true);
-
-                (void)strcpy(death_cause(), "(end of input: panic saved)");
-                if (!save_char()) {
-                    (void)strcpy(death_cause(), "panic: unexpected eof");
-                    set_player_dead(true);
-                }
-                exit_game();
-            }
             return ESCAPE;
         }
 

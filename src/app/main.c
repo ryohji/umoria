@@ -65,6 +65,9 @@ int main(int argc, char *argv[]) {
     // must come after platform init as some of the signal handlers use rendering
     init_signals();
 
+    // Register handler for input-end game logic (must be before any inkey() call)
+    io_set_input_end_handler(handle_input_end);
+
     uint32_t seed = 0; // let wizard specify rng seed
     // check for user interface option
     for (--argc, ++argv; argc > 0 && argv[0][0] == '-'; --argc, ++argv) {

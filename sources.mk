@@ -20,7 +20,7 @@
 SRC_SUBDIRS = core model/data model/game model/player model/monster model/dungeon model/item model/store platform ui world/combat world/dungeon world/item world/monster world/player world/store world/view command app
 
 SRCS = app/main.c command/files.c ui/io.c \
-	command/create.c world/item/desc.c world/dungeon/generate.c model/data/sets.c app/dungeon.c world/monster/creature.c app/death.c \
+	command/create.c world/item/desc.c world/dungeon/generate.c model/data/sets.c app/dungeon.c world/monster/creature.c app/death.c app/input_end_handling.c \
 	command/eat.c command/help.c command/magic.c command/potions.c command/prayer.c app/save.c command/staffs.c world/item/device_use.c command/wands.c model/item/device.c \
 	model/item/item_ident.c world/item/item_learn.c model/item/item_flags.c model/player/abilities.c model/game/options.c ui/messages.c \
 	command/scrolls.c world/item/spells.c command/wizard.c platform/signals.c platform/signal_flags.c app/signal_handling.c \
