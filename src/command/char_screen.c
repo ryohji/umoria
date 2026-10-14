@@ -167,7 +167,7 @@ void get_name(void) {
     // Copy the whole buffer before the player types. It copies ALL 27 BYTES, NOT JUST UP
     // TO THE TERMINATOR, because get_string() returns without writing a terminator on
     // ESC, and `name[0] == 0` just below reads bytes past the terminator too (see the
-    // name in player_bio.h: the window promises that everything past the terminator is
+    // name in player_identity.h: the window promises that everything past the terminator is
     // 0, so the copy holds the same bytes as when the field itself was passed in).
     char name[PLAYER_NAME_SIZE];
     memcpy(name, player_name(), PLAYER_NAME_SIZE);

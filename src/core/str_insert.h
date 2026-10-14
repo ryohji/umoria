@@ -22,7 +22,7 @@
 //
 // This header deliberately does not include types.h, which has no include
 // guard and so cannot be pulled in twice. Include config.h, constant.h and
-// types.h before this file, the same as externs.h expects.
+// types.h before this file.
 
 #include <stdbool.h>
 
@@ -41,9 +41,8 @@ void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show
 
 // Copies the strings after `buffer`, up to the first NULL, one after another
 // into `buffer` and returns `buffer`. Only NULL gives the empty string. The
-// length is not checked; every caller goes through CONCAT (externs.h), which
-// passes a fresh vtype, so the result must fit in 79 characters. The same
-// prototype is in externs.h, next to that macro.
+// length is not checked; every caller goes through the CONCAT macro, which
+// passes a fresh vtype, so the result must fit in 79 characters.
 char *concat(char *buffer, ...);
 
 #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)

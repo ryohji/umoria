@@ -43,7 +43,7 @@ int panel_screen_col(int dungeon_col);
 // --- screen_touched.c ---
 // Start counting again from here. Only the inventory command does this, and only
 // as part of suspending itself, so it is not called from outside:
-// suspend_inven_command() (inven_command_state.h) calls it. The two have to move
+// suspend_inven_command() (ui_input.h) calls it. The two have to move
 // together -- remembering which command to resume while leaving the flag set
 // would make the player answer a prompt about a screen that nothing had touched.
 void forget_screen_flushed(void);

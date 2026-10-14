@@ -125,7 +125,7 @@ void place_win_monster(void);
 // right now?
 //
 // The monster list is kept dense. delete_monster() closes a hole by moving the
-// last monster down into it and taking the mark back one (monster_list.h), which
+// last monster down into it and taking the mark back one (monster_state.h), which
 // renumbers every monster above the hole. Between turns that costs nothing. While creatures() is walking
 // the list it is wrong: the walk is holding a number, and the monster that number
 // names would change under it.

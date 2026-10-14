@@ -17,9 +17,8 @@
 #include "ui_screen.h"
 #include "inventory.h"
 
-// The three prototypes are in externs.h, the same as the other files that
-// include it (desc.c, eat.c): scribe_object() asks for the item through
-// get_item() and prints through io.c, so this file needs externs.h anyway.
+// scribe_object() asks for the item through get_item() and prints through io.c
+// (desc.c and eat.c do the same).
 
 // Add a comment to an object description. -CJS-
 void scribe_object(void) {

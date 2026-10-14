@@ -18,12 +18,12 @@
 
 // It is the sibling of player_food.c rather than a part of it: the stomach is
 // player_food.c's, but the penalty for overeating prints and slows the player,
-// which are not (player_food.h says why).
+// which are not (player_condition.h says why).
 
 // Add to the players food time -RAK-
 void add_food(int num) {
 
-    // Repaying starvation debt is inside the window (player_food.h). What remains
+    // Repaying starvation debt is inside the window (player_condition.h). What remains
     // here is the penalty for overeating: message and slowness, which are not
     // about the stomach itself.
     player_gain_food(num);

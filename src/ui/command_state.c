@@ -12,7 +12,7 @@
 
 #include "ui_input.h"
 
-// This module includes no externs.h: it uses nothing outside itself.
+// This module uses nothing outside itself.
 
 // State: repeats left, remembered direction flag, and last command character.
 // All start at 0 or false.

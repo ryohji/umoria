@@ -517,7 +517,7 @@ void wizard_command(char com_val) {
         break;
     case '+':
         // Deliberately sets experience without updating level. Level recalculated
-        // by prt_experience() (see player_level.h).
+        // by prt_experience().
         if (command_is_repeating()) {
             player_set_experience(take_command_count());
         } else if (player_experience() == 0) {

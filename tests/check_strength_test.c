@@ -9,7 +9,7 @@
  * inven_ops.c:156 の inven_check_weight）のテスト
  *
  * check_strength() は「いまの装備と持ち物に体力が足りているか」を 1 か所で
- * 判定し、答えを 2 つ覚える唯一の場所（#18-7-4 の窓口 burden.h が預かる
+ * 判定し、答えを 2 つ覚える唯一の場所（#18-7-4 の窓口 player_stats.h が預かる
  * weapon_heavy と pack_heavy）。戻り値が無く、結果は
  *
  *   ・メッセージ（msg_print で 4 通り）
@@ -53,7 +53,7 @@
 #include "player_condition.h"
 
 
-/* 検証対象（src/world/item/inven_ops.c）の宣言は externs.h から受ける。 */
+/* 検証対象（src/world/item/inven_ops.c）の宣言を含める。 */
 #include "world_item.h"
 #include "world_internal.h"
 

@@ -13,14 +13,13 @@
 #include "ui_input.h"
 #include "ui_internal.h"
 
-// This module includes no externs.h: it uses nothing outside itself.
+// This module uses nothing outside itself.
 
 // EOF counter. Starts at 0.
 static int eof_count = 0;
 
 // The number of EOFs io.c has put up with before it panic-saves and dies. Stated
-// once, here, and nowhere else: see input_ended.h for why it is not at the call
-// site.
+// once, here, and nowhere else (see ui_internal.h for why it is not at the call site).
 #define EOF_TRIES_ALLOWED 100
 
 void note_input_ended(void) {

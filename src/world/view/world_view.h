@@ -15,7 +15,7 @@
 #include "types.h"
 
 // --- map_view.c ---
-// panel_bounds is static in panel.c; panel_contains is in panel.h.
+// panel_bounds is static in panel.c; panel_contains is in ui_screen.h.
 int get_panel(int, int, int);
 void prt_map(void);
 void check_view(void);

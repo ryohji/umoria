@@ -13,7 +13,7 @@
 #include "ui_screen.h"
 #include "ui_internal.h"
 
-// No externs.h here: one bit needs nothing from the rest of the game.
+// One bit needs nothing from the rest of the game.
 
 // Flag indicating whether the screen has been flushed. Starts false.
 static bool screen_flushed = false;

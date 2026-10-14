@@ -11,7 +11,7 @@
  * テストは 0 件だった（tests/creature_stubs.c に第 1 引数をそのまま返すだけの
  * 代役がある）。このテストが引く本体の .o は str_insert.o の 1 本だけ。
  *
- * 直接の呼び手は 0 で、呼ばれるのはいつも externs.h の CONCAT マクロ越し
+ * 直接の呼び手は 0 で、呼ばれるのはいつも CONCAT マクロ越し
  * （88 か所。creature 40・spells 34・player_melee 10・
  * terrain_commands 3・traps 1）:
  *   #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
@@ -29,8 +29,8 @@
 #include "constant.h"
 #include "types.h"
 
-/* 検証対象。宣言は externs.h と str_insert.h にあるが、移す前後で同じ
- * テストを走らせるために、同じ形をここに書く（str_insert_test.c と同じ）。 */
+/* 検証対象。宣言は str_insert.h にあるが、テスト互換性のため
+ * ここにも宣言を書く（str_insert_test.c と同じ）。 */
 char *concat(char *buffer, ...);
 
 #include "minunit.h"
@@ -121,7 +121,7 @@ TEST(seventy_nine_characters_fit_exactly)
 
 /* --- CONCAT の形 --- */
 
-/* 呼び手が書くのはいつもこの形（externs.h の CONCAT を展開したもの）。
+/* 呼び手が書くのはいつもこの形（CONCAT マクロを展開したもの）。
  * 書く先はその場で作る複合リテラルで、中身は 0 で始まる。 */
 TEST(the_concat_macro_form_joins_into_a_fresh_vtype)
 {

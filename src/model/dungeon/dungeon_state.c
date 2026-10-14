@@ -18,7 +18,7 @@
 #include "dungeon_state.h"
 #include "item_kinds.h"
 
-// --- From dungeon_level.c: which level ---
+// --- Which level ---
 
 // THE STORAGE. A new game starts in the town.
 //
@@ -37,19 +37,19 @@ bool player_is_in_town(void) { return the_level == 0; }
 
 void set_dungeon_level(int level) { the_level = (int16_t)level; }
 
-// --- From dungeon_map.c: the map ---
+// --- The map ---
 
 // THE STORAGE. Nothing outside this file can spell it.
 //
 // The table is one contiguous row-major block, and that is this file's promise
-// alone. See src/model/dungeon/dungeon_map.h.
+// alone. See dungeon_state.h.
 static cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 
 void dungeon_map_reset(void) { memset(cave, 0, sizeof(cave)); }
 
 cave_type *square_at(int y, int x) { return &cave[y][x]; }
 
-// --- From dungeon_size.c: dimensions ---
+// --- Dimensions ---
 
 // THE STORAGE.
 // Two shorts, kept as shorts because that is what the save file holds and what
@@ -73,7 +73,7 @@ void set_dungeon_size(int height, int width) {
     the_width = (int16_t)width;
 }
 
-// --- From floor_items.c: items on the floor ---
+// --- Items on the floor ---
 
 // THE STORAGE.
 //

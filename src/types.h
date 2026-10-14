@@ -161,34 +161,34 @@ typedef struct inven_type {
 // notes, or the save file) and their locations:
 //
 //   struct misc
-//     au                               player_gold.h
-//     max_exp exp exp_frac lev expfact player_level.h
-//     max_dlv                          player_max_depth.h
-//     hitdie                           player_hit_die.h
-//     pac ptoac                        player_armour_class.h
-//     bth bthb                         player_base_to_hit.h
-//     disarm                           player_disarm.h
-//     save                             player_saving_throw.h
-//     prace                            player_race.h
-//     wt                               player_body_weight.h
-//     ptohit ptodam                    player_attack_bonuses.h
-//     srh fos                          player_search_skill.h
-//     name male age ht sc history      player_bio.h
-//     stl                              player_stealth.h
-//     pclass                           player_class.h
+//     au                               player_progress.h
+//     max_exp exp exp_frac lev expfact player_progress.h
+//     max_dlv                          player_progress.h
+//     hitdie                           player_progress.h
+//     pac ptoac                        player_stats.h
+//     bth bthb                         player_stats.h
+//     disarm                           player_skills.h
+//     save                             player_skills.h
+//     prace                            player_identity.h
+//     wt                               player_stats.h
+//     ptohit ptodam                    player_stats.h
+//     srh fos                          player_skills.h
+//     name male age ht sc history      player_identity.h
+//     stl                              player_skills.h
+//     pclass                           player_identity.h
 //   struct flags
-//     status (thirty-one bits)         player_status_flags.h
-//     the seventeen equipment bytes    player_abilities.h
-//     the eighteen counters            player_timed_effects.h
-//     rest                             player_resting.h
-//     speed                            player_speed.h
-//     see_infra                        player_infra_range.h
-//     confuse_monster                  player_glowing_hands.h
-//     new_spells                       player_spells_to_learn.h
-//     food food_digested               player_food.h
+//     status (thirty-one bits)         player_condition.h
+//     the seventeen equipment bytes    player_stats.h
+//     the eighteen counters            player_condition.h
+//     rest                             player_condition.h
+//     speed                            player_skills.h
+//     see_infra                        player_skills.h
+//     confuse_monster                  player_condition.h
+//     new_spells                       player_spells.h
+//     food food_digested               player_condition.h
 //     protection                       static in save.c
 //   struct player_stat
-//     max_stat cur_stat mod_stat use_stat stats.h
+//     max_stat cur_stat mod_stat use_stat player_stats.h
 
 // spell name is stored in spell_names[] array at index i, +31 if priest
 typedef struct spell_type {

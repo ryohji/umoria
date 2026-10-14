@@ -511,7 +511,7 @@ void dungeon(void) {
             if (player_timed_beginning(PLAYER_TIMED_INFRA_VISION)) {
                 // The clock counts TURNS and lives in player_timed_effects.c;
                 // the one square it is worth is this file's to add, because this
-                // is where the two ends meet (player_infra_range.h).
+                // is where the two ends meet (player_skills.h).
                 player_infra_range_adjust(1);
 
                 // light but don't move creatures
@@ -1227,7 +1227,7 @@ static void do_command(char com_val) {
                 for (;;) {
                     x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
                     y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                    // NOTE: y is compared against width. May be a bug (see dungeon_size.h).
+                    // NOTE: y is compared against width. May be a bug (see dungeon_state.h).
                     if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
                         msg_print("You've gone past the end of your map.");
                         x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;

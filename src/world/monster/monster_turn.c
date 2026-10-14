@@ -13,7 +13,7 @@
 #include "world_monster.h"
 #include "world_internal.h"
 
-// No externs.h here: one number needs nothing from the rest of the game.
+// One number needs nothing from the rest of the game.
 
 // The number is owned here and is static: the only way in is through the four
 // windows. It starts at -1, so a new game starts at "nobody's turn", and so

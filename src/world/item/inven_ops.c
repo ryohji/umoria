@@ -217,7 +217,7 @@ int inven_carry(inven_type *i_ptr) {
     int typ = i_ptr->tval;
     int subt = i_ptr->subval;
     // Kinds with no record of their own are always known by name, so they can
-    // be carried in order; see item_ident.h.
+    // be carried in order; see item_knowledge.h.
     int always_known1p = !item_kind_has_record(i_ptr);
 
     int locn;

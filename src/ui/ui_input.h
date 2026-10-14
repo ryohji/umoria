@@ -25,9 +25,8 @@
 //   2. Whether the direction should be taken from memory instead of asked for.
 //   3. Which command was typed last.
 //
-// They were three globals (command_count, default_dir, last_command) sitting in
-// different parts of externs.h. Only the main loop in app/dungeon.c drives all
-// three; the other files ask one question each.
+// Only the main loop in app/dungeon.c drives all three; the other files ask one
+// question each.
 
 // --- The repeat count ------------------------------------------------------
 
@@ -64,7 +63,7 @@ void consume_command_count(void);
 // (terrain_commands.c), the turn was free or the run took the count over (app/dungeon.c), and
 // **a new level has begun** (app/dungeon.c). The last one is a real cancelling, not
 // a fresh start: a count can outlive a staircase, and this is what stops it.
-// That is why there is no separate "forget" window here, unlike running.h.
+// That is why there is no separate "forget" window here, unlike player_condition.h.
 void cancel_command_count(void);
 
 // Hold the count across something that would cancel it, then put it back. Three
@@ -172,7 +171,7 @@ char pending_inven_command(void);
 // not "nothing": it means "call me again just to put the inventory screen back",
 // which is why the test for "waiting" is against 0 and not against blank.
 //
-// This also forgets that the screen was flushed (screen_touched.h). The two are
+// This also forgets that the screen was flushed (ui_screen.h). The two are
 // one act, not two: the flag means "something has been drawn since we suspended
 // ourselves", so it has to start from clear at the moment we suspend. Setting
 // one without the other is the bug this window exists to prevent -- leave the

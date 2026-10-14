@@ -31,7 +31,7 @@
 //
 // It is intended that this function be called several times in succession,
 // as some commands take up a turn, and the rest of moria must proceed in the
-// interim. pending_inven_command() (inven_command_state.h) is normally zero;
+// interim. pending_inven_command() (ui_input.h) is normally zero;
 // however if on return from inven_command it is expected that inven_command
 // should be called *again*, (being still in inventory command input mode), then
 // suspend_inven_command() has been given the inventory command character which
@@ -44,7 +44,7 @@
 // prompted to see if we should continue. This allows the player to see any
 // changes that take place on the screen during inventory command input.
 //
-// screen_was_flushed() (screen_touched.h) tells whether the saved screen is still
+// screen_was_flushed() (ui_screen.h) tells whether the saved screen is still
 // current. Suspending clears it, flushing sets it. suspend_inven_command() does both.
 //
 // The display of inventory items is kept to the right of the screen to

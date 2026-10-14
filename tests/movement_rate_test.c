@@ -18,7 +18,7 @@
  *
  * 依存は turn（src/model/game/progress.c。progress_set_turn() で動かす）と
  * 休息の残りターン（src/model/player/player_resting.c。窓口は
- * src/model/player/player_resting.h）の 2 つだけ。turn は fixture_reset() の対象外なので、
+ * player_condition.h）の 2 つだけ。turn は fixture_reset() の対象外なので、
  * 各テストが明示的に代入する。
  *
  * 期待値はすべて現在の実装が返した実際の値。とくに負の turn に対する
@@ -78,7 +78,7 @@ TEST(returns_five_moves_again_when_resting_is_cleared)
 }
 
 /* 残りターンは int16_t で負も入る。判定が != 0 なので負でも抑制される。
- * 本体では負は「体力と魔力が満ちるまで」という使い方（player_resting.h）。 */
+ * 本体では負は「体力と魔力が満ちるまで」という使い方（player_condition.h）。 */
 TEST(returns_one_move_when_resting_count_is_negative)
 {
     progress_set_turn(0);

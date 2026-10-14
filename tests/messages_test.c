@@ -28,7 +28,7 @@
  * ファイル末尾でその 2 つを見ている。
  */
 /* externs.h を include していない。輪が messages.c の static になったので、
- * ふれる先は messages.h の窓口だけで足りる。 */
+ * ふれる先は ui_screen.h の窓口だけで足りる。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"

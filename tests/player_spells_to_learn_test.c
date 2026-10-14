@@ -28,7 +28,7 @@
  *      だから窓口は「足す」ではなく「置く」。
  *
  * 9 式の許される数・本が足りない差・message 3 つ・PY_STUDY の書きなおしは
- * **この module の外**（player_spells_to_learn.h）。
+ * **この module の外**（player_spells.h）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に数を置きなおす。
  */

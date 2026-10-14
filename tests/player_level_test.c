@@ -72,7 +72,7 @@
 /* 値段表。A の段では本体（src/model/data/player.c:94）と足場
  * （tests/player_level_fixture.c）が持っているので、テストは直に置く。
  * **#18-12-6C で表が module の中に入るなら、ここは窓口越しになる**
- * （src/model/player/hp_table.h の set_hp_total_at_level() と同じ形）。 */
+ * （player_progress.h の set_hp_total_at_level() と同じ形）。 */
 extern uint32_t player_exp[MAX_PLAYER_LEVEL];
 
 /* 5 つをまとめて置く（各テストの足場作り）。 */

@@ -22,8 +22,8 @@
  *
  *   2. 明かりの有無を**装備の欄から導出しない**こと。値の出どころは
  *      equipment_at(INVEN_LIGHT)->p1 だが、そこを読むのは app/dungeon.c だけで、
- *      この module は装備を 1 度も見ない（player_light.h を include しても
- *      inventory.h / equipment.h は付いてこない）。だからこのテストの
+ *      この module は装備を 1 度も見ない（player_condition.h を include しても
+ *      inventory.h / inventory.h は付いてこない）。だからこのテストの
  *      リンクにも装備は出てこない。
  *
  *   3. **同じ値を 2 度入れても何も起きない**こと。旗の置き場に「変わり目を

@@ -30,7 +30,7 @@ void creatures(int);
 // TWO OTHER THINGS PACE BREEDING AND NEITHER IS HERE. The monster has to have
 // the CM_MULTIPLY flag, and the attempt only comes round when
 // `abs(rest) % MON_MULT_ADJ` is zero -- the resting counter doubles as the clock
-// (see player_resting.h). This module holds the budget and nothing else.
+// (see player_condition.h). This module holds the budget and nothing else.
 //
 // IT IS A BUDGET, NOT A CENSUS. It does not count the monsters now alive, and it
 // does not count only the bred ones:

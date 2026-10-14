@@ -29,7 +29,7 @@
  * **足すのが 2 本なのは、装備の輪が弓のときだけ打撃を飛ばすから** ——
  * 対では呼べない。
  *
- * 外に残すものは 4 つ（player_attack_bonuses.h に書いてある）——
+ * 外に残すものは 4 つ（player_stats.h に書いてある）——
  * 数のもと（補正表と装備）・人物画面の等級（BTH_PLUS_ADJ が掛かる）・
  * 画面に見せる双子（`player_display_numbers.c`）・作りなおす時機
  * （`calc_bonuses()`）。

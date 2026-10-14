@@ -16,9 +16,9 @@
 // === Status Flags ===
 // From player_status_flags.c
 
-// No externs.h here: this module reaches nothing outside itself. This module
-// knows nothing about what a mark means -- no messages, no counters, no drawing.
-// It keeps the set and hides the mask arithmetic.
+// This module reaches nothing outside itself. It knows nothing about what a mark
+// means -- no messages, no counters, no drawing. It keeps the set and hides the
+// mask arithmetic.
 
 // THE WORD ITSELF, and the only copy of it. The thirty bits live here and nothing
 // outside this file can name them. Zero is where a character starts -- no mark set,
@@ -227,13 +227,12 @@ void player_set_status_word(uint32_t word) {
 // === Timed Effects ===
 // From player_timed_effects.c
 
-// No externs.h here: this module reaches nothing outside itself. This module does
-// not know what any of the eighteen counters leads to -- no messages, no rolls,
-// no drawing.
+// This module reaches nothing outside itself. It does not know what any of the
+// eighteen counters leads to -- no messages, no rolls, no drawing.
 
 // THE EIGHTEEN ANSWERS THEMSELVES. This array is the only place they live, and the
 // windows below are the only way to reach them. The order is the save file's
-// (player_timed_effects.h), but save.c names each one, so nothing here depends on it.
+// (player_condition.h), but save.c names each one, so nothing here depends on it.
 //
 // No reset window: a new character starts the program over, the same as the
 // status word and the seventeen abilities. Loading a saved game writes all
@@ -315,7 +314,7 @@ bool player_timed_beginning(player_timed_effect effect) {
 
 bool player_timed_count_down(player_timed_effect effect) {
     // Unconditionally: minus one is a state the fear counter really reaches
-    // (player_timed_effects.h).
+    // (player_condition.h).
     timed_turns_left[effect] = (int16_t)(timed_turns_left[effect] - 1);
 
     if (timed_turns_left[effect] != 0) {
@@ -332,9 +331,9 @@ bool player_timed_count_down(player_timed_effect effect) {
 // === Food ===
 // From player_food.c
 
-// No externs.h here: a counter and its rate need nothing from the game around
-// them. In particular this module does not know the hunger thresholds, does not
-// touch the status flags, does not deal damage and does not print anything.
+// A counter and its rate need nothing from the game around them. In particular,
+// this module does not know the hunger thresholds, does not touch the status flags,
+// does not deal damage and does not print anything.
 
 // Owned here and static: the only way in is through the windows below. The
 // initial values are 0, so a program starts with an empty stomach that digests
@@ -386,9 +385,9 @@ void player_adjust_digestion(int delta) {
 // === Resting ===
 // From player_resting.c
 
-// No externs.h here. And no player_status_flags.h either: PY_REST is a different
-// question and its callers keep it (player_resting.h says why this one does not
-// fold the pair the way player_timed_effects.c does).
+// No player_condition.h either: PY_REST is a different question and its
+// callers keep it (player_condition.h explains why this one does not fold the pair
+// the way player_timed_effects.c does).
 
 // THE ANSWER ITSELF. This one short is the only place it lives, and the windows
 // below are the only way to reach it.
@@ -436,10 +435,10 @@ bool player_rest_count_down(void) {
 // === Running ===
 // From running.c
 
-// No externs.h here: counting steps needs nothing from the rest of the game.
-// In particular this module does not know how to move anybody, nor which way the
-// run is going (find_direction is a static of run_path.c, next to the
-// corridor-following rules that are the only user of it).
+// Counting steps needs nothing from the rest of the game. In particular, this
+// module does not know how to move anybody, nor which way the run is going
+// (find_direction is a static of run_path.c, next to the corridor-following
+// rules that are the only user of it).
 
 // The count is owned here and is static: the only way in is through the six
 // windows below. The initial value is zero, which is how a game begins with nobody
@@ -447,7 +446,7 @@ bool player_rest_count_down(void) {
 static int run_steps = 0;
 
 // How many steps a run is allowed. Stated once, here, and nowhere else: see
-// running.h for why it is not at the call site.
+// player_condition.h for why it is not at the call site.
 #define RUN_STEPS_ALLOWED 100
 
 void begin_run(void) {
@@ -510,9 +509,8 @@ void set_player_light_drawn(bool drawn) {
 // === Glowing Hands ===
 // From player_glowing_hands.c
 
-// No externs.h here -- which matters more than usual, because externs.h is where
-// the unrelated function confuse_monster() is declared (player_glowing_hands.h
-// says why the names collide).
+// Note that confuse_monster() is declared elsewhere (player_condition.h
+// explains why the names collide).
 
 // THE ANSWER ITSELF. This one byte is the only place it lives, and the windows
 // below are the only way to reach it.
@@ -545,9 +543,8 @@ void player_glowing_hands_restore(int charge_from_file) {
 // === Pending Teleport ===
 // From pending_teleport.c
 
-// No externs.h here: one bit needs nothing from the rest of the game. In
-// particular this module does not know how to teleport anybody -- it only holds
-// the note.
+// One bit needs nothing from the rest of the game. In particular, this
+// module does not know how to teleport anybody -- it only holds the note.
 
 // The flag is owned here and is static: the only way in is through the four
 // windows below. The initial value is false, so a new game begins with no

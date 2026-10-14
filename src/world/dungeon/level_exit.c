@@ -13,7 +13,7 @@
 
 #include "world_dungeon.h"
 
-// No externs.h here: one bit needs nothing from the rest of the game.
+// One bit needs nothing from the rest of the game.
 
 // The flag is owned here and is static: the only way in is through the four
 // windows below. It starts out false, so a new game begins with the level it is
