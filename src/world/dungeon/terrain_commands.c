@@ -26,10 +26,9 @@
 #include "panel.h"
 #include "player_body_weight.h"
 #include "player_class.h"
-#include "player_disarm.h"
+#include "player_skills.h"
 #include "player_level.h"
 #include "player_pos.h"
-#include "player_search_skill.h"
 #include "player_timed_effects.h"
 #include "stats.h"
 

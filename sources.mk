@@ -32,12 +32,12 @@ SRCS = app/main.c command/files.c ui/io.c \
 	world/dungeon/level_exit.c model/player/pending_teleport.c ui/input_ended.c model/player/running.c \
 	ui/command_state.c model/player/player_gold.c model/player/player_food.c world/player/food_ops.c model/player/player_display_numbers.c \
 	model/player/player_mana.c model/player/player_hp.c model/player/player_level.c model/player/player_status_flags.c \
-	model/player/player_abilities.c model/player/player_timed_effects.c model/player/player_resting.c \
-	model/player/player_speed.c model/player/player_infra_range.c model/player/player_glowing_hands.c \
+	model/player/player_abilities.c model/player/player_timed_effects.c model/player/player_resting.c model/player/player_skills.c \
+	model/player/player_glowing_hands.c \
 	model/player/player_spells_to_learn.c model/player/player_max_depth.c model/player/player_hit_die.c model/player/player_armour_class.c model/player/player_base_to_hit.c \
-	model/player/player_disarm.c model/player/player_saving_throw.c model/player/player_race.c model/player/player_body_weight.c \
-	model/player/player_attack_bonuses.c model/player/player_search_skill.c model/player/player_bio.c \
-	model/player/player_stealth.c model/player/player_class.c \
+	model/player/player_race.c model/player/player_body_weight.c \
+	model/player/player_attack_bonuses.c model/player/player_bio.c \
+	model/player/player_class.c \
 	world/monster/monster_turn.c model/monster/monster_levels.c world/monster/monster_breeding.c model/monster/monster_list.c world/monster/monster_place.c model/monster/monster_recall.c \
 	model/dungeon/dungeon_size.c model/dungeon/dungeon_level.c model/dungeon/floor_items.c model/dungeon/dungeon_map.c model/dungeon/geometry.c world/dungeon/object_place.c \
 	command/inven_menu.c world/player/run_path.c world/monster/monster_death.c command/look.c model/data/monsters.c model/data/treasure.c model/game/variable.c \

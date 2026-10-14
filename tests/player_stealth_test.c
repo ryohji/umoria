@@ -49,7 +49,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_stealth.h"
+#include "player_skills.h"
 
 /* 白紙は 0 —— 種族を選ぶ前の人物（`py` が全域 0 で始まるのと同じところ）。 */
 #define MU_SETUP() player_stealth_set(0)

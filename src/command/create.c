@@ -22,17 +22,13 @@
 #include "player_bio.h"
 #include "player_body_weight.h"
 #include "player_class.h"
-#include "player_disarm.h"
+#include "player_skills.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hit_die.h"
 #include "player_hp.h"
-#include "player_infra_range.h"
 #include "player_level.h"
 #include "player_race.h"
-#include "player_saving_throw.h"
-#include "player_search_skill.h"
-#include "player_stealth.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-

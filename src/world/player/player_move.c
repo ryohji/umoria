@@ -23,7 +23,7 @@
 #include "pending_teleport.h"
 #include "player_gold.h"
 #include "player_pos.h"
-#include "player_search_skill.h"
+#include "player_skills.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
 #include "running.h"

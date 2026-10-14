@@ -27,7 +27,7 @@
 #include "player_mana.h"
 #include "player_race.h"
 #include "player_resting.h"
-#include "player_speed.h"
+#include "player_skills.h"
 #include "player_spells_to_learn.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"

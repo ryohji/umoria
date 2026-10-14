@@ -26,12 +26,8 @@
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_class.h"
-#include "player_disarm.h"
-#include "player_infra_range.h"
+#include "player_skills.h"
 #include "player_level.h"
-#include "player_saving_throw.h"
-#include "player_search_skill.h"
-#include "player_stealth.h"
 #include "stats.h"
 
 struct player_abilities calc_player_abilities(void) {

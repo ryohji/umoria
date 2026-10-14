@@ -23,11 +23,8 @@
 #include "player_attack_bonuses.h"
 #include "player_display_numbers.h"
 #include "player_food.h"
-#include "player_infra_range.h"
-#include "player_search_skill.h"
-#include "player_speed.h"
+#include "player_skills.h"
 #include "player_status_flags.h"
-#include "player_stealth.h"
 #include "player_timed_effects.h"
 #include "stats.h"
 

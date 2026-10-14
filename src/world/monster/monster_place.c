@@ -22,7 +22,7 @@
 #include "monster_list.h"
 #include "monster_turn.h"
 #include "player_pos.h"
-#include "player_speed.h"
+#include "player_skills.h"
 #include "score_death.h"
 
 // get_mons_num() and summon() are static and serve only the functions here.

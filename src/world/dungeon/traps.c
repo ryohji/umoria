@@ -24,7 +24,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_class.h"
-#include "player_disarm.h"
+#include "player_skills.h"
 #include "player_level.h"
 #include "player_pos.h"
 #include "player_timed_effects.h"

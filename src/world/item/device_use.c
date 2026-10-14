@@ -21,7 +21,7 @@
 #include "item_learn.h"
 #include "player_class.h"
 #include "player_level.h"
-#include "player_saving_throw.h"
+#include "player_skills.h"
 #include "player_timed_effects.h"
 #include "stats.h"
 
