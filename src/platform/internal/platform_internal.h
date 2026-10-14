@@ -10,6 +10,8 @@
 #ifndef PLATFORM_INTERNAL_H
 #define PLATFORM_INTERNAL_H
 
+#include "platform_signals.h"
+
 #include "config.h"
 #include "constant.h"
 #include "types.h"

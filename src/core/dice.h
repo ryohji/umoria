@@ -8,6 +8,8 @@
 #ifndef DICE_H
 #define DICE_H
 
+#include <stdint.h>
+
 int damroll(int, int);
 int pdamroll(const uint8_t *);
 int max_hp(const uint8_t *);

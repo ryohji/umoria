@@ -8,6 +8,10 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 bool in_bounds(int, int);
 bool los(int, int, int, int);
 int next_to_walls(int, int);

@@ -8,6 +8,10 @@
 #ifndef MONSTERS_H
 #define MONSTERS_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // Following are creature arrays and variables
 extern monster_type blank_monster; // Blank monster values
 

@@ -8,6 +8,10 @@
 #ifndef TABLES_H
 #define TABLES_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 extern uint8_t rgold_adj[MAX_RACES][MAX_RACES];
 
 // Following are store definitions

@@ -10,6 +10,10 @@
 #ifndef MONSTER_STATE_H
 #define MONSTER_STATE_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

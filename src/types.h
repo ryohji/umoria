@@ -10,6 +10,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "config.h"
+#include "constant.h"
+
 #include "headers.h"
 
 // some machines will not accept 'signed char' as a type, and some accept it

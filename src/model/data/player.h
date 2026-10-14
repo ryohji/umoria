@@ -8,6 +8,10 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // Following are player variables
 extern const char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL];
 

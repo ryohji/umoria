@@ -8,6 +8,10 @@
 #ifndef SETS_H
 #define SETS_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 bool set_room(int);
 bool set_corr(int);
 bool set_floor(int);

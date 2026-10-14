@@ -7,6 +7,10 @@
 #ifndef PLAYER_IDENTITY_H
 #define PLAYER_IDENTITY_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // Identity answers: name, sex, age, height, social class, life story. Set once
 // at creation (except name, which change_name() can replace), never adjusted.
 

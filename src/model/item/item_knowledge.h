@@ -7,6 +7,10 @@
 #ifndef ITEM_KNOWLEDGE_H
 #define ITEM_KNOWLEDGE_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

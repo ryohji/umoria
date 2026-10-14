@@ -8,6 +8,10 @@
 #ifndef ITEM_KINDS_H
 #define ITEM_KINDS_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 #include <stdint.h>
 
 // Every kind of object that can be generated, laid out in order of the depth it

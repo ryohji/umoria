@@ -243,5 +243,13 @@ $(BINS): $(BUILDDIR)/%: $(TESTDIR)/%.c $$(addprefix $(TESTDIR)/,$$(EXTRA_$$*)) \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/$*.c $(addprefix $(TESTDIR)/,$(EXTRA_$*)) \
 	    $(LIBS) -Wl,-Map,$@.map
 
+# Every header under src/ must compile on its own (it includes what it uses).
+.PHONY: headers
+headers:
+	@for h in $$(find src -name '*.h' | sort); do \
+	    echo "#include \"$$(basename $$h)\"" | $(CC) $(CFLAGS) -D_DEFAULT_SOURCE -Werror -fsyntax-only -x c - \
+	        || { echo "header does not compile alone: $$h"; exit 1; }; \
+	done; echo "headers: all compile alone"
+
 clean:
 	rm -rf $(BUILDDIR)

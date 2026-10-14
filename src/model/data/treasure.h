@@ -8,6 +8,10 @@
 #ifndef TREASURE_H
 #define TREASURE_H
 
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
 // Following are treasure arrays  and variables
 extern treasure_type object_list[MAX_OBJECTS];
 
