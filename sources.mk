@@ -21,7 +21,7 @@ SRC_SUBDIRS = core data player monster dungeon item store combat ui save platfor
 
 SRCS = main.c ui/files.c ui/io.c \
 	player/create.c item/desc.c dungeon/generate.c data/sets.c dungeon.c monster/creature.c save/death.c \
-	item/eat.c ui/help.c item/magic.c item/potions.c item/prayer.c save/save.c item/staffs.c item/wands.c item/device.c \
+	item/eat.c ui/help.c item/magic.c item/potions.c item/prayer.c save/save.c item/staffs.c item/device_use.c item/wands.c item/device.c \
 	item/item_ident.c item/item_learn.c item/item_flags.c player/abilities.c data/options.c ui/messages.c \
 	item/scrolls.c item/spells.c ui/wizard.c platform/signals.c platform/signal_flags.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c game_state.c \
@@ -44,7 +44,7 @@ SRCS = main.c ui/files.c ui/io.c \
 	core/rnd.c ui/recall.c data/player.c data/tables.c \
 	combat/hit_rolls.c combat/player_damage.c item/inven_ops.c player/player_move.c \
 	dungeon/object_alloc.c ui/screen_fields.c ui/status_line.c ui/char_screen.c \
-	player/stat_ops.c item/spellbook.c player/level_ops.c \
+	player/stat_ops.c player/stat_loss.c item/spellbook.c player/level_ops.c \
 	dungeon/search.c \
 	player/player_bonuses.c \
 	player/rest_command.c \

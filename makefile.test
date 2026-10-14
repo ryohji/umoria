@@ -72,7 +72,7 @@ TESTS = distance_test geometry_test los_test device_chance_test item_ident_test 
         player_bio_test player_stealth_test player_class_test \
         monster_turn_test monster_levels_test monster_breeding_test \
         monster_list_test monster_recall_test dungeon_size_test dungeon_level_test \
-        floor_items_test dungeon_map_test rnd_test hit_rolls_test store_price_test
+        floor_items_test dungeon_map_test rnd_test hit_rolls_test store_price_test stat_loss_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 
@@ -183,6 +183,7 @@ EXTRA_gain_spells_test = shared_stubs.c spellbook_fixture.c
 EXTRA_geometry_test = shared_stubs.c
 EXTRA_hit_rolls_test = shared_stubs.c hit_rolls_fixture.c
 EXTRA_store_price_test = shared_stubs.c
+EXTRA_stat_loss_test = shared_stubs.c
 EXTRA_haggle_comment_test = shared_stubs.c store_haggle_fixture.c
 EXTRA_los_test = shared_stubs.c
 EXTRA_inven_stack_test = shared_stubs.c inven_ops_fixture.c

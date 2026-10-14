@@ -16,158 +16,135 @@
 #include "externs.h"
 
 #include "device.h"
-#include "inventory.h"
-#include "item_learn.h"
-#include "player_class.h"
-#include "player_level.h"
+#include "device_use.h"
 #include "player_pos.h"
-#include "player_saving_throw.h"
 #include "player_timed_effects.h"
-#include "stats.h"
+
+// A confused player aims at random.
+static bool wand_direction(int *dir) {
+    if (!get_dir(CNIL, dir)) {
+        return false;
+    }
+    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+        msg_print("You are confused.");
+        do {
+            *dir = randint(9);
+        } while (*dir == 5);
+    }
+    return true;
+}
+
+static void wand_effect(int pos, int dir, uint32_t *flags, bool *ident) {
+    int k = player_row();
+    int l = player_col();
+
+    switch (pos) {
+    case 1:
+        msg_print("A line of blue shimmering light appears.");
+        light_line(dir, player_row(), player_col());
+        *ident = true;
+        break;
+    case 2:
+        fire_bolt(GF_LIGHTNING, dir, k, l, damroll(4, 8),
+                  spell_names[8]);
+        *ident = true;
+        break;
+    case 3:
+        fire_bolt(GF_FROST, dir, k, l, damroll(6, 8),
+                  spell_names[14]);
+        *ident = true;
+        break;
+    case 4:
+        fire_bolt(GF_FIRE, dir, k, l, damroll(9, 8),
+                  spell_names[22]);
+        *ident = true;
+        break;
+    case 5:
+        *ident = wall_to_mud(dir, k, l);
+        break;
+    case 6:
+        *ident = poly_monster(dir, k, l);
+        break;
+    case 7:
+        *ident = hp_monster(dir, k, l, -damroll(4, 6));
+        break;
+    case 8:
+        *ident = speed_monster(dir, k, l, 1);
+        break;
+    case 9:
+        *ident = speed_monster(dir, k, l, -1);
+        break;
+    case 10:
+        *ident = confuse_monster(dir, k, l);
+        break;
+    case 11:
+        *ident = sleep_monster(dir, k, l);
+        break;
+    case 12:
+        *ident = drain_life(dir, k, l);
+        break;
+    case 13:
+        *ident = td_destroy2(dir, k, l);
+        break;
+    case 14:
+        fire_bolt(GF_MAGIC_MISSILE, dir, k, l, damroll(2, 6),
+                  spell_names[0]);
+        *ident = true;
+        break;
+    case 15:
+        *ident = build_wall(dir, k, l);
+        break;
+    case 16:
+        *ident = clone_monster(dir, k, l);
+        break;
+    case 17:
+        *ident = teleport_monster(dir, k, l);
+        break;
+    case 18:
+        *ident = disarm_all(dir, k, l);
+        break;
+    case 19:
+        fire_ball(GF_LIGHTNING, dir, k, l, 32,
+                  "Lightning Ball");
+        *ident = true;
+        break;
+    case 20:
+        fire_ball(GF_FROST, dir, k, l, 48, "Cold Ball");
+        *ident = true;
+        break;
+    case 21:
+        fire_ball(GF_FIRE, dir, k, l, 72, spell_names[28]);
+        *ident = true;
+        break;
+    case 22:
+        fire_ball(GF_POISON_GAS, dir, k, l, 12, spell_names[6]);
+        *ident = true;
+        break;
+    case 23:
+        fire_ball(GF_ACID, dir, k, l, 60, "Acid Ball");
+        *ident = true;
+        break;
+    case 24:
+        *flags = (uint32_t)(1L << (randint(23) - 1));
+        break;
+    default:
+        msg_print("Internal error in wands()");
+        break;
+    }
+}
+
+static const device_kind wand = {
+    TV_WAND,
+    DEVICE_PENALTY_WAND,
+    "You are not carrying any wands.",
+    "Aim which wand?",
+    "You failed to use the wand properly.",
+    "The wand has no charges left.",
+    wand_direction,
+    wand_effect,
+};
 
 // Wands for the aiming.
 void aim(void) {
-    free_turn_flag = true;
-
-    int j, k, item_val;
-    if (inventory_count() == 0) {
-        msg_print("But you are not carrying anything.");
-    } else if (!find_range(TV_WAND, TV_NEVER, &j, &k)) {
-        msg_print("You are not carrying any wands.");
-    } else if (get_item(&item_val, "Aim which wand?", j, k, CNIL, CNIL)) {
-        inven_type *i_ptr = inventory_at(item_val);
-        free_turn_flag = false;
-
-        int dir;
-        if (get_dir(CNIL, &dir)) {
-            if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
-                msg_print("You are confused.");
-                do {
-                    dir = randint(9);
-                } while (dir == 5);
-            }
-            bool ident = false;
-
-            // Same structure as staffs (see staffs.c).
-            int chance = device_use_chance(player_saving_throw(), stat_adj(A_INT), (int)i_ptr->level, DEVICE_PENALTY_WAND, class_level_adj[player_class()][CLA_DEVICE], player_level(), player_timed_turns(PLAYER_TIMED_CONFUSION));
-
-            if (!device_use_succeeds(chance)) {
-                msg_print("You failed to use the wand properly.");
-            } else if (i_ptr->p1 > 0) {
-                uint32_t i = i_ptr->flags;
-                (i_ptr->p1)--;
-
-                while (i != 0) {
-                    j = bit_pos(&i) + 1;
-                    k = player_row();
-                    int l = player_col();
-                    // Wands
-                    switch (j) {
-                    case 1:
-                        msg_print("A line of blue shimmering light appears.");
-                        light_line(dir, player_row(), player_col());
-                        ident = true;
-                        break;
-                    case 2:
-                        fire_bolt(GF_LIGHTNING, dir, k, l, damroll(4, 8),
-                                  spell_names[8]);
-                        ident = true;
-                        break;
-                    case 3:
-                        fire_bolt(GF_FROST, dir, k, l, damroll(6, 8),
-                                  spell_names[14]);
-                        ident = true;
-                        break;
-                    case 4:
-                        fire_bolt(GF_FIRE, dir, k, l, damroll(9, 8),
-                                  spell_names[22]);
-                        ident = true;
-                        break;
-                    case 5:
-                        ident = wall_to_mud(dir, k, l);
-                        break;
-                    case 6:
-                        ident = poly_monster(dir, k, l);
-                        break;
-                    case 7:
-                        ident = hp_monster(dir, k, l, -damroll(4, 6));
-                        break;
-                    case 8:
-                        ident = speed_monster(dir, k, l, 1);
-                        break;
-                    case 9:
-                        ident = speed_monster(dir, k, l, -1);
-                        break;
-                    case 10:
-                        ident = confuse_monster(dir, k, l);
-                        break;
-                    case 11:
-                        ident = sleep_monster(dir, k, l);
-                        break;
-                    case 12:
-                        ident = drain_life(dir, k, l);
-                        break;
-                    case 13:
-                        ident = td_destroy2(dir, k, l);
-                        break;
-                    case 14:
-                        fire_bolt(GF_MAGIC_MISSILE, dir, k, l, damroll(2, 6),
-                                  spell_names[0]);
-                        ident = true;
-                        break;
-                    case 15:
-                        ident = build_wall(dir, k, l);
-                        break;
-                    case 16:
-                        ident = clone_monster(dir, k, l);
-                        break;
-                    case 17:
-                        ident = teleport_monster(dir, k, l);
-                        break;
-                    case 18:
-                        ident = disarm_all(dir, k, l);
-                        break;
-                    case 19:
-                        fire_ball(GF_LIGHTNING, dir, k, l, 32,
-                                  "Lightning Ball");
-                        ident = true;
-                        break;
-                    case 20:
-                        fire_ball(GF_FROST, dir, k, l, 48, "Cold Ball");
-                        ident = true;
-                        break;
-                    case 21:
-                        fire_ball(GF_FIRE, dir, k, l, 72, spell_names[28]);
-                        ident = true;
-                        break;
-                    case 22:
-                        fire_ball(GF_POISON_GAS, dir, k, l, 12, spell_names[6]);
-                        ident = true;
-                        break;
-                    case 23:
-                        fire_ball(GF_ACID, dir, k, l, 60, "Acid Ball");
-                        ident = true;
-                        break;
-                    case 24:
-                        i = (uint32_t)(1L << (randint(23) - 1));
-                        break;
-                    default:
-                        msg_print("Internal error in wands()");
-                        break;
-                    }
-                    // End of Wands.
-                }
-                // NOTE: the returned i_ptr is never read after this, so it is
-                // discarded. -MRC-
-                (void)learn_item_effect(ident, &item_val);
-
-                desc_charges(item_val);
-            } else {
-                msg_print("The wand has no charges left.");
-                if (!known2_p(i_ptr)) {
-                    add_inscribe(i_ptr, ID_EMPTY);
-                }
-            }
-        }
-    }
+    use_charged_device(&wand);
 }
