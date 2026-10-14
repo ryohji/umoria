@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "item_picker.h"
 #include "dungeon_level.h"
 #include "inventory.h"
 #include "player_bio.h"

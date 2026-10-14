@@ -17,6 +17,7 @@
 #include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
+#include "item_picker.h"
 
 // The three prototypes are in externs.h, the same as the other files that
 // include it (desc.c, eat.c): scribe_object() asks for the item through

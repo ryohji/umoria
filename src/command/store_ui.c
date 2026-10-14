@@ -17,6 +17,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "item_picker.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "stores.h"

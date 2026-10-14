@@ -19,6 +19,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "item_picker.h"
 #include "burden.h"
 #include "dungeon_map.h"
 #include "equipment.h"

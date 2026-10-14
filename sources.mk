@@ -42,7 +42,7 @@ SRCS = app/main.c command/files.c ui/io.c \
 	model/dungeon/dungeon_size.c model/dungeon/dungeon_level.c model/dungeon/floor_items.c model/dungeon/dungeon_map.c model/dungeon/geometry.c world/dungeon/object_place.c \
 	command/inven_menu.c world/player/run_path.c world/monster/monster_death.c command/look.c model/data/monsters.c model/data/treasure.c model/game/variable.c \
 	core/rnd.c command/recall.c model/data/player.c model/data/tables.c \
-	world/combat/hit_rolls.c world/combat/player_damage.c world/item/inven_ops.c world/player/player_move.c \
+	world/combat/hit_rolls.c world/combat/player_damage.c world/item/inven_ops.c world/item/item_picker.c world/player/player_move.c \
 	world/dungeon/object_alloc.c ui/screen_fields.c world/view/status_line.c command/char_screen.c \
 	world/player/stat_ops.c world/player/stat_loss.c world/item/spellbook.c world/player/level_ops.c \
 	world/dungeon/search.c \

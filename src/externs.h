@@ -373,12 +373,7 @@ void lite_spot(int, int);
 void move_light(int, int, int, int);
 
 // command/inven_menu.c
-int show_inven(int, int, bool, int, const char *);
-const char *describe_use(int);
-int show_equip(bool, int);
-void takeoff(int, int);
 void inven_command(char);
-int get_item(int *, const char *, int, int, const char *, const char *);
 
 // world/dungeon/search.c
 void change_trap(int, int);

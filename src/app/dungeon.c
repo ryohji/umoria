@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "item_picker.h"
 #include "command_state.h"
 #include "direction_keys.h"
 #include "dungeon_level.h"
