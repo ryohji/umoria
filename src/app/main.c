@@ -26,7 +26,7 @@
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
-#include "spells_known.h"
+#include "player_spells.h"
 #include "platform.h"
 
 static void char_inven_init(void);

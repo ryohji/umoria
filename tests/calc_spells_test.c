@@ -50,9 +50,8 @@
 #include "fixture.h"
 #include "player_class.h"
 #include "player_level.h"
-#include "player_spells_to_learn.h"
+#include "player_spells.h"
 #include "player_status_flags.h"
-#include "spells_known.h"
 #include "stats.h"
 
 

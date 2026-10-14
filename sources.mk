@@ -27,14 +27,13 @@ SRCS = app/main.c command/files.c ui/io.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c app/game_state.c \
 	ui/input.c platform/input_ncurses.c platform/platform.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
 	model/item/inventory.c model/item/armor_selection.c model/game/progress.c model/game/score_death.c model/game/save_state.c model/player/player_pos.c \
-	model/player/hp_table.c model/player/player_light.c model/player/burden.c model/player/spells_known.c model/item/object_levels.c world/item/inscription.c world/item/item_enchant.c \
+	model/player/hp_table.c model/player/player_light.c model/player/burden.c model/player/player_spells.c model/item/object_levels.c world/item/inscription.c world/item/item_enchant.c \
 	model/item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c command/options_menu.c \
 	world/dungeon/level_exit.c model/player/pending_teleport.c ui/input_ended.c model/player/running.c \
 	ui/command_state.c model/player/player_gold.c model/player/player_food.c world/player/food_ops.c model/player/player_display_numbers.c \
 	model/player/player_mana.c model/player/player_hp.c model/player/player_level.c model/player/player_status_flags.c \
 	model/player/player_abilities.c model/player/player_timed_effects.c model/player/player_resting.c model/player/player_skills.c \
-	model/player/player_glowing_hands.c \
-	model/player/player_spells_to_learn.c model/player/player_max_depth.c model/player/player_hit_die.c model/player/player_armour_class.c model/player/player_base_to_hit.c \
+	model/player/player_glowing_hands.c model/player/player_max_depth.c model/player/player_hit_die.c model/player/player_armour_class.c model/player/player_base_to_hit.c \
 	model/player/player_race.c model/player/player_body_weight.c \
 	model/player/player_attack_bonuses.c model/player/player_bio.c \
 	model/player/player_class.c \

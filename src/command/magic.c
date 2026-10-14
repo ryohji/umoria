@@ -20,7 +20,7 @@
 #include "player_mana.h"
 #include "player_pos.h"
 #include "player_timed_effects.h"
-#include "spells_known.h"
+#include "player_spells.h"
 
 // Throw a magic spell -RAK-
 void cast(void) {
