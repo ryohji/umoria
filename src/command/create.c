@@ -19,16 +19,14 @@
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
-#include "player_bio.h"
+#include "player_identity.h"
 #include "player_body_weight.h"
-#include "player_class.h"
 #include "player_skills.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hit_die.h"
 #include "player_hp.h"
 #include "player_level.h"
-#include "player_race.h"
 #include "stats.h"
 
 // Generates character's stats -JWT-

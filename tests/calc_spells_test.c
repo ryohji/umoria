@@ -48,7 +48,7 @@
 #include "types.h"
 
 #include "fixture.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_level.h"
 #include "player_spells.h"
 #include "player_condition.h"

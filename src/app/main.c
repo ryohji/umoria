@@ -20,7 +20,7 @@
 #include "monster_levels.h"
 #include "object_levels.h"
 #include "options.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_condition.h"
 #include "player_hp.h"
 #include "progress.h"

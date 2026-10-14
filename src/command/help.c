@@ -15,7 +15,7 @@
 
 #include "externs.h"
 
-#include "player_bio.h"
+#include "player_identity.h"
 
 void ident_char(void) {
     char command;

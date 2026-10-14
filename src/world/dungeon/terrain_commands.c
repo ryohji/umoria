@@ -25,7 +25,7 @@
 #include "monster_list.h"
 #include "panel.h"
 #include "player_body_weight.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_skills.h"
 #include "player_level.h"
 #include "player_condition.h"

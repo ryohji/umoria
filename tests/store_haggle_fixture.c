@@ -21,7 +21,7 @@
 
 #include "fixture.h"
 #include "shared_stubs.h"
-#include "player_race.h"
+#include "player_identity.h"
 #include "stats_reset.h"
 
 /* 各テストの前に呼ぶ。 */

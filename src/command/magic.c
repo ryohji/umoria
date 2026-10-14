@@ -15,7 +15,7 @@
 
 #include "equipment.h"
 #include "externs.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_condition.h"

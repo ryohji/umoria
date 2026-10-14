@@ -17,7 +17,7 @@
 #include "externs.h"
 #include "stores.h"
 #include "store_haggle.h"
-#include "player_race.h"
+#include "player_identity.h"
 #include "progress.h"
 #include "stats.h"
 #include "str_insert.h"

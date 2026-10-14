@@ -19,7 +19,7 @@
 #include "equipment.h"
 #include "level_exit.h"
 #include "player_abilities.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_skills.h"

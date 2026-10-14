@@ -23,7 +23,7 @@
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_condition.h"
 #include "player_level.h"
 #include "stats.h"

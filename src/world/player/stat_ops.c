@@ -16,7 +16,7 @@
 
 #include "externs.h"
 
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_condition.h"
 #include "stats.h"
 

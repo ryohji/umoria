@@ -22,15 +22,13 @@
 #include "floor_items.h"
 #include "inventory.h"
 #include "object_levels.h"
-#include "player_bio.h"
+#include "player_identity.h"
 #include "player_body_weight.h"
-#include "player_class.h"
 #include "player_display_numbers.h"
 #include "player_gold.h"
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_mana.h"
-#include "player_race.h"
 #include "stats.h"
 
 //  init_scorefile

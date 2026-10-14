@@ -4,19 +4,12 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Who this character is: the name, the sex, the age, the height, the social
-// class and the four lines of life story
-
-// memset() and strncpy(), for the two answers that are strings. str_insert.c is
-// the precedent for asking for one standard header by name rather than pulling in
-// headers.h, which would bring windows.h with it on one of the three platforms.
 #include <string.h>
-
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "player_bio.h"
+#include "player_identity.h"
+#include "externs.h"
 
 // Not one line here reaches out to anything. The six answers start life in the race
 // table and the background table, but this file reads neither: creation rolls them
@@ -151,4 +144,64 @@ void player_history_clear(void) {
     for (int line = 0; line < PLAYER_HISTORY_LINES; line++) {
         memset(the_history[line], 0, PLAYER_HISTORY_LINE_SIZE);
     }
+}
+
+// THE ROW NUMBER ITSELF. This one byte is the only place the answer lives, and
+// the windows below are the only way to reach it.
+//
+// ZERO IS WHERE A CHARACTER STARTS AND ALSO A REAL ANSWER: nothing is chosen yet
+// until the race menu is answered, and row zero happens to be Human. The byte is
+// NOT A QUANTITY -- it is a row, so there is nothing here to add to and no
+// `_adjust` window to go with the setter.
+static uint8_t race_the_row;
+
+int player_race(void) {
+    return race_the_row;
+}
+
+void player_race_set(int row) {
+    // The race menu and the saved file's byte put back. One sentence for both,
+    // because both are a plain replacement -- and there is no `_adjust` to go with
+    // it, because a character does not become more of a Dwarf.
+    //
+    // The cast is the store's own width (uint8_t), not a rule this window adds.
+    race_the_row = (uint8_t)row;
+}
+
+const char *player_race_name(void) {
+    // Not bounds-checked, deliberately (findings.md 24). The menu cannot produce a
+    // bad row and nothing else writes this but a saved file.
+    return race[race_the_row].trace;
+}
+
+// THE PLACE THE ANSWER LIVES. A byte of its own. Nothing outside this file can
+// reach the row.
+//
+// No initialiser, so the row starts at 0: a Warrior, and also "no class picked yet".
+// Those are the same byte, which is why get_class() can write a 0 before its
+// menu loop without meaning anything by it.
+static uint8_t class_the_row;
+
+int player_class(void) {
+    return class_the_row;
+}
+
+void player_class_set(int row) {
+    // The class menu, the zero it writes before the menu loop, and a saved byte put
+    // back. One sentence for all three, because all three are a plain replacement.
+    //
+    // The cast is the store's own width (uint8_t), not a rule this window adds.
+    class_the_row = (uint8_t)row;
+}
+
+const char *player_class_title(void) {
+    // No bounds check on the row (findings.md 24). A row past the end of the table
+    // is a row past the end of the table.
+    return class[class_the_row].title;
+}
+
+int player_class_spell_type(void) {
+    // NONE, MAGE or PRIEST. The fifteen callers compare the answer themselves; this
+    // window does not turn the number into a yes or a no (see the header).
+    return class[class_the_row].spell;
 }

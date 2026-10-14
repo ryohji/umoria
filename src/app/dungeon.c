@@ -33,7 +33,7 @@
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_base_to_hit.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_display_numbers.h"
 #include "player_hp.h"
 #include "player_skills.h"

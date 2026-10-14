@@ -42,7 +42,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_bio.h"
+#include "player_identity.h"
 
 /* 白紙の人物 —— **6 つとも 0 が走りだし**（名前は空・男ではない・年齢と身長と
  * 階層は 0・生い立ちは 4 行とも空）。`py` を消すのではなく窓口ごしに戻すのは、

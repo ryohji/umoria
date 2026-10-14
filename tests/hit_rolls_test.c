@@ -21,7 +21,7 @@
 #include "fixture.h"
 #include "hit_rolls_fixture.h"
 #include "monster_recall.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_level.h"
 #include "shared_stubs.h"
 #include "stats.h"

@@ -20,7 +20,7 @@
 
 #include "externs.h"
 #include "monster_recall.h"
-#include "player_class.h"
+#include "player_identity.h"
 #include "player_level.h"
 #include "stats.h"
 

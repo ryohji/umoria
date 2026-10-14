@@ -16,7 +16,7 @@
 
 #include "externs.h"
 #include "item_flags.h"
-#include "player_race.h"
+#include "player_identity.h"
 #include "stores.h"
 
 // None of these prints or asks for input. The callers are the stock
