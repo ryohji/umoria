@@ -14,8 +14,8 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-#include "char_screen.h"
-#include "files.h"
+#include "commands.h"
+#include "command_internal.h"
 #include "world_view.h"
 #include "ui_screen.h"
 

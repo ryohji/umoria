@@ -10,7 +10,7 @@
 #include "backend_ncurses.h"
 #include "ui_render.h"
 #include "ui_input.h"
-#include "platform.h"
+#include "app_internal.h"
 
 #include <stdio.h>
 

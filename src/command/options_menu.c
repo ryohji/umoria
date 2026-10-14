@@ -17,7 +17,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "options_menu.h"
+#include "commands.h"
 #include "ui_screen.h"
 #include "game_settings.h"
 

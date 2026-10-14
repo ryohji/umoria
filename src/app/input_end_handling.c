@@ -13,10 +13,8 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-#include "death.h"
-#include "input_end_handling.h"
+#include "app_internal.h"
 #include "world_player.h"
-#include "save.h"
 #include "ui_input.h"
 
 #include <string.h>

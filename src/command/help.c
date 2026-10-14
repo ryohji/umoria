@@ -13,9 +13,9 @@
 #include "constant.h"
 #include "types.h"
 #include "game_settings.h"
-#include "help.h"
+#include "commands.h"
+#include "command_internal.h"
 #include "monsters.h"
-#include "recall.h"
 #include "ui_screen.h"
 
 #include "player_identity.h"

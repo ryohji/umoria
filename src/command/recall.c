@@ -16,7 +16,8 @@
 #include "game_status.h"
 #include "length_of.h"
 #include "monsters.h"
-#include "recall.h"
+#include "commands.h"
+#include "command_internal.h"
 #include "ui_screen.h"
 #include "player_progress.h"
 

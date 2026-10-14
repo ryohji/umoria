@@ -20,7 +20,7 @@
 # Libraries with an internal/ header directory. It is on the include path only
 # while compiling that library's own .c files (and the tests), so another
 # library that includes an internal header does not compile.
-INTERNAL_LIBS = world ui
+INTERNAL_LIBS = world ui command platform app
 
 SRC_SUBDIRS = core model/data model/game model/player model/monster model/dungeon model/item model/store platform ui world/combat world/dungeon world/item world/monster world/player world/store world/view command app
 

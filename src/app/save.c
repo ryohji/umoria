@@ -18,7 +18,7 @@
 #include "game_status.h"
 
 #include "player_stats.h"
-#include "death.h"
+#include "app_internal.h"
 #include "dice.h"
 #include "world_item.h"
 #include "world_player.h"
@@ -27,8 +27,7 @@
 #include "monsters.h"
 #include "player.h"
 #include "rnd.h"
-#include "save.h"
-#include "signals.h"
+#include "platform_signals.h"
 #include "ui_screen.h"
 #include "ui_input.h"
 #include "player_progress.h"

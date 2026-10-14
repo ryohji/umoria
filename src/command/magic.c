@@ -14,7 +14,7 @@
 #include "types.h"
 
 #include "inventory.h"
-#include "command_magic.h"
+#include "commands.h"
 #include "dice.h"
 #include "ui_input.h"
 #include "ui_screen.h"

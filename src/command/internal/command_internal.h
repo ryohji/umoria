@@ -5,17 +5,34 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-#ifndef CHAR_SCREEN_H
-#define CHAR_SCREEN_H
+// Declarations shared inside command/ only.
 
+#ifndef COMMAND_INTERNAL_H
+#define COMMAND_INTERNAL_H
+
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+
+// --- char_screen.c ---
 void put_character(void);
 void put_stats(void);
 const char *likert(int, int);
 void put_misc1(void);
 void put_misc2(void);
 void put_misc3(void);
-void display_char(void);
 void get_name(void);
-void change_name(void);
 
-#endif // CHAR_SCREEN_H
+// --- files.c ---
+void print_objects(void);
+
+// --- recall.c ---
+bool bool_roff_recall(creature_type *);
+int roff_recall(creature_type *);
+
+// --- wizard.c ---
+void wizard_light(void);
+void change_character(void);
+void wizard_create(void);
+
+#endif // COMMAND_INTERNAL_H

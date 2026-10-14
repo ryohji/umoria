@@ -20,7 +20,7 @@
 #include "world_player.h"
 #include "game_settings.h"
 #include "rnd.h"
-#include "scrolls.h"
+#include "commands.h"
 #include "ui_screen.h"
 
 #include "armor_selection.h"

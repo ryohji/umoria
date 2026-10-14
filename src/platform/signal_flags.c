@@ -7,7 +7,8 @@
 // Signal flags implementation
 // Provides async-signal-safe communication between signal handlers and main code
 
-#include "signal_flags.h"
+#include "platform_signals.h"
+#include "platform_internal.h"
 
 #include <stddef.h>
 

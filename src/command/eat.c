@@ -18,7 +18,7 @@
 #include "world_combat.h"
 #include "world_view.h"
 #include "dice.h"
-#include "eat.h"
+#include "commands.h"
 #include "game_settings.h"
 #include "rnd.h"
 #include "ui_screen.h"

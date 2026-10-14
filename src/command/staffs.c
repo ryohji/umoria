@@ -16,7 +16,7 @@
 #include "world_player.h"
 #include "world_item.h"
 #include "rnd.h"
-#include "staffs.h"
+#include "commands.h"
 #include "ui_screen.h"
 
 #include "device.h"

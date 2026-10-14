@@ -6,7 +6,7 @@
 
 // Game state implementation
 
-#include "app/game_state.h"
+#include "app_internal.h"
 
 #include "player_stats.h"
 #include "ui_input.h"
@@ -14,7 +14,7 @@
 #include "dungeon_state.h"
 #include "constant.h"
 #include "game_settings.h"
-#include "game_state.h"
+#include "app_internal.h"
 #include "rnd.h"
 #include "game_status.h"
 #include "monster_state.h"

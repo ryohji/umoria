@@ -16,7 +16,7 @@
 #include "world_item.h"
 #include "world_player.h"
 #include "game_settings.h"
-#include "inven_menu.h"
+#include "commands.h"
 #include "ui_screen.h"
 #include "ui_input.h"
 #include "item_kinds.h"

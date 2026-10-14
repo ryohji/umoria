@@ -22,7 +22,7 @@
 #include "world_combat.h"
 #include "world_view.h"
 #include "player.h"
-#include "prayer.h"
+#include "commands.h"
 #include "rnd.h"
 #include "inventory.h"
 #include "player_identity.h"

@@ -19,9 +19,9 @@
 #include "ui_input.h"
 #include "ui_screen.h"
 #include "game_settings.h"
-#include "look.h"
+#include "commands.h"
+#include "command_internal.h"
 #include "monsters.h"
-#include "recall.h"
 
 #include "str_insert.h"
 

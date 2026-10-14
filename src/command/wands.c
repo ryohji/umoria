@@ -19,7 +19,7 @@
 #include "world_combat.h"
 #include "world_item.h"
 #include "rnd.h"
-#include "wands.h"
+#include "commands.h"
 
 #include "device.h"
 #include "player_condition.h"

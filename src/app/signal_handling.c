@@ -29,14 +29,10 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-#include "death.h"
+#include "app_internal.h"
 #include "world_player.h"
-#include "save.h"
-#include "signals.h"
+#include "platform_signals.h"
 #include "ui_screen.h"
-#include "signal_handling.h"
-#include "signal_flags.h"
-#include "platform.h"
 
 #include <signal.h>
 #include <unistd.h>
