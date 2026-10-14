@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "object_copy.h"
@@ -22,7 +23,6 @@
 #include "monster_list.h"
 #include "panel.h"
 #include "player_pos.h"
-#include "progress.h"
 
 typedef struct coords {
     int x, y;

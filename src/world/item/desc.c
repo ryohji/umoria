@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "object_copy.h"
@@ -19,7 +20,6 @@
 #include "inventory.h"
 #include "item_flags.h"
 #include "item_ident.h"
-#include "progress.h"
 #include "str_insert.h"
 
 static void unsample(inven_type *);

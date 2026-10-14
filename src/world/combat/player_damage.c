@@ -13,6 +13,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "armor_selection.h"
@@ -24,7 +25,6 @@
 #include "player_level.h"
 #include "player_saving_throw.h"
 #include "player_timed_effects.h"
-#include "score_death.h"
 #include "stats.h"
 
 // Saving throws for player character. -RAK-

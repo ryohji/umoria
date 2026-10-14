@@ -37,8 +37,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
-#include "score_death.h"
 
 #include "minunit.h"
 

@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "item_picker.h"
@@ -49,9 +50,7 @@
 #include "player_speed.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"
-#include "progress.h"
 #include "running.h"
-#include "score_death.h"
 #include "signal_handling.h"
 #include "messages.h"
 #include "stats.h"

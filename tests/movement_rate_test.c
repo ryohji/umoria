@@ -28,7 +28,6 @@
  * config.h / constant.h / types.h も creature.c が連れてくる。 */
 #include "creature.c"
 
-#include "progress.h"
 
 #include "fixture.h"
 

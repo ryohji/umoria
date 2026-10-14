@@ -15,6 +15,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "item_picker.h"
@@ -24,7 +25,6 @@
 #include "store_haggle.h"
 #include "messages.h"
 #include "player_gold.h"
-#include "progress.h"
 #include "stats.h"
 
 static const char *comment1[14] = {

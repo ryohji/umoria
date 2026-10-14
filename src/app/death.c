@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "item_picker.h"
@@ -24,9 +25,7 @@
 #include "player_level.h"
 #include "player_max_depth.h"
 #include "player_race.h"
-#include "score_death.h"
 #include "platform.h"
-#include "save_state.h"
 
 static void date(char *day) {
     char *tmp;

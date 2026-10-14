@@ -22,11 +22,11 @@ SRC_SUBDIRS = core model/data model/game model/player model/monster model/dungeo
 SRCS = app/main.c command/files.c ui/io.c \
 	command/create.c world/item/desc.c world/dungeon/generate.c model/data/sets.c app/dungeon.c world/monster/creature.c app/death.c app/input_end_handling.c \
 	command/eat.c command/help.c command/magic.c command/potions.c command/prayer.c app/save.c command/staffs.c world/item/device_use.c command/wands.c model/item/device.c \
-	model/item/item_ident.c world/item/item_learn.c model/item/item_flags.c model/player/abilities.c model/game/options.c ui/messages.c \
+	model/item/item_ident.c world/item/item_learn.c model/item/item_flags.c model/player/abilities.c model/game/game_settings.c ui/messages.c \
 	command/scrolls.c world/item/spells.c command/wizard.c platform/signals.c platform/signal_flags.c app/signal_handling.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c app/game_state.c \
 	ui/input.c platform/input_ncurses.c app/platform_init.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
-	model/item/inventory.c model/item/armor_selection.c model/game/progress.c model/game/score_death.c model/game/save_state.c model/player/player_pos.c \
+	model/item/inventory.c model/item/armor_selection.c model/game/game_status.c model/player/player_pos.c \
 	model/player/hp_table.c model/player/player_light.c model/player/burden.c model/player/spells_known.c model/item/object_levels.c model/item/object_copy.c world/item/inscription.c world/item/item_enchant.c \
 	model/item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c command/options_menu.c \
 	world/dungeon/level_exit.c model/player/pending_teleport.c ui/input_ended.c model/player/running.c \
@@ -40,7 +40,7 @@ SRCS = app/main.c command/files.c ui/io.c \
 	model/player/player_stealth.c model/player/player_class.c \
 	world/monster/monster_turn.c model/monster/monster_levels.c world/monster/monster_breeding.c model/monster/monster_list.c world/monster/monster_place.c model/monster/monster_recall.c \
 	model/dungeon/dungeon_size.c model/dungeon/dungeon_level.c model/dungeon/floor_items.c model/dungeon/dungeon_map.c model/dungeon/geometry.c world/dungeon/object_place.c \
-	command/inven_menu.c world/player/run_path.c world/monster/monster_death.c command/look.c model/data/monsters.c model/data/treasure.c model/game/variable.c \
+	command/inven_menu.c world/player/run_path.c world/monster/monster_death.c command/look.c model/data/monsters.c model/data/treasure.c \
 	core/rnd.c command/recall.c model/data/player.c model/data/tables.c \
 	world/combat/hit_rolls.c world/combat/player_damage.c world/item/inven_ops.c world/item/item_picker.c world/player/player_move.c \
 	world/dungeon/object_alloc.c ui/screen_fields.c world/view/status_line.c command/char_screen.c \

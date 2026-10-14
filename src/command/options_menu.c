@@ -19,7 +19,7 @@
 #include "types.h"
 
 #include "externs.h"
-#include "options.h"
+#include "game_settings.h"
 
 // Set or unset various boolean options. -CJS-
 //

@@ -29,8 +29,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
-#include "progress.h"
 
 #include "minunit.h"
 

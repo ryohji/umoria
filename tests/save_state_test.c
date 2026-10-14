@@ -35,10 +35,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
-#include "progress.h"
-#include "save_state.h"
-#include "score_death.h"
 
 #include "minunit.h"
 

@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 
@@ -25,7 +26,6 @@
 #include "player_gold.h"
 #include "player_level.h"
 #include "player_timed_effects.h"
-#include "score_death.h"
 #include "stats.h"
 
 // Make an attack on the player (chuckle.) -RAK-

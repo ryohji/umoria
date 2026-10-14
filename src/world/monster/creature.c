@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "dungeon_map.h"
 #include "equipment.h"
@@ -32,9 +33,7 @@
 #include "player_status_flags.h"
 #include "player_stealth.h"
 #include "player_timed_effects.h"
-#include "progress.h"
 #include "running.h"
-#include "score_death.h"
 #include "screen_touched.h"
 
 // Updates screen when monsters move about -RAK-

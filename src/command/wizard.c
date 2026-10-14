@@ -12,6 +12,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "command_state.h"
@@ -31,8 +32,6 @@
 #include "player_search_skill.h"
 #include "player_stealth.h"
 #include "player_timed_effects.h"
-#include "progress.h"
-#include "score_death.h"
 #include "stats.h"
 
 // lets anyone enter wizard mode after a disclaimer... -JEW-
