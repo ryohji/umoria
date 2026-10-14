@@ -5,12 +5,14 @@
 [done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1826 件・87 本、`externs.h` の global 38 個（→ `HANDOVER.md` 第 0 節）。
+- いま：テスト 1826 件・87 本、ヘッダの global 45 個（→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
   判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
 - #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
   場所は 2026-10-02 の行。同じ日に、開いている行の場所と数を今のコードに合わせた。
 - #77〜#79 は 2026-10-10 の下調べ（どのテストも引かない `.o` と、使い手の少ない global）で足し、同じ日に済んだ。
+- #80〜#88 は 2026-10-14 のモジュール化の列で足し、同じ日に済んだ。開いている行の場所は、
+  このとき新しいディレクトリーの名前に書きかえた（行番号は 2026-10-01 のまま）。
 
 ## 開いている項目
 
@@ -21,9 +23,7 @@
 
 ### P2（時間・合意しだい）
 
-| # | 状態 | 分類 | 場所 | 内容 | 手法 |
-|---|---|---|---|---|---|
-| 13 | 棚上げ | 不適切な責務配置 | platform/render_ncurses.c:60-63, 115-118, 279-302、platform/signals.c:94, 103 | 描画の backend が SIGTSTP を直に `signal()` で登録する（`:117`）。`signals.c:103` は `// SIGTSTP is handled by the rendering system` と書くだけで、シグナルの責務が 2 ファイルに割れている。#75 と一緒に扱う | Move（signals.c へ寄せる） |
+いまは無い。#13 は 2026-10-14 に #75 と一緒に済んだ。
 
 ### P3（記録のみ。着手しない）
 
@@ -31,16 +31,14 @@
 
 | # | 分類 | 場所 | 内容 | 着手しない理由 |
 |---|---|---|---|---|
-| 19 | 重複コード | item/spells.c の `light_line` `disarm_all` `hp_monster` `drain_life` `speed_monster` `confuse_monster` `sleep_monster` `wall_to_mud` `td_destroy2` `poly_monster` `build_wall` `clone_monster` `teleport_monster`、combat/projectiles.c:69-141 `fire_bolt`・:144-268 `fire_ball` | 「方向に飛ばして最初の対象を探す」骨格の写し。うち 5 関数はほぼ行単位で一致 | 終了条件に微妙な差がある（`fire_ball` は `fval` の判定を else 側に置く）。テストの保護なしの抽出は危険 |
-| 21 | 複雑な条件分岐 | monster/creature.c:471-679 `mon_cast_spell`（switch は :534） | switch 20 ケース。ケース番号がビット位置の生の数で、魔法 ID が前段の分岐に直書き | 変更頻度が低く、テストのコストが高い |
-| 22 | 長すぎるメソッド | item/desc.c:251-559 `objdes` | 309 行。被参照 約 51 か所で、表示文字列を全域が頼る | 影響は大きいが、分割には広いテストが要る |
-| 50 | （テストの穴） | player/player_bonuses.c:94-200 `calc_bonuses`、player/create.c:422-423、dungeon.c:466, 473, 485, 493、save/save.c:734-745 | **窓口を呼ぶ順番と条件（呼び手に残した規則）を見るテストが無い。** 窓口の中は `player_display_numbers_test` が守るが、呼び手は守られていない | もとから空いていた穴。呼び手を単体で呼べる足場が要る。経過は下の「#50 の族」 |
-| 51 | 重複コード | combat/monster_melee.c:592-609（モンスターの攻撃）と combat/player_melee.c:93-111（プレイヤーの攻撃） | 光る手が当たったときの約 18 行がほぼ写し。差は 4 つ：(1) 前者だけ `adesc != 99` を見る、(2) 大文字化の手が違う、(3) 見えているかの条件が `visible && !player_is_dead()` か `m_ptr->ml` か、(4) `msg_print("Your hands stop glowing.")` と `player_glowing_hands_spend()` の順が逆（monster_melee.c:593-594 と player_melee.c:94-95） | (1) は意図がコメントにある。(2)〜(4) は意図か分からず、畳むと決めた時点でふるまいが変わる。まず「どちらが正しいか」の判断が要る |
-| 71 | 長すぎるメソッド | dungeon.c:75-806 `dungeon()`（732 行）、dungeon.c:982-1380 `do_command`（399 行） | `dungeon()` の約 420 行は、時間で切れる効果 18 種の同じ形の並び（#50 の族もこの中）。局所の `i` を 3 つの用途に使いまわす。2026-10-10 にウィザード用の switch を ui/wizard.c へ移し、必ず真の判定を `else` にした（#71-1・#71-2） | dungeon.c には単体テストが届かない。効果ごとの塊を窓口の側へ出す足場が先 |
-| 72 | 長すぎるメソッド | ui/inven_menu.c:394-970 `inven_command`（577 行）、ui/recall.c:163-655 `roff_recall`（493 行）、save/save.c:524-1259 `get_char`（736 行）、item/potions.c `quaff`・item/eat.c `eat` | 台帳の #22・#25〜#27 に無い長い関数。`get_char` は版の分岐と goto が入りまじる | どれも externs.h・画面・乱数に全面的に依存する。`get_char` は #49 と同じ足場が要る |
-| 74 | データの散在 | `free_turn_flag`（externs.h の外で 80 か所、dungeon.c に 32） | 中身は「このコマンドで turn を使ったか」という戻り値で、それを global で伝えている | `do_command()` の戻り値をどうするかの設計判断が先（`globals_inventory.md` の見立てでは残置） |
-| 75 | 不適切な責務配置 | platform/signals.c:145 `handle_pending_signals`、ui/io.c:86-94 `inkey` | platform 層が save・ui・player を呼ぶ。パニックセーブの手順が signals.c:204-212 と io.c:86-94 で写し | 関数ポインタで向きを逆にできるが、#13 と一緒に設計を決める。層の規則はいま core/ しか見ていない（ユーザーの判断） |
-| 76 | 肥大化モジュール（分けすぎ） | player/player_disarm.c・player_saving_throw.c・player_stealth.c ほか技能の module | `static` な値 1 つと get/set/adjust の 3 本だけの module が名前のほかは同じ字。save.c は player の .h を 28 本 include する | 「1 問 1 module」の方針とぶつかる。方針を見なおすかの判断が先 |
+| 19 | 重複コード | world/item/spells.c の `light_line` `disarm_all` `hp_monster` `drain_life` `speed_monster` `confuse_monster` `sleep_monster` `wall_to_mud` `td_destroy2` `poly_monster` `build_wall` `clone_monster` `teleport_monster`、world/combat/projectiles.c:69-141 `fire_bolt`・:144-268 `fire_ball` | 「方向に飛ばして最初の対象を探す」骨格の写し。うち 5 関数はほぼ行単位で一致 | 終了条件に微妙な差がある（`fire_ball` は `fval` の判定を else 側に置く）。テストの保護なしの抽出は危険 |
+| 21 | 複雑な条件分岐 | world/monster/creature.c:471-679 `mon_cast_spell`（switch は :534） | switch 20 ケース。ケース番号がビット位置の生の数で、魔法 ID が前段の分岐に直書き | 変更頻度が低く、テストのコストが高い |
+| 22 | 長すぎるメソッド | world/item/desc.c:251-559 `objdes` | 309 行。被参照 約 51 か所で、表示文字列を全域が頼る | 影響は大きいが、分割には広いテストが要る |
+| 50 | （テストの穴） | world/player/player_bonuses.c:94-200 `calc_bonuses`、command/create.c:422-423、app/dungeon.c:466, 473, 485, 493、app/save.c:734-745 | **窓口を呼ぶ順番と条件（呼び手に残した規則）を見るテストが無い。** 窓口の中は `player_display_numbers_test` が守るが、呼び手は守られていない | もとから空いていた穴。呼び手を単体で呼べる足場が要る。経過は下の「#50 の族」 |
+| 51 | 重複コード | world/combat/monster_melee.c:592-609（モンスターの攻撃）と world/combat/player_melee.c:93-111（プレイヤーの攻撃） | 光る手が当たったときの約 18 行がほぼ写し。差は 4 つ：(1) 前者だけ `adesc != 99` を見る、(2) 大文字化の手が違う、(3) 見えているかの条件が `visible && !player_is_dead()` か `m_ptr->ml` か、(4) `msg_print("Your hands stop glowing.")` と `player_glowing_hands_spend()` の順が逆（monster_melee.c:593-594 と player_melee.c:94-95） | (1) は意図がコメントにある。(2)〜(4) は意図か分からず、畳むと決めた時点でふるまいが変わる。まず「どちらが正しいか」の判断が要る |
+| 71 | 長すぎるメソッド | app/dungeon.c:75-806 `dungeon()`（732 行）、app/dungeon.c:982-1380 `do_command`（399 行） | `dungeon()` の約 420 行は、時間で切れる効果 18 種の同じ形の並び（#50 の族もこの中）。局所の `i` を 3 つの用途に使いまわす。2026-10-10 にウィザード用の switch を ui/wizard.c へ移し、必ず真の判定を `else` にした（#71-1・#71-2） | dungeon.c には単体テストが届かない。効果ごとの塊を窓口の側へ出す足場が先 |
+| 72 | 長すぎるメソッド | command/inven_menu.c:394-970 `inven_command`（577 行）、command/recall.c:163-655 `roff_recall`（493 行）、app/save.c:524-1259 `get_char`（736 行）、command/potions.c `quaff`・command/eat.c `eat` | 台帳の #22・#25〜#27 に無い長い関数。`get_char` は版の分岐と goto が入りまじる | どれも externs.h・画面・乱数に全面的に依存する。`get_char` は #49 と同じ足場が要る |
+| 74 | データの散在 | `free_turn_flag`（宣言の外で 80 か所、dungeon.c に 32） | 中身は「このコマンドで turn を使ったか」という戻り値で、それを global で伝えている | `do_command()` の戻り値をどうするかの設計判断が先（`globals_inventory.md` の見立てでは残置） |
 
 ### #50 の族（要約）
 
@@ -58,17 +56,17 @@
 
 | # | 分類 | 場所 | 内容 | 棚上げの理由 |
 |---|---|---|---|---|
-| 25 | 長すぎるメソッド | combat/monster_melee.c:30-629 `make_attack` | 600 行・89 ケース。switch が 4 段 | 保護するテストのコストが極端に高い。global と乱数への依存が全面的。#57 でも中を割らずに移した |
-| 26 | 長すぎるメソッド | item/item_enchant.c:28-858 `magic_treasure` | 831 行・switch 10・119 ケース。品物の生成の中枢 | 同上。付呪の規則の網羅テストは現実的でない |
-| 27 | 長すぎるメソッド | item/scrolls.c:28-486 `read_scroll` | 459 行・40 ケース | 同上。局所変数を用途を変えて使いまわしており、分割の前に変数の整理が要る |
-| 28 | 重複コード | item/magic.c:26-212 と item/prayer.c:26-209 | `cast()` と `pray()` が構造ごと同型 | 分岐の本体・メッセージ・階級の判定の 3 点が違う。差 3 つ以上は抽出しない |
-| 29 | 重複コード | combat/projectiles.c:69-141 `fire_bolt` と combat/throw.c:181-285 `throw_object` | 飛ぶ道のりのループを 2 か所で書いている | 命中・終了条件・外れの 3 点が違う。描画だけ切りだせるが効果が小さい |
-| 30 | 重複コード | store/store_haggle.c:316-469 `purchase_haggle` と :472-674 `sell_haggle` | 値切りが買いと売りで並行して書かれている | 値段の向き・侮辱の上限・成立条件が逆。骨格が似ているだけで意味は反転している |
+| 25 | 長すぎるメソッド | world/combat/monster_melee.c:30-629 `make_attack` | 600 行・89 ケース。switch が 4 段 | 保護するテストのコストが極端に高い。global と乱数への依存が全面的。#57 でも中を割らずに移した |
+| 26 | 長すぎるメソッド | world/item/item_enchant.c:28-858 `magic_treasure` | 831 行・switch 10・119 ケース。品物の生成の中枢 | 同上。付呪の規則の網羅テストは現実的でない |
+| 27 | 長すぎるメソッド | command/scrolls.c:28-486 `read_scroll` | 459 行・40 ケース | 同上。局所変数を用途を変えて使いまわしており、分割の前に変数の整理が要る |
+| 28 | 重複コード | command/magic.c:26-212 と command/prayer.c:26-209 | `cast()` と `pray()` が構造ごと同型 | 分岐の本体・メッセージ・階級の判定の 3 点が違う。差 3 つ以上は抽出しない |
+| 29 | 重複コード | world/combat/projectiles.c:69-141 `fire_bolt` と world/combat/throw.c:181-285 `throw_object` | 飛ぶ道のりのループを 2 か所で書いている | 命中・終了条件・外れの 3 点が違う。描画だけ切りだせるが効果が小さい |
+| 30 | 重複コード | world/store/store_haggle.c:316-469 `purchase_haggle` と :472-674 `sell_haggle` | 値切りが買いと売りで並行して書かれている | 値段の向き・侮辱の上限・成立条件が逆。骨格が似ているだけで意味は反転している |
 | 31 | データの散在 | 19 ファイル・70 定義の `(int y, int x)` | 座標が 4 つの形で表され、Coord 型が無い | 置きかえが広すぎる。入れるならテストを揃えてから |
-| 32 | 強すぎる依存関係 | data/player.c | 524 行・関数 0。`py.` の直参照は、2026-10-02 には `py.stats` の 58 行・17 ファイルだけ（→ #67） | 構造の設計変更で、このリファクタリングの範囲を超える |
-| 34 | 未接続の基盤 | ui/view_observer.c/.h（296 行） | Observer の基盤。参照は宣言と定義だけ | 残骸ではなく先に用意された基盤（導入コミットによる）。消さない。接続の予定がなくなったら再評価 |
-| 35 | 未接続の基盤 | game_state.c/.h（328 行） | GameState 構造体。呼ばれていない（同じファイルの `init_seeds()` だけは main.c:117 から呼ばれる生きたコード） | 同上。ただし「写した瞬間に元と離れる」設計なので、つなぐときに見なおす（→ バグ候補 B3） |
-| 36 | 未接続の基盤 | ui/render.h:62-63、platform/render_ncurses.c:55-56, 82-83, 228-262 | `get_char` / `check_input` が InputBackend と役割が重なる。参照 0。同じ基盤（`2cd0529c`）の `render_present`（ui/render.c:95）・`render_get_size`（:119）も参照 0 | 同上。3 つのうち唯一「重複」の性が強い。input 側への統合が確かめられれば削除の候補に戻せる |
+| 32 | 強すぎる依存関係 | model/data/player.c | 524 行・関数 0。`py.` の直参照は、2026-10-02 には `py.stats` の 58 行・17 ファイルだけ（→ #67） | 構造の設計変更で、このリファクタリングの範囲を超える |
+| 34 | 未接続の基盤 | ui/view_observer.c（宣言は ui/internal/ui_internal.h）（296 行） | Observer の基盤。参照は宣言と定義だけ | 残骸ではなく先に用意された基盤（導入コミットによる）。消さない。接続の予定がなくなったら再評価 |
+| 35 | 未接続の基盤 | app/game_state.c（宣言は app/internal/app_internal.h）（328 行） | GameState 構造体。呼ばれていない（同じファイルの `init_seeds()` だけは main.c:117 から呼ばれる生きたコード） | 同上。ただし「写した瞬間に元と離れる」設計なので、つなぐときに見なおす（→ バグ候補 B3） |
+| 36 | 未接続の基盤 | platform/backend.h（RenderBackend の `get_char` / `check_input`）、platform/render_ncurses.c:55-56, 82-83, 228-262 | `get_char` / `check_input` が InputBackend と役割が重なる。参照 0。同じ基盤（`2cd0529c`）の `render_present`（ui/render.c:95）・`render_get_size`（:119）も参照 0 | 同上。3 つのうち唯一「重複」の性が強い。input 側への統合が確かめられれば削除の候補に戻せる |
 
 ## 済んだ項目の索引
 
@@ -127,6 +125,16 @@
 | 71（一部） | ウィザード用の switch を `ui/wizard.c` の `wizard_command` に、食料の枝の必ず真の判定を `else` に。行は開いたまま | 同上 |
 | 20 | `lose_str`〜`lose_chr` の 6 本を `player/stat_loss.c` の `lose_stat` 1 本と表に | 同上 |
 | 73 | 杖と魔法棒の骨格を `item/device_use.c` の `use_charged_device` に | 同上 |
+| 80 | `src/` を層（core < model < platform < ui < world < command < app）× 名詞のディレクトリーに | [done/modules-2026-10-14.md](docs/refactoring/done/modules-2026-10-14.md) |
+| 81 | `layer_deps.py` で層の順を守る。例外の一覧は 0 本 | 同上 |
+| 82 | model → world の 2 本（`is_a_vowel` を core へ、`invcopy` を model/item へ） | 同上 |
+| 83 | world → command の 6 本（`world/item/item_picker.c`、店の入口は登録する手） | 同上 |
+| 84・75 | platform・ui → 上の層（シグナルの処理と `platform_init` を app へ、入力の終わりを登録する手に） | 同上 |
+| 13 | SIGTSTP の登録を `platform/signals.c` に | 同上 |
+| 87 | 層ごとの静的ライブラリー 11 本を層の順にリンク | 同上 |
+| 85・76 | model/player の約 37 module を 6 つに、注釈を `docs/modules/player.md` へ | 同上 |
+| 88 | model/game・monster・dungeon・item の module をまとめる、`docs/modules/model.md` | 同上 |
+| 86 | `externs.h` を消し、公開ヘッダと `internal/` の内部ヘッダに。どのヘッダも単体でコンパイルできる | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
