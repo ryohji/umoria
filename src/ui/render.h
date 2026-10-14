@@ -12,61 +12,7 @@
 
 #include <stdbool.h>
 
-// Color definitions
-// These can be mapped to different color schemes by backends
-// Note: Prefixed with RENDER_ to avoid conflicts with ncurses COLOR_* macros
-typedef enum {
-    RENDER_COLOR_DEFAULT = 0,
-    RENDER_COLOR_BLACK = 1,
-    RENDER_COLOR_RED = 2,
-    RENDER_COLOR_GREEN = 3,
-    RENDER_COLOR_YELLOW = 4,
-    RENDER_COLOR_BLUE = 5,
-    RENDER_COLOR_MAGENTA = 6,
-    RENDER_COLOR_CYAN = 7,
-    RENDER_COLOR_WHITE = 8,
-} RenderColor;
-
-// Rendering backend interface
-// Backends (ncurses, Pyxel, SDL, etc.) implement these functions
-typedef struct RenderBackend {
-    const char *name;
-
-    // Lifecycle
-    bool (*init)(void);
-    void (*shutdown)(void);
-
-    // Frame control
-    void (*begin_frame)(void);
-    void (*end_frame)(void);  // Present/flush the frame to screen
-
-    // Screen management
-    void (*clear)(void);
-    void (*get_size)(int *rows, int *cols);
-    void (*erase_line)(int row, int col);  // Erase from col to end of line
-    void (*clear_from)(int row);  // Clear from row to bottom of screen
-    void (*refresh)(void);  // Force immediate screen update
-
-    // Drawing primitives
-    void (*draw_char)(int row, int col, char ch, RenderColor color);
-    void (*draw_string)(int row, int col, const char *str, RenderColor color);
-
-    // Cursor management
-    void (*move_cursor)(int row, int col);
-    void (*show_cursor)(bool show);
-
-    // Audio feedback
-    void (*bell)(void);  // Audio or visual bell
-
-    // Input (may be moved to separate input abstraction later)
-    int (*get_char)(void);
-    bool (*check_input)(int microsec);
-
-    // Screen save/restore (for menus, inventory, etc.)
-    void (*save_screen)(void);
-    void (*restore_screen)(void);
-
-} RenderBackend;
+#include "backend.h"
 
 // Global rendering state
 extern RenderBackend *current_backend;
