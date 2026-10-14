@@ -15,6 +15,8 @@
 
 #include "externs.h"
 
+#include "str_insert.h"
+
 // Following are creature arrays and variables
 
 // Creatures must be defined here

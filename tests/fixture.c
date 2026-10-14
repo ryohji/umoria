@@ -62,6 +62,3 @@ void fixture_reset(void)
  * HP 計算まで芋づるで付いてくる。経験値の加算式を見たいテストには
  * 不要なので捨てる。 */
 void prt_experience(void) {}
-
-/* 文字列組み立て。desc.c 内の別関数用で、今回の対象は呼ばない */
-void insert_str(char *o, const char *m, const char *i) { (void)o; (void)m; (void)i; }

@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "object_copy.h"
 
 #include "inventory.h"
 #include "item_flags.h"
@@ -26,16 +27,6 @@ static void unsample(inven_type *);
 char titles[MAX_TITLES][10];
 
 // Object descriptor routines
-
-bool is_a_vowel(char ch) {
-    switch (ch) {
-    case 'a': case 'e': case 'i': case 'o': case 'u':
-    case 'A': case 'E': case 'I': case 'O': case 'U':
-        return true;
-    default:
-        return false;
-    }
-}
 
 // Initialize all Potions, wands, staves, scrolls, etc.
 void magic_init(void) {
@@ -555,29 +546,6 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
     }
 }
 
-void invcopy(inven_type *to, int from_index) {
-    treasure_type *from = &object_list[from_index];
-
-    to->index       = from_index;
-    to->name2       = SN_NULL;
-    to->inscrip[0]  = '\0';
-    to->flags       = from->flags;
-    to->tval        = from->tval;
-    to->tchar       = from->tchar;
-    to->p1          = from->p1;
-    to->cost        = from->cost;
-    to->subval      = from->subval;
-    to->number      = from->number;
-    to->weight      = from->weight;
-    to->tohit       = from->tohit;
-    to->todam       = from->todam;
-    to->ac          = from->ac;
-    to->toac        = from->toac;
-    to->damage[0]   = from->damage[0];
-    to->damage[1]   = from->damage[1];
-    to->level       = from->level;
-    to->ident       = 0;
-}
 
 // Describe number of remaining charges. -RAK-
 void desc_charges(int item_val) {

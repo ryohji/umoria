@@ -15,6 +15,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "object_copy.h"
 #include "floor_items.h"
 #include "stores.h"
 

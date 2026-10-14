@@ -21,6 +21,17 @@
 // This module includes no externs.h: it uses only the standard library
 // and the vtype typedef (provided through the includes above).
 
+// Returns true if ch is a vowel (lowercase or uppercase).
+bool is_a_vowel(char ch) {
+    switch (ch) {
+    case 'a': case 'e': case 'i': case 'o': case 'u':
+    case 'A': case 'E': case 'I': case 'O': case 'U':
+        return true;
+    default:
+        return false;
+    }
+}
+
 // Inserts a string into a string
 void insert_str(char *object_str, const char *mtc_str, const char *insert) {
     int mtc_len = (int)strlen(mtc_str);

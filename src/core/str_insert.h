@@ -24,6 +24,11 @@
 // guard and so cannot be pulled in twice. Include config.h, constant.h and
 // types.h before this file, the same as externs.h expects.
 
+#include <stdbool.h>
+
+// Returns true if ch is a vowel (lowercase or uppercase).
+bool is_a_vowel(char ch);
+
 // Inserts a string into a string
 // Replaces the first occurrence of `mtc_str` in `object_str` with `insert`
 // (a NULL `insert` just removes the template).

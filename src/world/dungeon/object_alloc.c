@@ -20,6 +20,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "object_copy.h"
 #include "dungeon_level.h"
 #include "dungeon_map.h"
 #include "dungeon_size.h"

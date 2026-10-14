@@ -12,6 +12,7 @@
 #include "types.h"
 
 #include "floor_items.h"
+#include "object_copy.h"
 
 // THE STORAGE.
 //
@@ -21,14 +22,15 @@
 static inven_type t_list[MAX_TALLOC];
 static int16_t tcptr;
 
-// WHAT AN EMPTY ROW HOLDS, and the one dependency this module cannot shed.
+// WHAT AN EMPTY ROW HOLDS.
 //
 // For the monsters an empty row was a named constant, `blank_monster`. Here it
 // is not a constant at all: an empty floor row is a COPY OF A ROW OF THE
 // DEFINITION TABLE, object_list[OBJ_NOTHING], the item called "nothing", whose
 // tval is TV_NOTHING and whose character is a space. So blanking a row
-// means calling invcopy(), which lives in desc.c and reads object_list, and
-// this module needs it for both of the places that give a row back.
+// means calling invcopy(), which now lives in model/item/object_copy.c and
+// reads object_list, and this module needs it for both of the places that give
+// a row back.
 //
 // Leaving the blanking outside (a window that only moved the mark) was the
 // alternative, and it was not taken: "give this row back" and "start a new
@@ -36,10 +38,6 @@ static int16_t tcptr;
 // blanking would leave the last level's sword lying in the table for the next
 // claim to inherit. The dependency is on the definition table, which is
 // read-only data, so it points the same way the module does.
-//
-// Declared by hand rather than by including externs.h, which would drag in
-// ncurses for the sake of one name (the same choice monster_list.c made).
-void invcopy(inven_type *to, int from_index);
 
 // Blank every row and put the mark back at the start of a new level. Row 0 is
 // blanked with the rest: it is the row an unchecked `t_list[c_ptr->tptr]` lands
