@@ -10,36 +10,28 @@
 
 ## 0. 現在地
 
-2026-10-10、`develop` の上（push はユーザーが行う）。
+2026-10-14、`integrate/modules`（`develop` へのマージはユーザーの許可待ち。push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1826 件・87 本**、failed=0、`RESULT: GREEN`。
-- `externs.h` の global は **38 個・参照 485**（着手時 112 個・3147）。参照は `globals.py` の数で、
-  注釈と文字列の中も数えている（台帳 #70）。#61 で注釈を書きかえて 604 → 560、#67 で `py` が消えて 493、
-  #78 で定数表が 20 → 17 個になって 485。
-  2026-10-01 に書いた 599 と 604 の差は確かめていない。
-  注釈と文字列を除いた数は列「コード」で 347、`&` が単項の別名は列「単項」で 27（#70・#45。
-  今までの列「参照」「別名」は過去の記録と比べるために残した）。
-  `scripts/globals.py --check` は 38 個すべて分類。
-- `scripts/layer_deps.py --check` は 1158 本・148 単位で core/ の違反 0。
+  `make -f makefile.test headers` で src/ の全ヘッダ 53 本が単体でコンパイルできる。
+- **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
+  ユーザーの判断）。`scripts/layer_deps.py --check` は 925 本・112 単位で違反 0、例外の一覧
+  （`scripts/layer_exceptions.txt`）は空。
+- `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 45 個**
+  （`externs.h` の 38 個に、その外のヘッダにあった 7 個が加わった。数えかたが変わっただけ）。
+  `scripts/globals.py --check` は 45 個すべて分類。参照の数は数えなおしていない。
+- `.c` 112・`.h` 53（モジュール化の前は 148・88）。
 - 済んだ列：
-  - #18（データの散在）。残る 41 個の見立ては `docs/refactoring/globals_inventory.md`
+  - #18（データの散在）。残る global の見立ては `docs/refactoring/globals_inventory.md`
     の「区分ごとの見立て」。
-  - 実装の再配置（#52〜#57）。テストのライブラリー化（L）、ディレクトリー分け（D）、
-    番号つきファイルの分割（R）、`combat/`、後始末。計画と経過は
-    [done/layout.md](docs/refactoring/done/layout.md)。
-  - #37・#38・#44（テストの代役の整理）。どのテストも届かない代役は
-    `stub_unreached()` で止まり、安く替えられる代役は本物に替えた。
-  - 2026-10-02 の再検出で足した P1（#58〜#61）。#58（ヘッダ依存を `-MMD -MP` に）・
-    #59（`distance()` を `core/` へ、geometry のテスト）・#60（生の数に名前）・#61（注釈の
-    経緯と日本語を外し、手書きの宣言を `externs.h` の include に）。経過は
-    [done/p1-2026-10.md](docs/refactoring/done/p1-2026-10.md)。
-  - P2（#62〜#70・#45。#13 は #75 と一緒に扱うので棚上げのまま）。重複の抽出 6 つ、`recall_*` の
-    移動、代役の重複、`globals.py` の列 2 つ、`py` を消した（#67）。経過は
-    [done/p2-2026-10.md](docs/refactoring/done/p2-2026-10.md)。
-  - 2026-10-10 の列（#77・#78・#79・#71 の一部・#20・#73）。乱数・一撃の判定・店の値段にテスト、
-    global 41 → 38、ウィザード用の switch の移動、`lose_*` 6 本 → 1 本、杖と魔法棒の骨格。
-    経過は [done/2026-10-10.md](docs/refactoring/done/2026-10-10.md)。
-- 再検出で足した台帳の行は #58〜#79、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
+  - 実装の再配置（#52〜#57）。計画と経過は [done/layout.md](docs/refactoring/done/layout.md)。
+    ディレクトリーは #80 で組みなおした。
+  - #37・#38・#44（テストの代役の整理）、P1（#58〜#61）、P2（#62〜#70・#45）、
+    2026-10-10 の列（#77〜#79・#71 の一部・#20・#73）。経過は `done/` の各文書。
+  - **モジュール化（#80〜#88・#13・#75・#76）**。層ごとのディレクトリーとライブラリー、
+    公開ヘッダと内部ヘッダ、model/ の小さな module の統合。経過・数・担当の報告と実際は
+    [done/modules-2026-10-14.md](docs/refactoring/done/modules-2026-10-14.md)。
+- 再検出で足した台帳の行は #58〜#88、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -54,10 +46,13 @@
 | `docs/refactoring/globals_inventory.md` | #18 の棚おろし。着手前の姿（凍結）＋区分ごとの見立て＋付録 |
 | `docs/refactoring/worklog.md` | 作業ログ（1 作業 1 行）。済んだ列の行は `done/worklog-*.md` |
 | `docs/refactoring/done/` | 済んだ列の経過（字を変えずに移したもの） |
-| `scripts/globals.py` | `externs.h` の global を区分に分けて数える道具。手で数えない |
+| `scripts/globals.py` | ヘッダの extern 宣言（global）を区分に分けて数える道具。手で数えない |
 | `scripts/link_units.py` | テストの実行形式ごとに `libcore.a` から引かれた `.o` を出す |
 | `scripts/layer_deps.py` | 層（`src/` のサブディレクトリー）の依存を `nm` で調べる |
 | `scripts/dis_compare.py` | 2 つの実行形式で、指定した関数の機械語を比べる |
+| `scripts/cmp_all.sh` | 基準のコミットと作業木の全関数の機械語と、データの (種類, 大きさ) を比べる |
+| `scripts/check_statics.sh`・`comments_only.sh`・`merge_modules.py` | データの数の比較・注釈だけの変更の確かめ・小さな module の連結 |
+| `docs/modules/` | module の設計資料（ヘッダに書かない理由・不変条件・範囲） |
 | `CHANGELOG.md` | 上流の履歴。この作業では触っていない |
 
 `done/` の文書の中の「第 N 節」は**移した時点のこの資料**の節、「所見 N」は
@@ -76,9 +71,10 @@ make clean && make 2>&1 | grep -E "warning:|error:" | wc -l
 make -f makefile.test 2>&1 | grep -E "^[0-9]+ tests" \
   | awk '{s+=$1; f+=$5} END {print s" tests, failed="f}'
 
-# 3. global の分類の網羅性と層の規則（1 のあと。いまは core/ が他の層に依存しないことだけ）
+# 3. global の分類の網羅性と層の規則（1 のあと）、ヘッダの単体コンパイル
 python3 scripts/globals.py --check
 python3 scripts/layer_deps.py --check
+make -f makefile.test headers
 
 # 4. 起動確認（種族選択画面まで行けば OK）
 touch scores.dat
@@ -90,6 +86,8 @@ rm -f scores.dat /tmp/probe.sav
 ```
 
 - `awk` の列に注意。`8 tests, 8 passed, 0 failed` なので**失敗数は `$5`**。
+- **実行形式の本数（87）も数える。** 組みたてが途中で止まると、出た分の `N tests` だけを
+  足して「失敗 0」に見える（所見 65）。
 - **末尾の `RESULT:` 行と `Segmentation` を必ず見る。** 壊しかたによっては実行形式が
   segfault するかリンクに失敗し、`N tests` の行が出ないので「失敗 0」に見える。
 - ブランチの各コミットは、マージの前に**空の状態から 1 つずつ組んで** 1〜3 を通す
@@ -126,7 +124,7 @@ rm -f scores.dat /tmp/probe.sav
 
 **ステップ A / B / C。** A =保護（新しい module とテストを置くが、本体は
 呼ばない＝ふるまい不変）→ B =呼びだし側を窓口越しに書きかえ → C =`static`
-化して `externs.h` から外す → docs。区分の性質によって A が無いこともある。
+化してヘッダの extern 宣言から外す → docs。区分の性質によって A が無いこともある。
 
 **「テスト側に写す」方式。** 変更前のロジックが関数の中に直に書かれていて
 外から呼べないとき、その並びをテストに `legacy_*` として写しとり、新しい実体と
@@ -142,6 +140,12 @@ rm -f scores.dat /tmp/probe.sav
 - 単位を閉じるときは、**呼び手側**の変異も 3〜5 個試し、素通りした数を書き残す。
   窓口の内側を守るテストは、窓口を呼ぶ順番と条件を守らない（台帳 #50 の族）。
 
+**全関数を比べる。** `scripts/cmp_all.sh <基準の SHA> <作業木> <出力先>` が両方を
+`-O2 -fno-inline -fno-ipa-ra` で組み、共通の全関数とデータの (種類, 大きさ) を比べる。
+static の改名は「same except symbol comments」、中身の同じ関数のたたみの入れかわりは
+所見 64、同名の static が潰れたのはデータの数が減ることで分かる（所見 63）。
+module を合わせるときは `scripts/merge_modules.py` で字を変えずに連結する。
+
 **純粋な移動は機械語の一致で確かめる。** 移す関数の多くは本物に届くテストが 0 件で、
 壊しても赤くならない。`scripts/dis_compare.py 変更前の umoria 変更後の umoria 関数…`
 で比べる。翻訳単位が分かれると `-O2` の展開の境目が動くので、両方を
@@ -154,10 +158,8 @@ rm -f scores.dat /tmp/probe.sav
 前後で比べる。gcov で通った行を数え、壊して書き出しが変わることも見る（所見 59。手順は
 `done/p2-2026-10.md`）。
 
-**宣言は手で写さない。** 本体の global や関数が要る module は `externs.h` を include する
-（`externs.h` はもう ncurses を連れてこない。手書きの `extern` は #61 で戻した。ユーザーの
-判断）。module 自身の宣言は番人つきの自分のヘッダに置き、テストもそれを include する
-（`core/distance.h` が手本）。テストが対象 1 本だけをリンクできるのは `libcore.a` から
+**宣言は手で写さない。** 名前が要るファイルは、それを宣言している公開ヘッダ（同じ
+ライブラリーの中なら内部ヘッダ）を include する（第 5 節）。手書きの `extern` は置かない。テストが対象 1 本だけをリンクできるのは `libcore.a` から
 要るものだけを引くからで、include の数とは関係ない。移せない副作用は呼びだし側に残す。
 
 **テストの代役（`tests/*_stubs.c`・`*_fixture.c`）の扱い。**
@@ -170,64 +172,63 @@ rm -f scores.dat /tmp/probe.sav
 
 ## 5. いまの姿（ディレクトリーと置き場の規則）
 
-`src/` は 11 のサブディレクトリーに分かれている。一覧は `sources.mk` の `SRC_SUBDIRS` の
-1 か所で、3 つの makefile の `-I`・`VPATH` はそこから作る。
+`src/` の最初のディレクトリーが層で、**上の層は下の層だけを呼ぶ**。一覧は `sources.mk` の
+`SRC_SUBDIRS` の 1 か所で、3 つの makefile の `-I`・`VPATH` はそこから作る。
 
-| ディレクトリー | 置くもの |
-|---|---|
-| `core/` | どこにも依存しない道具（乱数・ダイス・ビット・文字列） |
-| `data/` | 表と置き場（定数表、起動時に一度書く表、オプション） |
-| `player/` | 人物の状態の module と、人物の操作 |
-| `monster/` | モンスターの状態と行動 |
-| `dungeon/` | 地図と階の生成、幾何、床の品物 |
-| `item/` | 品物（鑑定・名前・使うコマンド・呪文） |
-| `store/` | 店 |
-| `combat/` | 命中・傷・格闘・飛び道具 |
-| `ui/` | 画面と入力の描画側・メニュー |
-| `save/` | セーブとスコア |
-| `platform/` | OS と端末（ncurses を直に呼ぶのはここだけ） |
+| 層 | ディレクトリー | 置くもの |
+|---|---|---|
+| core | `core/` | どこにも依存しない道具（乱数・ダイス・ビット・文字列・`LENGTH_OF`） |
+| model | `model/data` `model/game` `model/player` `model/monster` `model/dungeon` `model/item` `model/store` | 状態と表。UI も規則も持たない。副ライブラリーどうしは呼ばない（dungeon・store は item を使える。data と game は互いに使える）。`layer_deps.py` の `MODEL_RULES` |
+| platform | `platform/` | OS と端末（ncurses を直に呼ぶのはここだけ）。backend の約束の型は `backend.h` |
+| ui | `ui/` | backend に依存しない画面と入力の窓口（メッセージ・プロンプト・描画・キー） |
+| world | `world/combat` `dungeon` `item` `monster` `player` `store` `view` | 遊びの規則（戦闘・呪文・照明・モンスターの行動・階の生成・罠・地図と状態行の表示） |
+| command | `command/` | プレイヤーのコマンドと画面（食べる・読む・唱える・店・持ち物・人物の作成・ウィザード） |
+| app | `app/` | `main`・主ループ・セーブと死・シグナルの処理・起動時の結線 |
 
-- `src/` の直下に残るのは `main.c`・`dungeon.c`（主ループ）・`game_state.c`（B3。判断待ち）と
-  全域ヘッダ（`config.h`・`constant.h`・`types.h`・`headers.h`・`externs.h`）。
+- **ヘッダ。** model/・core/ は module ごとのヘッダが公開ヘッダ。platform/・ui/・world/・
+  command/ はサブディレクトリーごとの公開ヘッダ（`world_item.h`・`ui_screen.h`・
+  `commands.h` など）と、ライブラリーの中でだけ使う宣言の**内部ヘッダ**
+  `<lib>/internal/<lib>_internal.h` を持つ。app/ は内部ヘッダだけ。内部ヘッダの置き場は
+  `sources.mk` の `INTERNAL_LIBS` で、**そのライブラリーの .o をコンパイルするときだけ**
+  `-I` に入る（テストは全部見る）。外から include すると「No such file」で止まる。
+- **どのヘッダも単体でコンパイルできる**（使う型の include を自分で持つ。`config.h`・
+  `constant.h`・`types.h` には番人がある）。`make -f makefile.test headers` が見る。
+- **ライブラリー。** 層ごと（model は副ライブラリーごと）の静的ライブラリー 11 本を、上から
+  下の順にリンクする（`sources.mk` の `LIB_LINK_ORDER`）。これで止まるのは一部だけなので、
+  層の規則の正本は `layer_deps.py --check`（所見 68）。
+- `open`・`fopen` を `topen`・`tfopen`（`~` を展開する）に置きかえるマクロは `ui/ui_screen.h`
+  にある。ファイルを開く .c はそれを include する。
 - **`#include "…"` はヘッダの名前だけで書く。** ディレクトリーは `-I` で探す。
-- **新しい `.c` は `sources.mk` の `SRCS` に `player/foo.c` の形で 1 語足す**だけ。ヘッダの
-  依存は 3 つの makefile とも `-MMD -MP` で作る（`.d`。#58）ので、依存行は書かない。
-  新しいディレクトリーなら `SRC_SUBDIRS` にも 1 語。
+- **新しい `.c` は `sources.mk` の `SRCS` に `world/item/foo.c` の形で 1 語足す**だけ。ヘッダの
+  依存は 3 つの makefile とも `-MMD -MP`（`.d`）。新しいディレクトリーなら `SRC_SUBDIRS` にも 1 語。
 - **新しいテストは `makefile.test` の `TESTS` に `<name>_test` を足す。** `src/` の `.c` は
-  書かない（`libcore.a` からリンカが要るものだけを引く）。足場を一緒にリンクするなら
-  「足場の表」に 1 行。`RUN_TEST` での登録も忘れない（忘れると未使用の警告になる）。
-- **置き場の規則：** 葉の「状態」module（`inventory.c`・`player_level.c`・`stats.c` など）に
-  UI や外への依存を持つ code を足さない。兄弟のファイルを作る
-  （例：`inventory.c` の隣に `inven_ops.c`）。葉のテストが単独でリンクできることを守るため。
-- **層の規則：** いまは `core/` が他の層に依存しないことだけを守る（ユーザーの判断）。
-  `layer_deps.py --check` が見る。
-- **同じ名前を作らない。** ディレクトリーをまたいだ同名も、`/usr/include` との同名も避ける
-  （`ls src/*/ | sort | uniq -d`）。`ui/panel.h` は ncurses の `<panel.h>` と、
-  `platform/curses.h` はシステムの `curses.h` と同名で、`-I` の順で横取りしている。
-  `strings.h`・`search.h` のような名前は作らない。
+  書かない（ライブラリーからリンカが要るものだけを引く）。足場を一緒にリンクするなら
+  「足場の表」に 1 行。`RUN_TEST` での登録も忘れない。
+- **置き場の規則：** model/ の状態の module に UI や規則を足さない。world/ か command/ に
+  兄弟を作る。model/ のテストが単独でリンクできることを守るため。
+- **同じ名前を作らない。** ディレクトリーをまたいだ同名も、システムのヘッダとの同名も避ける
+  （`ls src/*/ src/*/*/ | sort | uniq -d`、`/usr/include`、Windows の `io.h`・`search.h`・
+  `magic.h` など）。`platform/curses.h` はシステムの `curses.h` と同名で、`-I` の順で
+  横取りしている。
 
 ## 6. その先の候補
 
-着手する前にユーザーと決める。**P1・P2 は済み、文書も詰めた。** 台帳に残るのは P3（記録のみ）と
-棚上げ・#13 で、どれも「着手しない理由」がある。動かすなら理由を読みなおし、ユーザーと決める。
-単体テストの届かない呼び手は、種を固定した書き出しの比較で確かめられる（所見 59）ので、
-#71・#73 のように「テストが届かない」を理由にした行は見なおす余地がある。
+着手する前にユーザーと決める。台帳に残るのは P3（記録のみ）と棚上げで、どれも「着手しない
+理由」がある。動かすなら理由を読みなおす。
 
-- **残る global 41 個。** 区分ごとの見立ては `globals_inventory.md`。定数表 20 個は
-  「`const` 化のみ」と決めてある。
-- **P3 で済ませたもの。** #49（セーブの並び）、#48（`insert_str`）、#39・#24（鑑定の述語と `ident` の
-  窓口 `item/item_flags.c`）、2026-10-10 の #20・#73・#71 の一部。経過は `done/49-savefile-layout.md`・
-  `done/p3-48-39-24.md`・`done/2026-10-10.md`。
-- **端末を待つ呼び手の確かめ。** `-w<種>` で起動し、キーを 1 つずつ送れば、実物の端末出力を
-  バイト単位で比べられる（所見 62）。#71 の残り（`dungeon()` の効果 18 種）や #19 を動かすなら、まずこれで守る。
-- **どのテストも引かない `.o` はまだ 48 本**（`libcore.a` の 142 本のうち。50 本から rnd・hit_rolls・store_price が
-  抜け、新しい `device_use` が入った）。大きいのは `spells.c`・`generate.c`・`item_enchant.c`・
-  `recall.c`・`io.c`（`link_units.py` の出力と `ar t tests/build/libcore.a` を突きあわせる）。
-- **テストの穴（#50 の族）。** `calc_bonuses()` の呼び手を守るテストが無い。埋めるには状態を
-  丸ごと組みたてる足場が要る。セーブの並び（#49）は 2026-10-05 に `savefile_layout_test` で埋めた
-  （`done/49-savefile-layout.md`）。
-- **呼ばれたら止まる代役の残り。** 呼び出し側がテストされていないので代役のままに
-  してある（`twall`・`mon_take_hit`・`summon_*` など）。本物に替えるには、引く `.o` が多い。
+- **world/ の中のループ。** 層の間は循環しないが、world/ の中には 26 単位のループが残る
+  （モンスター → 呪文 → 戦闘 → 死亡）。分けるなら、コマンドに近いもの（`player_move`・
+  `run_path`・`terrain_commands`・`search`）を command/ に上げる・地図の表示を下げる、の順。
+  上げると逆向きの辺（罠 → `move_char` など）が増えるので、登録する手か設計の判断が要る。
+- **`types.h`・`constant.h` を層ごとに分ける。** いまは全域の型と定数が 1 本ずつで、どの層も
+  読む。品物の型は model/item へ、のように持ち主へ移せば、ヘッダの依存も層に揃う。
+- **ui/ の小さな状態の .c**（`command_state`・`input_ended`・`inven_command_state`・
+  `screen_touched`）を、model/ と同じ手順（`merge_modules.py`）でまとめる。
+- **外から使われない公開の名前。** 定義したファイルの外で誰も使わない関数・変数が ui/ に 16、
+  app/ に 5、command/・platform/ に 3 ずつ、world/・model/player に 2〜3 ある（2026-10-14 に
+  `nm` で数えた）。テストが使っていなければ `static` にできる。
+- **端末を待つ呼び手の確かめ**（所見 62）と、**テストの穴（#50 の族）**、**呼ばれたら止まる
+  代役の残り**は前と同じ。`inkey()` の入力の終わりの道は `script(1)` では通せない（所見 67）。
 
 ## 7. 地雷とつまずきどころ
 
@@ -237,13 +238,13 @@ rm -f scores.dat /tmp/probe.sav
 
 **ビルド・リンクまわり**
 
-- `src/types.h` に多重取りこみの番人が無い。**テストから重ねて include できない。**
-  module のヘッダは `types.h` を include せず、「先に `config.h` / `constant.h` /
-  `types.h` を include すること」を前提にする（`externs.h` 自身がそう）。
-- include の順は `headers.h` → `config.h` `constant.h` `types.h` →
-  `externs.h` と module のヘッダ。`externs.h` は単体ではコンパイルできない。
-- `externs.h` が `fopen` を `tfopen` に置きかえる。テストで実ファイルを開く
-  なら `tmpfile()` を使う。
+- **同名のファイル static を 1 つの .c に連結すると、警告なしに 1 つの変数になる**
+  （所見 63）。連結は `scripts/merge_modules.py` で行い、`cmp_all.sh` の最後の行
+  （データの数）を見る。
+- `ui/ui_screen.h` が `fopen` を `tfopen` に置きかえる。それを include するテストで実ファイルを
+  開くなら `tmpfile()` を使う。
+- 内部ヘッダ（`<lib>/internal/`）は、そのライブラリーの .o にしか見えない。ほかの層の .c に
+  足すと「No such file」で止まる——それが正しい。名前を外に出すなら公開ヘッダへ移す。
 - **代役を消すと、`undefined reference` で止まらず黙って本物がリンクされる。**
   逆に、代役ファイル（明示してリンクする `.o`）と、引かれた本物の `.o` が同じ名前を
   定義すると multiple definition で落ちる。代役を外したら
@@ -323,6 +324,11 @@ rm -f scores.dat /tmp/probe.sav
 - `save.c` の `SAVE_LOG(...)` は空に展開されるデバッグ用。
 
 **数字と報告**
+
+- **担当（下位のモデル）の報告は測りなおす。** 「警告 0・N 件 GREEN・機械語一致」が
+  測った結果でなかったことが何度もある（所見 65、`done/modules-2026-10-14.md` 第 3 節）。
+  コミットを空から組み、第 2 節の 1〜4 と `cmp_all.sh` を統括が走らせる。担当には
+  「ふるまいを変えない・書きなおさず字を変えずに移す」をはっきり書く。
 
 - **数字は自分で測って書く。** 記録された数字を前提にせず測りなおす
   （再検討のたびにずれが見つかっている）。
