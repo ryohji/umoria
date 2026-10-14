@@ -1,34 +1,33 @@
 #!/usr/bin/env python3
-"""Who calls whom between the object files of src/, read with `nm`.
+"""Enforce layer order between object files in src/, checked with `nm`.
 
-NOTE: this is the frame of the layer check planned in
-docs/refactoring/done/layout.md (step L3). The layers are the subdirectories of
-src/ (core/, data/, player/, ui/, ...), read from the paths in sources.mk;
-a file directly in src/ (app/main.c, app/dungeon.c, the numbered files until step R)
-is in the layer "src". Step D (#53) moves the files, and --matrix shows who
-calls whom between the layers. RULES below says which layers each
-layer must not reach; only core/ is ruled so far, and the other rules are to
-be added from that matrix as step R splits the numbered files.
+Layers (from src/ subdirectories) are ordered: core < model < platform < ui <
+world < command < app. A unit may depend only on layers with lower or equal
+indices. Within model, sub-libraries (model/data, model/game, model/player,
+etc.) have their own rules: model/data and model/game use only core, model/data,
+and model/game; others use core, model/data, model/game, and themselves only.
 
-What it does now:
-  * reads the list of sources from sources.mk (SRCS), so it knows which
-    object belongs to which source file and, later, to which directory;
-  * runs `nm` on each object and joins every undefined name to the object
-    that defines it;
-  * prints the dependencies unit by unit (default), layer by layer
-    (--layers), or checks them against RULES (--check).
+What it does:
+  * reads sources from sources.mk (SRCS) to map objects to source files and layers;
+  * runs `nm` on each object to find defined globals and undefined names;
+  * prints dependencies unit by unit (default), or by layer (--layers),
+    or checks against layer order rules (--check).
 
-Objects come from the main build (`make`, which leaves *.o in the repository
-root) by default; pass --objs tests/build/core to read the objects of
-libcore.a instead (`make -f makefile.test libcore`).
+Use --check with an exceptions file (scripts/layer_exceptions.txt) to allow
+known violations. Use --write-exceptions to regenerate the exceptions file
+from current objects (sorted).
+
+Objects come from the main build (`make`, repository root) by default; pass
+--objs tests/build/core for libcore.a objects instead.
 
 Usage:
     python3 scripts/layer_deps.py                   # a.o -> b.o: names...
     python3 scripts/layer_deps.py --unit spellbook.o  # only edges out of spellbook.o
     python3 scripts/layer_deps.py --callers inventory.o
     python3 scripts/layer_deps.py --layers          # layer -> layer: count
-    python3 scripts/layer_deps.py --matrix          # the same as a table
-    python3 scripts/layer_deps.py --check           # exit 1 on a violation
+    python3 scripts/layer_deps.py --matrix          # layer counts as table
+    python3 scripts/layer_deps.py --check           # exit 1 on violations not in exceptions file
+    python3 scripts/layer_deps.py --write-exceptions  # save current violations to exceptions file
 """
 import argparse
 import os
@@ -38,18 +37,23 @@ import sys
 from collections import defaultdict
 
 SOURCES_MK = 'sources.mk'
+EXCEPTIONS_FILE = 'scripts/layer_exceptions.txt'
 
-# Layer rules. Each entry says which layers a layer may NOT depend on.
-# core/ depends on nothing else in the game (decided 2026-09-29).
-# The full layer order is core < model < platform < ui < world < command < app.
-# Ticket #81 will add the rules for the other layers.
-RULES = {
-    'core': {'model', 'platform', 'ui', 'world', 'command', 'app'},
-}
-
-# The order of the rows and columns of --matrix.
-# A layer that is not here (a new directory) is appended in name order.
+# Layer order. A unit at layer i may depend only on layers with index <= i.
 LAYER_ORDER = ['core', 'model', 'platform', 'ui', 'world', 'command', 'app']
+
+# Sub-layers within model. Each entry lists which model/* this sub-layer may use.
+# model/data and model/game may use each other and core (if that edge exists today).
+# Others may use model/data, model/game, and themselves only.
+MODEL_RULES = {
+    'data': {'core', 'model/data', 'model/game'},
+    'game': {'core', 'model/data', 'model/game'},
+    'dungeon': {'core', 'model/data', 'model/game', 'model/dungeon'},
+    'item': {'core', 'model/data', 'model/game', 'model/item'},
+    'monster': {'core', 'model/data', 'model/game', 'model/monster'},
+    'player': {'core', 'model/data', 'model/game', 'model/player'},
+    'store': {'core', 'model/data', 'model/game', 'model/store'},
+}
 
 
 def read_sources(path=SOURCES_MK):
@@ -63,9 +67,17 @@ def read_sources(path=SOURCES_MK):
 
 
 def layer_of(source):
-    """The first directory of the source path, or 'src' while there is none."""
-    head = os.path.dirname(source)
-    return head.split('/')[0] if head else 'src'
+    """First directory in source path; 'model/<sublib>' for model/* files.
+
+    Examples: 'core/foo.c' -> 'core', 'model/data/bar.c' -> 'model/data',
+              'ui/baz.c' -> 'ui', 'main.c' -> 'app'.
+    """
+    parts = source.split('/')
+    if not parts[0]:
+        return 'app'  # shouldn't happen
+    if parts[0] == 'model' and len(parts) > 1:
+        return f'model/{parts[1]}'
+    return parts[0] if parts[0] != '' else 'app'
 
 
 def nm_object(path):
@@ -80,6 +92,69 @@ def nm_object(path):
         elif len(parts) == 3 and parts[1].isupper() and parts[1] != 'U':
             defined.add(parts[2])
     return defined, undefined
+
+
+def layer_index(layer):
+    """Return the index of a layer (or 'model/<sublib>'), or None if unknown.
+
+    'model/data' returns the index of 'model'.
+    """
+    base = layer.split('/')[0] if '/' in layer else layer
+    try:
+        return LAYER_ORDER.index(base)
+    except ValueError:
+        return None
+
+
+def is_violation(from_layer, to_layer):
+    """Return True if from_layer may NOT depend on to_layer.
+
+    Returns True for violations; False if the dependency is allowed.
+    """
+    # model/* sub-layer rules
+    if from_layer.startswith('model/'):
+        sub = from_layer.split('/')[1]
+        allowed = MODEL_RULES.get(sub, set())
+        return to_layer not in allowed
+
+    # Main layer rules: a unit at layer i may depend only on layers with index <= i
+    from_idx = layer_index(from_layer)
+    to_idx = layer_index(to_layer)
+    if from_idx is None or to_idx is None:
+        return False
+    return to_idx > from_idx
+
+
+def read_exceptions(path=EXCEPTIONS_FILE):
+    """Return set of exception edges as tuples: (from_obj, to_obj, frozenset(names))."""
+    exceptions = {}
+    if not os.path.exists(path):
+        return exceptions
+    for line in open(path):
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        # Format: "from.o -> to.o: name1 name2 ..."
+        m = re.match(r'^(\S+)\s+->\s+(\S+):\s*(.*)$', line)
+        if m:
+            from_obj, to_obj, names_str = m.groups()
+            names = frozenset(names_str.split()) if names_str else frozenset()
+            exceptions[(from_obj, to_obj)] = names
+    return exceptions
+
+
+def write_exceptions(edges, sources, path=EXCEPTIONS_FILE):
+    """Write all current violations to exceptions file, sorted."""
+    violations = []
+    for (a, b), names in sorted(edges.items()):
+        la, lb = layer_of(sources[a]), layer_of(sources[b])
+        if is_violation(la, lb):
+            violations.append((a, b, sorted(names)))
+
+    with open(path, 'w') as f:
+        f.write('# Layer dependency exceptions (from_unit.o -> to_unit.o: symbols)\n')
+        for a, b, names in violations:
+            f.write(f'{a} -> {b}: {" ".join(names)}\n')
 
 
 def print_matrix(count, layers):
@@ -112,7 +187,9 @@ def main():
     ap.add_argument('--matrix', action='store_true',
                     help='print the layer -> layer edge counts as a table')
     ap.add_argument('--check', action='store_true',
-                    help='check the edges against RULES')
+                    help='fail on violations not in exceptions file')
+    ap.add_argument('--write-exceptions', action='store_true',
+                    help='write current violations to exceptions file')
     args = ap.parse_args()
 
     sources = read_sources()
@@ -142,19 +219,42 @@ def main():
             if target and target != obj:
                 edges[(obj, target)].add(name)
 
+    if args.write_exceptions:
+        write_exceptions(edges, sources, EXCEPTIONS_FILE)
+        print(f'Wrote exceptions to {EXCEPTIONS_FILE}')
+        return
+
     if args.check:
+        exceptions = read_exceptions(EXCEPTIONS_FILE)
+        violations = {}
+        remaining_exceptions = set(exceptions.keys())
+
+        # Find violations and check against exceptions
         bad = 0
         for (a, b), names in sorted(edges.items()):
             la, lb = layer_of(sources[a]), layer_of(sources[b])
-            if lb in RULES.get(la, set()):
-                bad += 1
-                print(f'{la}/{a} -> {lb}/{b}: {" ".join(sorted(names))}')
-        if not RULES:
-            print('no layer rules yet (see --matrix); '
-                  f'{len(edges)} edges between {len(units)} units')
-        elif not bad:
-            print(f'OK: {len(edges)} edges between {len(units)} units, '
-                  f'none against the rules for {", ".join(sorted(RULES))}')
+            if is_violation(la, lb):
+                exc_names = exceptions.get((a, b), frozenset())
+                remaining_exceptions.discard((a, b))
+                if (a, b) not in exceptions:
+                    bad += 1
+                    print(f'{a} -> {b}: {" ".join(sorted(names))}')
+                elif not names <= exc_names:
+                    # Violation with symbols not in the exception
+                    new_symbols = sorted(names - exc_names)
+                    bad += 1
+                    print(f'{a} -> {b}: new symbols {" ".join(new_symbols)}')
+
+        # Check for obsolete exceptions
+        for (a, b) in remaining_exceptions:
+            print(f'# obsolete exception: {a} -> {b}')
+
+        # Summary: count remaining exceptions and their symbols
+        remaining_symbols = sum(len(names) for names in exceptions.values())
+
+        print(f'OK: {len(edges)} edges between {len(units)} units; '
+              f'{len(exceptions)} known exceptions remain '
+              f'({remaining_symbols} symbols)')
         sys.exit(1 if bad else 0)
 
     if args.layers or args.matrix:

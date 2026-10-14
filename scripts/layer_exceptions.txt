@@ -1,0 +1,20 @@
+# Layer dependency exceptions (from_unit.o -> to_unit.o: symbols)
+device_use.o -> inven_menu.o: get_item
+floor_items.o -> desc.o: invcopy
+inscription.o -> inven_menu.o: get_item
+inven_ops.o -> inven_menu.o: takeoff
+io.o -> death.o: exit_game
+io.o -> map_view.o: loc_symbol
+io.o -> rest_command.o: disturb
+io.o -> save.o: save_char
+monsters.o -> desc.o: is_a_vowel
+platform.o -> input.o: input_init input_shutdown
+platform.o -> render.o: render_init render_shutdown
+signals.o -> death.o: exit_game
+signals.o -> io.o: erase_line get_check prt put_buffer put_qio
+signals.o -> messages.o: msg_at_more_prompt
+signals.o -> rest_command.o: disturb
+signals.o -> save.o: _save_char save_char
+spells.o -> inven_menu.o: describe_use get_item
+throw.o -> inven_menu.o: get_item
+traps.o -> store_ui.o: enter_store
