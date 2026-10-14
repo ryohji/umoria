@@ -18,7 +18,7 @@
 // THE STORAGE. Nothing outside this file can spell it.
 //
 // The table is one contiguous row-major block, and that is this file's promise
-// alone. See src/dungeon/dungeon_map.h.
+// alone. See src/model/dungeon/dungeon_map.h.
 static cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 
 // Blank the whole table -- one memset. sizeof(cave) is the whole 66 x 198, not

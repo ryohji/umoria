@@ -151,7 +151,7 @@ bool player_take_mana_redraw_request(void) {
 // The six stat requests share one run of adjacent bits, starting at PY_STR and
 // masked together as PY_STATS. constant.h warns that the six must stay adjacent;
 // THIS IS NOW THE ONLY FILE THAT DEPENDS ON IT (misc3.c shifted the bit,
-// dungeon.c shifted it again to read it back, and both used the mask).
+// app/dungeon.c shifted it again to read it back, and both used the mask).
 static uint32_t stat_mark(int stat) {
     return (uint32_t)PY_STR << stat;
 }

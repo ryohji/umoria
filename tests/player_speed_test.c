@@ -27,10 +27,10 @@
  *      （器の幅 —— short 1 つぶん —— だけが限り）。
  *
  * モンスターはこの module の外。change_speed()（player_bonuses.c）は同じ数を
- * m_list[i].cspeed 全員に足し、monster/monster_place.c は新しいモンスターを置くときに混ぜる。
+ * m_list[i].cspeed 全員に足し、world/monster/monster_place.c は新しいモンスターを置くときに混ぜる。
  * **プレイヤーが遅いぶんをモンスターを速くすることで表す設計**なので、ここでは
  * モンスターを 1 匹も触らない —— それ自身がこの単位の設計（player_speed.h）。
- * 食いけの 2 乗（dungeon.c）と探索の 1 段引き（status_line.c）も外。
+ * 食いけの 2 乗（app/dungeon.c）と探索の 1 段引き（status_line.c）も外。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に段数を置きなおす。
  */
@@ -44,7 +44,7 @@
 
 #include "minunit.h"
 
-/* ふつうの速さから始める。**窓口で置きなおす** —— 置き場が src/player/player_speed.c の
+/* ふつうの速さから始める。**窓口で置きなおす** —— 置き場が src/model/player/player_speed.c の
  * static に入っても（#18-12-11C）この足場は届く。 */
 static void given_normal_speed(void) { player_speed_set(0); }
 

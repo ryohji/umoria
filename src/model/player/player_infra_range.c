@@ -13,7 +13,7 @@
 #include "player_infra_range.h"
 
 // No player_timed_effects.h: the potion's clock counts turns, this number
-// counts squares, and dungeon.c holds both ends (player_infra_range.h says why
+// counts squares, and app/dungeon.c holds both ends (player_infra_range.h says why
 // they are not two halves of one fact).
 
 // THE ANSWER ITSELF. This one short is the only place it lives, and the windows

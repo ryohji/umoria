@@ -10,7 +10,7 @@
 #define PLAYER_RESTING_H
 
 // THE QUESTION IS "IS THE CHARACTER RESTING, AND FOR HOW MANY MORE TURNS". The
-// `R` command sets it, one block in dungeon.c moves it one step per turn, and
+// `R` command sets it, one block in app/dungeon.c moves it one step per turn, and
 // reaching zero ends the rest.
 //
 // IT IS NOT ONE OF THE EIGHTEEN CLOCKS, and the three differences are why it is
@@ -22,7 +22,7 @@
 //     player answers the "how long" question with an asterisk.
 //   - IT HAS TWO WAYS TO END: reaching zero, and -- while it is negative --
 //     the hit points and the mana both being full. The second one reads two
-//     other questions, so it stays with the caller (dungeon.c).
+//     other questions, so it stays with the caller (app/dungeon.c).
 //   - READERS WHO DO NOT CARE ABOUT RESTING AT ALL. creature.c asks it three
 //     times: a fast character only moves once per turn while resting, a sleeping
 //     monster is much less likely to wake while the character rests, and
@@ -64,7 +64,7 @@ bool player_resting(void);
 // is on), the breeding clock in creature.c, and the save file's writer.
 int player_rest_turns(void);
 
-// Whether this is a "rest until healed" (the count is negative). dungeon.c needs
+// Whether this is a "rest until healed" (the count is negative). app/dungeon.c needs
 // it to know whether full hit points and mana should end the rest, and the state
 // line shows "Rest *" instead of a number.
 bool player_rest_is_until_healed(void);
@@ -79,7 +79,7 @@ void player_rest_set(int turns);
 // line again.
 void player_rest_stop(void);
 
-// dungeon.c's turn: ONE TURN OF RESTING PASSES. Moves the count one step
+// app/dungeon.c's turn: ONE TURN OF RESTING PASSES. Moves the count one step
 // TOWARDS zero -- down when it is positive, UP when it is negative -- and
 // answers whether the rest ran out in this turn. Does nothing and answers false
 // when the character is not resting, so that a count of zero cannot be pushed

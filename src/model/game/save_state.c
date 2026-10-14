@@ -21,7 +21,7 @@
 // rather than in a shared core layer.
 //
 // State is static: the only way in is through the accessors below. savefile has
-// no initial value because main.c fills it from the command line or MORIA_SAV
+// no initial value because app/main.c fills it from the command line or MORIA_SAV
 // before anything reads it.
 static vtype savefile;                    // The savefile to use.
 static bool character_generated = false;  // don't save score until char gen finished

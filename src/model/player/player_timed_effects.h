@@ -14,7 +14,7 @@
 // below are the only way to reach them.
 //
 // A cause adds turns (a potion, a
-// bite, a trap, a prayer), one block in dungeon.c takes one turn off every
+// bite, a trap, a prayer), one block in app/dungeon.c takes one turn off every
 // eighteen counters once per turn, and reaching zero ends the state. Nothing
 // else in the game counts anything down like this: it is the only clock the
 // character carries.
@@ -28,7 +28,7 @@
 // clock, because a monster may have just added turns of blindness that have not
 // taken effect yet.
 //
-// FOLDING THE TWELVE-TIMES SKELETON. dungeon.c repeats one skeleton twelve times
+// FOLDING THE TWELVE-TIMES SKELETON. app/dungeon.c repeats one skeleton twelve times
 // and folding it needs both halves, so it belongs to whichever module owns the
 // counters -- this one. The skeleton is
 //
@@ -49,7 +49,7 @@
 // it begins AND ends in the same turn, and both bodies run. So the beginning and
 // the counting down are asked separately, in that order.
 //
-// THE COUNTER CAN GO BELOW ZERO, and one caller depends on it. dungeon.c cancels
+// THE COUNTER CAN GO BELOW ZERO, and one caller depends on it. app/dungeon.c cancels
 // new-found fear while the character is a hero by putting zero in the counter --
 // and then the same turn's count-down takes it to MINUS ONE, which misses the
 // "== 0" ending, so no message is printed and the mark is never set. The minus
@@ -120,7 +120,7 @@ void player_timed_add(player_timed_effect effect, int turns);
 void player_timed_set(player_timed_effect effect, int turns);
 
 // No turns left. Not the same as the state ending: the mark is untouched, which
-// is what the two callers want -- dungeon.c cancelling fear a hero should not
+// is what the two callers want -- app/dungeon.c cancelling fear a hero should not
 // feel, and traps.c stepping onto a trap without being pushed sideways by
 // confusion (it puts the turns back afterwards).
 void player_timed_clear(player_timed_effect effect);
@@ -131,14 +131,14 @@ void player_timed_clear(player_timed_effect effect);
 // resurrected character dying of the same poison at once.
 void player_timed_shorten_to(player_timed_effect effect, int turns);
 
-// dungeon.c's turn, first half: the state is in force and HAS NOT BEEN
+// app/dungeon.c's turn, first half: the state is in force and HAS NOT BEEN
 // ANNOUNCED, so whatever the caller does once at the beginning is due now. False
 // for the six that have no mark (paralysis, hallucination, protection from evil,
 // the two resistances and the word of recall) -- there is nothing to announce and
 // none of those six callers has a beginning.
 bool player_timed_beginning(player_timed_effect effect);
 
-// dungeon.c's turn, second half: ONE TURN PASSES. Subtracts one whatever is
+// app/dungeon.c's turn, second half: ONE TURN PASSES. Subtracts one whatever is
 // there (see the note about minus one above) and answers whether the state ran
 // out in this turn, which is when the caller's ending is due. Clears the mark
 // when it does.

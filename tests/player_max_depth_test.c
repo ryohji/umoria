@@ -17,7 +17,7 @@
  * **これまでの 14 問と違って、体でも腕でもなく「どこに行ったか」の記録。**
  * 単位は迷宮の階（dun_level と同じ）で、町が 0 階。
  *
- * **この数は減らない。** dungeon.c が毎ターンの初めに「いまの階のほうが深ければ
+ * **この数は減らない。** app/dungeon.c が毎ターンの初めに「いまの階のほうが深ければ
  * 書きかえる」をしていたのを窓口の内側に入れたので（→ 台帳の所見 24・25）、
  * 階段を上がっても記録は残る。**下げられる窓口は 1 本だけで、セーブファイルの
  * 読みもどし専用**（player_max_depth.h）。
@@ -67,7 +67,7 @@ TEST(reading_the_record_twice_gives_the_same_answer) {
 }
 
 /* ------------------------------------------------------------------
- * 潜ると記録が伸びる -- dungeon.c の毎ターンの 1 行
+ * 潜ると記録が伸びる -- app/dungeon.c の毎ターンの 1 行
  * ------------------------------------------------------------------ */
 
 TEST(going_below_the_town_for_the_first_time_is_recorded) {
@@ -96,7 +96,7 @@ TEST(stepping_down_one_level_at_a_time_leaves_the_deepest) {
     ASSERT_EQ_INT(10, player_max_depth());
 }
 
-/* **深くなくても呼ばれる。** dungeon.c は階の初めに毎回この窓口を通るので、
+/* **深くなくても呼ばれる。** app/dungeon.c は階の初めに毎回この窓口を通るので、
  * 同じ階で何度呼ばれても記録は動かない。 */
 TEST(reaching_the_same_level_again_changes_nothing) {
     given_deepest_reached(9);
@@ -137,7 +137,7 @@ TEST(a_long_climb_back_to_the_town_leaves_the_deepest) {
 }
 
 /* 帰還の巻物が見る「まだ潜っていない」は 0 かどうかだけ。0 のままであることを
- * 押さえる（引きずり下ろす先を決めるのは dungeon.c の仕事）。 */
+ * 押さえる（引きずり下ろす先を決めるのは app/dungeon.c の仕事）。 */
 TEST(the_scroll_of_recall_has_nowhere_to_pull_a_townsman) {
     given_never_left_town();
 

@@ -14,7 +14,7 @@
  * items_can_stack()（inven_ops.c:130）の 1 つにまとまり、その注釈が
  * 「must agree」と言う。
  *
- * このテストは写しではなく src/item/inven_ops.c の実体をリンクして検証する。
+ * このテストは写しではなく src/world/item/inven_ops.c の実体をリンクして検証する。
  * 書いた当時の実体は misc3.c にあり、2212 行・6 責務（画面描画・能力値計算・
  * 持ち物管理・呪文・戦闘・移動）が同居していたので、リンクすると 57 個の
  * 未解決シンボルが芋づるで付いてきた。それを代役で埋めた（いまは
@@ -40,7 +40,7 @@
 #include "fixture.h"
 #include "inventory.h"
 
-/* 検証対象（src/item/inven_ops.c）と、判定に使う本物（src/item/desc.c）の
+/* 検証対象（src/world/item/inven_ops.c）と、判定に使う本物（src/world/item/desc.c）の
  * 宣言は externs.h から受ける。 */
 #include "externs.h"
 

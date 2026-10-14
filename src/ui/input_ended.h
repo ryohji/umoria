@@ -14,8 +14,8 @@
 // returns EOF at once, so the game can no longer ask anybody anything -- it has
 // to save what it can and leave. That is one fact about the whole game, not about
 // any one prompt, which is why it is kept here and read in four other places: the
-// main loop and the turn loop stop (dungeon.c), the top level saves the character
-// and ends the game (main.c), the save file is written with the death flag
+// main loop and the turn loop stop (app/dungeon.c), the top level saves the character
+// and ends the game (app/main.c), the save file is written with the death flag
 // cleared so the tombstone can still be seen on restart (save.c), and flush()
 // stops throwing away input there is none of (io.c).
 //
@@ -49,7 +49,7 @@ bool input_has_ended(void);
 // make sure that the process eventually dies".
 bool input_end_is_hopeless(void);
 
-// How many EOFs, for the game state snapshot only (game_state.c copies the old
+// How many EOFs, for the game state snapshot only (app/game_state.c copies the old
 // global's value). Nothing decides anything from this -- the two questions above
 // are what the game asks.
 int input_end_count(void);

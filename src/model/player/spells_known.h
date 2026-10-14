@@ -30,7 +30,7 @@
 
 // The value that stands for "no spell learned here yet" in the learned-in order
 // (spell_order). The order is filled with it at the start of a game
-// (main.c) and it is written to the save file as-is, so it cannot change.
+// (app/main.c) and it is written to the save file as-is, so it cannot change.
 #define SPELL_NONE 99
 
 // --- what the character knows --------------------------------------------
@@ -95,7 +95,7 @@ void spell_mark_worked(int spell);
 int spell_learned_nth(int n);
 
 // Forget the whole history: no spells learned yet. Called once, when a
-// character starts out (main.c).
+// character starts out (app/main.c).
 void spell_order_forget_all(void);
 
 // --- matching against a set of spells ------------------------------------

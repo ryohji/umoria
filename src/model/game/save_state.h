@@ -21,7 +21,7 @@
 // --- where the game is saved ---------------------------------------------
 
 // The path of the save file. The pointer addresses the record itself and stays
-// valid for the rest of the run: main.c writes through it with strcpy() from
+// valid for the rest of the run: app/main.c writes through it with strcpy() from
 // the command line, the environment or MORIA_SAV, and save.c rewrites it when
 // the player names a different file.
 char *save_file_path(void);

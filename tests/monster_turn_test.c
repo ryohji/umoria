@@ -9,7 +9,7 @@
  * ダンジョンとその中身から出す 1 つめの問い（#18-14-1）。もとは
  * variable.c:39 の `int hack_monptr = -1;` で、creature.c が 10 か所で
  * 置きかえ、misc1.c と moria3.c が `hack_monptr < i` と手で書いて読み、
- * game_state.c が写しとっていた。
+ * app/game_state.c が写しとっていた。
  *
  * **この数は 1 つの問いにしか答えない** ——
  * **モンスター表をいま詰めなおしてよいか**。m_list は隙間なく詰めてあり、
@@ -18,7 +18,7 @@
  * が、creatures() が表をたどっている最中は違う —— たどっている側は番号を
  * 手に持っていて、その番号が指す相手が入れかわってしまう。
  *
- * だからモンスターを消す 2 か所（monster/monster_place.c の詰めなおしと monster_damage.c の死）が
+ * だからモンスターを消す 2 か所（world/monster/monster_place.c の詰めなおしと monster_damage.c の死）が
  * ここに訊く。**たどりがまだその席まで来ていなければ詰めてよく**
  * （delete_monster）、**来ていたら隙間を隙間のまま残す**
  * （fix1_delete_monster。こちらは mfptr を減らさない）。
@@ -43,7 +43,7 @@
 #include "minunit.h"
 
 /* 誰の手番でもないところから始める（走りだしと同じ）。**窓口で閉じなおす**
- * —— 置き場が src/monster/monster_turn.c の static なので、この足場が唯一の道。 */
+ * —— 置き場が src/world/monster/monster_turn.c の static なので、この足場が唯一の道。 */
 static void given_nobodys_turn(void) { monster_turn_end(); }
 
 /* creatures() が index 番のモンスターを処理している最中。 */
@@ -85,7 +85,7 @@ TEST(nobodys_turn_to_start_with) {
  * その席が詰められなくなる**（-1 を 2 に変えるとこの 1 件が落ちる。
  * 0 や 1 では落ちない —— そちらを押さえているのは下の
  * ending_the_turn_puts_the_resting_value_back で、生の -1 を
- * game_state.c が写しとるから）。 */
+ * app/game_state.c が写しとるから）。 */
 TEST(the_first_monster_can_be_shifted_when_nobody_is_acting) {
     given_nobodys_turn();
 
@@ -126,7 +126,7 @@ TEST(a_monster_the_walk_has_passed_must_not_be_shifted) {
 }
 
 /* **まだ来ていない席は詰めてよい。** これがあるおかげで、召喚で表が
- * あふれたときの詰めなおし（monster/monster_place.c）が手番の最中でも働く。 */
+ * あふれたときの詰めなおし（world/monster/monster_place.c）が手番の最中でも働く。 */
 TEST(a_monster_the_walk_has_not_reached_can_be_shifted) {
     given_the_turn_of(5);
 
@@ -203,7 +203,7 @@ TEST(the_line_moves_up_with_the_walk) {
 }
 
 /* ------------------------------------------------------------------
- * 写しとり -- game_state.c だけが生の数を見る
+ * 写しとり -- app/game_state.c だけが生の数を見る
  * ------------------------------------------------------------------ */
 
 /* 入れた番号がそのまま出てくる（丸めも囲いもしない。11・12 つめの

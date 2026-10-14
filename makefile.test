@@ -100,14 +100,14 @@ $(BUILDDIR):
 
 # ---- 本体のライブラリー（libcore.a）----------------------------------------
 # src/ の .c の一覧は sources.mk に 1 つだけ書いてある（本体の makefile と
-# makefile.win も同じものを読む）。そのうち CORE_SRCS（main.c と ncurses を
+# makefile.win も同じものを読む）。そのうち CORE_SRCS（app/main.c と ncurses を
 # 直に呼ぶ 2 本を除いたもの）を、テストと同じ CFLAGS で 1 本ずつ .o にして
 # 1 つの archive にまとめる。archive は 1 つだけにする（分けると互いに呼び
 # あってリンクの順番が壊れる。docs/refactoring/done/layout.md の L）。
 #
 # LIB_EXCLUDE の 3 本は入れない。どのテストもリンクしておらず、テストの
 # CFLAGS（-O2 も -D_DEFAULT_SOURCE も無い）でコンパイルすると警告が出る
-# （dungeon.c と inven_menu.c は -Wformat-overflow が 1 件と 4 件、signals.c は
+# （app/dungeon.c と inven_menu.c は -Wformat-overflow が 1 件と 4 件、signals.c は
 # kill() と sigsetmask() の暗黙宣言 2 件）。テストのフラグは変えない約束
 # なので、要るテストが現れたときに入れかたを決める。
 include sources.mk
@@ -115,7 +115,7 @@ include sources.mk
 # LIB_EXCLUDE は名前だけで書く（%/ の形で、どのディレクトリーにあっても当たる）。
 # .o はディレクトリーを落とした名前で tests/build/core/ に並べ、.c は vpath で
 # src/ とそのサブディレクトリーから探す（名前は src/ の中で重ならない）。
-LIB_EXCLUDE = dungeon.c inven_menu.c signals.c
+LIB_EXCLUDE = app/dungeon.c inven_menu.c signals.c
 LIB_SRCS = $(filter-out $(LIB_EXCLUDE) $(addprefix %/,$(LIB_EXCLUDE)),$(CORE_SRCS))
 LIBOBJDIR = $(BUILDDIR)/core
 LIB_OBJS = $(addprefix $(LIBOBJDIR)/,$(notdir $(LIB_SRCS:.c=.o)))

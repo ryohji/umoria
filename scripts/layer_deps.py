@@ -4,7 +4,7 @@
 NOTE: this is the frame of the layer check planned in
 docs/refactoring/done/layout.md (step L3). The layers are the subdirectories of
 src/ (core/, data/, player/, ui/, ...), read from the paths in sources.mk;
-a file directly in src/ (main.c, dungeon.c, the numbered files until step R)
+a file directly in src/ (app/main.c, app/dungeon.c, the numbered files until step R)
 is in the layer "src". Step D (#53) moves the files, and --matrix shows who
 calls whom between the layers. RULES below says which layers each
 layer must not reach; only core/ is ruled so far, and the other rules are to

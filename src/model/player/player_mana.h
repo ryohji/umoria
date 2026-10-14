@@ -44,7 +44,7 @@
 // What the rules deliberately do NOT do is decide anything outside the mana:
 //
 //   - how fast regeneration runs is the caller's number (hunger, resting and
-//     the regeneration flag all move it -- dungeon.c),
+//     the regeneration flag all move it -- app/dungeon.c),
 //   - what happens when a cast cannot be paid for is the caller's: fainting,
 //     the paralysis that lasts five turns per point missing, and the one in
 //     three chance of hurting the constitution (magic.c, prayer.c),

@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 一撃の判定（src/combat/hit_rolls.c）のテスト -- 現在の実装を保護する
+/* 一撃の判定（src/world/combat/hit_rolls.c）のテスト -- 現在の実装を保護する
  *
  * 対象は test_hit・attack_blows・tot_dam・critical_blow の 4 本。どれも
  * 近接と飛び道具の両方から呼ばれるが、それまでどのテストも届いていなかった。

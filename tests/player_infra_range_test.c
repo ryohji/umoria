@@ -44,7 +44,7 @@
 #include "minunit.h"
 
 /* 赤外視を持たない種族（Human）から始める。**窓口で置きなおす** ——
- * 置き場が src/player/player_infra_range.c の static に入っても（#18-12-12C）
+ * 置き場が src/model/player/player_infra_range.c の static に入っても（#18-12-12C）
  * この足場は届く。 */
 static void given_no_infra_vision(void) { player_infra_range_set(0); }
 
@@ -129,7 +129,7 @@ TEST(taking_the_item_off_brings_the_range_back) {
     ASSERT_EQ_INT(0, player_infra_range());
 }
 
-/* 時限の赤外視が効きはじめたとき（dungeon.c の ++）。**ちょうど 1 ます。** */
+/* 時限の赤外視が効きはじめたとき（app/dungeon.c の ++）。**ちょうど 1 ます。** */
 TEST(the_potion_pushes_the_range_out_by_one_square) {
     given_no_infra_vision();
 
@@ -138,7 +138,7 @@ TEST(the_potion_pushes_the_range_out_by_one_square) {
     ASSERT_EQ_INT(1, player_infra_range());
 }
 
-/* 時限が切れたとき（dungeon.c の --）。 */
+/* 時限が切れたとき（app/dungeon.c の --）。 */
 TEST(the_potion_running_out_brings_the_range_back_by_one_square) {
     given_no_infra_vision();
     player_infra_range_adjust(1);

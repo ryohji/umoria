@@ -45,7 +45,7 @@
 
 /* 新しい階に降りたところから始める（generate.c の generate_cave() が
  * 階の頭で呼ぶのと同じ 1 本）。
- * **窓口で戻しなおす** —— #18-14-4C で置き場が src/monster/monster_list.c の static に
+ * **窓口で戻しなおす** —— #18-14-4C で置き場が src/model/monster/monster_list.c の static に
  * 入ったので、この足場が唯一の道（#18-14-1〜3 と同じ）。 */
 static void given_a_fresh_level(void) { monster_list_reset(); }
 
@@ -280,7 +280,7 @@ TEST(claiming_and_dropping_leave_the_mark_where_it_was) {
  * ------------------------------------------------------------------ */
 
 /* **行は隙間なく並んでいる** —— n 番めの次の番地が n+1 番め。
- * game_state.c が表の頭を外に渡せるのはこれが成りたつからで、
+ * app/game_state.c が表の頭を外に渡せるのはこれが成りたつからで、
  * 窓口が行を写して返すようになったら（あるいは表を割ったら）壊れる。 */
 TEST(the_row_after_one_row_is_the_next_row) {
     given_a_fresh_level();
@@ -290,7 +290,7 @@ TEST(the_row_after_one_row_is_the_next_row) {
     }
 }
 
-/* 頭は 0 行め（game_state.c が渡すもの）。 */
+/* 頭は 0 行め（app/game_state.c が渡すもの）。 */
 TEST(the_base_of_the_table_is_row_zero) {
     given_a_fresh_level();
 

@@ -14,14 +14,14 @@
 // hp_table.h. In particular this is NOT derived from the light source in the
 // equipment slot, even though that is where its value comes from.
 //
-// The main loop (dungeon.c) recomputes it once per turn and the *transitions*
+// The main loop (app/dungeon.c) recomputes it once per turn and the *transitions*
 // are what matter: going dark prints "Your light has gone out!", disturbs the
 // character and relights every creature on the level; coming back into light
 // does the same in reverse. A derived function would read the slot fresh at
 // every caller and those transitions would never be noticed, so the answer
 // stays a remembered one.
 //
-// dungeon.c also sets it before the loop starts, from the slot, so the first
+// app/dungeon.c also sets it before the loop starts, from the slot, so the first
 // turn does not count as a transition.
 bool player_has_light(void);
 void set_player_has_light(bool lit);

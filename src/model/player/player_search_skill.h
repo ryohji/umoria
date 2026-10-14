@@ -32,7 +32,7 @@
 // OPPOSITE DIRECTIONS, by the same amount. Only one writer in the whole game ever
 // touches one alone, and it is the debugging editor.
 //
-// WHO ASKS: search mode's own turn (dungeon.c), the automatic look while running
+// WHO ASKS: search mode's own turn (app/dungeon.c), the automatic look while running
 // (player_move.c) and while resting or tunnelling (terrain_commands.c), the character
 // sheet's two ratings (abilities.c, which is where the upside-down arithmetic lives),
 // the debugging editor (wizard.c), and the saved file.
@@ -93,7 +93,7 @@ void player_search_skill_adjust(int chance_amount, int frequency_amount);
 //      SHEET'S QUESTION, and so is the floor -- the same division of labour as the
 //      attack bonuses (where BTH_PLUS_ADJ and a damage floor stayed with callers).
 //   3. WHETHER A LOOK HAPPENS THIS TURN. randint() and the searching flag decide
-//      that (player_move.c, terrain_commands.c, dungeon.c, player_status_flags.h).
+//      that (player_move.c, terrain_commands.c, app/dungeon.c, player_status_flags.h).
 //   4. WHAT A LOOK FINDS. search() in search.c takes the chance and works against
 //      the dungeon; this module never sees a square.
 

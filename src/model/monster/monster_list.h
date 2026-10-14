@@ -35,7 +35,7 @@ void monster_list_reset(void);
 // The row at INDEX. This is the plain `&m_list[index]` it replaces: no bounds
 // check, no null for an empty row, because the callers already know which index
 // they hold (from cave[y][x].cptr, from a countdown, or from claiming a slot).
-// Row 0 works and is what game_state.c hands out as the base of the table.
+// Row 0 works and is what app/game_state.c hands out as the base of the table.
 monster_type *monster_list_at(int index);
 
 // How far the table is filled -- ONE PAST the last occupied row, not a count of
@@ -58,7 +58,7 @@ void set_monster_list_used(int16_t used);
 // compact_monsters() and tries again when the answer is yes.
 bool monster_list_is_full(void);
 
-// How many rows are still free. dungeon.c asks once a turn and compacts early
+// How many rows are still free. app/dungeon.c asks once a turn and compacts early
 // when fewer than ten are left, because compacting from there is much more likely
 // to succeed than compacting from inside creatures().
 int monster_list_free_slots(void);

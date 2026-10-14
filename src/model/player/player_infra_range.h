@@ -30,13 +30,13 @@
 //   - THE EQUIPMENT, by however much the item is worth (player_bonuses.c). py_bonuses()
 //     is called with factor 1 when something is put on and -1 when it comes
 //     off, so ONE LINE THERE COVERS BOTH DIRECTIONS.
-//   - THE POTION, by exactly one square while it lasts (dungeon.c, at the turn
+//   - THE POTION, by exactly one square while it lasts (app/dungeon.c, at the turn
 //     the clock starts and again at the turn it runs out).
 //
 // What this module deliberately does NOT do:
 //
 //   - THE CLOCK. The potion's turns belong to player_timed_effects.c and the
-//     nudging stays in dungeon.c, which is the file that already knows the
+//     nudging stays in app/dungeon.c, which is the file that already knows the
 //     clock has started or run out. The clock and this number are NOT two
 //     halves of one fact -- this number has three sources and the clock is one
 //     of them (findings.md 33).
@@ -64,7 +64,7 @@ int player_infra_range(void);
 
 // Further or nearer by this many squares. NEGATIVE TAKES IT BACK: the
 // equipment's window (player_bonuses.c) passes a negative amount when an item comes
-// off, and dungeon.c passes -1 when the potion runs out.
+// off, and app/dungeon.c passes -1 when the potion runs out.
 void player_infra_range_adjust(int squares);
 
 // How far, as an outright answer rather than a change. TWO CALLERS: the race,

@@ -91,7 +91,7 @@ void player_armour_class_add_item(int armour, int magical);
 //
 //   - calc_bonuses() adds them whenever it rebuilds, for as long as the spell is
 //     in force;
-//   - dungeon.c adds them the turn the spell begins and takes them away the turn
+//   - app/dungeon.c adds them the turn the spell begins and takes them away the turn
 //     it runs out.
 //
 // THE DOUBLE BOOKKEEPING IS THE CALLER'S, not this module's (the same shape as

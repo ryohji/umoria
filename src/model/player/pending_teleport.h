@@ -13,7 +13,7 @@
 // calls teleport() on the spot; the teleport trap (traps.c) may not, because it
 // is stepped on in the middle of a move and the player has to be lit where they
 // are first -- "Light up the teleport trap, before we teleport away". So the trap
-// leaves a note, and the main loop (dungeon.c) reads it once the turn's commands
+// leaves a note, and the main loop (app/dungeon.c) reads it once the turn's commands
 // are done and calls teleport(100).
 
 // Teleport the player when this turn's commands are over. Only the teleport trap
@@ -30,7 +30,7 @@ bool teleport_is_pending(void);
 // player has been moved, which is all the note asked for.
 void teleport_done(void);
 
-// Nothing is waiting: a level has begun. dungeon.c does this in its setup, next
+// Nothing is waiting: a level has begun. app/dungeon.c does this in its setup, next
 // to begin_level() (level_exit.h). It is not "it happened" -- no teleport is
 // performed -- so it is a separate window from teleport_done().
 void forget_pending_teleport(void);

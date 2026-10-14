@@ -39,7 +39,7 @@ char *msg_history_slot(int slot);
 int msg_history_newest_slot(void);
 void msg_history_set_newest_slot(int slot);
 
-// The whole block at once. Only for game_state.c, whose snapshot holds a
+// The whole block at once. Only for app/game_state.c, whose snapshot holds a
 // pointer to the history rather than a copy of it. Walking the result by hand
 // is what this module exists to stop -- use msg_history_recent() to read.
 vtype *msg_history_slots(void);
@@ -53,7 +53,7 @@ bool msg_pending(void);
 
 // msg_print() decides this for the message it prints. Others only ever clear
 // it, meaning "the player has seen what is up there": both command loops
-// (dungeon.c, store_ui.c) do so before reading a key, and inkey() does so on EOF,
+// (app/dungeon.c, store_ui.c) do so before reading a key, and inkey() does so on EOF,
 // where nobody is left to answer a -more- prompt.
 void msg_set_pending(bool pending);
 

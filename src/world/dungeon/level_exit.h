@@ -9,7 +9,7 @@
 #ifndef LEVEL_EXIT_H
 #define LEVEL_EXIT_H
 
-// One bit, and one reader: the main loop (dungeon.c) runs turns until the bit is
+// One bit, and one reader: the main loop (app/dungeon.c) runs turns until the bit is
 // set, then returns to play_game(), which builds a level and calls dungeon()
 // again. Everything else only sets it.
 //
@@ -32,7 +32,7 @@ bool level_is_over(void);
 // prompt says, and the deep-descent scroll stops at 1 because it may not push
 // the player above the town. Level 0 is the town, and it is a level like any
 // other here -- word-of-recall uses it.
-// The depth itself lives in src/dungeon/dungeon_level.c; this window writes it
+// The depth itself lives in src/model/dungeon/dungeon_level.c; this window writes it
 // through set_dungeon_level().
 void leave_for_level(int level);
 
@@ -42,7 +42,7 @@ void leave_for_level(int level);
 // before another level is built; the third rebuilds the town.
 void end_level(void);
 
-// A level has begun, so nothing is pending. dungeon.c does this in its setup,
+// A level has begun, so nothing is pending. app/dungeon.c does this in its setup,
 // before the first turn of the level. It says nothing about the depth, which by
 // then already holds the level being started.
 void begin_level(void);

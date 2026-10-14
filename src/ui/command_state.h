@@ -17,13 +17,13 @@
 //   3. Which command was typed last.
 //
 // They were three globals (command_count, default_dir, last_command) sitting in
-// different parts of externs.h. Only the main loop in dungeon.c drives all
+// different parts of externs.h. Only the main loop in app/dungeon.c drives all
 // three; the other files ask one question each.
 
 // --- The repeat count ------------------------------------------------------
 
 // A count has been typed and the command is about to run that many times. Said
-// by dungeon.c once it knows the command accepts a count.
+// by app/dungeon.c once it knows the command accepts a count.
 void begin_command_count(int count);
 
 // Is a repeat in progress? Asked in five places that have nothing to do with
@@ -34,7 +34,7 @@ bool command_is_repeating(void);
 
 // How many times are left. For showing the number ("Repeat %-3d"), for the game
 // state snapshot, and for the one caller that compares it with something other
-// than zero (dungeon.c asks for more than one when '.' turns into a rest).
+// than zero (app/dungeon.c asks for more than one when '.' turns into a rest).
 int command_count_remaining(void);
 
 // Take the whole count and end the repeat. The five commands that do this use
@@ -52,8 +52,8 @@ void consume_command_count(void);
 // Whatever was being repeated, stop. Said by nine places, and they are all the
 // same thing: a key was read (io.c), a message was printed (io.c), the player
 // was disturbed (rest_command.c), a run could not start (run_path.c), a door came open
-// (terrain_commands.c), the turn was free or the run took the count over (dungeon.c), and
-// **a new level has begun** (dungeon.c). The last one is a real cancelling, not
+// (terrain_commands.c), the turn was free or the run took the count over (app/dungeon.c), and
+// **a new level has begun** (app/dungeon.c). The last one is a real cancelling, not
 // a fresh start: a count can outlive a staircase, and this is what stops it.
 // That is why there is no separate "forget" window here, unlike running.h.
 void cancel_command_count(void);
@@ -61,10 +61,10 @@ void cancel_command_count(void);
 // Hold the count across something that would cancel it, then put it back. Three
 // places do this, and the original said why in a comment each time: printing a
 // message must not "interrupt a counted command" (io.c), and asking for a
-// direction must not "end a counted command" (direction.c, dungeon.c).
+// direction must not "end a counted command" (direction.c, app/dungeon.c).
 //
 // The held value is handed back to the caller rather than kept here, because
-// **the two outer callers nest**: dungeon.c holds the count while it turns '-'
+// **the two outer callers nest**: app/dungeon.c holds the count while it turns '-'
 // into a movement command, and the get_dir() it calls holds it again.
 int hold_command_count(void);
 void resume_command_count(int held);
@@ -87,7 +87,7 @@ void ask_for_direction_again(void);
 
 // --- The command before this one -------------------------------------------
 
-// Remember the command that has just run. Said by dungeon.c at the end of every
+// Remember the command that has just run. Said by app/dungeon.c at the end of every
 // command.
 void note_command(char command);
 

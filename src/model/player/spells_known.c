@@ -22,7 +22,7 @@ static uint32_t spell_worked = 0;    // bit mask of spells tried and worked
 static uint32_t spell_forgotten = 0; // bit mask of spells learned but forgotten
 
 // The order the spells were learned in, one spell number per place. Starting
-// out as zeroes: the game start fills it with SPELL_NONE (main.c, through
+// out as zeroes: the game start fills it with SPELL_NONE (app/main.c, through
 // spell_order_forget_all) and loading a save file reads it back byte for byte,
 // and until then no spell is marked learned or forgotten, so nothing looks at
 // what is in here.

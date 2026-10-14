@@ -14,9 +14,9 @@
  *
  *   1. **走りだしの腹は 0** であること（もとの py.flags.food は初期化子なしの
  *      構造体の中にあった）。本物の 7500 と速さ 2 は、人物を作りおわった
- *      main.c が置く。
+ *      app/main.c が置く。
  *
- *   2. **1 ターンの消化は「速さのぶん引く」だけ**であること。dungeon.c の
+ *   2. **1 ターンの消化は「速さのぶん引く」だけ**であること。app/dungeon.c の
  *      毎ターンの処理はこれを 1 行でやっていて、その前後で「速さが負なら
  *      余分に燃やす」「0 を割ったら飢えの傷」が続くが、**どちらも窓口の外**。
  *
@@ -25,8 +25,8 @@
  *      所見 24・25）。-50 の腹に 100 食べたら 100 で、50 ではない。
  *
  *   4. **窓口は上も下も見ない**こと。満腹（PLAYER_FOOD_FULL）と食べすぎ
- *      （PLAYER_FOOD_MAX と速さの罰）の規則は player/food_ops.c、空腹の境目と
- *      飢えの傷は dungeon.c、吐いたときの 150 は potions.c、蘇生のときの 0 は
+ *      （PLAYER_FOOD_MAX と速さの罰）の規則は world/player/food_ops.c、空腹の境目と
+ *      飢えの傷は app/dungeon.c、吐いたときの 150 は potions.c、蘇生のときの 0 は
  *      save.c。**どれも理由が腹の外にあり読み手が 1 つずつ**なので外に残す。
  *      ここで丸めるとふるまいが変わる。
  *
@@ -34,7 +34,7 @@
  *      先に戻してから数えなおし、探索と休憩も入る・出るで ±1 する。
  *      **足した順と引いた順が違っても元に戻る**（呼び手が対で呼ぶから）。
  *
- * 置き場は #18-12-2C で src/player/player_food.c の static になり、初期値もそこに
+ * 置き場は #18-12-2C で src/model/player/player_food.c の static になり、初期値もそこに
  * 入った（それまで要っていた足場 tests/player_food_fixture.c は消した）。
  * テストは 1 プロセスで状態を共有するので、走りだしを見る 2 件は main() の
  * 先頭に置き、以降は各件が最初に窓口で足場を作る。
@@ -62,7 +62,7 @@ TEST(digestion_starts_at_nothing) {
 
 /* --- 置きかえる ----------------------------------------------------------- */
 
-/* main.c が人物を作りおわってから置く 7500。save の読みも同じ形。 */
+/* app/main.c が人物を作りおわってから置く 7500。save の読みも同じ形。 */
 TEST(setting_replaces_what_was_there) {
     player_set_food(7500);
     ASSERT_EQ_INT(7500, player_food());
@@ -96,7 +96,7 @@ TEST(an_empty_stomach_is_not_a_debt) {
 }
 
 /* **窓口は満腹も食べすぎも見ない。** PLAYER_FOOD_FULL を超えたら「満腹」と
- * 言い、PLAYER_FOOD_MAX を超えたら速さの罰を与えるのは player/food_ops.c の add_food()。
+ * 言い、PLAYER_FOOD_MAX を超えたら速さの罰を与えるのは world/player/food_ops.c の add_food()。
  * ここで丸めを足したら、この 1 件が赤くなって気づける。 */
 TEST(overeating_is_not_stopped_here) {
     player_set_food(PLAYER_FOOD_MAX);
@@ -106,7 +106,7 @@ TEST(overeating_is_not_stopped_here) {
 
 /* --- 燃やす --------------------------------------------------------------- */
 
-/* 速さが負の人物は 1 ターンに余分に燃やす（dungeon.c）。 */
+/* 速さが負の人物は 1 ターンに余分に燃やす（app/dungeon.c）。 */
 TEST(burning_takes_food_out_of_the_stomach) {
     player_set_food(1000);
     player_burn_food(9);
@@ -114,7 +114,7 @@ TEST(burning_takes_food_out_of_the_stomach) {
 }
 
 /* **0 を割っても窓口は止めない。** 飢えの傷（-food / 16）を与えるのは
- * dungeon.c で、負の数そのものがその傷の大きさになっている。 */
+ * app/dungeon.c で、負の数そのものがその傷の大きさになっている。 */
 TEST(the_stomach_can_go_below_empty) {
     player_set_food(10);
     player_burn_food(90);
@@ -153,7 +153,7 @@ TEST(the_rate_can_go_negative) {
 
 /* --- 1 ターン分の消化 ----------------------------------------------------- */
 
-/* dungeon.c の毎ターン 1 行ぶん。**速さを読むのはここだけ。** */
+/* app/dungeon.c の毎ターン 1 行ぶん。**速さを読むのはここだけ。** */
 TEST(a_turn_of_digestion_takes_the_rate_off_the_stomach) {
     player_set_food(1000);
     player_set_digestion(2);

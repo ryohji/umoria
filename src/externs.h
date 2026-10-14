@@ -78,25 +78,25 @@ extern uint8_t blows_table[7][6];
 
 #define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
 
-// player/create.c
+// command/create.c
 void create_character(void);
 
-// combat/monster_melee.c
+// world/combat/monster_melee.c
 void make_attack(int);
 
-// monster/creature.c
+// world/monster/creature.c
 void update_mon(int);
 bool multiply_monster(int, int, creature_handle, int);
 void creatures(int);
 
-// save/death.c
+// app/death.c
 void display_scores(int);
 bool duplicate_character(void);
 int32_t total_points(void);
 // Does not return (calls exit). Declared _Noreturn so the compiler knows.
 _Noreturn void exit_game(void);
 
-// item/desc.c
+// world/item/desc.c
 bool is_a_vowel(char);
 void magic_init(void);
 void known1(inven_type *);
@@ -115,23 +115,23 @@ void invcopy(inven_type *, int);
 void desc_charges(int);
 void desc_remain(int);
 
-// dungeon.c
+// app/dungeon.c
 void dungeon(void);
 
-// item/eat.c
+// command/eat.c
 void eat(void);
 
-// ui/files.c
+// command/files.c
 void init_scorefile(void);
 void read_times(void);
 void helpfile(const char *);
 void print_objects(void);
 bool file_character(char *);
 
-// dungeon/generate.c
+// world/dungeon/generate.c
 void generate_cave(void);
 
-// ui/help.c
+// command/help.c
 void ident_char(void);
 
 // ui/io.c
@@ -170,26 +170,26 @@ FILE *tfopen(const char *, const char *);
 int topen(char *, int, int);
 #endif
 
-// item/magic.c
+// command/magic.c
 void cast(void);
 
 // core/dice.c
 int damroll(int, int);
 int pdamroll(const uint8_t *);
 int max_hp(const uint8_t *);
-// game_state.c
+// app/game_state.c
 void init_seeds(uint32_t);
 // core/bits.c, which declares it in bits.h as well
 int bit_pos(uint32_t *);
 // core/distance.c, which declares it in distance.h as well
 int distance(int, int, int, int);
-// dungeon/geometry.c
+// model/dungeon/geometry.c
 bool in_bounds(int, int);
 bool los(int, int, int, int);
 int next_to_walls(int, int);
 int next_to_corr(int, int);
 int mmove(int, int *, int *);
-// item/inven_ops.c
+// world/item/inven_ops.c
 void inven_destroy(int);
 void take_one_item(inven_type *, inven_type *);
 void inven_drop(int, int);
@@ -202,41 +202,41 @@ bool inven_check_weight(inven_type *);
 void check_strength(void);
 int inven_carry(inven_type *);
 int find_range(int, int, int *, int *);
-// player/player_move.c
+// world/player/player_move.c
 void teleport(int);
 void move_char(int, bool);
-// ui/map_view.c
+// world/view/map_view.c
 // panel_bounds is static in panel.c; panel_contains is in panel.h.
 int get_panel(int, int, int);
 uint8_t loc_symbol(int, int);
 bool test_light(int, int);
 void prt_map(void);
-// monster/monster_place.c
+// world/monster/monster_place.c
 bool compact_monsters(void);
 bool place_monster(int, int, creature_handle, int);
 void place_win_monster(void);
 void alloc_monster(int, int, int);
 bool summon_monster(int *, int *, int);
 bool summon_undead(int *, int *);
-// player/food_ops.c
+// world/player/food_ops.c
 void add_food(int);
-// dungeon/object_place.c
+// world/dungeon/object_place.c
 int popt(void);
 void pusht(uint8_t);
 
-// item/item_enchant.c
+// world/item/item_enchant.c
 void magic_treasure(int, int);
 
-// ui/options_menu.c
+// command/options_menu.c
 void set_options(void);
 
-// combat/hit_rolls.c
+// world/combat/hit_rolls.c
 int attack_blows(int, int *);
 int tot_dam(inven_type *, int, creature_handle);
 int critical_blow(int, int, int, int);
 bool test_hit(int, int, int, int, int);
 
-// combat/player_damage.c
+// world/combat/player_damage.c
 bool player_saves(void);
 void corrode_gas(const char *);
 void poison_gas(int, const char *);
@@ -246,7 +246,7 @@ void light_dam(int, char *);
 void acid_dam(int, const char *);
 void take_hit(int, const char *);
 
-// dungeon/object_alloc.c
+// world/dungeon/object_alloc.c
 void place_trap(int, int, int);
 void place_rubble(int, int);
 void place_gold(int, int);
@@ -257,7 +257,7 @@ void place_object(int, int, bool);
 void alloc_object(bool (*)(int), int, int);
 void random_object(int, int, int);
 
-// ui/status_line.c
+// world/view/status_line.c
 void cnv_stat(uint8_t, char *);
 void prt_stat(int);
 const char *title_string(void);
@@ -281,7 +281,7 @@ void prt_winner(void);
 void prt_stat_block(void);
 void draw_cave(void);
 
-// ui/char_screen.c
+// command/char_screen.c
 void put_character(void);
 void put_stats(void);
 const char *likert(int, int);
@@ -292,35 +292,35 @@ void display_char(void);
 void get_name(void);
 void change_name(void);
 
-// player/stat_ops.c
+// world/player/stat_ops.c
 void set_use_stat(int);
 bool inc_stat(int);
 bool dec_stat(int);
 bool res_stat(int);
 void bst_stat(int, int);
 
-// item/spellbook.c
+// world/item/spellbook.c
 void print_spells(int *, int, int, int);
 void calc_spells(int);
 void gain_spells(void);
 void calc_mana(int);
 int cast_spell(const char *, int, int *, int *);
 
-// player/level_ops.c
+// world/player/level_ops.c
 void prt_experience(void);
 void calc_hitpoints(void);
 
-// item/inscription.c
+// world/item/inscription.c
 void scribe_object(void);
 void add_inscribe(inven_type *, uint8_t);
 void inscribe(inven_type *, const char *);
-// ui/map_view.c
+// world/view/map_view.c
 void check_view(void);
 // core/str_insert.c, which declares it in str_insert.h as well; CONCAT above
 // expands to it
 char *concat(char *buffer, ...);
 
-// data/monsters.c
+// model/data/monsters.c
 bool monster_attack_is_null(attack_handle h);
 uint8_t monster_attack_get_type(attack_handle h);
 uint8_t monster_attack_get_desc(attack_handle h);
@@ -349,12 +349,12 @@ const char *monster_name_lower(vtype, const monster_type *);
 const char *monster_name_or_something(vtype, const monster_type *);
 const char *monster_name_indefinite(vtype, const creature_type *);
 
-// player/player_bonuses.c
+// world/player/player_bonuses.c
 void change_speed(int);
 void py_bonuses(inven_type *, int);
 void calc_bonuses(void);
 
-// player/rest_command.c
+// world/player/rest_command.c
 void disturb(int, int);
 void search_on(void);
 void search_off(void);
@@ -365,14 +365,14 @@ void rest_off(void);
 bool get_dir(const char *, int *);
 bool get_alldir(const char *, int *);
 
-// dungeon/lighting.c
+// world/dungeon/lighting.c
 bool no_light(void);
 void move_rec(int, int, int, int);
 void light_room(int, int);
 void lite_spot(int, int);
 void move_light(int, int, int, int);
 
-// ui/inven_menu.c
+// command/inven_menu.c
 int show_inven(int, int, bool, int, const char *);
 const char *describe_use(int);
 int show_equip(bool, int);
@@ -380,55 +380,55 @@ void takeoff(int, int);
 void inven_command(char);
 int get_item(int *, const char *, int, int, const char *, const char *);
 
-// dungeon/search.c
+// world/dungeon/search.c
 void change_trap(int, int);
 void search(int, int, int);
 
-// player/run_path.c
+// world/player/run_path.c
 void find_init(int);
 void find_run(void);
 void end_find(void);
 void area_affect(int, int, int);
 
-// monster/monster_death.c
+// world/monster/monster_death.c
 void delete_monster(int);
 void fix1_delete_monster(int);
 void fix2_delete_monster(int);
 int delete_object(int, int);
 uint32_t monster_death(int, int, uint32_t);
 
-// ui/look.c
+// command/look.c
 void look(void);
 
-// combat/player_melee.c
+// world/combat/player_melee.c
 void py_attack(int, int);
 void py_bash(int, int);
 
-// combat/throw.c
+// world/combat/throw.c
 void throw_object(void);
 
-// dungeon/traps.c
+// world/dungeon/traps.c
 void disarm_trap(void);
 void hit_trap(int, int);
 void chest_trap(int, int);
 
-// dungeon/terrain_commands.c
+// world/dungeon/terrain_commands.c
 void openobject(void);
 void closeobject(void);
 int twall(int, int, int, int);
 void tunnel(int);
 void bash(void);
 
-// combat/monster_damage.c
+// world/combat/monster_damage.c
 int mon_take_hit(int, int);
 
-// item/potions.c
+// command/potions.c
 void quaff(void);
 
-// item/prayer.c
+// command/prayer.c
 void pray(void);
 
-// ui/recall.c
+// command/recall.c
 bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
@@ -441,7 +441,7 @@ int randint(int);
 int randnor(int, int);
 bool magik(int);
 
-// save/save.c
+// app/save.c
 bool save_char(void);
 bool _save_char(char *);
 bool get_char(bool *);
@@ -449,10 +449,10 @@ void set_fileptr(FILE *);
 void wr_highscore(high_scores *);
 void rd_highscore(high_scores *);
 
-// item/scrolls.c
+// command/scrolls.c
 void read_scroll(void);
 
-// data/sets.c
+// model/data/sets.c
 bool set_room(int);
 bool set_corr(int);
 bool set_floor(int);
@@ -478,12 +478,12 @@ void signals(void);
 void init_signals(void);
 void handle_pending_signals(void);
 
-// combat/projectiles.c
+// world/combat/projectiles.c
 void fire_bolt(int, int, int, int, int, const char *);
 void fire_ball(int, int, int, int, int, const char *);
 void breath(int, int, int, int, char *, int);
 
-// item/spells.c
+// world/item/spells.c
 int sleep_monsters1(int, int);
 int detect_treasure(void);
 int detect_object(void);
@@ -542,28 +542,28 @@ bool enchant(int16_t *, int16_t);
 int remove_curse(void);
 int restore_level(void);
 
-// item/staffs.c
+// command/staffs.c
 void use(void);
 
-// store/store_stock.c
+// world/store/store_stock.c
 bool store_check_num(inven_type *, int);
 void store_carry(int, int *, inven_type *);
 void store_destroy(int, int, int);
 void store_init(void);
 void store_maint(void);
-// store/store_price.c
+// world/store/store_price.c
 int32_t item_value(inven_type *);
 int32_t sell_price(int, int32_t *, int32_t *, inven_type *);
 bool noneedtobargain(int, int32_t);
 void updatebargain(int, int32_t, int32_t);
 
-// store/store_ui.c
+// command/store_ui.c
 void enter_store(int);
 
-// item/wands.c
+// command/wands.c
 void aim(void);
 
-// ui/wizard.c
+// command/wizard.c
 bool enter_wiz_mode(void);
 void wizard_light(void);
 void change_character(void);

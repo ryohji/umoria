@@ -14,7 +14,7 @@
  * 8 か所が触っていた。
  *
  * **名前が関数と衝突している。** externs.h に
- * `int confuse_monster(int, int, int);`（src/item/spells.c。杖と巻物が向きを
+ * `int confuse_monster(int, int, int);`（src/world/item/spells.c。杖と巻物が向きを
  * 指定してモンスターを混乱させる呪文）があり、フィールドのほうは
  * **プレイヤーが持っている 1 回ぶんの蓄え**。別物なので、module も窓口も
  * game の message に合わせて「手」を名前にした（player_glowing_hands.h）。
@@ -25,7 +25,7 @@
  *   1. **ターンで減らない。** 巻物 11 で立ったら、休んでも歩いても階段を
  *      降りても光ったまま。**消えるのは 1 撃が当たったときだけ**（自分が
  *      殴った player_melee.c と、モンスターに殴られた monster_melee.c の両方）。
- *      dungeon.c の時計の列にこのフィールドは無い。
+ *      app/dungeon.c の時計の列にこのフィールドは無い。
  *   2. **2 枚めの巻物は効かない。** すでに光っていたら `ident` も立たない
  *      （scrolls.c:206 が 0 かどうかを先に訊く）ので、**この読みは鑑定の
  *      成否を決めている**。重ねられないことに釘を打つ。
@@ -48,7 +48,7 @@
 #include "minunit.h"
 
 /* 手が暗いところから始める（走りだしと同じ）。**窓口で置きなおす** ——
- * 置き場が src/player/player_glowing_hands.c の static に入っても（#18-12-13C）
+ * 置き場が src/model/player/player_glowing_hands.c の static に入っても（#18-12-13C）
  * この足場は届く。 */
 static void given_dark_hands(void) { player_glowing_hands_restore(0); }
 
@@ -129,7 +129,7 @@ TEST(the_hands_can_be_lit_again_after_a_blow) {
 }
 
 /* **時計ではない。** 何度訊いても、何ターン経ったつもりでも減らない ——
- * 減らす道は「当たった 1 撃」しかない。**dungeon.c の時計の列に入れると
+ * 減らす道は「当たった 1 撃」しかない。**app/dungeon.c の時計の列に入れると
  * 使わないうちに消える。** */
 TEST(nothing_but_a_blow_takes_the_glow_away) {
     given_glowing_hands();

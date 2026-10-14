@@ -66,7 +66,7 @@ void monster_turn_end(void);
 // the benefit of code that is too far away to see it.
 bool monster_delete_may_shift(int index);
 
-// The raw number. One caller, the snapshot in game_state.c, which records it
+// The raw number. One caller, the snapshot in app/game_state.c, which records it
 // with the other "temporary" fields; nothing reads it back. Kept as a window so
 // the number itself can stay private (the same arrangement as
 // missile_serial_value()).

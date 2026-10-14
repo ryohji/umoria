@@ -46,7 +46,7 @@ void floor_items_reset(void);
 // named pointer and one straight out of `cave[y][x].tptr` -- and the rest hold
 // an index they were given by the window below.
 //
-// Row 0 works and is what game_state.c hands out as the base of the table.
+// Row 0 works and is what app/game_state.c hands out as the base of the table.
 inven_type *floor_item_at(int index);
 
 // How far the table is filled -- ONE PAST the last occupied row, not a count of

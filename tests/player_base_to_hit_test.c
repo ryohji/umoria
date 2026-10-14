@@ -184,7 +184,7 @@ TEST(a_blessing_is_worth_five_to_both_numbers) {
     ASSERT_EQ_INT(5, player_base_to_hit_with_bows());
 }
 
-/* 同じ窓口が足しも引きもする。dungeon.c は呪文が始まった瞬間に足して
+/* 同じ窓口が足しも引きもする。app/dungeon.c は呪文が始まった瞬間に足して
  * 切れた瞬間に引くので、**行きと帰りで元に戻らなければならない**。 */
 TEST(a_spell_that_runs_out_leaves_both_numbers_where_they_were) {
     given_a_race_with_bases(0, 0);

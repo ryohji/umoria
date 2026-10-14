@@ -6,7 +6,7 @@
 
 /* hit_rolls_test の足場：disturb() の代役
  *
- * 本物の disturb()（player/rest_command.c）は画面と走りの状態を巻きこむ。
+ * 本物の disturb()（world/player/rest_command.c）は画面と走りの状態を巻きこむ。
  * test_hit() が毎回 1 度呼ぶことだけを見たいので、回数を数える。
  */
 #include "config.h"

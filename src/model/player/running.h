@@ -16,7 +16,7 @@
 // (lighting.c), a monster right next to the player is noticed even in the dark
 // (creature.c), blocked ways and objects underfoot are passed over in silence
 // (player_move.c), and the main loop does not wait ten seconds for a keypress before
-// looking for an interruption (dungeon.c). All of those ask the same one
+// looking for an interruption (app/dungeon.c). All of those ask the same one
 // question, which is why the answer is kept here.
 //
 // The run also has a length, and that exists for one reason: a run in an open
@@ -40,7 +40,7 @@ bool player_is_running(void);
 // the difference is about the screen, not about running.
 void stop_running(void);
 
-// Nobody is running: a level has begun. dungeon.c does this in its setup, next to
+// Nobody is running: a level has begun. app/dungeon.c does this in its setup, next to
 // begin_level() (level_exit.h) and forget_pending_teleport()
 // (pending_teleport.h). It is not "stop" -- no run is being cut short, and no
 // screen work follows -- so it is a separate window.
@@ -58,7 +58,7 @@ void forget_run(void);
 // stop after moving 100 times".
 bool keep_running(void);
 
-// How many steps, for the game state snapshot only (game_state.c copies the old
+// How many steps, for the game state snapshot only (app/game_state.c copies the old
 // global's value). Nothing decides anything from this.
 int running_steps(void);
 

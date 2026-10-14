@@ -41,7 +41,7 @@ scripts/warnings.sh と同じ位置づけ（現状を数字で見るための道
 「書きこみ」からは 2 種類を除いてある。
   - 定義の置き場（variable.c, player.c, tables.c, treasure.c, monsters.c）
     にある初期値つき定義。これは散らばった書きこみではない
-  - game_state.c の `state->x = x`。状態の写しとりで、x 自身は書かない
+  - app/game_state.c の `state->x = x`。状態の写しとりで、x 自身は書かない
     （どちらも数えると「どこから状態が変えられるか」が見えなくなる）
 
 区分は手で与えている。機械には「これはユーザー設定」「これは定数表」の
@@ -64,7 +64,7 @@ GROUPS = {
     #   colors 系 6 個  desc.c:34 magic_init() が randes_seed を種にシャッフル。
     #                   未鑑定アイテムの見た目をゲームごとに変える仕掛けで、
     #                   randes_seed がセーブされるのは再現のため
-    #   object_list     main.c:308 price_adjust() が cost を一括で割りもどす。
+    #   object_list     app/main.c:308 price_adjust() が cost を一括で割りもどす。
     #                   COST_ADJ が 100（constant.h:72）なので現状は
     #                   #if で消えているが、変えると生きる
     "起動時に一度書きかえる表": """
@@ -74,36 +74,36 @@ GROUPS = {
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
         sound_beep_flag display_counts""",
     # プレイヤーの記録（py）は #67 で能力値の 4 配列だけになり、それが stats.c の
-    # static になって externs.h から外れた。窓口は src/player/stats.h。
+    # static になって externs.h から外れた。窓口は src/model/player/stats.h。
     # 覚えている呪文 4 個（spell_learned・spell_worked・spell_forgotten・
     # spell_order）は #18-8-C で spells_known.c の static になり、externs.h から
-    # 外れた。窓口は src/player/spells_known.h。導出する形にはしていない —— 何を覚えた
+    # 外れた。窓口は src/model/player/spells_known.h。導出する形にはしていない —— 何を覚えた
     # かは履歴で、覚えていた記録がなければ復元できない（progress・score_death と
     # 同じ理由）。ビット演算（1L << spell）は窓口の内側にある。
     # 重さに負けているか 2 個（weapon_heavy・pack_heavy）は #18-7-4C1 で
-    # burden.c の static になり、externs.h から外れた。窓口は src/player/burden.h。
+    # burden.c の static になり、externs.h から外れた。窓口は src/model/player/burden.h。
     # 装備と持ち物の重さから毎回導出する形にはしていない —— 重い／軽いの
     # **変わり目**でしか起きないこと（4 通りの message と change_speed への
     # 差分）が check_strength()（inven_ops.c）にあるので、覚えた答えを返す
     # 置き場のままにしてある（player_light と同じ理由）。
     # 明かりの有無（player_light）は #18-7-3C1 で player_light.c の static に
-    # なり、externs.h から外れた。窓口は src/player/player_light.h（player_has_light /
+    # なり、externs.h から外れた。窓口は src/model/player/player_light.h（player_has_light /
     # set_player_has_light）。装備の欄から導出する形にはしていない —— 明るい／
     # 暗いの**変わり目**でしか起きないこと（message・モンスターの出しなおし）が
-    # dungeon.c にあるので、覚えた答えを返す置き場のままにしてある。
+    # app/dungeon.c にあるので、覚えた答えを返す置き場のままにしてある。
     # レベルごとの HP 表（player_hp）は #18-7-2C1 で hp_table.c の static に
-    # なり、externs.h から外れた。窓口は src/player/hp_table.h（hp_total_at_level /
+    # なり、externs.h から外れた。窓口は src/model/player/hp_table.h（hp_total_at_level /
     # set_hp_total_at_level / hp_table_slots）。表は 1 起点で読む。
     # 勝ちと最高得点の 2 個（total_winner max_score）は #18-7-1C1 で
     # score_death.c の static になり、externs.h から外れた。窓口は
-    # src/save/score_death.h（player_has_won / best_score_so_far）。
+    # src/model/game/score_death.h（player_has_won / best_score_so_far）。
     # 居場所の 2 個（char_row char_col）は #18-6C1 で player_pos.c の static に
-    # なり、externs.h から外れた。窓口は src/player/player_pos.h（player_row /
+    # なり、externs.h から外れた。窓口は src/model/player/player_pos.h（player_row /
     # player_col / player_place / player_pos_forget）。同じ区分に残る 11 個は
     # 居場所とは独立なので残す。片づいた名前は行から消える（消えた記録は
     # docs/refactoring/globals_inventory.md 側）。
     # 床の一枚一枚（cave）は #18-14-8C で dungeon_map.c の static になり、
-    # externs.h から外れた。窓口は src/dungeon/dungeon_map.h（dungeon_map_reset /
+    # externs.h から外れた。窓口は src/model/dungeon/dungeon_map.h（dungeon_map_reset /
     # square_at の 2 本だけ）。**この区分の 8 問め＝最後**で、**#18 に残っていた
     # global のどれよりも大きい**（15 ファイル 258 参照・書き 47・別名 145）。
     # **これで「ダンジョンとその中身」の区分は空になった**（行ごと消した。記録は
@@ -127,7 +127,7 @@ GROUPS = {
     # （7 ファイル 32 か所・generate.c 99 か所・5 ファイル 109 か所・save.c 7 か所）。
     # 税は 12 本で、**A の見こみとぴったり一致**した。
     # 床に落ちているもの（t_list ＋ tcptr）は #18-14-7C で floor_items.c の
-    # static になり、externs.h から外れた。窓口は src/dungeon/floor_items.h
+    # static になり、externs.h から外れた。窓口は src/model/dungeon/floor_items.h
     # （floor_items_reset / floor_item_at / floor_items_used /
     # set_floor_items_used / floor_items_is_full / floor_items_claim_slot /
     # floor_items_drop_last）。**この区分の 7 問め**で、#18-14-4 のモンスターの
@@ -145,7 +145,7 @@ GROUPS = {
     # 税は 12 本で **A で測りなおした見こみと一致**した（下調べは 13 本と
     # 見ていたが、13 本めは呼び手ではなく置き場だった。所見 34）。
     # いま何階か（dun_level）は #18-14-6C で dungeon_level.c の static になり、
-    # externs.h から外れた。窓口は src/dungeon/dungeon_level.h（dungeon_level /
+    # externs.h から外れた。窓口は src/model/dungeon/dungeon_level.h（dungeon_level /
     # player_is_in_town / set_dungeon_level）。**この区分の 6 問め**で、
     # **同じ問いが 3 通りに書かれていた** —— 「町にいるか」を `!= 0`・`> 0`・
     # `== 0` と 6 か所が別々に綴っていたので、窓口 1 本に寄せた。走りだしの
@@ -158,7 +158,7 @@ GROUPS = {
     # 1 か所）もここで消えた。税は 12 本で、**2 問続けて下調べの見こみと
     # 一致した**。
     # この階の広さ（cur_height ＋ cur_width）は #18-14-5C で dungeon_size.c の
-    # static になり、externs.h から外れた。窓口は src/dungeon/dungeon_size.h
+    # static になり、externs.h から外れた。窓口は src/model/dungeon/dungeon_size.h
     # （dungeon_height / dungeon_width / set_dungeon_size）。**この区分の
     # 5 問め**で、**2 つの名前が 1 つの行い**だった —— 書き手はどちらも必ず
     # 両方を書き、読み手 48 のうち 40 が対で読む。だから**窓口は両方を取る
@@ -168,13 +168,13 @@ GROUPS = {
     # 階の 66x198。選ぶのは generate_cave() の 1 か所で、つまり「町にいるか」の
     # 言いかえ）、**無作為な 1 マスの取りかたが 2 通りある**（randint(高さ-2) は
     # 外周に当たらず randint(高さ)-1 は当たる。畳むと出現位置が変わるので
-    # そのまま残した）、そして **dungeon.c の 'L' が行を幅と比べている**
+    # そのまま残した）、そして **app/dungeon.c の 'L' が行を幅と比べている**
     # （上流のバグ。そのまま写して header に書きとめた）。
     # 別名 2 件（save.c の `rd_short((uint16_t *)&cur_height)` の対）も
     # ここで消えた。税は 11 本で、**下調べの見こみと初めて一致した**。
     # この階にいるモンスター（m_list ＋ mfptr）は #18-14-4C で
     # monster_list.c の static になり、externs.h から外れた。窓口は
-    # src/monster/monster_list.h（monster_list_reset / monster_list_at /
+    # src/model/monster/monster_list.h（monster_list_reset / monster_list_at /
     # monster_list_used / set_monster_list_used / monster_list_is_full /
     # monster_list_free_slots / monster_list_claim_slot /
     # monster_list_drop_last）。**この区分の 4 問め**で、**2 つの名前が
@@ -188,7 +188,7 @@ GROUPS = {
     # 別名 1 件（save.c の `rd_short((uint16_t *)&mfptr)`）もここで消えた。
     # この階で増えたモンスターの数（mon_tot_mult）は #18-14-3C で
     # monster_breeding.c の static になり、externs.h から外れた。窓口は
-    # src/monster/monster_breeding.h（monster_breeding_reset / monster_breeding_allowed /
+    # src/world/monster/monster_breeding.h（monster_breeding_reset / monster_breeding_allowed /
     # monster_breeding_note_birth / monster_breeding_note_death ＋ セーブ用の
     # monster_breeding_count / set_monster_breeding_count）。**この区分の 3 問め**。
     # 定義表の隣（monsters.c）に置かれていたが表とは無関係な階ごとの数だった。
@@ -199,23 +199,23 @@ GROUPS = {
     # ここで消えた。
     # レベルごとのモンスター定義の索引（m_level）は #18-14-2C で
     # monster_levels.c の static になり、externs.h から外れた。窓口は
-    # src/monster/monster_levels.h（monster_levels_init / monsters_up_to_level /
+    # src/model/monster/monster_levels.h（monster_levels_init / monsters_up_to_level /
     # monsters_at_level / first_monster_at_level）。**この区分の 2 問め**。
-    # 組みたてていた init_m_level() は main.c の static で、**テストから
+    # 組みたてていた init_m_level() は app/main.c の static で、**テストから
     # 届かなかった**（#18-10 の init_t_level() と同じ形）。読み手 6 か所が
     # `m_level[level] - m_level[level - 1]` や `+ m_level[0]` と手で書いていた
     # 引き算に名前が付いた。品物のほうは並べなおした本体（sorted_objects）が
     # 別に要ったが、モンスター定義表はもとからレベルの昇順なので索引だけで足りる。
     # いま creatures() が誰の手番を処理しているか（hack_monptr）は #18-14-1C で
     # monster_turn.c の static になり、externs.h から外れた。窓口は
-    # src/monster/monster_turn.h（monster_turn_begin / monster_turn_end /
+    # src/world/monster/monster_turn.h（monster_turn_begin / monster_turn_end /
     # monster_delete_may_shift / monster_turn_index）。読み手 2 つが
     # `hack_monptr < i` と手で書いていた比較に名前が付いた ——
     # 「その席を詰めなおしてよいか」。**この区分の 1 問め**で、残る 10 個は
     # 手番とは独立なので残す。
     # レベルごとに並べたダンジョンの品物表（sorted_objects と t_level）は
     # #18-10-C で object_levels.c の static になり、externs.h から外れた。窓口は
-    # src/item/object_levels.h（object_levels_init / object_at_level_position /
+    # src/model/item/object_levels.h（object_levels_init / object_at_level_position /
     # objects_up_to_level / objects_at_level / first_position_at_level）。
     # **この 2 個は台帳では別の区分に分かれていた**（sorted_objects は
     # 「持ち物・アイテム」、t_level は「ダンジョンとその中身」）が、実測すると
@@ -224,7 +224,7 @@ GROUPS = {
     # **これで「持ち物・アイテム」の区分は空になった**（行ごと消した。記録は
     # docs/refactoring/globals_inventory.md 側）。
     # 品目ごとの覚え（object_ident）は #18-9-C で item_ident.c の static になり、
-    # externs.h から外れた。窓口は src/item/item_ident.h（item_kind_is_known /
+    # externs.h から外れた。窓口は src/model/item/item_ident.h（item_kind_is_known /
     # item_kind_was_tried / item_kind_mark_known / item_kind_mark_tried /
     # item_kind_clear_tried / item_kind_has_record、セーブ用に
     # item_kind_record_bytes / item_kind_record_count）。持ち物の中身から
@@ -232,7 +232,7 @@ GROUPS = {
     # まだダンジョンにある品目についても覚えているから。
     # 持ち物の 4 個（inventory inven_ctr inven_weight equip_ctr）は #18-5 で
     # inventory.c の static になり、externs.h から外れた。窓口は
-    # src/item/inventory.h（持ち物・跨ぎ）と src/item/equipment.h（装備）。
+    # src/model/item/inventory.h（持ち物・跨ぎ）と src/model/item/equipment.h（装備）。
     # 片づいた名前は行から消える（消えた記録は docs/refactoring/globals_inventory.md 側）。
     # 店の区分（store last_store_inc の 2 個）は #18-4 で externs.h から
     # 全部外れた。6 軒の記録は stores.c、値切りの途中の入力は store2.c の
@@ -267,7 +267,7 @@ GROUPS = {
 # 定義の置き場。ここでの代入は初期化なので「散らばった書きこみ」に数えない。
 HOME_FILES = {"variable.c", "player.c", "tables.c", "treasure.c", "monsters.c"}
 # 状態の写しとり。`state->x = x` は x を書かない。
-SNAPSHOT_FILES = {"game_state.c"}
+SNAPSHOT_FILES = {"app/game_state.c"}
 
 TYPE_KEYWORDS = {
     "extern", "const", "char", "int", "bool", "FILE", "void", "unsigned", "signed",

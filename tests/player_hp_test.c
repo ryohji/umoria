@@ -20,7 +20,7 @@
  * 死んでいる人物の印で、しかもそれが唯一の印 —— 0 で下げ止める場所が
  * どこにも無いので、致命の一撃は数を負のまま残し、**セーブファイルを
  * またいで負のまま生きのびる**。読み手は 4 か所（take_hit・ロード直後の
- * main.c・死因を上書きするか決める save.c・wizard の蘇生）。
+ * app/main.c・死因を上書きするか決める save.c・wizard の蘇生）。
  * **だから「0 で下げ止める」ように直したら 4 か所が黙って壊れる。**
  * ここに釘を打つのがこのテストの主眼。
  *
@@ -68,7 +68,7 @@
 #include "minunit.h"
 
 /* 上限 10 の人物が毒でもなく休んでもいないときの 1 ターンぶん（65536 分の）。
- * dungeon.c が渡すのは PLAYER_REGEN_NORMAL で、そこから
+ * app/dungeon.c が渡すのは PLAYER_REGEN_NORMAL で、そこから
  * 10 * 197 + 1442 = 3412 が出る。65536 / 3412 = 19.2 ターンで 1 点。 */
 #define GAIN_PER_TURN (10 * PLAYER_REGEN_NORMAL + PLAYER_REGEN_HPBASE)
 
@@ -365,7 +365,7 @@ TEST(a_temporary_maximum_lifts_both_numbers_together) {
 }
 
 /* 切れるときは上限だけ引いてから残りを頭打ちに。頭打ちになったかを返すのは、
- * 呼び手（dungeon.c）がそのときだけ prt_chp() を呼ぶから。 */
+ * 呼び手（app/dungeon.c）がそのときだけ prt_chp() を呼ぶから。 */
 TEST(a_temporary_maximum_wearing_off_caps_what_is_left) {
     given(60, 60, 0x2000);
 
@@ -411,7 +411,7 @@ TEST(a_whole_session_follows_the_callers_order) {
     ASSERT_TRUE(!player_take_hp_damage(6));
     ASSERT_EQ_INT(13, player_hp());
 
-    /* dungeon.c regenhp: 70 ターン休む。1 ターンぶんは 19 * 197 + 1442 = 5185
+    /* app/dungeon.c regenhp: 70 ターン休む。1 ターンぶんは 19 * 197 + 1442 = 5185
      * で、70 ターンで 362950 —— 5 点と 35270 の余り。 */
     for (int turn = 0; turn < 70; turn++) {
         player_regenerate_hp(PLAYER_REGEN_NORMAL);
@@ -425,7 +425,7 @@ TEST(a_whole_session_follows_the_callers_order) {
     ASSERT_EQ_INT(19, player_hp());
     ASSERT_EQ_INT(0, player_hp_fraction());
 
-    /* dungeon.c: 英雄になって、切れる。 */
+    /* app/dungeon.c: 英雄になって、切れる。 */
     player_gain_temporary_max_hp(10);
     ASSERT_EQ_INT(29, player_hp());
     ASSERT_TRUE(player_lose_temporary_max_hp(10));

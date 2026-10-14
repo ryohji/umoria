@@ -8,10 +8,10 @@
  *
  * 走りは `.`（走る）コマンド。向きを決めて、止まる理由が出るまで動きつづける。
  * そのあいだ、移動とは関係のないいくつかの場所がふるまいを変える ——
- * `@` を描かない（ui/map_view.c の loc_symbol()）、明かりの輪をマスごとに塗らない
- * （dungeon/lighting.c）、暗くても隣のモンスターに気づく（creature.c）、
+ * `@` を描かない（world/view/map_view.c の loc_symbol()）、明かりの輪をマスごとに塗らない
+ * （world/dungeon/lighting.c）、暗くても隣のモンスターに気づく（creature.c）、
  * ふさがれた道や足元の物を黙って通りすぎる（player_move.c）、本編のループが
- * キー入力を 10 秒待たない（dungeon.c:431）。**全部が同じ 1 つの問いを訊く。**
+ * キー入力を 10 秒待たない（app/dungeon.c:431）。**全部が同じ 1 つの問いを訊く。**
  *
  * 保護したい性質は 4 つ。
  *
@@ -30,7 +30,7 @@
  *   4. **走りなおすと歩数はやりなおし**であること。止めたあと走りだしたら、
  *      また 100 歩ぶん走れる。
  *
- * 走りだしは 0（#18-11-6C で src/player/running.c の static になった。元の
+ * 走りだしは 0（#18-11-6C で src/model/player/running.c の static になった。元の
  * variable.c:70 は初期値なしの int）。テストは 1 プロセスで状態を共有するので、
  * 走りだしを見る 1 件は main() の先頭に置き、以降は各件が最初に begin_run() か
  * stop_running() で足場を作る。
@@ -80,7 +80,7 @@ TEST(stopping_ends_the_run) {
     ASSERT_FALSE(player_is_running());
 }
 
-/* dungeon.c:72。走りを切りあげるのではなく、新しい階では誰も走っていない。 */
+/* app/dungeon.c:72。走りを切りあげるのではなく、新しい階では誰も走っていない。 */
 TEST(a_level_start_leaves_nobody_running) {
     begin_run();
     forget_run();

@@ -41,7 +41,7 @@
 //   - THE CLASS adds to it (class_type.msav): Warrior 18, Paladin 24,
 //     Priest 30, Rogue 30, Ranger 30, Mage 36 -- the spell-casters resist best.
 //
-// BEWARE THE NAME. `save` is the most crowded word in this source tree: src/save/save.c
+// BEWARE THE NAME. `save` is the most crowded word in this source tree: src/app/save.c
 // and save_char() are about writing the game out, save_screen() is about the
 // display, device_use_chance()'s first parameter happens to be this very number,
 // direction.c has a local `int save` holding a command count, and race_type.bsav,

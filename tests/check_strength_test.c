@@ -55,7 +55,7 @@
 #include "stats.h"
 
 
-/* 検証対象（src/item/inven_ops.c）の宣言は externs.h から受ける。 */
+/* 検証対象（src/world/item/inven_ops.c）の宣言は externs.h から受ける。 */
 #include "externs.h"
 
 #define MU_SETUP() fixture_reset()

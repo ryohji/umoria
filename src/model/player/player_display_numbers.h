@@ -72,7 +72,7 @@ void player_display_add_to_ac(int amount);
 // Changes the Total AC. Worn armour goes on here as the equipment is walked,
 // and so do the temporary blessings: invulnerability is worth 100 and a
 // blessing 2, added when the spell takes hold and taken off when it lapses
-// (dungeon.c does that without recalculating anything else).
+// (app/dungeon.c does that without recalculating anything else).
 void player_display_add_ac(int amount);
 
 // The "+ To AC" the sheet shows is part of the "Total AC" it shows. Fold it in

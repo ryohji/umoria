@@ -9,7 +9,7 @@
  * savefile / character_generated / character_saved / panic_save は置き場だが、
  * この module には 3 つの述語もある。置き場と述語で保護のとりかたが違う。
  *
- *   savefile は「アドレスを返す窓口」である。main.c は strcpy() で
+ *   savefile は「アドレスを返す窓口」である。app/main.c は strcpy() で
  *   コマンド行や MORIA_SAV の中身を書きこみ、save.c は別名を打たれたときに
  *   書きかえる。窓口が値の写しを返すと書きこみが届かない（inventory_at() /
  *   died_from と同じ形）。同じ窓口がいつでも同じ記録を指すことを固定する。
@@ -80,7 +80,7 @@ TEST(the_game_starts_without_a_panic_save) {
 
 /* --- セーブファイルの名前 ----------------------------------------------- */
 
-/* main.c:130 は strcpy() で書く。窓口が写しを返していたら届かない。 */
+/* app/main.c:130 は strcpy() で書く。窓口が写しを返していたら届かない。 */
 TEST(what_is_written_through_the_window_is_read_back_through_it) {
     (void)strcpy(save_file_path(), "moria.sav");
     ASSERT_EQ_STR("moria.sav", save_file_path());

@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* store_haggle_fixture.c -- src/store/store_haggle.c を試すテストの足場
+/* store_haggle_fixture.c -- src/world/store/store_haggle.c を試すテストの足場
  * （haggle_comment_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の

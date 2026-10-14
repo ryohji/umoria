@@ -25,7 +25,7 @@ bool level_is_over(void) {
 }
 
 void leave_for_level(int level) {
-    // The depth lives in src/dungeon/dungeon_level.c: this unit owns the pair,
+    // The depth lives in src/model/dungeon/dungeon_level.c: this unit owns the pair,
     // not the number -- see the header.
     set_dungeon_level(level);
 

@@ -17,7 +17,7 @@
  *      「体力と魔力が満ちるまで」で、rest_command.c が `*` の入力に -MAX_SHORT を
  *      置く）。**向きを取りちがえると `*` の休息が 1 ターンで終わる**か、
  *      永遠に終わらなくなる。両方向に釘を打つ。
- *   2. **0 は 0 のまま。** 元の dungeon.c は `if (rest > 0) … else if (rest < 0) …`
+ *   2. **0 は 0 のまま。** 元の app/dungeon.c は `if (rest > 0) … else if (rest < 0) …`
  *      で、**0 のときは何もしない**。9 つめの時計は無条件に減って -1 になるのが
  *      ふるまいだったが、**こちらは逆で、0 を通りすぎてはいけない**（休んで
  *      いない人が「休息が終わった」と言われる）。
@@ -42,7 +42,7 @@
 #include "minunit.h"
 
 /* 休んでいない状態から始める。**窓口で置きなおす** —— 置き場が
- * src/player/player_resting.c の static に入っても（#18-12-10C）この足場は届く。 */
+ * src/model/player/player_resting.c の static に入っても（#18-12-10C）この足場は届く。 */
 static void given_not_resting(void) { player_rest_stop(); }
 
 static void given_resting_for(int rest_turns) {
@@ -138,7 +138,7 @@ TEST(a_count_of_turns_is_not_a_rest_until_healed) {
     ASSERT_TRUE(!player_rest_is_until_healed());
 }
 
-/* 休んでいない人は「満ちるまで」でもない（dungeon.c は休んでいるあいだだけ
+/* 休んでいない人は「満ちるまで」でもない（app/dungeon.c は休んでいるあいだだけ
  * これを訊くが、0 が負に数えられると体力が満ちた瞬間に rest_off() が走る）。 */
 TEST(not_resting_is_not_a_rest_until_healed) {
     given_not_resting();
@@ -247,7 +247,7 @@ TEST(counting_down_when_not_resting_leaves_the_count_at_zero) {
 }
 
 /* 終わったあとにもう 1 ターン過ぎても、休息は終わったまま
- * （dungeon.c は毎ターン通るので、0 のあとも呼ばれつづける）。 */
+ * （app/dungeon.c は毎ターン通るので、0 のあとも呼ばれつづける）。 */
 TEST(the_turn_after_a_rest_ran_out_brings_no_second_ending) {
     given_resting_for(1);
     (void)player_rest_count_down();

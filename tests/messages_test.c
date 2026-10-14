@@ -10,13 +10,13 @@
  * old_msg[MAX_SAVE_MSG] と last_msg は「上端の行に出したメッセージ」の
  * 履歴で、輪をなしている。輪の回りかたを 3 箇所が個別に知っていた。
  *   io.c:191      次の枠へ進める（last_msg + 1 == MAX_SAVE_MSG ? 0 : +1）
- *   dungeon.c:1115-1128  ^P で古いほうへ辿る（j == 0 ? MAX_SAVE_MSG - 1 : j - 1）
+ *   app/dungeon.c:1115-1128  ^P で古いほうへ辿る（j == 0 ? MAX_SAVE_MSG - 1 : j - 1）
  *   save.c:212-214, 682-684  枠をそのまま並べて書く（セーブファイルの形式）
  * src/ui/messages.c に寄せる。
  *
  * 保護のとりかた。「進める」も「辿る」も本体の関数の中に直に書かれていて
  * 外から呼べないので、#7 / #18-1 と同じ「テスト側に写す」方式をとる。
- * 変更前の dungeon.c の辿りかたを legacy_walk_back() に写しとり、
+ * 変更前の app/dungeon.c の辿りかたを legacy_walk_back() に写しとり、
  * 新しい実体（msg_history_recent）と突きあわせる。押しこむ回数を
  * 0 回から 3 周ぶんまで変えて、輪の継ぎ目（枠 0 と枠 21 の境）を必ず
  * またぐようにしてある。
@@ -39,7 +39,7 @@
 
 #include <stdio.h>
 
-/* --- 変更前の dungeon.c:1115-1128 の写し -------------------------------
+/* --- 変更前の app/dungeon.c:1115-1128 の写し -------------------------------
  * j = last_msg から始めて、1 つずつ古いほうへ。0 の次は MAX_SAVE_MSG - 1。
  * old_msg / last_msg は messages.c の static になったので、写しのほうは
  * セーブファイル用の窓口（枠そのものを見る側）から輪にふれる。辿りかた
@@ -126,7 +126,7 @@ TEST(walking_back_matches_the_original_for_every_number_of_messages)
 
 TEST(walking_back_a_whole_lap_comes_around_to_the_newest)
 {
-    /* dungeon.c は ^P の回数を MAX_SAVE_MSG で止める。止めるのは呼ぶ側の
+    /* app/dungeon.c は ^P の回数を MAX_SAVE_MSG で止める。止めるのは呼ぶ側の
      * 責任だが、1 周を超えても輪の外を読まないことは確かめておく。 */
     fill(MAX_SAVE_MSG);
     ASSERT_EQ_STR(msg_history_recent(MAX_SAVE_MSG), msg_history_recent(0));
@@ -135,7 +135,7 @@ TEST(walking_back_a_whole_lap_comes_around_to_the_newest)
 /* ^P の表示は「どの行に、何個前のメッセージを出すか」の対応そのもので、
  * 変更前は行番号と枠の添字を同時に減らしていた（i-- と j--）。書きかえで
  * 添字の向きが逆になった（recent(x - 1 - i)）ので、対応が変わっていない
- * ことを確かめる。dungeon.c の case 文は外から呼べないので、両方の並べかたを
+ * ことを確かめる。app/dungeon.c の case 文は外から呼べないので、両方の並べかたを
  * ここに写して突きあわせる。 */
 TEST(the_previous_message_block_puts_the_oldest_at_the_top)
 {
@@ -144,7 +144,7 @@ TEST(the_previous_message_block_puts_the_oldest_at_the_top)
     for (int pushed = 0; pushed <= 2 * MAX_SAVE_MSG; pushed++) {
         fill(pushed);
 
-        /* x は ^P が出す行数。dungeon.c は 1 以上 MAX_SAVE_MSG 以下に丸める。 */
+        /* x は ^P が出す行数。app/dungeon.c は 1 以上 MAX_SAVE_MSG 以下に丸める。 */
         for (int x = 2; x <= MAX_SAVE_MSG; x++) {
             int legacy_slot = msg_history_newest_slot();
 

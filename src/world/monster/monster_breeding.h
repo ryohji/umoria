@@ -33,7 +33,7 @@
 // and clearing a room of hand-placed monsters can buy the breeders more room.
 // That asymmetry is upstream's and is kept exactly.
 //
-// PER LEVEL. Going anywhere new resets it (dungeon.c), which is the whole
+// PER LEVEL. Going anywhere new resets it (app/dungeon.c), which is the whole
 // meaning of the constant's comment, "Maximum reproductions on a level".
 
 // A new level. Nothing has been bred here yet.

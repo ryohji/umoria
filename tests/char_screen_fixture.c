@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* char_screen_fixture.c -- src/ui/char_screen.c を試すテストの足場
+/* char_screen_fixture.c -- src/command/char_screen.c を試すテストの足場
  * （put_misc3_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の

@@ -10,7 +10,7 @@
 #define PLAYER_CLASS_H
 
 // THE QUESTION. Which class did the player pick? The answer is A ROW NUMBER into
-// class[] (src/data/player.c:283), nothing more:
+// class[] (src/model/data/player.c:283), nothing more:
 //
 //   0 Warrior   1 Mage   2 Priest   3 Rogue   4 Ranger   5 Paladin
 //
@@ -43,12 +43,12 @@
 //   - class_level_adj[row][column] SIXTEEN TIMES -- the to-hit columns seven times
 //     (abilities.c, hit_rolls.c, player_melee.c, throw.c), the disarming
 //     column four, the device column three and the saving column twice.
-//   - magic_spell[row - 1][spell] TEN TIMES (dungeon.c, magic.c, spellbook.c seven times,
+//   - magic_spell[row - 1][spell] TEN TIMES (app/dungeon.c, magic.c, spellbook.c seven times,
 //     prayer.c).
 //   - class[row] for what the class GIVES: the whole row at creation (create.c) and
 //     first_spell_lev twice (spellbook.c).
 //   - player_title[row][level - 1] once (status_line.c) and player_init[row][i] once
-//     (main.c, the starting pack).
+//     (app/main.c, the starting pack).
 //   - the high score entry (death.c) and the saved file's byte (save.c).
 //
 // An int, though the field was a uint8_t: every caller immediately uses it as an
@@ -87,7 +87,7 @@ const char *player_class_title(void);
 // THE VALUE AND NOT A PAIR OF YES-OR-NO WINDOWS. `player_class_casts_spells()` and
 // `player_class_says_prayers()` would read better at eleven of the fifteen sites,
 // and they are wrong: THE THREE ANSWERS ARE ONE NUMBER, and four sites branch on
-// all three at once (main.c, dungeon.c, stat_ops.c, level_ops.c) where a pair of predicates
+// all three at once (app/main.c, app/dungeon.c, stat_ops.c, level_ops.c) where a pair of predicates
 // would have to be asked twice and could disagree. One number, one window (findings.md
 // 43).
 //
@@ -114,7 +114,7 @@ int player_class_spell_type(void);
 //   2. WHERE THIS CLASS'S SPELLS ARE. magic_spell[row - 1][spell] is read at ten
 //      sites and THE MINUS ONE IS THE TABLE'S OWN LAYOUT, not a fact about the
 //      class: the table has MAX_CLASS - 1 rows because a Warrior has no spells
-//      (src/data/player.c:307). With ten sites, if these ever fold it should be into a
+//      (src/model/data/player.c:307). With ten sites, if these ever fold it should be into a
 //      module for the spell table, not this one.
 //   3. WHAT THE CLASS GIVES. create.c reads the row whole for the six stat
 //      adjustments, the hit die's bonus, the stealth, the experience factor and the
@@ -123,7 +123,7 @@ int player_class_spell_type(void);
 //   4. THE TITLE FOR THIS LEVEL. player_title[row][level - 1] (status_line.c) is
 //      a table about A PAIR again, and the other half of the pair is a question
 //      that already has a module of its own (player_level.h).
-//   5. THE STARTING PACK. player_init[row][i] (main.c) is what a new character of
+//   5. THE STARTING PACK. player_init[row][i] (app/main.c) is what a new character of
 //      this class carries, which is creation's business and is read once.
 //   6. THE SCORE FILE'S BYTE. high_scores.class holds this row number and IS NOT
 //      THIS QUESTION -- it is a record of a character who may be dead and gone

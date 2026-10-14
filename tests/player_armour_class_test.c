@@ -154,7 +154,7 @@ TEST(a_cursed_suit_can_take_more_away_than_it_gives) {
 }
 
 /* ------------------------------------------------------------------
- * 呪文のぶん -- 二重帳簿の片方（player_bonuses.c）と、もう片方（dungeon.c）
+ * 呪文のぶん -- 二重帳簿の片方（player_bonuses.c）と、もう片方（app/dungeon.c）
  * ------------------------------------------------------------------ */
 
 TEST(invulnerability_is_worth_a_hundred_points) {
@@ -173,7 +173,7 @@ TEST(a_blessing_is_worth_two_points) {
     ASSERT_EQ_INT(2, player_armour_class());
 }
 
-/* 同じ窓口が足しも引きもする。dungeon.c は呪文が始まった瞬間に足して
+/* 同じ窓口が足しも引きもする。app/dungeon.c は呪文が始まった瞬間に足して
  * 切れた瞬間に引くので、**行きと帰りで元に戻らなければならない**。 */
 TEST(a_spell_that_runs_out_leaves_the_points_where_they_were) {
     given_a_character_wearing_nothing(2);

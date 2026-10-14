@@ -46,7 +46,7 @@ void player_rest_stop(void) {
 
 bool player_rest_count_down(void) {
     // Towards zero from whichever side it is on. The "not resting" case answers
-    // false without touching the count: dungeon.c's old shape was
+    // false without touching the count: app/dungeon.c's old shape was
     // `if (rest > 0) ... else if (rest < 0) ...`, so zero moved nowhere.
     if (turns_left > 0) {
         turns_left = (int16_t)(turns_left - 1);

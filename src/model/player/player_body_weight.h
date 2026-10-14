@@ -11,7 +11,7 @@
 
 // THE QUESTION. How much does the character weigh? In pounds, not tenths of a
 // pound -- a male Halfling is about sixty, a male Human about a hundred and
-// eighty (src/data/player.c:107, the m_b_wt / f_b_wt columns of race[]).
+// eighty (src/model/data/player.c:107, the m_b_wt / f_b_wt columns of race[]).
 //
 // NOT VANITY -- A PHYSICAL QUANTITY. The number is on the character sheet, but
 // four of the six readers are rules, not display: a heavier character carries

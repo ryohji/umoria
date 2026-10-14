@@ -18,7 +18,7 @@
 
 // Owned here and static: the only way in is through the windows below. The
 // initial values are 0, so a program starts with an empty stomach that digests
-// nothing; main.c puts the 7500 and the 2 in once the character exists.
+// nothing; app/main.c puts the 7500 and the 2 in once the character exists.
 //
 // The names follow the windows: "food" was a counter, not a larder, and
 // "food_digested" was a rate.

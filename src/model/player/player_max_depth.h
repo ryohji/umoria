@@ -55,7 +55,7 @@ void player_max_depth_set(int level);
 //   2. WHAT THE RECORD IS WORTH. total_points() in death.c pays 100 points per
 //      level. Scoring reads this number, but how generous the score is has
 //      nothing to do with where the character has been.
-//   3. WHERE WORD-OF-RECALL DROPS YOU. dungeon.c reads the record and hands it
+//   3. WHERE WORD-OF-RECALL DROPS YOU. app/dungeon.c reads the record and hands it
 //      to leave_for_level(); the "nowhere to be yanked to" branch for a
 //      character still in town is about what the scroll does, not about the
 //      record.

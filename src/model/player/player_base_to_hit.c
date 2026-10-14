@@ -57,7 +57,7 @@ void player_base_to_hit_adjust(int melee, int with_bows) {
 void player_base_to_hit_adjust_both(int amount) {
     // A spell's worth: heroism 12, super heroism 24, a blessing 5, and the same
     // number taken away again when the spell runs out. ONE AMOUNT FOR BOTH
-    // NUMBERS, which is what twelve lines in dungeon.c were saying six times.
+    // NUMBERS, which is what twelve lines in app/dungeon.c were saying six times.
     the_melee = (int16_t)(the_melee + amount);
     the_bows = (int16_t)(the_bows + amount);
 }

@@ -7,7 +7,7 @@
 
 // Where each level's monsters sit in the definition table
 //
-// The building of the index came from init_m_level() in main.c, where it was
+// The building of the index came from init_m_level() in app/main.c, where it was
 // static. Moving it here made it testable.
 
 #include "config.h"

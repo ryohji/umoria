@@ -8,7 +8,7 @@
  *
  * calc_spells() は「いまのレベルと能力値で覚えていられる呪文の数」を数えなおし、
  * 多すぎれば忘れさせ、余裕ができれば忘れた呪文を思いださせる唯一の場所。
- * #18-8 で窓口（`src/player/spells_known.h`）に預けた 4 つの global
+ * #18-8 で窓口（`src/model/player/spells_known.h`）に預けた 4 つの global
  * （`spell_learned` `spell_worked` `spell_forgotten` `spell_order`）のうち
  * 3 つを書きかえるのはここだけなので、窓口を通す書きかえ（ステップ B）の前に
  * ここで押さえた。いまは読み書きとも窓口越し（#18-8-B2）。
@@ -56,7 +56,7 @@
 #include "stats.h"
 
 
-/* 検証対象（src/item/spellbook.c）の宣言は externs.h から受ける。 */
+/* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
 #include "externs.h"
 
 #define MU_SETUP() fixture_reset()
@@ -79,9 +79,9 @@
  * ------------------------------------------------------------------ */
 
 /* fixture_reset() は能力値を 0 にするが、呪文の 4 個は消さない
- * （置き場は src/player/spells_known.c で、代役の管轄ではない）。どのテストも同じ
+ * （置き場は src/model/player/spells_known.c で、代役の管轄ではない）。どのテストも同じ
  * 地点から始まるように、ここで 4 個とも自分で初期化する。覚えた順を
- * SPELL_NONE で埋めるのは main.c:256 がゲーム開始時にするのと同じこと。 */
+ * SPELL_NONE で埋めるのは app/main.c:256 がゲーム開始時にするのと同じこと。 */
 static void given_no_spells_known(void) {
     spells_set_learned_bits(0);
     spells_set_worked_bits(0);

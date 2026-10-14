@@ -1,4 +1,4 @@
-// src/save/save.c: save and restore games and monster memory info
+// src/app/save.c: save and restore games and monster memory info
 //
 // Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke,
 //                         David J. Grabiner

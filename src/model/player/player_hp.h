@@ -25,7 +25,7 @@
 //
 //   - take_hit() subtracts the damage and asks the question straight away
 //     (player_damage.c),
-//   - main.c asks it after loading, because a character can be put away dead by
+//   - app/main.c asks it after loading, because a character can be put away dead by
 //     a signal or a hangup and has to be marked dead again on the way back in,
 //   - save.c asks it to decide whether to overwrite the "killed by" line with
 //     "(alive and well)",
@@ -61,12 +61,12 @@
 //     player_*_temporary_max_hp windows). Going up adds to both numbers and
 //     leaves the fraction; coming down takes the maximum away first and then
 //     caps what is left. Heroism (ten points) and super heroism (twenty) wrote
-//     the same four lines each (dungeon.c).
+//     the same four lines each (app/dungeon.c).
 //
 // What the rules deliberately do NOT do:
 //
 //   - how fast regeneration runs is the caller's number, and so is the decision
-//     not to regenerate at all while poisoned (dungeon.c),
+//     not to regenerate at all while poisoned (app/dungeon.c),
 //   - what the maximum SHOULD be comes from the level, the hit-point table and
 //     the constitution (calc_hitpoints in level_ops.c), and raising PY_HP afterwards
 //     belongs to the status flags, which are another question,

@@ -378,7 +378,7 @@ void enter_store(int store_num) {
             move_cursor(20, 9);
 
             // the player is about to be asked for a command, so the message
-            // up there needs no -more- (the same as dungeon.c's command loop)
+            // up there needs no -more- (the same as app/dungeon.c's command loop)
             msg_set_pending(false);
 
             char command;

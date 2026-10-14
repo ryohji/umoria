@@ -126,7 +126,7 @@ TEST(run_keys_match_legacy) {
     for (int dir = -20; dir <= 30; dir++) {
         char expected = legacy_run(dir);
         char actual = direction_command_key(dir, DIR_KEY_RUN);
-        // dungeon.c では default の ' ' を返すが、新しい関数は 0 を返す。
+        // app/dungeon.c では default の ' ' を返すが、新しい関数は 0 を返す。
         // 呼び手が ' ' や '~' を足す。
         if (expected == ' ') {
             expected = 0;

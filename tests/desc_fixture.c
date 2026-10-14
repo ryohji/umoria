@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* desc_fixture.c -- src/item/desc.c を試すテストの足場
+/* desc_fixture.c -- src/world/item/desc.c を試すテストの足場
  * （objdes_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の

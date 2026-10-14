@@ -333,7 +333,7 @@ void prt_stat_block(void) {
     // One less while searching, the same as the i-- in prt_speed(). THE SAME
     // RULE IS WRITTEN IN TWO PLACES, AND IT IS NOT FOLDED -- searching and speed
     // are separate questions, and neither is half of the other
-    // (src/player/player_speed.h).
+    // (src/model/player/player_speed.h).
     if (player_speed() - (player_is_searching() ? 1 : 0) != 0) {
         prt_speed();
     }

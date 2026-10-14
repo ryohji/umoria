@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* stats_reset.h -- 能力値の 4 配列（src/player/stats.c の static）を窓口ごしに 0 へ戻す。
+/* stats_reset.h -- 能力値の 4 配列（src/model/player/stats.c の static）を窓口ごしに 0 へ戻す。
  * 足場の fixture_reset() から呼ぶ。先に config.h・constant.h・types.h を include すること。 */
 #ifndef STATS_RESET_H
 #define STATS_RESET_H

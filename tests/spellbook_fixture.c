@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* spellbook_fixture.c -- src/item/spellbook.c を試すテストの足場
+/* spellbook_fixture.c -- src/world/item/spellbook.c を試すテストの足場
  * （calc_spells_test・gain_spells_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の

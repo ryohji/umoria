@@ -34,7 +34,7 @@
 //          if ((PY_X & status) == 0) { status |= PY_X; ...one-time effects... }
 //
 //      and why player_note_effect_started() RETURNS WHETHER THE MARK WAS NEW.
-//      THIS MODULE DOES NOT FOLD THAT SHAPE UP. dungeon.c writes it out twelve
+//      THIS MODULE DOES NOT FOLD THAT SHAPE UP. app/dungeon.c writes it out twelve
 //      times, and the twelve bodies differ (messages, hit points, to-hit,
 //      redraws); what they share is a skeleton that counts down, and the counter
 //      is a different question (the ninth one, the timed states, some two
@@ -45,14 +45,14 @@
 //
 //   2. A REQUEST THAT SOMETHING BE WORKED OUT OR DRAWN AGAIN (twelve bits).
 //      Whoever changes a number sets the bit and walks away; one block in
-//      dungeon.c picks the requests up on the next turn. Six of the twelve are
+//      app/dungeon.c picks the requests up on the next turn. Six of the twelve are
 //      the six stat bits, which the code shifts (`PY_STR << stat`) and masks
 //      (PY_STATS) -- constant.h says "these 6 stat flags must be adjacent" and
 //      three places depended on it. That dependence is now inside this module.
 //      NOTE THAT THE REQUESTS ARE NOT UNIFORM: the speed, the armour, the hit
 //      points, the mana and the stats are taken and cleared in the same breath
 //      (player_take_*_request), but the strength check and the study line are
-//      read in dungeon.c and cleared by the function that does the work
+//      read in app/dungeon.c and cleared by the function that does the work
 //      (check_strength, prt_study), so those keep a separate clearing window.
 //
 //   3. WHAT THE CHARACTER IS DOING (two bits): searching and resting. No clock,
@@ -63,7 +63,7 @@
 //   4. WHAT THE STATUS LINE IS CURRENTLY SHOWING (two bits): paralysis and
 //      repeat. These are neither state nor request but a record of the screen,
 //      kept so that the line is not redrawn every turn. prt_state() clears the
-//      repeat mark and sets it again if it drew "Repeat"; dungeon.c reads it to
+//      repeat mark and sets it again if it drew "Repeat"; app/dungeon.c reads it to
 //      decide whether the line needs drawing before a command.
 //
 // What this module deliberately does NOT do:
@@ -118,7 +118,7 @@ void player_note_hunger_satisfied(void);
 
 // A request that the weapon and the pack be weighed against the character's
 // strength again. Seven callers set it -- putting something on, taking
-// something off, a strength change either way, a bag of tricks. dungeon.c reads
+// something off, a strength change either way, a bag of tricks. app/dungeon.c reads
 // it; check_strength() clears it once the work is done, which is why the reading
 // and the clearing are two windows here instead of one.
 void player_request_strength_check(void);
@@ -133,7 +133,7 @@ bool player_study_redraw_requested(void);
 void player_clear_study_redraw_request(void);
 
 // Requests that are taken and cleared in the same breath, all of them by the one
-// block in dungeon.c. player_take_*_request() says a request was waiting and
+// block in app/dungeon.c. player_take_*_request() says a request was waiting and
 // leaves none behind.
 void player_request_speed_redraw(void);
 bool player_take_speed_redraw_request(void);

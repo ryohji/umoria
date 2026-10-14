@@ -18,7 +18,7 @@
 
 // The number is owned here and is static: the only way in is through the six
 // windows. It starts out as zero, so a new game begins with nothing bred, which
-// is also what dungeon.c asks for on every level after the first.
+// is also what app/dungeon.c asks for on every level after the first.
 static int16_t the_count;
 
 void monster_breeding_reset(void) {

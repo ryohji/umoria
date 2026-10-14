@@ -18,7 +18,7 @@
 #include "floor_items.h"
 #include "stores.h"
 
-// None of these prints or asks for input. The callers are main.c (store_init),
+// None of these prints or asks for input. The callers are app/main.c (store_init),
 // the main loop, the level generator and the save file loader (store_maint),
 // and the buying and selling in store_ui.c (the other three).
 

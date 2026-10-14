@@ -6,19 +6,19 @@
 
 /* モンスターの行動回数計算のテスト -- 現在の実装を保護する
  *
- * src/monster/creature.c の moves_this_turn() は、このターンに動く回数を返す。
+ * src/world/monster/creature.c の moves_this_turn() は、このターンに動く回数を返す。
  *
  *   speed > 0  のとき: speed 回。ただし休憩中は 1 回に抑える
  *   speed <= 0 のとき: (2 - speed) ターンに 1 回（周期の頭で 1、ほかは 0）
  *
  * 観測のしかた: moves_this_turn は static なので外部から呼べない。そこで
- * src/monster/creature.c をこの翻訳単位に #include し、内部の static 関数を
+ * src/world/monster/creature.c をこの翻訳単位に #include し、内部の static 関数を
  * 直接呼ぶ。写しではないので、実体を書きかえればこのテストがそれを検証する。
  * 先例は tests/haggle_comment_test.c。
  *
- * 依存は turn（src/data/progress.c。progress_set_turn() で動かす）と
- * 休息の残りターン（src/player/player_resting.c。窓口は
- * src/player/player_resting.h）の 2 つだけ。turn は fixture_reset() の対象外なので、
+ * 依存は turn（src/model/game/progress.c。progress_set_turn() で動かす）と
+ * 休息の残りターン（src/model/player/player_resting.c。窓口は
+ * src/model/player/player_resting.h）の 2 つだけ。turn は fixture_reset() の対象外なので、
  * 各テストが明示的に代入する。
  *
  * 期待値はすべて現在の実装が返した実際の値。とくに負の turn に対する
@@ -114,7 +114,7 @@ TEST(moves_again_two_turns_later_when_speed_is_zero)
     ASSERT_EQ_INT(moves_this_turn(0), 1);
 }
 
-/* SUSPICIOUS: turn は -1 で始まる（src/data/progress.c）。C の % は
+/* SUSPICIOUS: turn は -1 で始まる（src/model/game/progress.c）。C の % は
  * 被除数が負なら 0 か負の余りを返すので、-1 % 2 は -1 になり、== 0 が
  * 成り立たず「動かない」と判定される。ゲーム開始直後にこの枝を通る
  * 可能性があるが、意図的なのか判断できない。実装が返した値をそのまま

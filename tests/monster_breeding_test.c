@@ -9,7 +9,7 @@
  *
  * ダンジョンとその中身から出す 3 つめの問い（#18-14-3）。もとは
  * monsters.c:779 の `int16_t mon_tot_mult;` で、creature.c が 2 か所で増やし、
- * 1 か所で上限と見くらべ、moria3.c が 1 か所で減らし、dungeon.c が階の頭で
+ * 1 か所で上限と見くらべ、moria3.c が 1 か所で減らし、app/dungeon.c が階の頭で
  * 0 に戻し、save.c が書いて読んでいた（**別名 1 件** ——
  * `rd_short((uint16_t *)&mon_tot_mult)`）。
  *
@@ -31,7 +31,7 @@
  *     増えるモンスターの予算がその分だけ増える**。
  *   **③0 より下には行かない** —— もとの `if (mon_tot_mult > 0)`。
  *
- * **階ごと**。降りれば 0 に戻る（dungeon.c）。**セーブファイルには出るが、
+ * **階ごと**。降りれば 0 に戻る（app/dungeon.c）。**セーブファイルには出るが、
  * 読みもどした値はそのまま捨てられる** —— main() は洞窟を作ったときも
  * 読みもどしたときも、ループの最初に dungeon() を呼び、dungeon() が最初の
  * 手番の前にこの数を 0 に戻す。**戻す窓口があるのはファイル書式が動かせない
@@ -49,8 +49,8 @@
 
 #include "minunit.h"
 
-/* 新しい階に降りたところから始める（dungeon.c の 1 行と同じ）。**窓口で
- * 戻しなおす** —— 置き場が src/monster/monster_breeding.c の static なので、この
+/* 新しい階に降りたところから始める（app/dungeon.c の 1 行と同じ）。**窓口で
+ * 戻しなおす** —— 置き場が src/world/monster/monster_breeding.c の static なので、この
  * 足場が唯一の道。 */
 static void given_a_fresh_level(void) { monster_breeding_reset(); }
 

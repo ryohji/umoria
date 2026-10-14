@@ -6,7 +6,7 @@
 
 // Game state implementation
 
-#include "game_state.h"
+#include "app/game_state.h"
 
 #include "burden.h"
 #include "command_state.h"

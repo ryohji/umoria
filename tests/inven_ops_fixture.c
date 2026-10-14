@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* inven_ops_fixture.c -- src/item/inven_ops.c を試すテストの足場
+/* inven_ops_fixture.c -- src/world/item/inven_ops.c を試すテストの足場
  * （check_strength_test・inven_stack_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の

@@ -18,10 +18,10 @@
  * 目次で、sorted_objects がその本体。
  *
  * 読むのは get_obj_num()（object_alloc.c:69）だけで、組みたてるのは 1 箇所だけ。
- * その組みたてる側は main.c の static な init_t_level() で、**テストからは
- * 届かなかった**（main() があるので main.c はリンクできない）。だから
+ * その組みたてる側は app/main.c の static な init_t_level() で、**テストからは
+ * 届かなかった**（main() があるので app/main.c はリンクできない）。だから
  * #18-10-A1 で押さえたのは読む側だけ（第 1〜3 節）。#18-10-A2 で
- * src/item/object_levels.c の object_levels_init() に移したことで、数え上げの
+ * src/model/item/object_levels.c の object_levels_init() に移したことで、数え上げの
  * ソートが初めて届くようになった（第 4 節）。
  *
  * ここで押さえたいことのうち、いちばん大事なのは
@@ -46,8 +46,8 @@
 
 #include "object_levels.h"
 
-/* 検証する本物（src/dungeon/object_alloc.c）と、表から引かれる品物の定数表
- * （data/treasure.c の object_list）の宣言は externs.h から受ける。 */
+/* 検証する本物（src/world/dungeon/object_alloc.c）と、表から引かれる品物の定数表
+ * （model/data/treasure.c の object_list）の宣言は externs.h から受ける。 */
 #include "externs.h"
 
 /* 各テストの前に必ず呼ばれる。ただし fixture_reset() は表には触らない
@@ -255,7 +255,7 @@ TEST(without_the_limit_the_size_is_not_asked)
 }
 
 /* ------------------------------------------------------------------
- * 4. 表を組みたてる側（#18-10-A2 で main.c の static から module へ移した）
+ * 4. 表を組みたてる側（#18-10-A2 で app/main.c の static から module へ移した）
  *
  * 上の節が「組みあがった表をどう引くか」を見るのに対して、こちらは
  * **組みたてかたそのもの**を見る。

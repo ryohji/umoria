@@ -74,7 +74,7 @@ void set_dungeon_size(int height, int width);
 //    each. Every other read wants both numbers.
 //
 //  - one comparison is wrong, and it stays wrong for now: the 'L'ocate command
-//    in dungeon.c tests the new row against the WIDTH, not the height. With a
+//    in app/dungeon.c tests the new row against the WIDTH, not the height. With a
 //    66-row, 198-column dungeon it lets a row up to 197 through. This is an
 //    upstream bug, not something the move to a window should decide, so it was
 //    carried over unchanged and written down here instead.

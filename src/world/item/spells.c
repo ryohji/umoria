@@ -1320,7 +1320,7 @@ int hp_player(int num) {
 
 // Shorten a timed effect to one turn, returning true if it was active.
 // One turn is left on purpose: the message that the effect has passed
-// comes out of the count-down in dungeon.c, so putting zero here would
+// comes out of the count-down in app/dungeon.c, so putting zero here would
 // cure the character in silence.
 static bool cure_timed_effect(player_timed_effect id) {
     if (player_timed_turns(id) > 1) {
