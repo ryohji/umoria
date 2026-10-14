@@ -33,6 +33,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "os_signals.h"
 #include "signal_flags.h"
 
 #include <signal.h>
@@ -84,6 +85,12 @@ static void signal_handler(int sig) {
     }
 }
 
+#ifdef SIGTSTP
+void signals_set_suspend_handler(void (*handler)(int)) {
+    (void)signal(SIGTSTP, handler);
+}
+#endif
+
 void nosignals(void) {
     (void)signal(SIGTSTP, SIG_IGN);
     mask = sigsetmask(0);
@@ -94,7 +101,7 @@ void nosignals(void) {
 }
 
 void signals(void) {
-    // SIGTSTP is handled by the rendering system
+    // SIGTSTP is not restored here: it stays ignored after nosignals().
     (void)sigsetmask(mask);
 
     if (error_sig == 0) {
