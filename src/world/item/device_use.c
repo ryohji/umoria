@@ -22,7 +22,7 @@
 #include "player_class.h"
 #include "player_level.h"
 #include "player_skills.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 #include "stats.h"
 
 void use_charged_device(const device_kind *kind) {

@@ -26,9 +26,7 @@
 #include "player_base_to_hit.h"
 #include "player_class.h"
 #include "player_level.h"
-#include "player_pos.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 #include "stats.h"
 
 static void inven_throw(int item_val, inven_type *t_ptr) {

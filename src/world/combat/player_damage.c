@@ -23,7 +23,7 @@
 #include "player_hp.h"
 #include "player_level.h"
 #include "player_skills.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 #include "score_death.h"
 #include "stats.h"
 

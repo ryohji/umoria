@@ -22,10 +22,8 @@
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"
 #include "player_display_numbers.h"
-#include "player_food.h"
+#include "player_condition.h"
 #include "player_skills.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
 #include "stats.h"
 
 // Changes speed of monsters relative to player -RAK-

@@ -17,7 +17,7 @@
 #include "externs.h"
 
 #include "player_class.h"
-#include "player_status_flags.h"
+#include "player_condition.h"
 #include "stats.h"
 
 static uint8_t modify_stat(int stat, int16_t amount) {

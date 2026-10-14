@@ -20,7 +20,7 @@
 #include "dungeon_size.h"
 #include "monster_list.h"
 #include "panel.h"
-#include "player_pos.h"
+#include "player_condition.h"
 #include "progress.h"
 
 typedef struct coords {

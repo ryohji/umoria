@@ -19,10 +19,7 @@
 #include "dungeon_map.h"
 #include "floor_items.h"
 #include "monster_list.h"
-#include "player_light.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
-#include "running.h"
+#include "player_condition.h"
 
 static bool see_wall(int, int, int);
 

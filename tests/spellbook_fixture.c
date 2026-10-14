@@ -25,8 +25,7 @@
 #include "player_class.h"
 #include "player_level.h"
 #include "player_spells.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 #include "stats_reset.h"
 
 /* 各テストの前に呼ぶ。 */

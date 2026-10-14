@@ -24,10 +24,8 @@
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
 #include "player_class.h"
-#include "player_glowing_hands.h"
+#include "player_condition.h"
 #include "player_level.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
 #include "stats.h"
 
 // Player attacks a (poor, defenseless) creature -RAK-

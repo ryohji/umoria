@@ -45,7 +45,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_food.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 

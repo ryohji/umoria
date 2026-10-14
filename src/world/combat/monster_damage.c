@@ -20,7 +20,7 @@
 #include "monster_recall.h"
 #include "monster_turn.h"
 #include "player_level.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 // Decreases monsters hit points and deletes monster if needed.
 // (Picking on my babies.) -RAK-

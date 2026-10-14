@@ -17,7 +17,7 @@
 #include "dungeon_size.h"
 #include "externs.h"
 #include "floor_items.h"
-#include "player_pos.h"
+#include "player_condition.h"
 
 // compact_objects() is static and serves only popt().
 

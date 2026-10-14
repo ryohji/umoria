@@ -20,7 +20,7 @@
 #include "player_class.h"
 #include "player_hp.h"
 #include "player_level.h"
-#include "player_status_flags.h"
+#include "player_condition.h"
 #include "screen_fields.h"
 #include "stats.h"
 

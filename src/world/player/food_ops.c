@@ -14,8 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
-#include "player_food.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 // It is the sibling of player_food.c rather than a part of it: the stomach is
 // player_food.c's, but the penalty for overeating prints and slows the player,

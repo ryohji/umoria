@@ -20,8 +20,7 @@
 #include "floor_items.h"
 #include "monster_list.h"
 #include "panel.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 static bool look_ray(int, int, int);
 static bool look_see(int, int, bool *);

@@ -19,10 +19,7 @@
 #include "dungeon_map.h"
 #include "floor_items.h"
 #include "panel.h"
-#include "player_light.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
-#include "running.h"
+#include "player_condition.h"
 
 // Returns true if player has no light -RAK-
 bool no_light(void) {

@@ -21,8 +21,7 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_spells.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 #include "stats.h"
 
 // Returns spell chance of failure for spell -RAK-

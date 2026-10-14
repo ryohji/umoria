@@ -18,8 +18,7 @@
 #include "player_class.h"
 #include "player_level.h"
 #include "player_mana.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 #include "player_spells.h"
 
 // Pray like HELL. -RAK-

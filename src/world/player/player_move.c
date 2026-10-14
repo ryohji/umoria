@@ -20,13 +20,9 @@
 #include "floor_items.h"
 #include "inventory.h"
 #include "monster_list.h"
-#include "pending_teleport.h"
+#include "player_condition.h"
 #include "player_gold.h"
-#include "player_pos.h"
 #include "player_skills.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
-#include "running.h"
 
 // Teleport the player to a new location -RAK-
 void teleport(int dis) {

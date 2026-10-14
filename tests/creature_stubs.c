@@ -35,10 +35,8 @@
 
 #include "dungeon_map.h"
 #include "fixture.h"
-#include "player_glowing_hands.h"
+#include "player_condition.h"
 #include "player_skills.h"
-#include "player_resting.h"
-#include "player_status_flags.h"
 #include "shared_stubs.h"
 #include "stats_reset.h"
 #include "stub_unreached.h"

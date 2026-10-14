@@ -21,7 +21,7 @@
 #include "object_levels.h"
 #include "options.h"
 #include "player_class.h"
-#include "player_food.h"
+#include "player_condition.h"
 #include "player_hp.h"
 #include "progress.h"
 #include "save_state.h"

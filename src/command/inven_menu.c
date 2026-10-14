@@ -20,8 +20,7 @@
 #include "equipment.h"
 #include "inven_command_state.h"
 #include "inventory.h"
-#include "player_pos.h"
-#include "player_status_flags.h"
+#include "player_condition.h"
 #include "screen_touched.h"
 #include "stats.h"
 

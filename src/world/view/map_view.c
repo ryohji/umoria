@@ -19,10 +19,7 @@
 #include "floor_items.h"
 #include "monster_list.h"
 #include "panel.h"
-#include "player_pos.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
-#include "running.h"
+#include "player_condition.h"
 
 // We need to reset the view of things. -CJS-
 void check_view(void) {

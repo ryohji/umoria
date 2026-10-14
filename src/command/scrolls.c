@@ -21,9 +21,7 @@
 #include "inventory.h"
 #include "item_learn.h"
 #include "level_exit.h"
-#include "player_glowing_hands.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 // Scrolls for the reading -RAK-
 void read_scroll(void) {

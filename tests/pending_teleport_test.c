@@ -36,7 +36,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "pending_teleport.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 

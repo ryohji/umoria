@@ -21,7 +21,7 @@
 #include "monster_levels.h"
 #include "monster_list.h"
 #include "monster_turn.h"
-#include "player_pos.h"
+#include "player_condition.h"
 #include "player_skills.h"
 #include "score_death.h"
 

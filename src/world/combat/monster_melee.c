@@ -21,10 +21,9 @@
 #include "monster_recall.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
-#include "player_glowing_hands.h"
+#include "player_condition.h"
 #include "player_gold.h"
 #include "player_level.h"
-#include "player_timed_effects.h"
 #include "score_death.h"
 #include "stats.h"
 

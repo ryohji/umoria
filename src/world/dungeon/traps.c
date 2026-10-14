@@ -20,14 +20,12 @@
 #include "floor_items.h"
 #include "level_exit.h"
 #include "monster_list.h"
-#include "pending_teleport.h"
+#include "player_condition.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_class.h"
 #include "player_skills.h"
 #include "player_level.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
 #include "stats.h"
 
 // Disarms a trap -RAK-

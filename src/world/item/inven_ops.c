@@ -26,8 +26,7 @@
 #include "inventory.h"
 #include "item_ident.h"
 #include "player_body_weight.h"
-#include "player_pos.h"
-#include "player_status_flags.h"
+#include "player_condition.h"
 #include "stats.h"
 
 // Destroy an item in the inventory -RAK-

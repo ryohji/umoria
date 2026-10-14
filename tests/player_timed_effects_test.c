@@ -39,8 +39,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 
