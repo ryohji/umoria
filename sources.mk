@@ -67,3 +67,41 @@ APP_SRCS = app/main.c render_ncurses.c input_ncurses.c
 
 # それ以外のすべて。テストはこの中から要るものだけをリンクする。
 CORE_SRCS = $(filter-out $(APP_SRCS) $(addprefix %/,$(APP_SRCS)),$(SRCS))
+
+# ---- 層ごとのライブラリー（#87）----------------------------------------
+#
+# 各層を静的ライブラリーにして、層の順でリンクする。GNU ld は archive を
+# 左から右に 1 度ずつスキャンするので、上の層から下の層への参照は解決
+# されるが、下から上へ（例: core/ → world/）の参照は undefined のままに
+# なり、リンクが止まる。これが層規則の自動検査になる。
+#
+# model/ の副ライブラリー（data・game・item・dungeon・store・player・monster）も
+# 同様に分ける。data と game は互いを呼びあえるので、1 つの archive（
+# libmodel_base.a）にまとめる。dungeon と store は item を使える。
+#
+# ライブラリーの並び（リンクの順）: 上から下へ。archive のスキャンは 1 回
+# ずつなので、上の層が下の層を参照する順に並べないとリンクが通らない。
+
+# Link order (top layer → bottom): each library may depend only on libraries
+# below it in this list. GNU ld scans each archive once, left to right, so
+# an upward reference (e.g., core → world) fails to link. This is how the
+# layering constraint is enforced.
+LIB_LINK_ORDER = command world ui platform model_player model_monster \
+                 model_dungeon model_store model_item model_base core
+
+# Sources that go into libraries (exclude app/ - those are linked directly)
+LIB_SRCS_ALL = $(filter-out app/%,$(CORE_SRCS))
+
+# Per-library sources (derived from LIB_SRCS_ALL by path prefix)
+LIB_SRCS_command       = $(filter command/%,$(LIB_SRCS_ALL))
+LIB_SRCS_world         = $(filter world/%,$(LIB_SRCS_ALL))
+LIB_SRCS_ui            = $(filter ui/%,$(LIB_SRCS_ALL))
+LIB_SRCS_platform      = $(filter platform/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_player  = $(filter model/player/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_monster = $(filter model/monster/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_dungeon = $(filter model/dungeon/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_store   = $(filter model/store/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_item    = $(filter model/item/%,$(LIB_SRCS_ALL))
+# model_base: data and game may call each other, so one archive
+LIB_SRCS_model_base    = $(filter model/data/% model/game/%,$(LIB_SRCS_ALL))
+LIB_SRCS_core          = $(filter core/%,$(LIB_SRCS_ALL))
