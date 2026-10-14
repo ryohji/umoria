@@ -48,11 +48,12 @@ LAYER_ORDER = ['core', 'model', 'platform', 'ui', 'world', 'command', 'app']
 MODEL_RULES = {
     'data': {'core', 'model/data', 'model/game'},
     'game': {'core', 'model/data', 'model/game'},
-    'dungeon': {'core', 'model/data', 'model/game', 'model/dungeon'},
+    # The floor and the shops hold items.
+    'dungeon': {'core', 'model/data', 'model/game', 'model/item', 'model/dungeon'},
     'item': {'core', 'model/data', 'model/game', 'model/item'},
     'monster': {'core', 'model/data', 'model/game', 'model/monster'},
     'player': {'core', 'model/data', 'model/game', 'model/player'},
-    'store': {'core', 'model/data', 'model/game', 'model/store'},
+    'store': {'core', 'model/data', 'model/game', 'model/item', 'model/store'},
 }
 
 
