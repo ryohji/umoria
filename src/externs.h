@@ -97,7 +97,6 @@ int32_t total_points(void);
 _Noreturn void exit_game(void);
 
 // world/item/desc.c
-bool is_a_vowel(char);
 void magic_init(void);
 void known1(inven_type *);
 bool known1_p(inven_type *);

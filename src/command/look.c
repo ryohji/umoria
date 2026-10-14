@@ -16,6 +16,8 @@
 
 #include "externs.h"
 
+#include "str_insert.h"
+
 #include "dungeon_map.h"
 #include "floor_items.h"
 #include "monster_list.h"
