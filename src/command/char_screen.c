@@ -14,8 +14,10 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "char_screen.h"
+#include "files.h"
+#include "status_line.h"
+#include "ui_io.h"
 
 #include "player_stats.h"
 #include "player_identity.h"

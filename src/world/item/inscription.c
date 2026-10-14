@@ -13,8 +13,9 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "inscription.h"
+#include "ui_io.h"
 #include "inventory.h"
 #include "item_picker.h"
 

@@ -37,7 +37,7 @@
 
 
 /* 検証対象（src/world/player/level_ops.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+#include "level_ops.h"
 
 #define MU_SETUP() fixture_reset()
 

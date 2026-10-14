@@ -12,8 +12,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "monster_place.h"
+#include "player_move.h"
+#include "rnd.h"
+#include "spells.h"
+#include "staffs.h"
+#include "ui_io.h"
 
 #include "device.h"
 #include "device_use.h"

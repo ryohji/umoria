@@ -12,8 +12,13 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "bits.h"
+#include "desc.h"
+#include "game_settings.h"
+#include "inscription.h"
+#include "inven_ops.h"
+#include "player.h"
+#include "ui_io.h"
 
 #include "device.h"
 #include "device_use.h"

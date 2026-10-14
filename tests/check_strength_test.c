@@ -54,7 +54,7 @@
 
 
 /* 検証対象（src/world/item/inven_ops.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+#include "inven_ops.h"
 
 #define MU_SETUP() fixture_reset()
 

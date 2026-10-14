@@ -13,8 +13,12 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "inscription.h"
+#include "rnd.h"
+#include "tables.h"
+#include "treasure.h"
+#include "ui_io.h"
 #include "item_kinds.h"
 
 #include "inventory.h"

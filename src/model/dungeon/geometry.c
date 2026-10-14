@@ -14,8 +14,7 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "geometry.h"
 
 // Checks a co-ordinate for in bounds status -RAK-
 bool in_bounds(int y, int x) {

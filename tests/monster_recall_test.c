@@ -11,8 +11,6 @@
 #include "types.h"
 #include "monster_state.h"
 
-#include "externs.h"
-
 #include "minunit.h"
 
 // recall_update_characteristics は OR で設定する

@@ -29,8 +29,11 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "death.h"
+#include "rest_command.h"
+#include "save.h"
+#include "signals.h"
+#include "ui_io.h"
 #include "signal_handling.h"
 #include "messages.h"
 #include "signal_flags.h"

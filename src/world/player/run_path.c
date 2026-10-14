@@ -14,8 +14,13 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
-
-#include "externs.h"
+#include "game_settings.h"
+#include "geometry.h"
+#include "lighting.h"
+#include "map_view.h"
+#include "player_move.h"
+#include "run_path.h"
+#include "ui_io.h"
 
 #include "command_state.h"
 #include "player_condition.h"

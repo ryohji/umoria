@@ -16,7 +16,16 @@
 
 // This must be included after fcntl.h, which has a prototype for `open' on some
 // systems.  Otherwise, the `open' prototype conflicts with the `topen' declaration.
-#include "externs.h"
+#include "char_screen.h"
+#include "desc.h"
+#include "files.h"
+#include "game_settings.h"
+#include "inscription.h"
+#include "item_enchant.h"
+#include "object_alloc.h"
+#include "object_place.h"
+#include "status_line.h"
+#include "ui_io.h"
 #include "item_kinds.h"
 
 #include "inventory.h"

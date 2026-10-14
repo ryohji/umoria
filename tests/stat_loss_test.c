@@ -16,8 +16,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "stat_ops.h"
 #include "fixture.h"
 #include "player_stats.h"
 #include "shared_stubs.h"

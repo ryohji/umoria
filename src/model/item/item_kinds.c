@@ -8,7 +8,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "externs.h"
+#include "treasure.h"
 #include "item_kinds.h"
 
 // The body of the table: object_list indexes in order of level.

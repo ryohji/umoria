@@ -14,8 +14,10 @@
 #include "constant.h"
 #include "types.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "rnd.h"
+#include "store_price.h"
+#include "tables.h"
+#include "ui_io.h"
 #include "stores.h"
 #include "store_haggle.h"
 #include "player_identity.h"

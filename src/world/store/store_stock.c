@@ -14,8 +14,13 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "item_enchant.h"
+#include "object_place.h"
+#include "rnd.h"
+#include "store_price.h"
+#include "store_stock.h"
+#include "tables.h"
 #include "item_kinds.h"
 #include "stores.h"
 

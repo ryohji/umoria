@@ -17,8 +17,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "options_menu.h"
+#include "ui_io.h"
 #include "game_settings.h"
 
 // Set or unset various boolean options. -CJS-

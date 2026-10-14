@@ -15,8 +15,11 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "game_settings.h"
+#include "map_view.h"
+#include "player.h"
+#include "status_line.h"
+#include "ui_io.h"
 
 #include "command_state.h"
 #include "player_identity.h"

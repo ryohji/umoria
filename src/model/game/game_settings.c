@@ -12,8 +12,6 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
 #include "game_settings.h"
 
 // --- From variable.c: the global storage ---

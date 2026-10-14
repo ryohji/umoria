@@ -18,8 +18,7 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "geometry.h"
 #include "minunit.h"
 
 #include <stdbool.h>

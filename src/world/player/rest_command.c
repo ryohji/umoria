@@ -12,8 +12,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "game_settings.h"
+#include "map_view.h"
+#include "player_bonuses.h"
+#include "rest_command.h"
+#include "status_line.h"
+#include "ui_io.h"
 
 #include "command_state.h"
 #include "player_condition.h"

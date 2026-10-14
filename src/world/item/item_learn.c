@@ -13,8 +13,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "level_ops.h"
 
 #include "inventory.h"
 #include "item_learn.h"

@@ -12,8 +12,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "game_settings.h"
+#include "ui_io.h"
 #include "command_state.h"
 #include "panel.h"
 #include "input.h"

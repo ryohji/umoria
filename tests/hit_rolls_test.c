@@ -17,8 +17,10 @@
 #include "constant.h"
 #include "types.h"
 #include "monster_state.h"
-
-#include "externs.h"
+#include "hit_rolls.h"
+#include "monsters.h"
+#include "player.h"
+#include "tables.h"
 #include "fixture.h"
 #include "hit_rolls_fixture.h"
 #include "player_identity.h"

@@ -15,8 +15,13 @@
 #include "types.h"
 #include "dungeon_state.h"
 #include "monster_state.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "direction.h"
+#include "game_settings.h"
+#include "look.h"
+#include "monsters.h"
+#include "recall.h"
+#include "ui_io.h"
 
 #include "str_insert.h"
 

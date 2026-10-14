@@ -31,8 +31,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "signals.h"
 #include "os_signals.h"
 #include "signal_flags.h"
 

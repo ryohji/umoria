@@ -13,8 +13,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "level_ops.h"
+#include "player_bonuses.h"
+#include "rnd.h"
+#include "spellbook.h"
+#include "stat_ops.h"
+#include "status_line.h"
 
 #include "player_identity.h"
 #include "player_condition.h"

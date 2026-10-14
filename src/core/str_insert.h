@@ -46,4 +46,6 @@ void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show
 // prototype is in externs.h, next to that macro.
 char *concat(char *buffer, ...);
 
+#define CONCAT(...) concat((vtype){0}, __VA_ARGS__, NULL)
+
 #endif // STR_INSERT_H

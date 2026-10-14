@@ -13,8 +13,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "level_ops.h"
+#include "spellbook.h"
+#include "status_line.h"
+#include "ui_io.h"
 
 #include "player_progress.h"
 #include "player_identity.h"

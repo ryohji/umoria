@@ -13,8 +13,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "store_price.h"
+#include "tables.h"
+#include "treasure.h"
 #include "item_knowledge.h"
 #include "player_identity.h"
 #include "stores.h"

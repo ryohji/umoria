@@ -16,8 +16,16 @@
 #include "dungeon_state.h"
 #include "monster_state.h"
 #include "game_status.h"
-
-#include "externs.h"
+#include "dice.h"
+#include "geometry.h"
+#include "lighting.h"
+#include "map_view.h"
+#include "monster_death.h"
+#include "object_alloc.h"
+#include "object_place.h"
+#include "rnd.h"
+#include "status_line.h"
+#include "ui_io.h"
 
 #include "monster_breeding.h"
 

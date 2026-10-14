@@ -138,4 +138,6 @@ static inline void game_state_set_death(GameState *state, bool dead) {
     state->death = dead;
 }
 
+void init_seeds(uint32_t);
+
 #endif // GAME_STATE_H

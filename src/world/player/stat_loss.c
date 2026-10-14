@@ -12,8 +12,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "stat_ops.h"
+#include "ui_io.h"
 
 #include "player_stats.h"
 #include "stat_loss.h"

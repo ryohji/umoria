@@ -54,7 +54,7 @@ import os
 import re
 import sys
 
-# externs.h の宣言を意味で分けたもの。名前順ではなく「誰のものか」で分ける。
+# ヘッダの extern 宣言を意味で分けたもの。名前順ではなく「誰のものか」で分ける。
 GROUPS = {
     "定数表（読みとり専用データ）": """
         player_title race background player_exp class class_level_adj
@@ -69,6 +69,17 @@ GROUPS = {
     #                   #if で消えているが、変えると生きる
     "起動時に一度書きかえる表": """
         colors mushrooms woods metals rocks amulets object_list""",
+    # 描画と入力の backend を指す。ui/render.h・ui/input.h が宣言していて、
+    # externs.h の外にあったので以前は数えていなかった。
+    "描画と入力の backend": """
+        current_backend current_input_backend""",
+    # シグナルハンドラが書き、主ループが読む（platform/signal_flags.h）。
+    "シグナルの旗": """
+        signal_pending signal_type signal_number""",
+    # オプションの表（model/game/game_settings.h）と、つながっていない
+    # GameState（app/game_state.h。台帳 #35）。どちらも externs.h の外にあった。
+    "オプションの表・未接続の基盤": """
+        game_options g_game_state""",
     "オプション（ユーザー設定）": """
         rogue_like_commands find_cut find_examine find_prself find_bound
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
@@ -278,10 +289,11 @@ TYPE_KEYWORDS = {
 }
 
 
-def declared_globals(header="src/externs.h"):
-    """externs.h の extern 宣言から変数名を順序を保って抜きだす。"""
+def declared_globals():
+    """src/ のヘッダの extern 宣言から変数名を順序を保って抜きだす。"""
     names = []
-    for line in open(header):
+    headers = sorted(glob.glob("src/**/*.h", recursive=True))
+    for line in (l for h in headers for l in open(h)):
         if not line.startswith("extern "):
             continue
         decl = line.split("//")[0].rstrip().rstrip(";")

@@ -13,8 +13,6 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
 #include "messages.h"
 
 // The ring itself, and the slot holding the newest message. Private: the wrap

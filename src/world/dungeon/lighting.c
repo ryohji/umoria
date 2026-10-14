@@ -14,8 +14,10 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "game_settings.h"
+#include "lighting.h"
+#include "map_view.h"
+#include "ui_io.h"
 
 #include "panel.h"
 #include "player_condition.h"

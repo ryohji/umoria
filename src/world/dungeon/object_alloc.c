@@ -19,8 +19,14 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "geometry.h"
+#include "item_enchant.h"
+#include "object_alloc.h"
+#include "object_place.h"
+#include "rnd.h"
+#include "sets.h"
+#include "treasure.h"
+#include "ui_io.h"
 #include "item_kinds.h"
 #include "player_condition.h"
 

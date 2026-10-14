@@ -13,8 +13,9 @@
 #include "constant.h"
 #include "types.h"
 #include "monster_state.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "player_bonuses.h"
+#include "stat_ops.h"
 
 #include "inventory.h"
 #include "player_stats.h"

@@ -12,8 +12,14 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "dice.h"
+#include "direction.h"
+#include "player.h"
+#include "projectiles.h"
+#include "rnd.h"
+#include "spells.h"
+#include "ui_io.h"
+#include "wands.h"
 #include "item_picker.h"
 
 #include "device.h"

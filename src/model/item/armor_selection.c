@@ -7,8 +7,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "rnd.h"
 #include "inventory.h"
 #include "armor_selection.h"
 

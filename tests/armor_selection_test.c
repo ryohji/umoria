@@ -11,8 +11,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "rnd.h"
 
 #include "armor_selection.h"
 #include "inventory.h"

@@ -14,8 +14,9 @@
 #include "constant.h"
 #include "types.h"
 #include "monster_state.h"
-
-#include "externs.h"
+#include "monster_damage.h"
+#include "monster_death.h"
+#include "monsters.h"
 
 #include "monster_turn.h"
 #include "player_progress.h"

@@ -13,8 +13,13 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
-
-#include "externs.h"
+#include "desc.h"
+#include "dungeon_search.h"
+#include "lighting.h"
+#include "rnd.h"
+#include "run_path.h"
+#include "treasure.h"
+#include "ui_io.h"
 
 #include "player_condition.h"
 

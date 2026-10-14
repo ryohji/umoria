@@ -60,7 +60,8 @@
 extern bool free_turn_flag;
 
 /* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+#include "game_settings.h"
+#include "spellbook.h"
 
 #define MU_SETUP() fixture_reset()
 

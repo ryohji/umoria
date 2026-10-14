@@ -13,8 +13,13 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "bits.h"
+#include "game_settings.h"
+#include "lighting.h"
+#include "player.h"
+#include "rnd.h"
+#include "spellbook.h"
+#include "ui_io.h"
 
 #include "inventory.h"
 #include "player_identity.h"
