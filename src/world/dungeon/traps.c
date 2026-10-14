@@ -29,6 +29,14 @@
 #include "player_pos.h"
 #include "player_timed_effects.h"
 #include "stats.h"
+#include "store_entrance.h"
+
+// Store entrance handler, set at startup
+static void (*store_entrance_handler)(int store_num) = NULL;
+
+void set_store_entrance_handler(void (*handler)(int store_num)) {
+    store_entrance_handler = handler;
+}
 
 // Disarms a trap -RAK-
 void disarm_trap(void) {
@@ -296,22 +304,22 @@ void hit_trap(int y, int x) {
 
     // Town level traps are special, the stores.
     case 101: // General
-        enter_store(0);
+        if (store_entrance_handler) store_entrance_handler(0);
         break;
     case 102: // Armory
-        enter_store(1);
+        if (store_entrance_handler) store_entrance_handler(1);
         break;
     case 103: // Weaponsmith
-        enter_store(2);
+        if (store_entrance_handler) store_entrance_handler(2);
         break;
     case 104: // Temple
-        enter_store(3);
+        if (store_entrance_handler) store_entrance_handler(3);
         break;
     case 105: // Alchemy
-        enter_store(4);
+        if (store_entrance_handler) store_entrance_handler(4);
         break;
     case 106: // Magic-User
-        enter_store(5);
+        if (store_entrance_handler) store_entrance_handler(5);
         break;
 
     default:

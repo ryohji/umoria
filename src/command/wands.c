@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "item_picker.h"
 
 #include "device.h"
 #include "device_use.h"

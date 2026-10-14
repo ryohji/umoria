@@ -28,6 +28,7 @@
 #include "save_state.h"
 #include "score_death.h"
 #include "spells_known.h"
+#include "store_entrance.h"
 #include "platform.h"
 
 static void char_inven_init(void);
@@ -124,6 +125,9 @@ int main(int argc, char *argv[]) {
 
     // Init the store inventories
     store_init();
+
+    // Register store entrance handler
+    set_store_entrance_handler(enter_store);
 
     // If -n is not passed, the calling routine will know
     // savefile name, hence, this code is not necessary.

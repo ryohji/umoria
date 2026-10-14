@@ -17,6 +17,7 @@
 
 #include "device.h"
 #include "device_use.h"
+#include "item_picker.h"
 #include "inventory.h"
 #include "item_learn.h"
 #include "player_class.h"

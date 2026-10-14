@@ -18,6 +18,7 @@
 #include "dungeon_map.h"
 #include "externs.h"
 #include "object_copy.h"
+#include "item_picker.h"
 #include "floor_items.h"
 #include "inventory.h"
 #include "monster_levels.h"

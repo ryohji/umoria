@@ -14,6 +14,7 @@
 #include "types.h"
 
 #include "externs.h"
+#include "item_picker.h"
 
 #include "inventory.h"
 #include "item_learn.h"
