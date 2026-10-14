@@ -96,6 +96,10 @@ int32_t total_points(void);
 // Does not return (calls exit). Declared _Noreturn so the compiler knows.
 _Noreturn void exit_game(void);
 
+// app/input_end_handling.c
+void handle_input_end(void);
+void handle_quit(void);
+
 // world/item/desc.c
 void magic_init(void);
 void known1(inven_type *);
@@ -136,6 +140,8 @@ void ident_char(void);
 void put_buffer(const char *, int, int);
 void put_qio(void);
 void shell_out(void);
+void io_set_input_end_handler(void (*handler)(void));
+void io_set_quit_handler(void (*handler)(void));
 char inkey(void);
 void flush(void);
 void erase_line(int, int);
@@ -469,7 +475,7 @@ bool magic_shop(int);
 void nosignals(void);
 void signals(void);
 void init_signals(void);
-void handle_pending_signals(void);
+void signal_state_reset(void);
 
 // world/combat/projectiles.c
 void fire_bolt(int, int, int, int, int, const char *);

@@ -27,6 +27,7 @@
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
+#include "signal_handling.h"
 #include "spells_known.h"
 #include "store_entrance.h"
 #include "platform.h"
@@ -65,6 +66,10 @@ int main(int argc, char *argv[]) {
     // catch those nasty signals
     // must come after platform init as some of the signal handlers use rendering
     init_signals();
+
+    // Register handlers for UI events (must be before any UI interaction)
+    io_set_input_end_handler(handle_input_end);
+    io_set_quit_handler(handle_quit);
 
     uint32_t seed = 0; // let wizard specify rng seed
     // check for user interface option

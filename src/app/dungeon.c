@@ -52,6 +52,7 @@
 #include "progress.h"
 #include "running.h"
 #include "score_death.h"
+#include "signal_handling.h"
 #include "messages.h"
 #include "stats.h"
 

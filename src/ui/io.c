@@ -20,14 +20,30 @@
 #include "input_ended.h"
 #include "messages.h"
 #include "render.h"
-#include "save_state.h"
 #include "screen_touched.h"
-#include "score_death.h"
 
 #define use_value2
 
 static void wait_for_more_confirmation(void);
 static void sleep_in_seconds(int);
+
+// Handler for input-end game logic (registered by app layer)
+static void (*input_end_handler)(void) = NULL;
+
+// Handler for quit action (registered by app layer)
+static void (*quit_handler)(void) = NULL;
+
+// Register handler for input-end game logic
+// Must be called before any inkey() can encounter EOF
+void io_set_input_end_handler(void (*handler)(void)) {
+    input_end_handler = handler;
+}
+
+// Register handler for quit action
+// Must be called before any pause_exit() can be called
+void io_set_quit_handler(void (*handler)(void)) {
+    quit_handler = handler;
+}
 
 // Dump IO to buffer -RAK-
 void put_buffer(const char *out_str, int row, int col) {
@@ -76,23 +92,12 @@ char inkey(void) {
 
             render_refresh();
 
-            if (!save_state_has_unsaved_character()) {
-                exit_game();
+            // Call registered handler for game-level input-end logic
+            // This handles: exit if no unsaved character, disturb, panic save if hopeless
+            if (input_end_handler != NULL) {
+                input_end_handler();
             }
 
-            disturb(1, 0);
-
-            if (input_end_is_hopeless()) {
-                // just in case, to make sure that the process eventually dies
-                set_panic_save(true);
-
-                (void)strcpy(death_cause(), "(end of input: panic saved)");
-                if (!save_char()) {
-                    (void)strcpy(death_cause(), "panic: unexpected eof");
-                    set_player_dead(true);
-                }
-                exit_game();
-            }
             return ESCAPE;
         }
 
@@ -358,7 +363,10 @@ void pause_exit(int prt_line, int delay) {
             sleep_in_seconds(delay);
         }
 
-        exit_game();
+        // Call registered quit handler
+        if (quit_handler != NULL) {
+            quit_handler();
+        }
     }
     erase_line(prt_line, 0);
 }
@@ -380,115 +388,6 @@ void bell(void) {
     }
 
     render_bell();
-}
-
-// definitions used by screen_map()
-// index into border character array
-#define TL 0 // top left
-#define TR 1
-#define BL 2
-#define BR 3
-#define HE 4 // horizontal edge
-#define VE 5
-
-// character set to use
-#define CH(x) (screen_border[0][x])
-
-// Display highest priority object in the RATIO by RATIO area
-#define RATIO 3
-
-void screen_map(void) {
-    static uint8_t screen_border[2][6] = {
-        {'+', '+', '+', '+', '-', '|'}, // normal chars
-        {201, 187, 200, 188, 205, 186}, // graphics chars
-    };
-
-    uint8_t map[MAX_WIDTH / RATIO + 1];
-    int priority[256];
-
-    char prntscrnbuf[80];
-
-    for (int i = 0; i < 256; i++) {
-        priority[i] = 0;
-    }
-
-    priority['<'] = 5;
-    priority['>'] = 5;
-    priority['@'] = 10;
-    priority['#'] = -5;
-    priority['.'] = -10;
-    priority['\''] = -3;
-    priority[' '] = -15;
-
-    save_screen();
-    clear_screen();
-    render_char(0, 0, CH(TL), RENDER_COLOR_DEFAULT);
-
-    for (int i = 0; i < MAX_WIDTH / RATIO; i++) {
-        render_char(0, i + 1, CH(HE), RENDER_COLOR_DEFAULT);
-    }
-
-    render_char(0, MAX_WIDTH / RATIO + 1, CH(TR), RENDER_COLOR_DEFAULT);
-    map[MAX_WIDTH / RATIO] = '\0';
-
-    int myrow = 0;
-    int mycol = 0;
-    int orow = -1;
-
-    for (int i = 0; i < MAX_HEIGHT; i++) {
-        int row = i / RATIO;
-        if (row != orow) {
-            if (orow >= 0) {
-                // can not use mvprintw() on ibmpc, because PC-Curses is horribly
-                // written, and mvprintw() causes the fp emulation library to be
-                // linked with PC-Moria, makes the program 10K bigger
-                (void)sprintf(prntscrnbuf, "%c%s%c", CH(VE), map, CH(VE));
-                render_string(orow + 1, 0, prntscrnbuf, RENDER_COLOR_DEFAULT);
-            }
-
-            for (int j = 0; j < MAX_WIDTH / RATIO; j++) {
-                map[j] = ' ';
-            }
-
-            orow = row;
-        }
-
-        for (int j = 0; j < MAX_WIDTH; j++) {
-            int col = j / RATIO;
-            uint8_t tmp = loc_symbol(i, j);
-
-            if (priority[map[col]] < priority[tmp]) {
-                map[col] = tmp;
-            }
-
-            if (map[col] == '@') {
-                mycol = col + 1; // account for border
-                myrow = row + 1;
-            }
-        }
-    }
-
-    if (orow >= 0) {
-        (void)sprintf(prntscrnbuf, "%c%s%c", CH(VE), map, CH(VE));
-        render_string(orow + 1, 0, prntscrnbuf, RENDER_COLOR_DEFAULT);
-    }
-
-    render_char(orow + 2, 0, CH(BL), RENDER_COLOR_DEFAULT);
-
-    for (int i = 0; i < MAX_WIDTH / RATIO; i++) {
-        render_char(orow + 2, i + 1, CH(HE), RENDER_COLOR_DEFAULT);
-    }
-
-    render_char(orow + 2, MAX_WIDTH / RATIO + 1, CH(BR), RENDER_COLOR_DEFAULT);
-
-    render_string(23, 23, "Hit any key to continue", RENDER_COLOR_DEFAULT);
-
-    if (mycol > 0) {
-        render_move_cursor(myrow, mycol);
-    }
-
-    (void)inkey();
-    restore_screen();
 }
 
 static void sleep_in_seconds(int seconds) {
