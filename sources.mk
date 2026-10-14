@@ -68,24 +68,17 @@ APP_SRCS = app/main.c render_ncurses.c input_ncurses.c
 # それ以外のすべて。テストはこの中から要るものだけをリンクする。
 CORE_SRCS = $(filter-out $(APP_SRCS) $(addprefix %/,$(APP_SRCS)),$(SRCS))
 
-# ---- 層ごとのライブラリー（#87）----------------------------------------
+# ---- 層ごとのライブラリー ----------------------------------------------
 #
-# 各層を静的ライブラリーにして、層の順でリンクする。GNU ld は archive を
-# 左から右に 1 度ずつスキャンするので、上の層から下の層への参照は解決
-# されるが、下から上へ（例: core/ → world/）の参照は undefined のままに
-# なり、リンクが止まる。これが層規則の自動検査になる。
+# 各層を静的ライブラリーにして、上の層から下の層の順でリンクする。GNU ld は
+# archive を左から右に 1 度ずつ読むので、下の層から上の層への参照は、その
+# 相手がまだ引かれていなければ undefined reference で止まる。すでに別の理由で
+# 引かれている相手への参照は通ってしまうので、層の規則を確かめる正本は
+# scripts/layer_deps.py --check のほう。
 #
-# model/ の副ライブラリー（data・game・item・dungeon・store・player・monster）も
-# 同様に分ける。data と game は互いを呼びあえるので、1 つの archive（
-# libmodel_base.a）にまとめる。dungeon と store は item を使える。
-#
-# ライブラリーの並び（リンクの順）: 上から下へ。archive のスキャンは 1 回
-# ずつなので、上の層が下の層を参照する順に並べないとリンクが通らない。
+# model/ の副ライブラリーも分ける。data と game は互いを呼びあえるので 1 つの
+# archive（libmodel_base.a）にまとめる。dungeon と store は item を使える。
 
-# Link order (top layer → bottom): each library may depend only on libraries
-# below it in this list. GNU ld scans each archive once, left to right, so
-# an upward reference (e.g., core → world) fails to link. This is how the
-# layering constraint is enforced.
 LIB_LINK_ORDER = command world ui platform model_player model_monster \
                  model_dungeon model_store model_item model_base core
 
