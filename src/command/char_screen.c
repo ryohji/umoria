@@ -13,6 +13,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 
@@ -26,7 +27,6 @@
 #include "player_level.h"
 #include "player_mana.h"
 #include "player_race.h"
-#include "save_state.h"
 #include "screen_fields.h"
 #include "stats.h"
 

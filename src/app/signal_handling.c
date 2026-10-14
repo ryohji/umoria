@@ -28,13 +28,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "signal_handling.h"
 #include "messages.h"
-#include "progress.h"
-#include "save_state.h"
-#include "score_death.h"
 #include "signal_flags.h"
 #include "platform.h"
 

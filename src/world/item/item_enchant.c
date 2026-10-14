@@ -16,10 +16,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
 #include "externs.h"
-#include "floor_items.h"
-#include "item_flags.h"
+#include "item_knowledge.h"
 #include "missile_serial.h"
 
 static int m_bonus(int, int, int);

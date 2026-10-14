@@ -12,17 +12,14 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
+#include "monster_state.h"
+#include "game_status.h"
 
 #include "externs.h"
-#include "object_copy.h"
-#include "floor_items.h"
-#include "dungeon_level.h"
-#include "dungeon_map.h"
-#include "dungeon_size.h"
-#include "monster_list.h"
+#include "item_kinds.h"
 #include "panel.h"
 #include "player_pos.h"
-#include "progress.h"
 
 typedef struct coords {
     int x, y;

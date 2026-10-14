@@ -12,13 +12,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
+#include "monster_state.h"
 
 #include "externs.h"
 
-#include "dungeon_map.h"
-#include "floor_items.h"
-#include "monster_list.h"
-#include "monster_recall.h"
 #include "panel.h"
 #include "player_status_flags.h"
 #include "player_timed_effects.h"

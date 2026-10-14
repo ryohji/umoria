@@ -24,7 +24,7 @@
 #include "shared_stubs.h"
 #include "stub_unreached.h"
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 
 /* set_large は訊かれた品物と回数を記録し、並べた答え（'y' で大きい）を順に
  * 返す。答えを使いきったら「大きくない」。 */

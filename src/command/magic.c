@@ -13,7 +13,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "equipment.h"
+#include "inventory.h"
 #include "externs.h"
 #include "item_picker.h"
 #include "player_class.h"

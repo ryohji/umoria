@@ -9,7 +9,7 @@
 #include "types.h"
 
 #include "externs.h"
-#include "equipment.h"
+#include "inventory.h"
 #include "armor_selection.h"
 
 int pick_random_worn_armor(void) {

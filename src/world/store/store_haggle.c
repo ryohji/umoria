@@ -13,12 +13,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "stores.h"
 #include "store_haggle.h"
 #include "player_race.h"
-#include "progress.h"
 #include "stats.h"
 #include "str_insert.h"
 

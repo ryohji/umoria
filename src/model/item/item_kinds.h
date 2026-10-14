@@ -1,13 +1,12 @@
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
 // Copyright (c) 2026 Umoria Contributors
 //
 // Umoria is free software released under a GPL v2 license and comes with
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// The kinds of object the dungeon can produce, ordered by depth
-
-#ifndef OBJECT_LEVELS_H
-#define OBJECT_LEVELS_H
+#ifndef ITEM_KINDS_H
+#define ITEM_KINDS_H
 
 #include <stdint.h>
 
@@ -37,4 +36,12 @@ int objects_up_to_level(int level);
 int objects_at_level(int level);
 int first_position_at_level(int level);
 
-#endif // OBJECT_LEVELS_H
+// inven_type comes from types.h, which has to be included before this header.
+
+// Copy fields from object_list[from_index] into the inven_type pointed to
+// by `to`. Used to initialize inventory slots, floor items, and store items
+// from the definition table. Sets index to from_index, clears name2 and
+// inscrip, copies all other fields from the template, and sets ident to 0.
+void invcopy(inven_type *to, int from_index);
+
+#endif // ITEM_KINDS_H

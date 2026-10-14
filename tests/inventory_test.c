@@ -12,7 +12,7 @@
  *   22 .. 33  装備（身につけている物。INVEN_* の定数が枠の名前）
  * 実測（docs/refactoring/done/33-41-misc3.md「#18-5（持ち物 6 個）の実測」）では inventory[]
  * の参照 199 箇所のうち装備側だけが約 112 で、持ち物側の約 64 より多い。
- * そこで窓口を 2 つに割った（src/model/item/inventory.h と src/model/item/equipment.h）。添字空間は
+ * そこで窓口を 2 つに割った（src/model/item/inventory.h の inventory_at() と equipment_at()）。添字空間は
  * 割らない——22 を引くような変換を入れると呼びだし側の算術が変わる。
  *
  * 保護するのは「置き場としてのふるまい」で、次の 4 つに尽きる。
@@ -33,7 +33,6 @@
 #include "constant.h"
 #include "types.h"
 
-#include "equipment.h"
 #include "inventory.h"
 
 #include "minunit.h"

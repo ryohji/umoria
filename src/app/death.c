@@ -12,10 +12,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "item_picker.h"
-#include "dungeon_level.h"
 #include "inventory.h"
 #include "player_bio.h"
 #include "player_class.h"
@@ -24,9 +25,7 @@
 #include "player_level.h"
 #include "player_max_depth.h"
 #include "player_race.h"
-#include "score_death.h"
 #include "platform.h"
-#include "save_state.h"
 
 static void date(char *day) {
     char *tmp;

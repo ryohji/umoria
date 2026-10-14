@@ -17,7 +17,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "item_flags.h"
+#include "item_knowledge.h"
 
 #include "minunit.h"
 

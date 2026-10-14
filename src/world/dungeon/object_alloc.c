@@ -18,14 +18,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
 #include "externs.h"
-#include "object_copy.h"
-#include "dungeon_level.h"
-#include "dungeon_map.h"
-#include "dungeon_size.h"
-#include "floor_items.h"
-#include "object_levels.h"
+#include "item_kinds.h"
 #include "player_pos.h"
 
 // Places a particular trap at location y, x -RAK-

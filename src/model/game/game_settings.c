@@ -1,10 +1,11 @@
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
 // Copyright (c) 2026 Umoria Contributors
 //
 // Umoria is free software released under a GPL v2 license and comes with
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// The player's boolean options, and the one table that describes them
+// Game settings: the player's options and other configuration globals
 
 #include "headers.h"
 
@@ -13,7 +14,33 @@
 #include "types.h"
 
 #include "externs.h"
-#include "options.h"
+#include "game_settings.h"
+
+// --- From variable.c: the global storage ---
+
+// Never read, never closed (bugs.md B19).
+FILE *highscore_fp;
+
+// Used in MORIA; do not move creatures.
+bool free_turn_flag;
+
+// The option globals. Starting values are in the table below; game_options_reset() applies them at startup.
+bool rogue_like_commands;
+bool find_cut;
+bool find_examine;
+bool find_bound;
+bool find_prself;
+bool prompt_carry_flag;
+bool show_weight_flag;
+bool highlight_seams;
+bool find_ignore_doors;
+bool sound_beep_flag;
+bool display_counts;
+
+// Used for closing.
+int closing_flag = 0;
+
+// --- From options.c: the table and accessors ---
 
 // The prompts are the ones the options screen has always shown, the bits are
 // the ones save files have always used, and the last column holds the initial

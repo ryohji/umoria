@@ -44,7 +44,7 @@
 
 #include "fixture.h"
 
-#include "object_levels.h"
+#include "item_kinds.h"
 
 /* 検証する本物（src/world/dungeon/object_alloc.c）と、表から引かれる品物の定数表
  * （model/data/treasure.c の object_list）の宣言は externs.h から受ける。 */

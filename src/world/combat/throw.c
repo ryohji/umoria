@@ -13,15 +13,13 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
+#include "monster_state.h"
 
 #include "externs.h"
 #include "item_picker.h"
 
-#include "dungeon_map.h"
-#include "equipment.h"
-#include "floor_items.h"
 #include "inventory.h"
-#include "monster_list.h"
 #include "panel.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"

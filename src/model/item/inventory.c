@@ -11,7 +11,6 @@
 #include "constant.h"
 #include "types.h"
 
-#include "equipment.h"
 #include "inventory.h"
 
 // This module includes no externs.h: it uses nothing outside itself.

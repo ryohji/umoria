@@ -12,13 +12,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
 #include "externs.h"
 #include "item_picker.h"
 
 #include "armor_selection.h"
-#include "dungeon_level.h"
-#include "equipment.h"
 #include "inventory.h"
 #include "item_learn.h"
 #include "level_exit.h"

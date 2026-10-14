@@ -12,11 +12,10 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
 #include "externs.h"
 
-#include "dungeon_map.h"
-#include "floor_items.h"
 #include "player_timed_effects.h"
 
 // Change a trap from invisible to visible -RAK-

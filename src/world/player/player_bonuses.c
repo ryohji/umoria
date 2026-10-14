@@ -12,12 +12,12 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 
 #include "externs.h"
 
 #include "burden.h"
-#include "equipment.h"
-#include "monster_list.h"
+#include "inventory.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"

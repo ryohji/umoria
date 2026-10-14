@@ -41,8 +41,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
-#include "floor_items.h"
 
 #include "minunit.h"
 

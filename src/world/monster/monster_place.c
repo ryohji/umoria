@@ -13,17 +13,14 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
+#include "monster_state.h"
+#include "game_status.h"
 
 #include "externs.h"
-#include "dungeon_level.h"
-#include "dungeon_map.h"
-#include "dungeon_size.h"
-#include "monster_levels.h"
-#include "monster_list.h"
 #include "monster_turn.h"
 #include "player_pos.h"
 #include "player_speed.h"
-#include "score_death.h"
 
 // get_mons_num() and summon() are static and serve only the functions here.
 

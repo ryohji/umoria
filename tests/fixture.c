@@ -14,7 +14,7 @@
 #include "types.h"
 
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 #include "player_level.h"
 #include "shared_stubs.h"
 #include "stats_reset.h"

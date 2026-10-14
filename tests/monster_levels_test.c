@@ -39,8 +39,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 
-#include "monster_levels.h"
 
 /* 表そのものは #17 から monsters.c の static で、番号から定義を引く窓口しか
  * 無い。帯の中身を確かめるのに使うので、必要な 2 本だけ宣言する。 */

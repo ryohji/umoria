@@ -12,11 +12,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
+#include "game_status.h"
 
 #include "externs.h"
-#include "monster_recall.h"
 #include "player_level.h"
-#include "progress.h"
 
 static void roff(const char *);
 static uint8_t count_previous_non_blank_chars(const char *from);

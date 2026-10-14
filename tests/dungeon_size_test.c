@@ -37,7 +37,6 @@
 #include "config.h"
 #include "constant.h"
 
-#include "dungeon_size.h"
 
 #include "minunit.h"
 

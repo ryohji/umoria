@@ -12,12 +12,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
+#include "game_status.h"
 
 #include "externs.h"
 #include "command_state.h"
-#include "dungeon_map.h"
-#include "dungeon_size.h"
-#include "floor_items.h"
 #include "level_exit.h"
 #include "player_base_to_hit.h"
 #include "player_body_weight.h"
@@ -31,8 +30,6 @@
 #include "player_search_skill.h"
 #include "player_stealth.h"
 #include "player_timed_effects.h"
-#include "progress.h"
-#include "score_death.h"
 #include "stats.h"
 
 // lets anyone enter wizard mode after a disclaimer... -JEW-

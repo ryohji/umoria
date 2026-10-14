@@ -22,7 +22,7 @@
 #include "fixture.h"
 #include "shared_stubs.h"
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 #include "player_body_weight.h"
 #include "player_status_flags.h"
 #include "stats_reset.h"

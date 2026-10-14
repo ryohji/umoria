@@ -4,13 +4,29 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// What the player has learned about each kind of object
-
-#ifndef ITEM_IDENT_H
-#define ITEM_IDENT_H
+#ifndef ITEM_KNOWLEDGE_H
+#define ITEM_KNOWLEDGE_H
 
 #include <stdbool.h>
 #include <stdint.h>
+
+// No includes: the callers bring config.h, constant.h and types.h in first.
+
+// Display hint setters
+void item_show_hit_dam(inven_type *i_ptr);
+void item_show_p1(inven_type *i_ptr);
+void item_hide_p1(inven_type *i_ptr);
+
+// Display hint readers
+bool item_shows_hit_dam(const inven_type *i_ptr);
+bool item_shows_p1(const inven_type *i_ptr);
+bool item_hides_p1(const inven_type *i_ptr);
+
+// Note readers
+bool item_noted_magical(const inven_type *i_ptr);
+bool item_noted_empty(const inven_type *i_ptr);
+bool item_noted_damned(const inven_type *i_ptr);
+bool item_has_any_note(const inven_type *i_ptr);
 
 // Declared here so this header does not depend on the whole of types.h.
 // C11 onwards allows this redundant typedef alongside the one in types.h.
@@ -50,4 +66,4 @@ void item_kind_clear_tried(inven_type *i_ptr);
 uint8_t *item_kind_record_bytes(void);
 int item_kind_record_count(void);
 
-#endif // ITEM_IDENT_H
+#endif // ITEM_KNOWLEDGE_H

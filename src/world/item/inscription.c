@@ -14,7 +14,6 @@
 #include "constant.h"
 #include "types.h"
 
-#include "equipment.h"
 #include "externs.h"
 #include "inventory.h"
 #include "item_picker.h"

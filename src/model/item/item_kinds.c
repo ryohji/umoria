@@ -5,14 +5,11 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// The kinds of object the dungeon can produce, ordered by depth
-
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 #include "externs.h"
-
-#include "object_levels.h"
+#include "item_kinds.h"
 
 // The body of the table: object_list indexes in order of level.
 static int16_t sorted_objects[MAX_DUNGEON_OBJ];
@@ -67,4 +64,31 @@ int objects_at_level(int level) {
 
 int first_position_at_level(int level) {
     return t_level[level - 1];
+}
+
+// Copy fields from an object_list template into an inven_type.
+// Used to initialize inventory slots, floor items, and store items from
+// the definition table.
+void invcopy(inven_type *to, int from_index) {
+    treasure_type *from = &object_list[from_index];
+
+    to->index       = from_index;
+    to->name2       = SN_NULL;
+    to->inscrip[0]  = '\0';
+    to->flags       = from->flags;
+    to->tval        = from->tval;
+    to->tchar       = from->tchar;
+    to->p1          = from->p1;
+    to->cost        = from->cost;
+    to->subval      = from->subval;
+    to->number      = from->number;
+    to->weight      = from->weight;
+    to->tohit       = from->tohit;
+    to->todam       = from->todam;
+    to->ac          = from->ac;
+    to->toac        = from->toac;
+    to->damage[0]   = from->damage[0];
+    to->damage[1]   = from->damage[1];
+    to->level       = from->level;
+    to->ident       = 0;
 }

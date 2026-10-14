@@ -32,8 +32,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
-#include "dungeon_map.h"
 #include "fixture.h"
 #include "player_glowing_hands.h"
 #include "player_infra_range.h"
@@ -62,12 +62,6 @@ uint32_t player_exp[MAX_PLAYER_LEVEL];
  * なったので、代役を置くと窓口に届かない別の表になるだけ
  * （movement_rate_test はその monster_list.c をリンクしている）。creature.c は
  * monster_list_at() で行を取り、monster_list_used() を数えおろしの上限にする。 */
-/* 白紙のモンスター 1 体。#18-14-4B で src/model/monster/monster_list.c をリンクするように
- * なったので要る（階の頭で全行に書き、返した行を白紙に戻すのに使う）。
- * 本物は monsters.c の定義表のとなりで、あちらはこの実行形式に来ない。
- * m_list / mfptr の 2 行は #18-14-4C で消えたが、**この 1 行は残った** ——
- * blank_monster はこの問いの主題ではなく定数表の側。 */
-monster_type blank_monster;
 /* 床に落ちているものの置き場（t_list / tcptr）もここに無い。#18-14-7C で
  * src/model/dungeon/floor_items.c が static で持つようになったので、代役を置くと窓口に
  * 届かない別の表になるだけ（この実行形式はその floor_items.c をリンクして
@@ -129,14 +123,6 @@ bool place_monster(int y, int x, creature_handle h, int slp) { stub_unreached(__
 bool summon_monster(int *y, int *x, int slp) { stub_unreached(__func__); }
 bool summon_undead(int *y, int *x) { stub_unreached(__func__); }
 int aggravate_monster(int d) { stub_unreached(__func__); }
-creature_type *monster_get_creature(creature_handle h) { stub_unreached(__func__); }
-const char *monster_name(vtype buf, const monster_type *m) { stub_unreached(__func__); }
-const char *monster_name_indefinite(vtype buf, const creature_type *c) { stub_unreached(__func__); }
-bool monster_attack_is_null(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_type(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_desc(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_dice(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_sides(attack_handle h) { stub_unreached(__func__); }
 
 /* --- プレイヤーへの被害・状態 --- */
 void take_hit(int dam, const char *from) { (void)dam; (void)from; }
