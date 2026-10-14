@@ -37,7 +37,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_spells_to_learn.h"
+#include "player_spells.h"
 
 #include "minunit.h"
 

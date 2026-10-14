@@ -19,18 +19,10 @@
 #include "externs.h"
 #include "item_kinds.h"
 
-#include "abilities.h"
 #include "inventory.h"
-#include "player_bio.h"
-#include "player_body_weight.h"
-#include "player_class.h"
-#include "player_display_numbers.h"
-#include "player_gold.h"
-#include "player_hp.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_race.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_identity.h"
+#include "player_progress.h"
 
 //  init_scorefile
 //  Open the score file while we still have the setuid privileges.  Later

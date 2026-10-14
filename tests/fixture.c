@@ -15,15 +15,10 @@
 
 #include "inventory.h"
 #include "item_knowledge.h"
-#include "player_level.h"
+#include "player_progress.h"
 #include "shared_stubs.h"
 #include "stats_reset.h"
 
-/* 階級の値段表。#18-12-6A で src/model/player/player_level.c がリンクされる全ての実行形式に
- * 要る。src/model/data/player.c をリンクする足場（tests/level_ops_fixture.c
- * などを使う側）は本物の 40 個を持っているが、この足場は player.c と一緒には
- * リンクされないので、ここにも空の表を置く。 */
-uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
  * しない。#18-5C で src/model/item/inventory.c が static で持つようになったので、
  * 消しかたも窓口（src/model/item/inventory.h）越しになる。 */

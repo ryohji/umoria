@@ -19,7 +19,7 @@
 
 #include "externs.h"
 #include "fixture.h"
-#include "player_abilities.h"
+#include "player_stats.h"
 #include "shared_stubs.h"
 #include "stat_loss.h"
 

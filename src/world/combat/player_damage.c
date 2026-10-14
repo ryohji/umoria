@@ -19,13 +19,11 @@
 #include "armor_selection.h"
 #include "inventory.h"
 #include "level_exit.h"
-#include "player_abilities.h"
-#include "player_class.h"
-#include "player_hp.h"
-#include "player_level.h"
-#include "player_saving_throw.h"
-#include "player_timed_effects.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_identity.h"
+#include "player_progress.h"
+#include "player_skills.h"
+#include "player_condition.h"
 
 // Saving throws for player character. -RAK-
 bool player_saves(void) {

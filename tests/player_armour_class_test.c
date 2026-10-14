@@ -34,7 +34,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_armour_class.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 

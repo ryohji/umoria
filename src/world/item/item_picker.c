@@ -16,13 +16,11 @@
 
 #include "externs.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "inventory.h"
 #include "item_picker.h"
 #include "item_kinds.h"
-#include "player_pos.h"
-#include "player_status_flags.h"
-#include "stats.h"
+#include "player_condition.h"
 
 // Displays inventory items from r1 to r2 -RAK-
 // Designed to keep the display as far to the right as possible. -CJS-

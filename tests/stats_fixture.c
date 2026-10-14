@@ -32,7 +32,7 @@
 #include "types.h"
 
 #include "fixture.h"
-#include "stats.h"
+#include "player_stats.h"
 #include "stats_reset.h"
 
 /* テスト専用。オリジナルには存在しない。

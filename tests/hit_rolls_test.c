@@ -21,10 +21,10 @@
 #include "externs.h"
 #include "fixture.h"
 #include "hit_rolls_fixture.h"
-#include "player_class.h"
-#include "player_level.h"
+#include "player_identity.h"
+#include "player_progress.h"
 #include "shared_stubs.h"
-#include "stats.h"
+#include "player_stats.h"
 
 #define MU_SETUP()                                                             \
     do {                                                                       \

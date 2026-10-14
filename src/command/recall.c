@@ -16,7 +16,7 @@
 #include "game_status.h"
 
 #include "externs.h"
-#include "player_level.h"
+#include "player_progress.h"
 
 static void roff(const char *);
 static uint8_t count_previous_non_blank_chars(const char *from);

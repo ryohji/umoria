@@ -23,8 +23,8 @@
 #include "shared_stubs.h"
 #include "inventory.h"
 #include "item_knowledge.h"
-#include "player_body_weight.h"
-#include "player_status_flags.h"
+#include "player_stats.h"
+#include "player_condition.h"
 #include "stats_reset.h"
 
 /* 各テストの前に呼ぶ。 */

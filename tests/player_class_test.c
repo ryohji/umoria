@@ -60,7 +60,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_class.h"
+#include "player_identity.h"
 
 /* 白紙は 0 —— 階級を選ぶ前の人物（`py` が全域 0 で始まるのと同じところ）で、
  * しかも Warrior の行番号でもある。 */

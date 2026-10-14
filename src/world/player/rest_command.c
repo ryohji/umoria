@@ -16,10 +16,7 @@
 #include "externs.h"
 
 #include "command_state.h"
-#include "player_food.h"
-#include "player_resting.h"
-#include "player_status_flags.h"
-#include "running.h"
+#include "player_condition.h"
 
 // Something happens to disturb the player. -CJS-
 // The first arg indicates a major disturbance, which affects search.

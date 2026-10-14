@@ -37,7 +37,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "hp_table.h"
+#include "player_progress.h"
 
 #include "minunit.h"
 

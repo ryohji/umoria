@@ -18,19 +18,10 @@
 #include "externs.h"
 #include "command_state.h"
 #include "level_exit.h"
-#include "player_base_to_hit.h"
-#include "player_body_weight.h"
-#include "player_disarm.h"
-#include "player_gold.h"
-#include "player_hp.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_pos.h"
-#include "player_saving_throw.h"
-#include "player_search_skill.h"
-#include "player_stealth.h"
-#include "player_timed_effects.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_skills.h"
+#include "player_progress.h"
+#include "player_condition.h"
 
 // lets anyone enter wizard mode after a disclaimer... -JEW-
 bool enter_wiz_mode(void) {

@@ -20,18 +20,14 @@
 #include "externs.h"
 #include "item_kinds.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "command_state.h"
 #include "inventory.h"
 #include "panel.h"
-#include "player_body_weight.h"
-#include "player_class.h"
-#include "player_disarm.h"
-#include "player_level.h"
-#include "player_pos.h"
-#include "player_search_skill.h"
-#include "player_timed_effects.h"
-#include "stats.h"
+#include "player_identity.h"
+#include "player_skills.h"
+#include "player_progress.h"
+#include "player_condition.h"
 
 // Opens a closed door or closed chest. -RAK-
 void openobject(void) {

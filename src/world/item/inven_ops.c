@@ -22,13 +22,10 @@
 #include "externs.h"
 #include "item_kinds.h"
 #include "item_picker.h"
-#include "burden.h"
 #include "inventory.h"
 #include "item_knowledge.h"
-#include "player_body_weight.h"
-#include "player_pos.h"
-#include "player_status_flags.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_condition.h"
 
 // Destroy an item in the inventory -RAK-
 void inven_destroy(int item_val) {

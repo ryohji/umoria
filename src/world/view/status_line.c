@@ -19,21 +19,13 @@
 #include "externs.h"
 
 #include "command_state.h"
-#include "player_bio.h"
-#include "player_class.h"
-#include "player_display_numbers.h"
-#include "player_gold.h"
-#include "player_hp.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_race.h"
-#include "player_resting.h"
-#include "player_speed.h"
-#include "player_spells_to_learn.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_identity.h"
+#include "player_stats.h"
+#include "player_progress.h"
+#include "player_condition.h"
+#include "player_skills.h"
+#include "player_spells.h"
 #include "screen_fields.h"
-#include "stats.h"
 
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {

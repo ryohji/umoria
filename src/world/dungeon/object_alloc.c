@@ -22,7 +22,7 @@
 
 #include "externs.h"
 #include "item_kinds.h"
-#include "player_pos.h"
+#include "player_condition.h"
 
 // Places a particular trap at location y, x -RAK-
 void place_trap(int y, int x, int subval) {

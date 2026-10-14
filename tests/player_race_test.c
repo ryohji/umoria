@@ -41,7 +41,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_race.h"
+#include "player_identity.h"
 
 #include "minunit.h"
 

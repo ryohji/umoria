@@ -43,7 +43,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_glowing_hands.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 

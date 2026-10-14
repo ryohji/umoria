@@ -18,8 +18,7 @@
 #include "externs.h"
 
 #include "panel.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 // Return flags for given type area affect -RAK-
 static void get_flags(int typ, uint32_t *weapon_type, int *harm_type, bool (**destroy)(inven_type *)) {

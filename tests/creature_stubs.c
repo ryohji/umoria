@@ -35,10 +35,8 @@
 #include "dungeon_state.h"
 
 #include "fixture.h"
-#include "player_glowing_hands.h"
-#include "player_infra_range.h"
-#include "player_resting.h"
-#include "player_status_flags.h"
+#include "player_condition.h"
+#include "player_skills.h"
 #include "shared_stubs.h"
 #include "stats_reset.h"
 #include "stub_unreached.h"
@@ -49,10 +47,6 @@
  * src/model/game/progress.c の static である（#19C1。ここで定義しても窓口には届かない
  * 別の器になるだけ）。テストは progress_set_turn() で turn を動かす。 */
 
-/* 階級の値段表。#18-12-6A で src/model/player/player_level.c がリンクされる全ての実行形式に
- * 要る。この足場は src/model/data/player.c（本物の 40 個の持ち主）と
- * 一緒にはリンクされないので、ここにも空の表を置く。 */
-uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* マスの表（cave）もここに無い。#18-14-8C で置き場が src/model/dungeon/dungeon_map.c の
  * static に入ったので、代役を置くと窓口に届かない別の表になるだけ
  * （m_list の 2 行が #18-14-4C で消えたのと同じ理由）。この実行形式は

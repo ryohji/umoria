@@ -20,9 +20,9 @@
 #include "monster_state.h"
 
 #include "externs.h"
-#include "player_class.h"
-#include "player_level.h"
-#include "stats.h"
+#include "player_identity.h"
+#include "player_progress.h"
+#include "player_stats.h"
 
 // Attacker's level and plusses,  defender's AC -RAK-
 bool test_hit(int bth, int level, int pth, int ac, int attack_type) {

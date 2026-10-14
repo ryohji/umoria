@@ -17,8 +17,7 @@
 
 #include "device.h"
 #include "device_use.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 static void staff_effect(int pos, int dir, uint32_t *flags, bool *ident) {
     int k, y, x;

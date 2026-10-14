@@ -48,12 +48,11 @@
 #include "types.h"
 
 #include "fixture.h"
-#include "player_class.h"
-#include "player_level.h"
-#include "player_spells_to_learn.h"
-#include "player_status_flags.h"
-#include "spells_known.h"
-#include "stats.h"
+#include "player_identity.h"
+#include "player_progress.h"
+#include "player_spells.h"
+#include "player_condition.h"
+#include "player_stats.h"
 
 
 /* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */

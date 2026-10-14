@@ -24,8 +24,8 @@
 #include "stores.h"
 #include "store_haggle.h"
 #include "messages.h"
-#include "player_gold.h"
-#include "stats.h"
+#include "player_progress.h"
+#include "player_stats.h"
 
 static const char *comment1[14] = {
     "Done!",

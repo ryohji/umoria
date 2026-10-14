@@ -16,7 +16,7 @@
 
 #include "externs.h"
 
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 // Change a trap from invisible to visible -RAK-
 // Note: Secret doors are handled here

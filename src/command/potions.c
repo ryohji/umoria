@@ -18,11 +18,9 @@
 
 #include "inventory.h"
 #include "item_learn.h"
-#include "player_abilities.h"
-#include "player_food.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_timed_effects.h"
+#include "player_stats.h"
+#include "player_condition.h"
+#include "player_progress.h"
 #include "stat_loss.h"
 
 // Potions for the quaffing -RAK-

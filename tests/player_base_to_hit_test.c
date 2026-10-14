@@ -36,7 +36,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_base_to_hit.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 

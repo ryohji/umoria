@@ -51,14 +51,11 @@
 
 #include "fixture.h"
 #include "inventory.h"
-#include "player_class.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_spells_to_learn.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
-#include "spells_known.h"
-#include "stats.h"
+#include "player_identity.h"
+#include "player_progress.h"
+#include "player_spells.h"
+#include "player_condition.h"
+#include "player_stats.h"
 
 extern bool free_turn_flag;
 

@@ -41,7 +41,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_attack_bonuses.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 

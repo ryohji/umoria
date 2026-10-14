@@ -16,12 +16,10 @@
 #include "inventory.h"
 #include "externs.h"
 #include "item_picker.h"
-#include "player_class.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
-#include "spells_known.h"
+#include "player_identity.h"
+#include "player_progress.h"
+#include "player_condition.h"
+#include "player_spells.h"
 
 // Throw a magic spell -RAK-
 void cast(void) {

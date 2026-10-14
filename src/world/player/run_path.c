@@ -18,10 +18,7 @@
 #include "externs.h"
 
 #include "command_state.h"
-#include "player_light.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
-#include "running.h"
+#include "player_condition.h"
 
 static bool see_wall(int, int, int);
 

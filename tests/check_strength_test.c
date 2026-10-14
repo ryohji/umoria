@@ -47,11 +47,10 @@
 #include "constant.h"
 #include "types.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "fixture.h"
 #include "inventory.h"
-#include "player_status_flags.h"
-#include "stats.h"
+#include "player_condition.h"
 
 
 /* 検証対象（src/world/item/inven_ops.c）の宣言は externs.h から受ける。 */

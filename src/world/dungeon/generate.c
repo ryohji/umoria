@@ -19,7 +19,7 @@
 #include "externs.h"
 #include "item_kinds.h"
 #include "panel.h"
-#include "player_pos.h"
+#include "player_condition.h"
 
 typedef struct coords {
     int x, y;

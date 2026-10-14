@@ -21,12 +21,12 @@
 #include "inventory.h"
 #include "item_knowledge.h"
 #include "game_settings.h"
-#include "player_class.h"
-#include "player_food.h"
-#include "player_hp.h"
 #include "signal_handling.h"
-#include "spells_known.h"
 #include "store_entrance.h"
+#include "player_identity.h"
+#include "player_condition.h"
+#include "player_progress.h"
+#include "player_spells.h"
 #include "platform.h"
 
 static void char_inven_init(void);

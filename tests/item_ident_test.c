@@ -28,7 +28,7 @@
 
 #include "item_knowledge.h"
 #include "item_learn.h"
-#include "player_level.h"
+#include "player_progress.h"
 
 #include "fixture.h"
 

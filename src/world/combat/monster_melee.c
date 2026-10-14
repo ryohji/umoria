@@ -18,13 +18,9 @@
 #include "externs.h"
 
 #include "inventory.h"
-#include "player_abilities.h"
-#include "player_armour_class.h"
-#include "player_glowing_hands.h"
-#include "player_gold.h"
-#include "player_level.h"
-#include "player_timed_effects.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_condition.h"
+#include "player_progress.h"
 
 // Make an attack on the player (chuckle.) -RAK-
 void make_attack(int monptr) {

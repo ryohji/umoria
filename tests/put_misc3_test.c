@@ -38,16 +38,10 @@
 #include "types.h"
 
 #include "fixture.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
-#include "player_class.h"
-#include "player_disarm.h"
-#include "player_search_skill.h"
-#include "player_infra_range.h"
-#include "player_level.h"
-#include "player_saving_throw.h"
-#include "player_stealth.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_identity.h"
+#include "player_skills.h"
+#include "player_progress.h"
 
 
 /* 検証対象（src/command/char_screen.c）の宣言は externs.h から受ける。 */

@@ -17,14 +17,12 @@
 #include "externs.h"
 #include "item_kinds.h"
 
-#include "burden.h"
 #include "inven_command_state.h"
 #include "inventory.h"
 #include "item_picker.h"
-#include "player_pos.h"
-#include "player_status_flags.h"
+#include "player_stats.h"
+#include "player_condition.h"
 #include "screen_touched.h"
-#include "stats.h"
 
 // All inventory commands (wear, exchange, take off, drop, inventory and
 // equipment) are handled in an alternative command input mode, which accepts

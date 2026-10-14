@@ -46,7 +46,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "spells_known.h"
+#include "player_spells.h"
 
 /* テストは 1 プロセスで状態を共有するので、毎回まっさらから始める。
  * 生の窓口を使うのは、ここが「置き場を空にする」唯一の入口だから。 */

@@ -20,7 +20,7 @@
 
 #include "externs.h"
 #include "item_knowledge.h"
-#include "player_race.h"
+#include "player_identity.h"
 #include "shared_stubs.h"
 #include "stores.h"
 

@@ -18,8 +18,7 @@
 
 #include "device.h"
 #include "device_use.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 // A confused player aims at random.
 static bool wand_direction(int *dir) {

@@ -18,15 +18,11 @@
 #include "externs.h"
 
 #include "level_exit.h"
-#include "pending_teleport.h"
-#include "player_abilities.h"
-#include "player_armour_class.h"
-#include "player_class.h"
-#include "player_disarm.h"
-#include "player_level.h"
-#include "player_pos.h"
-#include "player_timed_effects.h"
-#include "stats.h"
+#include "player_condition.h"
+#include "player_stats.h"
+#include "player_identity.h"
+#include "player_skills.h"
+#include "player_progress.h"
 #include "store_entrance.h"
 
 // Store entrance handler, set at startup

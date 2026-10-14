@@ -5,7 +5,7 @@
 # 足していて、makefile.win への足しわすれが続いた。台帳 #46）。
 #
 # 名前は src/ からの相対で書く（層のサブディレクトリーのものは
-# model/player/burden.c のように）。読む側が src/ を補う。.o はどの
+# のように）。読む側が src/ を補う。.o はどの
 # makefile もディレクトリーを落とした名前で 1 か所に置く（makefile は根、
 # makefile.win は src/、makefile.test は tests/build/core/）。.c を探すのは
 # VPATH/vpath、ヘッダを探すのは -I で、どちらも下の SRC_SUBDIRS から作る。
@@ -22,22 +22,18 @@ SRC_SUBDIRS = core model/data model/game model/player model/monster model/dungeo
 SRCS = app/main.c command/files.c ui/io.c \
 	command/create.c world/item/desc.c world/dungeon/generate.c model/data/sets.c app/dungeon.c world/monster/creature.c app/death.c app/input_end_handling.c \
 	command/eat.c command/help.c command/magic.c command/potions.c command/prayer.c app/save.c command/staffs.c world/item/device_use.c command/wands.c model/item/device.c \
-	world/item/item_learn.c model/item/item_knowledge.c model/player/abilities.c model/game/game_settings.c ui/messages.c \
+	world/item/item_learn.c model/item/item_knowledge.c model/game/game_settings.c ui/messages.c \
 	command/scrolls.c world/item/spells.c command/wizard.c platform/signals.c platform/signal_flags.c app/signal_handling.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c app/game_state.c \
-	ui/input.c platform/input_ncurses.c app/platform_init.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
-	model/item/inventory.c model/item/armor_selection.c model/game/game_status.c model/player/player_pos.c \
-	model/player/hp_table.c model/player/player_light.c model/player/burden.c model/player/spells_known.c model/item/item_kinds.c world/item/inscription.c world/item/item_enchant.c \
+	ui/input.c platform/input_ncurses.c app/platform_init.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/player_stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
+	model/item/inventory.c model/item/armor_selection.c model/game/game_status.c model/player/player_condition.c \
+	model/player/player_spells.c model/item/item_kinds.c world/item/inscription.c world/item/item_enchant.c \
 	model/item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c command/options_menu.c \
-	world/dungeon/level_exit.c model/player/pending_teleport.c ui/input_ended.c model/player/running.c \
-	ui/command_state.c model/player/player_gold.c model/player/player_food.c world/player/food_ops.c model/player/player_display_numbers.c \
-	model/player/player_mana.c model/player/player_hp.c model/player/player_level.c model/player/player_status_flags.c \
-	model/player/player_abilities.c model/player/player_timed_effects.c model/player/player_resting.c \
-	model/player/player_speed.c model/player/player_infra_range.c model/player/player_glowing_hands.c \
-	model/player/player_spells_to_learn.c model/player/player_max_depth.c model/player/player_hit_die.c model/player/player_armour_class.c model/player/player_base_to_hit.c \
-	model/player/player_disarm.c model/player/player_saving_throw.c model/player/player_race.c model/player/player_body_weight.c \
-	model/player/player_attack_bonuses.c model/player/player_search_skill.c model/player/player_bio.c \
-	model/player/player_stealth.c model/player/player_class.c \
+	world/dungeon/level_exit.c ui/input_ended.c \
+	ui/command_state.c world/player/food_ops.c \
+	model/player/player_progress.c \
+	model/player/player_skills.c \
+	model/player/player_identity.c \
 	world/monster/monster_turn.c model/monster/monster_state.c world/monster/monster_breeding.c world/monster/monster_place.c \
 	model/dungeon/dungeon_state.c model/dungeon/geometry.c world/dungeon/object_place.c \
 	command/inven_menu.c world/player/run_path.c world/monster/monster_death.c command/look.c model/data/monsters.c model/data/treasure.c \

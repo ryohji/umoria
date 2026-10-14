@@ -5,39 +5,39 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Which spells the character knows: where the four answers live
+// Player spell knowledge: which spells are known/worked/forgotten, order learned, and how many more can be learned.
 
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
-#include "spells_known.h"
+#include "player_spells.h"
 
-// No externs.h here: what the character has learned needs nothing from the rest
-// of the game.
+// --- Spell knowledge state ---
 
-// The four answers, reachable only through the windows below.
 static uint32_t spell_learned = 0;   // bit mask of spells learned
 static uint32_t spell_worked = 0;    // bit mask of spells tried and worked
 static uint32_t spell_forgotten = 0; // bit mask of spells learned but forgotten
 
-// The order the spells were learned in, one spell number per place. Starting
-// out as zeroes: the game start fills it with SPELL_NONE (app/main.c, through
-// spell_order_forget_all) and loading a save file reads it back byte for byte,
-// and until then no spell is marked learned or forgotten, so nothing looks at
-// what is in here.
+// Order spells were learned in (spell numbers). Filled with SPELL_NONE at start.
 static uint8_t spell_order[32];
 
-// The bit for one spell. SPELL_NONE (and any other number outside 0..31) gets
-// no bit at all: `1L << 99` has no defined result, and the callers walk the
-// learned-in order, which is full of SPELL_NONE until the character has learned
-// 32 spells. The old code spelled this test out at both of those walks.
+// --- Spells to learn counter ---
+
+// Count of additional spells that may be learned now.
+static uint8_t spells_to_learn_count;
+
+// --- Helper ---
+
+// Get bit for one spell. SPELL_NONE and out-of-range return 0.
 static uint32_t bit_of(int spell) {
     if (spell < 0 || spell > 31) {
         return 0;
     }
     return (uint32_t)(1L << spell);
 }
+
+// --- Which spells are known ---
 
 bool spell_is_learned(int spell) {
     return (spell_learned & bit_of(spell)) != 0;
@@ -69,21 +69,19 @@ int learned_spell_count(void) {
     return count;
 }
 
+// --- Learning and forgetting ---
+
 void spell_learn(int spell) {
     spell_learned |= bit_of(spell);
 
-    // Append to the history. The position is the first SPELL_NONE: there is no
-    // separate count of how many spells have been learned.
+    // Append to history at first SPELL_NONE position.
     for (int n = 0; n < 32; n++) {
         if (spell_order[n] == SPELL_NONE) {
             spell_order[n] = (uint8_t)spell;
             return;
         }
     }
-
-    // A full history drops the spell from the order rather than writing past
-    // the end of it. There are only 31 spells to a class and 32 slots, so this
-    // cannot happen in a game that has not gone wrong.
+    // Full history drops the spell rather than overflowing (shouldn't happen).
 }
 
 void spell_forget(int spell) {
@@ -102,12 +100,9 @@ void spell_mark_worked(int spell) {
     spell_worked |= bit_of(spell);
 }
 
+// --- Learning order ---
+
 int spell_learned_nth(int n) {
-    // Out of range answers "nothing learned there". The forgetting loop in
-    // calc_spells() counts down from 31 and stops when nothing is left to
-    // forget, so it can only pass a negative number if a spell is marked
-    // learned without being in the history -- which the windows above make
-    // impossible.
     if (n < 0 || n > 31) {
         return SPELL_NONE;
     }
@@ -119,6 +114,8 @@ void spell_order_forget_all(void) {
         spell_order[n] = SPELL_NONE;
     }
 }
+
+// --- Bit operations ---
 
 uint32_t spells_learned_among(uint32_t spells) {
     return spells & spell_learned;
@@ -154,4 +151,14 @@ void spells_set_forgotten_bits(uint32_t bits) {
 
 uint8_t *spell_order_bytes(void) {
     return spell_order;
+}
+
+// --- How many more can be learned ---
+
+int player_spells_to_learn(void) {
+    return spells_to_learn_count;
+}
+
+void player_spells_to_learn_set(int count) {
+    spells_to_learn_count = (uint8_t)count;
 }

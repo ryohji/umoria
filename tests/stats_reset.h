@@ -9,7 +9,7 @@
 #ifndef STATS_RESET_H
 #define STATS_RESET_H
 
-#include "stats.h"
+#include "player_stats.h"
 
 static inline void stats_reset(void)
 {

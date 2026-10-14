@@ -8,7 +8,7 @@
 
 #include "app/game_state.h"
 
-#include "burden.h"
+#include "player_stats.h"
 #include "command_state.h"
 #include "dungeon_state.h"
 #include "constant.h"
@@ -22,9 +22,7 @@
 #include "missile_serial.h"
 #include "monster_turn.h"
 #include "panel.h"
-#include "pending_teleport.h"
-#include "player_light.h"
-#include "running.h"
+#include "player_condition.h"
 #include "screen_touched.h"
 #include "stores.h"
 #include "messages.h"

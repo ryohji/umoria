@@ -19,15 +19,10 @@
 #include "item_kinds.h"
 
 #include "inventory.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
-#include "player_body_weight.h"
-#include "player_class.h"
-#include "player_glowing_hands.h"
-#include "player_level.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_identity.h"
+#include "player_condition.h"
+#include "player_progress.h"
 
 // Player attacks a (poor, defenseless) creature -RAK-
 void py_attack(int y, int x) {

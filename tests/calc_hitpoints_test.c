@@ -31,11 +31,9 @@
 #include "types.h"
 
 #include "fixture.h"
-#include "hp_table.h"
-#include "player_hp.h"
-#include "player_level.h"
-#include "player_status_flags.h"
-#include "stats.h"
+#include "player_progress.h"
+#include "player_condition.h"
+#include "player_stats.h"
 
 
 /* 検証対象（src/world/player/level_ops.c）の宣言は externs.h から受ける。 */

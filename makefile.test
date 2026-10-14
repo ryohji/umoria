@@ -232,9 +232,9 @@ EXTRA_savefile_version_test = shared_stubs.c save_stubs.c
 EXTRA_movement_rate_test = shared_stubs.c creature_stubs.c
 EXTRA_item_ident_test = shared_stubs.c fixture.c
 EXTRA_floor_items_test = floor_items_fixture.c
-EXTRA_player_class_test = player_class_fixture.c
+EXTRA_player_class_test = player_class_fixture.c player_race_fixture.c
 EXTRA_player_level_test = player_level_fixture.c
-EXTRA_player_race_test = player_race_fixture.c
+EXTRA_player_race_test = player_race_fixture.c player_class_fixture.c
 EXTRA_stat_bonus_test = stats_fixture.c
 
 .SECONDEXPANSION:

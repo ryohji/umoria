@@ -40,7 +40,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "running.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 
