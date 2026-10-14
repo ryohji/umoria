@@ -13,8 +13,8 @@
 // inven_type comes from types.h, which has to be included before this header.
 
 // One array, two windows. The slots 0 .. 21 are the pack and the slots
-// 22 .. 33 are what the player wears or wields; equipment.h is the window on
-// the second half. Both windows use the same index space, so an index means
+// 22 .. 33 are what the player wears or wields; equipment_at() is the window
+// on the second half. Both windows use the same index space, so an index means
 // the same thing whichever window it is handed to -- the split is in the
 // names and in the intent, not in the arithmetic.
 //
@@ -52,10 +52,10 @@ void inventory_set_weight(int weight);
 inven_type *inventory_and_equipment_at(int index);
 int inventory_and_equipment_slot_count(void);
 
-// The equipment shares its storage and its index space with the pack (see
-// inventory.h): the slots are 22 .. 33, named by the INVEN_* constants in
-// constant.h. An index is not translated on the way through this window, so
-// the arithmetic at the call sites stays as it was.
+// The equipment shares its storage and its index space with the pack: the
+// slots are 22 .. 33, named by the INVEN_* constants in constant.h. An index
+// is not translated on the way through this window, so the arithmetic at the
+// call sites stays as it was.
 //
 // This is storage and only storage, so the windows are thin: they do not
 // range-check, clamp or assert.

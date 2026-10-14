@@ -1,6 +1,6 @@
 # model/ modules design notes
 
-This document preserves the detailed design comments from the small model/* modules before they were merged into larger units in ticket #88.
+Design notes for the model/ modules: the detail that does not belong in the headers.
 
 ## model/game — game settings and status
 
@@ -84,9 +84,145 @@ An empty row is a copy of object_list[OBJ_NOTHING] (TV_NOTHING, character=space)
 
 Geometry on the map: whether a point is inside it, how far apart two points are, whether one can be seen from the other, and what surrounds a point. Kept separate because it's pure utility functions with no state.
 
-## model/item — item inventory and knowledge
+## model/item — item inventory, knowledge and kinds
 
-(To be filled in when item modules are merged)
+### inventory — what the player carries and wears
+
+#### Storage structure
+
+One array holds both the pack and the equipment. Slots 0..21 are the pack and slots 22..33 are what the player wears or wields. inventory.h provides windows on both parts: inventory_at() for the pack, equipment_at() for the equipment.
+
+The windows use the same index space: an index means the same thing whichever window it is handed to. This design avoids translation (subtracting 22) which would change the arithmetic at call sites.
+
+#### Why no range checking
+
+The windows are thin: they do not range-check, clamp or assert. The old code did not check either, and checking here would change behaviour rather than preserve it.
+
+#### Pointer lifetime
+
+Pointers returned by inventory_at() and equipment_at() stay valid for the rest of the run and always address the same slot. Callers keep them in local variables (inven_type *i_ptr) across other calls, and the save file reads straight into them.
+
+#### Pack
+
+The pack is kept packed: used slots are 0..inventory_count()-1 with no gaps. inventory_slot_count() returns 22, which is both the number of slots and the index of the first equipment slot (INVEN_WIELD).
+
+The pack weight is tracked separately. Callers keep it up to date themselves as they add and remove objects; nothing in this module recomputes it.
+
+#### Equipment
+
+Equipment slots run from 22 to 33, named by the INVEN_* constants in constant.h. Unlike the pack, filled slots are not packed together — equipment_count() is a total count, not a bound to loop up to.
+
+The number of equipment slots (12) is fixed in constant.h as part of INVEN_ARRAY_SIZE. This cannot be changed without breaking existing save files, which serialize the equipment as 12 slots in sequence.
+
+#### Crossing window
+
+inventory_and_equipment_at() provides a window for places that walk both the pack and the equipment by index. This is what get_item() (inven_menu.c) uses — it treats 0 to INVEN_ARRAY_SIZE-1 as one contiguous index space.
+
+#### Save file format
+
+The save file serializes inventory[] as one run: pack first, then equipment. This is why the array cannot be split — doing so would change the save file order.
+
+### item_knowledge — what the player has learned about items
+
+#### Display hints
+
+The ident field holds display hints that control what objdes() shows: ID_SHOW_HITDAM (show hit/dam bonuses), ID_SHOW_P1 (show p1), ID_NOSHOW_P1 (hide p1). These are set by identification and usage.
+
+#### Item notes
+
+Three more ident bits record what the player has noticed: ID_MAGIK (sensed as magical), ID_EMPTY (tried and found empty), ID_DAMD (known to be cursed). item_has_any_note() checks if any of these three are set.
+
+#### Kind knowledge records
+
+Seven groups of secret object kinds each have 64 records tracking whether the kind is known by name (OD_KNOWN1) and whether it has been tried (OD_TRIED). The groups are: amulets, rings, staffs, wands, scrolls, potions, and mushrooms (the secret subset of TV_FOOD).
+
+Weapons, armor, and non-mushroom foods are never secret, so they have no records. Asking about such a kind answers "not known, not tried", and marking one does nothing.
+
+#### Record lookup
+
+The record for a kind is found by combining tval (which group) and the low 6 bits of subval (which kind in that group, 0..63). The bit above those 6 (ITEM_SINGLE_STACK_MIN) means "stacks as a single item" and is masked off — it is not part of the kind number.
+
+Kinds are shared: drinking one unknown potion teaches the player about every potion of that sort, in the pack, on the floor, or still in the dungeon.
+
+#### Marking known clears tried
+
+item_kind_mark_known() sets the known bit and also clears the tried bit, since knowing the kind by name supersedes having tried it. The two always moved together at the one place that did this, spelled out as two lines against the same record.
+
+#### Save file storage
+
+The save file stores object_ident as a fixed run of OBJECT_IDENT_SIZE bytes (7 groups × 64 records). Each byte starts as 0 ("nothing known, nothing tried"), which is correct for a new character.
+
+### item_kinds — object generation tables
+
+#### Level index
+
+Every kind of object that can be generated is laid out in order of the depth it first appears at. This lets random generation bound its choice by dungeon level.
+
+Two arrays make the one table: sorted_objects[] holds object_list indexes in level order, and t_level[] is the cumulative index. t_level[L] counts kinds at level L or shallower, so level L's band runs from t_level[L-1] to t_level[L]-1.
+
+Unlike monsters (whose definition table is already sorted by level and needs no second array), object_list is not sorted by level, so sorted_objects[] is necessary.
+
+#### Building the table
+
+object_levels_init() scans object_list once at startup to build the index. It uses a counting sort (O(n)) rather than a comparison sort. The table is built once and never changes, so nothing saves it — loading a game rebuilds it.
+
+#### invcopy
+
+invcopy() copies fields from object_list[from_index] into an inven_type. Used to initialize inventory slots, floor items, and store items from the definition table. It sets index to from_index, clears name2 and inscrip, copies all other fields from the template, and sets ident to 0.
+
+### device — magic device use calculation
+
+#### Purpose
+
+Extracted from the duplicated chance calculation in staffs.c and wands.c. The only difference between the two was the staff's constant penalty (5 vs 0 for wands), which is now the penalty argument.
+
+#### Formula
+
+The chance is: save + int_adj - item_level - penalty + (class_device_adj * player_level / 3)
+
+If confused, the chance is halved. If the result is below USE_DEVICE, randint() gives a hopeless character a slight chance (the "everyone gets a chance" rule). The final chance is clamped to at least 1.
+
+#### Side effect
+
+device_use_chance() calls randint() once for the "everyone gets a chance" rule, so calling it has a side effect on the random number state.
+
+#### Dependency isolation
+
+This file deliberately depends on nothing but randint() so that the calculation can be tested without pulling in the display and global player state.
+
+### missile_serial — missile batch tracking
+
+#### Purpose
+
+Every stack of missiles made in the dungeon gets a unique number, kept in the item's p1 field. Stacking compares it: items_can_stack() (inven_ops.c) lets two lots of the same arrow merge only when their p1 agree, so two batches found in different places stay apart even though they look identical.
+
+#### Counter behavior
+
+The counter walks the whole range of int16_t and wraps from MAX_SHORT back to -MAX_SHORT-1. This is why the old code spelled the step out instead of writing ++: at MAX_SHORT the increment would leave the range, and the value has to stay something p1 can hold.
+
+Wrapping is safe for what the number is used for — by the time it comes round, the batch that first had it is long gone. The numbers mean nothing beyond "not the same batch" — nothing reads them as a count or an order.
+
+#### First batch
+
+The counter starts at 0, and next_missile_serial() steps first then hands out the value. This means the first batch is stamped 1, which matches the old behavior.
+
+#### Save file
+
+missile_serial_value() and set_missile_serial() exist for the save file only (save.c writes it as a short and reads it back). Everything else asks for the next number instead.
+
+### armor_selection — picking worn armor
+
+#### Random selection
+
+pick_random_worn_armor() returns a random worn armor slot (INVEN_BODY, INVEN_ARM, INVEN_OUTER, INVEN_HANDS, INVEN_HEAD, INVEN_FEET) or 0 if no armor is worn. Each worn piece has equal probability.
+
+The function builds a temporary array of worn slots, then picks one at random. It calls randint() exactly once if at least one piece is worn, and does not call it if none are worn.
+
+#### First cursed
+
+pick_first_cursed_armor() returns the first cursed armor piece in the order INVEN_BODY, INVEN_ARM, INVEN_OUTER, INVEN_HEAD, INVEN_HANDS, INVEN_FEET, or 0 if no cursed armor is worn. The order is not the body-slot order (which would be HEAD, BODY, ARM, OUTER, HANDS, FEET) but the order the old code used.
+
+Does not call randint().
 
 ## model/monster — monster state and knowledge
 
