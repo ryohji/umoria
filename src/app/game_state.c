@@ -10,6 +10,7 @@
 
 #include "burden.h"
 #include "command_state.h"
+#include "dungeon_state.h"
 #include "constant.h"
 #include "externs.h"
 #include "game_status.h"
