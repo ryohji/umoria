@@ -16,9 +16,9 @@
 #include "monster_state.h"
 #include "game_status.h"
 
-#include "equipment.h"
+#include "inventory.h"
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 #include "monster_breeding.h"
 #include "monster_turn.h"
 #include "panel.h"

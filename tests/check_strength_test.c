@@ -48,7 +48,6 @@
 #include "types.h"
 
 #include "burden.h"
-#include "equipment.h"
 #include "fixture.h"
 #include "inventory.h"
 #include "player_status_flags.h"

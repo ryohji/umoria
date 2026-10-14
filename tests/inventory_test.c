@@ -33,7 +33,6 @@
 #include "constant.h"
 #include "types.h"
 
-#include "equipment.h"
 #include "inventory.h"
 
 #include "minunit.h"

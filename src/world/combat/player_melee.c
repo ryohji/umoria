@@ -16,9 +16,8 @@
 #include "monster_state.h"
 
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 
-#include "equipment.h"
 #include "inventory.h"
 #include "player_attack_bonuses.h"
 #include "player_base_to_hit.h"

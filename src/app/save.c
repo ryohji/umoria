@@ -19,11 +19,10 @@
 
 #include "burden.h"
 #include "externs.h"
-#include "equipment.h"
 #include "hp_table.h"
 #include "input_ended.h"
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 #include "missile_serial.h"
 #include "monster_breeding.h"
 #include "panel.h"

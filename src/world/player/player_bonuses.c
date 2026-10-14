@@ -17,7 +17,7 @@
 #include "externs.h"
 
 #include "burden.h"
-#include "equipment.h"
+#include "inventory.h"
 #include "player_abilities.h"
 #include "player_armour_class.h"
 #include "player_attack_bonuses.h"

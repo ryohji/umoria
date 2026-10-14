@@ -16,11 +16,10 @@
 #include "game_status.h"
 
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 #include "input_ended.h"
 #include "inventory.h"
-#include "item_flags.h"
-#include "object_levels.h"
+#include "item_knowledge.h"
 #include "game_settings.h"
 #include "player_class.h"
 #include "player_food.h"

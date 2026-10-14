@@ -19,7 +19,6 @@
 #include "externs.h"
 #include "item_picker.h"
 
-#include "equipment.h"
 #include "inventory.h"
 #include "panel.h"
 #include "player_attack_bonuses.h"

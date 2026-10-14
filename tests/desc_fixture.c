@@ -22,7 +22,7 @@
 #include "fixture.h"
 #include "shared_stubs.h"
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 
 /* 各テストの前に呼ぶ。 */
 void fixture_reset(void)

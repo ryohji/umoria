@@ -16,7 +16,7 @@
 #include "dungeon_state.h"
 
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 #include "stores.h"
 
 // None of these prints or asks for input. The callers are app/main.c (store_init),

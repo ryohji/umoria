@@ -15,7 +15,7 @@
 #include "externs.h"
 
 #include "armor_selection.h"
-#include "equipment.h"
+#include "inventory.h"
 #include "fixture.h"
 #include "shared_stubs.h"
 

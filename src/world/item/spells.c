@@ -15,9 +15,8 @@
 #include "dungeon_state.h"
 #include "monster_state.h"
 
-#include "equipment.h"
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 #include "item_picker.h"
 #include "inventory.h"
 #include "panel.h"

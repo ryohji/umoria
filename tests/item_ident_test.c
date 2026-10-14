@@ -26,7 +26,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "item_ident.h"
+#include "item_knowledge.h"
 #include "item_learn.h"
 #include "player_level.h"
 

@@ -17,7 +17,7 @@
 #include "game_status.h"
 
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 #include "panel.h"
 #include "player_pos.h"
 

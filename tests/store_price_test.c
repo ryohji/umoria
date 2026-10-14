@@ -19,7 +19,7 @@
 #include "types.h"
 
 #include "externs.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 #include "player_race.h"
 #include "shared_stubs.h"
 #include "stores.h"

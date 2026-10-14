@@ -15,7 +15,7 @@
 #include "types.h"
 
 #include "externs.h"
-#include "item_flags.h"
+#include "item_knowledge.h"
 #include "player_race.h"
 #include "stores.h"
 

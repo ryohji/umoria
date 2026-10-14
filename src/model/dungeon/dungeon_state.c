@@ -16,7 +16,7 @@
 #include "types.h"
 
 #include "dungeon_state.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 
 // --- From dungeon_level.c: which level ---
 

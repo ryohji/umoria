@@ -21,8 +21,7 @@
 #include "dungeon_state.h"
 
 #include "externs.h"
-#include "object_copy.h"
-#include "object_levels.h"
+#include "item_kinds.h"
 #include "player_pos.h"
 
 // Places a particular trap at location y, x -RAK-

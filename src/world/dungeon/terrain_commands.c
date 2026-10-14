@@ -18,11 +18,11 @@
 #include "monster_state.h"
 
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 
 #include "burden.h"
 #include "command_state.h"
-#include "equipment.h"
+#include "inventory.h"
 #include "panel.h"
 #include "player_body_weight.h"
 #include "player_class.h"

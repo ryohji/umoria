@@ -18,7 +18,6 @@
 #include "item_picker.h"
 
 #include "armor_selection.h"
-#include "equipment.h"
 #include "inventory.h"
 #include "item_learn.h"
 #include "level_exit.h"

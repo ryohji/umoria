@@ -17,7 +17,7 @@
 
 #include "externs.h"
 #include "armor_selection.h"
-#include "equipment.h"
+#include "inventory.h"
 #include "level_exit.h"
 #include "player_abilities.h"
 #include "player_class.h"

@@ -15,11 +15,10 @@
 #include "game_status.h"
 
 #include "externs.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 
 #include "inventory.h"
-#include "item_flags.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 #include "str_insert.h"
 
 static void unsample(inven_type *);

@@ -22,12 +22,12 @@ SRC_SUBDIRS = core model/data model/game model/player model/monster model/dungeo
 SRCS = app/main.c command/files.c ui/io.c \
 	command/create.c world/item/desc.c world/dungeon/generate.c model/data/sets.c app/dungeon.c world/monster/creature.c app/death.c app/input_end_handling.c \
 	command/eat.c command/help.c command/magic.c command/potions.c command/prayer.c app/save.c command/staffs.c world/item/device_use.c command/wands.c model/item/device.c \
-	model/item/item_ident.c world/item/item_learn.c model/item/item_flags.c model/player/abilities.c model/game/game_settings.c ui/messages.c \
+	world/item/item_learn.c model/item/item_knowledge.c model/player/abilities.c model/game/game_settings.c ui/messages.c \
 	command/scrolls.c world/item/spells.c command/wizard.c platform/signals.c platform/signal_flags.c app/signal_handling.c \
 	ui/render.c platform/render_ncurses.c ui/view_observer.c app/game_state.c \
 	ui/input.c platform/input_ncurses.c app/platform_init.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
 	model/item/inventory.c model/item/armor_selection.c model/game/game_status.c model/player/player_pos.c \
-	model/player/hp_table.c model/player/player_light.c model/player/burden.c model/player/spells_known.c model/item/object_levels.c model/item/object_copy.c world/item/inscription.c world/item/item_enchant.c \
+	model/player/hp_table.c model/player/player_light.c model/player/burden.c model/player/spells_known.c model/item/item_kinds.c world/item/inscription.c world/item/item_enchant.c \
 	model/item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c command/options_menu.c \
 	world/dungeon/level_exit.c model/player/pending_teleport.c ui/input_ended.c model/player/running.c \
 	ui/command_state.c model/player/player_gold.c model/player/player_food.c world/player/food_ops.c model/player/player_display_numbers.c \

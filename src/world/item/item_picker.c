@@ -17,10 +17,9 @@
 #include "externs.h"
 
 #include "burden.h"
-#include "equipment.h"
 #include "inventory.h"
 #include "item_picker.h"
-#include "object_copy.h"
+#include "item_kinds.h"
 #include "player_pos.h"
 #include "player_status_flags.h"
 #include "stats.h"
