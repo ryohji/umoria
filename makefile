@@ -55,6 +55,14 @@ include sources.mk
 
 OBJS = $(notdir $(SRCS:.c=.o))
 
+# app/ objects linked directly (not in any archive). APP_SRCS also includes
+# the two ncurses files (platform layer, but not in libplatform.a).
+APP_OBJS = $(notdir $(patsubst %.c,%.o,$(filter app/%,$(SRCS)))) \
+           $(notdir $(patsubst %.c,%.o,$(filter %ncurses.c,$(APP_SRCS))))
+
+# Static libraries (one per layer/sub-layer)
+LIBS = $(addprefix lib,$(addsuffix .a,$(LIB_LINK_ORDER)))
+
 LIBFILES = splash.hlp origcmds.hlp owizcmds.hlp roglcmds.hlp rwizcmds.hlp \
 	version.hlp welcome.hlp
 
@@ -66,11 +74,20 @@ DOCS = manual.md
 # Default target
 all: $(TARGET)
 
-# Link the final executable
-$(TARGET): $(OBJS)
+# Link the final executable: app objects + libraries in layer order + ncurses
+$(TARGET): $(APP_OBJS) $(LIBS)
 	@echo "Linking $(TARGET)..."
-	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS) $(CURSES)
+	$(CC) -o $(TARGET) $(APP_OBJS) $(LIBS) $(LDFLAGS) $(CURSES)
 	@echo "Build complete: $(TARGET)"
+
+# Build each library from its layer's objects
+$(foreach lib,$(LIB_LINK_ORDER),$(eval \
+lib$(lib).a: $(notdir $(LIB_SRCS_$(lib):.c=.o)) ; \
+	@echo "Building lib$(lib).a..." ; \
+	rm -f $$@ ; \
+	$(AR) rcs $$@ $$^ \
+))
+
 
 # Pattern rule for compiling C source files
 # -MMD -MP writes a .d beside each .o listing the headers it included.
@@ -113,6 +130,7 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@rm -f $(OBJS)
 	@rm -f $(OBJS:.o=.d)
+	@rm -f $(LIBS)
 	@rm -f $(TARGET)
 	@rm -f lintout
 	@echo "Clean complete!"

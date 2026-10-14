@@ -67,3 +67,34 @@ APP_SRCS = app/main.c render_ncurses.c input_ncurses.c
 
 # それ以外のすべて。テストはこの中から要るものだけをリンクする。
 CORE_SRCS = $(filter-out $(APP_SRCS) $(addprefix %/,$(APP_SRCS)),$(SRCS))
+
+# ---- 層ごとのライブラリー ----------------------------------------------
+#
+# 各層を静的ライブラリーにして、上の層から下の層の順でリンクする。GNU ld は
+# archive を左から右に 1 度ずつ読むので、下の層から上の層への参照は、その
+# 相手がまだ引かれていなければ undefined reference で止まる。すでに別の理由で
+# 引かれている相手への参照は通ってしまうので、層の規則を確かめる正本は
+# scripts/layer_deps.py --check のほう。
+#
+# model/ の副ライブラリーも分ける。data と game は互いを呼びあえるので 1 つの
+# archive（libmodel_base.a）にまとめる。dungeon と store は item を使える。
+
+LIB_LINK_ORDER = command world ui platform model_player model_monster \
+                 model_dungeon model_store model_item model_base core
+
+# Sources that go into libraries (exclude app/ - those are linked directly)
+LIB_SRCS_ALL = $(filter-out app/%,$(CORE_SRCS))
+
+# Per-library sources (derived from LIB_SRCS_ALL by path prefix)
+LIB_SRCS_command       = $(filter command/%,$(LIB_SRCS_ALL))
+LIB_SRCS_world         = $(filter world/%,$(LIB_SRCS_ALL))
+LIB_SRCS_ui            = $(filter ui/%,$(LIB_SRCS_ALL))
+LIB_SRCS_platform      = $(filter platform/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_player  = $(filter model/player/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_monster = $(filter model/monster/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_dungeon = $(filter model/dungeon/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_store   = $(filter model/store/%,$(LIB_SRCS_ALL))
+LIB_SRCS_model_item    = $(filter model/item/%,$(LIB_SRCS_ALL))
+# model_base: data and game may call each other, so one archive
+LIB_SRCS_model_base    = $(filter model/data/% model/game/%,$(LIB_SRCS_ALL))
+LIB_SRCS_core          = $(filter core/%,$(LIB_SRCS_ALL))

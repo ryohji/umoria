@@ -98,12 +98,13 @@ run: $(BINS)
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
 
-# ---- 本体のライブラリー（libcore.a）----------------------------------------
+# ---- 本体のライブラリー（層ごと）----------------------------------------
 # src/ の .c の一覧は sources.mk に 1 つだけ書いてある（本体の makefile と
 # makefile.win も同じものを読む）。そのうち CORE_SRCS（app/main.c と ncurses を
-# 直に呼ぶ 2 本を除いたもの）を、テストと同じ CFLAGS で 1 本ずつ .o にして
-# 1 つの archive にまとめる。archive は 1 つだけにする（分けると互いに呼び
-# あってリンクの順番が壊れる。docs/refactoring/done/layout.md の L）。
+# 直に呼ぶ 2 本を除いたもの）を、層ごとに分けて archive にする。リンクは
+# 層の順で行う（GNU ld は archive を左から右に 1 回ずつスキャンするので、
+# 上の層から下の層への参照は解決されるが、逆は undefined のままになる。
+# これが層規則の自動検査になる）。
 #
 # LIB_EXCLUDE の 3 本は入れない。どのテストもリンクしておらず、テストの
 # CFLAGS（-O2 も -D_DEFAULT_SOURCE も無い）でコンパイルすると警告が出る
@@ -113,35 +114,69 @@ $(BUILDDIR):
 include sources.mk
 
 # LIB_EXCLUDE は名前だけで書く（%/ の形で、どのディレクトリーにあっても当たる）。
-# .o はディレクトリーを落とした名前で tests/build/core/ に並べ、.c は vpath で
+# .o はディレクトリーを落とした名前で tests/build/ に並べ、.c は vpath で
 # src/ とそのサブディレクトリーから探す（名前は src/ の中で重ならない）。
 LIB_EXCLUDE = app/dungeon.c inven_menu.c signals.c
-LIB_SRCS = $(filter-out $(LIB_EXCLUDE) $(addprefix %/,$(LIB_EXCLUDE)),$(CORE_SRCS))
-LIBOBJDIR = $(BUILDDIR)/core
-LIB_OBJS = $(addprefix $(LIBOBJDIR)/,$(notdir $(LIB_SRCS:.c=.o)))
-vpath %.c src $(addprefix src/,$(SRC_SUBDIRS))
-LIBCORE = $(BUILDDIR)/libcore.a
+ALL_LIB_SRCS = $(filter-out $(LIB_EXCLUDE) $(addprefix %/,$(LIB_EXCLUDE)),$(CORE_SRCS))
+# app/ objects also excluded (they would be linked directly if needed, but tests don't use them)
+ALL_LIB_SRCS := $(filter-out app/%,$(ALL_LIB_SRCS))
 
-$(LIBOBJDIR):
-	@mkdir -p $(LIBOBJDIR)
+LIBOBJDIR = $(BUILDDIR)
+LIB_OBJS = $(addprefix $(LIBOBJDIR)/,$(notdir $(ALL_LIB_SRCS:.c=.o)))
+vpath %.c src $(addprefix src/,$(SRC_SUBDIRS))
+
+# Per-layer libraries in tests/build/
+LIBS = $(addprefix $(BUILDDIR)/lib,$(addsuffix .a,$(LIB_LINK_ORDER)))
 
 # -MMD -MP で、.o ごとに「その .c が取りこんだ src/ と tests/ のヘッダ」を
-# tests/build/core/<name>.d に書かせて読む。以前はどの規則も types.h・
+# tests/build/<name>.d に書かせて読む。以前はどの規則も types.h・
 # constant.h・config.h を依存に書いていなかったので、共有ヘッダを書きかえても
 # 古い実行形式が使いまわされた（HANDOVER 第 7 節）。いまは共有ヘッダが
-# 変われば、それを取りこむ .o → libcore.a → 全テストの順に作りなおされる。
+# 変われば、それを取りこむ .o → 各 lib*.a → 全テストの順に作りなおされる。
 # -MMD -MP は依存の一覧を書き出すだけで、.o の中身は変えない。
-$(LIBOBJDIR)/%.o: %.c | $(LIBOBJDIR)
+$(BUILDDIR)/%.o: %.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
 -include $(LIB_OBJS:.o=.d)
 
-$(LIBCORE): $(LIB_OBJS)
+# Build each library from its layer's objects
+$(BUILDDIR)/libcommand.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_command:.c=.o)))
 	rm -f $@
-	$(AR) rcs $@ $(LIB_OBJS)
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libworld.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_world:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libui.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_ui:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libplatform.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_platform:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libmodel_player.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_model_player:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libmodel_monster.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_model_monster:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libmodel_dungeon.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_model_dungeon:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libmodel_store.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_model_store:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libmodel_item.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_model_item:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libmodel_base.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_model_base:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
+$(BUILDDIR)/libcore.a: $(addprefix $(BUILDDIR)/,$(notdir $(LIB_SRCS_core:.c=.o)))
+	rm -f $@
+	$(AR) rcs $@ $^
 
+# Keep the 'libcore' phony target for backward compatibility (builds all libs)
 .PHONY: libcore
-libcore: $(LIBCORE)
+libcore: $(LIBS)
 
 # ---- テストの実行形式（型の規則）------------------------------------------
 # 実行形式はどれも「tests/<name>.c ＋ 足場の表の tests/ のファイル ＋
@@ -168,13 +203,13 @@ libcore: $(LIBCORE)
 #      store_save_test・savefile_version_test は save.c、haggle_comment_test
 #      は store_haggle.c、movement_rate_test は creature.c）では、その .c の名前はテスト自身が
 #      定義しているので、archive の同じ .o は引かれない。src/ の .c が
-#      変わると libcore.a が作りなおされ、それに依存する全テストがリンクし
+#      変わると該当する lib*.a が作りなおされ、それに依存する全テストがリンクし
 #      なおされるので、#include した .c の変更も拾われる。
 TEST_HEADERS = $(wildcard $(TESTDIR)/*.h)
 
 # ---- 足場の表 ---------------------------------------------------------------
 # 実行形式ごとに、tests/<name>.c と一緒にリンクする tests/ のファイル。
-# 書いていない実行形式は tests/<name>.c だけ（＋ libcore.a）。
+# 書いていない実行形式は tests/<name>.c だけ（＋層ごとの lib*.a）。
 EXTRA_armor_selection_test = shared_stubs.c
 EXTRA_calc_hitpoints_test = shared_stubs.c level_ops_fixture.c
 EXTRA_calc_spells_test = shared_stubs.c spellbook_fixture.c
@@ -205,9 +240,9 @@ EXTRA_stat_bonus_test = stats_fixture.c
 
 .SECONDEXPANSION:
 $(BINS): $(BUILDDIR)/%: $(TESTDIR)/%.c $$(addprefix $(TESTDIR)/,$$(EXTRA_$$*)) \
-                        $(TEST_HEADERS) $(LIBCORE) | $(BUILDDIR)
+                        $(TEST_HEADERS) $(LIBS) | $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/$*.c $(addprefix $(TESTDIR)/,$(EXTRA_$*)) \
-	    $(LIBCORE) -Wl,-Map,$@.map
+	    $(LIBS) -Wl,-Map,$@.map
 
 clean:
 	rm -rf $(BUILDDIR)
