@@ -476,7 +476,7 @@ bool magic_shop(int);
 void nosignals(void);
 void signals(void);
 void init_signals(void);
-void handle_pending_signals(void);
+void signal_state_reset(void);
 
 // world/combat/projectiles.c
 void fire_bolt(int, int, int, int, int, const char *);

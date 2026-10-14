@@ -33,15 +33,9 @@
 #include "types.h"
 
 #include "externs.h"
-#include "messages.h"
-#include "progress.h"
-#include "save_state.h"
-#include "score_death.h"
 #include "signal_flags.h"
-#include "platform.h"
 
 #include <signal.h>
-#include <unistd.h>
 
 static int error_sig = -1;
 static int signal_count = 0;
@@ -108,6 +102,12 @@ void signals(void) {
     }
 }
 
+// Accessors for file-static state (used by signal handling code in app/)
+void signal_state_reset(void) {
+    error_sig = -1;
+    signal_count = 0;
+}
+
 void init_signals(void) {
     /* Initialize signal flags */
     signal_flags_init();
@@ -138,91 +138,4 @@ void init_signals(void) {
 #ifdef SIGXCPU
     (void)signal(SIGXCPU, signal_handler);
 #endif
-}
-
-// Handle pending signals in a safe context (called from main loop)
-// This performs all the I/O operations that were deferred from the signal handler
-void handle_pending_signals(void) {
-    SignalType type;
-    int signum;
-
-    // Check if a signal is pending
-    if (!signal_flags_check(&type, &signum)) {
-        return; // No pending signals
-    }
-
-    // Clear the flag immediately to prevent reprocessing
-    signal_flags_clear();
-
-    // Reset error state
-    error_sig = -1;
-    signal_count = 0;
-
-    // Handle based on signal type
-    if (type == SIGNAL_INTERRUPT) {
-        // User interrupt (SIGINT or SIGQUIT)
-        if (player_is_dead()) {
-            // Can't quit after death - ignore
-            (void)signal(signum, SIG_IGN);
-            return;
-        }
-
-        if (save_state_has_unsaved_character()) {
-            // Ask user for confirmation
-            if (!get_check("Really commit *Suicide*?")) {
-                // User canceled - restore state and continue
-                if (progress_turn() > 0) {
-                    disturb(1, 0);
-                }
-                erase_line(0, 0);
-                put_qio();
-
-                // Restore -more- prompt if needed
-                if (msg_at_more_prompt()) {
-                    put_buffer(" -more-", MSG_LINE, 0);
-                }
-                put_qio();
-                return;
-            }
-
-            // User confirmed suicide
-            (void)strcpy(death_cause(), "Interrupting");
-        } else {
-            (void)strcpy(death_cause(), "Abortion");
-        }
-
-        prt("Interrupt!", 0, 0);
-        set_player_dead(true);
-        exit_game();
-    } else if (type == SIGNAL_ERROR) {
-        // Fatal error signal (SIGSEGV, SIGBUS, etc.)
-        prt("OH NO!!!!!!  A gruesome software bug LEAPS out at you. There is NO "
-            "defense!",
-            23, 0);
-
-        if (save_state_has_live_character()) {
-            // Try panic save
-            set_panic_save(true);
-            prt("Your guardian angel is trying to save you.", 0, 0);
-            (void)sprintf(death_cause(), "(panic save %d)", signum);
-
-            if (!save_char()) {
-                (void)strcpy(death_cause(), "software bug");
-                set_player_dead(true);
-                progress_set_turn(-1);
-            }
-        } else {
-            set_player_dead(true);
-            // Quietly save anyway
-            (void)_save_char(save_file_path());
-        }
-
-        platform_shutdown();
-
-        // Generate core dump for debugging
-        (void)signal(signum, SIG_DFL);
-        (void)kill(getpid(), signum);
-        (void)sleep(5);
-        exit(1);
-    }
 }

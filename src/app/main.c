@@ -26,6 +26,7 @@
 #include "progress.h"
 #include "save_state.h"
 #include "score_death.h"
+#include "signal_handling.h"
 #include "spells_known.h"
 #include "platform.h"
 
