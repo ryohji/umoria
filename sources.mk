@@ -33,9 +33,9 @@ SRCS = app/main.c command/files.c ui/io.c \
 	ui/input.c platform/input_ncurses.c app/platform_init.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/player_stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
 	model/item/inventory.c model/item/armor_selection.c model/game/game_status.c model/player/player_condition.c \
 	model/player/player_spells.c model/item/item_kinds.c world/item/inscription.c world/item/item_enchant.c \
-	model/item/missile_serial.c ui/inven_command_state.c ui/screen_touched.c command/options_menu.c \
-	world/dungeon/level_exit.c ui/input_ended.c \
-	ui/command_state.c world/player/food_ops.c \
+	model/item/missile_serial.c ui/screen_touched.c command/options_menu.c \
+	world/dungeon/level_exit.c \
+	ui/input_state.c world/player/food_ops.c \
 	model/player/player_progress.c \
 	model/player/player_skills.c \
 	model/player/player_identity.c \
