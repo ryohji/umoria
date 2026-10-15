@@ -29,6 +29,8 @@
 #include "player_skills.h"
 #include "player_spells.h"
 
+typedef char stat_type[7];
+
 // Converts stat num into string -RAK-
 void cnv_stat(uint8_t stat, char *out_val) {
     if (stat > 18) {

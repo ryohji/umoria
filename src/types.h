@@ -32,8 +32,6 @@ typedef char bigvtype[BIGVTYPESIZ];
 #define MSGTYPESIZ (BIGVTYPESIZ + VTYPESIZ)
 typedef char msgtype[MSGTYPESIZ];
 
-typedef char stat_type[7];
-
 // Many of the character fields used to be fixed length, which greatly
 // increased the size of the executable.  I have replaced many fixed
 // length fields with variable length ones.
@@ -295,22 +293,5 @@ typedef struct store_type {
     uint16_t bad_buy;
     inven_record store_inven[STORE_INVEN_MAX];
 } store_type;
-
-// 64 bytes for this structure
-typedef struct high_scores {
-    int32_t points;
-    int32_t birth_date;
-    int16_t uid;
-    int16_t mhp;
-    int16_t chp;
-    uint8_t dun_level;
-    uint8_t lev;
-    uint8_t max_dlv;
-    uint8_t sex;
-    uint8_t race;
-    uint8_t class;
-    char name[PLAYER_NAME_SIZE];
-    char died_from[25];
-} high_scores;
 
 #endif // TYPES_H
