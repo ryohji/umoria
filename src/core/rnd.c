@@ -7,11 +7,7 @@
 
 // Random number generator
 
-#include "headers.h"
-
-#include "config.h"
-#include "constant.h"
-#include "types.h"
+#include "int_limits.h"
 #include "rnd.h"
 
 // definitions for the psuedo-normal distribution generation

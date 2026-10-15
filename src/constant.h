@@ -11,12 +11,11 @@
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
+#include "int_limits.h"
+
 #define CUR_VERSION_MAJ  5
 #define CUR_VERSION_MIN  7
 #define PATCH_LEVEL      0
-
-#define MAX_UCHAR         255
-#define MAX_SHORT       32767   // maximum short/long signed ints
 
 // Note to the Wizard:
 //

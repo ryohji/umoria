@@ -12,14 +12,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "config.h"
-#include "constant.h"
-#include "types.h"
+#include "text_buffers.h"
 
 #include "str_insert.h"
 
-// This module uses only the standard library and the vtype typedef
-// (provided through the includes above).
+// This module uses only the standard library and text_buffers.h.
 
 // Returns true if ch is a vowel (lowercase or uppercase).
 bool is_a_vowel(char ch) {

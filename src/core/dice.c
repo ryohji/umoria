@@ -7,11 +7,6 @@
 
 // Dice rolls: what the monster and object tables write as 2d6
 
-#include "headers.h"
-
-#include "config.h"
-#include "constant.h"
-#include "types.h"
 #include "dice.h"
 #include "rnd.h"
 
@@ -27,7 +22,6 @@ int damroll(int num, int sides) {
 int pdamroll(const uint8_t *array) {
     return damroll((int)array[0], (int)array[1]);
 }
-
 
 // Gives Max hit points -RAK-
 int max_hp(const uint8_t *array) {
