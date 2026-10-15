@@ -57,6 +57,24 @@ MODEL_RULES = {
 }
 
 
+# world/ is one library whose files call each other in a loop, but the files
+# fall into four tiers that only call down: what is drawn, the rules on items
+# and the character, what lies on the floor and who lives or dies, and the
+# actions of the player and the monsters. A world/ file in tier i may call
+# world/ files in tiers <= i. Every world/ file must be listed here.
+WORLD_TIERS = [
+    ('view', 'map_view status_line lighting'),
+    ('rules', 'desc inscription item_picker inven_ops player_bonuses stat_ops level_ops '
+              'spellbook rest_command stat_loss food_ops item_learn device_use store_price'),
+    ('floor and life', 'object_place object_alloc monster_death monster_place monster_damage '
+                       'hit_rolls player_damage item_enchant monster_breeding store_stock '
+                       'store_haggle level_exit generate'),
+    ('actions', 'creature monster_melee player_melee projectiles spells traps search '
+                'terrain_commands player_move run_path throw'),
+]
+WORLD_TIER = {u + '.o': i for i, (_, us) in enumerate(WORLD_TIERS) for u in us.split()}
+
+
 def read_sources(path=SOURCES_MK):
     """Return {object basename: source path as written in sources.mk}."""
     text = open(path).read()
@@ -246,6 +264,20 @@ def main():
                     bad += 1
                     print(f'{a} -> {b}: new symbols {" ".join(new_symbols)}')
 
+        # world/ tiers
+        for obj, src in sorted(sources.items()):
+            if layer_of(src) == 'world' and obj in units and obj not in WORLD_TIER:
+                bad += 1
+                print(f'{obj}: world/ file without a tier (add it to WORLD_TIERS)')
+        for (a, b), names in sorted(edges.items()):
+            if a in WORLD_TIER and b in WORLD_TIER and WORLD_TIER[b] > WORLD_TIER[a]:
+                if (a, b) in exceptions and names <= exceptions[(a, b)]:
+                    remaining_exceptions.discard((a, b))
+                    continue
+                bad += 1
+                print(f'{a} ({WORLD_TIERS[WORLD_TIER[a]][0]}) -> {b} '
+                      f'({WORLD_TIERS[WORLD_TIER[b]][0]}): {" ".join(sorted(names))}')
+
         # Check for obsolete exceptions
         for (a, b) in remaining_exceptions:
             print(f'# obsolete exception: {a} -> {b}')
@@ -253,7 +285,7 @@ def main():
         # Summary: count remaining exceptions and their symbols
         remaining_symbols = sum(len(names) for names in exceptions.values())
 
-        print(f'OK: {len(edges)} edges between {len(units)} units; '
+        print(f'{"FAIL" if bad else "OK"}: {len(edges)} edges between {len(units)} units; '
               f'{len(exceptions)} known exceptions remain '
               f'({remaining_symbols} symbols)')
         sys.exit(1 if bad else 0)
