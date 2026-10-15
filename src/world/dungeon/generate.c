@@ -26,6 +26,49 @@
 #include "ui_screen.h"
 #include "player_condition.h"
 
+// Dungeon size parameters
+#define QUART_HEIGHT    (SCREEN_HEIGHT / 4)
+#define QUART_WIDTH     (SCREEN_WIDTH / 4)
+
+// Dungeon generation values
+// Note: The entire design of dungeon can be changed by only slight adjustments here.
+#define DUN_TUN_RND               9   // 1/Chance of Random direction
+#define DUN_TUN_CHG              70   // Chance of changing direction (99 max)
+#define DUN_TUN_CON              15   // Chance of extra tunneling
+#define DUN_ROO_MEA              32   // Mean of # of rooms, standard dev2
+#define DUN_TUN_PEN              25   // % chance of room doors
+#define DUN_TUN_JCT              15   // % chance of doors at tunnel junctions
+#define DUN_STR_DEN               5   // Density of streamers
+#define DUN_STR_RNG               2   // Width of streamers
+#define DUN_STR_MAG               3   // Number of magma streamers
+#define DUN_STR_MC               90   // 1/x chance of treasure per magma
+#define DUN_STR_QUA               2   // Number of quartz streamers
+#define DUN_STR_QC               40   // 1/x chance of treasure per quartz
+#define DUN_UNUSUAL             300   // Level/x chance of unusual room
+
+// Note that the following constants are all related, if you change one, you
+// must also change all succeeding ones. Also, player_init[] and store_choice[]
+// may also have to be changed.
+#define OBJ_SECRET_DOOR         369
+#define OBJ_UP_STAIR            370
+#define OBJ_DOWN_STAIR          371
+#define OBJ_STORE_DOOR          372
+
+// with MAX_TALLOC 150, it is possible to get compacting objects during
+// level generation, although it is extremely rare
+#define TREAS_ROOM_ALLOC          7   // Amount of objects for rooms
+#define TREAS_ANY_ALLOC           2   // Amount of objects for corridors
+#define TREAS_GOLD_ALLOC          2   // Amount of gold (and gems)
+
+// with MAX_MALLOC 101, it is possible to get compacting monsters messages
+// while breeding/cloning monsters
+#define MIN_MALLOC_LEVEL         14   // Minimum number of monsters/level
+#define MIN_MALLOC_TD             4   // Number of people on town level (day)
+#define MIN_MALLOC_TN             8   // Number of people on town level (night)
+
+#define TMP1_WALL            8
+#define TMP2_WALL            9
+
 typedef struct coords {
     int x, y;
 } coords;

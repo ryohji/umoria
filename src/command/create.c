@@ -24,6 +24,9 @@
 #include "player_identity.h"
 #include "player_skills.h"
 
+// Player constants
+#define PLAYER_EXIT_PAUSE         2   // Pause time before player can re-roll
+
 // Generates character's stats -JWT-
 static void get_stats(void) {
     int tot;

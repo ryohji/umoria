@@ -36,6 +36,9 @@
 #include "player_skills.h"
 #include "player_progress.h"
 
+// indexes into the special name table
+#define SN_DISARMED           53
+
 // Store entrance handler, set at startup
 static void (*store_entrance_handler)(int store_num) = NULL;
 

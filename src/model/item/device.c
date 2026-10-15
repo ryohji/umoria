@@ -24,6 +24,9 @@
 
 #include "device.h"
 
+// Player constants
+#define USE_DEVICE                3   // x> Harder devices x< Easier devices
+
 int device_use_chance(int save, int int_adj, int item_level, int penalty, int class_device_adj, int player_level, int confused) {
     int chance = save + int_adj - item_level - penalty + (class_device_adj * player_level / 3);
 

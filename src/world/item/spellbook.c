@@ -28,6 +28,10 @@
 #include "player_condition.h"
 #include "player_stats.h"
 
+// offsets to spell names in spell_names[] array
+#define SPELL_OFFSET         0
+#define PRAYER_OFFSET       31
+
 // Returns spell chance of failure for spell -RAK-
 static int spell_chance(int spell) {
     spell_type *s_ptr = &magic_spell[player_class() - 1][spell];

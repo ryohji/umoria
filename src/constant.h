@@ -17,7 +17,6 @@
 
 #define MAX_UCHAR         255
 #define MAX_SHORT       32767   // maximum short/long signed ints
-#define MAX_LONG   0x7FFFFFFFL
 
 // Note to the Wizard:
 //
@@ -46,111 +45,44 @@
 #define MAX_WIDTH      198   // Multiple of 33; >= 66
 #define SCREEN_HEIGHT   22
 #define SCREEN_WIDTH    66
-#define QUART_HEIGHT    (SCREEN_HEIGHT / 4)
-#define QUART_WIDTH     (SCREEN_WIDTH / 4)
-
-// Dungeon generation values
-// Note: The entire design of dungeon can be changed by only slight adjustments here.
-#define DUN_TUN_RND               9   // 1/Chance of Random direction
-#define DUN_TUN_CHG              70   // Chance of changing direction (99 max)
-#define DUN_TUN_CON              15   // Chance of extra tunneling
-#define DUN_ROO_MEA              32   // Mean of # of rooms, standard dev2
-#define DUN_TUN_PEN              25   // % chance of room doors
-#define DUN_TUN_JCT              15   // % chance of doors at tunnel junctions
-#define DUN_STR_DEN               5   // Density of streamers
-#define DUN_STR_RNG               2   // Width of streamers
-#define DUN_STR_MAG               3   // Number of magma streamers
-#define DUN_STR_MC               90   // 1/x chance of treasure per magma
-#define DUN_STR_QUA               2   // Number of quartz streamers
-#define DUN_STR_QC               40   // 1/x chance of treasure per quartz
-#define DUN_UNUSUAL             300   // Level/x chance of unusual room
 
 // Store constants
 #define MAX_OWNERS               18   // Number of owners to choose from
 #define MAX_STORES                6   // Number of different stores
 #define STORE_INVEN_MAX          24   // Max number of discrete objs in inven
 #define STORE_CHOICES            26   // NUMBER of items to choose stock from
-#define STORE_MAX_INVEN          18   // Max diff objs in stock for auto buy
-#define STORE_MIN_INVEN          10   // Min diff objs in stock for auto sell
-#define STORE_TURN_AROUND         9   // Amount of buying and selling normally
-#define COST_ADJ                100   // Adjust prices for buying and selling
 
 // Treasure constants
 #define INVEN_ARRAY_SIZE         34   // Size of inventory array(Do not change)
 #define MAX_OBJ_LEVEL            50   // Maximum level of magic in dungeon
-#define OBJ_GREAT                12   // 1/n Chance of item being a Great Item
 
 // Note that the following constants are all related, if you change one, you
 // must also change all succeeding ones. Also, player_init[] and store_choice[]
 // may also have to be changed.
 #define MAX_OBJECTS             420   // Number of objects for universe
 #define MAX_DUNGEON_OBJ         344   // Number of dungeon objects
-#define OBJ_OPEN_DOOR           367
-#define OBJ_CLOSED_DOOR         368
-#define OBJ_SECRET_DOOR         369
-#define OBJ_UP_STAIR            370
-#define OBJ_DOWN_STAIR          371
-#define OBJ_STORE_DOOR          372
-#define OBJ_TRAP_LIST           378
-#define OBJ_RUBBLE              396
-#define OBJ_MUSH                397
-#define OBJ_SCARE_MON           398
-#define OBJ_GOLD_LIST           399
 #define OBJ_NOTHING             417
-#define OBJ_RUINED_CHEST        418
-#define OBJ_WIZARD              419
 #define OBJECT_IDENT_SIZE       448   // 7 groups of 64 secret kinds; see item_knowledge.h
-#define MAX_GOLD                 18   // Number of different types of gold
 
 // with MAX_TALLOC 150, it is possible to get compacting objects during
 // level generation, although it is extremely rare
 #define MAX_TALLOC              175   // Max objects per level
 #define MIN_TRIX                  1   // Minimum t_list index used
-#define TREAS_ROOM_ALLOC          7   // Amount of objects for rooms
-#define TREAS_ANY_ALLOC           2   // Amount of objects for corridors
-#define TREAS_GOLD_ALLOC          2   // Amount of gold (and gems)
-
-// Magic Treasure Generation constants
-// Note: Number of special objects, and degree of enchantments can be adjusted here.
-#define OBJ_STD_ADJ             125   // Adjust STD per level * 100
-#define OBJ_STD_MIN               7   // Minimum STD
-#define OBJ_TOWN_LEVEL            7   // Town object generation level
-#define OBJ_BASE_MAGIC           15   // Base amount of magic
-#define OBJ_BASE_MAX             70   // Max amount of magic
-#define OBJ_DIV_SPECIAL           6   // magic_chance/#   special magic
-#define OBJ_DIV_CURSED           13   // 10*magic_chance/#  cursed items
-
-// Constants describing limits of certain objects
-#define OBJ_LAMP_MAX          15000   // Maximum amount that lamp can be filled
-#define OBJ_BOLT_RANGE           18   // Maximum range of bolts and balls
-#define OBJ_RUNE_PROT          3000   // Rune of protection resistance
 
 // Creature constants
 #define MAX_CREATURES           279   // Number of creatures defined for univ
-#define N_MONS_ATTS             215   // Number of monster attack types.
 
 // with MAX_MALLOC 101, it is possible to get compacting monsters messages
 // while breeding/cloning monsters
 #define MAX_MALLOC              125   // Max that can be allocated
-#define MAX_MALLOC_CHANCE       160   // 1/x chance of new monster each round
 #define MAX_MONS_LEVEL           40   // Maximum level of creatures
 #define MAX_SIGHT                20   // Maximum dis a creature can be seen
-#define MAX_SPELL_DIS            20   // Maximum dis creat. spell can be cast
 #define MAX_MON_MULT             75   // Maximum reproductions on a level
-#define MON_MULT_ADJ              7   // High value slows multiplication
-#define MON_NASTY                50   // 1/x chance of high level creat
-#define MIN_MALLOC_LEVEL         14   // Minimum number of monsters/level
-#define MIN_MALLOC_TD             4   // Number of people on town level (day)
-#define MIN_MALLOC_TN             8   // Number of people on town level (night)
 #define WIN_MON_TOT               2   // Total number of "win" creatures
 #define WIN_MON_APPEAR           50   // Level where winning creatures begin
 #define MON_SUMMON_ADJ            2   // Adjust level of summoned creatures
-#define MON_DRAIN_LIFE            2   // Percent of player exp drained per hit
 #define MAX_MON_NATTACK           4   // Max num attacks (used in mons memory) -CJS-
 #define MIN_MONIX                 2   // Lowest row the monster list hands out (1 = the player, 0 = no mon)
-
-// Trap constants
-#define MAX_TRAP                 18   // Number of defined traps
 
 #define SCARE_MONSTER            99
 
@@ -161,7 +93,6 @@
 #define MAX_METALS               25   // Used with wands
 #define MAX_ROCKS                32   // Used with rings
 #define MAX_AMULETS              11   // Used with amulets
-#define MAX_TITLES               45   // Used with scrolls
 #define MAX_SYLLABLES           153   // Used with scrolls
 
 // Player constants
@@ -169,21 +100,11 @@
 #define MAX_EXP             9999999L  // Maximum amount of experience -CJS-
 #define MAX_RACES                 8   // Number of defined races
 #define MAX_CLASS                 6   // Number of defined classes
-#define USE_DEVICE                3   // x> Harder devices x< Easier devices
 #define MAX_BACKGROUND          128   // Number of types of histories for univ
-#define PLAYER_FOOD_FULL      10000   // Getting full
 #define PLAYER_FOOD_MAX       15000   // Maximum food value, beyond is wasted
-#define PLAYER_FOOD_FAINT       300   // Character begins fainting
-#define PLAYER_FOOD_WEAK       1000   // Warn player that he is getting very low
-#define PLAYER_FOOD_ALERT      2000   // Warn player that he is getting low
-#define PLAYER_REGEN_FAINT       33   // Regen factor*2^16 when fainting
-#define PLAYER_REGEN_WEAK        98   // Regen factor*2^16 when weak
 #define PLAYER_REGEN_NORMAL     197   // Regen factor*2^16 when full
 #define PLAYER_REGEN_HPBASE    1442   // Min amount hp regen*2^16
 #define PLAYER_REGEN_MNBASE     524   // Min amount mana regen*2^16
-#define PLAYER_WEIGHT_CAP       130   // "#"*(1/10 pounds) per strength point
-#define WEAPON_WEIGHT_PER_STR    15   // Weapon effective weight limit per strength point
-#define PLAYER_EXIT_PAUSE         2   // Pause time before player can re-roll
 
 // class level adjustment constants
 #define CLA_BTH                   0
@@ -243,7 +164,6 @@
 #define NULL_WALL            0
 #define DARK_FLOOR           1
 #define LIGHT_FLOOR          2
-#define MAX_CAVE_ROOM        2
 #define CORR_FLOOR           3
 #define BLOCKED_FLOOR        4 // a corridor space with cl/st/se door or rubble
 #define MAX_CAVE_FLOOR       4
@@ -251,30 +171,16 @@
 #define MAX_OPEN_SPACE       3
 #define MIN_CLOSED_SPACE     4
 
-#define TMP1_WALL            8
-#define TMP2_WALL            9
-
 #define MIN_CAVE_WALL       12
 #define GRANITE_WALL        12
 #define MAGMA_WALL          13
 #define QUARTZ_WALL         14
 #define BOUNDARY_WALL       15
 
-// Column for stats
-#define STAT_COLUMN          0
-
 // Class spell types
 #define NONE                 0
 #define MAGE                 1
 #define PRIEST               2
-
-// offsets to spell names in spell_names[] array
-#define SPELL_OFFSET         0
-#define PRAYER_OFFSET       31
-
-// definitions for the psuedo-normal distribution generation
-#define NORMAL_TABLE_SIZE  256
-#define NORMAL_TABLE_SD     64  // the standard deviation for the table
 
 // definitions for the player's status field
 #define PY_HUNGRY       0x00000001L
@@ -313,13 +219,7 @@
 #define PY_MANA         0x80000000L
 
 // definitions for objects that can be worn
-#define TR_STATS        0x0000003FL  // the stats must be the low 6 bits
 #define TR_STR          0x00000001L
-#define TR_INT          0x00000002L
-#define TR_WIS          0x00000004L
-#define TR_DEX          0x00000008L
-#define TR_CON          0x00000010L
-#define TR_CHR          0x00000020L
 #define TR_SEARCH       0x00000040L
 #define TR_SLOW_DIGEST  0x00000080L
 #define TR_STEALTH      0x00000100L
@@ -328,7 +228,6 @@
 #define TR_REGEN        0x00000800L
 #define TR_SPEED        0x00001000L
 
-#define TR_EGO_WEAPON   0x0007E000L
 #define TR_SLAY_DRAGON  0x00002000L
 #define TR_SLAY_ANIMAL  0x00004000L
 #define TR_SLAY_EVIL    0x00008000L
@@ -344,20 +243,8 @@
 #define TR_SEE_INVIS    0x01000000L
 #define TR_RES_LIGHT    0x02000000L
 #define TR_FFALL        0x04000000L
-#define TR_BLIND        0x08000000L
-#define TR_TIMID        0x10000000L
-#define TR_TUNNEL       0x20000000L
 #define TR_INFRA        0x40000000L
 #define TR_CURSED       0x80000000L
-
-// definitions for chests
-#define CH_LOCKED       0x00000001L
-#define CH_TRAPPED      0x000001F0L
-#define CH_LOSE_STR     0x00000010L
-#define CH_POISON       0x00000020L
-#define CH_PARALYSED    0x00000040L
-#define CH_EXPLODE      0x00000080L
-#define CH_SUMMON       0x00000100L
 
 // definitions for creatures, cmove field
 #define CM_ALL_MV_FLAGS 0x0000003FL
@@ -366,18 +253,7 @@
 // For Quylthulgs, which have no physical movement.
 #define CM_ONLY_MAGIC   0x00000004L
 
-#define CM_RANDOM_MOVE  0x00000038L
-#define CM_20_RANDOM    0x00000008L
-#define CM_40_RANDOM    0x00000010L
-#define CM_75_RANDOM    0x00000020L
-
-#define CM_SPECIAL      0x003F0000L
 #define CM_INVISIBLE    0x00010000L
-#define CM_OPEN_DOOR    0x00020000L
-#define CM_PHASE        0x00040000L
-#define CM_EATS_OTHER   0x00080000L
-#define CM_PICKS_UP     0x00100000L
-#define CM_MULTIPLY     0x00200000L
 
 #define CM_SMALL_OBJ    0x00800000L
 #define CM_CARRY_OBJ    0x01000000L
@@ -393,8 +269,6 @@
 
 // creature spell definitions
 #define CS_FREQ         0x0000000FL
-#define CS_SPELLS       0x0001FFF0L
-#define CS_TEL_SHORT    0x00000010L
 #define CS_TEL_LONG     0x00000020L
 #define CS_TEL_TO       0x00000040L
 #define CS_LGHT_WND     0x00000080L
@@ -408,25 +282,15 @@
 #define CS_SLOW_PER     0x00008000L
 #define CS_DRAIN_MANA   0x00010000L
 
-#define CS_BREATHE      0x00F80000L // may also just indicate resistance
 #define CS_BR_LIGHT     0x00080000L // if no spell frequency set
-#define CS_BR_GAS       0x00100000L
-#define CS_BR_ACID      0x00200000L
-#define CS_BR_FROST     0x00400000L
-#define CS_BR_FIRE      0x00800000L
 
 // creature defense flags
 #define CD_DRAGON       0x0001
 #define CD_ANIMAL       0x0002
 #define CD_EVIL         0x0004
 #define CD_UNDEAD       0x0008
-#define CD_WEAKNESS     0x03F0
 #define CD_FROST        0x0010
 #define CD_FIRE         0x0020
-#define CD_POISON       0x0040
-#define CD_ACID         0x0080
-#define CD_LIGHT        0x0100
-#define CD_STONE        0x0200
 
 #define CD_NO_SLEEP     0x1000
 #define CD_INFRA        0x2000
@@ -451,7 +315,6 @@
 
 // id's used for object description, stored in the per-kind records; see
 // item_ident.h
-#define OD_TRIED        0x1
 #define OD_KNOWN1       0x2
 
 // id's used for item description, stored in i_ptr->ident
@@ -466,61 +329,6 @@
 
 // indexes into the special name table
 #define SN_NULL                0
-#define SN_R                   1
-#define SN_RA                  2
-#define SN_RF                  3
-#define SN_RC                  4
-#define SN_RL                  5
-#define SN_HA                  6
-#define SN_DF                  7
-#define SN_SA                  8
-#define SN_SD                  9
-#define SN_SE                 10
-#define SN_SU                 11
-#define SN_FT                 12
-#define SN_FB                 13
-#define SN_FREE_ACTION        14
-#define SN_SLAYING            15
-#define SN_CLUMSINESS         16
-#define SN_WEAKNESS           17
-#define SN_SLOW_DESCENT       18
-#define SN_SPEED              19
-#define SN_STEALTH            20
-#define SN_SLOWNESS           21
-#define SN_NOISE              22
-#define SN_GREAT_MASS         23
-#define SN_INTELLIGENCE       24
-#define SN_WISDOM             25
-#define SN_INFRAVISION        26
-#define SN_MIGHT              27
-#define SN_LORDLINESS         28
-#define SN_MAGI               29
-#define SN_BEAUTY             30
-#define SN_SEEING             31
-#define SN_REGENERATION       32
-#define SN_STUPIDITY          33
-#define SN_DULLNESS           34
-#define SN_BLINDNESS          35
-#define SN_TIMIDNESS          36
-#define SN_TELEPORTATION      37
-#define SN_UGLINESS           38
-#define SN_PROTECTION         39
-#define SN_IRRITATION         40
-#define SN_VULNERABILITY      41
-#define SN_ENVELOPING         42
-#define SN_FIRE               43
-#define SN_SLAY_EVIL          44
-#define SN_DRAGON_SLAYING     45
-#define SN_EMPTY              46
-#define SN_LOCKED             47
-#define SN_POISON_NEEDLE      48
-#define SN_GAS_TRAP           49
-#define SN_EXPLOSION_DEVICE   50
-#define SN_SUMMONING_RUNES    51
-#define SN_MULTIPLE_TRAPS     52
-#define SN_DISARMED           53
-#define SN_UNLOCKED           54
-#define SN_SLAY_ANIMAL        55
 #define SN_ARRAY_SIZE         56 // must be at end of this list
 
 // defines for treasure type values (tval)
@@ -528,10 +336,6 @@
 #define TV_NOTHING             0
 #define TV_MISC                1
 #define TV_CHEST               2
-
-// min tval for wearable items, all items between TV_MIN_WEAR and
-// TV_MAX_WEAR use the same flag bits, see the TR_* defines.
-#define TV_MIN_WEAR           10
 
 // items tested for enchantments, i.e. the MAGIK inscription,
 // see the enchanted() procedure.
@@ -599,8 +403,5 @@
 #define GF_FROST               4
 #define GF_FIRE                5
 #define GF_HOLY_ORB            6
-
-// Number of entries allowed in the scorefile.
-#define SCOREFILE_SIZE      1000
 
 #endif // CONSTANT_H

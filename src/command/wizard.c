@@ -29,6 +29,11 @@
 #include "player_progress.h"
 #include "player_condition.h"
 
+// Note that the following constants are all related, if you change one, you
+// must also change all succeeding ones. Also, player_init[] and store_choice[]
+// may also have to be changed.
+#define OBJ_WIZARD              419
+
 // lets anyone enter wizard mode after a disclaimer... -JEW-
 bool enter_wiz_mode(void) {
     bool answer = false;

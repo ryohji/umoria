@@ -32,4 +32,9 @@ int roff_recall(creature_type *);
 
 // --- wizard.c ---
 
+// --- constants ---
+// min tval for wearable items, all items between TV_MIN_WEAR and
+// TV_MAX_WEAR use the same flag bits, see the TR_* defines.
+#define TV_MIN_WEAR           10
+
 #endif // COMMAND_INTERNAL_H

@@ -31,6 +31,9 @@
 #include "player_stats.h"
 #include "player_condition.h"
 
+// Player constants
+#define PLAYER_WEIGHT_CAP       130   // "#"*(1/10 pounds) per strength point
+
 // Destroy an item in the inventory -RAK-
 void inven_destroy(int item_val) {
     inven_type *i_ptr = inventory_at(item_val);

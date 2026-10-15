@@ -22,6 +22,9 @@
 #include "player_condition.h"
 #include "player_skills.h"
 
+// definitions for objects that can be worn
+#define TR_STATS        0x0000003FL  // the stats must be the low 6 bits
+
 // Changes speed of monsters relative to player -RAK-
 // Note: When the player is sped up or slowed down, I simply change
 // the speed of all the monsters. This greatly simplified the logic.

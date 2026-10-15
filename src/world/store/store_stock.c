@@ -23,6 +23,15 @@
 #include "item_kinds.h"
 #include "stores.h"
 
+// Store constants
+#define STORE_MAX_INVEN          18   // Max diff objs in stock for auto buy
+#define STORE_MIN_INVEN          10   // Min diff objs in stock for auto sell
+#define STORE_TURN_AROUND         9   // Amount of buying and selling normally
+
+// Magic Treasure Generation constants
+// Note: Number of special objects, and degree of enchantments can be adjusted here.
+#define OBJ_TOWN_LEVEL            7   // Town object generation level
+
 // None of these prints or asks for input. The callers are app/main.c (store_init),
 // the main loop, the level generator and the save file loader (store_maint),
 // and the buying and selling in store_ui.c (the other three).

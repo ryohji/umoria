@@ -204,4 +204,44 @@ bool test_light(int, int);
 void prt_title(void);
 void prt_level(void);
 
+// --- constants ---
+// Note that the following constants are all related, if you change one, you
+// must also change all succeeding ones. Also, player_init[] and store_choice[]
+// may also have to be changed.
+#define OBJ_OPEN_DOOR           367
+#define OBJ_CLOSED_DOOR         368
+
+// Constants describing limits of certain objects
+#define OBJ_BOLT_RANGE           18   // Maximum range of bolts and balls
+
+// Trap constants
+#define MAX_TRAP                 18   // Number of defined traps
+
+// Player constants
+#define WEAPON_WEIGHT_PER_STR    15   // Weapon effective weight limit per strength point
+
+// Column for stats
+#define STAT_COLUMN          0
+
+#define TR_BLIND        0x08000000L
+#define TR_TIMID        0x10000000L
+
+// definitions for chests
+#define CH_LOCKED       0x00000001L
+#define CH_TRAPPED      0x000001F0L
+#define CH_LOSE_STR     0x00000010L
+#define CH_POISON       0x00000020L
+#define CH_PARALYSED    0x00000040L
+#define CH_EXPLODE      0x00000080L
+#define CH_SUMMON       0x00000100L
+
+#define CM_PHASE        0x00040000L
+
+// creature defense flags
+#define CD_LIGHT        0x0100
+
+// indexes into the special name table
+#define SN_EMPTY              46
+#define SN_LOCKED             47
+
 #endif // WORLD_INTERNAL_H

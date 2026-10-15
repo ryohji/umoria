@@ -38,6 +38,23 @@
 #include "player_condition.h"
 #include "player_progress.h"
 
+// Constants describing limits of certain objects
+#define OBJ_RUNE_PROT          3000   // Rune of protection resistance
+
+// with MAX_MALLOC 101, it is possible to get compacting monsters messages
+// while breeding/cloning monsters
+#define MAX_SPELL_DIS            20   // Maximum dis creat. spell can be cast
+#define MON_MULT_ADJ              7   // High value slows multiplication
+
+#define CM_20_RANDOM    0x00000008L
+#define CM_40_RANDOM    0x00000010L
+#define CM_75_RANDOM    0x00000020L
+
+#define CM_OPEN_DOOR    0x00020000L
+#define CM_EATS_OTHER   0x00080000L
+#define CM_PICKS_UP     0x00100000L
+#define CM_MULTIPLY     0x00200000L
+
 // Updates screen when monsters move about -RAK-
 void update_mon(int monptr) {
     cave_type *c_ptr;

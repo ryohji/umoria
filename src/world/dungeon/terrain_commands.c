@@ -40,6 +40,18 @@
 #include "player_progress.h"
 #include "player_condition.h"
 
+// Note that the following constants are all related, if you change one, you
+// must also change all succeeding ones. Also, player_init[] and store_choice[]
+// may also have to be changed.
+#define OBJ_RUINED_CHEST        418
+
+// Fval definitions: these describe the various types of dungeon floors and
+// walls, if numbers above 15 are ever used, then the test against MIN_CAVE_WALL
+// will have to be changed, also the save routines will have to be changed.
+#define MAX_CAVE_ROOM        2
+
+#define TR_TUNNEL       0x20000000L
+
 // Opens a closed door or closed chest. -RAK-
 void openobject(void) {
     int y = player_row();

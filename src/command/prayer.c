@@ -30,6 +30,8 @@
 #include "player_condition.h"
 #include "player_spells.h"
 
+#include "command_internal.h"
+
 // Pray like HELL. -RAK-
 void pray(void) {
     int i, j, item_val, dir;

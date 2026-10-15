@@ -27,6 +27,8 @@
 #include "player_condition.h"
 #include "player_progress.h"
 
+#define MAX_LONG   0x7FFFFFFFL
+
 // Potions for the quaffing -RAK-
 void quaff(void) {
     free_turn_flag = true;

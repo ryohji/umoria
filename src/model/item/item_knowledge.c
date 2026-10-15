@@ -10,6 +10,10 @@
 #include "types.h"
 #include "item_knowledge.h"
 
+// id's used for object description, stored in the per-kind records; see
+// item_ident.h
+#define OD_TRIED        0x1
+
 // Display hint setters
 void item_show_hit_dam(inven_type *i_ptr) {
     i_ptr->ident |= ID_SHOW_HITDAM;
