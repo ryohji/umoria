@@ -10,7 +10,7 @@
  * 画面に出す数字、4 つめは魔力、5 つめは体力、6 つめは階級と経験値、7 つめは
  * 状態の旗、8 つめは装備で決まる耐性・能力）。答えは 18 個 —— もとは
  * py.flags.blind から py.flags.tim_infra まで、18 ファイルから 281 か所が
- * 触っていた —— で、#18-12-9C からは src/player/player_timed_effects.c の中の配列
+ * 触っていた —— で、#18-12-9C からは src/model/player/player_timed_effects.c の中の配列
  * 1 つだけが持っている。
  *
  * **この単位で新しいのは「module が別の module を呼ぶ」こと。** 印
@@ -24,7 +24,7 @@
  *      言わなければならない）。
  *   2. **18 個は 18 個。** 1 つの配列に並んでいるので添字の取りちがえは隣を
  *      巻きこむ。1 個だけ動かして 18 個ぜんぶの「効いているか」を見る。
- *   3. **数は 0 を通りすぎて負になる。** dungeon.c は英雄状態で新しく怖がった
+ *   3. **数は 0 を通りすぎて負になる。** app/dungeon.c は英雄状態で新しく怖がった
  *      人の恐れを 0 に置き、同じターンの数えおとしがそれを **-1** にする ——
  *      終わりの message も印の消しも起きず、-1 は残りつづけて次の恐れを
  *      1 ターン短くする。**「0 で止める」ように直すとふるまいが変わる**ので、
@@ -39,8 +39,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 
@@ -419,7 +418,7 @@ TEST(a_beginning_is_due_the_first_time) {
     ASSERT_TRUE(player_timed_beginning(PLAYER_TIMED_BLINDNESS));
 }
 
-/* dungeon.c が毎ターン聞くので、2 度めからは「もう言った」でなければ message が
+/* app/dungeon.c が毎ターン聞くので、2 度めからは「もう言った」でなければ message が
  * 毎ターン出る。 */
 TEST(a_beginning_is_not_due_again_on_the_next_turn) {
     given_no_state_at_all();
@@ -551,7 +550,7 @@ TEST(all_eighteen_clocks_run_out_on_their_own_last_turn) {
 
 /* --- 0 を通りすぎる（恐れの -1） ---------------------------------------- */
 
-/* dungeon.c:301-320 の形そのまま: 英雄状態の人が新しく怖がると、その恐れは
+/* app/dungeon.c:301-320 の形そのまま: 英雄状態の人が新しく怖がると、その恐れは
  * 0 に置かれ、**同じターンの数えおとしがそれを -1 にする**。 */
 
 TEST(counting_down_from_zero_reaches_minus_one) {
@@ -593,7 +592,7 @@ TEST(passing_through_zero_never_puts_the_mark_away) {
     ASSERT_EQ_INT(player_status_word(), PY_FEAR);
 }
 
-/* -1 は残りつづける（dungeon.c の塊は「0 より大きいあいだ」しか走らないので
+/* -1 は残りつづける（app/dungeon.c の塊は「0 より大きいあいだ」しか走らないので
  * 誰も直さない）、そして次の恐れを 1 ターン短くする。 */
 TEST(the_minus_one_makes_the_next_fright_one_turn_shorter) {
     given_no_state_at_all();

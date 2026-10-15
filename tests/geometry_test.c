@@ -16,9 +16,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "dungeon_size.h"
-#include "externs.h"
+#include "dungeon_state.h"
+#include "geometry.h"
 #include "minunit.h"
 
 #include <stdbool.h>

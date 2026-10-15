@@ -6,8 +6,8 @@
 
 /* キャラクターの能力値算出のテスト -- 現在の実装を保護する
  *
- * src/ui/char_screen.c:133-160 の put_misc3()（画面表示版）と
- * src/ui/files.c:232-249 の file_character()（ファイル出力版）に、
+ * src/command/char_screen.c:133-160 の put_misc3()（画面表示版）と
+ * src/command/files.c:232-249 の file_character()（ファイル出力版）に、
  * 9 つの式が丸ごと二重に書かれている（コメントまで完全一致で、
  * 差異は出力先が put_buffer か fprintf かだけ）。片方だけ直すと
  * 画面とファイルで数値が食いちがう。
@@ -24,7 +24,7 @@
  * 各テストは「likert の境界をまたぐかどうか」で式を固定している。
  * xstl だけは likert(xstl, 1) で除数が 1 なので 1 刻みで観測できる。
  *
- * likert(x, y) の対応（src/ui/char_screen.c:79）:
+ * likert(x, y) の対応（src/command/char_screen.c:79）:
  *   x/y = -3..-1 "Very Bad", 0..1 "Bad", 2 "Poor", 3..4 "Fair",
  *         5 "Good", 6 "Very Good", 7..8 "Excellent", それ以上 "Superb"
  *
@@ -38,20 +38,15 @@
 #include "types.h"
 
 #include "fixture.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
-#include "player_class.h"
-#include "player_disarm.h"
-#include "player_search_skill.h"
-#include "player_infra_range.h"
-#include "player_level.h"
-#include "player_saving_throw.h"
-#include "player_stealth.h"
-#include "stats.h"
+#include "player_stats.h"
+#include "player_identity.h"
+#include "player_skills.h"
+#include "player_progress.h"
 
 
-/* 検証対象（src/ui/char_screen.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+/* 検証対象（src/command/char_screen.c）の宣言は externs.h から受ける。 */
+#include "commands.h"
+#include "command_internal.h"
 
 #define MU_SETUP() fixture_reset()
 
@@ -60,7 +55,7 @@
 /* ------------------------------------------------------------------
  * 観測の窓口
  *
- * put_misc3() が put_buffer() で書く座標（src/ui/char_screen.c:139-159）。
+ * put_misc3() が put_buffer() で書く座標（src/command/char_screen.c:139-159）。
  * 左列 15、中列 42、右列 69 に likert() の文字列が入る。
  * ------------------------------------------------------------------ */
 #define AT_FIGHTING     fixture_screen_text(16, 15) /* xbth  / 12 */
@@ -83,7 +78,7 @@
  * ------------------------------------------------------------------ */
 
 /* class_level_adj の行と、掛かるレベルを決める。
- * class_level_adj（src/data/player.c:300）の列は
+ * class_level_adj（src/model/data/player.c:300）の列は
  *   bth, bthb, device, disarm, save の順。
  * 行は 0 Warrior {4,4,2,2,3}, 1 Mage {2,2,4,3,3}, 3 Rogue {3,4,3,4,3}。 */
 static void given_class_and_level(int pclass, int lev)
@@ -94,14 +89,14 @@ static void given_class_and_level(int pclass, int lev)
 
 /* stat_adj() / todis_adj() が見る能力値。A_INT と A_WIS に違う値を
  * 入れることで、式がどちらを見ているかを判別できるようにする。
- * stat_adj（src/player/stats.c:51）は 7 以下 -> 0、8..14 -> 1、15..17 -> 2、
+ * stat_adj（src/model/player/stats.c:51）は 7 以下 -> 0、8..14 -> 1、15..17 -> 2、
  * 18..67 -> 3、68..87 -> 4。 */
 static void given_stat(int which, int value)
 {
     player_stat_set_use(which, (uint8_t)value);
 }
 
-/* todis_adj()（src/player/stats.c:125）は A_DEX を見る。既定の 0 では -8 を
+/* todis_adj()（src/model/player/stats.c:125）は A_DEX を見る。既定の 0 では -8 を
  * 返して xdis に -16 が乗ってしまうので、xdis を見ないテストでも
  * 邪魔にならないよう「0 を返す値」を明示できるようにする。
  * A_DEX が 8..12 なら todis_adj() は 0。 */
@@ -175,9 +170,9 @@ TEST(xfos_is_clamped_to_zero_when_fos_exceeds_forty)
 
 /* SUSPICIOUS: 本体のコメント「this results in a range from 0 to 29」は
  * fos が 11 以上でないと成りたたない。キャラクター作成時の fos は
- * class の mfos（16..38、src/data/player.c:288）に race の fos（-5..5、
- * src/data/player.c:110）を足した 11..43 なので上端 29 は合う。しかし
- * 探索つきの装備は fos を減らす（src/player/player_bonuses.c の fos -= amount）
+ * class の mfos（16..38、src/model/data/player.c:288）に race の fos（-5..5、
+ * src/model/data/player.c:110）を足した 11..43 なので上端 29 は合う。しかし
+ * 探索つきの装備は fos を減らす（src/world/player/player_bonuses.c の fos -= amount）
  * ので、遊んでいる途中で fos は 11 を下まわり xfos は 29 を超える。
  * このテストはそれを固定する。 */
 TEST(xfos_exceeds_twenty_nine_when_fos_falls_below_eleven)
@@ -194,7 +189,7 @@ TEST(xfos_exceeds_twenty_nine_when_fos_falls_below_eleven)
 TEST(xinfra_is_see_infra_times_ten_in_feet)
 {
     /* #18-12-12C までは py.flags.see_infra に直に置いていた。置き場が
-     * src/player/player_infra_range.c の static へ移ったので窓口から置く。**この 1 件が
+     * src/model/player/player_infra_range.c の static へ移ったので窓口から置く。**この 1 件が
      * この問いで唯一、呼び手の式を守っているテスト** —— abilities.c の 10 倍を
      * 落とすとここが "3 feet" でレッドになる（#18-12-12B の壊し 5 通りのうち
      * 捕まった 1 つ）。 */

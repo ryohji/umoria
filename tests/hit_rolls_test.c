@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 一撃の判定（src/combat/hit_rolls.c）のテスト -- 現在の実装を保護する
+/* 一撃の判定（src/world/combat/hit_rolls.c）のテスト -- 現在の実装を保護する
  *
  * 対象は test_hit・attack_blows・tot_dam・critical_blow の 4 本。どれも
  * 近接と飛び道具の両方から呼ばれるが、それまでどのテストも届いていなかった。
@@ -16,15 +16,18 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "monster_state.h"
+#include "world_combat.h"
+#include "world_internal.h"
+#include "monsters.h"
+#include "player.h"
+#include "tables.h"
 #include "fixture.h"
 #include "hit_rolls_fixture.h"
-#include "monster_recall.h"
-#include "player_class.h"
-#include "player_level.h"
+#include "player_identity.h"
+#include "player_progress.h"
 #include "shared_stubs.h"
-#include "stats.h"
+#include "player_stats.h"
 
 #define MU_SETUP()                                                             \
     do {                                                                       \

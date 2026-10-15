@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 能力値を 1 点失う lose_stat（src/player/stat_loss.c）のテスト
+/* 能力値を 1 点失う lose_stat（src/world/player/stat_loss.c）のテスト
  *
  * 能力値ごとに違うのはメッセージ 2 つだけ。期待するメッセージは、1 本に
  * まとめる前の 6 本（lose_str〜lose_chr）の字面そのまま（STR と CON は同じ文）。
@@ -16,12 +16,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
+#include "world_player.h"
+#include "world_internal.h"
 #include "fixture.h"
-#include "player_abilities.h"
+#include "player_stats.h"
 #include "shared_stubs.h"
-#include "stat_loss.h"
 
 #define MU_SETUP()                                                             \
     do {                                                                       \

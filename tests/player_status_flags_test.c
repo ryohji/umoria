@@ -17,7 +17,7 @@
  *
  *   1. **ビットの番号はセーブファイルの書式**（save.c が 1 語まるごと
  *      wr_long / rd_long する）。だから **14 の印がそれぞれ constant.h の
- *      どのビットかを名指しで釘打つ** —— 表（src/player/player_status_flags.c の
+ *      どのビットかを名指しで釘打つ** —— 表（src/model/player/player_status_flags.c の
  *      effect_marks[]）の 2 行を入れかえても、独立性だけ見るテストでは
  *      気づけない。入れかえは「セーブファイルの読みちがえ」そのもの。
  *   2. **どの窓口も自分のビット以外を触らない。** 1 語を共有しているので、
@@ -25,7 +25,7 @@
  *      **全ビットを立ててから窓口を 1 つ呼び、残りが動いていないことを見る**
  *      形をくりかえす。
  *
- * 30 のビットは 4 つの族に分かれる（src/player/player_status_flags.h の頭に長く
+ * 30 のビットは 4 つの族に分かれる（player_condition.h の頭に長く
  * 書いた）。保護したい性質を族ごとに並べると:
  *
  *   族 1・印（14）: 立っているかを訊ける。**立てる窓口は「新しかったか」を
@@ -35,7 +35,7 @@
  *
  *   族 2・要求（13）: 立てて歩きさる。**一様ではない** —— 速さ・鎧・体力・
  *      魔力・能力値は「読んで消す」1 手だが、腕力の点検と「Study」の欄は
- *      dungeon.c が読んで、仕事をした関数（check_strength・prt_study）が
+ *      app/dungeon.c が読んで、仕事をした関数（check_strength・prt_study）が
  *      消す。だから **読んでも消えないこと**を釘で留める。
  *      能力値の 6 つは **PY_STR から上へ 1 ビットずつ隣接**していて
  *      （constant.h の「these 6 stat flags must be adjacent」）、
@@ -58,7 +58,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_status_flags.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 
@@ -236,7 +236,7 @@ TEST(a_full_stomach_leaves_every_other_bit_alone) {
 }
 
 /* --- 族 2: 読んでも消えない 2 つ（腕力の点検と Study） -------------------- */
-/* dungeon.c が読み、仕事をした関数が消す。**読みが消してしまう変異**は
+/* app/dungeon.c が読み、仕事をした関数が消す。**読みが消してしまう変異**は
  * 本体では「点検が 1 度で終わらない」「Study の欄が消えない」になる。 */
 
 TEST(a_strength_check_request_is_its_own_bit) {
@@ -312,7 +312,7 @@ TEST(no_study_redraw_is_requested_when_none_was_asked_for) {
 }
 
 /* --- 族 2: 読んで消す 4 つ（速さ・鎧・体力・魔力） ------------------------- */
-/* どれも dungeon.c の 1 つの塊が受けとる。**「待っていたか」を返して何も
+/* どれも app/dungeon.c の 1 つの塊が受けとる。**「待っていたか」を返して何も
  * 残さない**のが約束で、残す変異は本体では「毎ターン描きなおす」になる。 */
 
 TEST(a_speed_redraw_request_is_its_own_bit) {
@@ -485,7 +485,7 @@ TEST(reading_a_stat_request_does_not_take_it) {
     ASSERT_TRUE(player_stat_redraw_requested(4));
 }
 
-/* dungeon.c は 6 つのうち 1 つでも立っていれば計算しなおす。 */
+/* app/dungeon.c は 6 つのうち 1 つでも立っていれば計算しなおす。 */
 TEST(any_stat_request_is_seen) {
     given_nothing_set();
     player_request_stat_redraw(5);

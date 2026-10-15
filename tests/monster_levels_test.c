@@ -9,7 +9,7 @@
  *
  * ダンジョンとその中身から出す 2 つめの問い（#18-14-2）。もとは
  * monsters.c:765 の `int16_t m_level[MAX_MONS_LEVEL + 1];` で、組みたてるのは
- * main.c の **static な** init_m_level() 1 か所だけ、読むのは monster/monster_place.c の 4 か所
+ * app/main.c の **static な** init_m_level() 1 か所だけ、読むのは world/monster/monster_place.c の 4 か所
  * （勝ちのモンスターの置き場・get_mons_num() の 3 か所）と spells.c の 2 か所
  * （変身と大虐殺の置きなおし）。
  *
@@ -18,7 +18,7 @@
  * sorted_objects が別に要った → object_levels.h）。レベル L のモンスターは
  * first_monster_at_level(L) 番から monsters_up_to_level(L) - 1 番までに並ぶ。
  *
- * **組みたてる側はテストから届いていなかった** —— main.c は main() を持つので
+ * **組みたてる側はテストから届いていなかった** —— app/main.c は main() を持つので
  * リンクできない。#18-10 の init_t_level() とまったく同じ形で、module に移して
  * 初めて数え上げが届く（このファイルの第 1 節）。
  *
@@ -39,8 +39,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "monster_state.h"
 
-#include "monster_levels.h"
 
 /* 表そのものは #17 から monsters.c の static で、番号から定義を引く窓口しか
  * 無い。帯の中身を確かめるのに使うので、必要な 2 本だけ宣言する。 */

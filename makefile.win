@@ -38,17 +38,60 @@ include $(dir $(lastword $(MAKEFILE_LIST)))sources.mk
 # なく -iquote にしているのは、#include <...> の探し先を前と同じ（src/ を
 # 見ない）に保つため（このリポジトリーの curses.h が <curses.h> を横取りしない）。
 VPATH = $(SRC_SUBDIRS)
-INC += -iquote . $(addprefix -iquote ,$(SRC_SUBDIRS))
+INC += -iquote . $(addprefix -iquote ,$(SRC_SUBDIRS)) $(addprefix -iquote ,$(addsuffix /internal,$(INTERNAL_LIBS)))
 
 OBJS = $(notdir $(SRCS:.c=.o))
+
+# app/ objects (linked directly, not in any archive). APP_SRCS also includes
+# the two ncurses files (platform layer, but not in any archive).
+APP_OBJS = $(notdir $(patsubst %.c,%.o,$(filter app/%,$(SRCS)))) \
+           $(notdir $(patsubst %.c,%.o,$(filter %ncurses.c,$(APP_SRCS))))
+
+# Static libraries (one per layer/sub-layer)
+LIBS = $(addprefix lib,$(addsuffix .a,$(LIB_LINK_ORDER)))
 
 LIBFILES = splash.hlp origcmds.hlp owizcmds.hlp roglcmds.hlp \
 			rwizcmds.hlp version.hlp welcome.hlp
 
 DOCS = manual.md
 
-moria : $(OBJS)
-	$(CC) -o $(TARGET) $(CFLAGS) $(OBJS) $(CURSES) $(PTHREAD) $(LFLAGS)
+moria : $(APP_OBJS) $(LIBS)
+	$(CC) -o $(TARGET) $(CFLAGS) $(APP_OBJS) $(LIBS) $(CURSES) $(PTHREAD) $(LFLAGS)
+
+# Build each library from its layer's objects (in src/ directory)
+libcommand.a: $(notdir $(LIB_SRCS_command:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libworld.a: $(notdir $(LIB_SRCS_world:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libui.a: $(notdir $(LIB_SRCS_ui:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libplatform.a: $(notdir $(LIB_SRCS_platform:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libmodel_player.a: $(notdir $(LIB_SRCS_model_player:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libmodel_monster.a: $(notdir $(LIB_SRCS_model_monster:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libmodel_dungeon.a: $(notdir $(LIB_SRCS_model_dungeon:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libmodel_store.a: $(notdir $(LIB_SRCS_model_store:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libmodel_item.a: $(notdir $(LIB_SRCS_model_item:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libmodel_base.a: $(notdir $(LIB_SRCS_model_base:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
+libcore.a: $(notdir $(LIB_SRCS_core:.c=.o))
+	rm -f $@
+	$(AR) rcs $@ $^
 
 # Pattern rule for compiling C source files
 # -MMD -MP writes a .d beside each .o listing the headers it included.
@@ -77,5 +120,6 @@ install:
 clean:
 	@rm -r $(OBJS)
 	@rm -f $(OBJS:.o=.d)
+	@rm -f $(LIBS)
 	@rm -f $(TARGET)
 	@echo "Compilation files removed!"

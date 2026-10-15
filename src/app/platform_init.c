@@ -1,0 +1,39 @@
+// Copyright (c) 2025-2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
+// Platform initialization and shutdown
+// Composition root that wires backend implementations to abstraction layers
+
+#include "backend_ncurses.h"
+#include "ui_render.h"
+#include "ui_input.h"
+#include "app_internal.h"
+
+#include <stdio.h>
+
+// Initialize platform services (rendering + input)
+bool platform_init(void) {
+    // Initialize rendering system with ncurses backend
+    if (!render_init(render_ncurses_backend())) {
+        fprintf(stderr, "Failed to initialize rendering system\n");
+        return false;
+    }
+
+    // Initialize input system with ncurses backend
+    if (!input_init(input_ncurses_backend())) {
+        fprintf(stderr, "Failed to initialize input system\n");
+        render_shutdown();
+        return false;
+    }
+
+    return true;
+}
+
+// Shutdown platform services
+void platform_shutdown(void) {
+    input_shutdown();
+    render_shutdown();
+}

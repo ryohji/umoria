@@ -16,10 +16,10 @@
  *      int）。回数を訊く 5 か所は全部これを見ている。
  *
  *   2. **「数を受けとって終わりにする」が 1 つの動き**であること
- *      （dungeon.c の ^P・^G・^D・'+' と rest_command.c の rest() が同じ 2 行を
+ *      （app/dungeon.c の ^P・^G・^D・'+' と rest_command.c の rest() が同じ 2 行を
  *      書いていた）。受けとったあとは繰りかえしていない。
  *
- *   3. **「退避して戻す」は入れ子になれる**こと。dungeon.c の `-` の hack が
+ *   3. **「退避して戻す」は入れ子になれる**こと。app/dungeon.c の `-` の hack が
  *      回数を抱えたまま get_dir() を呼び、その get_dir() がまた抱える。だから
  *      窓口は値を呼び手に返す（module の中に 1 つ置き場を持つと壊れる）。
  *
@@ -41,7 +41,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "command_state.h"
+#include "ui_input.h"
 
 #include "minunit.h"
 
@@ -71,7 +71,7 @@ TEST(each_repeat_uses_one_up) {
     ASSERT_EQ_INT(1, command_count_remaining());
 }
 
-/* 最後の 1 つを使いきっても、繰りかえしを終えるのは呼び手（dungeon.c の
+/* 最後の 1 つを使いきっても、繰りかえしを終えるのは呼び手（app/dungeon.c の
  * ループが次の周で回数を見る）。この module は数えるだけ。 */
 TEST(using_up_the_last_repeat_ends_it) {
     begin_command_count(1);
@@ -115,7 +115,7 @@ TEST(a_held_count_survives_a_cancel) {
     ASSERT_EQ_INT(7, command_count_remaining());
 }
 
-/* dungeon.c の `-` の hack が抱えたまま get_dir() を呼び、get_dir() がまた
+/* app/dungeon.c の `-` の hack が抱えたまま get_dir() を呼び、get_dir() がまた
  * 抱える形。窓口が module の中に 1 つ置き場を持っていたら、内側の戻しが
  * 外側の値を上書きしてしまう。 */
 TEST(held_counts_can_nest) {

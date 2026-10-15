@@ -9,6 +9,7 @@
 #include "backend_ncurses.h"
 
 #include "curses.h"
+#include "platform_signals.h"
 
 #include <signal.h>
 #include <stdio.h>
@@ -114,7 +115,7 @@ static bool ncurses_init(void) {
 
 #ifdef SIGTSTP
     // Install suspend signal handler
-    signal(SIGTSTP, suspend);
+    signals_set_suspend_handler(suspend);
 #endif
 
     // Create saved screen buffer

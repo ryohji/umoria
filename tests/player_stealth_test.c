@@ -32,7 +32,7 @@
  * 静かさの外套）。**ずらしの余裕もちょうど使いきっている**（下の 3 件）。
  *
  * 寝ている者が動くかの判定・画面の +1 と等級・装備の符号・-1〜18 の囲い・
- * TR_AGGRAVATE は **この module の外**（player_stealth.h）。
+ * TR_AGGRAVATE は **この module の外**（player_skills.h）。
  *
  * **同じ幅の隣り（所見 46）はこの module の外にある。** セーブファイルは
  * `sc`（short）→ `stl`（short）→ `pclass`（byte）の順で、**手前の階層と
@@ -49,7 +49,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_stealth.h"
+#include "player_skills.h"
 
 /* 白紙は 0 —— 種族を選ぶ前の人物（`py` が全域 0 で始まるのと同じところ）。 */
 #define MU_SETUP() player_stealth_set(0)

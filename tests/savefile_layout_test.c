@@ -13,7 +13,7 @@
  * 受けもつ：読む前に全部を別の値で塗りつぶし、get_char() で読み、書きなおしたものを
  * 同じ表で読む。
  *
- * 書き手は save.c の static 関数なので、このテストが src/save/save.c を #include する。
+ * 書き手は save.c の static 関数なので、このテストが src/app/save.c を #include する。
  * XOR の難読化は wr_byte() が 1 つ前に書いたバイトとの XOR を書く形なので、
  * xor_byte を 0 から始めれば、書いたバイト列の隣どうしの XOR で元の値に戻る。
  * 先頭の版の 3 バイトと種の 1 バイトは _save_char() が書くので、ここには無い。

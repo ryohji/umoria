@@ -45,7 +45,7 @@
  *      触らない**（もとのコードがそうだった）。上限が 0 のあいだ再生は
  *      呼ばれないので誰も読まず、次に上限が付くときは上の 5 で消える。
  *
- * 置き場は #18-12-4C で src/player/player_mana.c の static になり、初期値もそこに
+ * 置き場は #18-12-4C で src/model/player/player_mana.c の static になり、初期値もそこに
  * 入る（それまで要る足場 tests/player_mana_fixture.c は C で消す。static に
  * したあとも同じ名前の器を足場に残すと、窓口に届かない別の器が生き残って
  * テストが何も検証しなくなる —— HANDOVER 第 7 節）。テストは 1 プロセスで
@@ -58,12 +58,12 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_mana.h"
+#include "player_progress.h"
 
 #include "minunit.h"
 
 /* 上限 10 の人物が満腹で休んでいないときの 1 ターンぶん（65536 分の）。
- * dungeon.c が渡すのは PLAYER_REGEN_NORMAL で、そこから
+ * app/dungeon.c が渡すのは PLAYER_REGEN_NORMAL で、そこから
  * 10 * 197 + 524 = 2494 が出る。65536 / 2494 = 26.3 ターンで 1 点。 */
 #define GAIN_PER_TURN (10 * PLAYER_REGEN_NORMAL + PLAYER_REGEN_MNBASE)
 
@@ -196,7 +196,7 @@ TEST(a_big_store_comes_back_by_whole_points) {
 }
 
 /* **満杯で止まり、端数が消える。** もとのコードの
- * 「must set frac to zero even if equal」。呼び手（dungeon.c）は
+ * 「must set frac to zero even if equal」。呼び手（app/dungeon.c）は
  * `cmana < mana` のときだけ呼ぶが、窓口自身も止める。 */
 TEST(recovery_stops_at_the_top_and_clears_the_fraction) {
     given(10, 10, 500);
@@ -353,7 +353,7 @@ TEST(a_whole_session_follows_the_callers_order) {
     ASSERT_EQ_INT(1, player_spend_mana(1));
     ASSERT_EQ_INT(1, player_mana());
 
-    /* dungeon.c: 上限 2 なので 1 ターン 2 * 197 + 524 = 918。
+    /* app/dungeon.c: 上限 2 なので 1 ターン 2 * 197 + 524 = 918。
      * 満杯まで 65536 / 918 = 71.4 ターン。70 ターンでは戻らない */
     for (int turn = 0; turn < 70; turn++) {
         player_regenerate_mana(PLAYER_REGEN_NORMAL);

@@ -7,9 +7,9 @@
 
 /* creature.c をテストに取りこむための代役
  *
- * moves_this_turn() の依存は turn（src/data/progress.c）と休息の残りターン
- * （src/player/player_resting.c）の 2 つだけだが、static 関数なので外から
- * 呼べない。そこでテスト側が src/monster/creature.c を #include して翻訳単位
+ * moves_this_turn() の依存は turn（src/model/game/progress.c）と休息の残りターン
+ * （src/model/player/player_resting.c）の 2 つだけだが、static 関数なので外から
+ * 呼べない。そこでテスト側が src/world/monster/creature.c を #include して翻訳単位
  * ごと取りこむ。すると creature.c 全体（モンスターの移動と呪文）が呼ぶ先が
  * 未解決になる。
  *
@@ -17,7 +17,7 @@
  * ものは何もせず、値を返すものは stub_unreached() で止まる。一覧はリンカに
  * 出させたもので、手で数えあげたわけではない:
  *   gcc -std=c17 -Isrc $(find src -mindepth 1 -maxdepth 1 -type d -printf '-I%p ') \
- *     -c -o /tmp/c.o src/monster/creature.c
+ *     -c -o /tmp/c.o src/world/monster/creature.c
  *   gcc -o /tmp/t probe.c /tmp/c.o \
  *     2>&1 | grep 'undefined reference' | sed 's/.*to //' | sort -u
  * 代役の無い名前は、ライブラリ（tests/build/libcore.a）から本物が引かれる
@@ -32,13 +32,11 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
-#include "dungeon_map.h"
 #include "fixture.h"
-#include "player_glowing_hands.h"
-#include "player_infra_range.h"
-#include "player_resting.h"
-#include "player_status_flags.h"
+#include "player_condition.h"
+#include "player_skills.h"
 #include "shared_stubs.h"
 #include "stats_reset.h"
 #include "stub_unreached.h"
@@ -46,65 +44,55 @@
 /* --- グローバル状態 ---
  * turn と wizard はここに無い。#19B で creature.c が progress_turn() /
  * progress_wizard_mode() 越しに読むようになったので、実体は
- * src/data/progress.c の static である（#19C1。ここで定義しても窓口には届かない
+ * src/model/game/progress.c の static である（#19C1。ここで定義しても窓口には届かない
  * 別の器になるだけ）。テストは progress_set_turn() で turn を動かす。 */
 
-/* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
- * 要る。この足場は src/data/player.c（本物の 40 個の持ち主）と
- * 一緒にはリンクされないので、ここにも空の表を置く。 */
-uint32_t player_exp[MAX_PLAYER_LEVEL];
-/* マスの表（cave）もここに無い。#18-14-8C で置き場が src/dungeon/dungeon_map.c の
+/* マスの表（cave）もここに無い。#18-14-8C で置き場が src/model/dungeon/dungeon_map.c の
  * static に入ったので、代役を置くと窓口に届かない別の表になるだけ
  * （m_list の 2 行が #18-14-4C で消えたのと同じ理由）。この実行形式は
- * src/dungeon/dungeon_map.c をリンクしていて、下の階を白紙に戻す 1 行はその窓口を
+ * src/model/dungeon/dungeon_map.c をリンクしていて、下の階を白紙に戻す 1 行はその窓口を
  * 呼ぶ。creature.c は square_at(y, x) で 1 マスを取る。 */
-/* m_list もここに無い。#18-14-4C で src/monster/monster_list.c が static で持つように
+/* m_list もここに無い。#18-14-4C で src/model/monster/monster_list.c が static で持つように
  * なったので、代役を置くと窓口に届かない別の表になるだけ
  * （movement_rate_test はその monster_list.c をリンクしている）。creature.c は
  * monster_list_at() で行を取り、monster_list_used() を数えおろしの上限にする。 */
-/* 白紙のモンスター 1 体。#18-14-4B で src/monster/monster_list.c をリンクするように
- * なったので要る（階の頭で全行に書き、返した行を白紙に戻すのに使う）。
- * 本物は monsters.c の定義表のとなりで、あちらはこの実行形式に来ない。
- * m_list / mfptr の 2 行は #18-14-4C で消えたが、**この 1 行は残った** ——
- * blank_monster はこの問いの主題ではなく定数表の側。 */
-monster_type blank_monster;
 /* 床に落ちているものの置き場（t_list / tcptr）もここに無い。#18-14-7C で
- * src/dungeon/floor_items.c が static で持つようになったので、代役を置くと窓口に
+ * src/model/dungeon/floor_items.c が static で持つようになったので、代役を置くと窓口に
  * 届かない別の表になるだけ（この実行形式はその floor_items.c をリンクして
  * いる）。creature.c は floor_item_at() で行を取る。表の 1 行は長く
  * ここにあった —— creature.c が `t_list[c_ptr->tptr]` と書いていたから。
  * invcopy() の代役は下に残る —— 空の行は定義表の写しで、あれは主題の外。 */
 /* 居場所の 2 個（char_row / char_col）もここに無い。#18-6C1 で
- * src/player/player_pos.c が static で持つようになったので、代役を置くと窓口越しの
+ * src/model/player/player_pos.c が static で持つようになったので、代役を置くと窓口越しの
  * 読み書きが届かない別の器になるだけ。creature.c は player_row() /
  * player_col() 越しに読み、テストが位置を動かすなら player_place() を使う。 */
 /* 持ち物の 4 個（inventory / inven_ctr / inven_weight / equip_ctr）はここに
- * 無い。#18-5C で src/item/inventory.c が static で持つようになったので、代役を
+ * 無い。#18-5C で src/model/item/inventory.c が static で持つようになったので、代役を
  * 置く必要が無くなった（置くと inventory.c の分と別の器になり、窓口越しの
  * 読み書きが別の場所に当たる）。 */
 /* mfptr もここに無い（上の m_list と一緒に #18-14-4C で出ていった）。 */
-/* mon_tot_mult もここに無い。#18-14-3B で src/monster/monster_breeding.c が static で
+/* mon_tot_mult もここに無い。#18-14-3B で src/world/monster/monster_breeding.c が static で
  * 持つようになったので、代役を置くと窓口に届かない別の器になる
  * （movement_rate_test はその monster_breeding.c をリンクしている）。
  * creature.c は monster_breeding_allowed() で訊き、
  * monster_breeding_note_birth() で数える。 */
-/* find_flag もここに無い。#18-11-6C で src/player/running.c が static で持つように
+/* find_flag もここに無い。#18-11-6C で src/model/player/running.c が static で持つように
  * なったので、代役を置くと窓口に届かない別の器になる（movement_rate_test は
  * その running.c をリンクしている）。creature.c は player_is_running() 越しに
  * 訊く。 */
-/* hack_monptr もここに無い。#18-14-1B で src/monster/monster_turn.c が static で持つ
+/* hack_monptr もここに無い。#18-14-1B で src/world/monster/monster_turn.c が static で持つ
  * ようになったので、代役を置くと窓口に届かない別の器になる（movement_rate_test
  * はその monster_turn.c をリンクしている）。creature.c は monster_turn_begin() /
  * monster_turn_end() 越しに開け閉めする。**この 1 行は #18-14-1C で消し忘れて
  * いた** —— 置き場が A の段で module に入る形（→ 所見 52）だと、代役は B の
  * 時点で誰も見ない死んだ定義になるが、リンクは通るので何も知らせない。 */
 /* death もここに無い。#19B2 で creature.c が player_is_dead() 越しに読む
- * ようになったので、実体は src/save/score_death.c の static である。 */
-/* player_light もここに無い。#18-7-3C1 で src/player/player_light.c が static で
+ * ようになったので、実体は src/model/game/score_death.c の static である。 */
+/* player_light もここに無い。#18-7-3C1 で src/model/player/player_light.c が static で
  * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 /* screen_change もここに無い。#18-11-3C で src/ui/screen_touched.c が static で
  * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
-/* total_winner と max_score もここに無い。#18-7-1C1 で src/save/score_death.c が
+/* total_winner と max_score もここに無い。#18-7-1C1 で src/model/game/score_death.c が
  * static で持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 
 /* --- 画面出力・メッセージ --- */
@@ -129,14 +117,6 @@ bool place_monster(int y, int x, creature_handle h, int slp) { stub_unreached(__
 bool summon_monster(int *y, int *x, int slp) { stub_unreached(__func__); }
 bool summon_undead(int *y, int *x) { stub_unreached(__func__); }
 int aggravate_monster(int d) { stub_unreached(__func__); }
-creature_type *monster_get_creature(creature_handle h) { stub_unreached(__func__); }
-const char *monster_name(vtype buf, const monster_type *m) { stub_unreached(__func__); }
-const char *monster_name_indefinite(vtype buf, const creature_type *c) { stub_unreached(__func__); }
-bool monster_attack_is_null(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_type(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_desc(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_dice(attack_handle h) { stub_unreached(__func__); }
-uint8_t monster_attack_get_sides(attack_handle h) { stub_unreached(__func__); }
 
 /* --- プレイヤーへの被害・状態 --- */
 void take_hit(int dam, const char *from) { (void)dam; (void)from; }
@@ -167,22 +147,22 @@ int known2_p(inven_type *i) { stub_unreached(__func__); }
 void fixture_reset(void)
 {
     stats_reset();
-    /* 状態の旗は #18-12-7C で src/player/player_status_flags.c の static に入ったので、
+    /* 状態の旗は #18-12-7C で src/model/player/player_status_flags.c の static に入ったので、
      * ここでは届かない。セーブファイル用の窓口で 30 bit まとめて降ろす
      * （creature.c が読むのは PY_BLIND と PY_SEARCH あたり）。 */
     player_set_status_word(0);
-    /* 休息の残りターンも #18-12-10C で src/player/player_resting.c の static へ移った。
+    /* 休息の残りターンも #18-12-10C で src/model/player/player_resting.c の static へ移った。
      * **movement_rate_test の 3 件がこの 0 戻しに頼っている** —— 1 件が
      * player_rest_set(1) を置き、次の件は「休んでいない」前提で始まる
      * （module の static なので）。 */
-    /* 赤外視の距離も #18-12-12C で src/player/player_infra_range.c の static へ移った。
+    /* 赤外視の距離も #18-12-12C で src/model/player/player_infra_range.c の static へ移った。
      * creature.c の update_mon() が「距離のうちで、しかも温かいか」でモンスターを
      * 見せるかを決めるので、残った距離が次の件に漏れないように 0 に戻す
      * （**0 は Human の走りだし** = 温かい血だけではモンスターは見えない）。
      * 休息の 1 行とちがって**いまは頼っている件が無い**（外してもグリーンのまま。
      * 実際に外して確かめた）。約束のために足しておく。 */
     player_infra_range_set(0);
-    /* 光る手も #18-12-13C で src/player/player_glowing_hands.c の static へ移った。
+    /* 光る手も #18-12-13C で src/model/player/player_glowing_hands.c の static へ移った。
      * monster_melee.c の make_attack() が「手が光っていて、しかもはじかれて
      * いない攻撃か」でモンスターを混乱させるかを決めるので、残った蓄えが
      * 次の件に漏れないように 0 に戻す（**この蓄えはターンで減らない** ——

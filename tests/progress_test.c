@@ -11,13 +11,13 @@
  * 意味のある性質がある。
  *
  *   走りだしは -1 で、それは「turn 番目」ではなく「キャラがいない」印。
- *   主ループ（dungeon.c:91）の最初の 1 周で -1 から 0 に上がるので、
+ *   主ループ（app/dungeon.c:91）の最初の 1 周で -1 から 0 に上がるので、
  *   **0 は本物の turn** であり `turn > 0` と `turn >= 0` は別の条件になる。
  *
  * 本体は実際に 3 通りの比較を使い分けている（`>= 0` が save.c:471 と
  * death.c:455、`< 0` が save.c:730・878、`> 0` が signals.c:170）。窓口で
  * 1 つの述語にまとめると turn == 0 のふるまいが変わるので、まとめない。
- * その境界をここで固定しておく。符号に名前を付けるのは save_state.h の側。
+ * その境界をここで固定しておく。符号に名前を付けるのは game_status.h の側。
  *
  * 種 2 つは uint32_t の全域が通ることを見る（save.c は rd_long でこの型の
  * まま読み書きするので、折りかえしや符号の解釈が変わるとセーブ形式が壊れる）。
@@ -29,8 +29,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
-#include "progress.h"
 
 #include "minunit.h"
 
@@ -166,8 +166,8 @@ TEST(asking_for_wizard_mode_is_remembered) {
     ASSERT_TRUE(progress_wizard_requested());
 }
 
-/* 起動時は「頼んだ」が真で「入った」が偽という状態を通る（main.c:85 で頼み、
- * main.c:144 で許す）。2 つが別の記録でなければその状態が作れない。 */
+/* 起動時は「頼んだ」が真で「入った」が偽という状態を通る（app/main.c:85 で頼み、
+ * app/main.c:144 で許す）。2 つが別の記録でなければその状態が作れない。 */
 TEST(asking_for_wizard_mode_does_not_by_itself_enter_it) {
     progress_set_wizard_mode(false);
     progress_set_wizard_requested(true);

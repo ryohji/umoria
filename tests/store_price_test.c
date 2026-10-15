@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 店の値段（src/store/store_price.c）のテスト -- 現在の実装を保護する
+/* 店の値段（src/world/store/store_price.c）のテスト -- 現在の実装を保護する
  *
  * 対象は item_value・sell_price・noneedtobargain・updatebargain の 4 本。
  * どれも画面も入力も使わないが、それまでどのテストも届いていなかった。
@@ -17,10 +17,13 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
-#include "item_ident.h"
-#include "player_race.h"
+#include "world_item.h"
+#include "world_store.h"
+#include "world_internal.h"
+#include "tables.h"
+#include "treasure.h"
+#include "item_knowledge.h"
+#include "player_identity.h"
 #include "shared_stubs.h"
 #include "stores.h"
 

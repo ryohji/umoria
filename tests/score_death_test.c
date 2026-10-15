@@ -37,8 +37,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "game_status.h"
 
-#include "score_death.h"
 
 #include "minunit.h"
 
@@ -133,7 +133,7 @@ TEST(what_was_put_in_the_birth_date_stays_there) {
     ASSERT_EQ_INT(1757808000, (int)character_birth_date());
 }
 
-/* main.c:160 は time() の戻りをそのまま入れる。int32_t の端が通ること。 */
+/* app/main.c:160 は time() の戻りをそのまま入れる。int32_t の端が通ること。 */
 TEST(the_birth_date_holds_the_largest_signed_value) {
     set_character_birth_date(2147483647);
     ASSERT_EQ_INT(2147483647, (int)character_birth_date());

@@ -1,0 +1,499 @@
+// Copyright (c) 1989-2008 James E. Wilson, Robert A. Koeneke, David J. Grabiner
+// Copyright (c) 2021-2026 Umoria Contributors
+//
+// Umoria is free software released under a GPL v2 license and comes with
+// ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
+// for further details.
+
+// Code executed when player dies
+
+#include "headers.h"
+
+#include "config.h"
+#include "constant.h"
+#include "types.h"
+#include "dungeon_state.h"
+#include "game_status.h"
+#include "commands.h"
+#include "app_internal.h"
+#include "world_item.h"
+#include "world_player.h"
+#include "world_view.h"
+#include "world_store.h"
+#include "player.h"
+#include "platform_signals.h"
+#include "ui_screen.h"
+#include "inventory.h"
+#include "player_identity.h"
+#include "player_progress.h"
+
+static void date(char *day) {
+    char *tmp;
+    time_t clockvar = time((time_t *)0);
+    tmp = ctime(&clockvar);
+    tmp[10] = '\0';
+    (void)strcpy(day, tmp);
+}
+
+// Centers a string within a 31 character string -JWT-
+static char *center_string(char *centered_str, const char *in_str) {
+    int i = (int)strlen(in_str);
+    int j = 15 - i / 2;
+    (void)sprintf(centered_str, "%*s%s%*s", j, "", in_str, 31 - i - j, "");
+    return centered_str;
+}
+
+void display_scores(int show_player) {
+    char string[100];
+
+    // Score file handle: opened, used and closed here. rd_highscore() reaches
+    // it through set_fileptr() below.
+    FILE *score_fp = fopen(MORIA_TOP, "rb");
+
+    if (score_fp == NULL) {
+        sprintf(string, "Error opening score file \"%s\"\n", MORIA_TOP);
+        msg_print(string);
+        msg_print(CNIL);
+        return;
+    }
+
+    (void)fseek(score_fp, (off_t)0, SEEK_SET);
+
+    // Read version numbers from the score file, and check for validity.
+    uint8_t version_maj = getc(score_fp);
+    uint8_t version_min = getc(score_fp);
+    uint8_t patch_level = getc(score_fp);
+
+    // Support score files from 5.2.2 to present.
+    if (feof(score_fp)) {
+        ; // An empty score file.
+    } else if ((version_maj != CUR_VERSION_MAJ) ||
+               (version_min > CUR_VERSION_MIN) ||
+               (version_min == CUR_VERSION_MIN && patch_level > PATCH_LEVEL) ||
+               (version_min == 2 && patch_level < 2) || (version_min < 2)) {
+        msg_print("Sorry. This scorefile is from a different version of umoria.");
+        msg_print(CNIL);
+
+        (void)fclose(score_fp);
+        return;
+    }
+
+    // set the static fileptr in save.c to the highscore file pointer
+    set_fileptr(score_fp);
+
+    high_scores score;
+    rd_highscore(&score);
+
+    char input;
+
+    int i = 0;
+    int rank = 1;
+
+    while (!feof(score_fp)) {
+        i = 1;
+        clear_screen();
+        // Put twenty scores on each page, on lines 2 through 21.
+        while (!feof(score_fp) && i < 21) {
+            // Only show the entry if show_player false
+            // NOTE: let's show all players for now with `true` -MRC-
+            if (!show_player || true) {
+                (void)sprintf(string,
+                              "%-4d%8d %-19.19s %c %-10.10s %-7.7s%3d %-22.22s",
+                              rank, score.points, score.name, score.sex,
+                              race[score.race].trace, class[score.class].title,
+                              score.lev, score.died_from);
+                prt(string, ++i, 0);
+            }
+            rank++;
+            rd_highscore(&score);
+        }
+        prt("Rank  Points Name              Sex Race       Class  Lvl Killed "
+            "By",
+            0, 0);
+        erase_line(1, 0);
+        prt("[Press any key to continue.]", 23, 23);
+        input = inkey();
+        if (input == ESCAPE) {
+            break;
+        }
+    }
+
+    (void)fclose(score_fp);
+}
+
+bool duplicate_character(void) {
+    // Only check for duplicate characters under unix.
+    return false;
+}
+
+// Prints the gravestone of the character -RAK-
+static void print_tomb(void) {
+    const char *p;
+    vtype str, tmp_str;
+
+    clear_screen();
+    put_buffer("_______________________", 1, 15);
+    put_buffer("/", 2, 14);
+    put_buffer("\\         ___", 2, 38);
+    put_buffer("/", 3, 13);
+    put_buffer("\\ ___   /   \\      ___", 3, 39);
+    put_buffer("/            RIP            \\   \\  :   :     /   \\", 4, 12);
+    put_buffer("/", 5, 11);
+    put_buffer("\\  : _;,,,;_    :   :", 5, 41);
+    (void)sprintf(str, "/%s\\,;_          _;,,,;_", center_string(tmp_str, player_name()));
+    put_buffer(str, 6, 10);
+    put_buffer("|               the               |   ___", 7, 9);
+    if (!player_has_won()) {
+        p = title_string();
+    } else {
+        p = "Magnificent";
+    }
+    (void)sprintf(str, "| %s |  /   \\", center_string(tmp_str, p));
+    put_buffer(str, 8, 9);
+    put_buffer("|", 9, 9);
+    put_buffer("|  :   :", 9, 43);
+    if (!player_has_won()) {
+        p = player_class_title();
+    } else if (player_is_male()) {
+        p = "*King*";
+    } else {
+        p = "*Queen*";
+    }
+    (void)sprintf(str, "| %s | _;,,,;_   ____", center_string(tmp_str, p));
+    put_buffer(str, 10, 9);
+    (void)sprintf(str, "Level : %d", (int)player_level());
+    (void)sprintf(str, "| %s |          /    \\", center_string(tmp_str, str));
+    put_buffer(str, 11, 9);
+    (void)sprintf(str, "%d Exp", player_experience());
+    (void)sprintf(str, "| %s |          :    :", center_string(tmp_str, str));
+    put_buffer(str, 12, 9);
+    (void)sprintf(str, "%d Au", player_gold());
+    (void)sprintf(str, "| %s |          :    :", center_string(tmp_str, str));
+    put_buffer(str, 13, 9);
+    (void)sprintf(str, "Died on Level : %d", dungeon_level());
+    (void)sprintf(str, "| %s |         _;,,,,;_", center_string(tmp_str, str));
+    put_buffer(str, 14, 9);
+    put_buffer("|            killed by            |", 15, 9);
+
+    // Append a period to the death cause. We make a copy rather than mutating
+    // the shared state. Sized to fit the vtype content, '.', and the terminator
+    // without truncation.
+    char killed_by[sizeof(vtype) + 1];
+    (void)snprintf(killed_by, sizeof(killed_by), "%s.", death_cause());
+    (void)sprintf(str, "| %s |", center_string(tmp_str, killed_by));
+    put_buffer(str, 16, 9);
+
+    char day[11];
+    date(day);
+    (void)sprintf(str, "| %s |", center_string(tmp_str, day));
+
+    put_buffer(str, 17, 9);
+    put_buffer("*|   *     *     *    *   *     *  | *", 18, 8);
+    put_buffer("________)/\\\\_)_/___(\\/___(//_\\)/_\\//__\\\\(/_|_)_______", 19, 0);
+
+retry:
+    flush();
+
+    put_buffer("(ESC to abort, return to print on screen, or file name)", 23, 0);
+    put_buffer("Character record?", 22, 0);
+
+    if (get_string(str, 22, 18, 60)) {
+        for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
+            known1(inventory_and_equipment_at(i));
+            known2(inventory_and_equipment_at(i));
+        }
+
+        calc_bonuses();
+
+        if (str[0]) {
+            if (!file_character(str)) {
+                goto retry;
+            }
+        } else {
+            clear_screen();
+            display_char();
+            put_buffer("Type ESC to skip the inventory:", 23, 0);
+            if (inkey() != ESCAPE) {
+                clear_screen();
+                msg_print("You are using:");
+                (void)show_equip(true, 0);
+                msg_print(CNIL);
+                msg_print("You are carrying:");
+                clear_from(1);
+                (void)show_inven(0, inventory_count() - 1, true, 0, CNIL);
+                msg_print(CNIL);
+            }
+        }
+    }
+}
+
+// Calculates the total number of points earned -JWT-
+int32_t total_points(void) {
+    int32_t total = player_max_experience() + (100 * player_max_depth());
+    total += player_gold() / 100;
+
+    for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
+        total += item_value(inventory_and_equipment_at(i));
+    }
+
+    // Fifty points a level. The status line multiplies the same depth by the
+    // same fifty and calls the answer feet, which is a different unit for the
+    // same arithmetic.
+    total += dungeon_level() * 50;
+
+    // Don't ever let the score decrease from one save to the next.
+    if (best_score_so_far() > total) {
+        return best_score_so_far();
+    }
+
+    return total;
+}
+
+// Enters a players name on the top twenty list -JWT-
+static void highscores(void) {
+    clear_screen();
+
+    if (score_disqualifications()) {
+        return;
+    }
+
+    if (is_panic_save()) {
+        msg_print("Sorry, scores for games restored from panic save files are not saved.");
+        return;
+    }
+
+    high_scores new_entry;
+    new_entry.points = total_points();
+    new_entry.birth_date = character_birth_date();
+    new_entry.uid = 0; // NOTE: do we not want to use `getuid()`? -MRC-
+    new_entry.mhp = player_max_hp();
+    new_entry.chp = player_hp();
+    new_entry.dun_level = (uint8_t)dungeon_level();
+    new_entry.lev = (uint8_t)player_level();
+    new_entry.max_dlv = (uint8_t)player_max_depth();
+    new_entry.sex = (player_is_male() ? 'M' : 'F');
+    new_entry.race = (uint8_t)player_race();
+    // Score table's .class field: a snapshot of the dead character's class,
+    // independent of the living player's class module.
+    new_entry.class = (uint8_t)player_class();
+    (void)strcpy(new_entry.name, player_name());
+
+    char *tmp = death_cause();
+    if ('a' == *tmp) {
+        if ('n' == *(++tmp)) {
+            tmp++;
+        }
+        while (isspace(*tmp)) {
+            tmp++;
+        }
+    }
+    (void)strcpy(new_entry.died_from, tmp);
+
+    // A local for the same reason as in display_scores(): opened, used and
+    // closed inside this one function.
+    FILE *score_fp = fopen(MORIA_TOP, "rb+");
+
+    if (score_fp == NULL) {
+        char string[100];
+
+        (void)sprintf(string, "Error opening score file \"%s\"\n", MORIA_TOP);
+        msg_print(string);
+        msg_print(CNIL);
+        return;
+    }
+
+    // Search file to find where to insert this character, if uid != 0 and
+    // find same uid/sex/race/class combo then exit without saving this score.
+    // Seek to the beginning of the file just to be safe.
+    (void)fseek(score_fp, (long)0, SEEK_SET);
+
+    // Read version numbers from the score file, and check for validity.
+    uint8_t version_maj = getc(score_fp);
+    uint8_t version_min = getc(score_fp);
+    uint8_t patch_level = getc(score_fp);
+
+    // If this is a new scorefile, it should be empty.
+    // Write the current version numbers to the score file.
+    if (feof(score_fp)) {
+        // Seek to the beginning of the file just to be safe.
+        (void)fseek(score_fp, (long)0, SEEK_SET);
+
+        (void)putc(CUR_VERSION_MAJ, score_fp);
+        (void)putc(CUR_VERSION_MIN, score_fp);
+        (void)putc(PATCH_LEVEL, score_fp);
+
+        // must fseek() before can change read/write mode
+        (void)fseek(score_fp, (long)0, SEEK_CUR);
+    } else if (
+        (version_maj != CUR_VERSION_MAJ) ||
+        (version_min > CUR_VERSION_MIN) ||
+        (version_min == CUR_VERSION_MIN && patch_level > PATCH_LEVEL) ||
+        (version_min == 2 && patch_level < 2) ||
+        (version_min < 2)) {
+        // Support score files from 5.2.2 to present.
+        // No need to print a message, a subsequent call to
+        // display_scores() will print a message.
+        (void)fclose(score_fp);
+        return;
+    }
+
+    // set the static fileptr in save.c to the highscore file pointer
+    set_fileptr(score_fp);
+
+    high_scores old_entry, entry;
+
+    int i = 0;
+    off_t curpos = ftell(score_fp);
+    rd_highscore(&old_entry);
+
+    while (!feof(score_fp)) {
+        if (new_entry.points >= old_entry.points) {
+            break;
+        }
+
+        // under unix, only allow one sex/race/class combo per person,
+        // on single user system, allow any number of entries, but try to
+        // prevent multiple entries per character by checking for case when
+        // birthdate/sex/race/class are the same, and died_from of scorefile
+        // entry is "(saved)"
+        if (((new_entry.uid != 0 && new_entry.uid == old_entry.uid) ||
+             (new_entry.uid == 0 && !strcmp(old_entry.died_from, "(saved)") && new_entry.birth_date == old_entry.birth_date)) &&
+            new_entry.sex == old_entry.sex &&
+            new_entry.race == old_entry.race &&
+            new_entry.class == old_entry.class) {
+            (void)fclose(score_fp);
+            return;
+        }
+
+        // only allow one thousand scores in the score file
+        if (++i >= SCOREFILE_SIZE) {
+            (void)fclose(score_fp);
+            return;
+        }
+
+        curpos = ftell(score_fp);
+        rd_highscore(&old_entry);
+    }
+
+    if (feof(score_fp)) {
+        // write out new_entry at end of file
+        (void)fseek(score_fp, curpos, SEEK_SET);
+
+        wr_highscore(&new_entry);
+    } else {
+        entry = new_entry;
+
+        while (!feof(score_fp)) {
+            (void)fseek(score_fp, -(long)sizeof(high_scores) - (long)sizeof(char), SEEK_CUR);
+
+            wr_highscore(&entry);
+
+            // under unix, only allow one sex/race/class combo per person,
+            // on single user system, allow any number of entries, but try
+            // to prevent multiple entries per character by checking for
+            // case when birthdate/sex/race/class are the same, and died_from
+            // of scorefile entry is "(saved)"
+            if (((new_entry.uid != 0 && new_entry.uid == old_entry.uid) ||
+                 (new_entry.uid == 0 && !strcmp(old_entry.died_from, "(saved)") && new_entry.birth_date == old_entry.birth_date)) &&
+                new_entry.sex == old_entry.sex &&
+                new_entry.race == old_entry.race &&
+                new_entry.class == old_entry.class) {
+                break;
+            }
+            entry = old_entry;
+
+            // must fseek() before can change read/write mode
+            (void)fseek(score_fp, (long)0, SEEK_CUR);
+
+            curpos = ftell(score_fp);
+            rd_highscore(&old_entry);
+        }
+        if (feof(score_fp)) {
+            (void)fseek(score_fp, curpos, SEEK_SET);
+
+            wr_highscore(&entry);
+        }
+    }
+
+    (void)fclose(score_fp);
+}
+
+// Change the player into a King! -RAK-
+static void kingly(void) {
+    const char *p;
+
+    // Change the character attributes.
+    set_dungeon_level(0);
+    (void)strcpy(death_cause(), "Ripe Old Age");
+
+    (void)restore_level();
+
+    // Use the raw setter: we deliberately violate the contract that level matches
+    // experience. This is wizard cheat territory, so that's fine.
+    player_set_level((uint16_t)(player_level() + MAX_PLAYER_LEVEL));
+    player_gain_gold(250000L);
+    player_set_max_experience(player_max_experience() + 5000000L);
+    player_set_experience(player_max_experience());
+
+    // Let the player know that he did good.
+    clear_screen();
+    put_buffer("#", 1, 34);
+    put_buffer("#####", 2, 32);
+    put_buffer("#", 3, 34);
+    put_buffer(",,,  $$$  ,,,", 4, 28);
+    put_buffer(",,=$   \"$$$$$\"   $=,,", 5, 24);
+    put_buffer(",$$        $$$        $$,", 6, 22);
+    put_buffer("*>         <*>         <*", 7, 22);
+    put_buffer("$$         $$$         $$", 8, 22);
+    put_buffer("\"$$        $$$        $$\"", 9, 22);
+    put_buffer("\"$$       $$$       $$\"", 10, 23);
+    p = "*#########*#########*";
+    put_buffer(p, 11, 24);
+    put_buffer(p, 12, 24);
+    put_buffer("Veni, Vidi, Vici!", 15, 26);
+    put_buffer("I came, I saw, I conquered!", 16, 21);
+    if (player_is_male()) {
+        put_buffer("All Hail the Mighty King!", 17, 22);
+    } else {
+        put_buffer("All Hail the Mighty Queen!", 17, 22);
+    }
+    flush();
+    pause_line(23);
+}
+
+// Handles the gravestone end top-twenty routines -RAK-
+// What happens upon dying. -RAK-
+_Noreturn void exit_game(void) {
+    msg_print(CNIL);
+
+    flush();     // flush all input
+    nosignals(); // Can't interrupt or suspend.
+
+    // If the game has been saved, then save sets turn back to -1,
+    // which inhibits the printing of the tomb.
+    if (save_state_character_is_in_play()) {
+        if (player_has_won()) {
+            kingly();
+        }
+        print_tomb();
+    }
+
+    if (save_state_has_unsaved_character()) {
+        // Save the memory at least.
+        (void)save_char();
+    }
+
+    // add score to scorefile if applicable
+    if (character_is_generated()) {
+        // Clear character_saved, strange thing to do, but it prevents
+        // inkey() from recursively calling exit_game() when there has
+        // been an eof on stdin detected.
+        set_character_saved(false);
+        highscores();
+        display_scores(true);
+    }
+    erase_line(23, 0);
+    platform_shutdown();
+
+    exit(0);
+}

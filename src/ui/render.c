@@ -6,7 +6,8 @@
 
 // Rendering system implementation
 
-#include "render.h"
+#include "ui_render.h"
+#include "ui_internal.h"
 
 #include <stddef.h>
 #include <stdio.h>

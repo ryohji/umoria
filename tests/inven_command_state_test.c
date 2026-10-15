@@ -12,7 +12,7 @@
  * 言って戻る。その文字を覚えているのがこの module（inven_menu.c に元の
  * 約束が英語で書かれている）。
  *
- * 訊く側は 2 つ。本編のループ（dungeon.c:685。毎 turn 訊いて、待っていれば
+ * 訊く側は 2 つ。本編のループ（app/dungeon.c:685。毎 turn 訊いて、待っていれば
  * 持ち物コマンドに戻す）と、店（store_ui.c:412。0 になるまで回すので、値切りの
  * 途中でも持ち物コマンドが使える）。
  *
@@ -37,13 +37,13 @@
  * 状態を共有するので、走りだしを見る 1 件は main() の先頭に置く。
  */
 /* externs.h は要らない。2 つの窓口と、型のための types.h だけで足りる。
- * screen_touched.h を取りこむのは、中断が 2 つで 1 つであることを見るため。 */
+ * ui_screen.h を取りこむのは、中断が 2 つで 1 つであることを見るため。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
-#include "inven_command_state.h"
-#include "screen_touched.h"
+#include "ui_input.h"
+#include "ui_screen.h"
 
 #include "minunit.h"
 
@@ -68,7 +68,7 @@ TEST(finishing_leaves_nothing_to_resume) {
 }
 
 /* inven_menu.c の dummy command。' ' は「待っていない」ではなく
- * 「画面を戻すためだけに呼んでくれ」。dungeon.c と store_ui.c が 0 と比べて
+ * 「画面を戻すためだけに呼んでくれ」。app/dungeon.c と store_ui.c が 0 と比べて
  * いるのはこのため（C では ' ' も真）。 */
 TEST(a_blank_command_is_still_waiting) {
     suspend_inven_command(' ');

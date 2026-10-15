@@ -15,7 +15,7 @@
  * 保護したい性質は 3 つ。
  *
  *   1. **1 回で「尽きた」になり、戻らない**こと。尽きた入力は復活しないので、
- *      消す窓口は無い（src/ui/input_ended.h）。元のコードも 0 に戻す場所を
+ *      消す窓口は無い（ui_internal.h）。元のコードも 0 に戻す場所を
  *      1 つも持っていなかった。
  *
  *   2. **それでも数えている**こと。EOF のあと inkey() は ESCAPE を返すので
@@ -36,7 +36,8 @@
 #include "constant.h"
 #include "types.h"
 
-#include "input_ended.h"
+#include "ui_input.h"
+#include "ui_internal.h"
 
 #include "minunit.h"
 

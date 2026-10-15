@@ -12,8 +12,6 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
 #include "rnd.h"
 
 // This alg uses a prime modulus multiplicative congruential generator

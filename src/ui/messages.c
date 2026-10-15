@@ -13,9 +13,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
-#include "externs.h"
-#include "messages.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 // The ring itself, and the slot holding the newest message. Private: the wrap
 // -around rule below is the only code that may name them.

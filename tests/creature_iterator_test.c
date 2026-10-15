@@ -8,7 +8,7 @@
  *
  * monsters.c の monster_creature_rbegin() / rend() / rnext() / rget() は、
  * c_list（モンスター定義表）を末尾から先頭へたどるための組。
- * 呼びだしは help.c（モンスター図鑑）と main.c（レベル別の頭数を数える）の
+ * 呼びだしは help.c（モンスター図鑑）と app/main.c（レベル別の頭数を数える）の
  * 2 箇所で、どちらも順序が結果に出る。
  *
  * 以前の rend() は c_list - 1、つまり配列の直前を指すポインタを返していた。
@@ -26,7 +26,7 @@
 #include "constant.h"
 #include "types.h"
 
-/* 検証に使う本物（src/data/monsters.c）。externs.h は本体の宣言をまるごと
+/* 検証に使う本物（src/model/data/monsters.c）。externs.h は本体の宣言をまるごと
  * 引きこむので、必要なものだけをここに書く。 */
 creature_handle monster_make_creature_handle(uint16_t index);
 creature_type *monster_get_creature(creature_handle h);
@@ -115,7 +115,7 @@ int main(void)
 }
 
 /* --- スタブ ---
- * monsters.c が名前を組みたてるときに使う（src/item/desc.c の本物）。desc.c を
+ * monsters.c が名前を組みたてるときに使う（src/world/item/desc.c の本物）。desc.c を
  * リンクすると定数表とインベントリまで芋づるで付いてくるので代役を置く。
  * 走査の順序を見るテストでは呼ばれない。 */
 bool is_a_vowel(char ch) { (void)ch; return false; }

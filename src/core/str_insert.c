@@ -18,8 +18,19 @@
 
 #include "str_insert.h"
 
-// This module includes no externs.h: it uses only the standard library
-// and the vtype typedef (provided through the includes above).
+// This module uses only the standard library and the vtype typedef
+// (provided through the includes above).
+
+// Returns true if ch is a vowel (lowercase or uppercase).
+bool is_a_vowel(char ch) {
+    switch (ch) {
+    case 'a': case 'e': case 'i': case 'o': case 'u':
+    case 'A': case 'E': case 'I': case 'O': case 'U':
+        return true;
+    default:
+        return false;
+    }
+}
 
 // Inserts a string into a string
 void insert_str(char *object_str, const char *mtc_str, const char *insert) {
@@ -91,10 +102,10 @@ void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show
     }
 }
 
-// concatenate var length string arguments (last should be NULL) into buffer.
-// returns buffer.
+// Concatenate var length string arguments (last should be NULL) into buffer.
+// Returns buffer.
 //
-// Callers reach it through the CONCAT macro in externs.h, which keeps its own
+// Callers reach it through the CONCAT macro, which keeps its own
 // prototype of this function.
 char *concat(char *const buffer, ...) {
     char *p = buffer;

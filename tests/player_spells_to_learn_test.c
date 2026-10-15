@@ -14,7 +14,7 @@
  * 2 ファイルから 9 か所が触っていた。**`struct flags` から出る最後の「問い」。**
  *
  * **名前はフィールド名から変えた。** `new_spells` は「新しい呪文」と読めるが、
- * これは呪文ではなく**数**（どの呪文を覚えているかは src/player/spells_known.c）。
+ * これは呪文ではなく**数**（どの呪文を覚えているかは src/model/player/spells_known.c）。
  * この module より前に書かれた tests/gain_spells_test.c がすでに
  * `spells_to_learn` と呼んでいたので、それに合わせた。
  *
@@ -28,7 +28,7 @@
  *      だから窓口は「足す」ではなく「置く」。
  *
  * 9 式の許される数・本が足りない差・message 3 つ・PY_STUDY の書きなおしは
- * **この module の外**（player_spells_to_learn.h）。
+ * **この module の外**（player_spells.h）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に数を置きなおす。
  */
@@ -37,12 +37,12 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_spells_to_learn.h"
+#include "player_spells.h"
 
 #include "minunit.h"
 
 /* 1 つも覚えられないところから始める（戦士と、まだ数が置かれていない状態）。
- * **窓口で置きなおす** —— 置き場が src/player/player_spells_to_learn.c の static に
+ * **窓口で置きなおす** —— 置き場が src/model/player/player_spells_to_learn.c の static に
  * 入っても（#18-12-14C）この足場は届く。 */
 static void given_nothing_to_learn(void) { player_spells_to_learn_set(0); }
 

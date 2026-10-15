@@ -6,8 +6,8 @@
 
 /* 値切り交渉メッセージ表示のテスト -- 現在の実装を保護する
  *
- * src/store/store_haggle.c:138-142 の prt_comment2()（購入時）と
- * src/store/store_haggle.c:144-148 の prt_comment3()（売却時）は、配列名と要素数を
+ * src/world/store/store_haggle.c:138-142 の prt_comment2()（購入時）と
+ * src/world/store/store_haggle.c:144-148 の prt_comment3()（売却時）は、配列名と要素数を
  * のぞいて中身が完全に同一の 13 行である。
  *
  *   差異 1: 配列名  comment2a/comment2b vs comment3a/comment3b
@@ -24,7 +24,7 @@
  * このテストで固定する。
  *
  * 観測のしかた: prt_comment2 / prt_comment3 は static なので外部から
- * 呼べない。そこで src/store/store_haggle.c をこの翻訳単位に #include し、内部の
+ * 呼べない。そこで src/world/store/store_haggle.c をこの翻訳単位に #include し、内部の
  * static 関数を直接呼ぶ。写しではないので、ステップ B で実体を書きかえれば
  * このテストがそれを検証する。
  *
@@ -55,7 +55,7 @@
  * 持つようになったので、代役を置くと窓口に届かない別の器になる。 */
 /* msg_flag はもう要らない。メッセージの状態は messages.c が持つので、
  * 代役ではなく本物をリンクしている（makefile.test 参照）。 */
-/* turn は src/data/progress.c の static である（#19B で store2.c が progress_turn()
+/* turn は src/model/game/progress.c の static である（#19B で store2.c が progress_turn()
  * 越しに読むようになり、#19C1 で実体もそこへ移った）。 */
 
 void move_cursor(int row, int col) { (void)row; (void)col; }

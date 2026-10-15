@@ -10,7 +10,7 @@
  * その場で teleport() を呼ぶが、teleport の罠（traps.c）は呼べない ——
  * 移動の途中で踏むので、飛ばす前に踏んだマスを光らせないといけない
  * （"Light up the teleport trap, before we teleport away"）。だから罠は
- * 書き置きを残し、本編のループ（dungeon.c:815）がその turn のコマンドを
+ * 書き置きを残し、本編のループ（app/dungeon.c:815）がその turn のコマンドを
  * やりきってから読んで teleport(100) を呼ぶ。
  *
  * 保護したい性質は 3 つ。
@@ -25,8 +25,8 @@
  *      罠以外の teleport も書き置きを消す。これは元のふるまいで、害はない ——
  *      書き置きが頼んでいたのは「player を飛ばすこと」で、それは済んでいる。
  *
- * 階の始まりに忘れる窓口（dungeon.c:69）は別にしてある。「起きた」ではないから
- * （src/player/pending_teleport.h に書いてある）。
+ * 階の始まりに忘れる窓口（app/dungeon.c:69）は別にしてある。「起きた」ではないから
+ * （player_condition.h に書いてある）。
  *
  * 走りだしは false（variable.c:101 は初期値なしの bool）。テストは 1 プロセスで
  * 状態を共有するので、走りだしを見る 1 件は main() の先頭に置く。
@@ -36,7 +36,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "pending_teleport.h"
+#include "player_condition.h"
 
 #include "minunit.h"
 
@@ -85,7 +85,7 @@ TEST(a_trap_after_a_teleport_schedules_another_one) {
 
 /* --- 階の始まり --------------------------------------------------------- */
 
-/* dungeon.c:69。teleport は起きない。旗だけ落ちる。 */
+/* app/dungeon.c:69。teleport は起きない。旗だけ落ちる。 */
 TEST(a_level_start_forgets_a_pending_teleport) {
     schedule_teleport();
     forget_pending_teleport();

@@ -5,8 +5,8 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* object_levels_fixture.c -- src/item/object_levels.c と
- * src/dungeon/object_alloc.c を試すテストの足場
+/* object_levels_fixture.c -- src/model/item/object_levels.c と
+ * src/world/dungeon/object_alloc.c を試すテストの足場
  * （object_levels_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の
@@ -24,7 +24,7 @@
 #include "shared_stubs.h"
 #include "stub_unreached.h"
 #include "inventory.h"
-#include "item_ident.h"
+#include "item_knowledge.h"
 
 /* set_large は訊かれた品物と回数を記録し、並べた答え（'y' で大きい）を順に
  * 返す。答えを使いきったら「大きくない」。 */

@@ -27,7 +27,7 @@
  * **負にもなる**（Elf の種族の土台は近接 -5）。
  *
  * 当たり判定そのもの・人物画面の等級・素手と暗がりの直し・呪文の時計は
- * **この module の外**（player_base_to_hit.h）。
+ * **この module の外**（player_stats.h）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に 2 本を置きなおす。
  */
@@ -36,7 +36,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_base_to_hit.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 
@@ -184,7 +184,7 @@ TEST(a_blessing_is_worth_five_to_both_numbers) {
     ASSERT_EQ_INT(5, player_base_to_hit_with_bows());
 }
 
-/* 同じ窓口が足しも引きもする。dungeon.c は呪文が始まった瞬間に足して
+/* 同じ窓口が足しも引きもする。app/dungeon.c は呪文が始まった瞬間に足して
  * 切れた瞬間に引くので、**行きと帰りで元に戻らなければならない**。 */
 TEST(a_spell_that_runs_out_leaves_both_numbers_where_they_were) {
     given_a_race_with_bases(0, 0);

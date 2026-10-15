@@ -35,7 +35,6 @@
 #include "config.h"
 #include "constant.h"
 
-#include "dungeon_level.h"
 
 #include "minunit.h"
 

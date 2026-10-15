@@ -14,32 +14,27 @@
 #include "types.h"
 
 #include "inventory.h"
-#include "item_ident.h"
-#include "player_level.h"
+#include "item_knowledge.h"
+#include "player_progress.h"
 #include "shared_stubs.h"
 #include "stats_reset.h"
 
-/* 階級の値段表。#18-12-6A で src/player/player_level.c がリンクされる全ての実行形式に
- * 要る。src/data/player.c をリンクする足場（tests/level_ops_fixture.c
- * などを使う側）は本物の 40 個を持っているが、この足場は player.c と一緒には
- * リンクされないので、ここにも空の表を置く。 */
-uint32_t player_exp[MAX_PLAYER_LEVEL];
 /* 持ち物（inventory / inven_ctr / inven_weight / equip_ctr）はここでは定義
- * しない。#18-5C で src/item/inventory.c が static で持つようになったので、
- * 消しかたも窓口（src/item/inventory.h）越しになる。 */
+ * しない。#18-5C で src/model/item/inventory.c が static で持つようになったので、
+ * 消しかたも窓口（src/model/item/inventory.h）越しになる。 */
 
 /* テスト専用。オリジナルには存在しない。
  * setUp から呼ぶことで、先行テストの影響を受けない条件を作る。 */
 void fixture_reset(void)
 {
-    /* 品目ごとの覚えは #18-9-C で src/item/item_ident.c が static で持つように
+    /* 品目ごとの覚えは #18-9-C で src/model/item/item_ident.c が static で持つように
      * なったので、セーブファイル用の生の窓口越しに消す。 */
     memset(item_kind_record_bytes(), 0, (size_t)item_kind_record_count());
     /* 持ち物と装備は 1 本の配列なので、跨ぎの窓口で全域を消す。 */
     memset(inventory_and_equipment_at(0), 0,
            sizeof(inven_type) * (size_t)inventory_and_equipment_slot_count());
     stats_reset();
-    /* 階級と経験値の 5 つは #18-12-6C で src/player/player_level.c が static で
+    /* 階級と経験値の 5 つは #18-12-6C で src/model/player/player_level.c が static で
      * 持つようになったので、ここでは届かない。窓口越しに 0 へ戻す
      * （実体は初期化子なしの static なので、走りだしの値は 0 のまま）。 */
     player_set_level(0);
@@ -62,6 +57,3 @@ void fixture_reset(void)
  * HP 計算まで芋づるで付いてくる。経験値の加算式を見たいテストには
  * 不要なので捨てる。 */
 void prt_experience(void) {}
-
-/* 文字列組み立て。desc.c 内の別関数用で、今回の対象は呼ばない */
-void insert_str(char *o, const char *m, const char *i) { (void)o; (void)m; (void)i; }

@@ -7,8 +7,8 @@
 
 /* 呪文を覚えるとき（spellbook.c:330 の gain_spells）のテスト
  *
- * プレイヤーが学ぶ（`G` コマンド、dungeon.c:1294）と呼ばれる。#18-8 で窓口
- * `src/player/spells_known.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
+ * プレイヤーが学ぶ（`G` コマンド、app/dungeon.c:1294）と呼ばれる。#18-8 で窓口
+ * `player_spells.h` に預けた 4 個のうち、**覚えた印（`spell_learned`）と
  * 覚えた順（`spell_order`）に書き足すのはここだけ**なのに、単体テストが
  * 1 件も届いていなかった。窓口を通す書きかえ（ステップ B）の前に押さえた。
  * いまは読み書きとも窓口越し（#18-8-B2）。
@@ -51,19 +51,18 @@
 
 #include "fixture.h"
 #include "inventory.h"
-#include "player_class.h"
-#include "player_level.h"
-#include "player_mana.h"
-#include "player_spells_to_learn.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
-#include "spells_known.h"
-#include "stats.h"
+#include "player_identity.h"
+#include "player_progress.h"
+#include "player_spells.h"
+#include "player_condition.h"
+#include "player_stats.h"
 
 extern bool free_turn_flag;
 
-/* 検証対象（src/item/spellbook.c）の宣言は externs.h から受ける。 */
-#include "externs.h"
+/* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
+#include "game_settings.h"
+#include "world_item.h"
+#include "world_internal.h"
 
 #define MU_SETUP() fixture_reset()
 
@@ -74,8 +73,8 @@ extern bool free_turn_flag;
  * ------------------------------------------------------------------ */
 
 /* fixture_reset() は能力値を 0 にするが、呪文の 4 個は消さない
- * （置き場は src/player/spells_known.c で、代役の管轄ではない）。覚えた順を
- * SPELL_NONE で埋めるのは main.c:256 がゲーム開始時にするのと同じこと。
+ * （置き場は src/model/player/spells_known.c で、代役の管轄ではない）。覚えた順を
+ * SPELL_NONE で埋めるのは app/main.c:256 がゲーム開始時にするのと同じこと。
  * free_turn_flag も代役側の器なので自分で戻す。 */
 static void given_no_spells_known(void) {
     spells_set_learned_bits(0);

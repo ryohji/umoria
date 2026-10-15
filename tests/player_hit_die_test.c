@@ -23,10 +23,10 @@
  *
  * **遊んでいる間は誰も読まない。** 読み手 5 つはぜんぶ create.c の
  * 体力を振る 20 行の中で、あとはセーブの 2 か所だけ
- * （player_hit_die.h に「それでも問いである」理由がある）。
+ * （player_progress.h に「それでも問いである」理由がある）。
  *
  * 体力そのもの・振りなおしの下限上限・体力表・2 つの表は
- * **この module の外**（player_hit_die.h）。
+ * **この module の外**（player_progress.h）。
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に面数を置きなおす。
  */
@@ -35,7 +35,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_hit_die.h"
+#include "player_progress.h"
 
 #include "minunit.h"
 
@@ -70,7 +70,7 @@ TEST(a_character_with_no_race_yet_has_no_faces) {
  * ------------------------------------------------------------------ */
 
 /* 表の 8 行ぜんぶ。**土台を置くのは決めであって足しではない** ——
- * 人物を 2 度作っても骰子が 2 倍にならない（player_infra_range.h と同じ話）。 */
+ * 人物を 2 度作っても骰子が 2 倍にならない（player_skills.h と同じ話）。 */
 TEST(every_race_puts_its_own_base_here) {
     const int bases[] = {10, 9, 8, 6, 7, 9, 10, 12};
 

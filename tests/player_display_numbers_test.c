@@ -37,14 +37,14 @@
  *      同じ）。
  *
  *   5. **窓口は上も下も見ない**こと。丸めない・止めない・0 で下げ止まらない。
- *      無敵の +100 と祝福の +2 は dungeon.c が旗の変わり目に直に足し引きして
+ *      無敵の +100 と祝福の +2 は app/dungeon.c が旗の変わり目に直に足し引きして
  *      いて（calc_bonuses() を呼びなおさない）、**足した順と引いた順が違っても
  *      元に戻る**。
  *
  *   6. **4 つは互いに独立**であること。1 つの窓口が触るのは 1 つの数だけ
  *      （save の読みが 4 つを入れちがえていないことの裏取りでもある）。
  *
- * 置き場は #18-12-3C で src/player/player_display_numbers.c の static になり、
+ * 置き場は #18-12-3C で src/model/player/player_display_numbers.c の static になり、
  * 初期値もそこに入った（それまで要っていた足場
  * tests/player_display_numbers_fixture.c は消した。static にしたあとも同じ
  * 名前の器を足場に残すと、窓口に届かない別の器が生き残ってテストが何も
@@ -57,7 +57,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_display_numbers.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 
@@ -151,7 +151,7 @@ TEST(adding_and_taking_off_comes_back) {
     player_display_add_ac(2);
     ASSERT_EQ_INT(114, player_display_ac());
 
-    /* 足した順と引いた順は違う（dungeon.c は旗の変わり目で別々に動く）。 */
+    /* 足した順と引いた順は違う（app/dungeon.c は旗の変わり目で別々に動く）。 */
     player_display_add_ac(-2);
     player_display_add_ac(-100);
     ASSERT_EQ_INT(12, player_display_ac());

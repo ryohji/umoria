@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* 覚えている呪文の置き場（src/player/spells_known.c）のテスト
+/* 覚えている呪文の置き場（src/model/player/spells_known.c）のテスト
  *
  * ここに「何を覚えていられるか」の計算は無い。数えなおしは calc_spells()
  * （spellbook.c:197）、どれを覚えるかは gain_spells()（spellbook.c:330）にあり、
@@ -36,7 +36,7 @@
  *      をそのまま覚える（古い rd_long も検査していなかった）。
  *
  * 走りだしの状態は見ない。#18-8-C で 4 つの実体はこの module の static に
- * なったが、ゲームの開始時に main.c が覚えた順を SPELL_NONE で埋め
+ * なったが、ゲームの開始時に app/main.c が覚えた順を SPELL_NONE で埋め
  * （spell_order_forget_all）、続きから始めるときはセーブファイルが 4 つとも
  * 上書きするので、**初期値そのものは誰も読まない**。下のどのテストも
  * まっさらから始めるので、ここから観測もできない。
@@ -46,7 +46,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "spells_known.h"
+#include "player_spells.h"
 
 /* テストは 1 プロセスで状態を共有するので、毎回まっさらから始める。
  * 生の窓口を使うのは、ここが「置き場を空にする」唯一の入口だから。 */
@@ -348,7 +348,7 @@ TEST(forgetting_the_whole_order_leaves_nothing_learned_anywhere_in_it) {
     ASSERT_EQ_INT(SPELL_NONE, spell_learned_nth(0));
 }
 
-/* 端まで埋める（main.c:256 が開始時に呼ぶ。1 つでも残ると、新しい
+/* 端まで埋める（app/main.c:256 が開始時に呼ぶ。1 つでも残ると、新しい
  * キャラクタが前のキャラクタの履歴を引きつぐ）。 */
 TEST(forgetting_the_whole_order_reaches_the_last_place) {
     spell_order_bytes()[31] = 5;
@@ -356,7 +356,7 @@ TEST(forgetting_the_whole_order_reaches_the_last_place) {
     ASSERT_EQ_INT(SPELL_NONE, spell_learned_nth(31));
 }
 
-/* 消すのは履歴だけ。覚えた印は別の記録（main.c は 3 つのビット列を
+/* 消すのは履歴だけ。覚えた印は別の記録（app/main.c は 3 つのビット列を
  * それぞれ 0 にする）。 */
 TEST(forgetting_the_whole_order_does_not_touch_what_is_known) {
     spell_learn(7);

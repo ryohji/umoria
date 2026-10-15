@@ -11,7 +11,7 @@
  * col_min / col_max / row_prt / col_prt）が決まる。決まりかたを知る場所が
  * 分かれていた。
  *   misc1.c:153-160  6 個を導出する（panel_bounds）
- *   misc1.c:165-200  添字を動かすかどうか決める（get_panel。いまは ui/map_view.c）
+ *   misc1.c:165-200  添字を動かすかどうか決める（get_panel。いまは world/view/map_view.c）
  *   io.c:134,143     row_prt / col_prt を引いて画面座標にする
  *   misc1.c:489,494 / spells.c ほか  4 辺の間を歩く
  *   generate.c:1260-1263  4 個を導出せずに手で 0 にする
@@ -28,12 +28,13 @@
  * 動いたかどうかと座標 6 個すべてを比べる。
  */
 /* externs.h も variable.c も要らない。10 個の値が panel.c の static に
- * なったので、ふれる先は panel.h の窓口だけで足りる。 */
+ * なったので、ふれる先は ui_screen.h の窓口だけで足りる。 */
 #include "config.h"
 #include "constant.h"
 #include "types.h"
 
-#include "panel.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
 #include "minunit.h"
 
@@ -72,7 +73,7 @@ static void legacy_bounds(struct panel_state *p)
     p->col_prt = p->col_min - 13;
 }
 
-/* misc1.c:165-200（get_panel。#54 で ui/map_view.c へ移った）の写し。end_find() の副作用だけ外している
+/* misc1.c:165-200（get_panel。#54 で world/view/map_view.c へ移った）の写し。end_find() の副作用だけ外している
  * （呼ぶかどうかは「動いたか」で決まるので、戻り値で観測できる）。 */
 static int legacy_get_panel(struct panel_state *p, int y, int x, int force)
 {
@@ -133,7 +134,7 @@ static void legacy_forget_bounds(struct panel_state *p)
 
 static void legacy_forget_position(struct panel_state *p)
 {
-    /* dungeon.c:65 の写し。 */
+    /* app/dungeon.c:65 の写し。 */
     p->row = -1;
     p->col = -1;
 }
@@ -427,7 +428,7 @@ TEST(the_panel_counts_survive_a_save_file_round_trip)
 
 TEST(forgetting_the_position_puts_the_indexes_outside_the_valid_range)
 {
-    /* dungeon.c:65 の -1。次の panel_move_to() が必ず「動いた」を返し、
+    /* app/dungeon.c:65 の -1。次の panel_move_to() が必ず「動いた」を返し、
      * 地図が引きなおされることがこの値の役目。 */
     panel_forget_position();
     ASSERT_TRUE(panel_row_index() < 0 && panel_col_index() < 0);

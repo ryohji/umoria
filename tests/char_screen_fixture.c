@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* char_screen_fixture.c -- src/ui/char_screen.c を試すテストの足場
+/* char_screen_fixture.c -- src/command/char_screen.c を試すテストの足場
  * （put_misc3_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の
@@ -21,21 +21,12 @@
 
 #include "fixture.h"
 #include "shared_stubs.h"
-#include "player_attack_bonuses.h"
-#include "player_base_to_hit.h"
-#include "player_bio.h"
-#include "player_body_weight.h"
-#include "player_class.h"
-#include "player_disarm.h"
-#include "player_level.h"
-#include "player_race.h"
-#include "player_saving_throw.h"
-#include "player_search_skill.h"
-#include "player_speed.h"
-#include "player_spells_to_learn.h"
-#include "player_status_flags.h"
-#include "player_stealth.h"
-#include "player_timed_effects.h"
+#include "player_stats.h"
+#include "player_identity.h"
+#include "player_skills.h"
+#include "player_progress.h"
+#include "player_spells.h"
+#include "player_condition.h"
 #include "stats_reset.h"
 
 /* 各テストの前に呼ぶ。 */

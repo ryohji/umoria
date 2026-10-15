@@ -14,8 +14,7 @@
 
 // Returns the position (0 for the lowest) of the lowest set bit of `*test` and
 // clears that bit, or -1 when no bit is set. The callers loop on it to visit
-// each flag of a spell or effect mask in turn. The same prototype is in
-// externs.h, which is where every caller reads it.
+// each flag of a spell or effect mask in turn.
 int bit_pos(uint32_t *test);
 
 #endif // BITS_H

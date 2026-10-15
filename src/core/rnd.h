@@ -13,8 +13,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// The same prototypes are in externs.h, which is where every caller reads
-// them.
 
 // Starts the stream again from `seedval`.
 void set_rnd_seed(uint32_t seedval);

@@ -41,8 +41,8 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "dungeon_state.h"
 
-#include "floor_items.h"
 
 #include "minunit.h"
 
@@ -291,7 +291,7 @@ TEST(claiming_and_dropping_leave_the_mark_where_it_was) {
  * ------------------------------------------------------------------ */
 
 /* **行は隙間なく並んでいる** —— n 番めの次の番地が n+1 番め。
- * game_state.c が表の頭を外に渡せるのはこれが成りたつからで、
+ * app/game_state.c が表の頭を外に渡せるのはこれが成りたつからで、
  * 窓口が行を写して返すようになったら（あるいは表を割ったら）壊れる。 */
 TEST(the_row_after_one_row_is_the_next_row) {
     given_a_fresh_level();
@@ -301,7 +301,7 @@ TEST(the_row_after_one_row_is_the_next_row) {
     }
 }
 
-/* 頭は 0 行め（game_state.c が渡すもの）。 */
+/* 頭は 0 行め（app/game_state.c が渡すもの）。 */
 TEST(the_base_of_the_table_is_row_zero) {
     given_a_fresh_level();
 

@@ -12,7 +12,7 @@
  * 6 ファイルから 12 か所が名ざしていた（12 行）。
  *
  * **単位はポンド**（1/10 ポンドではない）。Halfling の男は 60 前後、
- * Human の男は 180 前後（src/data/player.c:107 の race[] の m_b_wt / f_b_wt）。
+ * Human の男は 180 前後（src/model/data/player.c:107 の race[] の m_b_wt / f_b_wt）。
  *
  * **身なりではなく物理量。** 6 人の読み手のうち 4 人は規則のほう ——
  * 持てる重さの上限（inven_ops.c:118）・盾での打ちかかりの命中と打撃
@@ -27,7 +27,7 @@
  * **書かれるのは普通の一生で 1 回だけ** —— 創成のとき（create.c が男女で
  * 別の列を引く 2 行）。ほかに読みもどしと wizard の置きなおしがある。
  *
- * 外に残すものは 3 つ（player_body_weight.h に書いてある）——
+ * 外に残すものは 3 つ（player_stats.h に書いてある）——
  * 持てる重さの上限（主語は腕力）・打ちかかりと体当たりの 3 つの式
  * （割る数が `/10`・`/60`・`/2` と違う）・画面と持ち出しファイルの見せかた
  * （受け手が prt_num と fprintf で共通の式が無い）。
@@ -39,7 +39,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "player_body_weight.h"
+#include "player_stats.h"
 
 #include "minunit.h"
 

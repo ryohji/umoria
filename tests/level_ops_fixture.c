@@ -5,7 +5,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* level_ops_fixture.c -- src/player/level_ops.c を試すテストの足場
+/* level_ops_fixture.c -- src/world/player/level_ops.c を試すテストの足場
  * （calc_hitpoints_test）
  *
  * fixture_reset() は、リンクされる窓口の状態と、代役（shared_stubs.c）の
@@ -22,14 +22,11 @@
 #include "fixture.h"
 #include "shared_stubs.h"
 #include "inventory.h"
-#include "player_bio.h"
-#include "player_class.h"
-#include "player_level.h"
-#include "player_race.h"
-#include "player_speed.h"
-#include "player_spells_to_learn.h"
-#include "player_status_flags.h"
-#include "player_timed_effects.h"
+#include "player_identity.h"
+#include "player_progress.h"
+#include "player_skills.h"
+#include "player_spells.h"
+#include "player_condition.h"
 #include "stats_reset.h"
 
 /* 各テストの前に呼ぶ。 */
