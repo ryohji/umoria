@@ -38,3 +38,4 @@
 | 2026-10-15 | #92（一部） | end_find・inven_drop の移動（`67e5584`）、monster_turn を model/monster へ（`2eca4fe`）。world/ の 4 段で逆向きの辺 0 本 | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK |
 | 2026-10-15 | #89〜#92（一部）マージ | `refactor/89-static` を `--no-ff` で（`c4b7157`） | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 919 本（マージ後の develop で測った） |
 | 2026-10-15 | #92・#93 | world/ の 4 段を `WORLD_TIERS` で守る（`f707832`。ユーザーの判断：表だけ）、`SCARE_MONSTER` を消す（使われない 16 個のうち単独の 1 個。ユーザーの判断） | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK |
+| 2026-10-15 | #92・#93 マージ | `refactor/92-tiers` を `--no-ff` で（`ca0c738`） | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK（マージ後の develop で .o と `tests/build` を消してから測った） |
