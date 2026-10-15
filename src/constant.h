@@ -83,8 +83,6 @@
 #define MAX_MON_NATTACK           4   // Max num attacks (used in mons memory) -CJS-
 #define MIN_MONIX                 2   // Lowest row the monster list hands out (1 = the player, 0 = no mon)
 
-#define SCARE_MONSTER            99
-
 // Descriptive constants
 #define MAX_COLORS               49   // Used with potions
 #define MAX_MUSH                 22   // Used with mushrooms
