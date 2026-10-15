@@ -36,3 +36,5 @@
 | 2026-10-15 | #90 | ui/ の入力の状態 3 本を input_state.c に（`3d0add5`） | 1826（87 本） | 同上・層 920 本 |
 | 2026-10-15 | #91 | constant.h の定数 174 個を使う場所へ（`0a4c549`）、types.h の型 2 つ（`1e1846c`）、core/ が直下のヘッダを読まない（`eee0edb`。`1e1846c` の本文の「core/ は types.h を読まない」はこのコミットの前は誤り） | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 920 本・headers OK |
 | 2026-10-15 | #92（一部） | end_find・inven_drop の移動（`67e5584`）、monster_turn を model/monster へ（`2eca4fe`）。world/ の 4 段で逆向きの辺 0 本 | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK |
+| 2026-10-15 | #89〜#92（一部）マージ | `refactor/89-static` を `--no-ff` で（`c4b7157`） | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 919 本（マージ後の develop で測った） |
+| 2026-10-15 | #92・#93 | world/ の 4 段を `WORLD_TIERS` で守る（`f707832`。ユーザーの判断：表だけ）、`SCARE_MONSTER` を消す（使われない 16 個のうち単独の 1 個。ユーザーの判断） | 1826（87 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK |
