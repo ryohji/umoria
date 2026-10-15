@@ -37,6 +37,7 @@
 #include "player_skills.h"
 #include "player_condition.h"
 #include "player_progress.h"
+#include "monster_turn.h"
 
 // Constants describing limits of certain objects
 #define OBJ_RUNE_PROT          3000   // Rune of protection resistance

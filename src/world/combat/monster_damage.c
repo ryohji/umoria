@@ -21,6 +21,7 @@
 
 #include "player_progress.h"
 #include "player_condition.h"
+#include "monster_turn.h"
 
 // Decreases monsters hit points and deletes monster if needed.
 // (Picking on my babies.) -RAK-

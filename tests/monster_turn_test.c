@@ -42,6 +42,7 @@
 #include "world_internal.h"
 
 #include "minunit.h"
+#include "monster_turn.h"
 
 /* 誰の手番でもないところから始める（走りだしと同じ）。**窓口で閉じなおす**
  * —— 置き場が src/world/monster/monster_turn.c の static なので、この足場が唯一の道。 */

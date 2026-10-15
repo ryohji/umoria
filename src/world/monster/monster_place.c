@@ -26,6 +26,7 @@
 #include "ui_screen.h"
 #include "player_condition.h"
 #include "player_skills.h"
+#include "monster_turn.h"
 
 // with MAX_MALLOC 101, it is possible to get compacting monsters messages
 // while breeding/cloning monsters
