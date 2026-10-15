@@ -31,6 +31,10 @@
 #include "player_condition.h"
 #include "player_progress.h"
 
+// with MAX_MALLOC 101, it is possible to get compacting monsters messages
+// while breeding/cloning monsters
+#define MON_DRAIN_LIFE            2   // Percent of player exp drained per hit
+
 // Make an attack on the player (chuckle.) -RAK-
 void make_attack(int monptr) {
     // don't beat a dead body!

@@ -23,6 +23,8 @@
 #include "item_kinds.h"
 #include "player_condition.h"
 
+#include "world_internal.h"
+
 // Displays inventory items from r1 to r2 -RAK-
 // Designed to keep the display as far to the right as possible. -CJS-
 // The parameter col gives a column at which to start, but if the display

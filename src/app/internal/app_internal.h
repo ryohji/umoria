@@ -13,6 +13,23 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+
+// 64 bytes for this structure
+typedef struct high_scores {
+    int32_t points;
+    int32_t birth_date;
+    int16_t uid;
+    int16_t mhp;
+    int16_t chp;
+    uint8_t dun_level;
+    uint8_t lev;
+    uint8_t max_dlv;
+    uint8_t sex;
+    uint8_t race;
+    uint8_t class;
+    char name[PLAYER_NAME_SIZE];
+    char died_from[25];
+} high_scores;
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>

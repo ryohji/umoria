@@ -14,9 +14,9 @@
 
 // These flags are modified by signal handlers
 // volatile sig_atomic_t is the ONLY safe type for signal handler communication
-volatile sig_atomic_t signal_pending = 0;
-volatile sig_atomic_t signal_type = SIGNAL_NONE;
-volatile sig_atomic_t signal_number = 0;
+static volatile sig_atomic_t signal_pending = 0;
+static volatile sig_atomic_t signal_type = SIGNAL_NONE;
+static volatile sig_atomic_t signal_number = 0;
 
 void signal_flags_init(void) {
     signal_pending = 0;

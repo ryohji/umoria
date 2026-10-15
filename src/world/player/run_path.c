@@ -223,13 +223,6 @@ void find_run(void) {
     }
 }
 
-// Switch off the run flag - and get the light correct. -CJS-
-void end_find(void) {
-    if (player_is_running()) {
-        stop_running();
-        move_light(player_row(), player_col(), player_row(), player_col());
-    }
-}
 
 // Do we see a wall? Used in running. -CJS-
 static bool see_wall(int dir, int y, int x) {

@@ -10,8 +10,7 @@
 #include "constant.h"
 #include "types.h"
 
-#include "world_monster.h"
-#include "world_internal.h"
+#include "monster_turn.h"
 
 // One number needs nothing from the rest of the game.
 

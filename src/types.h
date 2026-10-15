@@ -14,25 +14,11 @@
 #include "constant.h"
 
 #include "headers.h"
+#include "text_buffers.h"
 
 // some machines will not accept 'signed char' as a type, and some accept it
 // but still treat it like an unsigned character, let's just avoid it,
 // any variable which can ever hold a negative value must be 16 or 32 bits
-
-#define VTYPESIZ 80
-#define BIGVTYPESIZ 160
-typedef char vtype[VTYPESIZ];
-// note that since its output can easily exceed 80 characters, objdes must
-// always be called with a bigvtype as the first paramter
-typedef char bigvtype[BIGVTYPESIZ];
-
-// For formatted messages like "Your %s glows faintly!" Needs extra space beyond
-// the embedded string (bigvtype) to hold prefix and suffix text. Sized to hold
-// bigvtype + vtype to prevent overflow.
-#define MSGTYPESIZ (BIGVTYPESIZ + VTYPESIZ)
-typedef char msgtype[MSGTYPESIZ];
-
-typedef char stat_type[7];
 
 // Many of the character fields used to be fixed length, which greatly
 // increased the size of the executable.  I have replaced many fixed
@@ -295,22 +281,5 @@ typedef struct store_type {
     uint16_t bad_buy;
     inven_record store_inven[STORE_INVEN_MAX];
 } store_type;
-
-// 64 bytes for this structure
-typedef struct high_scores {
-    int32_t points;
-    int32_t birth_date;
-    int16_t uid;
-    int16_t mhp;
-    int16_t chp;
-    uint8_t dun_level;
-    uint8_t lev;
-    uint8_t max_dlv;
-    uint8_t sex;
-    uint8_t race;
-    uint8_t class;
-    char name[PLAYER_NAME_SIZE];
-    char died_from[25];
-} high_scores;
 
 #endif // TYPES_H

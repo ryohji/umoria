@@ -72,12 +72,4 @@ void alloc_monster(int, int, int);
 bool summon_monster(int *, int *, int);
 bool summon_undead(int *, int *);
 
-// --- monster_turn.c ---
-// Which monster creatures() is acting for, and what that forbids
-// The raw number. One caller, the snapshot in app/game_state.c, which records it
-// with the other "temporary" fields; nothing reads it back. Kept as a window so
-// the number itself can stay private (the same arrangement as
-// missile_serial_value()).
-int monster_turn_index(void);
-
 #endif // WORLD_MONSTER_H

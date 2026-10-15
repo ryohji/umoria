@@ -250,6 +250,10 @@ headers:
 	    echo "#include \"$$(basename $$h)\"" | $(CC) $(CFLAGS) -D_DEFAULT_SOURCE -Werror -fsyntax-only -x c - \
 	        || { echo "header does not compile alone: $$h"; exit 1; }; \
 	done; echo "headers: all compile alone"
+	@for f in $$(find src/core -name '*.[ch]' | sort); do \
+	    $(CC) $(STD) $(WARNINGS) -D_DEFAULT_SOURCE -Werror -fsyntax-only -Isrc/core -x c $$f \
+	        || { echo "core/ reaches outside itself: $$f"; exit 1; }; \
+	done; echo "core: compiles with -Isrc/core alone"
 
 clean:
 	rm -rf $(BUILDDIR)

@@ -57,7 +57,6 @@ void inscribe(inven_type *, const char *);
 // --- inven_ops.c ---
 void inven_destroy(int);
 void take_one_item(inven_type *, inven_type *);
-void inven_drop(int, int);
 int weight_limit(void);
 bool inven_check_num(inven_type *);
 void check_strength(void);

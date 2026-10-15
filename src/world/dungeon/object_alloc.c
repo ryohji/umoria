@@ -30,6 +30,17 @@
 #include "item_kinds.h"
 #include "player_condition.h"
 
+// Treasure constants
+#define OBJ_GREAT                12   // 1/n Chance of item being a Great Item
+
+// Note that the following constants are all related, if you change one, you
+// must also change all succeeding ones. Also, player_init[] and store_choice[]
+// may also have to be changed.
+#define OBJ_TRAP_LIST           378
+#define OBJ_RUBBLE              396
+#define OBJ_GOLD_LIST           399
+#define MAX_GOLD                 18   // Number of different types of gold
+
 // Places a particular trap at location y, x -RAK-
 void place_trap(int y, int x, int subval) {
     int cur_pos = popt();

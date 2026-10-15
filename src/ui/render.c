@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 // Current active backend
-RenderBackend *current_backend = NULL;
+static RenderBackend *current_backend = NULL;
 
 // Initialize rendering with specified backend
 bool render_init(RenderBackend *backend) {

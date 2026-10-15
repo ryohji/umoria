@@ -40,6 +40,20 @@
 #include "player_progress.h"
 #include "player_skills.h"
 
+// Constants describing limits of certain objects
+#define OBJ_LAMP_MAX          15000   // Maximum amount that lamp can be filled
+
+// with MAX_MALLOC 101, it is possible to get compacting monsters messages
+// while breeding/cloning monsters
+#define MAX_MALLOC_CHANCE       160   // 1/x chance of new monster each round
+
+// Player constants
+#define PLAYER_FOOD_FAINT       300   // Character begins fainting
+#define PLAYER_FOOD_WEAK       1000   // Warn player that he is getting very low
+#define PLAYER_FOOD_ALERT      2000   // Warn player that he is getting low
+#define PLAYER_REGEN_FAINT       33   // Regen factor*2^16 when fainting
+#define PLAYER_REGEN_WEAK        98   // Regen factor*2^16 when weak
+
 static char original_commands(char);
 static void do_command(char);
 static bool valid_countcommand(char);

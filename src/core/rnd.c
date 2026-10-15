@@ -7,12 +7,12 @@
 
 // Random number generator
 
-#include "headers.h"
-
-#include "config.h"
-#include "constant.h"
-#include "types.h"
+#include "int_limits.h"
 #include "rnd.h"
+
+// definitions for the psuedo-normal distribution generation
+#define NORMAL_TABLE_SIZE  256
+#define NORMAL_TABLE_SD     64  // the standard deviation for the table
 
 // This alg uses a prime modulus multiplicative congruential generator
 //
@@ -46,7 +46,6 @@
 //
 // Hence each value of z can be computed exactly without overflow as long
 // as m can be represented as an integer.
-
 
 // a good random number generator, correct on any machine with 32 bit
 // integers, this algorithm is from:

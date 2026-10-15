@@ -30,6 +30,8 @@
 #include "player_progress.h"
 #include "player_stats.h"
 
+#define TR_EGO_WEAPON   0x0007E000L
+
 // Attacker's level and plusses,  defender's AC -RAK-
 bool test_hit(int bth, int level, int pth, int ac, int attack_type) {
     disturb(1, 0);

@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 // Current active backend
-InputBackend *current_input_backend = NULL;
+static InputBackend *current_input_backend = NULL;
 
 // Initialize input with specified backend
 bool input_init(InputBackend *backend) {

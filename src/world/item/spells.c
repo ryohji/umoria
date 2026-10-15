@@ -36,6 +36,18 @@
 #include "player_progress.h"
 #include "player_condition.h"
 
+// Note that the following constants are all related, if you change one, you
+// must also change all succeeding ones. Also, player_init[] and store_choice[]
+// may also have to be changed.
+#define OBJ_MUSH                397
+#define OBJ_SCARE_MON           398
+
+// creature defense flags
+#define CD_STONE        0x0200
+
+// indexes into the special name table
+#define SN_UNLOCKED           54
+
 static void replace_spot(int, int, int);
 
 // Sleep creatures adjacent to player -RAK-

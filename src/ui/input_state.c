@@ -4,15 +4,15 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// What the game remembers about the command being typed: where it is kept
-
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-
 #include "ui_input.h"
+#include "ui_screen.h"
+#include "ui_internal.h"
 
-// This module uses nothing outside itself.
+// Input state: the repeat count, the pending inventory command, and how many
+// times input has ended.
 
 // State: repeats left, remembered direction flag, and last command character.
 // All start at 0 or false.
@@ -72,4 +72,46 @@ void note_command(char command) {
 
 bool previous_command_was(char command) {
     return previous_command == command;
+}
+
+// Pending inventory command character. 0 means none pending.
+static char pending_command = 0;
+
+char pending_inven_command(void) {
+    return pending_command;
+}
+
+void suspend_inven_command(char command) {
+    pending_command = command;
+
+    // Both halves of suspending, in one place: see the header for what goes
+    // wrong when only one of them happens.
+    forget_screen_flushed();
+}
+
+void finish_inven_command(void) {
+    pending_command = 0;
+}
+
+// EOF counter. Starts at 0.
+static int eof_count = 0;
+
+// The number of EOFs io.c has put up with before it panic-saves and dies. Stated
+// once, here, and nowhere else (see ui_internal.h for why it is not at the call site).
+#define EOF_TRIES_ALLOWED 100
+
+void note_input_ended(void) {
+    eof_count++;
+}
+
+bool input_has_ended(void) {
+    return eof_count != 0;
+}
+
+bool input_end_is_hopeless(void) {
+    return eof_count > EOF_TRIES_ALLOWED;
+}
+
+int input_end_count(void) {
+    return eof_count;
 }

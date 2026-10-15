@@ -25,9 +25,12 @@
 #include "item_knowledge.h"
 #include "str_insert.h"
 
+// Descriptive constants
+#define MAX_TITLES               45   // Used with scrolls
+
 static void unsample(inven_type *);
 
-char titles[MAX_TITLES][10];
+static char titles[MAX_TITLES][10];
 
 // Object descriptor routines
 
@@ -548,7 +551,6 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
         (void)strcat(out_val, ".");
     }
 }
-
 
 // Describe number of remaining charges. -RAK-
 void desc_charges(int item_val) {

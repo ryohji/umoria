@@ -28,6 +28,15 @@
 
 #include "player_condition.h"
 
+#define CS_BR_GAS       0x00100000L
+#define CS_BR_ACID      0x00200000L
+#define CS_BR_FROST     0x00400000L
+#define CS_BR_FIRE      0x00800000L
+
+// creature defense flags
+#define CD_POISON       0x0040
+#define CD_ACID         0x0080
+
 // Return flags for given type area affect -RAK-
 static void get_flags(int typ, uint32_t *weapon_type, int *harm_type, bool (**destroy)(inven_type *)) {
     switch (typ) {

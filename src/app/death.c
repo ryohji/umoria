@@ -27,6 +27,9 @@
 #include "player_identity.h"
 #include "player_progress.h"
 
+// Number of entries allowed in the scorefile.
+#define SCOREFILE_SIZE      1000
+
 static void date(char *day) {
     char *tmp;
     time_t clockvar = time((time_t *)0);

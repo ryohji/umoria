@@ -237,3 +237,25 @@ The monster modules track three independent pieces of state: the level index (wh
 blank_monster (the value for an empty row) stays in model/data/monsters.c with the creature definition table, since it belongs to the read-only-data group rather than this state module.
 
 **Monster recall (monster_recall):** What the player has learned about each kind of monster. The c_recall array parallels the creature definition table. Each entry tracks characteristics seen (r_cdefense, r_cmove), spells cast (r_spells, with frequency counter), treasure carried, kills, and deaths. Update functions set bits, increment counters (capped at MAX_SHORT for kills/deaths and CS_FREQ for spell frequency), and merge the maximum treasure carry count seen.
+
+### monster_turn
+
+creatures() がいまどのモンスターのために動いているか、を 1 つの数で持つ。問いは 1 つで、
+「いまモンスターの表を詰めなおしてよいか」。
+
+- 表は詰めて持つ。delete_monster() は最後のモンスターを穴に移して印を 1 つ戻すので、
+  穴より上の番号がずれる。手番のあいだは害が無いが、creatures() が表を歩いている最中は
+  歩きが番号を握っているので、ずらしてはいけない。
+- モンスターを消す 2 か所（monster_place.c の compact_monsters() と、monster_damage.c の
+  mon_take_hit() の死）は、先に monster_delete_may_shift() を訊き、詰めてよければ
+  delete_monster()、だめなら穴を残す fix1_delete_monster() を選ぶ。
+- monster_turn_begin()/end() は creature.c の 5 か所（召喚 2、増殖の place_monster() 2、
+  壁に埋まったモンスターへの一撃）を、その 1 呼び出しだけ囲む。囲みを手番全体に広げると、
+  その手番のほかの削除が穴を残すようになり、ふるまいが変わる。
+- 休みの値は -1。本当の番号は MIN_MONIX（2）以上なので、手番の外ではいつも「詰めてよい」。
+  歩きがもう通りすぎた番号（いまの番号より大きい）も「よい」で、召喚の最中の詰めなおしが
+  できるのはこのため。
+- creature.c のモンスターがモンスターを食べるところは、同じ問いを `monptr < c_ptr->cptr`
+  でじかに訊く（歩きの番号が手元にある）。
+- セーブファイルには入らない。新しいゲームも読みこんだゲームも「誰の手番でもない」から始まる。
+- monster_turn_index() は app/game_state.c の写しとりだけが読む。

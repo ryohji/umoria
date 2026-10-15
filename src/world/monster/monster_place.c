@@ -26,6 +26,11 @@
 #include "ui_screen.h"
 #include "player_condition.h"
 #include "player_skills.h"
+#include "monster_turn.h"
+
+// with MAX_MALLOC 101, it is possible to get compacting monsters messages
+// while breeding/cloning monsters
+#define MON_NASTY                50   // 1/x chance of high level creat
 
 // get_mons_num() and summon() are static and serve only the functions here.
 

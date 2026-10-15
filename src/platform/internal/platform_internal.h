@@ -19,12 +19,6 @@
 #include <stdbool.h>
 
 // --- signal_flags.c ---
-// Async-signal-safe flags
-// These are the ONLY variables that signal handlers should modify
-extern volatile sig_atomic_t signal_pending;
-extern volatile sig_atomic_t signal_type;
-extern volatile sig_atomic_t signal_number;
-
 // Initialize signal flags
 void signal_flags_init(void);
 

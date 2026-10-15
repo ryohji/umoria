@@ -16,6 +16,9 @@
 
 #include "str_insert.h"
 
+// Creature constants
+#define N_MONS_ATTS             215   // Number of monster attack types.
+
 // Following are creature arrays and variables
 
 // Creatures must be defined here

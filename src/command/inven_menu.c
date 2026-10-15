@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
+#include "world_dungeon.h"
 #include "world_item.h"
 #include "world_player.h"
 #include "game_settings.h"
@@ -24,6 +25,8 @@
 #include "inventory.h"
 #include "player_stats.h"
 #include "player_condition.h"
+
+#include "command_internal.h"
 
 // All inventory commands (wear, exchange, take off, drop, inventory and
 // equipment) are handled in an alternative command input mode, which accepts

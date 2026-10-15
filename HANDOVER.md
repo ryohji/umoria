@@ -13,12 +13,13 @@
 2026-10-15、`develop` の上（`integrate/modules` を `62a384a` でマージした。push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1826 件・87 本**、failed=0、`RESULT: GREEN`。
-  `make -f makefile.test headers` で src/ の全ヘッダ 53 本が単体でコンパイルできる。
+  `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
+  コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
   ユーザーの判断）。`scripts/layer_deps.py --check` は 925 本・112 単位で違反 0、例外の一覧
   （`scripts/layer_exceptions.txt`）は空。
-- `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 45 個**
-  （`externs.h` の 38 個に、その外のヘッダにあった 7 個が加わった。数えかたが変わっただけ）。
+- `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 40 個**
+  （#86 で数えかたを変えて 38 → 45、#89 で 5 個を static にして 40）。
   `scripts/globals.py --check` は 45 個すべて分類。参照の数は数えなおしていない。
 - `.c` 112・`.h` 53（モジュール化の前は 148・88）。
 - 済んだ列：
@@ -216,17 +217,17 @@ module を合わせるときは `scripts/merge_modules.py` で字を変えずに
 着手する前にユーザーと決める。台帳に残るのは P3（記録のみ）と棚上げで、どれも「着手しない
 理由」がある。動かすなら理由を読みなおす。
 
-- **world/ の中のループ。** 層の間は循環しないが、world/ の中には 26 単位のループが残る
-  （モンスター → 呪文 → 戦闘 → 死亡）。分けるなら、コマンドに近いもの（`player_move`・
-  `run_path`・`terrain_commands`・`search`）を command/ に上げる・地図の表示を下げる、の順。
-  上げると逆向きの辺（罠 → `move_char` など）が増えるので、登録する手か設計の判断が要る。
-- **`types.h`・`constant.h` を層ごとに分ける。** いまは全域の型と定数が 1 本ずつで、どの層も
-  読む。品物の型は model/item へ、のように持ち主へ移せば、ヘッダの依存も層に揃う。
-- **ui/ の小さな状態の .c**（`command_state`・`input_ended`・`inven_command_state`・
-  `screen_touched`）を、model/ と同じ手順（`merge_modules.py`）でまとめる。
-- **外から使われない公開の名前。** 定義したファイルの外で誰も使わない関数・変数が ui/ に 16、
-  app/ に 5、command/・platform/ に 3 ずつ、world/・model/player に 2〜3 ある（2026-10-14 に
-  `nm` で数えた）。テストが使っていなければ `static` にできる。
+- **world/ の段（#92 の残り）。** world/ の中の 29 単位のループは、表示（map_view・status_line・
+  lighting）< 規則（desc・inven_ops・player_bonuses・stat_ops・level_ops・spellbook・
+  rest_command ほか）< 床と生死（object_place・object_alloc・monster_death・monster_place・
+  monster_damage・hit_rolls・player_damage・item_enchant・generate ほか）< 行動（creature・
+  monster_melee・player_melee・projectiles・spells・traps・search・terrain_commands・
+  player_move・run_path・throw）の 4 段に並べると、逆向きの辺が 0 本（2026-10-15 に測った。
+  段の中のループは残る）。段をディレクトリーとライブラリーにするか、規則の表だけで守るかは
+  判断待ち。
+- **`constant.h` に残る定数**（265 個）は 2 つ以上のライブラリーかテストが使う。どこからも
+  使われない 22 個を消すかは判断待ち（`scripts/move_constants.py --dry-run` で数えなおせる）。
+  `types.h` の型は model の形で、どの層も読む。
 - **端末を待つ呼び手の確かめ**（所見 62）と、**テストの穴（#50 の族）**、**呼ばれたら止まる
   代役の残り**は前と同じ。`inkey()` の入力の終わりの道は `script(1)` では通せない（所見 67）。
 

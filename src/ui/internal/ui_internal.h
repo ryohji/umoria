@@ -49,9 +49,6 @@ int panel_screen_col(int dungeon_col);
 void forget_screen_flushed(void);
 
 // --- input.c ---
-// Global input state
-extern InputBackend *current_input_backend;
-
 // High-level input functions
 
 // Get a key (blocking)
@@ -91,9 +88,6 @@ void input_flush(void);
 void note_input_ended(void);
 
 // --- render.c ---
-// Global rendering state
-extern RenderBackend *current_backend;
-
 // High-level rendering functions (used by game code)
 // These queue rendering commands to be executed at end_frame
 

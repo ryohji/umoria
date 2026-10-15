@@ -29,6 +29,11 @@
 #include "player_progress.h"
 #include "player_condition.h"
 
+// Note that the following constants are all related, if you change one, you
+// must also change all succeeding ones. Also, player_init[] and store_choice[]
+// may also have to be changed.
+#define OBJ_WIZARD              419
+
 // lets anyone enter wizard mode after a disclaimer... -JEW-
 bool enter_wiz_mode(void) {
     bool answer = false;
@@ -48,7 +53,7 @@ bool enter_wiz_mode(void) {
 }
 
 // Light up the dungeon -RAK-
-void wizard_light(void) {
+static void wizard_light(void) {
     bool flag;
 
     if (square_at(player_row(), player_col())->pl) {
@@ -77,7 +82,7 @@ void wizard_light(void) {
 }
 
 // Wizard routine for gaining on stats -RAK-
-void change_character(void) {
+static void change_character(void) {
     int tmp_val;
     vtype tmp_str;
 
@@ -290,7 +295,7 @@ void change_character(void) {
 }
 
 // Wizard routine for creating objects -RAK-
-void wizard_create(void) {
+static void wizard_create(void) {
     int tmp_val;
     vtype tmp_str;
 

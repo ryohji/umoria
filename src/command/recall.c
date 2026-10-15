@@ -21,6 +21,19 @@
 #include "ui_screen.h"
 #include "player_progress.h"
 
+#define CM_RANDOM_MOVE  0x00000038L
+
+#define CM_SPECIAL      0x003F0000L
+
+// creature spell definitions
+#define CS_SPELLS       0x0001FFF0L
+#define CS_TEL_SHORT    0x00000010L
+
+#define CS_BREATHE      0x00F80000L // may also just indicate resistance
+
+// creature defense flags
+#define CD_WEAKNESS     0x03F0
+
 static void roff(const char *);
 static uint8_t count_previous_non_blank_chars(const char *from);
 

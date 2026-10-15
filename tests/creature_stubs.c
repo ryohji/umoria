@@ -40,6 +40,7 @@
 #include "shared_stubs.h"
 #include "stats_reset.h"
 #include "stub_unreached.h"
+#include "monster_turn.h"
 
 /* --- グローバル状態 ---
  * turn と wizard はここに無い。#19B で creature.c が progress_turn() /

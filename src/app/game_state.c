@@ -24,6 +24,7 @@
 #include "missile_serial.h"
 #include "player_condition.h"
 #include "stores.h"
+#include "monster_turn.h"
 
 #include <stdlib.h>
 #include <string.h>

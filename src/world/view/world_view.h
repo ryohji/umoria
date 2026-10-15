@@ -41,5 +41,6 @@ void prt_study(void);
 void prt_winner(void);
 void prt_stat_block(void);
 void draw_cave(void);
+void end_find(void);
 
 #endif // WORLD_VIEW_H

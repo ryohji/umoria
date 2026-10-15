@@ -19,12 +19,10 @@
 // The name is not strings.h on purpose: -Isrc would let src/strings.h shadow
 // the standard <strings.h> for every translation unit (src/platform/curses.h already
 // shadows a system header that way).
-//
-// This header deliberately does not include types.h, which has no include
-// guard and so cannot be pulled in twice. Include config.h, constant.h and
-// types.h before this file.
 
 #include <stdbool.h>
+
+#include "text_buffers.h"
 
 // Returns true if ch is a vowel (lowercase or uppercase).
 bool is_a_vowel(char ch);

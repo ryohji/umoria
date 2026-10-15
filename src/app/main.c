@@ -34,6 +34,9 @@
 #include "player_progress.h"
 #include "player_spells.h"
 
+// Store constants
+#define COST_ADJ                100   // Adjust prices for buying and selling
+
 static void char_inven_init(void);
 
 #if (COST_ADJ != 100)

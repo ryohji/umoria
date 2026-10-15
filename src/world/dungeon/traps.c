@@ -16,6 +16,7 @@
 #include "monster_state.h"
 #include "world_item.h"
 #include "world_dungeon.h"
+#include "world_view.h"
 #include "world_combat.h"
 #include "world_player.h"
 #include "world_monster.h"
@@ -35,6 +36,9 @@
 #include "player_identity.h"
 #include "player_skills.h"
 #include "player_progress.h"
+
+// indexes into the special name table
+#define SN_DISARMED           53
 
 // Store entrance handler, set at startup
 static void (*store_entrance_handler)(int store_num) = NULL;
