@@ -87,5 +87,6 @@ void bash(void);
 
 // --- traps.c ---
 void disarm_trap(void);
+void inven_drop(int, int);
 
 #endif // WORLD_DUNGEON_H

@@ -39,7 +39,6 @@ void rest_off(void);
 // --- run_path.c ---
 void find_init(int);
 void find_run(void);
-void end_find(void);
 
 // --- stat_loss.c ---
 // Losing a stat point to poison, bad food or a potion.

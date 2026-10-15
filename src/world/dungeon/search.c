@@ -15,6 +15,7 @@
 #include "dungeon_state.h"
 #include "world_item.h"
 #include "world_dungeon.h"
+#include "world_view.h"
 #include "world_player.h"
 #include "world_internal.h"
 #include "rnd.h"

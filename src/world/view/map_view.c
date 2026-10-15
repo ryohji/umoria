@@ -238,3 +238,11 @@ void screen_map(void) {
     (void)inkey();
     restore_screen();
 }
+
+// Switch off the run flag - and get the light correct. -CJS-
+void end_find(void) {
+    if (player_is_running()) {
+        stop_running();
+        move_light(player_row(), player_col(), player_row(), player_col());
+    }
+}

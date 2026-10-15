@@ -62,42 +62,6 @@ void take_one_item(inven_type *s_ptr, inven_type *i_ptr) {
     }
 }
 
-// Drops an item from inventory to given location -RAK-
-void inven_drop(int item_val, int drop_all) {
-    if (square_at(player_row(), player_col())->tptr != 0) {
-        (void)delete_object(player_row(), player_col());
-    }
-
-    int i = popt();
-    inven_type *i_ptr = inventory_and_equipment_at(item_val);
-    *floor_item_at(i) = *i_ptr;
-    square_at(player_row(), player_col())->tptr = i;
-
-    if (item_val >= INVEN_WIELD) {
-        takeoff(item_val, -1);
-    } else {
-        if (drop_all || i_ptr->number == 1) {
-            inventory_set_weight(inventory_weight() - i_ptr->weight * i_ptr->number);
-            inventory_set_count(inventory_count() - 1);
-            while (item_val < inventory_count()) {
-                *inventory_at(item_val) = *inventory_at(item_val + 1);
-                item_val++;
-            }
-            invcopy(inventory_at(inventory_count()), OBJ_NOTHING);
-        } else {
-            floor_item_at(i)->number = 1;
-            inventory_set_weight(inventory_weight() - i_ptr->weight);
-            i_ptr->number--;
-        }
-
-        bigvtype prt1;
-        msgtype prt2;
-        objdes(prt1, floor_item_at(i), true);
-        (void)snprintf(prt2, sizeof(prt2), "Dropped %s", prt1);
-        msg_print(prt2);
-    }
-    player_request_strength_check();
-}
 
 // Destroys a type of item on a given percent chance -RAK-
 int inven_damage(bool (*typ)(inven_type *), int perc) {

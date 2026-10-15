@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "types.h"
 #include "dungeon_state.h"
+#include "world_dungeon.h"
 #include "world_item.h"
 #include "world_player.h"
 #include "game_settings.h"
