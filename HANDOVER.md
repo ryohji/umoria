@@ -10,7 +10,7 @@
 
 ## 0. 現在地
 
-2026-10-14、`integrate/modules`（`develop` へのマージはユーザーの許可待ち。push はユーザーが行う）。
+2026-10-15、`develop` の上（`integrate/modules` を `62a384a` でマージした。push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1826 件・87 本**、failed=0、`RESULT: GREEN`。
   `make -f makefile.test headers` で src/ の全ヘッダ 53 本が単体でコンパイルできる。

@@ -31,3 +31,4 @@
 | 2026-10-14 | #85・#88 | model/player を 6 module に（`55b11c6`〜`6d5ce6c`・`7bfeaac`）、model/ のほかの副ライブラリー（`6df8129`〜`3278169`）。#88-2〜#88-4 はテストの組みたてが止まり、#88-3 は警告 12 件（担当の報告は「GREEN・警告 0」）。`18e3c42`・`4d81fb6` で直した | 1826（87 本） | 警告 0・GREEN・globals OK 38・層 971 本（#85 の先端） |
 | 2026-10-14 | #86 | 番人（`6089404`）、`externs.h` を消す（`be6d991`）、world/ui/command/platform/app の公開ヘッダと内部ヘッダ（`78ef6fc`・`42b1dcf`・`a288350`）、backend の型（`0612d37`）、単体コンパイル（`7349ac3`）、注釈（`a97d8fe`）、道具（`3a33a5a`）。global は数えかたが変わって 38 → 45 | 1826（87 本） | 警告 0・GREEN・globals OK 45・層 925 本・headers OK |
 | 2026-10-14 | 確かめ | `develop..integrate/modules` の 43 コミットを 1 つずつ空から組んで第 2 節の 1〜3。#88-2・#88-3・#88-4 のほかはどれも警告 0・1826 件 87 本 GREEN・globals OK・層 OK | 1826（87 本） | 第 2 節の 1〜3 |
+| 2026-10-15 | モジュール化のマージ | `integrate/modules` を `--no-ff` で（`62a384a`）。作業ブランチ 12 本と worktree を消した | 1826（87 本） | 警告 0・GREEN・globals OK 45・層 925 本・headers OK（マージ後の develop で .o と `tests/build` を消してから測った） |
