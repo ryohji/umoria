@@ -48,7 +48,7 @@ bool enter_wiz_mode(void) {
 }
 
 // Light up the dungeon -RAK-
-void wizard_light(void) {
+static void wizard_light(void) {
     bool flag;
 
     if (square_at(player_row(), player_col())->pl) {
@@ -77,7 +77,7 @@ void wizard_light(void) {
 }
 
 // Wizard routine for gaining on stats -RAK-
-void change_character(void) {
+static void change_character(void) {
     int tmp_val;
     vtype tmp_str;
 
@@ -290,7 +290,7 @@ void change_character(void) {
 }
 
 // Wizard routine for creating objects -RAK-
-void wizard_create(void) {
+static void wizard_create(void) {
     int tmp_val;
     vtype tmp_str;
 

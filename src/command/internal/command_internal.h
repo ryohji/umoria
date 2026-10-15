@@ -31,8 +31,5 @@ bool bool_roff_recall(creature_type *);
 int roff_recall(creature_type *);
 
 // --- wizard.c ---
-void wizard_light(void);
-void change_character(void);
-void wizard_create(void);
 
 #endif // COMMAND_INTERNAL_H

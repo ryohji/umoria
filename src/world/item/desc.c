@@ -27,7 +27,7 @@
 
 static void unsample(inven_type *);
 
-char titles[MAX_TITLES][10];
+static char titles[MAX_TITLES][10];
 
 // Object descriptor routines
 

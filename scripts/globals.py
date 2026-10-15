@@ -69,13 +69,6 @@ GROUPS = {
     #                   #if で消えているが、変えると生きる
     "起動時に一度書きかえる表": """
         colors mushrooms woods metals rocks amulets object_list""",
-    # 描画と入力の backend を指す。ui/render.h・ui/input.h が宣言していて、
-    # externs.h の外にあったので以前は数えていなかった。
-    "描画と入力の backend": """
-        current_backend current_input_backend""",
-    # シグナルハンドラが書き、主ループが読む（platform/signal_flags.h）。
-    "シグナルの旗": """
-        signal_pending signal_type signal_number""",
     # オプションの表（model/game/game_settings.h）と、つながっていない
     # GameState（app/game_state.h。台帳 #35）。どちらも externs.h の外にあった。
     "オプションの表・未接続の基盤": """
