@@ -228,6 +228,9 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
   GUI へ移るときの、backend を替えられることの確かめにもなる。
 - **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
   monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
+- **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、
+  本体の `.c` をテスト用に組むと `sigsetmask` の暗黙の宣言や `-Wformat-overflow` の警告が出る
+  （本体の組みたては警告 0）。テストの側で警告を数えていないので気づかなかった。
 - **`scripts/link_units.py --shadows` は `tests/build/libcore.a` しか見ない。** #87 で
   ライブラリーを 11 本に分けたので、core/ のほかの代役の影を数えていない。
 - **`constant.h` に残る定数**（262 個）は、2 つ以上のライブラリーかテストが使うか、表の一部
