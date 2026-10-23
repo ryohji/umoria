@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-/* モンスター表の逆順走査のテスト -- 現在のふるまいを保護する
+/* モンスター表の逆順・正順走査のテスト -- 現在のふるまいを保護する
  *
  * monsters.c の monster_creature_rbegin() / rend() / rnext() / rget() は、
  * c_list（モンスター定義表）を末尾から先頭へたどるための組。
@@ -26,15 +26,8 @@
 #include "constant.h"
 #include "types.h"
 
-/* 検証に使う本物（src/model/data/monsters.c）。externs.h は本体の宣言をまるごと
- * 引きこむので、必要なものだけをここに書く。 */
-creature_handle monster_make_creature_handle(uint16_t index);
-creature_type *monster_get_creature(creature_handle h);
-creature_rev_iterator monster_creature_rbegin(void);
-creature_rev_iterator monster_creature_rend(void);
-bool monster_creature_rsame(creature_rev_iterator a, creature_rev_iterator b);
-creature_rev_iterator monster_creature_rnext(creature_rev_iterator it);
-creature_type *monster_creature_rget(creature_rev_iterator it);
+/* 検証に使う本物（src/model/data/monsters.c）。 */
+#include "monsters.h"
 
 #include "minunit.h"
 
@@ -51,6 +44,22 @@ static int collect_reverse_walk(void)
     for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
         if (n < WALK_LIMIT) {
             walk[n] = monster_creature_rget(it);
+        }
+        n++;
+    }
+
+    return n;
+}
+
+/* 正順走査の結果を並べて返す。逆順と同じく、走査の書きかたに触るのはここだけ。 */
+static int collect_forward_walk(void)
+{
+    int n = 0;
+
+    const creature_iterator end = monster_creature_end();
+    for (creature_iterator it = monster_creature_begin(); !monster_creature_same(it, end); it = monster_creature_next(it)) {
+        if (n < WALK_LIMIT) {
+            walk[n] = monster_creature_get(it);
         }
         n++;
     }
@@ -104,6 +113,54 @@ TEST(reverse_walk_reads_the_last_creature_name_first)
     ASSERT_EQ_STR(walk[0]->name, creature_at(MAX_CREATURES - 1)->name);
 }
 
+TEST(forward_walk_visits_every_creature_once)
+{
+    ASSERT_EQ_INT(collect_forward_walk(), MAX_CREATURES);
+}
+
+TEST(forward_walk_starts_at_the_first_creature)
+{
+    (void)collect_forward_walk();
+    ASSERT_TRUE(walk[0] == creature_at(0));
+}
+
+TEST(forward_walk_ends_at_the_last_creature)
+{
+    int n = collect_forward_walk();
+    ASSERT_TRUE(walk[n - 1] == creature_at(MAX_CREATURES - 1));
+}
+
+TEST(forward_walk_steps_one_index_on_at_a_time)
+{
+    int n = collect_forward_walk();
+
+    int mismatch = -1;
+    for (int i = 0; i < n; i++) {
+        if (walk[i] != creature_at(i)) {
+            mismatch = i;
+            break;
+        }
+    }
+
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
+TEST(forward_walk_gives_back_the_handle_of_each_creature)
+{
+    /* save.c は正順にたどって、要素から添字（handle）を取りもどして書く。 */
+    int n = collect_forward_walk();
+
+    int mismatch = -1;
+    for (int i = 0; i < n; i++) {
+        if (monster_get_creature_handle(walk[i]).place != i) {
+            mismatch = i;
+            break;
+        }
+    }
+
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
 int main(void)
 {
     RUN_TEST(reverse_walk_visits_every_creature_once);
@@ -111,6 +168,11 @@ int main(void)
     RUN_TEST(reverse_walk_ends_at_the_first_creature);
     RUN_TEST(reverse_walk_steps_one_index_back_at_a_time);
     RUN_TEST(reverse_walk_reads_the_last_creature_name_first);
+    RUN_TEST(forward_walk_visits_every_creature_once);
+    RUN_TEST(forward_walk_starts_at_the_first_creature);
+    RUN_TEST(forward_walk_ends_at_the_last_creature);
+    RUN_TEST(forward_walk_steps_one_index_on_at_a_time);
+    RUN_TEST(forward_walk_gives_back_the_handle_of_each_creature);
     return TEST_SUMMARY();
 }
 
