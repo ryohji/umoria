@@ -4,13 +4,14 @@
 読めば、前提と作法と次の一手が揃う。済んだ列の経過は `docs/refactoring/done/` にあり、
 要るときだけ開けばよい。
 
-2026-10-01 に整理した。整理の前の全文は
-[docs/refactoring/done/handover-2026-10-01.md](docs/refactoring/done/handover-2026-10-01.md)、
+2026-10-23 に整理した。整理の前の全文は
+[docs/refactoring/done/handover-2026-10-23.md](docs/refactoring/done/handover-2026-10-23.md)、
+その前の整理（2026-10-01）の前の全文は [done/handover-2026-10-01.md](docs/refactoring/done/handover-2026-10-01.md)、
 それより前の更新の履歴は [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
 
 ## 0. 現在地
 
-2026-10-15、`develop` の上（`integrate/modules` を `62a384a` でマージした。push はユーザーが行う）。
+2026-10-23、`develop` の上（push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1826 件・87 本**、failed=0、`RESULT: GREEN`。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
@@ -32,7 +33,9 @@
   - **モジュール化（#80〜#88・#13・#75・#76）**。層ごとのディレクトリーとライブラリー、
     公開ヘッダと内部ヘッダ、model/ の小さな module の統合。経過・数・担当の報告と実際は
     [done/modules-2026-10-14.md](docs/refactoring/done/modules-2026-10-14.md)。
-- 再検出で足した台帳の行は #58〜#88、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
+  - **第 6 節の候補（#89〜#93）**。static 化、ui/ の状態の統合、`constant.h` の定数の移動、
+    world/ の 4 段。経過は [done/section6-2026-10-15.md](docs/refactoring/done/section6-2026-10-15.md)。
+- 再検出で足した台帳の行は #58〜#93、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -48,11 +51,11 @@
 | `docs/refactoring/worklog.md` | 作業ログ（1 作業 1 行）。済んだ列の行は `done/worklog-*.md` |
 | `docs/refactoring/done/` | 済んだ列の経過（字を変えずに移したもの） |
 | `scripts/globals.py` | ヘッダの extern 宣言（global）を区分に分けて数える道具。手で数えない |
-| `scripts/link_units.py` | テストの実行形式ごとに `libcore.a` から引かれた `.o` を出す |
-| `scripts/layer_deps.py` | 層（`src/` のサブディレクトリー）の依存を `nm` で調べる |
+| `scripts/link_units.py` | テストの実行形式ごとに、層ごとのライブラリーから引かれた `.o` を出す（`--shadows` は `libcore.a` しか見ない → 第 6 節） |
+| `scripts/layer_deps.py` | 層（`src/` のサブディレクトリー）と world/ の段（`WORLD_TIERS`）の依存を `nm` で調べる |
 | `scripts/dis_compare.py` | 2 つの実行形式で、指定した関数の機械語を比べる |
 | `scripts/cmp_all.sh` | 基準のコミットと作業木の全関数の機械語と、データの (種類, 大きさ) を比べる |
-| `scripts/check_statics.sh`・`comments_only.sh`・`merge_modules.py` | データの数の比較・注釈だけの変更の確かめ・小さな module の連結 |
+| `scripts/check_statics.sh`・`comments_only.sh`・`merge_modules.py`・`move_constants.py` | データの数の比較・注釈だけの変更の確かめ・小さな module の連結・`constant.h` の定数を使う場所へ移す |
 | `docs/modules/` | module の設計資料（ヘッダに書かない理由・不変条件・範囲） |
 | `CHANGELOG.md` | 上流の履歴。この作業では触っていない |
 
@@ -141,17 +144,14 @@ rm -f scores.dat /tmp/probe.sav
 - 単位を閉じるときは、**呼び手側**の変異も 3〜5 個試し、素通りした数を書き残す。
   窓口の内側を守るテストは、窓口を呼ぶ順番と条件を守らない（台帳 #50 の族）。
 
-**全関数を比べる。** `scripts/cmp_all.sh <基準の SHA> <作業木> <出力先>` が両方を
-`-O2 -fno-inline -fno-ipa-ra` で組み、共通の全関数とデータの (種類, 大きさ) を比べる。
-static の改名は「same except symbol comments」、中身の同じ関数のたたみの入れかわりは
-所見 64、同名の static が潰れたのはデータの数が減ることで分かる（所見 63）。
-module を合わせるときは `scripts/merge_modules.py` で字を変えずに連結する。
-
-**純粋な移動は機械語の一致で確かめる。** 移す関数の多くは本物に届くテストが 0 件で、
-壊しても赤くならない。`scripts/dis_compare.py 変更前の umoria 変更後の umoria 関数…`
-で比べる。翻訳単位が分かれると `-O2` の展開の境目が動くので、両方を
-`make OPT_FLAGS="-O2 -fno-inline"` で組んで比べる。同じ翻訳単位に寄せたときは
-`-fno-ipa-ra` も足す。
+**純粋な移動・統合・ヘッダの組みかえは、全関数の機械語の一致で確かめる。** 移す関数の
+多くは本物に届くテストが 0 件で、壊しても赤くならない。`scripts/cmp_all.sh <基準の SHA>
+<作業木> <出力先>` が両方を `-O2 -fno-inline -fno-ipa-ra` で組み（展開の境目と翻訳単位の
+寄せの影響を消す）、共通の全関数とデータの (種類, 大きさ) を比べる。static の改名は
+「same except symbol comments」、中身の同じ関数のたたみの入れかわりは所見 64、関数を
+static にすると入口の `endbr64` が消える、同名の static が潰れたのはデータの数が減ることで
+分かる（所見 63）。module を合わせるときは `scripts/merge_modules.py` で字を変えずに連結する。
+関数を選んで比べるなら `scripts/dis_compare.py 変更前 変更後 関数…`。
 
 **テストの届かない呼び手の抽出は、種を固定した書き出しで比べる。** 機械語が変わる抽出で、
 呼び手にテストが届かないとき。`main.o` を除いた本体の `.o` と使い捨ての `main()` をリンクし、
@@ -160,8 +160,9 @@ module を合わせるときは `scripts/merge_modules.py` で字を変えずに
 `done/p2-2026-10.md`）。
 
 **宣言は手で写さない。** 名前が要るファイルは、それを宣言している公開ヘッダ（同じ
-ライブラリーの中なら内部ヘッダ）を include する（第 5 節）。手書きの `extern` は置かない。テストが対象 1 本だけをリンクできるのは `libcore.a` から
-要るものだけを引くからで、include の数とは関係ない。移せない副作用は呼びだし側に残す。
+ライブラリーの中なら内部ヘッダ）を include する（第 5 節）。手書きの `extern` は置かない。
+テストが対象 1 本だけをリンクできるのは層ごとのライブラリーから要るものだけを引くからで、
+include の数とは関係ない。移せない副作用は呼びだし側に残す。
 
 **テストの代役（`tests/*_stubs.c`・`*_fixture.c`）の扱い。**
 - どのテストも届かない代役は `stub_unreached(__func__)`（`tests/stub_unreached.h`）で
@@ -178,11 +179,11 @@ module を合わせるときは `scripts/merge_modules.py` で字を変えずに
 
 | 層 | ディレクトリー | 置くもの |
 |---|---|---|
-| core | `core/` | どこにも依存しない道具（乱数・ダイス・ビット・文字列・`LENGTH_OF`） |
+| core | `core/` | どこにも依存しない道具（乱数・ダイス・ビット・文字列・`LENGTH_OF`・文字列の器 `vtype`・`MAX_SHORT`）。`-Isrc/core` だけでコンパイルできる |
 | model | `model/data` `model/game` `model/player` `model/monster` `model/dungeon` `model/item` `model/store` | 状態と表。UI も規則も持たない。副ライブラリーどうしは呼ばない（dungeon・store は item を使える。data と game は互いに使える）。`layer_deps.py` の `MODEL_RULES` |
 | platform | `platform/` | OS と端末（ncurses を直に呼ぶのはここだけ）。backend の約束の型は `backend.h` |
 | ui | `ui/` | backend に依存しない画面と入力の窓口（メッセージ・プロンプト・描画・キー） |
-| world | `world/combat` `dungeon` `item` `monster` `player` `store` `view` | 遊びの規則（戦闘・呪文・照明・モンスターの行動・階の生成・罠・地図と状態行の表示） |
+| world | `world/combat` `dungeon` `item` `monster` `player` `store` `view` | 遊びの規則（戦闘・呪文・照明・モンスターの行動・階の生成・罠・地図と状態行の表示）。.c は `WORLD_TIERS` の 4 段（表示 < 規則 < 床と生死 < 行動）のどれかに属し、段を上へは呼ばない。新しい .c は表に足す |
 | command | `command/` | プレイヤーのコマンドと画面（食べる・読む・唱える・店・持ち物・人物の作成・ウィザード） |
 | app | `app/` | `main`・主ループ・セーブと死・シグナルの処理・起動時の結線 |
 
@@ -215,14 +216,23 @@ module を合わせるときは `scripts/merge_modules.py` で字を変えずに
 ## 6. その先の候補
 
 着手する前にユーザーと決める。台帳に残るのは P3（記録のみ）と棚上げで、どれも「着手しない
-理由」がある。動かすなら理由を読みなおす。
+理由」がある。多くは「テストが届かない」ことが理由なので、先に保護を厚くすると動かせる。
 
-- **world/ の段の中のループ。** world/ の .c は `layer_deps.py` の `WORLD_TIERS` で 4 段に分けて
-  あり、段を上へ向かう辺は違反になる。段の中（とくに行動の段：creature・spells・
-  projectiles・monster_melee）には相互の呼び出しが残る。新しい world/ の .c は表に足す。
+- **どのテストも引かない `.o` が 110 本のうち 60 本**（2026-10-23 に `tests/build/*.map` で
+  数えた。app/ 8・command/ 16・platform/ 4・ui/ 5・world/ 27。丸ごと `#include` する
+  テストの `creature.c`・`save.c`・`store_haggle.c` もこの数に入る）。world/ の行動の段の
+  ループ、#19・#21・#22・#71・#72 は、どれもここに当たる。
+- **画面を持たない backend で実物を通すテスト。** `platform/backend.h` の約束どおりに、
+  画面を配列に書き、キーを台本から返す backend を tests/ に置けば、`-w<種>` で起動した
+  本体を端末なしで動かし、画面の写しを記録と比べられる（所見 59・62 の確かめを常設にする）。
+  GUI へ移るときの、backend を替えられることの確かめにもなる。
+- **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
+  monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
+- **`scripts/link_units.py --shadows` は `tests/build/libcore.a` しか見ない。** #87 で
+  ライブラリーを 11 本に分けたので、core/ のほかの代役の影を数えていない。
 - **`constant.h` に残る定数**（262 個）は、2 つ以上のライブラリーかテストが使うか、表の一部
   （呪文のビット名など、使われない 15 個を含む）。`types.h` の型は model の形で、どの層も読む。
-- **端末を待つ呼び手の確かめ**（所見 62）と、**テストの穴（#50 の族）**、**呼ばれたら止まる
+- **端末を待つ呼び手の確かめ**（所見 62）、**テストの穴（#50 の族）**、**呼ばれたら止まる
   代役の残り**は前と同じ。`inkey()` の入力の終わりの道は `script(1)` では通せない（所見 67）。
 
 ## 7. 地雷とつまずきどころ
@@ -248,8 +258,8 @@ module を合わせるときは `scripts/merge_modules.py` で字を変えずに
   数えるのは `python3 scripts/link_units.py --who <名前>.o` と、
   `grep -rln '#include "<名前>.c"' tests/` の両方。
 - **`src/` の `.c` を丸ごと `#include` するテストが 6 本ある**（`save_bool_test`・
-  `store_save_test`・`savefile_version_test`・`savefile_layout_test` は `save.c`、`haggle_comment_test` は `store_haggle.c`、
-  `movement_rate_test` は `creature.c`）。その `.c` の名前はテスト自身が定義するので、
+  `store_save_test`・`savefile_version_test`・`savefile_layout_test` は `app/save.c`、`haggle_comment_test` は
+  `world/store/store_haggle.c`、`movement_rate_test` は `world/monster/creature.c`）。その `.c` の名前はテスト自身が定義するので、
   `link_units.py --who` には出ない。代役側の同名定義とも衝突する。
 - **`static` な実体と、代役側の非 `static` な同名定義は multiple definition に
   ならない。** 別の翻訳単位なのでリンカは黙って両方を置く。実体を `static` に
@@ -303,7 +313,7 @@ module を合わせるときは `scripts/merge_modules.py` で字を変えずに
 
 **実物で確かめるとき**
 
-- **`dungeon.c`・`death.c`・`main.c` には単体テストが届かない**（リンクできない）。
+- **`app/dungeon.c`・`app/death.c`・`app/main.c` には単体テストが届かない**（リンクできない）。
   そこを触るなら実物で確かめる。キー列の流しかた・終了キー（`^K`）・得点ファイルの
   比べかたは、整理の前の第 7 節に手順がある。
 - **乱数を引かない経路を選ぶ。** 種は起動時に時計から取る。セーブを読みこんで表示する・
@@ -316,15 +326,16 @@ module を合わせるときは `scripts/merge_modules.py` で字を変えずに
 - **起動の確認は、通す入力で捕まえる件数が変わる**（→ `findings.md` の所見 39）。
 - **セーブファイルの並びは `savefile_layout_test` が守る**（台帳 #49）。項目を足すときは、
   その表（`expect_*` の並び）にも同じ位置で足す。古い版を読む分岐と復活の道は守っていない。
-- `save.c` の `SAVE_LOG(...)` は空に展開されるデバッグ用。
+- `app/save.c` の `SAVE_LOG(...)` は空に展開されるデバッグ用。
 
 **数字と報告**
 
 - **担当（下位のモデル）の報告は測りなおす。** 「警告 0・N 件 GREEN・機械語一致」が
   測った結果でなかったことが何度もある（所見 65、`done/modules-2026-10-14.md` 第 3 節）。
   コミットを空から組み、第 2 節の 1〜4 と `cmp_all.sh` を統括が走らせる。担当には
-  「ふるまいを変えない・書きなおさず字を変えずに移す」をはっきり書く。
-
+  「ふるまいを変えない・書きなおさず字を変えずに移す」をはっきり書く。機械的な変更
+  （連結・ヘッダの組みかえ・定数の移動）は、担当に任せるより道具を書くほうが速く確かだった。
+- **`nm` で拾った「使われない」は、名前でソースを grep してから信じる**（所見 69）。
 - **数字は自分で測って書く。** 記録された数字を前提にせず測りなおす
   （再検討のたびにずれが見つかっている）。
 - **「テストの件数」と「保護の強さ」は別物。** 件数ではなく関数ごとの被覆を見る。
