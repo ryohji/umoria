@@ -1,0 +1,10 @@
+# args: -w7
+# Start in wizard mode (seed 7), create a human male warrior named Bob,
+# then walk around the town and look at the inventory, equipment and sheet.
+\n y
+am\ea
+Bob\r
+ 
+1236987412369874
+i\ee\eC\e
+2222244444

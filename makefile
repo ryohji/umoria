@@ -92,6 +92,17 @@ lib$(lib).a: $(notdir $(LIB_SRCS_$(lib):.c=.o)) ; \
 ))
 
 
+# The whole game with the display backend of tests/headless_backend.c instead
+# of ncurses (makefile.test golden runs it). Same objects and flags as $(TARGET).
+HEADLESS = umoria_headless
+HEADLESS_OBJS = $(filter-out platform_init.o %ncurses.o,$(APP_OBJS)) headless_backend.o
+
+$(HEADLESS): $(HEADLESS_OBJS) $(LIBS)
+	$(CC) -o $(HEADLESS) $(HEADLESS_OBJS) $(LIBS) $(LDFLAGS)
+
+headless_backend.o: tests/headless_backend.c
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+
 # Pattern rule for compiling C source files
 # -MMD -MP writes a .d beside each .o listing the headers it included.
 %.o: %.c
@@ -134,7 +145,7 @@ clean:
 	@rm -f $(OBJS)
 	@rm -f $(OBJS:.o=.d)
 	@rm -f $(LIBS)
-	@rm -f $(TARGET)
+	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d
 	@rm -f lintout
 	@echo "Clean complete!"
 

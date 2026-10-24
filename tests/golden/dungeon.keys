@@ -1,0 +1,13 @@
+# args: -w11
+# Start in wizard mode (seed 11), create a human male warrior named Bob,
+# go down to level 5 with ^D, walk, summon a monster, teleport and rest.
+\n y
+am\ea
+Bob\r
+ 
+\x045\r
+2222266666888884444
+& 
+\x14
+6666622222
+R5\r

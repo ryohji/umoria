@@ -243,6 +243,15 @@ $(BINS): $(BUILDDIR)/%: $(TESTDIR)/%.c $$(addprefix $(TESTDIR)/,$$(EXTRA_$$*)) \
 	$(CC) $(CFLAGS) -o $@ $(TESTDIR)/$*.c $(addprefix $(TESTDIR)/,$(EXTRA_$*)) \
 	    $(LIBS) -Wl,-Map,$@.map
 
+# The whole game without a terminal: each tests/golden/*.keys is played by
+# umoria_headless (the main build's objects with tests/headless_backend.c in
+# place of ncurses) and the transcript is compared with tests/golden/*.transcript.
+# After an intended change of what the screen shows: tests/golden/run.sh --update.
+.PHONY: golden
+golden:
+	@$(MAKE) --no-print-directory -f makefile umoria_headless >/dev/null
+	@tests/golden/run.sh
+
 # Every header under src/ must compile on its own (it includes what it uses).
 .PHONY: headers
 headers:
