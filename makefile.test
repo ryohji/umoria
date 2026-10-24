@@ -250,7 +250,7 @@ $(BINS): $(BUILDDIR)/%: $(TESTDIR)/%.c $$(addprefix $(TESTDIR)/,$$(EXTRA_$$*)) \
 .PHONY: golden
 golden:
 	@$(MAKE) --no-print-directory -f makefile umoria_headless >/dev/null
-	@tests/golden/run.sh
+	@bash tests/golden/run.sh
 
 # Every header under src/ must compile on its own (it includes what it uses).
 .PHONY: headers
