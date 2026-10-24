@@ -8,7 +8,9 @@
 # A line "# run: <args>" starts a run of the game with those arguments (a seed
 # with -w makes it repeatable); the keys after it, up to the next "# run:",
 # are that run's script. All runs of one file share a working directory, so a
-# later run can load what an earlier one saved. Needs ./umoria_headless
+# later run can load what an earlier one saved. A line "# at end: eof" in a
+# run's keys makes the input report end of input when they run out, instead
+# of stopping the game. Needs ./umoria_headless
 # (make umoria_headless).
 cd "$(dirname "$0")/../.." || exit 1
 update=0; trace=
@@ -32,7 +34,8 @@ for name in "${names[@]}"; do
         part=${a%.args}
         [ -f "$part.keys" ] || : > "$part.keys"
         echo "run: $(cat "$a")" >> "$work/$name.transcript"
-        (cd "$work/run" && TZ=UTC HEADLESS_TRACE=$trace HEADLESS_KEYS="$part.keys" HEADLESS_OUT="$part.transcript" \
+        at_end=$(sed -n 's/^# at end: //p' "$part.keys" | head -1)
+        (cd "$work/run" && TZ=UTC HEADLESS_AT_END=$at_end HEADLESS_TRACE=$trace HEADLESS_KEYS="$part.keys" HEADLESS_OUT="$part.transcript" \
             timeout 60 "$OLDPWD/umoria_headless" $(cat "$a") >/dev/null 2>&1)
         echo "exit status $?" >> "$work/$name.transcript"
         cat "$part.transcript" >> "$work/$name.transcript" 2>/dev/null

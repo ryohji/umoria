@@ -17,6 +17,8 @@
 //                  starts with # is a comment; line breaks are not keys
 //   HEADLESS_OUT   the transcript to write
 //   HEADLESS_TRACE set to write the whole screen at every key, not only at exit
+//   HEADLESS_AT_END=eof  when the script runs out, report end of input (EOF)
+//                  instead of exiting, as a closed terminal would
 //
 // time() is fixed (below), so dates on the screen do not change between runs.
 
@@ -242,9 +244,12 @@ static void i_nothing(void) {}
 
 // Runs once, at exit: whether the script ran out or the game quit by itself.
 static bool script_ran_out;
+static bool eof_at_end;
+static int eofs;
 
 static void finish(void) {
-    fprintf(out, "%s after %zu of %zu keys\n", script_ran_out ? "end of script" : "game exited", key_next, key_count);
+    fprintf(out, "%s after %zu of %zu keys%s\n", script_ran_out ? "end of script" : "game exited", key_next, key_count,
+            eofs > 0 ? (eofs < 1000 ? ", then the game exited on end of input" : ", and end of input did not end the game") : "");
     dump_screen();
     fclose(out);
 }
@@ -252,6 +257,10 @@ static void finish(void) {
 static int i_get_key(void) {
     if (key_next == key_count) {
         script_ran_out = true;
+        if (eof_at_end && ++eofs < 1000) {
+            fprintf(out, "eof %3d %08x\n", eofs, screen_hash());
+            return EOF;
+        }
         exit(0);
     }
     const uint8_t key = (uint8_t)keys[key_next++];
@@ -303,6 +312,8 @@ bool platform_init(void) {
         fprintf(stderr, "headless: cannot write %s\n", out_path);
         return false;
     }
+    const char *at_end = getenv("HEADLESS_AT_END");
+    eof_at_end = at_end != NULL && strcmp(at_end, "eof") == 0;
     const char *t = getenv("HEADLESS_TRACE");
     trace = t != NULL && t[0] != '\0';
     atexit(finish);
