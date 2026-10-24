@@ -141,7 +141,7 @@
 | 91 | `constant.h` の定数 174 個を使う場所へ、`types.h` の型 2 つを使う場所へ、core/ が src/ 直下のヘッダを読まないように | 同上 |
 | 92 | world/ のループを 4 段（表示 < 規則 < 床と生死 < 行動）に並べ、`layer_deps.py` の `WORLD_TIERS` で守る（ディレクトリーは名詞のまま。ユーザーの判断） | 同上 |
 | 93 | どこからも使われない `SCARE_MONSTER` を消す（表の一部の 15 個は残す。ユーザーの判断） | 同上 |
-| 95 | モンスター表を先頭からたどる iterator（`monster_creature_begin` ほか）を足し、セーブで記憶を書く走査をそれに（ユーザーの依頼） | `worklog.md`（2026-10-24） |
+| 95 | モンスター表を先頭からたどる iterator（`monster_creature_begin` ほか・`advance`・`distance`）を足し、セーブで記憶を書く走査と `summon_undead` の走査をそれに（ユーザーの依頼）。`summon_undead_test` を足した | `worklog.md`（2026-10-24） |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
