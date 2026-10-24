@@ -37,6 +37,11 @@ creature_iterator monster_creature_end(void);
 bool monster_creature_same(creature_iterator a, creature_iterator b);
 creature_iterator monster_creature_next(creature_iterator it);
 creature_type *monster_creature_get(creature_iterator it);
+// Random access: move `n` entries on (or back, when negative), and how many
+// entries `to` lies after `from` (negative when it lies before). The result
+// of advance must stay within the table or be end.
+creature_iterator monster_creature_advance(creature_iterator it, int n);
+int monster_creature_distance(creature_iterator from, creature_iterator to);
 
 // Reverse iteration over the creature definition table. Usage:
 //   const creature_rev_iterator end = monster_creature_rend();

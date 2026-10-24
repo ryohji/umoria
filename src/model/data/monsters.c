@@ -731,6 +731,15 @@ creature_type *monster_creature_get(creature_iterator it) {
     return it.ptr;
 }
 
+creature_iterator monster_creature_advance(creature_iterator it, int n) {
+    creature_iterator moved = {it.ptr + n};
+    return moved;
+}
+
+int monster_creature_distance(creature_iterator from, creature_iterator to) {
+    return (int)(to.ptr - from.ptr);
+}
+
 // Reverse iteration. The iterator holds one past the element it points to
 // (creature_rev_iterator in types.h), so even at the beginning, base stays
 // within c_list and never points before the array.
