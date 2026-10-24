@@ -1,0 +1,17 @@
+# run: -w7 game.sav
+# Create a character, walk to the alchemist (5), buy a potion and a scroll,
+# then quaff and read them outside.
+\n y
+am\ea
+Bob\r
+  
+8888888888
+6666666
+pa54\r 
+ph89\r 
+pk32\r 
+\e
+i\e
+qb\e
+rb\e
+rb\e
