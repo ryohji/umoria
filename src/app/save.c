@@ -114,13 +114,15 @@ static bool sv_write(void) {
         l |= 0x40000000L;
     }
 
-    for (int i = 0; i < MAX_CREATURES; i++) {
-        recall_type *r_ptr = recall_get(monster_make_creature_handle(i));
+    const creature_iterator end = monster_creature_end();
+    for (creature_iterator it = monster_creature_begin(); !monster_creature_same(it, end); it = monster_creature_next(it)) {
+        const creature_handle h = monster_get_creature_handle(monster_creature_get(it));
+        recall_type *r_ptr = recall_get(h);
 
         if (r_ptr->r_cmove || r_ptr->r_cdefense || r_ptr->r_kills ||
             r_ptr->r_spells || r_ptr->r_deaths || r_ptr->r_attacks[0] ||
             r_ptr->r_attacks[1] || r_ptr->r_attacks[2] || r_ptr->r_attacks[3]) {
-            wr_short((uint16_t)i);
+            wr_short(h.place);
             wr_long(r_ptr->r_cmove);
             wr_long(r_ptr->r_spells);
             wr_short(r_ptr->r_kills);

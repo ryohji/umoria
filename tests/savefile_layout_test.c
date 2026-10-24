@@ -177,15 +177,16 @@ static void expect_item(int seed)
     expect_byte("item.ident", B(seed + 17));
 }
 
-/* 記憶を持つモンスターは 2 種だけ。ほかは全部 0 で、書かれない。 */
-static const int remembered[2] = {3, 177};
+/* 記憶を持つモンスターは 4 種だけ（表の両端を含む）。ほかは全部 0 で、書かれない。 */
+#define REMEMBERED 4
+static const int remembered[REMEMBERED] = {0, 3, 177, MAX_CREATURES - 1};
 
 static void fill_recall(void)
 {
     for (int i = 0; i < MAX_CREATURES; i++) {
         memset(recall_get(monster_make_creature_handle((uint16_t)i)), 0, sizeof(recall_type));
     }
-    for (int k = 0; k < 2; k++) {
+    for (int k = 0; k < REMEMBERED; k++) {
         recall_type *r = recall_get(monster_make_creature_handle((uint16_t)remembered[k]));
         int i = 20 * k;
         r->r_cmove = L(i);
@@ -203,7 +204,7 @@ static void fill_recall(void)
 
 static void expect_recall(void)
 {
-    for (int k = 0; k < 2; k++) {
+    for (int k = 0; k < REMEMBERED; k++) {
         int i = 20 * k;
         expect_short("recall index", (uint16_t)remembered[k]);
         expect_long("r_cmove", L(i));

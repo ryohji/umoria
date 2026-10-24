@@ -220,22 +220,24 @@ bool summon_monster(int *y, int *x, int slp) {
 // Places undead adjacent to given location -RAK-
 bool summon_undead(int *y, int *x) {
     int l = monsters_up_to_level(MAX_MONS_LEVEL);
-    creature_handle h;
+    const creature_iterator begin = monster_creature_begin();
+    creature_iterator it;
 
+    // Count up from a random entry to the first undead; past entry l, roll again.
     do {
-        int m = randint(l) - 1;
+        it = monster_creature_advance(begin, randint(l) - 1);
+        const creature_iterator last = monster_creature_advance(begin, l);
         int ctr = 0;
         do {
-            h = monster_make_creature_handle(m);
-            if (monster_get_creature(h)->cdefense & CD_UNDEAD) {
+            if (monster_creature_get(it)->cdefense & CD_UNDEAD) {
                 l = 0;
                 ctr = 20;
             } else {
-                m += 1;
-                ctr = m > l ? 20 : ctr + 1;
+                it = monster_creature_next(it);
+                ctr = monster_creature_distance(last, it) > 0 ? 20 : ctr + 1;
             }
         } while (ctr != 20);
     } while (l != 0);
 
-    return summon(y, x, h, false);
+    return summon(y, x, monster_get_creature_handle(monster_creature_get(it)), false);
 }

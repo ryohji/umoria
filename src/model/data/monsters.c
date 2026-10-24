@@ -706,6 +706,40 @@ creature_type *monster_get_creature(creature_handle h) {
     return c_list + h.place;
 }
 
+// Forward iteration. The iterator holds the element it points to; end is
+// one past the last element, which C allows.
+creature_iterator monster_creature_begin(void) {
+    creature_iterator it = {c_list};
+    return it;
+}
+
+creature_iterator monster_creature_end(void) {
+    creature_iterator it = {c_list + MAX_CREATURES};
+    return it;
+}
+
+bool monster_creature_same(creature_iterator a, creature_iterator b) {
+    return a.ptr == b.ptr;
+}
+
+creature_iterator monster_creature_next(creature_iterator it) {
+    creature_iterator next = {it.ptr + 1};
+    return next;
+}
+
+creature_type *monster_creature_get(creature_iterator it) {
+    return it.ptr;
+}
+
+creature_iterator monster_creature_advance(creature_iterator it, int n) {
+    creature_iterator moved = {it.ptr + n};
+    return moved;
+}
+
+int monster_creature_distance(creature_iterator from, creature_iterator to) {
+    return (int)(to.ptr - from.ptr);
+}
+
 // Reverse iteration. The iterator holds one past the element it points to
 // (creature_rev_iterator in types.h), so even at the beginning, base stays
 // within c_list and never points before the array.

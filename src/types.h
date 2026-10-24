@@ -67,6 +67,13 @@ typedef struct {
     uint16_t place;
 } creature_handle;
 
+// Iterator over the creature definition table, first to last. Holds the
+// element it refers to; end is one past the last. Wrapped in a struct to
+// prevent accidental -> dereference; use monster_creature_get() to access.
+typedef struct {
+    creature_type *ptr;
+} creature_iterator;
+
 // Reverse iterator for the creature definition table.
 //
 // Holds one-past the element it refers to (like std::reverse_iterator), so

@@ -27,6 +27,22 @@ creature_handle monster_make_creature_handle(uint16_t index);
 creature_handle monster_get_creature_handle(creature_type *p);
 creature_type *monster_get_creature(creature_handle h);
 
+// Iteration over the creature definition table, first to last. Usage:
+//   const creature_iterator end = monster_creature_end();
+//   for (creature_iterator it = monster_creature_begin();
+//        !monster_creature_same(it, end); it = monster_creature_next(it)) {
+//       creature_type *const creature = monster_creature_get(it);
+creature_iterator monster_creature_begin(void);
+creature_iterator monster_creature_end(void);
+bool monster_creature_same(creature_iterator a, creature_iterator b);
+creature_iterator monster_creature_next(creature_iterator it);
+creature_type *monster_creature_get(creature_iterator it);
+// Random access: move `n` entries on (or back, when negative), and how many
+// entries `to` lies after `from` (negative when it lies before). The result
+// of advance must stay within the table or be end.
+creature_iterator monster_creature_advance(creature_iterator it, int n);
+int monster_creature_distance(creature_iterator from, creature_iterator to);
+
 // Reverse iteration over the creature definition table. Usage:
 //   const creature_rev_iterator end = monster_creature_rend();
 //   for (creature_rev_iterator it = monster_creature_rbegin();
