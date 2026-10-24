@@ -1,0 +1,24 @@
+# run: -w41 game.sav
+# Create a character, go down to level 3, then run, tunnel, search, open,
+# close, disarm, bash, throw, inscribe and look back at the messages.
+\n y
+am\ea
+Bob\r
+  
+we
+wd
+\x043\r
+.2\e
+T2\e
+T2\e
+T2\e
+s\e
+S\eS\e
+o6\e
+c6\e
+D6\e
+B6\e
+fa6\e
+{b food\r
+\x10\e
+V\e

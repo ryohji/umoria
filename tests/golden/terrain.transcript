@@ -1,0 +1,94 @@
+run: -w41 game.sav
+exit status 0
+key   1 0x0a 7c0428f9
+key   2 0x20 4cdbf8db
+key   3 0x79 3a7b3867
+key   4 0x61 999885ab
+key   5 0x6d 6255975a
+key   6 0x1b eba3aa6a
+key   7 0x61 cec077ff
+key   8 0x42 811fce9c
+key   9 0x6f 39bade72
+key  10 0x62 6ac3f5f9
+key  11 0x0d 8837a5e3
+key  12 0x20 0500c436
+key  13 0x20 73279b7d
+key  14 0x77 73279b7d
+key  15 0x65 0417e32e
+key  16 0x77 61067803
+key  17 0x64 0417e32e
+key  18 0x04 a5789c20
+key  19 0x33 8c1b5c6c
+key  20 0x0d 4029fa7d
+key  21 0x2e 42ae7792
+key  22 0x32 286830e7
+key  23 0x1b da2ee40e
+key  24 0x54 34c4feec
+key  25 0x32 5461e3eb
+key  26 0x1b 398de1b2
+key  27 0x54 cd78762c
+key  28 0x32 a1fab9ab
+key  29 0x1b 14181612
+key  30 0x54 c55f514c
+key  31 0x32 19553eeb
+key  32 0x1b 020288f2
+key  33 0x73 2fa98c8c
+key  34 0x1b 5b7b976c
+key  35 0x53 8f5c6aae
+key  36 0x1b dc9257cc
+key  37 0x53 e23bd4aa
+key  38 0x1b 5b7b976c
+key  39 0x6f 8f5c6aae
+key  40 0x36 09e9bb05
+key  41 0x1b 88c34307
+key  42 0x63 8f5c6aae
+key  43 0x36 09e9bb05
+key  44 0x1b 7fb9c7ef
+key  45 0x44 8f5c6aae
+key  46 0x36 09e9bb05
+key  47 0x1b e5dce29b
+key  48 0x42 8f5c6aae
+key  49 0x36 09e9bb05
+key  50 0x1b d23afcd7
+key  51 0x66 41ce2a63
+key  52 0x61 872ea3e2
+key  53 0x36 69298a7c
+key  54 0x1b f040046b
+key  55 0x7b fc15226a
+key  56 0x62 022eafd2
+key  57 0x20 29d57fc7
+key  58 0x66 3989f373
+key  59 0x6f 96f1ef49
+key  60 0x6f 0525c3ba
+key  61 0x64 36e6c037
+key  62 0x0d fccd2d5b
+key  63 0x10 fccd2d5b
+key  64 0x1b 3b50e8a0
+key  65 0x56 1777a481
+key  66 0x1b 086f755b
+end of script after 66 of 66 keys
+screen (cursor 20,30, bells 0):
+|Type '?' or ^H for help.
+|
+|Human
+|Warrior
+|Rookie
+|
+|STR :     17
+|INT :      8
+|WIS :     11
+|DEX :     14
+|CON :     18
+|CHR :     11
+|                         #########.#####
+|LEV :      1             #.............#
+|EXP :      0             #.............#
+|MANA:      0             #.............#
+|MHP :     21             #.............#
+|CHP :     15             #..............
+|                         #.............#
+|AC  :      0             #.............'
+|GOLD:    607             #....@........#
+|                         ####p#########.
+|Is wizard
+|                                                                 150 feet
