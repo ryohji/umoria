@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Which object files from libcore.a did each test executable pull in?
+"""Which object files from the libraries did each test executable pull in?
 
 makefile.test links every test as
 
-    tests/<name>.c  <its tests/ helpers>  tests/build/libcore.a
+    tests/<name>.c  <its tests/ helpers>  tests/build/lib<layer>.a ...
 
-and asks the linker for a map (tests/build/<name>.map). The archive has no
+(one archive per layer, in layer order).
+It asks the linker for a map (tests/build/<name>.map). The archives have no
 hand-written list: the linker takes a member only when it defines a name that
 is still undefined. This script reads the "Archive member included to satisfy
 reference by file (symbol)" section of each map and prints the members.
@@ -144,10 +145,10 @@ def main():
             continue
         if args.shadows:
             exe = path[:-len('.map')]
-            if archive is None:
-                archive = 'tests/build/libcore.a'
             if archive_defs is None:
-                archive_defs = nm_archive(archive)
+                archive_defs = {}
+                for lib in sorted(glob.glob('tests/build/lib*.a')):
+                    archive_defs.update(nm_archive(lib))
             defined = nm_defined(exe)
             lines = []
             for member in sorted(archive_defs):
