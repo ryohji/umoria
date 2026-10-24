@@ -2,15 +2,18 @@
 # Run the whole game without a terminal on each tests/golden/*.keys and compare
 # the transcript with the recorded *.transcript next to it.
 #
-# usage: tests/golden/run.sh [--update] [name...]
+# usage: tests/golden/run.sh [--update | --trace] [name...]
+#   --update  write the transcripts as the new records
+#   --trace   print the transcripts with the whole screen at every key
 # A line "# run: <args>" starts a run of the game with those arguments (a seed
 # with -w makes it repeatable); the keys after it, up to the next "# run:",
 # are that run's script. All runs of one file share a working directory, so a
 # later run can load what an earlier one saved. Needs ./umoria_headless
 # (make umoria_headless).
 cd "$(dirname "$0")/../.." || exit 1
-update=0
+update=0; trace=
 if [ "$1" = "--update" ]; then update=1; shift; fi
+if [ "$1" = "--trace" ]; then trace=1; shift; fi
 names=("$@")
 if [ ${#names[@]} -eq 0 ]; then
     for k in tests/golden/*.keys; do names+=("$(basename "$k" .keys)"); done
@@ -29,12 +32,14 @@ for name in "${names[@]}"; do
         part=${a%.args}
         [ -f "$part.keys" ] || : > "$part.keys"
         echo "run: $(cat "$a")" >> "$work/$name.transcript"
-        (cd "$work/run" && HEADLESS_KEYS="$part.keys" HEADLESS_OUT="$part.transcript" \
+        (cd "$work/run" && TZ=UTC HEADLESS_TRACE=$trace HEADLESS_KEYS="$part.keys" HEADLESS_OUT="$part.transcript" \
             timeout 60 "$OLDPWD/umoria_headless" $(cat "$a") >/dev/null 2>&1)
         echo "exit status $?" >> "$work/$name.transcript"
         cat "$part.transcript" >> "$work/$name.transcript" 2>/dev/null
     done
-    if [ $update -eq 1 ]; then
+    if [ -n "$trace" ]; then
+        cat "$work/$name.transcript"
+    elif [ $update -eq 1 ]; then
         cp "$work/$name.transcript" "tests/golden/$name.transcript"; echo "updated $name"
     elif cmp -s "$work/$name.transcript" "tests/golden/$name.transcript"; then
         echo "[ ok ] golden $name"
@@ -42,5 +47,5 @@ for name in "${names[@]}"; do
         echo "[FAIL] golden $name"; diff "tests/golden/$name.transcript" "$work/$name.transcript" | head -20; fail=1
     fi
 done
-[ $update -eq 1 ] || { [ $fail -eq 0 ] && echo "golden: GREEN" || echo "golden: RED"; }
+[ $update -eq 1 ] || [ -n "$trace" ] || { [ $fail -eq 0 ] && echo "golden: GREEN" || echo "golden: RED"; }
 exit $fail

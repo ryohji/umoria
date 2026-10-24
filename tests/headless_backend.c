@@ -241,14 +241,17 @@ static bool i_init(void) {
 static void i_nothing(void) {}
 
 // Runs once, at exit: whether the script ran out or the game quit by itself.
+static bool script_ran_out;
+
 static void finish(void) {
-    fprintf(out, "%s after %zu of %zu keys\n", key_next == key_count ? "end of script" : "game exited", key_next, key_count);
+    fprintf(out, "%s after %zu of %zu keys\n", script_ran_out ? "end of script" : "game exited", key_next, key_count);
     dump_screen();
     fclose(out);
 }
 
 static int i_get_key(void) {
     if (key_next == key_count) {
+        script_ran_out = true;
         exit(0);
     }
     const uint8_t key = (uint8_t)keys[key_next++];
@@ -300,7 +303,8 @@ bool platform_init(void) {
         fprintf(stderr, "headless: cannot write %s\n", out_path);
         return false;
     }
-    trace = getenv("HEADLESS_TRACE") != NULL;
+    const char *t = getenv("HEADLESS_TRACE");
+    trace = t != NULL && t[0] != '\0';
     atexit(finish);
     return render_init(&render_backend) && input_init(&input_backend);
 }
