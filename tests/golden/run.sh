@@ -3,8 +3,11 @@
 # the transcript with the recorded *.transcript next to it.
 #
 # usage: tests/golden/run.sh [--update] [name...]
-# The first line "# args: ..." of a .keys file gives the game's arguments
-# (a seed with -w makes the run repeatable). Needs ./umoria_headless (make umoria_headless).
+# A line "# run: <args>" starts a run of the game with those arguments (a seed
+# with -w makes it repeatable); the keys after it, up to the next "# run:",
+# are that run's script. All runs of one file share a working directory, so a
+# later run can load what an earlier one saved. Needs ./umoria_headless
+# (make umoria_headless).
 cd "$(dirname "$0")/../.." || exit 1
 update=0
 if [ "$1" = "--update" ]; then update=1; shift; fi
@@ -17,10 +20,20 @@ trap 'rm -rf "$work"' EXIT
 fail=0
 for name in "${names[@]}"; do
     keys=tests/golden/$name.keys
-    args=$(sed -n '1s/^# args: //p' "$keys")
-    rm -rf "$work/run"; mkdir "$work/run"; ln -s "$PWD/data" "$work/run/data"; : > "$work/run/scores.dat"
-    (cd "$work/run" && HEADLESS_KEYS="$OLDPWD/$keys" HEADLESS_OUT="$work/$name.transcript" \
-        timeout 60 "$OLDPWD/umoria_headless" $args game.sav >/dev/null 2>&1)
+    rm -rf "$work/run" "$work/parts"; mkdir "$work/run" "$work/parts"
+    ln -s "$PWD/data" "$work/run/data"; : > "$work/run/scores.dat"
+    # split into one key script per run
+    awk -v dir="$work/parts" '/^# run: /{n++; sub(/^# run: /, ""); print > (dir "/" n ".args"); next} n {print > (dir "/" n ".keys")}' "$keys"
+    : > "$work/$name.transcript"
+    for a in $(ls "$work/parts"/*.args | sort -V); do
+        part=${a%.args}
+        [ -f "$part.keys" ] || : > "$part.keys"
+        echo "run: $(cat "$a")" >> "$work/$name.transcript"
+        (cd "$work/run" && HEADLESS_KEYS="$part.keys" HEADLESS_OUT="$part.transcript" \
+            timeout 60 "$OLDPWD/umoria_headless" $(cat "$a") >/dev/null 2>&1)
+        echo "exit status $?" >> "$work/$name.transcript"
+        cat "$part.transcript" >> "$work/$name.transcript" 2>/dev/null
+    done
     if [ $update -eq 1 ]; then
         cp "$work/$name.transcript" "tests/golden/$name.transcript"; echo "updated $name"
     elif cmp -s "$work/$name.transcript" "tests/golden/$name.transcript"; then

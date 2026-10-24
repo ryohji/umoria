@@ -1,4 +1,4 @@
-# args: -w23
+# run: -w23 game.sav
 # Start in wizard mode (seed 23), create a human male mage named Ann, then use
 # the starting kit and look at the map: eat, wield and wear, drop,
 # learn and cast a spell, map and locate.

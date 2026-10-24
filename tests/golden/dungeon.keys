@@ -1,4 +1,4 @@
-# args: -w11
+# run: -w11 game.sav
 # Start in wizard mode (seed 11), create a human male warrior named Bob,
 # go down to level 5 with ^D, walk, summon a monster, teleport and rest.
 \n y

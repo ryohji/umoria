@@ -17,6 +17,8 @@
 //                  starts with # is a comment; line breaks are not keys
 //   HEADLESS_OUT   the transcript to write
 //   HEADLESS_TRACE set to write the whole screen at every key, not only at exit
+//
+// time() is fixed (below), so dates on the screen do not change between runs.
 
 #include "backend.h"
 #include "ui_input.h"
@@ -27,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 bool platform_init(void);
 void platform_shutdown(void);
@@ -269,6 +272,19 @@ static InputBackend input_backend = {
     .check_available = i_check_available,
     .flush = i_nothing,
 };
+
+// --- the clock ---------------------------------------------------------------
+
+// The game reads the clock for the birth date, the save file and the tombstone.
+// A fixed time keeps the transcript the same from run to run (this definition
+// takes the place of the C library's for the whole executable).
+time_t time(time_t *t) {
+    const time_t fixed = 1700000000;
+    if (t != NULL) {
+        *t = fixed;
+    }
+    return fixed;
+}
 
 // --- the platform -----------------------------------------------------------
 

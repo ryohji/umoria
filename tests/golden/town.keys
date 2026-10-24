@@ -1,4 +1,4 @@
-# args: -w7
+# run: -w7 game.sav
 # Start in wizard mode (seed 7), create a human male warrior named Bob,
 # then walk around the town and look at the inventory, equipment and sheet.
 \n y
