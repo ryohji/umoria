@@ -34,34 +34,33 @@ key  31 0x34 55ade81d
 key  32 0x34 c6807016
 key  33 0x34 3f543c63
 key  34 0x34 687be6fa
-key  35 0x26 9b22bf6a
-key  36 0x20 8adc63ac
-key  37 0x14 9b22bf6a
-key  38 0x36 8fdc4b50
-key  39 0x36 2667442a
-key  40 0x36 397d90aa
-key  41 0x36 a29925b5
-key  42 0x36 9c7c13a1
-key  43 0x32 ec89e8cd
-key  44 0x32 28ad6c05
-key  45 0x32 4750cc09
-key  46 0x32 4750cc09
-key  47 0x32 4750cc09
-key  48 0x52 4750cc09
-key  49 0x35 d5913e25
-key  50 0x0d 93350086
-end of script after 50 of 50 keys
-screen (cursor 8,52, bells 0):
+key  35 0x15 9b22bf6a
+key  36 0x14 5c04c71f
+key  37 0x36 9eda6fcc
+key  38 0x36 ffa23b16
+key  39 0x36 83ac8d16
+key  40 0x36 ac6c9896
+key  41 0x36 ffbbd96a
+key  42 0x32 717d97ea
+key  43 0x32 717d97ea
+key  44 0x32 717d97ea
+key  45 0x32 717d97ea
+key  46 0x32 717d97ea
+key  47 0x52 717d97ea
+key  48 0x35 48a2a586
+key  49 0x0d 632ff9d5
+end of script after 49 of 49 keys
+screen (cursor 7,47, bells 0):
 |
 |
 |Human
 |Warrior
-|Rookie                                            #######.#########
-|                                                  #...............#
-|STR :  18/20                                      ................#
-|INT :     12                                      #...............#
-|WIS :     14                                      #.@.............+
-|DEX :     11                                      #####.###########
+|Rookie
+|
+|STR :  18/20
+|INT :     12                                   @
+|WIS :     14
+|DEX :     11
 |CON :     15
 |CHR :     11
 |

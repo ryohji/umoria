@@ -1,0 +1,15 @@
+# run: -w31 game.sav
+# Create a character, walk a little and save with ^X.
+\n y
+am\ea
+Bob\r
+  
+6666622222
+\x18 
+# run: -w31 game.sav
+# Load the save, leave the sheet, walk, look at the sheet again, then quit
+# with ^K (the tombstone).
+ \e\e
+44444
+C\e
+\x0by \e   

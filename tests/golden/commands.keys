@@ -1,0 +1,18 @@
+# run: -w41 game.sav
+# Create a character, then help, identify a symbol, options, look; go down
+# with ^D, light a torch, wield and wear, and fight the jackal that comes by
+# walking into it.
+\n y
+am\ea
+Bob\r
+  
+?\e
+/py \e
+=\e
+l\e
+\x043\r
+we
+wd
+wb
+\x15
+1\e1\e1\e1\e1\e1\e1\e1\e1\e1\e

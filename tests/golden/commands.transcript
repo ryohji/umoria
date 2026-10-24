@@ -1,0 +1,82 @@
+run: -w41 game.sav
+exit status 0
+key   1 0x0a 7c0428f9
+key   2 0x20 4cdbf8db
+key   3 0x79 3a7b3867
+key   4 0x61 999885ab
+key   5 0x6d 6255975a
+key   6 0x1b eba3aa6a
+key   7 0x61 cec077ff
+key   8 0x42 811fce9c
+key   9 0x6f 39bade72
+key  10 0x62 6ac3f5f9
+key  11 0x0d 8837a5e3
+key  12 0x20 0500c436
+key  13 0x20 73279b7d
+key  14 0x3f 73279b7d
+key  15 0x1b 3681a3cf
+key  16 0x2f 73279b7d
+key  17 0x70 8a413e0f
+key  18 0x79 8f373a91
+key  19 0x20 d2a8d63d
+key  20 0x1b 70b811b3
+key  21 0x3d 22f19a4d
+key  22 0x1b 51faac54
+key  23 0x6c 73279b7d
+key  24 0x1b 8acacf6d
+key  25 0x04 73279b7d
+key  26 0x33 8c1b5c6c
+key  27 0x0d 4029fa7d
+key  28 0x77 380de1fe
+key  29 0x65 f42de641
+key  30 0x77 7aff7987
+key  31 0x64 86bb7086
+key  32 0x77 bd7fd0e0
+key  33 0x62 159b7129
+key  34 0x15 05b72f43
+key  35 0x31 08cef996
+key  36 0x1b eaf3b5a3
+key  37 0x31 edeee8ec
+key  38 0x1b ff160882
+key  39 0x31 e00906c8
+key  40 0x1b 5efcf93e
+key  41 0x31 578d9274
+key  42 0x1b 3fe811cd
+key  43 0x31 78491d8a
+key  44 0x1b d2a84593
+key  45 0x31 9a2e7519
+key  46 0x1b d2a84593
+key  47 0x31 9a2e7519
+key  48 0x1b d2a84593
+key  49 0x31 9a2e7519
+key  50 0x1b d2a84593
+key  51 0x31 9a2e7519
+key  52 0x1b d2a84593
+key  53 0x31 9a2e7519
+key  54 0x1b d2a84593
+end of script after 54 of 54 keys
+screen (cursor 15,31, bells 0):
+|Type '?' or ^H for help.
+|
+|Human
+|Warrior
+|Private
+|
+|STR :     17                  c
+|INT :      8
+|WIS :     11
+|DEX :     14
+|CON :     18
+|CHR :     11
+|
+|LEV :      2                   # #
+|EXP :     20                  ##.#
+|MANA:      0                  .@w#
+|MHP :     24                  ###
+|CHP :     17
+|                a
+|AC  :      4
+|GOLD:    607
+|
+|Is wizard
+|                                                                 150 feet
