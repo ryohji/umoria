@@ -11,9 +11,10 @@
 
 ## 0. 現在地
 
-2026-10-23、`develop` の上（push はユーザーが行う）。
+2026-10-25、`develop` の上（push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1826 件・87 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1839 件・88 本**、failed=0、`RESULT: GREEN`。
+  **golden 8 本 GREEN**（端末なしで本体を通す。本体の行の 44.5% を通る。#94）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
@@ -35,7 +36,9 @@
     [done/modules-2026-10-14.md](docs/refactoring/done/modules-2026-10-14.md)。
   - **第 6 節の候補（#89〜#93）**。static 化、ui/ の状態の統合、`constant.h` の定数の移動、
     world/ の 4 段。経過は [done/section6-2026-10-15.md](docs/refactoring/done/section6-2026-10-15.md)。
-- 再検出で足した台帳の行は #58〜#93、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
+  - **モンスター表の iterator（#95）と golden（#94）**。経過は
+    [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md)。
+- 再検出で足した台帳の行は #58〜#95、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -51,9 +54,11 @@
 | `docs/refactoring/worklog.md` | 作業ログ（1 作業 1 行）。済んだ列の行は `done/worklog-*.md` |
 | `docs/refactoring/done/` | 済んだ列の経過（字を変えずに移したもの） |
 | `scripts/globals.py` | ヘッダの extern 宣言（global）を区分に分けて数える道具。手で数えない |
-| `scripts/link_units.py` | テストの実行形式ごとに、層ごとのライブラリーから引かれた `.o` を出す（`--shadows` は `libcore.a` しか見ない → 第 6 節） |
+| `scripts/link_units.py` | テストの実行形式ごとに、層ごとのライブラリーから引かれた `.o` を出す |
 | `scripts/layer_deps.py` | 層（`src/` のサブディレクトリー）と world/ の段（`WORLD_TIERS`）の依存を `nm` で調べる |
 | `scripts/dis_compare.py` | 2 つの実行形式で、指定した関数の機械語を比べる |
+| `scripts/check.sh` | 第 2 節の 1〜4 と golden を clean から走らせる |
+| `tests/headless_backend.c`・`tests/golden/` | 端末なしで本体を通す backend と、台本・記録・`run.sh`（第 4 節） |
 | `scripts/cmp_all.sh` | 基準のコミットと作業木の全関数の機械語と、データの (種類, 大きさ) を比べる |
 | `scripts/check_statics.sh`・`comments_only.sh`・`merge_modules.py`・`move_constants.py` | データの数の比較・注釈だけの変更の確かめ・小さな module の連結・`constant.h` の定数を使う場所へ移す |
 | `docs/modules/` | module の設計資料（ヘッダに書かない理由・不変条件・範囲） |
@@ -66,6 +71,8 @@
 ## 2. 動かしかた
 
 この 5 つを毎ステップの終わりにやる。**1 つでも欠けたらコミットしない。**
+1〜4 と golden は `scripts/check.sh`（clean から全部走らせ、1 行ずつ出し、外れれば `NOT OK`）
+でまとめて走る。確かめの道具を `/tmp` に置くと消えることがある。
 
 ```sh
 # 1. 本体（ncurses が要る。警告は 0 でなければならない）
@@ -80,7 +87,8 @@ python3 scripts/globals.py --check
 python3 scripts/layer_deps.py --check
 make -f makefile.test headers
 
-# 4. 起動確認（種族選択画面まで行けば OK）
+# 4. 起動確認（種族選択画面まで行けば OK）と、端末なしで本体を通す golden
+make -f makefile.test golden
 touch scores.dat
 printf '\n\n\n\n' | timeout 10 script -qc "TERM=xterm ./umoria /tmp/probe.sav" /dev/null \
   | tr -d '\r' | grep -c "Choose a race"
@@ -153,6 +161,14 @@ static にすると入口の `endbr64` が消える、同名の static が潰れ
 分かる（所見 63）。module を合わせるときは `scripts/merge_modules.py` で字を変えずに連結する。
 関数を選んで比べるなら `scripts/dis_compare.py 変更前 変更後 関数…`。
 
+**本体を通しで守るのは golden。** `tests/headless_backend.c` は `platform/backend.h` の約束どおりの
+描画（24 × 80 の配列）と入力（台本のキーを 1 つずつ返す）の backend で、`app/platform_init.c` の
+代わりにリンクする（`make umoria_headless`）。`tests/golden/<名前>.keys` の台本を走らせ、
+キーごとの画面のハッシュと最後の画面を `*.transcript` と比べる（`make -f makefile.test golden`）。
+台本を書くときは `tests/golden/run.sh --trace <名前>` でキーごとの画面を見る。記録を作りなおす
+（`--update`）のは、画面に出るものを意図して変えたときだけ。保護に使うときは、変える所を
+1 字壊して golden が赤くなることを先に見る（届かない所は台本を足す）。
+
 **テストの届かない呼び手の抽出は、種を固定した書き出しで比べる。** 機械語が変わる抽出で、
 呼び手にテストが届かないとき。`main.o` を除いた本体の `.o` と使い捨ての `main()` をリンクし、
 `set_rnd_seed()` のあとで本体の手順（階の生成・`creatures()`・呪文・保存）を踏ませて状態を書き出し、
@@ -216,27 +232,25 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 ## 6. その先の候補
 
 着手する前にユーザーと決める。台帳に残るのは P3（記録のみ）と棚上げで、どれも「着手しない
-理由」がある。多くは「テストが届かない」ことが理由なので、先に保護を厚くすると動かせる。
+理由」がある。多くは「テストが届かない」ことが理由だったが、golden（#94）で本体を通しで
+守れるようになったので、台本を足せば動かせるものがある。
 
-- **どのテストも引かない `.o` が 110 本のうち 60 本**（2026-10-23 に `tests/build/*.map` で
-  数えた。app/ 8・command/ 16・platform/ 4・ui/ 5・world/ 27。丸ごと `#include` する
-  テストの `creature.c`・`save.c`・`store_haggle.c` もこの数に入る）。world/ の行動の段の
-  ループ、#19・#21・#22・#71・#72 は、どれもここに当たる。
-- **画面を持たない backend で実物を通すテスト。** `platform/backend.h` の約束どおりに、
-  画面を配列に書き、キーを台本から返す backend を tests/ に置けば、`-w<種>` で起動した
-  本体を端末なしで動かし、画面の写しを記録と比べられる（所見 59・62 の確かめを常設にする）。
-  GUI へ移るときの、backend を替えられることの確かめにもなる。
+- **golden が通らない所。** 8 本の台本で本体の行の 44.5%（7005 / 15750。gcov。2026-10-25）を
+  通る。どの行も通らないのは 110 本のうち 15 本で、表・ncurses・登録の結線・`view_observer` の
+  7 本のほかは `command/prayer.c`・`staffs.c`・`wands.c`・`world/item/device_use.c`・
+  `model/item/device.c`・`armor_selection.c`・`world/player/stat_loss.c`（祈り・杖・魔法棒・
+  呪いの装備・能力値の低下）。種を選び、品物を ^O や店で用意する台本が要る。
+- **P3 の長い関数と重複**（#19・#21・#22・#71・#72）は、該当の道を golden の台本で通して
+  から動かせる。たとえば #22 `objdes` は持ち物・店・地図の台本がすでに通る。
 - **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
   monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
 - **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、
-  本体の `.c` をテスト用に組むと `sigsetmask` の暗黙の宣言や `-Wformat-overflow` の警告が出る
-  （本体の組みたては警告 0）。テストの側で警告を数えていないので気づかなかった。
-- **`scripts/link_units.py --shadows` は `tests/build/libcore.a` しか見ない。** #87 で
-  ライブラリーを 11 本に分けたので、core/ のほかの代役の影を数えていない。
+  本体の `.c` をテスト用に組むと `sigsetmask` の暗黙の宣言や `-Wformat-overflow` の警告が出る。
+  `LIB_EXCLUDE`（`app/dungeon.c`・`inven_menu.c`・`signals.c` をテスト用に組まない）は、#87 で
+  層ごとのライブラリーにしたときから効いていない（註はまだ効く前提で書いてある）。
 - **`constant.h` に残る定数**（262 個）は、2 つ以上のライブラリーかテストが使うか、表の一部
   （呪文のビット名など、使われない 15 個を含む）。`types.h` の型は model の形で、どの層も読む。
-- **端末を待つ呼び手の確かめ**（所見 62）、**テストの穴（#50 の族）**、**呼ばれたら止まる
-  代役の残り**は前と同じ。`inkey()` の入力の終わりの道は `script(1)` では通せない（所見 67）。
+- **テストの穴（#50 の族）**、**呼ばれたら止まる代役の残り**は前と同じ。
 
 ## 7. 地雷とつまずきどころ
 
@@ -295,6 +309,11 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 
 **git まわり**
 
+- **このリポジトリーは `core.filemode` が false。** `chmod +x` は git に入らない。実行する道具を
+  足したら `git update-index --chmod=+x <file>` で 100755 にする（新しく取りだした作業木で
+  Permission denied になる）。
+- **`.gitignore` は `*.out` を無視する。** 記録を `.out` で置くと黙って add されない。
+
 - マージは必ず `--no-ff`。長い日本語のメッセージはファイル経由で渡す
   （`git commit -F /tmp/<担当>/msg.txt`）か、`-m` を段落ごとに重ねる。
   heredoc を `-F -` で渡す形は、2026-10-02 には効いた（`dd4b5d6` ほか。前の担当は効かなかったと
@@ -316,8 +335,16 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 
 **実物で確かめるとき**
 
+- **golden の台本の地雷。** `-more-` はスペースか ESC しか受けない（ほかのキーは捨てられ、
+  台本がずれる）。もとの鍵の組では召喚は `^U`（`&` は roguelike の組）、拾うキーは無い。
+  名前を入れないと `getlogin()` の名前が入り、機械ごとに変わる。墓の日付は `ctime()` で時間帯に
+  よるので、`run.sh` は `TZ=UTC` で走らせる（`time()` は backend が固定する）。
+- **入力の終わりの道は golden の `input_end` が通す**（`# at end: eof`。`script(1)` は EOF を
+  渡さない。所見 67）。最初の EOF で主ループが抜けて保存するので、`app/input_end_handling.c` の
+  うち効くのは「保存していない人物が無ければ終える」の枝だけ。
+
 - **`app/dungeon.c`・`app/death.c`・`app/main.c` には単体テストが届かない**（リンクできない）。
-  そこを触るなら実物で確かめる。キー列の流しかた・終了キー（`^K`）・得点ファイルの
+  そこを触るなら golden か実物で確かめる。キー列の流しかた・終了キー（`^K`）・得点ファイルの
   比べかたは、整理の前の第 7 節に手順がある。
 - **乱数を引かない経路を選ぶ。** 種は起動時に時計から取る。セーブを読みこんで表示する・
   歩く・探索するは決定的、キャラクタ作成とテレポートは決定的でない。
