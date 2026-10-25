@@ -1,6 +1,7 @@
 # our game binary
 umoria
 umoria_headless
+objdes_all
 moria
 src/moria
 src/umoria

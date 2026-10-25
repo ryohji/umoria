@@ -100,6 +100,14 @@ HEADLESS_OBJS = $(filter-out platform_init.o %ncurses.o,$(APP_OBJS)) headless_ba
 $(HEADLESS): $(HEADLESS_OBJS) $(LIBS)
 	$(CC) -o $(HEADLESS) $(HEADLESS_OBJS) $(LIBS) $(LDFLAGS)
 
+# Every kind of the object table through objdes() (makefile.test golden runs it).
+OBJDES_ALL = objdes_all
+$(OBJDES_ALL): objdes_all.o $(LIBS)
+	$(CC) -o $(OBJDES_ALL) objdes_all.o $(LIBS) $(LDFLAGS)
+
+objdes_all.o: tests/objdes_all.c
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+
 headless_backend.o: tests/headless_backend.c
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
@@ -145,7 +153,7 @@ clean:
 	@rm -f $(OBJS)
 	@rm -f $(OBJS:.o=.d)
 	@rm -f $(LIBS)
-	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d
+	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d
 	@rm -f lintout
 	@echo "Clean complete!"
 
