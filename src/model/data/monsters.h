@@ -34,6 +34,10 @@ creature_type *monster_get_creature(creature_handle h);
 //       creature_type *const creature = monster_creature_get(it);
 creature_iterator monster_creature_begin(void);
 creature_iterator monster_creature_end(void);
+// The entry at table index `index`, and the index of an iterator (for the
+// save file and for tables kept beside this one).
+creature_iterator monster_creature_at(int index);
+int monster_creature_index(creature_iterator it);
 bool monster_creature_same(creature_iterator a, creature_iterator b);
 creature_iterator monster_creature_next(creature_iterator it);
 creature_type *monster_creature_get(creature_iterator it);
@@ -53,6 +57,8 @@ creature_rev_iterator monster_creature_rend(void);
 bool monster_creature_rsame(creature_rev_iterator a, creature_rev_iterator b);
 creature_rev_iterator monster_creature_rnext(creature_rev_iterator it);
 creature_type *monster_creature_rget(creature_rev_iterator it);
+// The forward iterator to the same entry as a non-end reverse iterator.
+creature_iterator monster_creature_from_reverse(creature_rev_iterator it);
 
 const char *monster_name(vtype, const monster_type *);
 const char *monster_name_lower(vtype, const monster_type *);

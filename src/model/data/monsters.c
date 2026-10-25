@@ -706,54 +706,57 @@ creature_type *monster_get_creature(creature_handle h) {
     return c_list + h.place;
 }
 
-// Forward iteration. The iterator holds the element it points to; end is
-// one past the last element, which C allows.
+// Forward iteration over table indexes; end is MAX_CREATURES.
 creature_iterator monster_creature_begin(void) {
-    creature_iterator it = {c_list};
+    creature_iterator it = {0};
     return it;
 }
 
 creature_iterator monster_creature_end(void) {
-    creature_iterator it = {c_list + MAX_CREATURES};
+    creature_iterator it = {MAX_CREATURES};
     return it;
 }
 
+creature_iterator monster_creature_at(int index) {
+    creature_iterator it = {(uint16_t)index};
+    return it;
+}
+
+int monster_creature_index(creature_iterator it) {
+    return it.place;
+}
+
 bool monster_creature_same(creature_iterator a, creature_iterator b) {
-    return a.ptr == b.ptr;
+    return a.place == b.place;
 }
 
 creature_iterator monster_creature_next(creature_iterator it) {
-    creature_iterator next = {it.ptr + 1};
+    creature_iterator next = {(uint16_t)(it.place + 1)};
     return next;
 }
 
 creature_type *monster_creature_get(creature_iterator it) {
-    return it.ptr;
+    return c_list + it.place;
 }
 
 creature_iterator monster_creature_advance(creature_iterator it, int n) {
-    creature_iterator moved = {it.ptr + n};
+    creature_iterator moved = {(uint16_t)(it.place + n)};
     return moved;
 }
 
 int monster_creature_distance(creature_iterator from, creature_iterator to) {
-    return (int)(to.ptr - from.ptr);
+    return (int)to.place - (int)from.place;
 }
 
-// Reverse iteration. The iterator holds one past the element it points to
-// (creature_rev_iterator in types.h), so even at the beginning, base stays
-// within c_list and never points before the array.
-//
-// Only rget() and rnext() form base - 1, and both are called only on
-// non-end iterators (the end base is c_list, so subtracting there would go
-// outside the array).
+// Reverse iteration. base is one past the entry, so rend is 0 and rget and
+// rnext subtract 1 only from non-end iterators.
 creature_rev_iterator monster_creature_rbegin(void) {
-    creature_rev_iterator it = {c_list + MAX_CREATURES};
+    creature_rev_iterator it = {MAX_CREATURES};
     return it;
 }
 
 creature_rev_iterator monster_creature_rend(void) {
-    creature_rev_iterator it = {c_list};
+    creature_rev_iterator it = {0};
     return it;
 }
 
@@ -762,12 +765,17 @@ bool monster_creature_rsame(creature_rev_iterator a, creature_rev_iterator b) {
 }
 
 creature_rev_iterator monster_creature_rnext(creature_rev_iterator it) {
-    creature_rev_iterator next = {it.base - 1};
+    creature_rev_iterator next = {(uint16_t)(it.base - 1)};
     return next;
 }
 
 creature_type *monster_creature_rget(creature_rev_iterator it) {
-    return it.base - 1;
+    return c_list + it.base - 1;
+}
+
+creature_iterator monster_creature_from_reverse(creature_rev_iterator it) {
+    creature_iterator forward = {(uint16_t)(it.base - 1)};
+    return forward;
 }
 
 // Following routines are commonly used in the scroll, potion, wands, and

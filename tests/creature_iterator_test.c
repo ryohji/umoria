@@ -207,6 +207,49 @@ TEST(distance_from_begin_to_end_is_the_table_size)
     ASSERT_EQ_INT(monster_creature_distance(monster_creature_begin(), monster_creature_end()), MAX_CREATURES);
 }
 
+TEST(at_reaches_the_entry_of_every_index)
+{
+    int mismatch = -1;
+    for (int i = 0; i < MAX_CREATURES; i++) {
+        if (monster_creature_get(monster_creature_at(i)) != creature_at(i)) {
+            mismatch = i;
+            break;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
+TEST(index_gives_back_what_at_was_given)
+{
+    int mismatch = -1;
+    for (int i = 0; i <= MAX_CREATURES; i++) {
+        if (monster_creature_index(monster_creature_at(i)) != i) {
+            mismatch = i;
+            break;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
+TEST(at_the_table_size_is_end)
+{
+    ASSERT_TRUE(monster_creature_same(monster_creature_at(MAX_CREATURES), monster_creature_end()));
+}
+
+TEST(from_reverse_refers_to_the_same_entry)
+{
+    int n = 0;
+    int mismatch = -1;
+    const creature_rev_iterator end = monster_creature_rend();
+    for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
+        if (monster_creature_get(monster_creature_from_reverse(it)) != monster_creature_rget(it) && mismatch < 0) {
+            mismatch = n;
+        }
+        n++;
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
 int main(void)
 {
     RUN_TEST(reverse_walk_visits_every_creature_once);
@@ -225,6 +268,10 @@ int main(void)
     RUN_TEST(distance_counts_entries_between);
     RUN_TEST(distance_is_negative_backwards);
     RUN_TEST(distance_from_begin_to_end_is_the_table_size);
+    RUN_TEST(at_reaches_the_entry_of_every_index);
+    RUN_TEST(index_gives_back_what_at_was_given);
+    RUN_TEST(at_the_table_size_is_end);
+    RUN_TEST(from_reverse_refers_to_the_same_entry);
     return TEST_SUMMARY();
 }
 
