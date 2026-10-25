@@ -1,0 +1,18 @@
+# run: -w53 game.sav
+# Create a character and walk; then the input ends (as when the terminal
+# closes): the game panic-saves and exits.
+# at end: eof
+\n y
+am\ea
+Bob\r
+  
+66666
+# run: -w53 game.sav
+# Load the panic save and look at the sheet.
+ \e\e
+C\e
+# run: -w53 new.sav
+# A new game whose input ends at the race prompt, before there is a
+# character to save: the game just exits.
+# at end: eof
+\n y

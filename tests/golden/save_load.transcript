@@ -1,0 +1,95 @@
+run: -w31 game.sav
+exit status 0
+key   1 0x0a 7c0428f9
+key   2 0x20 4cdbf8db
+key   3 0x79 3a7b3867
+key   4 0x61 999885ab
+key   5 0x6d 6255975a
+key   6 0x1b 9581bf38
+key   7 0x61 7f02bbed
+key   8 0x42 cfe72c4c
+key   9 0x6f 081397fa
+key  10 0x62 4fb21a01
+key  11 0x0d f034b5fb
+key  12 0x20 c3044d1e
+key  13 0x20 48469815
+key  14 0x36 48469815
+key  15 0x36 48469815
+key  16 0x36 48469815
+key  17 0x36 48469815
+key  18 0x36 48469815
+key  19 0x32 48469815
+key  20 0x32 1792f43d
+key  21 0x32 d9979e4d
+key  22 0x32 284af1f1
+key  23 0x32 dab628ad
+key  24 0x18 87773a5d
+key  25 0x20 3d7e4426
+game exited after 25 of 25 keys
+screen (cursor 20,77, bells 0):
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+run: -w31 game.sav
+exit status 0
+key   1 0x20 7c0428f9
+key   2 0x1b 5841f8de
+key   3 0x1b ac289fe6
+key   4 0x34 87773a5d
+key   5 0x34 d7d982fd
+key   6 0x34 f1e0de5f
+key   7 0x34 6a11db20
+key   8 0x34 684eda1f
+key   9 0x43 d70fadbf
+key  10 0x1b ac289fe6
+key  11 0x0b d70fadbf
+key  12 0x79 dcedcde9
+key  13 0x20 c8280e33
+key  14 0x1b c8280e33
+game exited after 14 of 17 keys
+screen (cursor 22,18, bells 0):
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|

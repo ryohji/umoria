@@ -14,3 +14,6 @@
 | 2026-10-24 | 文書の整理 マージ | `docs/tidy-2026-10-23` を `--no-ff` で（`64c0fb4`） | 1826（87 本） | 文書だけ |
 | 2026-10-24 | #95 | 正順の iterator とテスト 5 件（`05e36f0`。`/tmp` の確かめの道具が消えていて、コミットのあとで第 2 節の 1〜4 を走らせた。本文の数と一致）、savefile_layout_test に表の両端の記憶（`8cd4c15`）、セーブの走査を iterator に（`2bce4df`。壊し 3 通りすべて赤。1 つは abort で実行形式が 86 本になる形） | 1831（87 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK |
 | 2026-10-24 | #95（続き） | advance・distance とテスト 6 件（`4de8fb3`。壊し 2 通りとも赤）、summon_undead_test（`6d14d80`。壊し 3 通りのうち 2 赤、m >= l は添字 277 の Evil Iggy がアンデッドでないので原理的に区別できない）、summon_undead を iterator に（`7c29413`。壊し 3 通りのうち 2 赤、> 1 は添字 278 の Balrog で同じ理由） | 1839（88 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK |
+| 2026-10-25 | #95 マージ | `refactor/95-creature-iterator` を `--no-ff` で（`b9b90c8`） | 1839（88 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK（マージ後の develop で測った） |
+| 2026-10-25 | #94 | golden（`40eff78`〜`421628f`。台本 8 本、本体の行の 44.5%）、`--shadows`（`6229ee9`）、`scripts/check.sh`（`07f9519`）。#84 の前の 89ca18a と入力の終わりの写しが一致。壊しは台本ごとに 1〜2 通りずつ赤（素通り 2 つは画面に出ない所） | 1839（88 本） | `scripts/check.sh` ALL OK |
+| 2026-10-25 | 確かめ | `develop..test/94-headless` の 13 コミットを 1 つずつ空から組んだ。どれも警告 0・1839 件 88 本 GREEN・層 OK・headers OK。golden は `d5d2947` 以降 GREEN で、その前の 3 つ（`40eff78`・`eae1914`・`585c84e`）は新しく取りだすと `run.sh` に実行の印が無く Permission denied で走らない（`d5d2947` で直した） | 1839（88 本） | 第 2 節の 1〜3 と golden |
