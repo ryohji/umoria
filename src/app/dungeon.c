@@ -188,6 +188,57 @@ static void tick_fear(void) {
     }
 }
 
+// Poisoned
+static void tick_poison(void) {
+    int i;
+
+    if (player_timed_in_force(PLAYER_TIMED_POISON)) {
+        if (player_timed_beginning(PLAYER_TIMED_POISON)) {
+            prt_poisoned();
+        }
+        if (player_timed_count_down(PLAYER_TIMED_POISON)) {
+            prt_poisoned();
+            msg_print("You feel better.");
+            disturb(0, 0);
+        } else {
+            switch (con_adj()) {
+            case -4:
+                i = 4;
+                break;
+            case -3:
+            case -2:
+                i = 3;
+                break;
+            case -1:
+                i = 2;
+                break;
+            case 0:
+                i = 1;
+                break;
+            case 1:
+            case 2:
+            case 3:
+                i = ((progress_turn() % 2) == 0);
+                break;
+            case 4:
+            case 5:
+                i = ((progress_turn() % 3) == 0);
+                break;
+            case 6:
+                i = ((progress_turn() % 4) == 0);
+                break;
+            default:
+                // An uninitialized warning if given further down,
+                // so let's fix that here -MRC-
+                i = 0;
+            }
+
+            take_hit(i, "poison");
+            disturb(1, 0);
+        }
+    }
+}
+
 // Fast
 static void tick_haste(void) {
     if (player_timed_in_force(PLAYER_TIMED_HASTE)) {
@@ -534,52 +585,7 @@ void dungeon(void) {
 
         tick_fear();
 
-        // Poisoned
-        if (player_timed_in_force(PLAYER_TIMED_POISON)) {
-            if (player_timed_beginning(PLAYER_TIMED_POISON)) {
-                prt_poisoned();
-            }
-            if (player_timed_count_down(PLAYER_TIMED_POISON)) {
-                prt_poisoned();
-                msg_print("You feel better.");
-                disturb(0, 0);
-            } else {
-                switch (con_adj()) {
-                case -4:
-                    i = 4;
-                    break;
-                case -3:
-                case -2:
-                    i = 3;
-                    break;
-                case -1:
-                    i = 2;
-                    break;
-                case 0:
-                    i = 1;
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                    i = ((progress_turn() % 2) == 0);
-                    break;
-                case 4:
-                case 5:
-                    i = ((progress_turn() % 3) == 0);
-                    break;
-                case 6:
-                    i = ((progress_turn() % 4) == 0);
-                    break;
-                default:
-                    // An uninitialized warning if given further down,
-                    // so let's fix that here -MRC-
-                    i = 0;
-                }
-
-                take_hit(i, "poison");
-                disturb(1, 0);
-            }
-        }
+        tick_poison();
 
         tick_haste();
 
