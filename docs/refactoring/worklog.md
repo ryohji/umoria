@@ -20,3 +20,5 @@
 | 2026-10-25 | #94 マージ | `test/94-headless` を `--no-ff` で（`7fa04a0`） | 1839（88 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
 | 2026-10-25 | #96 | iterator を添字の構造体に（`13483c9`）、handle をまとめる（`10f6d90`）、要素から戻す関数を消す（`2a024e6`）、添字は monsters.c だけ（`416b092`）。各段の全関数の比較で、違いは手を入れた関数と呼び先の名前だけ | 1844（88 本） | `scripts/check.sh` ALL OK |
 | 2026-10-25 | #96 マージ | `refactor/96-creature-iterator` を `--no-ff` で（`e87f89e`） | 1844（88 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
+| 2026-10-25 | #22 | `objdes` の switch を `base_name` に（`c6e6758`）、後半を 6 本に（`a6036e1`）、総当たり `objdes_all` を golden に（`2e32378`）。4,100 万回の出力のハッシュが develop と一致、壊し 5 通りすべて違いが出る | 1844（88 本） | `scripts/check.sh` ALL OK |
+| 2026-10-25 | #71（一部） | 効果 17 種（`7996394`）と毒（`ffc697e`）を `tick_<効果>()` に。本体を字のまま戻すと dungeon() が元と一致 | 1844（88 本） | `scripts/check.sh` ALL OK |
