@@ -21,7 +21,6 @@ uint8_t monster_attack_get_desc(attack_handle h);
 uint8_t monster_attack_get_dice(attack_handle h);
 uint8_t monster_attack_get_sides(attack_handle h);
 
-// TODO: eliminate `m_ptr->creature.place` reference
 
 // Iteration over the creature definition table, first to last. Usage:
 //   const creature_iterator end = monster_creature_end();

@@ -1285,7 +1285,7 @@ static void wr_monster(monster_type *mon) {
     wr_short((uint16_t)mon->hp);
     wr_short((uint16_t)mon->csleep);
     wr_short((uint16_t)mon->cspeed);
-    wr_short(mon->creature.place);
+    wr_short((uint16_t)monster_creature_index(mon->creature));
     wr_byte(mon->fy);
     wr_byte(mon->fx);
     wr_byte(mon->cdis);
@@ -1435,7 +1435,9 @@ static void rd_monster(monster_type *mon) {
     rd_short((uint16_t *)&mon->hp);
     rd_short((uint16_t *)&mon->csleep);
     rd_short((uint16_t *)&mon->cspeed);
-    rd_short(&mon->creature.place);
+    uint16_t creature_index;
+    rd_short(&creature_index);
+    mon->creature = monster_creature_at(creature_index);
     rd_byte(&mon->fy);
     rd_byte(&mon->fx);
     rd_byte(&mon->cdis);

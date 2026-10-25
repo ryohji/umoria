@@ -533,7 +533,7 @@ static void fill_level(void)
         m->hp = (int16_t)W(k);
         m->csleep = (int16_t)W(k + 1);
         m->cspeed = (int16_t)W(k + 2);
-        m->creature.place = W(k + 3);
+        m->creature = monster_creature_at(W(k + 3));
         m->fy = B(k + 4);
         m->fx = B(k + 5);
         m->cdis = B(k + 6);

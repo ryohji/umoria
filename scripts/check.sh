@@ -15,6 +15,10 @@ case "$t" in *"failed=0, GREEN, segfaults=0"*) ;; *) bad=1 ;; esac
 g=$(python3 scripts/globals.py --check | tail -1); echo "3. globals: $g"; case "$g" in OK*) ;; *) bad=1 ;; esac
 l=$(python3 scripts/layer_deps.py --check | tail -1); echo "3. layers: $l"; case "$l" in OK*) ;; *) bad=1 ;; esac
 h=$(make -f makefile.test headers 2>&1 | tail -2 | tr '\n' ' '); echo "3. headers: $h"; case "$h" in *"core: compiles"*) ;; *) bad=1 ;; esac
+# Only model/data/monsters.c reads or makes the index inside the creature
+# iterators (creature_iterator.place, creature_rev_iterator.base).
+it=$(grep -rnE '\.(place|base)\b' src --include='*.[ch]' | grep -v '^src/model/data/monsters\.c:' | grep -cvE '^[^:]*:[0-9]+:\s*//')
+echo "3. iterator index outside monsters.c: $it"; [ "$it" -eq 0 ] || bad=1
 touch scores.dat
 p=$(printf '\n\n\n\n' | timeout 10 script -qc "TERM=xterm ./umoria /tmp/check_probe.$$.sav" /dev/null | tr -d '\r' | grep -c "Choose a race")
 rm -f scores.dat /tmp/check_probe.$$.sav

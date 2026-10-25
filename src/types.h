@@ -82,7 +82,7 @@ typedef struct monster_type {
     int16_t hp;               // Hit points
     int16_t csleep;           // Inactive counter
     int16_t cspeed;           // Movement speed
-    creature_iterator creature; // Pointer into creature
+    creature_iterator creature; // Its entry in the creature table
 
     // Note: fy, fx, and cdis constrain dungeon size to less than 256 by 256
     uint8_t fy;   // Y Pointer into map

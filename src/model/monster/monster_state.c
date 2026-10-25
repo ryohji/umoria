@@ -101,7 +101,7 @@ void monster_list_drop_last(void) {
 static recall_type c_recall[MAX_CREATURES]; // Monster memories
 
 recall_type *recall_get(creature_iterator h) {
-    return c_recall + h.place;
+    return c_recall + monster_creature_index(h);
 }
 
 void recall_update_characteristics(creature_iterator h, int defence) {
