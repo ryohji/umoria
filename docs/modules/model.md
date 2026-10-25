@@ -259,3 +259,22 @@ creatures() がいまどのモンスターのために動いているか、を 1
   でじかに訊く（歩きの番号が手元にある）。
 - セーブファイルには入らない。新しいゲームも読みこんだゲームも「誰の手番でもない」から始まる。
 - monster_turn_index() は app/game_state.c の写しとりだけが読む。
+
+## model/data — the creature table and its iterators
+
+`creature_iterator` は表の位置（添字）を持つ構造体 `{uint16_t place}` で、handle（以前の
+`creature_handle`）と iterator を兼ねる。STL のコンテナの iterator と同じく、巡回
+（`monster_creature_begin` / `end` / `next` / `advance` / `distance` / `same`）と参照
+（`monster_creature_get` で `creature_type *`）の両方を持つ。添字からの位置は
+`monster_creature_at(i)`、位置の添字は `monster_creature_index(it)`（セーブファイルと、
+この表と並ぶ記憶の表のため）。逆順は別の型 `creature_rev_iterator {uint16_t base}`
+（1 つ先を持つ。`std::reverse_iterator` と同じ）で、同じ要素の正順は
+`monster_creature_from_reverse(rit)`。
+
+- 数のままにせず値の型ごとに構造体にしてあるので、ほかの添字や、逆順・攻撃の handle と
+  取りちがえるとコンパイルが止まる（ユーザーの判断）。
+- ポインターでなく添字を持つのは、`monster_type.creature` に入れて持ち、セーブファイルに
+  2 バイトの添字で書くため。大きさも並びも handle のときと同じ。
+- 中身（`place`・`base`）に触るのは model/data/monsters.c だけ。`scripts/check.sh` が
+  ほかで触る行を数える。
+- `end`（添字 MAX_CREATURES）は参照してはいけない。範囲は確かめない。
