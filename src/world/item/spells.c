@@ -59,7 +59,7 @@ int sleep_monsters1(int y, int x) {
             cave_type *c_ptr = square_at(i, j);
             if (c_ptr->cptr > 1) {
                 monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+                creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
                 const char *cdesc = monster_name((vtype){0}, m_ptr);
 
@@ -86,7 +86,7 @@ int sleep_monsters1(int y, int x) {
 // Non-phasing monsters take damage and may die; earth elementals heal.
 static void monster_caught_in_wall(int monster_index) {
     monster_type *m_ptr = monster_list_at(monster_index);
-    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+    creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
     if (!(r_ptr->cmove & CM_PHASE)) {
         int damage;
@@ -209,7 +209,7 @@ static bool detect_monsters_by_predicate(bool (*predicate)(const creature_type *
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
-        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
         if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) && predicate(r_ptr)) {
             m_ptr->ml = true;
@@ -527,7 +527,7 @@ void light_line(int dir, int y, int x) {
             c_ptr->pl = true;
             if (c_ptr->cptr > 1) {
                 monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+                creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
                 // light up and draw monster
                 update_mon((int)c_ptr->cptr);
@@ -701,7 +701,7 @@ int drain_life(int dir, int y, int x) {
             flag = true;
 
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
             if ((r_ptr->cdefense & CD_UNDEAD) == 0) {
                 drain = true;
@@ -741,7 +741,7 @@ int speed_monster(int dir, int y, int x, int spd) {
             flag = true;
 
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
             if (spd > 0) {
@@ -779,7 +779,7 @@ int confuse_monster(int dir, int y, int x) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
             flag = true;
@@ -830,7 +830,7 @@ int sleep_monster(int dir, int y, int x) {
             flag = true;
 
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
             const char *cdesc = monster_name((vtype){0}, m_ptr);
 
@@ -904,7 +904,7 @@ int wall_to_mud(int dir, int y, int x) {
 
         if (c_ptr->cptr > 1) {
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
             if (CD_STONE & r_ptr->cdefense) {
                 const char *cdesc = monster_name((vtype){0}, m_ptr);
@@ -980,7 +980,7 @@ int poly_monster(int dir, int y, int x) {
             flag = true;
         } else if (c_ptr->cptr > 1) {
             monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
             if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
                 flag = true;
@@ -990,7 +990,7 @@ int poly_monster(int dir, int y, int x) {
                 // but a town one, so the band starts above them.
                 const int first = first_monster_at_level(1);
                 const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
-                poly = place_monster(y, x, monster_make_creature_handle(m), false);
+                poly = place_monster(y, x, monster_creature_at(m), false);
 
                 // don't test c_ptr->fm here, only pl/tl
                 if (poly && panel_contains(y, x) && (c_ptr->tl || c_ptr->pl)) {
@@ -1167,7 +1167,7 @@ int mass_genocide(void) {
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
-        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && ((r_ptr->cmove & CM_WIN) == 0)) {
             delete_monster(i);
@@ -1188,7 +1188,7 @@ int genocide(void) {
     if (get_com("Which type of creature do you wish exterminated?", &typ)) {
         for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
             monster_type *m_ptr = monster_list_at(i);
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
             if (typ == r_ptr->cchar) {
                 if ((r_ptr->cmove & CM_WIN) == 0) {
                     delete_monster(i);
@@ -1215,7 +1215,7 @@ int speed_monsters(int spd) {
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
-        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
         if ((m_ptr->cdis > MAX_SIGHT) || !los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
@@ -1251,7 +1251,7 @@ int sleep_monsters2(void) {
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
-        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
         const char *cdesc = monster_name((vtype){0}, m_ptr);
         if ((m_ptr->cdis > MAX_SIGHT) || !los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
@@ -1283,7 +1283,7 @@ int mass_poly(void) {
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
         if (m_ptr->cdis <= MAX_SIGHT) {
-            creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
             if ((r_ptr->cmove & CM_WIN) == 0) {
                 int y = m_ptr->fy;
@@ -1294,7 +1294,7 @@ int mass_poly(void) {
                 // but a town one, so the band starts above them.
                 const int first = first_monster_at_level(1);
                 const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
-                mass = place_monster(y, x, monster_make_creature_handle(m), false);
+                mass = place_monster(y, x, monster_creature_at(m), false);
             }
         }
     }
@@ -1445,7 +1445,7 @@ int dispel_creature(int cflag, int damage) {
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
-        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
         if ((m_ptr->cdis <= MAX_SIGHT) && (cflag & r_ptr->cdefense) && los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             recall_update_characteristics(m_ptr->creature, cflag);
@@ -1472,7 +1472,7 @@ int turn_undead(void) {
 
     for (int i = monster_list_used() - 1; i >= MIN_MONIX; i--) {
         monster_type *m_ptr = monster_list_at(i);
-        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
         if (m_ptr->cdis <= MAX_SIGHT && CD_UNDEAD & r_ptr->cdefense && los(player_row(), player_col(), m_ptr->fy, m_ptr->fx) && m_ptr->ml) {
             const char *cdesc = monster_name((vtype){0}, m_ptr);

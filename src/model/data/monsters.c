@@ -692,18 +692,9 @@ uint8_t monster_attack_get_sides(attack_handle h) {
     return monster_attacks[h.place].sides;
 }
 
-creature_handle monster_make_creature_handle(uint16_t index) {
-    creature_handle h = {index};
+creature_iterator monster_get_creature_handle(creature_type *p) {
+    creature_iterator h = {p - c_list};
     return h;
-}
-
-creature_handle monster_get_creature_handle(creature_type *p) {
-    creature_handle h = {p - c_list};
-    return h;
-}
-
-creature_type *monster_get_creature(creature_handle h) {
-    return c_list + h.place;
 }
 
 // Forward iteration over table indexes; end is MAX_CREATURES.
@@ -786,7 +777,7 @@ static inline const char *name(vtype name, const monster_type *monster, const ch
     if (!monster->ml) {
         return strcpy(name, invisible);
     } else {
-        creature_type *const creature = monster_get_creature(monster->creature);
+        creature_type *const creature = monster_creature_get(monster->creature);
         return strcat(strcpy(name, article), creature->name);
     }
 }

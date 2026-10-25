@@ -63,10 +63,6 @@ typedef struct recall_type {
     uint8_t r_attacks[MAX_MON_NATTACK];
 } recall_type;
 
-typedef struct {
-    uint16_t place;
-} creature_handle;
-
 // Position in the creature definition table, first to last: the table index.
 // end is one past the last entry. A struct of its own, not a bare number, so
 // the compiler tells it apart from other indexes and iterators. Only
@@ -86,7 +82,7 @@ typedef struct monster_type {
     int16_t hp;               // Hit points
     int16_t csleep;           // Inactive counter
     int16_t cspeed;           // Movement speed
-    creature_handle creature; // Pointer into creature
+    creature_iterator creature; // Pointer into creature
 
     // Note: fy, fx, and cdis constrain dungeon size to less than 256 by 256
     uint8_t fy;   // Y Pointer into map

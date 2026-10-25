@@ -34,8 +34,8 @@
 
 // get_mons_num() and summon() are static and serve only the functions here.
 
-static creature_handle get_mons_num(int level);
-static bool summon(int *y, int *x, creature_handle h, int slp);
+static creature_iterator get_mons_num(int level);
+static bool summon(int *y, int *x, creature_iterator h, int slp);
 
 // Compact monsters -RAK-
 // Return true if any monsters were deleted, false if could not delete any monsters.
@@ -50,7 +50,7 @@ bool compact_monsters(void) {
             monster_type *mon_ptr = monster_list_at(i);
             if ((cur_dis < mon_ptr->cdis) && (randint(3) == 1)) {
                 // Never compact away the Balrog!!
-                if (monster_get_creature(mon_ptr->creature)->cmove & CM_WIN) {
+                if (monster_creature_get(mon_ptr->creature)->cmove & CM_WIN) {
                     ; // Do nothing
                 } else if (monster_delete_may_shift(i)) {
                     // in case this is called from within creatures(), this is a horrible
@@ -89,12 +89,12 @@ static int popm(void) {
 }
 
 // Places a monster at given location -RAK-
-bool place_monster(int y, int x, creature_handle h, int slp) {
+bool place_monster(int y, int x, creature_iterator h, int slp) {
     const int cur_pos = popm();
     if (cur_pos == -1) {
         return false;
     } else {
-        creature_type *const r_ptr = monster_get_creature(h);
+        creature_type *const r_ptr = monster_creature_get(h);
         int (*const calc_hp)(const uint8_t *) = r_ptr->cdefense & CD_MAX_HP ? max_hp : pdamroll;
         monster_type *const mon_ptr = monster_list_at(cur_pos);
         mon_ptr->fy = y;
@@ -126,7 +126,7 @@ void place_win_monster(void) {
 
         // Check for case where could not allocate space for
         // the win monster, this should never happen.
-        if (!place_monster(y, x, monster_make_creature_handle(z), 0)) {
+        if (!place_monster(y, x, monster_creature_at(z), 0)) {
             abort();
         }
     }
@@ -135,7 +135,7 @@ void place_win_monster(void) {
 // Return a monster suitable to be placed at a given level. This
 // makes high level monsters (up to the given level) slightly more
 // common than low level monsters at any given level. -CJS-
-static creature_handle get_mons_num(int level) {
+static creature_iterator get_mons_num(int level) {
     int i;
 
     if (level == 0) {
@@ -160,12 +160,12 @@ static creature_handle get_mons_num(int level) {
             i = randint(num) - 1;
             const int j = randint(num) - 1;
             const int k = MAX(i, j) + first_monster_at_level(1);
-            level = monster_get_creature(monster_make_creature_handle(k))->level;
+            level = monster_creature_get(monster_creature_at(k))->level;
         }
         i = randint(monsters_at_level(level)) - 1 + first_monster_at_level(level);
     }
 
-    return monster_make_creature_handle(i);
+    return monster_creature_at(i);
 }
 
 // Allocates a random monster -RAK-
@@ -178,8 +178,8 @@ void alloc_monster(int num, int dis, int slp) {
             x = randint(dungeon_width() - 2);
         } while (square_at(y, x)->fval >= MIN_CLOSED_SPACE || (square_at(y, x)->cptr != 0) || (distance(y, x, player_row(), player_col()) <= dis));
 
-        creature_handle h = get_mons_num(dungeon_level());
-        const uint8_t cchar = monster_get_creature(h)->cchar;
+        creature_iterator h = get_mons_num(dungeon_level());
+        const uint8_t cchar = monster_creature_get(h)->cchar;
 
         // Dragons ('d' or 'D') are always created sleeping here,
         // so as to give the player a sporting chance.
@@ -190,7 +190,7 @@ void alloc_monster(int num, int dis, int slp) {
     }
 }
 
-static bool summon(int *y, int *x, creature_handle h, int slp) {
+static bool summon(int *y, int *x, creature_iterator h, int slp) {
     int i = 0;
 
     do {
@@ -213,7 +213,7 @@ static bool summon(int *y, int *x, creature_handle h, int slp) {
 
 // Places creature adjacent to given location -RAK-
 bool summon_monster(int *y, int *x, int slp) {
-    creature_handle h = get_mons_num(dungeon_level() + MON_SUMMON_ADJ);
+    creature_iterator h = get_mons_num(dungeon_level() + MON_SUMMON_ADJ);
     return summon(y, x, h, slp);
 }
 

@@ -35,7 +35,7 @@ static int legacy_pick(void)
         int m = randint(l) - 1;
         int ctr = 0;
         do {
-            if (monster_get_creature(monster_make_creature_handle((uint16_t)m))->cdefense & CD_UNDEAD) {
+            if (monster_creature_get(monster_creature_at((uint16_t)m))->cdefense & CD_UNDEAD) {
                 found = m;
                 l = 0;
                 ctr = 20;

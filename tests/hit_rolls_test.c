@@ -181,16 +181,16 @@ TEST(attack_blows_strength_steps)
 /* ---- tot_dam ------------------------------------------------------------ */
 
 /* c_list から、守りの印 want をすべて持ち、avoid を 1 つも持たない最初の種 */
-static creature_handle creature_with(uint16_t want, uint16_t avoid)
+static creature_iterator creature_with(uint16_t want, uint16_t avoid)
 {
     for (uint16_t i = 0; i < MAX_CREATURES; i++) {
-        creature_handle h = monster_make_creature_handle(i);
-        uint16_t d = monster_get_creature(h)->cdefense;
+        creature_iterator h = monster_creature_at(i);
+        uint16_t d = monster_creature_get(h)->cdefense;
         if ((d & want) == want && (d & avoid) == 0) {
             return h;
         }
     }
-    return monster_make_creature_handle(0);
+    return monster_creature_at(0);
 }
 
 static int damage_with(uint8_t tval, uint32_t flags, uint16_t want, uint16_t avoid)
@@ -253,7 +253,7 @@ TEST(tot_dam_applies_only_to_ammo_melee_weapons_and_flasks)
 /* 効いた印は、モンスターの記憶に足される */
 TEST(tot_dam_records_the_defence_it_used)
 {
-    creature_handle h = creature_with(CD_UNDEAD, CD_DRAGON);
+    creature_iterator h = creature_with(CD_UNDEAD, CD_DRAGON);
     recall_get(h)->r_cdefense = 0;
     inven_type weapon = {0};
     weapon.tval = TV_HAFTED;

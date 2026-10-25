@@ -43,7 +43,7 @@ void make_attack(int monptr) {
     }
 
     monster_type *m_ptr = monster_list_at(monptr);
-    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+    creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
     const char *cdesc = monster_name((vtype){0}, m_ptr);
 

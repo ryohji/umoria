@@ -1661,7 +1661,7 @@ static void jamdoor(void) {
                     free_turn_flag = false;
 
                     char tmp_str[80];
-                    (void)sprintf(tmp_str, "The %s is in your way!", monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->name);
+                    (void)sprintf(tmp_str, "The %s is in your way!", monster_creature_get(monster_list_at(c_ptr->cptr)->creature)->name);
                     msg_print(tmp_str);
                 }
             } else if (t_ptr->tval == TV_OPEN_DOOR) {

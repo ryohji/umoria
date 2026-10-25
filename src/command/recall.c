@@ -184,7 +184,7 @@ int roff_recall(creature_type *cp) {
     uint32_t j;
     vtype temp;
 
-    creature_handle h = monster_get_creature_handle(cp);
+    creature_iterator h = monster_get_creature_handle(cp);
     recall_type *mp = recall_get(h);
 
     recall_type save_mem;

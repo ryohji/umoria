@@ -15,7 +15,7 @@
 
 // recall_update_characteristics は OR で設定する
 TEST(recall_update_characteristics_or) {
-    creature_handle h = {0};
+    creature_iterator h = {0};
     recall_type *r = recall_get(h);
     r->r_cdefense = 0;
 
@@ -31,7 +31,7 @@ TEST(recall_update_characteristics_or) {
 
 // recall_update_move は OR で設定する
 TEST(recall_update_move_or) {
-    creature_handle h = {1};
+    creature_iterator h = {1};
     recall_type *r = recall_get(h);
     r->r_cmove = 0;
 
@@ -47,7 +47,7 @@ TEST(recall_update_move_or) {
 
 // recall_update_carry は最大値を保持する
 TEST(recall_update_carry_max) {
-    creature_handle h = {2};
+    creature_iterator h = {2};
     recall_type *r = recall_get(h);
     r->r_cmove = 0;
 
@@ -66,7 +66,7 @@ TEST(recall_update_carry_max) {
 
 // recall_update_carry は CM_TREASURE 以外のビットを保持する
 TEST(recall_update_carry_preserves_other_bits) {
-    creature_handle h = {3};
+    creature_iterator h = {3};
     recall_type *r = recall_get(h);
     r->r_cmove = 0x000000FF;
 
@@ -77,7 +77,7 @@ TEST(recall_update_carry_preserves_other_bits) {
 
 // recall_update_spell は OR で設定する
 TEST(recall_update_spell_or) {
-    creature_handle h = {4};
+    creature_iterator h = {4};
     recall_type *r = recall_get(h);
     r->r_spells = 0;
 
@@ -93,7 +93,7 @@ TEST(recall_update_spell_or) {
 
 // recall_increment_spell_chance は CS_FREQ で飽和する
 TEST(recall_increment_spell_chance_saturates) {
-    creature_handle h = {5};
+    creature_iterator h = {5};
     recall_type *r = recall_get(h);
     r->r_spells = 0;
 
@@ -106,7 +106,7 @@ TEST(recall_increment_spell_chance_saturates) {
 
 // recall_increment_spell_chance は CS_FREQ 以外のビットを保持する
 TEST(recall_increment_spell_chance_preserves_other_bits) {
-    creature_handle h = {6};
+    creature_iterator h = {6};
     recall_type *r = recall_get(h);
     r->r_spells = 0x00000100;
 
@@ -123,7 +123,7 @@ TEST(recall_increment_spell_chance_preserves_other_bits) {
 
 // recall_increment_kill は MAX_SHORT で飽和する
 TEST(recall_increment_kill_saturates) {
-    creature_handle h = {7};
+    creature_iterator h = {7};
     recall_type *r = recall_get(h);
     r->r_kills = MAX_SHORT - 2;
 
@@ -142,7 +142,7 @@ TEST(recall_increment_kill_saturates) {
 
 // recall_increment_death は MAX_SHORT で飽和する
 TEST(recall_increment_death_saturates) {
-    creature_handle h = {8};
+    creature_iterator h = {8};
     recall_type *r = recall_get(h);
     r->r_deaths = MAX_SHORT - 2;
 

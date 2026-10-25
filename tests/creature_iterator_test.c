@@ -19,7 +19,7 @@
  *
  * 走査そのものを collect_reverse_walk() の 1 箇所に閉じこめてある。
  * API の形が変わってもここだけを書きかえれば済み、期待値は動かない。
- * 期待値の側は creature_handle 経由（monster_make_creature_handle /
+ * 期待値の側は creature_iterator 経由（monster_make_creature_handle /
  * monster_get_creature）で書いてあり、こちらは変えていない API。
  */
 #include "config.h"
@@ -70,7 +70,7 @@ static int collect_forward_walk(void)
 /* 期待値の側。添字から要素を得る経路は今回の変更対象ではない。 */
 static creature_type *creature_at(int index)
 {
-    return monster_get_creature(monster_make_creature_handle((uint16_t)index));
+    return monster_creature_get(monster_creature_at((uint16_t)index));
 }
 
 TEST(reverse_walk_visits_every_creature_once)

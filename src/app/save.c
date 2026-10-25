@@ -116,7 +116,7 @@ static bool sv_write(void) {
 
     const creature_iterator end = monster_creature_end();
     for (creature_iterator it = monster_creature_begin(); !monster_creature_same(it, end); it = monster_creature_next(it)) {
-        const creature_handle h = monster_get_creature_handle(monster_creature_get(it));
+        const creature_iterator h = monster_get_creature_handle(monster_creature_get(it));
         recall_type *r_ptr = recall_get(h);
 
         if (r_ptr->r_cmove || r_ptr->r_cdefense || r_ptr->r_kills ||
@@ -565,7 +565,7 @@ bool get_char(bool *generate) {
             if (uint16_t_tmp >= MAX_CREATURES) {
                 goto error;
             }
-            recall_type *r_ptr = recall_get(monster_make_creature_handle(uint16_t_tmp));
+            recall_type *r_ptr = recall_get(monster_creature_at(uint16_t_tmp));
             rd_long(&r_ptr->r_cmove);
             rd_long(&r_ptr->r_spells);
             rd_short(&r_ptr->r_kills);

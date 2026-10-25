@@ -114,7 +114,7 @@ void delete_monster(int m) { (void)m; }
 void fix1_delete_monster(int m) { (void)m; }
 void fix2_delete_monster(int m) { (void)m; }
 int mon_take_hit(int m, int dam) { stub_unreached(__func__); }
-bool place_monster(int y, int x, creature_handle h, int slp) { stub_unreached(__func__); }
+bool place_monster(int y, int x, creature_iterator h, int slp) { stub_unreached(__func__); }
 bool summon_monster(int *y, int *x, int slp) { stub_unreached(__func__); }
 bool summon_undead(int *y, int *x) { stub_unreached(__func__); }
 int aggravate_monster(int d) { stub_unreached(__func__); }
