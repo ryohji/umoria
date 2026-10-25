@@ -27,8 +27,8 @@ void get_name(void);
 void print_objects(void);
 
 // --- recall.c ---
-bool bool_roff_recall(creature_type *);
-int roff_recall(creature_type *);
+bool bool_roff_recall(creature_iterator);
+int roff_recall(creature_iterator);
 
 // --- wizard.c ---
 

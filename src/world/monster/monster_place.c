@@ -239,5 +239,5 @@ bool summon_undead(int *y, int *x) {
         } while (ctr != 20);
     } while (l != 0);
 
-    return summon(y, x, monster_get_creature_handle(monster_creature_get(it)), false);
+    return summon(y, x, it, false);
 }

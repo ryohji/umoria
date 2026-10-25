@@ -305,7 +305,7 @@ void ident_char(void) {
     const creature_rev_iterator end = monster_creature_rend();
     for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
         creature_type *const creature = monster_creature_rget(it);
-        if (creature->cchar == command && bool_roff_recall(creature)) {
+        if (creature->cchar == command && bool_roff_recall(monster_creature_from_reverse(it))) {
             if (n == 0) {
                 put_buffer("You recall those details? [y/n]", 0, 40);
                 query = inkey();
@@ -316,7 +316,7 @@ void ident_char(void) {
                 save_screen();
             }
             n++;
-            query = roff_recall(creature);
+            query = roff_recall(monster_creature_from_reverse(it));
             restore_screen();
             if (query == ESCAPE) {
                 break;

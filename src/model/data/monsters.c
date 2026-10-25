@@ -692,11 +692,6 @@ uint8_t monster_attack_get_sides(attack_handle h) {
     return monster_attacks[h.place].sides;
 }
 
-creature_iterator monster_get_creature_handle(creature_type *p) {
-    creature_iterator h = {p - c_list};
-    return h;
-}
-
 // Forward iteration over table indexes; end is MAX_CREATURES.
 creature_iterator monster_creature_begin(void) {
     creature_iterator it = {0};

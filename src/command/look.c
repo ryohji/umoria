@@ -345,7 +345,7 @@ static bool look_see(int x, int y, bool *transparent) {
         query = inkey();
         if (query == 'r' || query == 'R') {
             save_screen();
-            query = roff_recall(r_ptr);
+            query = roff_recall(monster_list_at(c_ptr->cptr)->creature);
             restore_screen();
         }
     }
