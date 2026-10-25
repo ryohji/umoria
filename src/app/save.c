@@ -116,13 +116,12 @@ static bool sv_write(void) {
 
     const creature_iterator end = monster_creature_end();
     for (creature_iterator it = monster_creature_begin(); !monster_creature_same(it, end); it = monster_creature_next(it)) {
-        const creature_handle h = monster_get_creature_handle(monster_creature_get(it));
-        recall_type *r_ptr = recall_get(h);
+        recall_type *r_ptr = recall_get(it);
 
         if (r_ptr->r_cmove || r_ptr->r_cdefense || r_ptr->r_kills ||
             r_ptr->r_spells || r_ptr->r_deaths || r_ptr->r_attacks[0] ||
             r_ptr->r_attacks[1] || r_ptr->r_attacks[2] || r_ptr->r_attacks[3]) {
-            wr_short(h.place);
+            wr_short((uint16_t)monster_creature_index(it));
             wr_long(r_ptr->r_cmove);
             wr_long(r_ptr->r_spells);
             wr_short(r_ptr->r_kills);
@@ -565,7 +564,7 @@ bool get_char(bool *generate) {
             if (uint16_t_tmp >= MAX_CREATURES) {
                 goto error;
             }
-            recall_type *r_ptr = recall_get(monster_make_creature_handle(uint16_t_tmp));
+            recall_type *r_ptr = recall_get(monster_creature_at(uint16_t_tmp));
             rd_long(&r_ptr->r_cmove);
             rd_long(&r_ptr->r_spells);
             rd_short(&r_ptr->r_kills);
@@ -1286,7 +1285,7 @@ static void wr_monster(monster_type *mon) {
     wr_short((uint16_t)mon->hp);
     wr_short((uint16_t)mon->csleep);
     wr_short((uint16_t)mon->cspeed);
-    wr_short(mon->creature.place);
+    wr_short((uint16_t)monster_creature_index(mon->creature));
     wr_byte(mon->fy);
     wr_byte(mon->fx);
     wr_byte(mon->cdis);
@@ -1436,7 +1435,9 @@ static void rd_monster(monster_type *mon) {
     rd_short((uint16_t *)&mon->hp);
     rd_short((uint16_t *)&mon->csleep);
     rd_short((uint16_t *)&mon->cspeed);
-    rd_short(&mon->creature.place);
+    uint16_t creature_index;
+    rd_short(&creature_index);
+    mon->creature = monster_creature_at(creature_index);
     rd_byte(&mon->fy);
     rd_byte(&mon->fx);
     rd_byte(&mon->cdis);

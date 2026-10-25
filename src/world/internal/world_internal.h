@@ -16,7 +16,7 @@
 
 // --- combat/hit_rolls.c ---
 int attack_blows(int, int *);
-int tot_dam(inven_type *, int, creature_handle);
+int tot_dam(inven_type *, int, creature_iterator);
 int critical_blow(int, int, int, int);
 bool test_hit(int, int, int, int, int);
 
@@ -88,7 +88,7 @@ void teleport_to(int, int);
 
 // --- monster/creature.c ---
 void update_mon(int);
-bool multiply_monster(int, int, creature_handle, int);
+bool multiply_monster(int, int, creature_iterator, int);
 
 // --- monster/monster_breeding.c ---
 // May one more be bred? The comparison is unchanged from
@@ -117,7 +117,7 @@ void fix2_delete_monster(int);
 uint32_t monster_death(int, int, uint32_t);
 
 // --- monster/monster_place.c ---
-bool place_monster(int, int, creature_handle, int);
+bool place_monster(int, int, creature_iterator, int);
 void place_win_monster(void);
 
 // --- player/level_ops.c ---

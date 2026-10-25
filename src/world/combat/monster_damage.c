@@ -27,7 +27,7 @@
 // (Picking on my babies.) -RAK-
 int mon_take_hit(int monptr, int dam) {
     monster_type *m_ptr = monster_list_at(monptr);
-    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+    creature_type *r_ptr = monster_creature_get(m_ptr->creature);
     m_ptr->hp -= dam;
     m_ptr->csleep = 0;
 

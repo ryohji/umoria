@@ -13,7 +13,7 @@
 
 2026-10-25、`develop` の上（push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1839 件・88 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1844 件・88 本**、failed=0、`RESULT: GREEN`。
   **golden 8 本 GREEN**（端末なしで本体を通す。本体の行の 44.5% を通る。#94）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
@@ -36,9 +36,9 @@
     [done/modules-2026-10-14.md](docs/refactoring/done/modules-2026-10-14.md)。
   - **第 6 節の候補（#89〜#93）**。static 化、ui/ の状態の統合、`constant.h` の定数の移動、
     world/ の 4 段。経過は [done/section6-2026-10-15.md](docs/refactoring/done/section6-2026-10-15.md)。
-  - **モンスター表の iterator（#95）と golden（#94）**。経過は
+  - **モンスター表の iterator（#95・#96）と golden（#94）**。経過は
     [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md)。
-- 再検出で足した台帳の行は #58〜#95、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
+- 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -214,6 +214,8 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 - **ライブラリー。** 層ごと（model は副ライブラリーごと）の静的ライブラリー 11 本を、上から
   下の順にリンクする（`sources.mk` の `LIB_LINK_ORDER`）。これで止まるのは一部だけなので、
   層の規則の正本は `layer_deps.py --check`（所見 68）。
+- **モンスター表は `creature_iterator` でたどり、参照する**（handle を兼ねる。`docs/modules/model.md`）。
+  中身の添字に触るのは `model/data/monsters.c` だけ（`scripts/check.sh` が見る）。
 - `open`・`fopen` を `topen`・`tfopen`（`~` を展開する）に置きかえるマクロは `ui/ui_screen.h`
   にある。ファイルを開く .c はそれを include する。
 - **`#include "…"` はヘッダの名前だけで書く。** ディレクトリーは `-I` で探す。

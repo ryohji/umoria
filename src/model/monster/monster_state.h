@@ -17,7 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// monster_type, recall_type, creature_handle come from types.h which must be included first.
+// monster_type, recall_type, creature_iterator come from types.h which must be included first.
 
 // --- Level index ---
 
@@ -60,27 +60,27 @@ void monster_list_drop_last(void);
 // --- What the player has learned ---
 
 // Returns pointer to recall for the given monster kind.
-recall_type *recall_get(creature_handle h);
+recall_type *recall_get(creature_iterator h);
 
 // Updates learned characteristics (defence flags).
-void recall_update_characteristics(creature_handle h, int defence);
+void recall_update_characteristics(creature_iterator h, int defence);
 
 // Updates learned movement (move flags).
-void recall_update_move(creature_handle h, int move);
+void recall_update_move(creature_iterator h, int move);
 
 // Updates learned treasure carry count.
-void recall_update_carry(creature_handle h, uint8_t number);
+void recall_update_carry(creature_iterator h, uint8_t number);
 
 // Updates learned spells (spell type flags).
-void recall_update_spell(creature_handle h, uint32_t type);
+void recall_update_spell(creature_iterator h, uint32_t type);
 
 // Increments spell frequency counter (capped at CS_FREQ).
-void recall_increment_spell_chance(creature_handle h);
+void recall_increment_spell_chance(creature_iterator h);
 
 // Increments kill count (capped at MAX_SHORT).
-void recall_increment_kill(creature_handle h);
+void recall_increment_kill(creature_iterator h);
 
 // Increments death count (capped at MAX_SHORT).
-void recall_increment_death(creature_handle h);
+void recall_increment_death(creature_iterator h);
 
 #endif // MONSTER_STATE_H

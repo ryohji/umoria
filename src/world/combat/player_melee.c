@@ -35,7 +35,7 @@
 void py_attack(int y, int x) {
     const int crptr = square_at(y, x)->cptr;
     monster_type *const m_ptr = monster_list_at(crptr);
-    const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
+    const creature_type *const r_ptr = monster_creature_get(m_ptr->creature);
     m_ptr->csleep = 0;
     inven_type *i_ptr = equipment_at(INVEN_WIELD);
 
@@ -148,7 +148,7 @@ void py_bash(int y, int x) {
 
     int monster = square_at(y, x)->cptr;
     monster_type *m_ptr = monster_list_at(monster);
-    creature_type *c_ptr = monster_get_creature(m_ptr->creature);
+    creature_type *c_ptr = monster_creature_get(m_ptr->creature);
     m_ptr->csleep = 0;
 
     // Does the player know what he's fighting?

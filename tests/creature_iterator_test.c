@@ -19,8 +19,8 @@
  *
  * 走査そのものを collect_reverse_walk() の 1 箇所に閉じこめてある。
  * API の形が変わってもここだけを書きかえれば済み、期待値は動かない。
- * 期待値の側は creature_handle 経由（monster_make_creature_handle /
- * monster_get_creature）で書いてあり、こちらは変えていない API。
+ * 期待値の側は添字からの位置（monster_creature_at / monster_creature_get）で書く。
+ * at 自身は表の名前と並びで別に確かめる。
  */
 #include "config.h"
 #include "constant.h"
@@ -28,6 +28,8 @@
 
 /* 検証に使う本物（src/model/data/monsters.c）。 */
 #include "monsters.h"
+
+#include <string.h>
 
 #include "minunit.h"
 
@@ -70,7 +72,7 @@ static int collect_forward_walk(void)
 /* 期待値の側。添字から要素を得る経路は今回の変更対象ではない。 */
 static creature_type *creature_at(int index)
 {
-    return monster_get_creature(monster_make_creature_handle((uint16_t)index));
+    return monster_creature_get(monster_creature_at((uint16_t)index));
 }
 
 TEST(reverse_walk_visits_every_creature_once)
@@ -145,14 +147,14 @@ TEST(forward_walk_steps_one_index_on_at_a_time)
     ASSERT_EQ_INT(mismatch, -1);
 }
 
-TEST(forward_walk_gives_back_the_handle_of_each_creature)
+TEST(forward_walk_entries_are_consecutive_from_begin)
 {
-    /* save.c は正順にたどって、要素から添字（handle）を取りもどして書く。 */
+    /* たどった要素は、表の先頭から 1 つずつ並ぶ。 */
     int n = collect_forward_walk();
 
     int mismatch = -1;
     for (int i = 0; i < n; i++) {
-        if (monster_get_creature_handle(walk[i]).place != i) {
+        if (walk[i] - monster_creature_get(monster_creature_begin()) != i) {
             mismatch = i;
             break;
         }
@@ -207,6 +209,56 @@ TEST(distance_from_begin_to_end_is_the_table_size)
     ASSERT_EQ_INT(monster_creature_distance(monster_creature_begin(), monster_creature_end()), MAX_CREATURES);
 }
 
+TEST(at_reaches_the_first_and_the_last_entry_by_name)
+{
+    /* creature_at() itself goes through at(), so check at() against the table. */
+    ASSERT_TRUE(strcmp(monster_creature_get(monster_creature_at(0))->name, "Filthy Street Urchin") == 0 &&
+                strcmp(monster_creature_get(monster_creature_at(MAX_CREATURES - 1))->name, "Balrog") == 0);
+}
+
+TEST(at_steps_one_entry_per_index)
+{
+    int mismatch = -1;
+    for (int i = 1; i < MAX_CREATURES; i++) {
+        if (monster_creature_get(monster_creature_at(i)) != monster_creature_get(monster_creature_at(i - 1)) + 1) {
+            mismatch = i;
+            break;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
+TEST(index_gives_back_what_at_was_given)
+{
+    int mismatch = -1;
+    for (int i = 0; i <= MAX_CREATURES; i++) {
+        if (monster_creature_index(monster_creature_at(i)) != i) {
+            mismatch = i;
+            break;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
+TEST(at_the_table_size_is_end)
+{
+    ASSERT_TRUE(monster_creature_same(monster_creature_at(MAX_CREATURES), monster_creature_end()));
+}
+
+TEST(from_reverse_refers_to_the_same_entry)
+{
+    int n = 0;
+    int mismatch = -1;
+    const creature_rev_iterator end = monster_creature_rend();
+    for (creature_rev_iterator it = monster_creature_rbegin(); !monster_creature_rsame(it, end); it = monster_creature_rnext(it)) {
+        if (monster_creature_get(monster_creature_from_reverse(it)) != monster_creature_rget(it) && mismatch < 0) {
+            mismatch = n;
+        }
+        n++;
+    }
+    ASSERT_EQ_INT(mismatch, -1);
+}
+
 int main(void)
 {
     RUN_TEST(reverse_walk_visits_every_creature_once);
@@ -218,13 +270,18 @@ int main(void)
     RUN_TEST(forward_walk_starts_at_the_first_creature);
     RUN_TEST(forward_walk_ends_at_the_last_creature);
     RUN_TEST(forward_walk_steps_one_index_on_at_a_time);
-    RUN_TEST(forward_walk_gives_back_the_handle_of_each_creature);
+    RUN_TEST(forward_walk_entries_are_consecutive_from_begin);
     RUN_TEST(advance_from_begin_reaches_every_index);
     RUN_TEST(advance_by_the_table_size_reaches_end);
     RUN_TEST(advance_backwards_undoes_advance);
     RUN_TEST(distance_counts_entries_between);
     RUN_TEST(distance_is_negative_backwards);
     RUN_TEST(distance_from_begin_to_end_is_the_table_size);
+    RUN_TEST(at_reaches_the_first_and_the_last_entry_by_name);
+    RUN_TEST(at_steps_one_entry_per_index);
+    RUN_TEST(index_gives_back_what_at_was_given);
+    RUN_TEST(at_the_table_size_is_end);
+    RUN_TEST(from_reverse_refers_to_the_same_entry);
     return TEST_SUMMARY();
 }
 

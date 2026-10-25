@@ -17,3 +17,5 @@
 | 2026-10-25 | #95 マージ | `refactor/95-creature-iterator` を `--no-ff` で（`b9b90c8`） | 1839（88 本） | 警告 0・GREEN・globals OK 40・層 919 本・headers OK（マージ後の develop で測った） |
 | 2026-10-25 | #94 | golden（`40eff78`〜`421628f`。台本 8 本、本体の行の 44.5%）、`--shadows`（`6229ee9`）、`scripts/check.sh`（`07f9519`）。#84 の前の 89ca18a と入力の終わりの写しが一致。壊しは台本ごとに 1〜2 通りずつ赤（素通り 2 つは画面に出ない所） | 1839（88 本） | `scripts/check.sh` ALL OK |
 | 2026-10-25 | 確かめ | `develop..test/94-headless` の 13 コミットを 1 つずつ空から組んだ。どれも警告 0・1839 件 88 本 GREEN・層 OK・headers OK。golden は `d5d2947` 以降 GREEN で、その前の 3 つ（`40eff78`・`eae1914`・`585c84e`）は新しく取りだすと `run.sh` に実行の印が無く Permission denied で走らない（`d5d2947` で直した） | 1839（88 本） | 第 2 節の 1〜3 と golden |
+| 2026-10-25 | #94 マージ | `test/94-headless` を `--no-ff` で（`7fa04a0`） | 1839（88 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
+| 2026-10-25 | #96 | iterator を添字の構造体に（`13483c9`）、handle をまとめる（`10f6d90`）、要素から戻す関数を消す（`2a024e6`）、添字は monsters.c だけ（`416b092`）。各段の全関数の比較で、違いは手を入れた関数と呼び先の名前だけ | 1844（88 本） | `scripts/check.sh` ALL OK |

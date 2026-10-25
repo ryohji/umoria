@@ -76,7 +76,7 @@ void update_mon(int monptr) {
         } else if (los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
             // Normal sight.
             c_ptr = square_at(m_ptr->fy, m_ptr->fx);
-            r_ptr = monster_get_creature(m_ptr->creature);
+            r_ptr = monster_creature_get(m_ptr->creature);
             if (c_ptr->pl || c_ptr->tl || (player_is_running() && m_ptr->cdis < 2 && player_has_light())) {
                 if ((CM_INVISIBLE & r_ptr->cmove) == 0) {
                     flag = true;
@@ -313,7 +313,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
     bool do_turn = false;
     bool do_move = false;
     monster_type *m_ptr = monster_list_at(monptr);
-    uint32_t movebits = monster_get_creature(m_ptr->creature)->cmove;
+    uint32_t movebits = monster_creature_get(m_ptr->creature)->cmove;
 
     do {
         // Get new position
@@ -403,7 +403,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
             if (do_move && (c_ptr->tptr != 0) &&
                 (floor_item_at(c_ptr->tptr)->tval == TV_VIS_TRAP) &&
                 (floor_item_at(c_ptr->tptr)->subval == 99)) {
-                if (randint(OBJ_RUNE_PROT) < monster_get_creature(m_ptr->creature)->level) {
+                if (randint(OBJ_RUNE_PROT) < monster_creature_get(m_ptr->creature)->level) {
                     if ((newy == player_row()) && (newx == player_col())) {
                         msg_print("The rune of protection is broken!");
                     }
@@ -436,7 +436,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                     // Creature is attempting to move on other creature?
 
                     // Creature eats other creatures?
-                    if ((movebits & CM_EATS_OTHER) && (monster_get_creature(m_ptr->creature)->mexp >= monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->mexp)) {
+                    if ((movebits & CM_EATS_OTHER) && (monster_creature_get(m_ptr->creature)->mexp >= monster_creature_get(monster_list_at(c_ptr->cptr)->creature)->mexp)) {
                         if (monster_list_at(c_ptr->cptr)->ml) {
                             *rcmove |= CM_EATS_OTHER;
                         }
@@ -495,7 +495,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
     }
 
     monster_type *m_ptr = monster_list_at(monptr);
-    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+    creature_type *r_ptr = monster_creature_get(m_ptr->creature);
     int chance = (int)(r_ptr->spells & CS_FREQ);
 
     if (randint(chance) != 1) {
@@ -701,7 +701,7 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
 
 // Places creature adjacent to given location -RAK-
 // Rats and Flys are fun!
-bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
+bool multiply_monster(int y, int x, creature_iterator creature, int monptr) {
     int j, k, result;
     cave_type *c_ptr;
 
@@ -718,9 +718,9 @@ bool multiply_monster(int y, int x, creature_handle creature, int monptr) {
                 // Creature there already?
                 if (c_ptr->cptr > 1) {
                     // Some critters are cannibalistic!
-                    if ((monster_get_creature(creature)->cmove & CM_EATS_OTHER)
+                    if ((monster_creature_get(creature)->cmove & CM_EATS_OTHER)
                         // Check the experience level -CJS-
-                        && monster_get_creature(creature)->mexp >= monster_get_creature(monster_list_at(c_ptr->cptr)->creature)->mexp) {
+                        && monster_creature_get(creature)->mexp >= monster_creature_get(monster_list_at(c_ptr->cptr)->creature)->mexp) {
                         // It ate an already processed monster.Handle * normally.
                         if (monptr < c_ptr->cptr) {
                             delete_monster((int)c_ptr->cptr);
@@ -792,7 +792,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
     int i, k;
 
     monster_type *m_ptr = monster_list_at(monptr);
-    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+    creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
     // Does the critter multiply?
     // rest could be negative, to be safe, only use mod with positive values.
@@ -980,7 +980,7 @@ void creatures(int attack) {
 
                     // Monsters trapped in rock must be given a turn also,
                     // so that they will die/dig out immediately.
-                    if (m_ptr->ml || (m_ptr->cdis <= monster_get_creature(m_ptr->creature)->aaf) || ((!(monster_get_creature(m_ptr->creature)->cmove & CM_PHASE)) && square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
+                    if (m_ptr->ml || (m_ptr->cdis <= monster_creature_get(m_ptr->creature)->aaf) || ((!(monster_creature_get(m_ptr->creature)->cmove & CM_PHASE)) && square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
                         if (m_ptr->csleep > 0) {
                             if (player_aggravates_monsters()) {
                                 m_ptr->csleep = 0;
@@ -1006,14 +1006,14 @@ void creatures(int attack) {
 
                         if (m_ptr->stunned != 0) {
                             // NOTE: Balrog = 100*100 = 10000, it always recovers instantly
-                            if (randint(5000) < monster_get_creature(m_ptr->creature)->level * monster_get_creature(m_ptr->creature)->level) {
+                            if (randint(5000) < monster_creature_get(m_ptr->creature)->level * monster_creature_get(m_ptr->creature)->level) {
                                 m_ptr->stunned = 0;
                             } else {
                                 m_ptr->stunned--;
                             }
                             if (m_ptr->stunned == 0) {
                                 if (m_ptr->ml) {
-                                    (void)sprintf(cdesc, "The %s ", monster_get_creature(m_ptr->creature)->name);
+                                    (void)sprintf(cdesc, "The %s ", monster_creature_get(m_ptr->creature)->name);
                                     msg_print(strcat(cdesc, "recovers and glares at you."));
                                 }
                             }

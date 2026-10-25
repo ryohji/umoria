@@ -44,8 +44,8 @@
 
 /* 表そのものは #17 から monsters.c の static で、番号から定義を引く窓口しか
  * 無い。帯の中身を確かめるのに使うので、必要な 2 本だけ宣言する。 */
-creature_handle monster_make_creature_handle(uint16_t index);
-creature_type *monster_get_creature(creature_handle h);
+creature_iterator monster_creature_at(uint16_t index);
+creature_type *monster_creature_get(creature_iterator h);
 
 /* monsters.c の monster_name_indefinite() が呼ぶ。名前は 1 件も見ないので
  * 代役で足りる（tests/creature_iterator_test.c と同じ）。 */
@@ -57,7 +57,7 @@ bool is_a_vowel(char ch) { (void)ch; return false; }
 static void given_the_index_built(void) { monster_levels_init(); }
 
 static int level_of(int number) {
-    return monster_get_creature(monster_make_creature_handle((uint16_t)number))->level;
+    return monster_creature_get(monster_creature_at((uint16_t)number))->level;
 }
 
 /* ------------------------------------------------------------------

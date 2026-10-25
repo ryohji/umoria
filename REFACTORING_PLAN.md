@@ -6,7 +6,7 @@
 2026-10-23 の前の全文は [done/plan-2026-10-23.md](docs/refactoring/done/plan-2026-10-23.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1839 件・88 本と golden 8 本、ヘッダの global 40 個（→ `HANDOVER.md` 第 0 節）。
+- いま：テスト 1844 件・88 本と golden 8 本、ヘッダの global 40 個（→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
   判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
 - #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
@@ -143,6 +143,7 @@
 | 93 | どこからも使われない `SCARE_MONSTER` を消す（表の一部の 15 個は残す。ユーザーの判断） | 同上 |
 | 94 | 端末なしで本体を通す golden（`tests/headless_backend.c`・`tests/golden/`・`make -f makefile.test golden`）。8 本で本体の行の 44.5% を通る。`scripts/check.sh` | [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md) |
 | 95 | モンスター表を先頭からたどる iterator（`monster_creature_begin` ほか・`advance`・`distance`）を足し、セーブで記憶を書く走査と `summon_undead` の走査をそれに（ユーザーの依頼）。`summon_undead_test` を足した | 同上 |
+| 96 | handle と iterator を 1 つの型 `creature_iterator`（添字を持つ構造体）にまとめる。`monster_get_creature`・`make_creature_handle`・`get_creature_handle` を消す（ユーザーの依頼） | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、

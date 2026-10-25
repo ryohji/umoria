@@ -184,10 +184,10 @@ static const int remembered[REMEMBERED] = {0, 3, 177, MAX_CREATURES - 1};
 static void fill_recall(void)
 {
     for (int i = 0; i < MAX_CREATURES; i++) {
-        memset(recall_get(monster_make_creature_handle((uint16_t)i)), 0, sizeof(recall_type));
+        memset(recall_get(monster_creature_at((uint16_t)i)), 0, sizeof(recall_type));
     }
     for (int k = 0; k < REMEMBERED; k++) {
-        recall_type *r = recall_get(monster_make_creature_handle((uint16_t)remembered[k]));
+        recall_type *r = recall_get(monster_creature_at((uint16_t)remembered[k]));
         int i = 20 * k;
         r->r_cmove = L(i);
         r->r_spells = L(i + 1);
@@ -533,7 +533,7 @@ static void fill_level(void)
         m->hp = (int16_t)W(k);
         m->csleep = (int16_t)W(k + 1);
         m->cspeed = (int16_t)W(k + 2);
-        m->creature.place = W(k + 3);
+        m->creature = monster_creature_at(W(k + 3));
         m->fy = B(k + 4);
         m->fx = B(k + 5);
         m->cdis = B(k + 6);

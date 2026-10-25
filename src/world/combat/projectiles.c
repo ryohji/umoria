@@ -107,7 +107,7 @@ void fire_bolt(int typ, int dir, int y, int x, int dam, const char *bolt_typ) {
                 flag = true;
 
                 monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+                creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
                 // light up monster and draw monster, temporarily set
                 // pl so that update_mon() will work
@@ -201,7 +201,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                             if (c_ptr->fval <= MAX_OPEN_SPACE) {
                                 if (c_ptr->cptr > 1) {
                                     monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                                    creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+                                    creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
                                     // lite up creature if visible, temp set pl so that update_mon works
                                     int tmp = c_ptr->pl;
@@ -314,7 +314,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
 
                     if (c_ptr->cptr > 1) {
                         monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                        creature_type *r_ptr = monster_get_creature(m_ptr->creature);
+                        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
                         dam = dam_hp;
 

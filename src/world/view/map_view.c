@@ -87,7 +87,7 @@ uint8_t loc_symbol(int y, int x) {
     } else if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION) && (randint(12) == 1)) {
         return randint(95) + 31;
     } else if ((cave_ptr->cptr > 1) && (monster_list_at(cave_ptr->cptr)->ml)) {
-        return monster_get_creature(monster_list_at(cave_ptr->cptr)->creature)->cchar;
+        return monster_creature_get(monster_list_at(cave_ptr->cptr)->creature)->cchar;
     } else if (!cave_ptr->pl && !cave_ptr->tl && !cave_ptr->fm) {
         return ' ';
     } else if ((cave_ptr->tptr != 0) && (floor_item_at(cave_ptr->tptr)->tval != TV_INVIS_TRAP)) {

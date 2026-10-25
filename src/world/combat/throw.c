@@ -228,7 +228,7 @@ void throw_object(void) {
                     if (c_ptr->cptr > 1) {
                         flag = true;
                         monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-                        const creature_type *const r_ptr = monster_get_creature(m_ptr->creature);
+                        const creature_type *const r_ptr = monster_creature_get(m_ptr->creature);
                         tbth = tbth - cur_dis;
 
                         // if monster not lit, make it much more difficult to hit, subtract

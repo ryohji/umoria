@@ -35,7 +35,7 @@ static int legacy_pick(void)
         int m = randint(l) - 1;
         int ctr = 0;
         do {
-            if (monster_get_creature(monster_make_creature_handle((uint16_t)m))->cdefense & CD_UNDEAD) {
+            if (monster_creature_get(monster_creature_at((uint16_t)m))->cdefense & CD_UNDEAD) {
                 found = m;
                 l = 0;
                 ctr = 20;
@@ -84,7 +84,7 @@ static void run_seeds(void)
             continue;
         }
         placed++;
-        const int got = monster_list_at(square_at(y, x)->cptr)->creature.place;
+        const int got = monster_creature_index(monster_list_at(square_at(y, x)->cptr)->creature);
         if (got != expected && mismatch_seed < 0) {
             mismatch_seed = (int)seed;
         }
