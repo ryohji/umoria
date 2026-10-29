@@ -242,29 +242,51 @@ static void fill_in_modstr(char *out_val, const char *basenm, const char *modstr
 // pref indicates that there should be an article added (prefix).
 // Note that since out_val can easily exceed 80 characters, objdes
 // must always be called with a bigvtype as the first paramter.
-void objdes(char *out_val, inven_type *i_ptr, int pref) {
+// The pieces of a name before it is put together: the base name (a format when
+// modstr is set), the flavour or book name to put in it, the damage or bow
+// multiplier, how p1 is shown, and whether " of <kind>" follows.
+typedef struct {
+    const char *basenm;
+    const char *modstr;
+    vtype damstr;
+    int p1_use;
+    bool append_name;
+} name_parts;
+
+// Unknown kinds show their flavour (format fmt with flavour); known kinds show
+// the plain base name followed by " of <kind>".
+static void flavoured(name_parts *parts, bool unknown, const char *fmt, const char *flavour, const char *plain) {
+    if (unknown) {
+        parts->basenm = fmt;
+        parts->modstr = flavour;
+    } else {
+        parts->basenm = plain;
+        parts->append_name = true;
+    }
+}
+
+// Fills parts for the item's kind. Returns false when the kind has a fixed
+// name, which is then already in out_val.
+static bool base_name(name_parts *parts, char *out_val, inven_type *i_ptr) {
     int tmp;
 
     int indexx = i_ptr->subval & (ITEM_SINGLE_STACK_MIN - 1);
 
-    // base name, modifier string
-    const char *basenm = object_list[i_ptr->index].name;
-    const char *modstr = CNIL;
-
-    vtype damstr;
-    damstr[0] = '\0';
-    int p1_use = IGNORED;
+    parts->basenm = object_list[i_ptr->index].name;
+    parts->modstr = CNIL;
+    parts->damstr[0] = '\0';
+    parts->p1_use = IGNORED;
+    parts->append_name = false;
     bool modify = (known1_p(i_ptr) ? false : true);
-    bool append_name = false;
 
     switch (i_ptr->tval) {
     case TV_MISC: case TV_CHEST:
         break;
     case TV_SLING_AMMO: case TV_BOLT: case TV_ARROW:
-        (void)sprintf(damstr, " (%dd%d)", i_ptr->damage[0], i_ptr->damage[1]);
+        (void)sprintf(parts->damstr, " (%dd%d)", i_ptr->damage[0], i_ptr->damage[1]);
         break;
     case TV_LIGHT:
-        p1_use = LIGHT;
+        parts->p1_use = LIGHT;
         break;
     case TV_SPIKE:
         break;
@@ -278,108 +300,72 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
         } else {
             tmp = -1;
         }
-        (void)sprintf(damstr, " (x%d)", tmp);
+        (void)sprintf(parts->damstr, " (x%d)", tmp);
         break;
     case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
-        (void)sprintf(damstr, " (%dd%d)", i_ptr->damage[0], i_ptr->damage[1]);
-        p1_use = FLAGS;
+        (void)sprintf(parts->damstr, " (%dd%d)", i_ptr->damage[0], i_ptr->damage[1]);
+        parts->p1_use = FLAGS;
         break;
     case TV_DIGGING:
-        p1_use = Z_PLUSSES;
-        (void)sprintf(damstr, " (%dd%d)", i_ptr->damage[0], i_ptr->damage[1]);
+        parts->p1_use = Z_PLUSSES;
+        (void)sprintf(parts->damstr, " (%dd%d)", i_ptr->damage[0], i_ptr->damage[1]);
         break;
     case TV_BOOTS: case TV_GLOVES: case TV_CLOAK: case TV_HELM:
     case TV_SHIELD: case TV_HARD_ARMOR: case TV_SOFT_ARMOR:
         break;
     case TV_AMULET:
-        if (modify) {
-            basenm = "& %s Amulet";
-            modstr = amulets[indexx];
-        } else {
-            basenm = "& Amulet";
-            append_name = true;
-        }
-        p1_use = PLUSSES;
+        flavoured(parts, modify, "& %s Amulet", amulets[indexx], "& Amulet");
+        parts->p1_use = PLUSSES;
         break;
     case TV_RING:
-        if (modify) {
-            basenm = "& %s Ring";
-            modstr = rocks[indexx];
-        } else {
-            basenm = "& Ring";
-            append_name = true;
-        }
-        p1_use = PLUSSES;
+        flavoured(parts, modify, "& %s Ring", rocks[indexx], "& Ring");
+        parts->p1_use = PLUSSES;
         break;
     case TV_STAFF:
-        if (modify) {
-            basenm = "& %s Staff";
-            modstr = woods[indexx];
-        } else {
-            basenm = "& Staff";
-            append_name = true;
-        }
-        p1_use = CHARGES;
+        flavoured(parts, modify, "& %s Staff", woods[indexx], "& Staff");
+        parts->p1_use = CHARGES;
         break;
     case TV_WAND:
-        if (modify) {
-            basenm = "& %s Wand";
-            modstr = metals[indexx];
-        } else {
-            basenm = "& Wand";
-            append_name = true;
-        }
-        p1_use = CHARGES;
+        flavoured(parts, modify, "& %s Wand", metals[indexx], "& Wand");
+        parts->p1_use = CHARGES;
         break;
     case TV_SCROLL1: case TV_SCROLL2:
-        if (modify) {
-            basenm = "& Scroll~ titled \"%s\"";
-            modstr = titles[indexx];
-        } else {
-            basenm = "& Scroll~";
-            append_name = true;
-        }
+        flavoured(parts, modify, "& Scroll~ titled \"%s\"", titles[indexx], "& Scroll~");
         break;
     case TV_POTION1: case TV_POTION2:
-        if (modify) {
-            basenm = "& %s Potion~";
-            modstr = colors[indexx];
-        } else {
-            basenm = "& Potion~";
-            append_name = true;
-        }
+        flavoured(parts, modify, "& %s Potion~", colors[indexx], "& Potion~");
         break;
     case TV_FLASK:
         break;
     case TV_FOOD:
         if (modify) {
             if (indexx <= 15) {
-                basenm = "& %s Mushroom~";
+                parts->basenm = "& %s Mushroom~";
             } else if (indexx <= 20) {
-                basenm = "& Hairy %s Mold~";
+                parts->basenm = "& Hairy %s Mold~";
             }
             if (indexx <= 20) {
-                modstr = mushrooms[indexx];
+                parts->modstr = mushrooms[indexx];
             }
         } else {
-            append_name = true;
+            parts->append_name = true;
             if (indexx <= 15) {
-                basenm = "& Mushroom~";
+                parts->basenm = "& Mushroom~";
             } else if (indexx <= 20) {
-                basenm = "& Hairy Mold~";
+                parts->basenm = "& Hairy Mold~";
             } else {
                 // Ordinary food does not have a name appended.
-                append_name = false;
+                parts->append_name = false;
             }
         }
         break;
     case TV_MAGIC_BOOK:
-        modstr = basenm;
-        basenm = "& Book~ of Magic Spells %s";
+        parts->modstr = parts->basenm;
+        parts->basenm = "& Book~ of Magic Spells %s";
         break;
     case TV_PRAYER_BOOK:
-        modstr = basenm;
-        basenm = "& Holy Book~ of Prayers %s";
+        parts->modstr = parts->basenm;
+        parts->basenm = "& Holy Book~ of Prayers %s";
         break;
     case TV_OPEN_DOOR: case TV_CLOSED_DOOR: case TV_SECRET_DOOR: case TV_RUBBLE:
         break;
@@ -388,23 +374,26 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
     case TV_UP_STAIR: case TV_DOWN_STAIR:
         (void)strcpy(out_val, object_list[i_ptr->index].name);
         (void)strcat(out_val, ".");
-        return;
+        return false;
     case TV_STORE_DOOR:
         (void)sprintf(out_val, "the entrance to the %s.", object_list[i_ptr->index].name);
-        return;
+        return false;
     default:
         (void)strcpy(out_val, "Error in objdes()");
-        return;
+        return false;
     }
+    return true;
+}
 
-    bigvtype tmp_val;
-
-    if (modstr != CNIL) {
-        fill_in_modstr(tmp_val, basenm, modstr);
+// Puts the parts together: the base name with its flavour, " of <kind>", and
+// the plural (~ marks where an s goes).
+static void compose_name(char *tmp_val, const name_parts *parts, const inven_type *i_ptr) {
+    if (parts->modstr != CNIL) {
+        fill_in_modstr(tmp_val, parts->basenm, parts->modstr);
     } else {
-        (void)strcpy(tmp_val, basenm);
+        (void)strcpy(tmp_val, parts->basenm);
     }
-    if (append_name) {
+    if (parts->append_name) {
         (void)strcat(tmp_val, " of ");
         (void)strcat(tmp_val, object_list[i_ptr->index].name);
     }
@@ -414,142 +403,181 @@ void objdes(char *out_val, inven_type *i_ptr, int pref) {
     } else {
         insert_str(tmp_val, "~", CNIL);
     }
-    if (!pref) {
-        if (!strncmp("some", tmp_val, 4)) {
-            (void)strcpy(out_val, &tmp_val[5]);
-        } else if (tmp_val[0] == '&') {
-            // eliminate the '& ' at the beginning
-            (void)strcpy(out_val, &tmp_val[2]);
-        } else {
-            (void)strcpy(out_val, tmp_val);
-        }
-    } else {
-        vtype tmp_str;
+}
 
-        if (i_ptr->name2 != SN_NULL && known2_p(i_ptr)) {
-            (void)strcat(tmp_val, " ");
-            (void)strcat(tmp_val, special_names[i_ptr->name2]);
+// The name without article or details: "some" and the leading "& " go.
+static void bare_name(char *out_val, const char *tmp_val) {
+    if (!strncmp("some", tmp_val, 4)) {
+        (void)strcpy(out_val, &tmp_val[5]);
+    } else if (tmp_val[0] == '&') {
+        // eliminate the '& ' at the beginning
+        (void)strcpy(out_val, &tmp_val[2]);
+    } else {
+        (void)strcpy(out_val, tmp_val);
+    }
+}
+
+// Appends the special name, the damage, the to-hit and to-damage, and the
+// armour class.
+static void append_bonuses(char *tmp_val, inven_type *i_ptr, const char *damstr) {
+    vtype tmp_str;
+
+    if (i_ptr->name2 != SN_NULL && known2_p(i_ptr)) {
+        (void)strcat(tmp_val, " ");
+        (void)strcat(tmp_val, special_names[i_ptr->name2]);
+    }
+    if (damstr[0] != '\0') {
+        (void)strcat(tmp_val, damstr);
+    }
+    if (known2_p(i_ptr)) {
+        // originally used %+d, but several machines don't support it
+        if (item_shows_hit_dam(i_ptr)) {
+            (void)sprintf(tmp_str, " (%c%d,%c%d)",
+                          (i_ptr->tohit < 0) ? '-' : '+', abs(i_ptr->tohit),
+                          (i_ptr->todam < 0) ? '-' : '+', abs(i_ptr->todam));
+        } else if (i_ptr->tohit != 0) {
+            (void)sprintf(tmp_str, " (%c%d)", (i_ptr->tohit < 0) ? '-' : '+', abs(i_ptr->tohit));
+        } else if (i_ptr->todam != 0) {
+            (void)sprintf(tmp_str, " (%c%d)", (i_ptr->todam < 0) ? '-' : '+', abs(i_ptr->todam));
+        } else {
+            tmp_str[0] = '\0';
         }
-        if (damstr[0] != '\0') {
-            (void)strcat(tmp_val, damstr);
-        }
+        (void)strcat(tmp_val, tmp_str);
+    }
+    // Crowns have a zero base AC, so make a special test for them.
+    if (i_ptr->ac != 0 || (i_ptr->tval == TV_HELM)) {
+        (void)sprintf(tmp_str, " [%d", i_ptr->ac);
+        (void)strcat(tmp_val, tmp_str);
         if (known2_p(i_ptr)) {
             // originally used %+d, but several machines don't support it
-            if (item_shows_hit_dam(i_ptr)) {
-                (void)sprintf(tmp_str, " (%c%d,%c%d)",
-                              (i_ptr->tohit < 0) ? '-' : '+', abs(i_ptr->tohit),
-                              (i_ptr->todam < 0) ? '-' : '+', abs(i_ptr->todam));
-            } else if (i_ptr->tohit != 0) {
-                (void)sprintf(tmp_str, " (%c%d)", (i_ptr->tohit < 0) ? '-' : '+', abs(i_ptr->tohit));
-            } else if (i_ptr->todam != 0) {
-                (void)sprintf(tmp_str, " (%c%d)", (i_ptr->todam < 0) ? '-' : '+', abs(i_ptr->todam));
-            } else {
-                tmp_str[0] = '\0';
-            }
+            (void)sprintf(tmp_str, ",%c%d", (i_ptr->toac < 0) ? '-' : '+', abs(i_ptr->toac));
             (void)strcat(tmp_val, tmp_str);
         }
-        // Crowns have a zero base AC, so make a special test for them.
-        if (i_ptr->ac != 0 || (i_ptr->tval == TV_HELM)) {
-            (void)sprintf(tmp_str, " [%d", i_ptr->ac);
-            (void)strcat(tmp_val, tmp_str);
-            if (known2_p(i_ptr)) {
-                // originally used %+d, but several machines don't support it
-                (void)sprintf(tmp_str, ",%c%d", (i_ptr->toac < 0) ? '-' : '+', abs(i_ptr->toac));
-                (void)strcat(tmp_val, tmp_str);
-            }
-            (void)strcat(tmp_val, "]");
-        } else if ((i_ptr->toac != 0) && known2_p(i_ptr)) {
-            // originally used %+d, but several machines don't support it
-            (void)sprintf(tmp_str, " [%c%d]", (i_ptr->toac < 0) ? '-' : '+', abs(i_ptr->toac));
-            (void)strcat(tmp_val, tmp_str);
-        }
+        (void)strcat(tmp_val, "]");
+    } else if ((i_ptr->toac != 0) && known2_p(i_ptr)) {
+        // originally used %+d, but several machines don't support it
+        (void)sprintf(tmp_str, " [%c%d]", (i_ptr->toac < 0) ? '-' : '+', abs(i_ptr->toac));
+        (void)strcat(tmp_val, tmp_str);
+    }
+}
 
-        // override defaults, check for p1 flags in the ident field
-        if (item_hides_p1(i_ptr)) {
-            p1_use = IGNORED;
-        } else if (item_shows_p1(i_ptr)) {
-            p1_use = Z_PLUSSES;
-        }
-        tmp_str[0] = '\0';
-        if (p1_use == LIGHT) {
-            (void)sprintf(tmp_str, " with %d turns of light", i_ptr->p1);
-        } else if (p1_use == IGNORED) {
-            ;
-        } else if (known2_p(i_ptr)) {
-            if (p1_use == Z_PLUSSES) {
-                // originally used %+d, but several machines don't support it
+// Appends what p1 means for this item (light, charges, plusses, which stat).
+static void append_p1(char *tmp_val, inven_type *i_ptr, int p1_use) {
+    vtype tmp_str;
+
+    // override defaults, check for p1 flags in the ident field
+    if (item_hides_p1(i_ptr)) {
+        p1_use = IGNORED;
+    } else if (item_shows_p1(i_ptr)) {
+        p1_use = Z_PLUSSES;
+    }
+    tmp_str[0] = '\0';
+    if (p1_use == LIGHT) {
+        (void)sprintf(tmp_str, " with %d turns of light", i_ptr->p1);
+    } else if (p1_use == IGNORED) {
+        ;
+    } else if (known2_p(i_ptr)) {
+        if (p1_use == Z_PLUSSES) {
+            // originally used %+d, but several machines don't support it
+            (void)sprintf(tmp_str, " (%c%d)", (i_ptr->p1 < 0) ? '-' : '+', abs(i_ptr->p1));
+        } else if (p1_use == CHARGES) {
+            (void)sprintf(tmp_str, " (%d charges)", i_ptr->p1);
+        } else if (i_ptr->p1 != 0) {
+            if (p1_use == PLUSSES) {
                 (void)sprintf(tmp_str, " (%c%d)", (i_ptr->p1 < 0) ? '-' : '+', abs(i_ptr->p1));
-            } else if (p1_use == CHARGES) {
-                (void)sprintf(tmp_str, " (%d charges)", i_ptr->p1);
-            } else if (i_ptr->p1 != 0) {
-                if (p1_use == PLUSSES) {
-                    (void)sprintf(tmp_str, " (%c%d)", (i_ptr->p1 < 0) ? '-' : '+', abs(i_ptr->p1));
-                } else if (p1_use == FLAGS) {
-                    if (i_ptr->flags & TR_STR) {
-                        (void)sprintf(tmp_str, " (%c%d to STR)", (i_ptr->p1 < 0) ? '-' : '+', abs(i_ptr->p1));
-                    } else if (i_ptr->flags & TR_STEALTH) {
-                        (void)sprintf(tmp_str, " (%c%d to stealth)", (i_ptr->p1 < 0) ? '-' : '+', abs(i_ptr->p1));
-                    }
+            } else if (p1_use == FLAGS) {
+                if (i_ptr->flags & TR_STR) {
+                    (void)sprintf(tmp_str, " (%c%d to STR)", (i_ptr->p1 < 0) ? '-' : '+', abs(i_ptr->p1));
+                } else if (i_ptr->flags & TR_STEALTH) {
+                    (void)sprintf(tmp_str, " (%c%d to stealth)", (i_ptr->p1 < 0) ? '-' : '+', abs(i_ptr->p1));
                 }
             }
         }
-        (void)strcat(tmp_val, tmp_str);
-
-        // ampersand is always the first character
-        if (tmp_val[0] == '&') {
-            // use &tmp_val[1], so that & does not appear in output
-            if (i_ptr->number > 1) {
-                (void)sprintf(out_val, "%d%s", (int)i_ptr->number, &tmp_val[1]);
-            } else if (i_ptr->number < 1) {
-                (void)sprintf(out_val, "%s%s", "no more", &tmp_val[1]);
-            } else if (is_a_vowel(tmp_val[2])) {
-                (void)sprintf(out_val, "an%s", &tmp_val[1]);
-            } else {
-                (void)sprintf(out_val, "a%s", &tmp_val[1]);
-            }
-        } else if (i_ptr->number < 1) {
-            // handle 'no more' case specially
-
-            // check for "some" at start
-            if (!strncmp("some", tmp_val, 4)) {
-                (void)sprintf(out_val, "no more %s", &tmp_val[5]);
-            } else {
-                // here if no article
-                (void)sprintf(out_val, "no more %s", tmp_val);
-            }
-        } else {
-            (void)strcpy(out_val, tmp_val);
-        }
-
-        tmp_str[0] = '\0';
-
-        // don't print tried string for store bought items
-        if (item_kind_was_tried(i_ptr) && !store_bought_p(i_ptr)) {
-            (void)strcat(tmp_str, "tried ");
-        }
-        if (item_has_any_note(i_ptr)) {
-            if (item_noted_magical(i_ptr)) {
-                (void)strcat(tmp_str, "magik ");
-            }
-            if (item_noted_empty(i_ptr)) {
-                (void)strcat(tmp_str, "empty ");
-            }
-            if (item_noted_damned(i_ptr)) {
-                (void)strcat(tmp_str, "damned ");
-            }
-        }
-        if (i_ptr->inscrip[0] != '\0') {
-            (void)strcat(tmp_str, i_ptr->inscrip);
-        } else if ((indexx = (int)strlen(tmp_str)) > 0) {
-            // remove the extra blank at the end
-            tmp_str[indexx - 1] = '\0';
-        }
-        if (tmp_str[0]) {
-            (void)sprintf(tmp_val, " {%s}", tmp_str);
-            (void)strcat(out_val, tmp_val);
-        }
-        (void)strcat(out_val, ".");
     }
+    (void)strcat(tmp_val, tmp_str);
+}
+
+// The article or the count in front: a, an, 2, "no more".
+static void with_article(char *out_val, const char *tmp_val, const inven_type *i_ptr) {
+    // ampersand is always the first character
+    if (tmp_val[0] == '&') {
+        // use &tmp_val[1], so that & does not appear in output
+        if (i_ptr->number > 1) {
+            (void)sprintf(out_val, "%d%s", (int)i_ptr->number, &tmp_val[1]);
+        } else if (i_ptr->number < 1) {
+            (void)sprintf(out_val, "%s%s", "no more", &tmp_val[1]);
+        } else if (is_a_vowel(tmp_val[2])) {
+            (void)sprintf(out_val, "an%s", &tmp_val[1]);
+        } else {
+            (void)sprintf(out_val, "a%s", &tmp_val[1]);
+        }
+    } else if (i_ptr->number < 1) {
+        // handle 'no more' case specially
+
+        // check for "some" at start
+        if (!strncmp("some", tmp_val, 4)) {
+            (void)sprintf(out_val, "no more %s", &tmp_val[5]);
+        } else {
+            // here if no article
+            (void)sprintf(out_val, "no more %s", tmp_val);
+        }
+    } else {
+        (void)strcpy(out_val, tmp_val);
+    }
+}
+
+// Appends {tried magik empty damned <inscription>} and the full stop.
+static void append_notes(char *out_val, inven_type *i_ptr) {
+    vtype tmp_str;
+    bigvtype tmp_val;
+    int indexx;
+
+    tmp_str[0] = '\0';
+
+    // don't print tried string for store bought items
+    if (item_kind_was_tried(i_ptr) && !store_bought_p(i_ptr)) {
+        (void)strcat(tmp_str, "tried ");
+    }
+    if (item_has_any_note(i_ptr)) {
+        if (item_noted_magical(i_ptr)) {
+            (void)strcat(tmp_str, "magik ");
+        }
+        if (item_noted_empty(i_ptr)) {
+            (void)strcat(tmp_str, "empty ");
+        }
+        if (item_noted_damned(i_ptr)) {
+            (void)strcat(tmp_str, "damned ");
+        }
+    }
+    if (i_ptr->inscrip[0] != '\0') {
+        (void)strcat(tmp_str, i_ptr->inscrip);
+    } else if ((indexx = (int)strlen(tmp_str)) > 0) {
+        // remove the extra blank at the end
+        tmp_str[indexx - 1] = '\0';
+    }
+    if (tmp_str[0]) {
+        (void)sprintf(tmp_val, " {%s}", tmp_str);
+        (void)strcat(out_val, tmp_val);
+    }
+    (void)strcat(out_val, ".");
+}
+
+void objdes(char *out_val, inven_type *i_ptr, int pref) {
+    name_parts parts;
+    if (!base_name(&parts, out_val, i_ptr)) {
+        return;
+    }
+
+    bigvtype tmp_val;
+    compose_name(tmp_val, &parts, i_ptr);
+    if (!pref) {
+        bare_name(out_val, tmp_val);
+        return;
+    }
+    append_bonuses(tmp_val, i_ptr, parts.damstr);
+    append_p1(tmp_val, i_ptr, parts.p1_use);
+    with_article(out_val, tmp_val, i_ptr);
+    append_notes(out_val, i_ptr);
 }
 
 // Describe number of remaining charges. -RAK-
