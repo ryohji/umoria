@@ -1,0 +1,288 @@
+run: -w71 game.sav
+exit status 0
+key   1 0x0a 7c0428f9
+key   2 0x20 4cdbf8db
+key   3 0x79 3a7b3867
+key   4 0x61 999885ab
+key   5 0x6d 6255975a
+key   6 0x1b db37e0dc
+key   7 0x61 ca0c1631
+key   8 0x45 f5e445d4
+key   9 0x64 e5352b83
+key  10 0x0d 1fd7b6d7
+key  11 0x20 41b7d95a
+key  12 0x04 c02432d0
+key  13 0x33 6aac145d
+key  14 0x0d 8d2691d0
+key  15 0x40 7053b08a
+key  16 0x20 dcacedd9
+key  17 0x37 847693ff
+key  18 0x30 8d94e0f6
+key  19 0x0d ae384106
+key  20 0x3f d987737c
+key  21 0x0d 5ba7a391
+key  22 0x37 bb7cbc41
+key  23 0x34 7da34164
+key  24 0x0d f1bc44b0
+key  25 0x35 6b701df4
+key  26 0x0d da672bbf
+key  27 0x35 b1888f1d
+key  28 0x0d e0d0bcca
+key  29 0x30 65dada5f
+key  30 0x0d 618cb20f
+key  31 0x30 3a3f3e86
+key  32 0x0d c77d60d6
+key  33 0x30 b99e591b
+key  34 0x0d 77b21fab
+key  35 0x30 007d2106
+key  36 0x0d 6a8af8b6
+key  37 0x30 1caac0f0
+key  38 0x0d 7355b920
+key  39 0x30 49d86da8
+key  40 0x0d 2c05ec58
+key  41 0x30 6f7bd147
+key  42 0x0d 3dbdf577
+key  43 0x34 e589f2e8
+key  44 0x30 378f765c
+key  45 0x30 987cce6c
+key  46 0x0d a979389c
+key  47 0x33 9d217095
+key  48 0x30 5cdd431c
+key  49 0x0d 9c71076c
+key  50 0x35 5ac3f5aa
+key  51 0x0d aafdc25b
+key  52 0x79 37c3776e
+key  53 0x34 adb6547f
+key  54 0x36 7f0d31af
+key  55 0x69 ae42929e
+key  56 0x1b 56706dab
+key  57 0x15 a351518a
+key  58 0x72 55125c71
+key  59 0x62 e40769e7
+key  60 0x37 7f256501
+key  61 0x20 03b976a8
+key  62 0x72 70e7aba2
+key  63 0x62 de71ee75
+key  64 0x15 4721e1d0
+key  65 0x73 da5b8c52
+key  66 0x73 57bd4dc0
+key  67 0x73 84f97de0
+key  68 0x73 1b6cd4fe
+key  69 0x20 d424f0e4
+end of script after 69 of 69 keys
+screen (cursor 8,60, bells 0):
+|The Grey Icky-Thingis unaffected.
+|
+|Human                                                  ###############
+|Warrior                                                #.............#
+|Rookie                                                 #.............#
+|                                                       #.............#
+|STR :     18                                           ...n..........#
+|INT :      9                                           #....iw.......#
+|WIS :     14                                           #....@........#
+|DEX :     14                                           #######+#######
+|CON :     14
+|CHR :     11
+|                                                                 h
+|LEV :      1
+|EXP :      0
+|MANA:      0
+|MHP :     19
+|CHP :     17
+|
+|AC  :      0
+|GOLD:    469
+|
+|Is wizard                                                 r
+|                                                                 150 feet
+run: -w9 second.sav
+exit status 0
+key   1 0x0a 7c0428f9
+key   2 0x20 4cdbf8db
+key   3 0x79 3a7b3867
+key   4 0x61 999885ab
+key   5 0x6d 6255975a
+key   6 0x1b a897bad4
+key   7 0x61 b4030a09
+key   8 0x45 a09e5bc7
+key   9 0x64 5260297c
+key  10 0x0d fa6bf108
+key  11 0x20 74848eb1
+key  12 0x04 870eb6d8
+key  13 0x31 69f4b3f1
+key  14 0x0d e519c986
+key  15 0x40 792b6d32
+key  16 0x20 d5981587
+key  17 0x37 9e861e25
+key  18 0x30 04288b78
+key  19 0x0d f4091508
+key  20 0x3f 8110fc0e
+key  21 0x0d f0311d3f
+key  22 0x37 55f4f3af
+key  23 0x34 5efd9656
+key  24 0x0d 41af1dea
+key  25 0x35 83d99ae6
+key  26 0x0d 5db4ebe5
+key  27 0x35 f2e5ae63
+key  28 0x0d 65f13b84
+key  29 0x30 991b0c85
+key  30 0x0d 4431d2b5
+key  31 0x30 80101288
+key  32 0x0d 2b49c4d8
+key  33 0x30 df1b2ff9
+key  34 0x0d 8ec551c9
+key  35 0x30 464df508
+key  36 0x0d 54fadc38
+key  37 0x30 f23b882a
+key  38 0x0d 6cf8639a
+key  39 0x30 232784e2
+key  40 0x0d 8d3e9ad2
+key  41 0x30 efa3f9cd
+key  42 0x0d c83a15fd
+key  43 0x34 d487e122
+key  44 0x30 9b76946e
+key  45 0x30 bdcb887e
+key  46 0x0d 0c7258ae
+key  47 0x33 f985f59b
+key  48 0x30 bfd6632e
+key  49 0x0d c1bfc17e
+key  50 0x35 96b6e564
+key  51 0x0d 9f671a39
+key  52 0x79 fd75d330
+key  53 0x34 c7c5dea5
+key  54 0x36 47b6ccfb
+key  55 0x72 7ec97620
+key  56 0x62 79e5374a
+key  57 0x15 ac896074
+key  58 0x73 34727fde
+key  59 0x20 696e06eb
+key  60 0x20 3a4645ac
+key  61 0x73 ff8780b1
+key  62 0x20 34a006f9
+key  63 0x73 b3c3f1d4
+key  64 0x20 383f094d
+key  65 0x73 37717022
+key  66 0x20 ba254253
+key  67 0x73 9bf7daa0
+end of script after 67 of 67 keys
+screen (cursor 7,29, bells 0):
+|The Shrieker Mushroom patch makes a horrible wail.  -more-
+|
+|Human              ##############
+|Warrior            #............#
+|Rookie             #.............
+|                   #............#
+|STR :  18/16       #....i.....,.#
+|INT :     11       #.........@...
+|WIS :     11       #............#
+|DEX :     16       #............#
+|CON :     16       ###########.##
+|CHR :      9
+|
+|LEV :      1
+|EXP :      0
+|MANA:      0
+|MHP :     19
+|CHP :     19
+|
+|AC  :      1
+|GOLD:    263
+|
+|Is wizard
+|                                                                 50 feet
+run: -w5 third.sav
+exit status 0
+key   1 0x0a 7c0428f9
+key   2 0x20 4cdbf8db
+key   3 0x79 3a7b3867
+key   4 0x61 999885ab
+key   5 0x6d 6255975a
+key   6 0x1b 2916d2a4
+key   7 0x61 b3e54919
+key   8 0x45 d17f6453
+key   9 0x64 e378596c
+key  10 0x0d 0d45ec40
+key  11 0x20 743f6999
+key  12 0x04 1acc9717
+key  13 0x31 9f09755e
+key  14 0x0d 451385d5
+key  15 0x40 3197e18d
+key  16 0x20 98fd0e94
+key  17 0x37 b9db6852
+key  18 0x30 4e50bb6b
+key  19 0x0d 170a9edb
+key  20 0x3f d0c934b9
+key  21 0x0d fd8cecfc
+key  22 0x37 cde4b7cc
+key  23 0x34 821423f1
+key  24 0x0d 77ad3cd5
+key  25 0x35 f124fca1
+key  26 0x0d cc480312
+key  27 0x35 fb8504a0
+key  28 0x0d f353e5d7
+key  29 0x30 2d1badf2
+key  30 0x0d 46fb6502
+key  31 0x30 a3119c5b
+key  32 0x0d 157d938b
+key  33 0x30 3dda11a6
+key  34 0x0d 025ef7d6
+key  35 0x30 694f7edb
+key  36 0x0d 682bdc2b
+key  37 0x30 29279515
+key  38 0x0d aac56925
+key  39 0x30 c370ec9d
+key  40 0x0d f84c0a6d
+key  41 0x30 88dbf3ca
+key  42 0x0d 1b3a149a
+key  43 0x34 fd2d86dd
+key  44 0x30 da57a959
+key  45 0x30 319de5c9
+key  46 0x0d e663bc99
+key  47 0x33 a6f50488
+key  48 0x30 99c7c719
+key  49 0x0d 35921ec9
+key  50 0x35 fae03177
+key  51 0x0d 166108e6
+key  52 0x79 36d6ded3
+key  53 0x34 e31b28d2
+key  54 0x36 74f18538
+key  55 0x15 0e6a85e3
+key  56 0x72 bfbaf994
+key  57 0x62 d43d7c56
+key  58 0x39 693860e4
+key  59 0x20 375aedf6
+key  60 0x20 ed2e45da
+key  61 0x73 343f4247
+key  62 0x73 f7fefcf6
+key  63 0x73 be56c93b
+key  64 0x73 ba91f3f7
+key  65 0x73 046c44b5
+key  66 0x73 3355f791
+key  67 0x73 bef6e2dc
+key  68 0x20 518eefe3
+end of script after 68 of 68 keys
+screen (cursor 22,18, bells 0):
+|
+|               _______________________
+|              /                       \         ___
+|             /                         \ ___   /   \      ___
+|            /            RIP            \   \  :   :     /   \
+|           /                             \  : _;,,,;_    :   :
+|          /              Ed               \,;_          _;,,,;_
+|         |               the               |   ___
+|         |             Rookie              |  /   \
+|         |                                 |  :   :
+|         |             Warrior             | _;,,,;_   ____
+|         |            Level : 1            |          /    \
+|         |              0 Exp              |          :    :
+|         |             375 Au              |          :    :
+|         |        Died on Level : 1        |         _;,,,,;_
+|         |            killed by            |
+|         |         a Yellow Mold.          |
+|         |           Tue Nov 14            |
+|        *|   *     *     *    *   *     *  | *
+|________)/\\_)_/___(\/___(//_\)/_\//__\\(/_|_)_______
+|
+|
+|Character record?
+|(ESC to abort, return to print on screen, or file name)
