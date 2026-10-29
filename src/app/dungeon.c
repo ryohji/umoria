@@ -617,6 +617,11 @@ static void sense_enchantments(void) {
 void dungeon(void) {
     int i;
 
+    // Last command. A repeated command (a count) reads it again on the next
+    // turns, so it lives as long as the level; the count is cancelled below
+    // before the first command is read.
+    char command = ' ';
+
     // Main procedure for dungeon. -RAK-
     // Note: There is a lot of preliminary magic going on here at first
 
@@ -748,7 +753,6 @@ void dungeon(void) {
 
         // Accept a command?
         if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) && !player_resting() && (!player_is_dead())) {
-            char command; // Last command
             bool took_turn;
 
             // Accept a command and execute it
