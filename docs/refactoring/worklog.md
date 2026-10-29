@@ -27,3 +27,4 @@
 | 2026-10-29 | #71（一部）マージ | `refactor/71-timed-effects` を `--no-ff` で（`4e941ed`）。#22 の 3 コミットを含むので、#22 を先にマージした | 1844（88 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
 | 2026-10-29 | #74（保護） | 台本で選べる turn の記録 `# record: turns`（`b3b9856`。今の 8 本の記録は変わらない）、台本 `free_turn`（`9bc64bd`。2 つの run。壊し 9 通りのうち 7 赤、素通り 2 つは原理的に見分けられない）。B28 の記述が誤りと分かった（魔法棒の方向の取りけしは turn を使わない） | 1844（88 本） | `scripts/check.sh` ALL OK |
 | 2026-10-29 | #51（保護） | 台本 `glowing_hands`（`f071a52`。3 つの run、眠らない相手を含む）。壊し 9 通りのうち 5 赤。B24 が実際の画面に出る。golden の被覆は本体の行の 48.2%（7627 / 15810。gcov） | 1844（88 本） | `scripts/check.sh` ALL OK |
+| 2026-10-29 | 確かめ・マージ | `docs/51-74-ledger`（#51・#74 の台帳の行、B28 の訂正、B30。5 コミット）と `test/74-free-turn`（4 コミット）を一時的な worktree で 1 つずつ空から組み、どれも `scripts/check.sh` ALL OK。`--no-ff` で（`322e3d1`・`b838568`） | 1844（88 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
