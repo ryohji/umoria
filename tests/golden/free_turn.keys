@@ -78,6 +78,14 @@ s
 am\ec
 Di\r
   
+# a wizard open door under us; step off it, close it and open it again
+# (a turn each), then tunnel into empty air (no turn)
+@ 104\r'\r1\r0\r1\r1\r1\r0\r0\r0\r0\r0\r0\r0\r0\ry
+4
+c6
+o6
+T4
+s
 \x2399+
 +
 +
