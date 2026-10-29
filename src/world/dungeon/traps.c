@@ -41,19 +41,23 @@
 #define SN_DISARMED           53
 
 // Store entrance handler, set at startup
-static void (*store_entrance_handler)(int store_num) = NULL;
+static bool (*store_entrance_handler)(int store_num) = NULL;
 
-void set_store_entrance_handler(void (*handler)(int store_num)) {
+void set_store_entrance_handler(bool (*handler)(int store_num)) {
     store_entrance_handler = handler;
 }
 
 // Disarms a trap -RAK-
-void disarm_trap(void) {
+// Returns whether it took a game turn.
+bool disarm_trap(void) {
     int y = player_row();
     int x = player_col();
 
+    bool took_turn = false;
+
     int dir;
     if (get_dir(CNIL, &dir)) {
+        took_turn = true;
         (void)mmove(dir, &y, &x);
 
         cave_type *c_ptr = square_at(y, x);
@@ -89,7 +93,9 @@ void disarm_trap(void) {
                     // make sure we move onto the trap even if confused
                     int tmp = player_timed_turns(PLAYER_TIMED_CONFUSION);
                     player_timed_clear(PLAYER_TIMED_CONFUSION);
-                    move_char(dir, false);
+                    if (!move_char(dir, false)) {
+                        took_turn = false;
+                    }
                     player_timed_set(PLAYER_TIMED_CONFUSION, tmp);
                     prt_experience();
                 } else if ((tot > 5) && (randint(tot) > 5)) {
@@ -104,13 +110,15 @@ void disarm_trap(void) {
                     // that difference is how it has always been.
                     int tmp = player_timed_turns(PLAYER_TIMED_CONFUSION);
                     player_timed_clear(PLAYER_TIMED_CONFUSION);
-                    move_char(dir, false);
+                    if (!move_char(dir, false)) {
+                        took_turn = false;
+                    }
                     player_timed_add(PLAYER_TIMED_CONFUSION, tmp);
                 }
             } else if (i == TV_CHEST) {
                 if (!known2_p(i_ptr)) {
                     msg_print("I don't see a trap.");
-                    free_turn_flag = true;
+                    took_turn = false;
                 } else if (CH_TRAPPED & i_ptr->flags) {
                     if ((tot - level) > randint(100)) {
                         i_ptr->flags &= ~CH_TRAPPED;
@@ -132,7 +140,7 @@ void disarm_trap(void) {
                     }
                 } else {
                     msg_print("The chest was not trapped.");
-                    free_turn_flag = true;
+                    took_turn = false;
                 }
             } else {
                 no_disarm = true;
@@ -143,13 +151,17 @@ void disarm_trap(void) {
 
         if (no_disarm) {
             msg_print("I do not see anything to disarm there.");
-            free_turn_flag = true;
+            took_turn = false;
         }
     }
+    return took_turn;
 }
 
 // Player hit a trap.  (Chuckle) -RAK-
-void hit_trap(int y, int x) {
+// Returns whether it took a game turn (a store visit may not).
+bool hit_trap(int y, int x) {
+    bool took_turn = true;
+
     end_find();
     change_trap(y, x);
 
@@ -313,28 +325,29 @@ void hit_trap(int y, int x) {
 
     // Town level traps are special, the stores.
     case 101: // General
-        if (store_entrance_handler) store_entrance_handler(0);
+        if (store_entrance_handler) took_turn = store_entrance_handler(0);
         break;
     case 102: // Armory
-        if (store_entrance_handler) store_entrance_handler(1);
+        if (store_entrance_handler) took_turn = store_entrance_handler(1);
         break;
     case 103: // Weaponsmith
-        if (store_entrance_handler) store_entrance_handler(2);
+        if (store_entrance_handler) took_turn = store_entrance_handler(2);
         break;
     case 104: // Temple
-        if (store_entrance_handler) store_entrance_handler(3);
+        if (store_entrance_handler) took_turn = store_entrance_handler(3);
         break;
     case 105: // Alchemy
-        if (store_entrance_handler) store_entrance_handler(4);
+        if (store_entrance_handler) took_turn = store_entrance_handler(4);
         break;
     case 106: // Magic-User
-        if (store_entrance_handler) store_entrance_handler(5);
+        if (store_entrance_handler) took_turn = store_entrance_handler(5);
         break;
 
     default:
         msg_print("Unknown trap value.");
         break;
     }
+    return took_turn;
 }
 
 // Chests have traps too. -RAK-

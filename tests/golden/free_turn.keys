@@ -1,7 +1,8 @@
 # run: -w61 game.sav
 # record: turns
-# Which keys take a game turn (free_turn_flag): each key line has the turn the
-# game was at when it asked for the key. Create a human male mage named Cy.
+# Which keys take a game turn (what do_command answers): each key line has the
+# turn the game was at when it asked for the key. Create a human male mage
+# named Cy.
 \n y
 am\eb
 Cy\r
@@ -60,7 +61,13 @@ wd
 t\e
 ta
 s
-# a counted search on level 1, where nothing cuts it short
+# from the inventory list: wear (a turn), then the list comes back and ESC
+# leaves it (no turn)
+iwd
+  \e
+s
+.4
+s
 \x041\r
 \x233s
 s
@@ -72,6 +79,14 @@ s
 am\ec
 Di\r
   
+# a wizard open door under us; step off it, close it and open it again
+# (a turn each), then tunnel into empty air (no turn)
+@ 104\r'\r1\r0\r1\r1\r1\r0\r0\r0\r0\r0\r0\r0\r0\ry
+4
+c6
+o6
+T4
+s
 \x2399+
 +
 +
@@ -90,4 +105,82 @@ G
 pb\e
 pba\e
 pba6
+s
+# run: -w73 scrolls.sav
+# record: turns
+# Scrolls whose effect can be cancelled or find nothing: a human male warrior
+# named Ed with wizard scrolls of identify, recharging and create food.
+\n y
+am\ea
+Ed\r
+ 
+@ 70\r?\r67\r5\r3\r0\r0\r0\r0\r0\r0\r0\r8\r50\r1\ry
+4
+6
+i\e
+# identify: cancelled at the item (no turn, the scroll stays), then done
+rb \e
+rb a
+@ 70\r?\r88\r5\r1\r0\r0\r0\r0\r0\r0\r0\r1000000\r200\r40\ry
+4
+6
+i\e
+# recharging with nothing to recharge: a turn, and the scroll stays
+rc 
+@ 70\r?\r92\r5\r1\r0\r0\r0\r0\r0\r0\r0\r10000000\r10\r5\ry
+4
+6
+i\e
+# create food with something under us: no turn, and the scroll is used up (B30)
+day
+rc 
+i\e
+s
+# walk into the armoury (2)
+1111111
+1
+4444
+7
+s\e\e
+3
+7
+s\ei\e\e
+s
+# wield the dagger and exchange weapons (a turn each; the dagger goes to the
+# second slot)
+we 
+x
+s
+# run: -w79 lamp.sav
+# record: turns
+# Stairs, a lamp and spikes, by a human male warrior named Ed in a quiet part
+# of the town: no staircase here (< and > take no turn)
+\n y
+am\ea
+Ed\r
+ 
+<
+>
+# a wizard lantern: pick it up and wield it
+@ 15\r~\r0\r50\r1\r1\r1\r0\r0\r0\r0\r3000\r0\r35\r1\ry
+4
+6
+i\e
+we
+# a wizard flask of oil: refilling the lantern takes a turn
+@ 77\r!\r64\r10\r1\r2\r6\r0\r0\r0\r0\r7500\r40000\r3\r1\ry
+4
+6
+F
+# wizard spikes, and a closed door left behind to the east: jamming it takes
+# a turn
+@ 13\r~\r193\r10\r5\r1\r1\r0\r0\r0\r0\r0\r0\r1\r1\ry
+4
+6
+@ 105\r+\r19\r0\r1\r1\r1\r0\r0\r0\r0\r0\r0\r0\r0\ry
+4
+j6
+# a wizard down staircase under us: going down takes a turn
+@ 108\r>\r1\r0\r1\r1\r1\r0\r0\r0\r0\r0\r0\r0\r0\ry
+>
 s

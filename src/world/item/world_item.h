@@ -46,8 +46,9 @@ typedef struct {
 } device_kind;
 
 // Asks which device of the kind to use, rolls for it, then spends a charge on
-// every effect it carries, or says it is empty.
-void use_charged_device(const device_kind *kind);
+// every effect it carries, or says it is empty. Returns whether that took a
+// game turn (not when nothing was chosen or the direction was cancelled).
+bool use_charged_device(const device_kind *kind);
 
 // --- inscription.c ---
 void scribe_object(void);
@@ -108,11 +109,20 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
 // --- spellbook.c ---
 void print_spells(int *, int, int, int);
 void calc_spells(int);
-void gain_spells(void);
+bool gain_spells(void);
 void calc_mana(int);
 int cast_spell(const char *, int, int *, int *);
 
 // --- spells.c ---
+
+// What an effect that asks or checks first came to (ident_spell, recharge,
+// create_food).
+typedef enum {
+    EFFECT_DONE,      // it took effect
+    EFFECT_NOTHING,   // nothing to work on (recharge: no staff or wand); a turn still passes
+    EFFECT_CANCELLED, // cancelled, or nothing happened; it takes no turn
+} effect_outcome;
+
 int sleep_monsters1(int, int);
 int detect_treasure(void);
 int detect_object(void);
@@ -122,7 +132,7 @@ int detect_invisible(void);
 int light_area(int, int);
 int unlight_area(int, int);
 void map_area(void);
-int ident_spell(void);
+effect_outcome ident_spell(void);
 int aggravate_monster(int);
 int trap_creation(void);
 int door_creation(void);
@@ -131,7 +141,7 @@ int detect_monsters(void);
 void light_line(int, int, int);
 void starlite(int, int);
 int disarm_all(int, int, int);
-int recharge(int);
+effect_outcome recharge(int);
 int hp_monster(int, int, int, int);
 int drain_life(int, int, int);
 int speed_monster(int, int, int, int);
@@ -156,7 +166,7 @@ int cure_poison(void);
 int remove_fear(void);
 void earthquake(void);
 int protect_evil(void);
-void create_food(void);
+effect_outcome create_food(void);
 int dispel_creature(int, int);
 int turn_undead(void);
 void warding_glyph(void);

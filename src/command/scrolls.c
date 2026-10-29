@@ -18,7 +18,6 @@
 #include "world_dungeon.h"
 #include "world_monster.h"
 #include "world_player.h"
-#include "game_settings.h"
 #include "rnd.h"
 #include "commands.h"
 #include "ui_screen.h"
@@ -28,12 +27,13 @@
 #include "player_condition.h"
 
 // Scrolls for the reading -RAK-
-void read_scroll(void) {
+// Returns whether it took a game turn.
+bool read_scroll(void) {
     bool flag;
     int j, k, l, y, x;
     int item_val;
 
-    free_turn_flag = true;
+    bool took_turn = false;
 
     if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see to read the scroll.");
@@ -46,13 +46,14 @@ void read_scroll(void) {
     } else if (!find_range(TV_SCROLL1, TV_SCROLL2, &j, &k)) {
         msg_print("You are not carrying any scrolls!");
     } else if (get_item(&item_val, "Read which scroll?", j, k, CNIL, CNIL)) {
-        free_turn_flag = false;
+        took_turn = true;
 
         inven_type *i_ptr = inventory_at(item_val);
         uint32_t i = i_ptr->flags;
 
         bool used_up = true;
         bool ident = false;
+        effect_outcome outcome;
 
         msgtype out_val;
         bigvtype tmp_str;
@@ -127,7 +128,11 @@ void read_scroll(void) {
             case 4:
                 msg_print("This is an identify scroll.");
                 ident = true;
-                used_up = ident_spell();
+                outcome = ident_spell();
+                used_up = outcome == EFFECT_DONE;
+                if (outcome == EFFECT_CANCELLED) {
+                    took_turn = false;
+                }
 
                 // The identify may merge objects, causing the identify scroll
                 // to move to a different place.  Check for that here.  It can
@@ -228,7 +233,11 @@ void read_scroll(void) {
             case 25:
                 msg_print("This is a Recharge-Item scroll.");
                 ident = true;
-                used_up = recharge(60);
+                outcome = recharge(60);
+                used_up = outcome == EFFECT_DONE;
+                if (outcome == EFFECT_CANCELLED) {
+                    took_turn = false;
+                }
                 break;
             case 26:
                 msg_print("This is a genocide scroll.");
@@ -243,7 +252,9 @@ void read_scroll(void) {
                 break;
             case 29:
                 ident = true;
-                create_food();
+                if (create_food() == EFFECT_CANCELLED) {
+                    took_turn = false;
+                }
                 break;
             case 30:
                 ident = dispel_creature(CD_UNDEAD, 60);
@@ -417,4 +428,5 @@ void read_scroll(void) {
             inven_destroy(item_val);
         }
     }
+    return took_turn;
 }

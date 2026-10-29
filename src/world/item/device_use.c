@@ -27,23 +27,23 @@
 #include "player_condition.h"
 #include "player_stats.h"
 
-void use_charged_device(const device_kind *kind) {
+bool use_charged_device(const device_kind *kind) {
     int j, k, item_val;
 
-    free_turn_flag = true;
+    bool took_turn = false;
 
     if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
     } else if (!find_range(kind->tval, TV_NEVER, &j, &k)) {
         msg_print(kind->none_carried);
     } else if (get_item(&item_val, kind->prompt, j, k, CNIL, CNIL)) {
-        free_turn_flag = false;
+        took_turn = true;
 
         inven_type *i_ptr = inventory_at(item_val);
 
         int dir = 0;
         if (kind->choose_direction != NULL && !kind->choose_direction(&dir)) {
-            return;
+            return false;
         }
 
         // Device skill base is the same as saving throw (adds A_INT).
@@ -74,4 +74,5 @@ void use_charged_device(const device_kind *kind) {
             }
         }
     }
+    return took_turn;
 }

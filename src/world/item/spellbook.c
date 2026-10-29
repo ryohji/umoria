@@ -331,14 +331,15 @@ void calc_spells(int stat) {
 }
 
 // gain spells when player wants to    - jw
-void gain_spells(void) {
+// Returns whether it took a game turn (not when there is nothing to learn).
+bool gain_spells(void) {
     uint32_t spell_flag;
 
     // Priests don't need light because they get spells from their god, so only
     // fail when can't see if player has MAGE spells. This check is done below.
     if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
         msg_print("You are too confused.");
-        return;
+        return true;
     }
 
     // Taken from the window, counted down locally, and set back once at the end
@@ -360,10 +361,10 @@ void gain_spells(void) {
         // People with MAGE spells can't learn spells if they can't read their books.
         if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
             msg_print("You can't see to read your spell book!");
-            return;
+            return true;
         } else if (no_light()) {
             msg_print("You have no light to read by.");
-            return;
+            return true;
         }
     } else {
         stat = A_WIS;
@@ -374,7 +375,7 @@ void gain_spells(void) {
         vtype tmp_str;
         (void)sprintf(tmp_str, "You can't learn any new %ss!", (stat == A_INT ? "spell" : "prayer"));
         msg_print(tmp_str);
-        free_turn_flag = true;
+        return false;
     } else {
         // determine which spells player can learn
         // mages need the book to learn a spell, priests do not need the book
@@ -467,6 +468,7 @@ void gain_spells(void) {
             calc_mana(stat);
         }
     }
+    return true;
 }
 
 // Gain some mana if you know at least one spell -RAK-

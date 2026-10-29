@@ -269,7 +269,7 @@ static bool store_purchase(int store_num, int *cur_top) {
 }
 
 // Sell an item to the store -RAK-
-static bool store_sell(int store_num, int *cur_top) {
+static bool store_sell(int store_num, int *cur_top, bool *took_turn) {
     bool sell = false;
 
     int first_item = inventory_count();
@@ -363,12 +363,17 @@ static bool store_sell(int store_num, int *cur_top) {
         } else {
             msg_print("I have not the room in my store to keep it.");
         }
+    } else {
+        // Cancelled: if nothing else is done, the walk in takes no turn.
+        *took_turn = false;
     }
     return sell;
 }
 
 // Entering a store -RAK-
-void enter_store(int store_num) {
+// Returns whether the visit took a game turn.
+bool enter_store(int store_num) {
+    bool took_turn = true;
     store_type *s_ptr = store_at(store_num);
 
     if (s_ptr->store_open < progress_turn()) {
@@ -417,13 +422,13 @@ void enter_store(int store_num) {
                     if (tmp_chr != player_stat_use(A_CHR)) {
                         display_inventory(store_num, cur_top);
                     }
-                    free_turn_flag = false; // No free moves here. -CJS-
+                    took_turn = true; // No free moves here. -CJS-
                     break;
                 case 'p':
                     exit_flag = store_purchase(store_num, &cur_top);
                     break;
                 case 's':
-                    exit_flag = store_sell(store_num, &cur_top);
+                    exit_flag = store_sell(store_num, &cur_top, &took_turn);
                     break;
                 default:
                     bell();
@@ -439,4 +444,5 @@ void enter_store(int store_num) {
     } else {
         msg_print("The doors are locked.");
     }
+    return took_turn;
 }

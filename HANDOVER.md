@@ -11,19 +11,19 @@
 
 ## 0. 現在地
 
-2026-10-29、`develop` の上（push はユーザーが行う）。
+2026-10-30、`develop` の上（push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1844 件・88 本**、failed=0、`RESULT: GREEN`。
-  **golden 8 本 GREEN**（端末なしで本体を通す。本体の行の 44.5% を通る。#94）と、
+  **golden 10 本 GREEN**（端末なしで本体を通す。本体の行の 49.7% を通る。#94・#74・#51）と、
   `objdes` の総当たりのハッシュ `objdes_all`（#22）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
-  ユーザーの判断）。`scripts/layer_deps.py --check` は 919 本・110 単位で違反 0、例外の一覧
+  ユーザーの判断）。`scripts/layer_deps.py --check` は 905 本・110 単位で違反 0、例外の一覧
   （`scripts/layer_exceptions.txt`）は空。world/ の中は `WORLD_TIERS` の 4 段で守る（#92）。
-- `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 40 個**
-  （#86 で数えかたを変えて 38 → 45、#89 で 5 個を static にして 40）。
-  `scripts/globals.py --check` は 40 個すべて分類。参照の数は数えなおしていない。
+- `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 39 個**
+  （#86 で数えかたを変えて 38 → 45、#89 で 5 個を static にして 40、#74 で `free_turn_flag` を消して 39）。
+  `scripts/globals.py --check` は 39 個すべて分類。参照の数は数えなおしていない。
 - `.c` 110・`.h` 57（モジュール化の前は 148・88）。`constant.h` の定数は 440 → 262 個（#91・#93）。
 - 済んだ列：
   - #18（データの散在）。残る global の見立ては `docs/refactoring/globals_inventory.md`
@@ -41,7 +41,9 @@
     [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md)。
   - **#22 `objdes` の分割と、#71 の一部（`dungeon()` の効果 18 種を `tick_<効果>()` に）**。
     経過は `worklog.md`（2026-10-25・29）と所見 73・74。#71 の行は開いたまま。
-- 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
+  - **#74（`free_turn_flag` を戻り値に）と、その保護の台本 `free_turn`・`glowing_hands`（#51）**。
+    コマンドの関数が「turn を使ったか」を `bool` で返す。経過は `worklog.md`（2026-10-29〜30）と所見 75・76。
+- 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B31（B28 は誤りだった）。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -170,7 +172,8 @@ static にすると入口の `endbr64` が消える、同名の static が潰れ
 描画（24 × 80 の配列）と入力（台本のキーを 1 つずつ返す）の backend で、`app/platform_init.c` の
 代わりにリンクする（`make umoria_headless`）。`tests/golden/<名前>.keys` の台本を走らせ、
 キーごとの画面のハッシュと最後の画面を `*.transcript` と比べる（`make -f makefile.test golden`）。
-台本を書くときは `tests/golden/run.sh --trace <名前>` でキーごとの画面を見る。記録を作りなおす
+台本を書くときは `tests/golden/run.sh --trace <名前>` でキーごとの画面を見る。台本に `# record: turns` と
+書くと、key の行にゲームの turn が足される（画面に出ない「turn を使ったか」を守る。所見 76）。記録を作りなおす
 （`--update`）のは、画面に出るものを意図して変えたときだけ。保護に使うときは、変える所を
 1 字壊して golden が赤くなることを先に見る（届かない所は台本を足す）。
 
@@ -242,14 +245,14 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 理由」がある。多くは「テストが届かない」ことが理由だったが、golden（#94）で本体を通しで
 守れるようになったので、台本を足せば動かせるものがある。
 
-- **golden が通らない所。** 8 本の台本で本体の行の 44.5%（7005 / 15750。gcov。2026-10-25）を
-  通る。どの行も通らないのは 110 本のうち 15 本で、表・ncurses・登録の結線・`view_observer` の
-  7 本のほかは `command/prayer.c`・`staffs.c`・`wands.c`・`world/item/device_use.c`・
-  `model/item/device.c`・`armor_selection.c`・`world/player/stat_loss.c`（祈り・杖・魔法棒・
-  呪いの装備・能力値の低下）。種を選び、品物を ^O や店で用意する台本が要る。
+- **golden が通らない所。** 10 本の台本で本体の行の 49.7%（7870 / 15849。gcov。2026-10-30）を
+  通る（8 本の 2026-10-25 は 44.5%）。品物は wizard の `@`（表の tval・subval・flags を打つ）で
+  作れる（`free_turn`・`glowing_hands` が手本）。行を持つファイルでどの行も通らないのは
+  `model/item/armor_selection.c`（呪いの装備）だけ。#74 で素通りした場面（走っている途中で壁や
+  見えているモンスターに当たる、100 歩走って息が切れる、店以外の罠を踏む、罠や箱を外す）は台本が無い。
 - **P3 の長い関数と重複**（#19・#21・#71・#72）は、該当の道を golden の台本で通して
-  から動かせる。#22 `objdes` はそうして済んだ（2026-10-25）。#71 は `dungeon()` の残り 455 行と
-  `do_command`（399 行）が残る（`do_command` は #74 の判断が先）。
+  から動かせる。#22 `objdes` はそうして済んだ（2026-10-25）。#71 は `dungeon()` の残り 454 行と
+  `do_command`（404 行）が残る。`do_command` を止めていた #74 は 2026-10-30 に済んだ。
 - **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
   monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
 - **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、

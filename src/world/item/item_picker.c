@@ -358,7 +358,6 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                 switch (which) {
                 case ESCAPE:
                     test_flag = true;
-                    free_turn_flag = true;
                     i_scr = -1;
                     break;
                 case '/':
@@ -439,7 +438,6 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
                         }
                         if (isupper((int)which) && !confirm_item("Try", *com_val)) {
                             test_flag = true;
-                            free_turn_flag = true;
                             i_scr = -1;
                             break;
                         }

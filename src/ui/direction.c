@@ -73,7 +73,6 @@ bool get_dir(const char *prompt, int *dir) {
         int save = hold_command_count();
 
         if (!get_com(prompt, &command)) {
-            free_turn_flag = true;
             return false;
         }
 
@@ -99,7 +98,6 @@ bool get_alldir(const char *prompt, int *dir) {
 
     for (;;) {
         if (!get_com(prompt, &command)) {
-            free_turn_flag = true;
             return false;
         }
 

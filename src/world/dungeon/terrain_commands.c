@@ -25,7 +25,6 @@
 #include "world_internal.h"
 #include "ui_input.h"
 #include "ui_screen.h"
-#include "game_settings.h"
 #include "geometry.h"
 #include "monsters.h"
 #include "player.h"
@@ -53,12 +52,16 @@
 #define TR_TUNNEL       0x20000000L
 
 // Opens a closed door or closed chest. -RAK-
-void openobject(void) {
+// Returns whether it took a game turn.
+bool openobject(void) {
     int y = player_row();
     int x = player_col();
 
+    bool took_turn = false;
+
     int dir;
     if (get_dir(CNIL, &dir)) {
+        took_turn = true;
         (void)mmove(dir, &y, &x);
 
         bool no_object = false;
@@ -152,18 +155,23 @@ void openobject(void) {
 
         if (no_object) {
             msg_print("I do not see anything you can open there.");
-            free_turn_flag = true;
+            took_turn = false;
         }
     }
+    return took_turn;
 }
 
 // Closes an open door. -RAK-
-void closeobject(void) {
+// Returns whether it took a game turn.
+bool closeobject(void) {
     int y = player_row();
     int x = player_col();
 
+    bool took_turn = false;
+
     int dir;
     if (get_dir(CNIL, &dir)) {
+        took_turn = true;
         (void)mmove(dir, &y, &x);
 
         cave_type *c_ptr = square_at(y, x);
@@ -193,9 +201,10 @@ void closeobject(void) {
 
         if (no_object) {
             msg_print("I do not see anything you can close there.");
-            free_turn_flag = true;
+            took_turn = false;
         }
     }
+    return took_turn;
 }
 
 // Tunneling through real wall: 10, 11, 12 -RAK-
@@ -246,7 +255,8 @@ int twall(int y, int x, int t1, int t2) {
 
 // Tunnels through rubble and walls -RAK-
 // Must take into account: secret doors, special tools
-void tunnel(int dir) {
+// Returns whether it took a game turn.
+bool tunnel(int dir) {
     // Confused?                    75% random movement
     if (player_timed_in_force(PLAYER_TIMED_CONFUSION) && (randint(4) > 1)) {
         dir = randint(9);
@@ -271,12 +281,10 @@ void tunnel(int dir) {
         (c_ptr->tptr == 0 || (floor_item_at(c_ptr->tptr)->tval != TV_RUBBLE && floor_item_at(c_ptr->tptr)->tval != TV_SECRET_DOOR))) {
         if (c_ptr->tptr == 0) {
             msg_print("Tunnel through what?  Empty air?!?");
-            free_turn_flag = true;
         } else {
             msg_print("You can't tunnel through that.");
-            free_turn_flag = true;
         }
-        return;
+        return false;
     }
 
     if (c_ptr->cptr > 1) {
@@ -376,6 +384,7 @@ void tunnel(int dir) {
     } else {
         msg_print("You dig with your hands, making no progress.");
     }
+    return true;
 }
 
 // Bash open a door or chest -RAK-
@@ -397,12 +406,17 @@ void tunnel(int dir) {
 // in the line of sight or not, such a creature may unlock or unstick a door.
 //
 // A creature with no such ability will attempt to bash a non-secret door.
-void bash(void) {
+//
+// Returns whether it took a game turn.
+bool bash(void) {
     int y = player_row();
     int x = player_col();
 
+    bool took_turn = false;
+
     int dir;
     if (get_dir(CNIL, &dir)) {
+        took_turn = true;
         if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
             msg_print("You are confused.");
             do {
@@ -434,7 +448,9 @@ void bash(void) {
                     t_ptr->p1 = 1 - randint(2); // 50% chance of breaking door
                     c_ptr->fval = CORR_FLOOR;
                     if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
-                        move_char(dir, false);
+                        if (!move_char(dir, false)) {
+                            took_turn = false;
+                        }
                     } else {
                         lite_spot(y, x);
                     }
@@ -470,4 +486,5 @@ void bash(void) {
             }
         }
     }
+    return took_turn;
 }

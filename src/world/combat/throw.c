@@ -23,7 +23,6 @@
 #include "dice.h"
 #include "ui_input.h"
 #include "ui_screen.h"
-#include "game_settings.h"
 #include "geometry.h"
 #include "monsters.h"
 #include "player.h"
@@ -183,15 +182,18 @@ static void drop_throw(int y, int x, inven_type *t_ptr) {
 // Note: Flasks of oil do fire damage
 // Note: Extra damage and chance of hitting when missiles are used
 // with correct weapon.  I.E.  wield bow and throw arrow.
-void throw_object(void) {
+// Returns whether it took a game turn.
+bool throw_object(void) {
     int item_val;
+
+    bool took_turn = false;
 
     if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
-        free_turn_flag = true;
     } else if (get_item(&item_val, "Fire/Throw which one?", 0, inventory_count() - 1, CNIL, CNIL)) {
         int dir;
         if (get_dir(CNIL, &dir)) {
+            took_turn = true;
             desc_remain(item_val);
             if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                 msg_print("You are confused.");
@@ -287,4 +289,5 @@ void throw_object(void) {
             } while (!flag);
         }
     }
+    return took_turn;
 }

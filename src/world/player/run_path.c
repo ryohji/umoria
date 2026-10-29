@@ -137,7 +137,8 @@ static bool find_openarea, find_breakright, find_breakleft;
 static int find_prevdir;
 static int find_direction; // Keep a record of which way we are going.
 
-void find_init(int dir) {
+// Starts a run with its first step. Returns whether that took a game turn.
+bool find_init(int dir) {
     int row = player_row();
     int col = player_col();
 
@@ -207,20 +208,22 @@ void find_init(int dir) {
         print(loc_symbol(player_row(), player_col()), player_row(), player_col());
     }
 
-    move_char(dir, true);
+    bool took_turn = move_char(dir, true);
     if (!player_is_running()) {
         cancel_command_count();
     }
+    return took_turn;
 }
 
-void find_run(void) {
+// Takes the next step of a run. Returns whether it took a game turn.
+bool find_run(void) {
     // prevent infinite loops in find mode, will stop after moving 100 times
     if (!keep_running()) {
         msg_print("You stop running to catch your breath.");
         end_find();
-    } else {
-        move_char(find_direction, true);
+        return true;
     }
+    return move_char(find_direction, true);
 }
 
 

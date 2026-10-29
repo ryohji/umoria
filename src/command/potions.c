@@ -17,7 +17,6 @@
 #include "world_player.h"
 #include "world_view.h"
 #include "dice.h"
-#include "game_settings.h"
 #include "commands.h"
 #include "rnd.h"
 #include "ui_screen.h"
@@ -30,8 +29,9 @@
 #define MAX_LONG   0x7FFFFFFFL
 
 // Potions for the quaffing -RAK-
-void quaff(void) {
-    free_turn_flag = true;
+// Returns whether it took a game turn.
+bool quaff(void) {
+    bool took_turn = false;
 
     int j, k, item_val;
     if (inventory_count() == 0) {
@@ -42,7 +42,7 @@ void quaff(void) {
         inven_type *i_ptr = inventory_at(item_val);
 
         uint32_t i = i_ptr->flags;
-        free_turn_flag = false;
+        took_turn = true;
         bool ident = false;
         if (i == 0) {
             msg_print("You feel less thirsty.");
@@ -323,4 +323,5 @@ void quaff(void) {
         desc_remain(item_val);
         inven_destroy(item_val);
     }
+    return took_turn;
 }

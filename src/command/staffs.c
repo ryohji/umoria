@@ -139,6 +139,6 @@ static const device_kind staff = {
 };
 
 // Use a staff. -RAK-
-void use(void) {
-    use_charged_device(&staff);
+bool use(void) {
+    return use_charged_device(&staff);
 }

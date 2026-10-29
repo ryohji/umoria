@@ -6,7 +6,7 @@
 2026-10-23 の前の全文は [done/plan-2026-10-23.md](docs/refactoring/done/plan-2026-10-23.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1844 件・88 本と golden 8 本、ヘッダの global 40 個（→ `HANDOVER.md` 第 0 節）。
+- いま：テスト 1844 件・88 本と golden 10 本（と `objdes_all`）、ヘッダの global 39 個（→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
   判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
 - #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
@@ -36,9 +36,8 @@
 | 21 | 複雑な条件分岐 | world/monster/creature.c:471-679 `mon_cast_spell`（switch は :534） | switch 20 ケース。ケース番号がビット位置の生の数で、魔法 ID が前段の分岐に直書き | 変更頻度が低く、テストのコストが高い |
 | 50 | （テストの穴） | world/player/player_bonuses.c:94-200 `calc_bonuses`、command/create.c:422-423、app/dungeon.c:466, 473, 485, 493、app/save.c:734-745 | **窓口を呼ぶ順番と条件（呼び手に残した規則）を見るテストが無い。** 窓口の中は `player_display_numbers_test` が守るが、呼び手は守られていない | もとから空いていた穴。呼び手を単体で呼べる足場が要る。経過は下の「#50 の族」 |
 | 51 | 重複コード | world/combat/monster_melee.c:601-619（モンスターの攻撃）と world/combat/player_melee.c:96-113（プレイヤーの攻撃） | 光る手が当たったときの約 18 行がほぼ写し。差は 6 つ：(1) 前者だけ `adesc != 99` を見る、(2) 大文字化の手が違う（`monster_name()` か、`monster_name_lower()` のあとの `toupper`）、(3) 記憶を足す条件が `visible && !player_is_dead()` か `m_ptr->ml` か、(4) `msg_print("Your hands stop glowing.")` と `player_glowing_hands_spend()` の順が逆（monster_melee.c:602-603 と player_melee.c:97-98）、(5) 混乱に抵抗するかの判定で、前者は `randint(MAX_MONS_LEVEL)` を先に引き、後者は `CD_NO_SLEEP` を先に見て短絡する（眠らない相手には乱数を引かない）、(6) 前者の `"is unaffected."` は頭の空白が無い（バグ候補 B24）。(5)・(6) は 2026-10-29 に見つけた。golden は両方の `if` の行まで来るが、中身はどちらも通らない（2026-10-29、gcov） | (1) は意図がコメントにある。(2) は出る文が同じ。(4) は `spend` が充填を 0 にするだけなので見分けられないと読める（確かめていない）。(3)・(5)・(6) は意図か分からず、畳むと決めた時点でふるまいが変わる（(5) は乱数の並び）。まず「どちらが正しいか」の判断が要る |
-| 71 | 長すぎるメソッド | app/dungeon.c:75-806 `dungeon()`（732 → 455 行。時間で切れる効果 18 種は `tick_<効果>()` に出した）、app/dungeon.c:982-1380 `do_command`（399 行） | `dungeon()` に残る 455 行（426〜880 行）は、前置き・シグナル・店の入れかえ・モンスターの発生・明かり・食料と回復・休息・テレポート・重さの判定・付呪の感知・モンスター表の詰め・コマンドの受けつけ（#50 の族もこの中）。局所の `i` を付呪の感知とコマンドの回数の 2 つに使う（毒の用途は #71-4 で外した）。2026-10-10 にウィザード用の switch を ui/wizard.c へ移し、必ず真の判定を `else` にした（#71-1・#71-2） | dungeon.c には単体テストが届かない。塊を static 関数に出す移動は所見 73 の確かめかたで進められる（#71-3・#71-4）。`do_command` は #74 の設計判断が先 |
+| 71 | 長すぎるメソッド | app/dungeon.c:75-806 `dungeon()`（732 → 454 行。時間で切れる効果 18 種は `tick_<効果>()` に出した）、app/dungeon.c:982-1380 `do_command`（404 行。2026-10-30） | `dungeon()` に残る 454 行（426〜879 行。2026-10-30）は、前置き・シグナル・店の入れかえ・モンスターの発生・明かり・食料と回復・休息・テレポート・重さの判定・付呪の感知・モンスター表の詰め・コマンドの受けつけ（#50 の族もこの中）。局所の `i` を付呪の感知とコマンドの回数の 2 つに使う（毒の用途は #71-4 で外した）。2026-10-10 にウィザード用の switch を ui/wizard.c へ移し、必ず真の判定を `else` にした（#71-1・#71-2） | dungeon.c には単体テストが届かない。塊を static 関数に出す移動は所見 73 の確かめかたで進められる（#71-3・#71-4）。`do_command` を止めていた #74 は 2026-10-30 に済み、どの case も「turn を使ったか」を局所の値で決める |
 | 72 | 長すぎるメソッド | command/inven_menu.c:394-970 `inven_command`（577 行）、command/recall.c:163-655 `roff_recall`（493 行）、app/save.c:524-1259 `get_char`（736 行）、command/potions.c `quaff`・command/eat.c `eat` | 台帳の #22・#25〜#27 に無い長い関数。`get_char` は版の分岐と goto が入りまじる | どれも externs.h・画面・乱数に全面的に依存する。`get_char` は #49 と同じ足場が要る |
-| 74 | データの散在 | `free_turn_flag`（宣言と定義の外で 76 か所、dungeon.c に 32。2026-10-29） | 中身は「このコマンドで turn を使ったか」という戻り値で、それを global で伝えている。立てるのは下の層（`ui/direction.c` の `get_dir`・`get_alldir`、world/ の 9 ファイル、command/ の 7 ファイル）で、読むのは上の層の 4 か所（主ループ、`cast`・`pray` の経験値とマナ、`inven_command`） | **2026-10-29 にユーザーの判断で、戻り値に変える（`do_command()` が turn を使ったかを返し、深い所は `get_dir` などの戻り値を呼び手が伝える）。** 先に保護のテストを足す。golden は `do_command` の行の 55%・`cast` 19%・`pray` 0% で、呪文と祈りの台本が要る（B28 は誤りだった。`bugs.md`） |
 
 ### #50 の族（要約）
 
@@ -145,6 +144,7 @@
 | 96 | handle と iterator を 1 つの型 `creature_iterator`（添字を持つ構造体）にまとめる。`monster_get_creature`・`make_creature_handle`・`get_creature_handle` を消す（ユーザーの依頼） | 同上 |
 | 22 | `objdes`（309 行）を `base_name` と段ごとの static 関数 6 本に（17 行）。総当たり `objdes_all` を golden に常設 | `worklog.md`（2026-10-25） |
 | 71（一部） | `dungeon()` の時間で切れる効果 18 種を `tick_<効果>()` に（行は開いたまま） | 同上 |
+| 74 | `free_turn_flag` を戻り値に（ユーザーの判断）。コマンドの関数が「turn を使ったか」を `bool` で、取りけせる効果 3 つが `effect_outcome` で返す。global 40 → 39。保護は golden の台本 `free_turn`（turn を記録）と `glowing_hands`（#51） | `worklog.md`（2026-10-29〜30）、所見 75・76 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、

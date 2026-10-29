@@ -20,7 +20,7 @@
  *   ・まだ学べる数（`player_spells_to_learn()`。#18-12-14 までは
  *     `py.flags.new_spells`）と PY_STUDY
  *   ・魔力の上限（player_max_mana()。最初の 1 つを覚えたときだけ計算される）
- *   ・断ったときの `free_turn_flag`（手番を使わない）
+ *   ・戻り値（手番を使ったか。断ったときは使わない）
  *
  * にしか現れない。
  *
@@ -37,7 +37,7 @@
  *   3. **PRIEST 系は本が要らず、選べもしない。** 候補から randint で 1 つ
  *      引いて、覚えたことを告げる（MAGE 系は画面に出すだけで何も言わない）。
  *
- *   4. **学べる数が 0 なら断る。** そのとき手番を使わない（free_turn_flag）。
+ *   4. **学べる数が 0 なら断る。** そのとき手番を使わない（戻り値が false）。
  *
  *   5. **最初の 1 つで魔力が生える。** 魔力の上限が 0 のときだけ
  *      calc_mana を呼ぶ（レベル 1 のキャラクタが呪文を覚えた瞬間）。
@@ -57,10 +57,7 @@
 #include "player_condition.h"
 #include "player_stats.h"
 
-extern bool free_turn_flag;
-
 /* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
-#include "game_settings.h"
 #include "world_item.h"
 #include "world_internal.h"
 
@@ -74,14 +71,12 @@ extern bool free_turn_flag;
 
 /* fixture_reset() は能力値を 0 にするが、呪文の 4 個は消さない
  * （置き場は src/model/player/spells_known.c で、代役の管轄ではない）。覚えた順を
- * SPELL_NONE で埋めるのは app/main.c:256 がゲーム開始時にするのと同じこと。
- * free_turn_flag も代役側の器なので自分で戻す。 */
+ * SPELL_NONE で埋めるのは app/main.c:256 がゲーム開始時にするのと同じこと。 */
 static void given_no_spells_known(void) {
     spells_set_learned_bits(0);
     spells_set_worked_bits(0);
     spells_set_forgotten_bits(0);
     spell_order_forget_all();
-    free_turn_flag = false;
 }
 
 /* 学べる数がある魔法使い（レベル 1・知力 18）。魔力の上限は 1 にしておく
@@ -130,10 +125,10 @@ TEST(a_character_with_nothing_left_to_learn_is_refused) {
     given_no_spells_known();
     given_a_mage_who_can_learn(0);
 
-    gain_spells();
+    bool took_turn = gain_spells();
 
     ASSERT_EQ_STR("You can't learn any new spells!", fixture_message_text(0));
-    ASSERT_TRUE(free_turn_flag);
+    ASSERT_FALSE(took_turn);
     ASSERT_TRUE(!any_spell_learned());
 }
 
@@ -142,10 +137,10 @@ TEST(a_priest_with_nothing_left_to_learn_is_refused_in_their_own_words) {
     given_no_spells_known();
     given_a_priest_who_can_learn(0);
 
-    gain_spells();
+    bool took_turn = gain_spells();
 
     ASSERT_EQ_STR("You can't learn any new prayers!", fixture_message_text(0));
-    ASSERT_TRUE(free_turn_flag);
+    ASSERT_FALSE(took_turn);
 }
 
 /* 混乱していると学べない（職業を問わず、いちばん先に見る）。 */

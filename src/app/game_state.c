@@ -100,7 +100,6 @@ GameState *game_state_init(void) {
     // Runtime state
     state->player_light = player_has_light();
     state->find_flag = running_steps();
-    state->free_turn_flag = free_turn_flag;
     state->weapon_heavy = weapon_is_too_heavy();
     state->pack_heavy = pack_speed_penalty();
     state->doing_inven = pending_inven_command();

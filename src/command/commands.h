@@ -19,13 +19,13 @@ void display_char(void);
 void change_name(void);
 
 // --- magic.c ---
-void cast(void);
+bool cast(void);
 
 // --- create.c ---
 void create_character(void);
 
 // --- eat.c ---
-void eat(void);
+bool eat(void);
 
 // --- files.c ---
 void init_scorefile(void);
@@ -37,7 +37,7 @@ bool file_character(char *);
 void ident_char(void);
 
 // --- inven_menu.c ---
-void inven_command(char);
+bool inven_command(char);
 
 // --- look.c ---
 void look(void);
@@ -46,22 +46,22 @@ void look(void);
 void set_options(void);
 
 // --- potions.c ---
-void quaff(void);
+bool quaff(void);
 
 // --- prayer.c ---
-void pray(void);
+bool pray(void);
 
 // --- scrolls.c ---
-void read_scroll(void);
+bool read_scroll(void);
 
 // --- staffs.c ---
-void use(void);
+bool use(void);
 
 // --- store_ui.c ---
-void enter_store(int);
+bool enter_store(int);
 
 // --- wands.c ---
-void aim(void);
+bool aim(void);
 
 // --- wizard.c ---
 bool enter_wiz_mode(void);

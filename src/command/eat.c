@@ -19,7 +19,6 @@
 #include "world_view.h"
 #include "dice.h"
 #include "commands.h"
-#include "game_settings.h"
 #include "rnd.h"
 #include "ui_screen.h"
 
@@ -27,17 +26,18 @@
 #include "player_condition.h"
 
 // Eat some food. -RAK-
-void eat(void) {
+// Returns whether it took a game turn.
+bool eat(void) {
     int j, k, item_val;
 
-    free_turn_flag = true;
+    bool took_turn = false;
 
     if (inventory_count() == 0) {
         msg_print("But you are not carrying anything.");
     } else if (!find_range(TV_FOOD, TV_NEVER, &j, &k)) {
         msg_print("You are not carrying any food.");
     } else if (get_item(&item_val, "Eat what?", j, k, CNIL, CNIL)) {
-        free_turn_flag = false;
+        took_turn = true;
 
         inven_type *i_ptr = inventory_at(item_val);
         bool ident = false;
@@ -198,4 +198,5 @@ void eat(void) {
         desc_remain(item_val);
         inven_destroy(item_val);
     }
+    return took_turn;
 }

@@ -12,7 +12,6 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "game_settings.h"
 #include "world_view.h"
 #include "world_player.h"
 #include "ui_screen.h"
@@ -59,7 +58,8 @@ void search_off(void) {
 }
 
 // Resting allows a player to safely restore his hp -RAK-
-void rest(void) {
+// Returns whether it took a game turn (not when the count is cancelled or bad).
+bool rest(void) {
     int rest_num;
 
     if (command_is_repeating()) {
@@ -89,13 +89,13 @@ void rest(void) {
         player_adjust_digestion(-1);
         prt("Press any key to stop resting...", 0, 0);
         put_qio();
-    } else {
-        if (rest_num != 0) {
-            msg_print("Invalid rest count.");
-        }
-        erase_line(MSG_LINE, 0);
-        free_turn_flag = true;
+        return true;
     }
+    if (rest_num != 0) {
+        msg_print("Invalid rest count.");
+    }
+    erase_line(MSG_LINE, 0);
+    return false;
 }
 
 void rest_off(void) {

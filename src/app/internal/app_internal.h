@@ -106,7 +106,6 @@ struct GameState {
     // Runtime state
     bool player_light;     // Player has light
     int find_flag;         // Running mode
-    bool free_turn_flag;   // Free action
     bool weapon_heavy;     // Weapon too heavy
     int pack_heavy;        // Pack too heavy
     char doing_inven;      // Inventory UI state

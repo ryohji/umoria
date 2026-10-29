@@ -64,7 +64,8 @@ void teleport(int dis) {
 // Player is on an object. Many things can happen based -RAK-
 // on the TVAL of the object. Traps are set off, money and most objects
 // are picked up. Some objects, such as open doors, just sit there.
-static void carry(int y, int x, bool pickup) {
+// Returns whether it took a game turn (a store visit may not).
+static bool carry(int y, int x, bool pickup) {
     msgtype out_val;
     bigvtype tmp_str;
 
@@ -125,12 +126,16 @@ static void carry(int y, int x, bool pickup) {
     } else if (i == TV_INVIS_TRAP || i == TV_VIS_TRAP || i == TV_STORE_DOOR) {
         // OPPS!
 
-        hit_trap(y, x);
+        return hit_trap(y, x);
     }
+    return true;
 }
 
 // Moves player from one space to another. -RAK-
-void move_char(int dir, bool do_pickup) {
+// Returns whether it took a game turn.
+bool move_char(int dir, bool do_pickup) {
+    bool took_turn = true;
+
     if (player_timed_in_force(PLAYER_TIMED_CONFUSION) && // Confused?
         (randint(4) > 1) &&        // 75% random movement
         (dir != 5))                // Never random if sitting
@@ -209,7 +214,7 @@ void move_char(int dir, bool do_pickup) {
 
                 // An object is beneath him.
                 if (c_ptr->tptr != 0) {
-                    carry(player_row(), player_col(), do_pickup);
+                    took_turn = carry(player_row(), player_col(), do_pickup);
 
                     // if stepped on falling rock trap, and space contains
                     // rubble, then step back into a clear area
@@ -225,7 +230,7 @@ void move_char(int dir, bool do_pickup) {
                             int i = floor_item_at(c_ptr->tptr)->tval;
                             if (i == TV_INVIS_TRAP || i == TV_VIS_TRAP ||
                                 i == TV_STORE_DOOR) {
-                                hit_trap(player_row(), player_col());
+                                took_turn = hit_trap(player_row(), player_col()) && took_turn;
                             }
                         }
                     }
@@ -242,7 +247,7 @@ void move_char(int dir, bool do_pickup) {
                 } else {
                     end_find();
                 }
-                free_turn_flag = true;
+                took_turn = false;
             }
         } else {
             // Attacking a creature!
@@ -253,7 +258,7 @@ void move_char(int dir, bool do_pickup) {
             // if player can see monster, and was in find mode, then nothing
             if (monster_list_at(c_ptr->cptr)->ml && was_running) {
                 // did not do anything this turn
-                free_turn_flag = true;
+                took_turn = false;
             } else {
                 // Coward?
                 if (!player_timed_in_force(PLAYER_TIMED_FEAR)) {
@@ -264,4 +269,5 @@ void move_char(int dir, bool do_pickup) {
             }
         }
     }
+    return took_turn;
 }

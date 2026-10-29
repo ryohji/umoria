@@ -19,9 +19,6 @@
 // Never read, never closed (bugs.md B19).
 FILE *highscore_fp;
 
-// Used in MORIA; do not move creatures.
-bool free_turn_flag;
-
 // The option globals. Starting values are in the table below; game_options_reset() applies them at startup.
 bool rogue_like_commands;
 bool find_cut;
