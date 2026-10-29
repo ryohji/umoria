@@ -112,6 +112,115 @@ static void inven_screen(int new_scr) {
     }
 }
 
+// Puts on the inventory item in the equipment slot, taking off what was there.
+static void wear_item(int item, int slot) {
+    msgtype prt1;
+    bigvtype prt2;
+    int tmp;
+    inven_type tmp_obj;
+
+    // first remove new item from inventory
+    tmp_obj = *inventory_at(item);
+    inven_type *i_ptr = &tmp_obj;
+
+    wear_high--;
+
+    // Fix for torches
+    if (i_ptr->number > 1 &&
+        i_ptr->subval <= ITEM_SINGLE_STACK_MAX) {
+        i_ptr->number = 1;
+        wear_high++;
+    }
+    inventory_set_weight(inventory_weight() + i_ptr->weight * i_ptr->number);
+
+    // Subtracts weight
+    inven_destroy(item);
+
+    // Second, add old item to inv and remove
+    // from equipment list, if necessary.
+    i_ptr = equipment_at(slot);
+    if (i_ptr->tval != TV_NOTHING) {
+        int tmp2 = inventory_count();
+        tmp = inven_carry(i_ptr);
+        // If item removed did not stack with anything
+        // in inventory, then increment wear_high.
+        if (inventory_count() != tmp2) {
+            wear_high++;
+        }
+        takeoff(slot, tmp);
+    }
+
+    // third, wear new item
+    *i_ptr = tmp_obj;
+    equipment_set_count(equipment_count() + 1);
+    py_bonuses(i_ptr, 1);
+
+    const char *string;
+    if (slot == INVEN_WIELD) {
+        string = "You are wielding";
+    } else if (slot == INVEN_LIGHT) {
+        string = "Your light source is";
+    } else {
+        string = "You are wearing";
+    }
+    objdes(prt2, i_ptr, true);
+    // Get the right equipment letter.
+    tmp = equipment_first_slot();
+    item = 0;
+    while (tmp != slot) {
+        if (equipment_at(tmp++)->tval != TV_NOTHING) {
+            item++;
+        }
+    }
+
+    (void)snprintf(prt1, sizeof(prt1), "%s %s (%c)", string, prt2, 'a' + item);
+    msg_print(prt1);
+    // this is a new weapon, so clear heavy flag
+    if (slot == INVEN_WIELD) {
+        set_weapon_too_heavy(false);
+    }
+    check_strength();
+    if (i_ptr->flags & TR_CURSED) {
+        msg_print("Oops! It feels deathly cold!");
+        add_inscribe(i_ptr, ID_DAMD);
+        // To force a cost of 0, even if unidentified.
+        i_ptr->cost = -1;
+    }
+}
+
+// Put an appropriate header.
+static void prt_inven_header(void) {
+    msgtype prt1;
+
+    if (scr_state == INVEN_SCR) {
+        if (!show_weight_flag || inventory_count() == 0) {
+            (void)sprintf(prt1, "You are carrying %d.%d pounds. In your pack there is %s",
+                          inventory_weight() / 10, inventory_weight() % 10,
+                          (inventory_count() == 0 ? "nothing." : "-"));
+        } else {
+            (void)sprintf(prt1, "You are carrying %d.%d pounds. Your capacity is %d.%d pounds. %s",
+                          inventory_weight() / 10, inventory_weight() % 10,
+                          weight_limit() / 10, weight_limit() % 10,
+                          "In your pack is -");
+        }
+        prt(prt1, 0, 0);
+    } else if (scr_state == WEAR_SCR) {
+        if (wear_high < wear_low) {
+            prt("You have nothing you could wield.", 0, 0);
+        } else {
+            prt("You could wield -", 0, 0);
+        }
+    } else if (scr_state == EQUIP_SCR) {
+        if (equipment_count() == 0) {
+            prt("You are not using anything.", 0, 0);
+        } else {
+            prt("You are using -", 0, 0);
+        }
+    } else {
+        prt("Allowed commands:", 0, 0);
+    }
+}
+
 // This does all the work.
 // Returns whether it took a game turn.
 bool inven_command(char command) {
@@ -520,73 +629,7 @@ bool inven_command(char command) {
                                 // OK. Wear it.
                                 took_turn = true;
 
-                                // first remove new item from inventory
-                                tmp_obj = *inventory_at(item);
-                                inven_type *i_ptr = &tmp_obj;
-
-                                wear_high--;
-
-                                // Fix for torches
-                                if (i_ptr->number > 1 &&
-                                    i_ptr->subval <= ITEM_SINGLE_STACK_MAX) {
-                                    i_ptr->number = 1;
-                                    wear_high++;
-                                }
-                                inventory_set_weight(inventory_weight() + i_ptr->weight * i_ptr->number);
-
-                                // Subtracts weight
-                                inven_destroy(item);
-
-                                // Second, add old item to inv and remove
-                                // from equipment list, if necessary.
-                                i_ptr = equipment_at(slot);
-                                if (i_ptr->tval != TV_NOTHING) {
-                                    int tmp2 = inventory_count();
-                                    tmp = inven_carry(i_ptr);
-                                    // If item removed did not stack with anything
-                                    // in inventory, then increment wear_high.
-                                    if (inventory_count() != tmp2) {
-                                        wear_high++;
-                                    }
-                                    takeoff(slot, tmp);
-                                }
-
-                                // third, wear new item
-                                *i_ptr = tmp_obj;
-                                equipment_set_count(equipment_count() + 1);
-                                py_bonuses(i_ptr, 1);
-
-                                const char *string;
-                                if (slot == INVEN_WIELD) {
-                                    string = "You are wielding";
-                                } else if (slot == INVEN_LIGHT) {
-                                    string = "Your light source is";
-                                } else {
-                                    string = "You are wearing";
-                                }
-                                objdes(prt2, i_ptr, true);
-                                // Get the right equipment letter.
-                                tmp = equipment_first_slot();
-                                item = 0;
-                                while (tmp != slot) {
-                                    if (equipment_at(tmp++)->tval != TV_NOTHING) {
-                                        item++;
-                                    }
-                                }
-
-                                (void)snprintf(prt1, sizeof(prt1), "%s %s (%c)", string, prt2, 'a' + item);
-                                msg_print(prt1);
-                                // this is a new weapon, so clear heavy flag
-                                if (slot == INVEN_WIELD) {
-                                    set_weapon_too_heavy(false);
-                                }
-                                check_strength();
-                                if (i_ptr->flags & TR_CURSED) {
-                                    msg_print("Oops! It feels deathly cold!");
-                                    add_inscribe(i_ptr, ID_DAMD);
-                                    // To force a cost of 0, even if unidentified.
-                                    i_ptr->cost = -1;
-                                }
+                                wear_item(item, slot);
                             }
                         } else {
                             // command == 'd'
@@ -649,34 +692,7 @@ bool inven_command(char command) {
             suspend_inven_command(resume);
             command = ESCAPE;
         } else {
-            // Put an appropriate header.
-            if (scr_state == INVEN_SCR) {
-                if (!show_weight_flag || inventory_count() == 0) {
-                    (void)sprintf(prt1, "You are carrying %d.%d pounds. In your pack there is %s",
-                                  inventory_weight() / 10, inventory_weight() % 10,
-                                  (inventory_count() == 0 ? "nothing." : "-"));
-                } else {
-                    (void)sprintf(prt1, "You are carrying %d.%d pounds. Your capacity is %d.%d pounds. %s",
-                                  inventory_weight() / 10, inventory_weight() % 10,
-                                  weight_limit() / 10, weight_limit() % 10,
-                                  "In your pack is -");
-                }
-                prt(prt1, 0, 0);
-            } else if (scr_state == WEAR_SCR) {
-                if (wear_high < wear_low) {
-                    prt("You have nothing you could wield.", 0, 0);
-                } else {
-                    prt("You could wield -", 0, 0);
-                }
-            } else if (scr_state == EQUIP_SCR) {
-                if (equipment_count() == 0) {
-                    prt("You are not using anything.", 0, 0);
-                } else {
-                    prt("You are using -", 0, 0);
-                }
-            } else {
-                prt("Allowed commands:", 0, 0);
-            }
+            prt_inven_header();
 
             erase_line(scr_base, scr_left);
             put_buffer("e/i/t/w/x/d/?/ESC:", scr_base, 60);
