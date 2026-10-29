@@ -548,9 +548,14 @@ key 187 0x69 e85dca9d turn 23
 key 188 0x1b ffa0074c turn 23
 key 189 0x1b e85dca9d turn 23
 key 190 0x73 9e39377e turn 24
-end of script after 190 of 190 keys
+key 191 0x77 b8645e72 turn 25
+key 192 0x65 3bd02ee3 turn 25
+key 193 0x20 8cc6e8cc turn 25
+key 194 0x78 47f632e9 turn 26
+key 195 0x73 6bc32eaa turn 27
+end of script after 195 of 195 keys
 screen (cursor 20,59, bells 0):
-|
+|The Blubbering Idiot drools on you.
 |             ##################################################################
 |Human        #................................................................#
 |Warrior      #............................................######..............#

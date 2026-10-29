@@ -145,3 +145,8 @@ s\e\e
 7
 s\ei\e\e
 s
+# wield the dagger and exchange weapons (a turn each; the dagger goes to the
+# second slot)
+we 
+x
+s
