@@ -1422,7 +1422,7 @@ static bool do_command(char com_val) {
         free_turn_flag = !quaff();
         break;
     case 'r': // (r)ead
-        read_scroll();
+        free_turn_flag = !read_scroll();
         break;
     case 's': // (s)earch for a turn
         // Search once with the player's skill; frequency is irrelevant for manual search.

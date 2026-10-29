@@ -52,7 +52,7 @@ bool quaff(void);
 void pray(void);
 
 // --- scrolls.c ---
-void read_scroll(void);
+bool read_scroll(void);
 
 // --- staffs.c ---
 bool use(void);
