@@ -207,7 +207,9 @@ void find_init(int dir) {
         print(loc_symbol(player_row(), player_col()), player_row(), player_col());
     }
 
-    move_char(dir, true);
+    if (!move_char(dir, true)) {
+        free_turn_flag = true;
+    }
     if (!player_is_running()) {
         cancel_command_count();
     }
@@ -219,7 +221,9 @@ void find_run(void) {
         msg_print("You stop running to catch your breath.");
         end_find();
     } else {
-        move_char(find_direction, true);
+        if (!move_char(find_direction, true)) {
+            free_turn_flag = true;
+        }
     }
 }
 

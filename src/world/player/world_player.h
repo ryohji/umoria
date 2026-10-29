@@ -27,7 +27,7 @@ void calc_bonuses(void);
 
 // --- player_move.c ---
 void teleport(int);
-void move_char(int, bool);
+bool move_char(int, bool);
 
 // --- rest_command.c ---
 void disturb(int, int);

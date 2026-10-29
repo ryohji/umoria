@@ -76,8 +76,8 @@ void pusht(uint8_t);
 // without depending on command/ layer
 // Register the store entrance handler. Called once at startup before any
 // gameplay begins. The handler is invoked when the player steps onto a
-// store entrance trap.
-void set_store_entrance_handler(void (*handler)(int store_num));
+// store entrance trap, and returns whether the visit took a game turn.
+void set_store_entrance_handler(bool (*handler)(int store_num));
 
 // --- terrain_commands.c ---
 bool openobject(void);

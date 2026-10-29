@@ -1182,28 +1182,28 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'b': // (b) down, left  (1)
-        move_char(1, do_pickup);
+        free_turn_flag = !move_char(1, do_pickup);
         break;
     case 'j': // (j) down    (2)
-        move_char(2, do_pickup);
+        free_turn_flag = !move_char(2, do_pickup);
         break;
     case 'n': // (n) down, right  (3)
-        move_char(3, do_pickup);
+        free_turn_flag = !move_char(3, do_pickup);
         break;
     case 'h': // (h) left    (4)
-        move_char(4, do_pickup);
+        free_turn_flag = !move_char(4, do_pickup);
         break;
     case 'l': // (l) right    (6)
-        move_char(6, do_pickup);
+        free_turn_flag = !move_char(6, do_pickup);
         break;
     case 'y': // (y) up, left    (7)
-        move_char(7, do_pickup);
+        free_turn_flag = !move_char(7, do_pickup);
         break;
     case 'k': // (k) up    (8)
-        move_char(8, do_pickup);
+        free_turn_flag = !move_char(8, do_pickup);
         break;
     case 'u': // (u) up, right  (9)
-        move_char(9, do_pickup);
+        free_turn_flag = !move_char(9, do_pickup);
         break;
     case 'B': // (B) run down, left  (. 1)
         find_init(1);
@@ -1234,7 +1234,7 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case '.': // (.) stay in one place (5)
-        move_char(5, do_pickup);
+        free_turn_flag = !move_char(5, do_pickup);
         if (command_count_remaining() > 1) {
             consume_command_count();
             if (!rest()) {

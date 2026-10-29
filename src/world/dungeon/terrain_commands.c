@@ -444,7 +444,9 @@ void bash(void) {
                     t_ptr->p1 = 1 - randint(2); // 50% chance of breaking door
                     c_ptr->fval = CORR_FLOOR;
                     if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
-                        move_char(dir, false);
+                        if (!move_char(dir, false)) {
+                            free_turn_flag = true;
+                        }
                     } else {
                         lite_spot(y, x);
                     }

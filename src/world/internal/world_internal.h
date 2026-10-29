@@ -65,7 +65,7 @@ void alloc_object(bool (*)(int), int, int);
 int twall(int, int, int, int);
 
 // --- dungeon/traps.c ---
-void hit_trap(int, int);
+bool hit_trap(int, int);
 void chest_trap(int, int);
 
 // --- item/desc.c ---

@@ -58,7 +58,7 @@ bool read_scroll(void);
 bool use(void);
 
 // --- store_ui.c ---
-void enter_store(int);
+bool enter_store(int);
 
 // --- wands.c ---
 bool aim(void);
