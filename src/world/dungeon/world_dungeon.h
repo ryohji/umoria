@@ -80,9 +80,9 @@ void pusht(uint8_t);
 void set_store_entrance_handler(void (*handler)(int store_num));
 
 // --- terrain_commands.c ---
-void openobject(void);
-void closeobject(void);
-void tunnel(int);
+bool openobject(void);
+bool closeobject(void);
+bool tunnel(int);
 void bash(void);
 
 // --- traps.c ---

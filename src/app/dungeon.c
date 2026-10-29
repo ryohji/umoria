@@ -1352,29 +1352,29 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case CTRL_KEY('B'): // (^B) tunnel down left  (T 1)
-        tunnel(1);
+        free_turn_flag = !tunnel(1);
         break;
     case CTRL_KEY('M'): // cr must be treated same as lf.
     case CTRL_KEY('J'): // (^J) tunnel down    (T 2)
-        tunnel(2);
+        free_turn_flag = !tunnel(2);
         break;
     case CTRL_KEY('N'): // (^N) tunnel down right  (T 3)
-        tunnel(3);
+        free_turn_flag = !tunnel(3);
         break;
     case CTRL_KEY('H'): // (^H) tunnel left    (T 4)
-        tunnel(4);
+        free_turn_flag = !tunnel(4);
         break;
     case CTRL_KEY('L'): // (^L) tunnel right    (T 6)
-        tunnel(6);
+        free_turn_flag = !tunnel(6);
         break;
     case CTRL_KEY('Y'): // (^Y) tunnel up left    (T 7)
-        tunnel(7);
+        free_turn_flag = !tunnel(7);
         break;
     case CTRL_KEY('K'): // (^K) tunnel up    (T 8)
-        tunnel(8);
+        free_turn_flag = !tunnel(8);
         break;
     case CTRL_KEY('U'): // (^U) tunnel up right    (T 9)
-        tunnel(9);
+        free_turn_flag = !tunnel(9);
         break;
     case 'z': // (z)ap a wand    (a)im a wand
         free_turn_flag = !aim();
@@ -1388,7 +1388,7 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'c': // (c)lose an object
-        closeobject();
+        free_turn_flag = !closeobject();
         break;
     case 'd': // (d)rop something
         inven_command('d');
@@ -1413,7 +1413,7 @@ static bool do_command(char com_val) {
         cast();
         break;
     case 'o': // (o)pen something
-        openobject();
+        free_turn_flag = !openobject();
         break;
     case 'p': // (p)ray
         pray();
