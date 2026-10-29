@@ -614,9 +614,101 @@ static void sense_enchantments(void) {
     }
 }
 
-void dungeon(void) {
+// Reads a command from the keyboard: a count before it (# and digits, or the
+// digits alone in the rogue-like keys), ^ and a letter for a control key.
+// Returns it in the rogue-like form; a count it takes starts the repeat.
+static char read_command(void) {
+    char command;
     int i;
 
+    command = inkey();
+
+    i = 0;
+
+    // Get a count for a command.
+    if ((rogue_like_commands && command >= '0' && command <= '9') || (!rogue_like_commands && command == '#')) {
+        // Buffer sized for decimal int with sign and null terminator.
+        char tmp[12];
+
+        prt("Repeat count:", 0, 0);
+        if (command == '#') {
+            command = '0';
+        }
+
+        i = 0;
+
+        while (true) {
+            if (command == DELETE || command == CTRL_KEY('H')) {
+                i = i / 10;
+                (void)sprintf(tmp, "%d", i);
+                prt(tmp, 0, 14);
+            } else if (command >= '0' && command <= '9') {
+                if (i > 99) {
+                    bell();
+                } else {
+                    i = i * 10 + command - '0';
+                    (void)sprintf(tmp, "%d", i);
+                    prt(tmp, 0, 14);
+                }
+            } else {
+                break;
+            }
+            command = inkey();
+        }
+
+        if (i == 0) {
+            i = 99;
+            (void)sprintf(tmp, "%d", i);
+            prt(tmp, 0, 14);
+        }
+
+        // a special hack to allow numbers as commands
+        if (command == ' ') {
+            prt("Command:", 0, 20);
+            command = inkey();
+        }
+    }
+
+    // Another way of typing control codes -CJS-
+    if (command == '^') {
+        if (command_is_repeating()) {
+            prt_state();
+        }
+        if (get_com("Control-", &command)) {
+            if (command >= 'A' && command <= 'Z') {
+                command -= 'A' - 1;
+            } else if (command >= 'a' && command <= 'z') {
+                command -= 'a' - 1;
+            } else {
+                msg_print(
+                    "Type ^ <letter> for a control char");
+                command = ' ';
+            }
+        } else {
+            command = ' ';
+        }
+    }
+
+    // move cursor to player char again, in case it moved
+    move_cursor_relative(player_row(), player_col());
+
+    // Commands are always converted to rogue form. -CJS-
+    if (rogue_like_commands == false) {
+        command = original_commands(command);
+    }
+    if (i > 0) {
+        if (!valid_countcommand(command)) {
+            msg_print("Invalid command with a count.");
+            command = ' ';
+        } else {
+            begin_command_count(i);
+            prt_state();
+        }
+    }
+    return command;
+}
+
+void dungeon(void) {
     // Last command. A repeated command (a count) reads it again on the next
     // turns, so it lives as long as the level; the count is cancelled below
     // before the first command is read.
@@ -781,90 +873,7 @@ void dungeon(void) {
                         reuse_remembered_direction();
                     } else {
                         msg_set_pending(false);
-                        command = inkey();
-
-                        i = 0;
-
-                        // Get a count for a command.
-                        if ((rogue_like_commands && command >= '0' && command <= '9') || (!rogue_like_commands && command == '#')) {
-                            // Buffer sized for decimal int with sign and null terminator.
-                            char tmp[12];
-
-                            prt("Repeat count:", 0, 0);
-                            if (command == '#') {
-                                command = '0';
-                            }
-
-                            i = 0;
-
-                            while (true) {
-                                if (command == DELETE || command == CTRL_KEY('H')) {
-                                    i = i / 10;
-                                    (void)sprintf(tmp, "%d", i);
-                                    prt(tmp, 0, 14);
-                                } else if (command >= '0' && command <= '9') {
-                                    if (i > 99) {
-                                        bell();
-                                    } else {
-                                        i = i * 10 + command - '0';
-                                        (void)sprintf(tmp, "%d", i);
-                                        prt(tmp, 0, 14);
-                                    }
-                                } else {
-                                    break;
-                                }
-                                command = inkey();
-                            }
-
-                            if (i == 0) {
-                                i = 99;
-                                (void)sprintf(tmp, "%d", i);
-                                prt(tmp, 0, 14);
-                            }
-
-                            // a special hack to allow numbers as commands
-                            if (command == ' ') {
-                                prt("Command:", 0, 20);
-                                command = inkey();
-                            }
-                        }
-
-                        // Another way of typing control codes -CJS-
-                        if (command == '^') {
-                            if (command_is_repeating()) {
-                                prt_state();
-                            }
-                            if (get_com("Control-", &command)) {
-                                if (command >= 'A' && command <= 'Z') {
-                                    command -= 'A' - 1;
-                                } else if (command >= 'a' && command <= 'z') {
-                                    command -= 'a' - 1;
-                                } else {
-                                    msg_print(
-                                        "Type ^ <letter> for a control char");
-                                    command = ' ';
-                                }
-                            } else {
-                                command = ' ';
-                            }
-                        }
-
-                        // move cursor to player char again, in case it moved
-                        move_cursor_relative(player_row(), player_col());
-
-                        // Commands are always converted to rogue form. -CJS-
-                        if (rogue_like_commands == false) {
-                            command = original_commands(command);
-                        }
-                        if (i > 0) {
-                            if (!valid_countcommand(command)) {
-                                msg_print("Invalid command with a count.");
-                                command = ' ';
-                            } else {
-                                begin_command_count(i);
-                                prt_state();
-                            }
-                        }
+                        command = read_command();
                     }
 
                     // Flash the message line.
