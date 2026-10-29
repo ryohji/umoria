@@ -176,56 +176,37 @@ bool bool_roff_recall(creature_iterator it) {
     return false;
 }
 
-// Print out what we have discovered about this monster.
-int roff_recall(creature_iterator it) {
-    bool known;
-    const char *p, *q;
-    const attack_handle *iter;
+// Everything about the creature, for wizard mode (roff_recall puts the memory back).
+static void learn_everything(const creature_type *cp, recall_type *mp) {
     uint32_t j;
+    const attack_handle *iter;
+
+    mp->r_kills = MAX_SHORT;
+    mp->r_wake = mp->r_ignore = MAX_UCHAR;
+
+    j = (cp->cmove & (CM_4D2_OBJ | CM_2D2_OBJ | CM_1D2_OBJ) ? 4 : 0) +
+        (cp->cmove & CM_90_RANDOM ? 2 : 0) +
+        (cp->cmove & CM_60_RANDOM ? 1 : 0);
+
+    mp->r_cmove = (cp->cmove & ~CM_TREASURE) | (j << CM_TR_SHIFT);
+    mp->r_cdefense = cp->cdefense;
+
+    mp->r_spells = cp->spells | (cp->spells & CS_FREQ ? CS_FREQ : 0);
+
+    for (iter = cp->attack; iter != END_OF(cp->attack) && !monster_attack_is_null(*iter); iter += 1) {
+        mp->r_attacks[iter - cp->attack] = MAX_UCHAR;
+    }
+
+    // A little hack to enable the display of info for Quylthulgs.
+    if (mp->r_cmove & CM_ONLY_MAGIC) {
+        mp->r_attacks[0] = MAX_UCHAR;
+    }
+}
+
+// Conflict history.
+static void recall_conflicts(const recall_type *mp) {
     vtype temp;
 
-    creature_type *const cp = monster_creature_get(it);
-    recall_type *mp = recall_get(it);
-
-    recall_type save_mem;
-
-    if (progress_wizard_mode()) {
-        save_mem = *mp;
-        mp->r_kills = MAX_SHORT;
-        mp->r_wake = mp->r_ignore = MAX_UCHAR;
-
-        j = (cp->cmove & (CM_4D2_OBJ | CM_2D2_OBJ | CM_1D2_OBJ) ? 4 : 0) +
-            (cp->cmove & CM_90_RANDOM ? 2 : 0) +
-            (cp->cmove & CM_60_RANDOM ? 1 : 0);
-
-        mp->r_cmove = (cp->cmove & ~CM_TREASURE) | (j << CM_TR_SHIFT);
-        mp->r_cdefense = cp->cdefense;
-
-        mp->r_spells = cp->spells | (cp->spells & CS_FREQ ? CS_FREQ : 0);
-
-        for (iter = cp->attack; iter != END_OF(cp->attack) && !monster_attack_is_null(*iter); iter += 1) {
-            mp->r_attacks[iter - cp->attack] = MAX_UCHAR;
-        }
-
-        // A little hack to enable the display of info for Quylthulgs.
-        if (mp->r_cmove & CM_ONLY_MAGIC) {
-            mp->r_attacks[0] = MAX_UCHAR;
-        }
-    }
-    roffpline = 0;
-    roffp = roffbuf;
-
-    uint32_t rspells = mp->r_spells & cp->spells & ~CS_FREQ;
-
-    // the CM_WIN property is always known, set it if a win monster
-    uint32_t rcmove = mp->r_cmove | (CM_WIN & cp->cmove);
-
-    uint16_t rcdefense = mp->r_cdefense & cp->cdefense;
-
-    (void)sprintf(temp, "The %s:\n", cp->name);
-    roff(temp);
-
-    // Conflict history.
     if (mp->r_deaths) {
         (void)sprintf(temp, "%d of the contributors to your monster memory %s", mp->r_deaths, plural(mp->r_deaths, "has", "have"));
         roff(temp);
@@ -243,6 +224,12 @@ int roff_recall(creature_iterator it) {
     } else {
         roff("No known battles to the death are recalled.");
     }
+}
+
+// Where it is found, and how it moves.
+static void recall_movement(const creature_type *cp, const recall_type *mp, uint32_t rcmove) {
+    vtype temp;
+    bool known;
 
     // Immediately obvious.
     known = false;
@@ -320,9 +307,15 @@ int roff_recall(creature_iterator it) {
     if (known) {
         roff(".");
     }
+}
 
-    // Kill it once to know experience, and quality (evil, undead, monsterous).
-    // The quality of being a dragon is obvious.
+// Kill it once to know experience, and quality (evil, undead, monsterous).
+// The quality of being a dragon is obvious.
+static void recall_kill_worth(const creature_type *cp, const recall_type *mp) {
+    vtype temp;
+    uint32_t j;
+    const char *p, *q;
+
     if (mp->r_kills) {
         roff(" A kill of this");
 
@@ -373,9 +366,15 @@ int roff_recall(creature_iterator it) {
         (void)sprintf(temp, " for a%s %d%s level character.", q, n, p);
         roff(temp);
     }
+}
 
-    // Spells known, if have been used against us.
-    // Breath weapons or resistance might be known only because we cast spells at it.
+// Spells known, if have been used against us.
+// Breath weapons or resistance might be known only because we cast spells at it.
+static void recall_spells(const creature_type *cp, const recall_type *mp, uint32_t rspells) {
+    vtype temp;
+    bool known;
+    uint32_t j;
+
     known = true;
     j = rspells;
 
@@ -430,16 +429,25 @@ int roff_recall(creature_iterator it) {
         }
         roff(".");
     }
+}
 
-    // Do we know how hard they are to kill? Armor class, hit die.
+// Do we know how hard they are to kill? Armor class, hit die.
+static void recall_toughness(const creature_type *cp, const recall_type *mp) {
+    vtype temp;
+
     if (knowarmor(cp->level, mp->r_kills)) {
         (void)sprintf(temp, " It has an armor rating of %d", cp->ac);
         roff(temp);
         (void)sprintf(temp, " and a%s life rating of %dd%d.", ((cp->cdefense & CD_MAX_HP) ? " maximized" : ""), cp->hd[0], cp->hd[1]);
         roff(temp);
     }
+}
 
-    // Do we know how clever they are? Special abilities.
+// Do we know how clever they are? Special abilities.
+static void recall_abilities(uint32_t rcmove) {
+    bool known;
+    uint32_t j;
+
     known = true;
     j = rcmove;
 
@@ -462,8 +470,13 @@ int roff_recall(creature_iterator it) {
     if (!known) {
         roff(".");
     }
+}
 
-    // Do we know its special weaknesses? Most cdefense flags.
+// Do we know its special weaknesses? Most cdefense flags.
+static void recall_weaknesses(uint16_t rcdefense) {
+    bool known;
+    uint32_t j;
+
     known = true;
     j = rcdefense;
     for (int i = 0; j & CD_WEAKNESS; i++) {
@@ -501,8 +514,12 @@ int roff_recall(creature_iterator it) {
     if (rcdefense & (CD_NO_SLEEP | CD_INFRA)) {
         roff(".");
     }
+}
 
-    // Do we know how aware it is?
+// Do we know how aware it is?
+static void recall_awareness(const creature_type *cp, const recall_type *mp) {
+    vtype temp;
+
     if (((mp->r_wake * mp->r_wake) > cp->sleep) || mp->r_ignore == MAX_UCHAR || (cp->sleep == 0 && mp->r_kills >= 10)) {
         roff(" It ");
         if (cp->sleep > 200) {
@@ -531,8 +548,14 @@ int roff_recall(creature_iterator it) {
         (void)sprintf(temp, " intruders, which it may notice from %d feet.", 10 * cp->aaf);
         roff(temp);
     }
+}
 
-    // Do we know what it might carry?
+// Do we know what it might carry?
+static void recall_treasure(const creature_type *cp, uint32_t rcmove) {
+    vtype temp;
+    uint32_t j;
+    const char *p;
+
     if (rcmove & (CM_CARRY_OBJ | CM_CARRY_GOLD)) {
         roff(" It may");
         j = (rcmove & CM_TREASURE) >> CM_TR_SHIFT;
@@ -583,8 +606,14 @@ int roff_recall(creature_iterator it) {
             roff(" treasure.");
         }
     }
+}
 
-    // We know about attacks it has used on us, and maybe the damage they do.
+// We know about attacks it has used on us, and maybe the damage they do.
+static void recall_attacks(const creature_type *cp, const recall_type *mp) {
+    vtype temp;
+    uint32_t j;
+    const attack_handle *iter;
+
     // known_attacks is the total number of known attacks, used for punctuation.
     // Unsigned to match j's type (uint32_t).
     uint32_t known_attacks = 0;
@@ -655,6 +684,44 @@ int roff_recall(creature_iterator it) {
     } else {
         roff(" Nothing is known about its attack.");
     }
+}
+
+// Print out what we have discovered about this monster.
+int roff_recall(creature_iterator it) {
+    vtype temp;
+
+    creature_type *const cp = monster_creature_get(it);
+    recall_type *mp = recall_get(it);
+
+    recall_type save_mem;
+
+    if (progress_wizard_mode()) {
+        save_mem = *mp;
+        learn_everything(cp, mp);
+    }
+    roffpline = 0;
+    roffp = roffbuf;
+
+    uint32_t rspells = mp->r_spells & cp->spells & ~CS_FREQ;
+
+    // the CM_WIN property is always known, set it if a win monster
+    uint32_t rcmove = mp->r_cmove | (CM_WIN & cp->cmove);
+
+    uint16_t rcdefense = mp->r_cdefense & cp->cdefense;
+
+    (void)sprintf(temp, "The %s:\n", cp->name);
+    roff(temp);
+
+    recall_conflicts(mp);
+    recall_movement(cp, mp, rcmove);
+    recall_kill_worth(cp, mp);
+    recall_spells(cp, mp, rspells);
+    recall_toughness(cp, mp);
+    recall_abilities(rcmove);
+    recall_weaknesses(rcdefense);
+    recall_awareness(cp, mp);
+    recall_treasure(cp, rcmove);
+    recall_attacks(cp, mp);
 
     // Always know the win creature.
     if (cp->cmove & CM_WIN) {
