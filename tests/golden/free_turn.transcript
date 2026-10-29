@@ -800,8 +800,30 @@ key 216 0x0d 4ee20d0c turn 10
 key 217 0x79 6a767378 turn 10
 key 218 0x3e 093cd55d turn 10
 key 219 0x73 bf38c612 turn 11
-end of script after 219 of 219 keys
-screen (cursor 11,33, bells 0):
+key 220 0x5e c1eda3d6 turn 12
+key 221 0x70 46d95622 turn 12
+key 222 0x5e 7a179774 turn 12
+key 223 0x31 46d95622 turn 12
+key 224 0x20 3325959c turn 12
+key 225 0x23 c1eda3d6 turn 12
+key 226 0x31 380a0c44 turn 12
+key 227 0x7f 69b2adad turn 12
+key 228 0x32 380a0c44 turn 12
+key 229 0x73 41f8d146 turn 12
+key 230 0x23 c1eda3d6 turn 14
+key 231 0x31 380a0c44 turn 14
+key 232 0x32 69b2adad turn 14
+key 233 0x33 c8be977b turn 14
+key 234 0x34 5688f7b0 turn 14
+key 235 0x69 5688f7b0 turn 14
+key 236 0x20 efb31ddd turn 14
+key 237 0x23 c1eda3d6 turn 14
+key 238 0x20 380a0c44 turn 14
+key 239 0x69 1162c907 turn 14
+key 240 0x20 efb31ddd turn 14
+key 241 0x73 c1eda3d6 turn 14
+end of script after 241 of 241 keys
+screen (cursor 11,33, bells 1):
 |
 |
 |Human

@@ -184,3 +184,14 @@ j6
 @ 108\r>\r1\r0\r1\r1\r1\r0\r0\r0\r0\r0\r0\r0\r0\ry
 >
 s
+# typing a command: ^ and a letter for a control key (^P, no turn), ^ and
+# something else
+^p
+^1 
+# a count typed with a mistake taken back (1, DELETE, 2: two searches)
+\x231\x7f2s
+# a count of more than 99 rings the bell; no digits makes it 99, and a space
+# asks for the command (i takes no count)
+\x231234i 
+\x23 i 
+s
