@@ -60,7 +60,13 @@ wd
 t\e
 ta
 s
-# a counted search on level 1, where nothing cuts it short
+# from the inventory list: wear (a turn), then the list comes back and ESC
+# leaves it (no turn)
+iwd
+  \e
+s
+.4
+s
 \x041\r
 \x233s
 s

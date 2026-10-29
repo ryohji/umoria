@@ -138,37 +138,47 @@ key 135 0x1b 3fc66cc7 turn 10
 key 136 0x74 9cedc5c6 turn 10
 key 137 0x61 3fc66cc7 turn 10
 key 138 0x73 6fb5f9ab turn 11
-key 139 0x04 f6586ce0 turn 12
-key 140 0x31 ee7dfe4a turn 12
-key 141 0x0d e30a0935 turn 12
-key 142 0x23 5f89ad04 turn 13
-key 143 0x33 b697c8bc turn 13
-key 144 0x73 f3c71c57 turn 13
-key 145 0x73 1b3f77ee turn 16
-end of script after 145 of 145 keys
-screen (cursor 16,33, bells 0):
+key 139 0x69 f6586ce0 turn 12
+key 140 0x77 2330d9e7 turn 12
+key 141 0x64 85e6eb6f turn 12
+key 142 0x20 32d5b1f4 turn 12
+key 143 0x20 63704d4f turn 13
+key 144 0x1b 542296ad turn 13
+key 145 0x73 b4a675a9 turn 13
+key 146 0x2e b4a675a9 turn 14
+key 147 0x34 798a3f3f turn 14
+key 148 0x73 1dbf491a turn 15
+key 149 0x04 059d1255 turn 16
+key 150 0x31 21d3994b turn 16
+key 151 0x0d 8eb4616c turn 16
+key 152 0x23 fa11963d turn 17
+key 153 0x33 e8b41b15 turn 17
+key 154 0x73 a531a19a turn 17
+key 155 0x73 d14d227b turn 20
+end of script after 155 of 155 keys
+screen (cursor 8,34, bells 0):
 |
 |
 |Human
 |Mage
 |Novice
 |
-|STR :      5                     ,
+|STR :      5
 |INT :     14
-|WIS :     14
+|WIS :     14                      @i
 |DEX :     16
 |CON :      9
 |CHR :     14
 |
 |LEV :      1
-|EXP :      4        ###################
-|MANA:      1        #.................#
-|MHP :     10        #,...........@....#
-|CHP :     10        ................$.#
-|                    #.................#
-|AC  :      1        #.................#
-|GOLD:    574        #.................#
-|                    ######+##.####.####
+|EXP :      4
+|MANA:      1
+|MHP :     10
+|CHP :      8
+|
+|AC  :      2
+|GOLD:    574
+|
 |Is wizard
 |                                                                 50 feet
 run: -w67 priest.sav
