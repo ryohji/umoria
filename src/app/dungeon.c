@@ -1410,7 +1410,7 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'm': // (m)agic spells
-        cast();
+        free_turn_flag = !cast();
         break;
     case 'o': // (o)pen something
         free_turn_flag = !openobject();

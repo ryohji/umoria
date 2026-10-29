@@ -19,7 +19,7 @@ void display_char(void);
 void change_name(void);
 
 // --- magic.c ---
-void cast(void);
+bool cast(void);
 
 // --- create.c ---
 void create_character(void);

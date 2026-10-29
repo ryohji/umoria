@@ -32,10 +32,11 @@
 #include "player_spells.h"
 
 // Throw a magic spell -RAK-
-void cast(void) {
+// Returns whether it took a game turn.
+bool cast(void) {
     int i, j, item_val;
 
-    free_turn_flag = true;
+    bool took_turn = false;
     if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see to read your spell book!");
     } else if (no_light()) {
@@ -53,7 +54,7 @@ void cast(void) {
         if (result < 0) {
             msg_print("You don't know any spells in that book.");
         } else if (result > 0) {
-            free_turn_flag = false;
+            took_turn = true;
 
             spell_type *m_ptr = &magic_spell[player_class() - 1][choice];
 
@@ -67,6 +68,8 @@ void cast(void) {
                 case 1:
                     if (get_dir(CNIL, &dir)) {
                         fire_bolt(GF_MAGIC_MISSILE, dir, player_row(), player_col(), damroll(2, 6), spell_names[0]);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 2:
@@ -88,16 +91,22 @@ void cast(void) {
                 case 7:
                     if (get_dir(CNIL, &dir)) {
                         fire_ball(GF_POISON_GAS, dir, player_row(), player_col(), 12, spell_names[6]);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 8:
                     if (get_dir(CNIL, &dir)) {
                         (void)confuse_monster(dir, player_row(), player_col());
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 9:
                     if (get_dir(CNIL, &dir)) {
                         fire_bolt(GF_LIGHTNING, dir, player_row(), player_col(), damroll(4, 8), spell_names[8]);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 10:
@@ -106,6 +115,8 @@ void cast(void) {
                 case 11:
                     if (get_dir(CNIL, &dir)) {
                         (void)sleep_monster(dir, player_row(), player_col());
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 12:
@@ -123,18 +134,26 @@ void cast(void) {
                 case 15:
                     if (get_dir(CNIL, &dir)) {
                         fire_bolt(GF_FROST, dir, player_row(), player_col(), damroll(6, 8), spell_names[14]);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 16:
                     if (get_dir(CNIL, &dir)) {
                         (void)wall_to_mud(dir, player_row(), player_col());
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 17:
-                    (void)create_food();
+                    if (create_food() == EFFECT_CANCELLED) {
+                        took_turn = false;
+                    }
                     break;
                 case 18:
-                    (void)recharge(20);
+                    if (recharge(20) == EFFECT_CANCELLED) {
+                        took_turn = false;
+                    }
                     break;
                 case 19:
                     (void)sleep_monsters1(player_row(), player_col());
@@ -142,10 +161,14 @@ void cast(void) {
                 case 20:
                     if (get_dir(CNIL, &dir)) {
                         (void)poly_monster(dir, player_row(), player_col());
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 21:
-                    (void)ident_spell();
+                    if (ident_spell() == EFFECT_CANCELLED) {
+                        took_turn = false;
+                    }
                     break;
                 case 22:
                     (void)sleep_monsters2();
@@ -153,24 +176,34 @@ void cast(void) {
                 case 23:
                     if (get_dir(CNIL, &dir)) {
                         fire_bolt(GF_FIRE, dir, player_row(), player_col(), damroll(9, 8), spell_names[22]);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 24:
                     if (get_dir(CNIL, &dir)) {
                         (void)speed_monster(dir, player_row(), player_col(), -1);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 25:
                     if (get_dir(CNIL, &dir)) {
                         fire_ball(GF_FROST, dir, player_row(), player_col(), 48, spell_names[24]);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 26:
-                    (void)recharge(60);
+                    if (recharge(60) == EFFECT_CANCELLED) {
+                        took_turn = false;
+                    }
                     break;
                 case 27:
                     if (get_dir(CNIL, &dir)) {
                         (void)teleport_monster(dir, player_row(), player_col());
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 28:
@@ -179,6 +212,8 @@ void cast(void) {
                 case 29:
                     if (get_dir(CNIL, &dir)) {
                         fire_ball(GF_FIRE, dir, player_row(), player_col(), 72, spell_names[28]);
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 30:
@@ -192,7 +227,7 @@ void cast(void) {
                 }
                 // End of spells.
 
-                if (!free_turn_flag) {
+                if (took_turn) {
                     if (!spell_has_worked(choice)) {
                         player_gain_experience(m_ptr->sexp << 2);
                         spell_mark_worked(choice);
@@ -201,7 +236,7 @@ void cast(void) {
                 }
             }
 
-            if (!free_turn_flag) {
+            if (took_turn) {
                 // Paying less than the spell costs is what makes the caster
                 // faint -- five turns of it for every point that was missing.
                 int spent = player_spend_mana(m_ptr->smana);
@@ -218,4 +253,5 @@ void cast(void) {
             }
         }
     }
+    return took_turn;
 }
