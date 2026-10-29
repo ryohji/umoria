@@ -105,3 +105,33 @@ pb\e
 pba\e
 pba6
 s
+# run: -w73 scrolls.sav
+# record: turns
+# Scrolls whose effect can be cancelled or find nothing: a human male warrior
+# named Ed with wizard scrolls of identify, recharging and create food.
+\n y
+am\ea
+Ed\r
+ 
+@ 70\r?\r67\r5\r3\r0\r0\r0\r0\r0\r0\r0\r8\r50\r1\ry
+4
+6
+i\e
+# identify: cancelled at the item (no turn, the scroll stays), then done
+rb \e
+rb a
+@ 70\r?\r88\r5\r1\r0\r0\r0\r0\r0\r0\r0\r1000000\r200\r40\ry
+4
+6
+i\e
+# recharging with nothing to recharge: a turn, and the scroll stays
+rc 
+@ 70\r?\r92\r5\r1\r0\r0\r0\r0\r0\r0\r0\r10000000\r10\r5\ry
+4
+6
+i\e
+# create food with something under us: no turn, and the scroll is used up (B30)
+day
+rc 
+i\e
+s
