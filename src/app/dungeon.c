@@ -1171,10 +1171,10 @@ static bool do_command(player_command command) {
             }
         }
         break;
-    case CMD_GO_UP: // (<) go down a staircase
+    case CMD_GO_UP: // (<) go up a staircase
         took_turn = go_up();
         break;
-    case CMD_GO_DOWN: // (>) go up a staircase
+    case CMD_GO_DOWN: // (>) go down a staircase
         took_turn = go_down();
         break;
     case CMD_HELP: // (?) help with commands
