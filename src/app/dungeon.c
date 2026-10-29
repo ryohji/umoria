@@ -1234,9 +1234,24 @@ static void locate_on_map(void) {
     }
 }
 
+// The walk, run and tunnel keys: a step, the start of a run, or digging, in
+// the direction of the key.
+static bool walk_run_or_tunnel(int dir, direction_key_style style, bool do_pickup) {
+    switch (style) {
+    case DIR_KEY_WALK:
+        return move_char(dir, do_pickup);
+    case DIR_KEY_RUN:
+        return find_init(dir);
+    case DIR_KEY_TUNNEL:
+        return tunnel(dir);
+    }
+    return false;
+}
+
 // Returns whether the command took a game turn.
 static bool do_command(char com_val) {
     int dir_val;
+    direction_key_style style;
     bool do_pickup;
     int i;
 
@@ -1307,54 +1322,6 @@ static bool do_command(char com_val) {
     case ' ':    // (space) do nothing.
         took_turn = false;
         break;
-    case 'b': // (b) down, left  (1)
-        took_turn = move_char(1, do_pickup);
-        break;
-    case 'j': // (j) down    (2)
-        took_turn = move_char(2, do_pickup);
-        break;
-    case 'n': // (n) down, right  (3)
-        took_turn = move_char(3, do_pickup);
-        break;
-    case 'h': // (h) left    (4)
-        took_turn = move_char(4, do_pickup);
-        break;
-    case 'l': // (l) right    (6)
-        took_turn = move_char(6, do_pickup);
-        break;
-    case 'y': // (y) up, left    (7)
-        took_turn = move_char(7, do_pickup);
-        break;
-    case 'k': // (k) up    (8)
-        took_turn = move_char(8, do_pickup);
-        break;
-    case 'u': // (u) up, right  (9)
-        took_turn = move_char(9, do_pickup);
-        break;
-    case 'B': // (B) run down, left  (. 1)
-        took_turn = find_init(1);
-        break;
-    case 'J': // (J) run down    (. 2)
-        took_turn = find_init(2);
-        break;
-    case 'N': // (N) run down, right  (. 3)
-        took_turn = find_init(3);
-        break;
-    case 'H': // (H) run left    (. 4)
-        took_turn = find_init(4);
-        break;
-    case 'L': // (L) run right  (. 6)
-        took_turn = find_init(6);
-        break;
-    case 'Y': // (Y) run up, left  (. 7)
-        took_turn = find_init(7);
-        break;
-    case 'K': // (K) run up    (. 8)
-        took_turn = find_init(8);
-        break;
-    case 'U': // (U) run up, right  (. 9)
-        took_turn = find_init(9);
-        break;
     case '/': // (/) identify a symbol
         ident_char();
         took_turn = false;
@@ -1422,30 +1389,8 @@ static bool do_command(char com_val) {
         }
         took_turn = false;
         break;
-    case CTRL_KEY('B'): // (^B) tunnel down left  (T 1)
-        took_turn = tunnel(1);
-        break;
-    case CTRL_KEY('M'): // cr must be treated same as lf.
-    case CTRL_KEY('J'): // (^J) tunnel down    (T 2)
+    case CTRL_KEY('M'): // cr must be treated same as lf (^J: tunnel down).
         took_turn = tunnel(2);
-        break;
-    case CTRL_KEY('N'): // (^N) tunnel down right  (T 3)
-        took_turn = tunnel(3);
-        break;
-    case CTRL_KEY('H'): // (^H) tunnel left    (T 4)
-        took_turn = tunnel(4);
-        break;
-    case CTRL_KEY('L'): // (^L) tunnel right    (T 6)
-        took_turn = tunnel(6);
-        break;
-    case CTRL_KEY('Y'): // (^Y) tunnel up left    (T 7)
-        took_turn = tunnel(7);
-        break;
-    case CTRL_KEY('K'): // (^K) tunnel up    (T 8)
-        took_turn = tunnel(8);
-        break;
-    case CTRL_KEY('U'): // (^U) tunnel up right    (T 9)
-        took_turn = tunnel(9);
         break;
     case 'z': // (z)ap a wand    (a)im a wand
         took_turn = aim();
@@ -1516,7 +1461,10 @@ static bool do_command(char com_val) {
         took_turn = inven_command('x');
         break;
     default:
-        if (progress_wizard_mode()) {
+        dir_val = command_key_direction(com_val, &style);
+        if (dir_val != 0) {
+            took_turn = walk_run_or_tunnel(dir_val, style, do_pickup);
+        } else if (progress_wizard_mode()) {
             // Wizard commands are free moves
             took_turn = false;
             wizard_command(com_val);
