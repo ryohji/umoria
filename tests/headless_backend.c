@@ -19,10 +19,13 @@
 //   HEADLESS_TRACE set to write the whole screen at every key, not only at exit
 //   HEADLESS_AT_END=eof  when the script runs out, report end of input (EOF)
 //                  instead of exiting, as a closed terminal would
+//   HEADLESS_TURNS set to add the game turn (progress_turn()) to every key
+//                  line, so a transcript shows which keys took a turn
 //
 // time() is fixed (below), so dates on the screen do not change between runs.
 
 #include "backend.h"
+#include "game_status.h"
 #include "ui_input.h"
 #include "ui_render.h"
 
@@ -47,6 +50,7 @@ static char *keys;
 static size_t key_count, key_next;
 static FILE *out;
 static bool trace;
+static bool turns;
 
 static void fill_blank(char (*s)[COLS], int from_row) {
     for (int r = from_row; r < ROWS; r++) {
@@ -264,7 +268,11 @@ static int i_get_key(void) {
         exit(0);
     }
     const uint8_t key = (uint8_t)keys[key_next++];
-    fprintf(out, "key %3zu 0x%02x %08x\n", key_next, key, screen_hash());
+    fprintf(out, "key %3zu 0x%02x %08x", key_next, key, screen_hash());
+    if (turns) {
+        fprintf(out, " turn %ld", (long)progress_turn());
+    }
+    fputc('\n', out);
     if (trace) {
         dump_screen();
     }
@@ -316,6 +324,8 @@ bool platform_init(void) {
     eof_at_end = at_end != NULL && strcmp(at_end, "eof") == 0;
     const char *t = getenv("HEADLESS_TRACE");
     trace = t != NULL && t[0] != '\0';
+    const char *n = getenv("HEADLESS_TURNS");
+    turns = n != NULL && n[0] != '\0';
     atexit(finish);
     return render_init(&render_backend) && input_init(&input_backend);
 }
