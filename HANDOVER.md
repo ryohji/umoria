@@ -4,8 +4,9 @@
 読めば、前提と作法と次の一手が揃う。済んだ列の経過は `docs/refactoring/done/` にあり、
 要るときだけ開けばよい。
 
-2026-10-23 に整理した。整理の前の全文は
-[docs/refactoring/done/handover-2026-10-23.md](docs/refactoring/done/handover-2026-10-23.md)、
+2026-10-30 に整理した。整理の前の全文は
+[docs/refactoring/done/handover-2026-10-30.md](docs/refactoring/done/handover-2026-10-30.md)、
+2026-10-23 の整理の前の全文は [done/handover-2026-10-23.md](docs/refactoring/done/handover-2026-10-23.md)、
 その前の整理（2026-10-01）の前の全文は [done/handover-2026-10-01.md](docs/refactoring/done/handover-2026-10-01.md)、
 それより前の更新の履歴は [docs/refactoring/done/handover-snapshot.md](docs/refactoring/done/handover-snapshot.md)。
 
@@ -37,14 +38,12 @@
     [done/modules-2026-10-14.md](docs/refactoring/done/modules-2026-10-14.md)。
   - **第 6 節の候補（#89〜#93）**。static 化、ui/ の状態の統合、`constant.h` の定数の移動、
     world/ の 4 段。経過は [done/section6-2026-10-15.md](docs/refactoring/done/section6-2026-10-15.md)。
-  - **モンスター表の iterator（#95・#96）と golden（#94）**。経過は
+  - **golden（#94）とモンスター表の iterator（#95・#96）**。経過は
     [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md)。
-  - **#22 `objdes` の分割と、#71 の一部（`dungeon()` の効果 18 種を `tick_<効果>()` に）**。
-    経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-25・29）と所見 73・74。
-  - **#74（`free_turn_flag` を戻り値に）と、その保護の台本 `free_turn`・`glowing_hands`（#51）**。
-    コマンドの関数が「turn を使ったか」を `bool` で返す。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-29〜30）と所見 75・76。
-  - **#71 の残り（`dungeon()` 207 行・`do_command` 227 行）**。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-30）と所見 77。
-  - **キーマップ（ユーザーの依頼）**。2 つの鍵の組を `ui/keymap.c` の表に、コマンドを名前 `player_command` に。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-30）。
+  - **#22 `objdes`、#71 `dungeon()`・`do_command`、#74 `free_turn_flag` を戻り値に（と #51 の
+    保護の台本）、キーマップ（2 つの鍵の組を `ui/keymap.c` の表に、コマンドを名前に）**。
+    2026-10-25〜30。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)
+    と所見 73〜77、台帳の済んだ項目の索引。
 - 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B33（B28 は誤りだった）。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
@@ -357,6 +356,10 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
   台本がずれる）。もとの鍵の組では召喚は `^U`（`&` は roguelike の組）、拾うキーは無い。
   名前を入れないと `getlogin()` の名前が入り、機械ごとに変わる。墓の日付は `ctime()` で時間帯に
   よるので、`run.sh` は `TZ=UTC` で走らせる（`time()` は backend が固定する）。
+  台本の中で `#` で始まる行はコメント（回数の `#` は `\x23` と書く）。メッセージのあとの `-more-`
+  （wizard の `@` の警告、「Invalid command with a count.」など）にもスペースが要る。原文の鍵の組では
+  Enter と `^J` は `+`（B33）。wizard の `@` は足もとの物を消して置く。店の入口は壁の並びの中にあり、
+  左右が壁。町人が隣にいると歩きが攻撃になるので、町人のいない種を選ぶ（`free_turn` の 4 つめの run）。
 - **入力の終わりの道は golden の `input_end` が通す**（`# at end: eof`。`script(1)` は EOF を
   渡さない。所見 67）。最初の EOF で主ループが抜けて保存するので、`app/input_end_handling.c` の
   うち効くのは「保存していない人物が無ければ終える」の枝だけ。
