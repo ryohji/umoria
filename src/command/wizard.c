@@ -438,12 +438,12 @@ static void wizard_create(void) {
 
 // Runs a wizard mode command. The caller has already checked the mode and
 // made the command a free move.
-void wizard_command(char com_val) {
+void wizard_command(player_command_id command) {
     int y, x, i;
     vtype tmp_str;
 
-    switch (com_val) {
-    case CTRL_KEY('A'): // ^A = Cure all
+    switch (command) {
+    case CMD_WIZ_CURE_ALL: // ^A = Cure all
         (void)remove_curse();
         (void)cure_blindness();
         (void)cure_confusion();
@@ -458,14 +458,14 @@ void wizard_command(char com_val) {
         player_timed_shorten_to(PLAYER_TIMED_SLOWNESS, 1);
         player_timed_shorten_to(PLAYER_TIMED_HALLUCINATION, 1);
         break;
-    case CTRL_KEY('E'): // ^E = wizchar
+    case CMD_WIZ_CHARACTER: // ^E = wizchar
         change_character();
         erase_line(MSG_LINE, 0);
         break;
-    case CTRL_KEY('F'): // ^F = genocide
+    case CMD_WIZ_GENOCIDE: // ^F = genocide
         (void)mass_genocide();
         break;
-    case CTRL_KEY('G'): // ^G = treasure
+    case CMD_WIZ_TREASURE: // ^G = treasure
         if (command_is_repeating()) {
             i = take_command_count();
         } else {
@@ -474,7 +474,7 @@ void wizard_command(char com_val) {
         random_object(player_row(), player_col(), i);
         prt_map();
         break;
-    case CTRL_KEY('D'): // ^D = up/down
+    case CMD_WIZ_GO_TO_LEVEL: // ^D = up/down
         if (command_is_repeating()) {
             i = take_command_count();
             if (i > 99) {
@@ -498,29 +498,29 @@ void wizard_command(char com_val) {
             erase_line(MSG_LINE, 0);
         }
         break;
-    case CTRL_KEY('O'): // ^O = objects
+    case CMD_WIZ_OBJECTS: // ^O = objects
         print_objects();
         break;
-    case '\\': // \ wizard help
+    case CMD_WIZ_HELP: // \ wizard help
         if (rogue_like_commands) {
             helpfile(MORIA_WIZ_HELP);
         } else {
             helpfile(MORIA_OWIZ_HELP);
         }
         break;
-    case CTRL_KEY('I'): // ^I = identify
+    case CMD_WIZ_IDENTIFY: // ^I = identify
         (void)ident_spell();
         break;
-    case '*':
+    case CMD_WIZ_LIGHT:
         wizard_light();
         break;
-    case ':':
+    case CMD_WIZ_MAP:
         map_area();
         break;
-    case CTRL_KEY('T'): // ^T = teleport
+    case CMD_WIZ_TELEPORT: // ^T = teleport
         teleport(100);
         break;
-    case '+':
+    case CMD_WIZ_EXPERIENCE:
         // Deliberately sets experience without updating level. Level recalculated
         // by prt_experience().
         if (command_is_repeating()) {
@@ -532,13 +532,13 @@ void wizard_command(char com_val) {
         }
         prt_experience();
         break;
-    case '&': // & = summon
+    case CMD_WIZ_SUMMON: // & = summon
         y = player_row();
         x = player_col();
         (void)summon_monster(&y, &x, true);
         creatures(false);
         break;
-    case '@':
+    case CMD_WIZ_CREATE:
         wizard_create();
         break;
     default:

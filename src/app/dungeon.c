@@ -55,7 +55,7 @@
 #define PLAYER_REGEN_WEAK        98   // Regen factor*2^16 when weak
 
 static char original_commands(char);
-static bool do_command(char);
+static bool do_command(player_command);
 static bool valid_countcommand(char);
 static void regenhp(int);
 static void regenmana(int);
@@ -881,7 +881,7 @@ void dungeon(void) {
                     move_cursor_relative(player_row(), player_col());
                     put_qio();
 
-                    took_turn = do_command(command);
+                    took_turn = do_command(rogue_key_command(command));
 
                     // Find is counted differently, as the command changes.
                     if (player_is_running()) {
@@ -955,7 +955,7 @@ static void show_previous_messages(void) {
         if (i > MAX_SAVE_MSG) {
             i = MAX_SAVE_MSG;
         }
-    } else if (!previous_command_was(CTRL_KEY('P'))) {
+    } else if (!previous_command_was(CMD_PREVIOUS_MESSAGE)) {
         i = 1;
     } else {
         i = MAX_SAVE_MSG;
@@ -1021,7 +1021,7 @@ static void save_and_exit(void) {
 static void show_scores(void) {
     bool do_diplay_scores;
 
-    if (!previous_command_was('V')) {
+    if (!previous_command_was(CMD_VIEW_SCORES)) {
         do_diplay_scores = true;
     } else {
         do_diplay_scores = false;
@@ -1090,49 +1090,31 @@ static void locate_on_map(void) {
     }
 }
 
-// The walk, run and tunnel keys: a step, the start of a run, or digging, in
-// the direction of the key.
-static bool walk_run_or_tunnel(int dir, direction_key_style style, bool do_pickup) {
-    switch (style) {
-    case DIR_KEY_WALK:
-        return move_char(dir, do_pickup);
-    case DIR_KEY_RUN:
-        return find_init(dir);
-    case DIR_KEY_TUNNEL:
-        return tunnel(dir);
-    }
-    return false;
-}
-
 // Returns whether the command took a game turn.
-static bool do_command(char com_val) {
+static bool do_command(player_command command) {
     int dir_val;
-    direction_key_style style;
     bool do_pickup;
     int i;
 
     bool took_turn = true;
 
     // hack for move without pickup.  Map '-' to a movement command.
-    if (com_val == '-') {
+    if (command.id == CMD_WALK_NO_PICKUP) {
         do_pickup = false;
         i = hold_command_count();
 
         if (get_dir(CNIL, &dir_val)) {
             resume_command_count(i);
-            com_val = direction_command_key(dir_val, DIR_KEY_WALK);
-            if (com_val == 0) {
-                com_val = '~';
-            }
+            command = rogue_key_command(direction_command_key(dir_val, DIR_KEY_WALK));
         } else {
-            com_val = ' ';
+            command.id = CMD_NONE;
         }
     } else {
         do_pickup = true;
     }
 
-    switch (com_val) {
-    case 'Q': // (Q)uit    (^K)ill
+    switch (command.id) {
+    case CMD_QUIT: // (Q)uit    (^K)ill
         flush();
         if (get_check("Do you really want to quit?")) {
             end_level();
@@ -1141,48 +1123,46 @@ static bool do_command(char com_val) {
         }
         took_turn = false;
         break;
-    case CTRL_KEY('P'): // (^P)revious message.
+    case CMD_PREVIOUS_MESSAGE: // (^P)revious message.
         show_previous_messages();
 
         took_turn = false;
         break;
-    case CTRL_KEY('V'): // (^V)iew license
+    case CMD_VIEW_LICENSE: // (^V)iew license
         helpfile(MORIA_GPL);
         took_turn = false;
         break;
-    case CTRL_KEY('W'): // (^W)izard mode
+    case CMD_WIZARD_MODE: // (^W)izard mode
         toggle_wizard_mode();
         took_turn = false;
         break;
-    case CTRL_KEY('X'): // e(^X)it and save
+    case CMD_SAVE_AND_EXIT: // e(^X)it and save
         save_and_exit();
 
         took_turn = false;
         break;
-    case '=': // (=) set options
+    case CMD_OPTIONS: // (=) set options
         save_screen();
         set_options();
         restore_screen();
         took_turn = false;
         break;
-    case '{': // ({) inscribe an object
+    case CMD_INSCRIBE: // ({) inscribe an object
         scribe_object();
         took_turn = false;
         break;
-    case '!': // (!) escape to the shell
-    case '$':
+    case CMD_SHELL: // (!) or ($) escape to the shell
         shell_out();
         took_turn = false;
         break;
-    case ESCAPE: // (ESC)   do nothing.
-    case ' ':    // (space) do nothing.
+    case CMD_NONE: // (ESC) or (space) do nothing.
         took_turn = false;
         break;
-    case '/': // (/) identify a symbol
+    case CMD_IDENTIFY_SYMBOL: // (/) identify a symbol
         ident_char();
         took_turn = false;
         break;
-    case '.': // (.) stay in one place (5)
+    case CMD_STAY: // (.) stay in one place (5)
         took_turn = move_char(5, do_pickup);
         if (command_count_remaining() > 1) {
             consume_command_count();
@@ -1191,13 +1171,13 @@ static bool do_command(char com_val) {
             }
         }
         break;
-    case '<': // (<) go down a staircase
+    case CMD_GO_UP: // (<) go down a staircase
         took_turn = go_up();
         break;
-    case '>': // (>) go up a staircase
+    case CMD_GO_DOWN: // (>) go up a staircase
         took_turn = go_down();
         break;
-    case '?': // (?) help with commands
+    case CMD_HELP: // (?) help with commands
         if (rogue_like_commands) {
             helpfile(MORIA_HELP);
         } else {
@@ -1205,39 +1185,39 @@ static bool do_command(char com_val) {
         }
         took_turn = false;
         break;
-    case 'f': // (f)orce    (B)ash
+    case CMD_BASH: // (f)orce    (B)ash
         took_turn = bash();
         break;
-    case 'C': // (C)haracter description
+    case CMD_CHARACTER: // (C)haracter description
         save_screen();
         change_name();
         restore_screen();
         took_turn = false;
         break;
-    case 'D': // (D)isarm trap
+    case CMD_DISARM: // (D)isarm trap
         took_turn = disarm_trap();
         break;
-    case 'E': // (E)at food
+    case CMD_EAT: // (E)at food
         took_turn = eat();
         break;
-    case 'F': // (F)ill lamp
+    case CMD_FILL_LAMP: // (F)ill lamp
         took_turn = refill_lamp();
         break;
-    case 'G': // (G)ain magic spells
+    case CMD_GAIN_SPELLS: // (G)ain magic spells
         took_turn = gain_spells();
         break;
-    case 'V': // (V)iew scores
+    case CMD_VIEW_SCORES: // (V)iew scores
         show_scores();
         took_turn = false;
         break;
-    case 'W': // (W)here are we on the map  (L)ocate on map
+    case CMD_LOCATE: // (W)here are we on the map  (L)ocate on map
         locate_on_map();
         took_turn = false;
         break;
-    case 'R': // (R)est a while
+    case CMD_REST: // (R)est a while
         took_turn = rest();
         break;
-    case '#': // (#) search toggle  (S)earch toggle
+    case CMD_SEARCH_MODE: // (#) search toggle  (S)earch toggle
         if (player_is_searching()) {
             search_off();
         } else {
@@ -1245,91 +1225,94 @@ static bool do_command(char com_val) {
         }
         took_turn = false;
         break;
-    case CTRL_KEY('M'): // cr must be treated same as lf (^J: tunnel down).
-        took_turn = tunnel(2);
+    case CMD_TUNNEL: // (^B ^J ^N ^H ^L ^Y ^K ^U, and cr like lf) tunnel  (T)
+        took_turn = tunnel(command.dir);
         break;
-    case 'z': // (z)ap a wand    (a)im a wand
+    case CMD_AIM: // (z)ap a wand    (a)im a wand
         took_turn = aim();
         break;
-    case 'M':
+    case CMD_MAP:
         screen_map();
         took_turn = false;
         break;
-    case 'P': // (P)eruse a book  (B)rowse in a book
+    case CMD_BROWSE: // (P)eruse a book  (B)rowse in a book
         examine_book();
         took_turn = false;
         break;
-    case 'c': // (c)lose an object
+    case CMD_CLOSE: // (c)lose an object
         took_turn = closeobject();
         break;
-    case 'd': // (d)rop something
+    case CMD_DROP: // (d)rop something
         took_turn = inven_command('d');
         break;
-    case 'e': // (e)quipment list
+    case CMD_EQUIPMENT: // (e)quipment list
         took_turn = inven_command('e');
         break;
-    case 't': // (t)hrow something  (f)ire something
+    case CMD_THROW: // (t)hrow something  (f)ire something
         took_turn = throw_object();
         break;
-    case 'i': // (i)nventory list
+    case CMD_INVENTORY: // (i)nventory list
         took_turn = inven_command('i');
         break;
-    case 'S': // (S)pike a door  (j)am a door
+    case CMD_JAM: // (S)pike a door  (j)am a door
         took_turn = jamdoor();
         break;
-    case 'x': // e(x)amine surrounds  (l)ook about
+    case CMD_LOOK: // e(x)amine surrounds  (l)ook about
         look();
         took_turn = false;
         break;
-    case 'm': // (m)agic spells
+    case CMD_CAST: // (m)agic spells
         took_turn = cast();
         break;
-    case 'o': // (o)pen something
+    case CMD_OPEN: // (o)pen something
         took_turn = openobject();
         break;
-    case 'p': // (p)ray
+    case CMD_PRAY: // (p)ray
         took_turn = pray();
         break;
-    case 'q': // (q)uaff
+    case CMD_QUAFF: // (q)uaff
         took_turn = quaff();
         break;
-    case 'r': // (r)ead
+    case CMD_READ: // (r)ead
         took_turn = read_scroll();
         break;
-    case 's': // (s)earch for a turn
+    case CMD_SEARCH: // (s)earch for a turn
         // Search once with the player's skill; frequency is irrelevant for manual search.
         search(player_row(), player_col(), player_search_chance());
         break;
-    case 'T': // (T)ake off something  (t)ake off
+    case CMD_TAKE_OFF: // (T)ake off something  (t)ake off
         took_turn = inven_command('t');
         break;
-    case 'Z': // (Z)ap a staff  (u)se a staff
+    case CMD_USE: // (Z)ap a staff  (u)se a staff
         took_turn = use();
         break;
-    case 'v': // (v)ersion of game
+    case CMD_VERSION: // (v)ersion of game
         helpfile(MORIA_VER);
         took_turn = false;
         break;
-    case 'w': // (w)ear or wield
+    case CMD_WEAR: // (w)ear or wield
         took_turn = inven_command('w');
         break;
-    case 'X': // e(X)change weapons  e(x)change
+    case CMD_EXCHANGE: // e(X)change weapons  e(x)change
         took_turn = inven_command('x');
         break;
+    case CMD_WALK: // (b j n h l y k u) walk  (1 2 3 4 6 7 8 9)
+        took_turn = move_char(command.dir, do_pickup);
+        break;
+    case CMD_RUN: // (B J N H L Y K U) run  (. and a direction)
+        took_turn = find_init(command.dir);
+        break;
     default:
-        dir_val = command_key_direction(com_val, &style);
-        if (dir_val != 0) {
-            took_turn = walk_run_or_tunnel(dir_val, style, do_pickup);
-        } else if (progress_wizard_mode()) {
+        if (progress_wizard_mode()) {
             // Wizard commands are free moves
             took_turn = false;
-            wizard_command(com_val);
+            wizard_command(command.id);
         } else {
             prt("Type '?' for help.", 0, 0);
             took_turn = false;
         }
     }
-    note_command(com_val);
+    note_command(command.id);
     return took_turn;
 }
 

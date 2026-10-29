@@ -13,6 +13,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "ui_input.h"
 
 // --- char_screen.c ---
 void display_char(void);
@@ -65,6 +66,6 @@ bool aim(void);
 
 // --- wizard.c ---
 bool enter_wiz_mode(void);
-void wizard_command(char);
+void wizard_command(player_command_id);
 
 #endif // COMMANDS_H

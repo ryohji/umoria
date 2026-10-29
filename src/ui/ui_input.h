@@ -93,18 +93,6 @@ bool direction_is_remembered(void);
 void reuse_remembered_direction(void);
 void ask_for_direction_again(void);
 
-// --- The command before this one -------------------------------------------
-
-// Remember the command that has just run. Said by app/dungeon.c at the end of every
-// command.
-void note_command(char command);
-
-// Was the command before this one the given key? The only two readers both ask
-// it about themselves: pressing ^P twice in a row shows the whole message
-// history rather than one line, and pressing 'V' twice keeps the score screen
-// from being redrawn. **The character itself never leaves the module** -- nobody
-// needs to know what the previous command was, only whether it was this one.
-bool previous_command_was(char command);
 
 // --- direction.c ---
 bool get_dir(const char *, int *);
@@ -216,6 +204,19 @@ typedef struct {
 
 // The command of a key of the rogue-like set.
 player_command rogue_key_command(char key);
+
+// --- The command before this one -------------------------------------------
+
+// Remember the command that has just run. Said by app/dungeon.c at the end of every
+// command.
+void note_command(player_command_id command);
+
+// Was the command before this one the given one? The only two readers both ask
+// it about themselves: pressing ^P twice in a row shows the whole message
+// history rather than one line, and pressing 'V' twice keeps the score screen
+// from being redrawn. **The command itself never leaves the module** -- nobody
+// needs to know what the previous command was, only whether it was this one.
+bool previous_command_was(player_command_id command);
 
 // --- input.c ---
 // Input abstraction layer
