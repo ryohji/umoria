@@ -126,6 +126,19 @@ char direction_command_key(int dir, direction_key_style style);
 // key, with its style in *style. Returns 0 for any other key.
 int command_key_direction(char key, direction_key_style *style);
 
+// --- keymap.c ---
+// What a key of the original key set means. The commands go by their keys in
+// the rogue-like set: ORIGINAL_KEY_COMMAND puts that key in *command. . and T
+// start a run or tunnelling, in a direction that is asked for next.
+typedef enum {
+    ORIGINAL_KEY_COMMAND,
+    ORIGINAL_KEY_RUN_PREFIX,
+    ORIGINAL_KEY_TUNNEL_PREFIX,
+    ORIGINAL_KEY_ILLEGAL
+} original_key_kind;
+
+original_key_kind original_key_meaning(char key, char *command);
+
 // --- input.c ---
 // Input abstraction layer
 // Provides a device-independent interface for user input
