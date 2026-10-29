@@ -1090,12 +1090,155 @@ static char original_commands(char com_val) {
     return com_val;
 }
 
+// Shows the last message again, or with a count (or ^P twice) the last ones.
+static void show_previous_messages(void) {
+    int i, x;
+
+    if (command_is_repeating()) {
+        i = take_command_count();
+        if (i > MAX_SAVE_MSG) {
+            i = MAX_SAVE_MSG;
+        }
+    } else if (!previous_command_was(CTRL_KEY('P'))) {
+        i = 1;
+    } else {
+        i = MAX_SAVE_MSG;
+    }
+
+    if (i > 1) {
+        save_screen();
+        x = i;
+
+        // Oldest at the top, newest on the bottom row of the block: the
+        // row number counts down as we walk back through the history.
+        while (i > 0) {
+            i--;
+            prt(msg_history_recent(x - 1 - i), i, 0);
+        }
+
+        erase_line(x, 0);
+        pause_line(x);
+        restore_screen();
+    } else {
+        // Distinguish real and recovered messages with a '>'. -CJS-
+        put_buffer(">", 0, 0);
+        prt(msg_history_recent(0), 0, 1);
+    }
+}
+
+// Turns wizard mode off, or on if the player confirms it.
+static void toggle_wizard_mode(void) {
+    if (progress_wizard_mode()) {
+        progress_set_wizard_mode(false);
+        msg_print("Wizard mode off.");
+    } else if (enter_wiz_mode()) {
+        msg_print("Wizard mode on.");
+    }
+
+    prt_winner();
+}
+
+// Saves the game and exits, unless the character has won and must retire.
+static void save_and_exit(void) {
+    if (player_has_won()) {
+        msg_print(
+            "You are a Total Winner,  your character must be retired.");
+        if (rogue_like_commands) {
+            msg_print("Use 'Q' to when you are ready to quit.");
+        } else {
+            msg_print("Use <Control>-K when you are ready to quit.");
+        }
+    } else {
+        (void)strcpy(death_cause(), "(saved)");
+        msg_print("Saving game...");
+
+        if (save_char()) {
+            exit_game();
+        }
+
+        (void)strcpy(death_cause(), "(alive and well)");
+    }
+}
+
+// Shows the score list. Whether V came twice in a row is passed on, but
+// display_scores() does not look at it.
+static void show_scores(void) {
+    bool do_diplay_scores;
+
+    if (!previous_command_was('V')) {
+        do_diplay_scores = true;
+    } else {
+        do_diplay_scores = false;
+    }
+    save_screen();
+    display_scores(do_diplay_scores);
+    restore_screen();
+}
+
+// Shows the other sectors of the map, one panel in each direction asked for.
+static void locate_on_map(void) {
+    int y, x;
+    int dir_val;
+    vtype out_val, tmp_str;
+
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
+        msg_print("You can't see your map.");
+    } else {
+        int cy, cx, p_y, p_x;
+
+        y = player_row();
+        x = player_col();
+        if (get_panel(y, x, true)) {
+            prt_map();
+        }
+        cy = panel_row_index();
+        cx = panel_col_index();
+        for (;;) {
+            p_y = panel_row_index();
+            p_x = panel_col_index();
+            if (p_y == cy && p_x == cx) {
+                tmp_str[0] = '\0';
+            } else {
+                (void)sprintf(tmp_str, "%s%s of", p_y < cy ? " North" : p_y > cy ? " South" : "", p_x < cx ? " West" : p_x > cx ? " East" : "");
+            }
+            (void)sprintf(out_val, "Map sector [%d,%d], which is%s your sector. Look which direction?", p_y, p_x, tmp_str);
+            if (!get_dir(out_val, &dir_val)) {
+                break;
+            }
+
+            // -CJS-
+            // Should really use the move function, but what the hell. This
+            // is nicer, as it moves exactly to the same place in another
+            // section. The direction calculation is not intuitive. Sorry.
+            for (;;) {
+                x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
+                y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
+                // NOTE: y is compared against width. May be a bug (see dungeon_state.h).
+                if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
+                    msg_print("You've gone past the end of your map.");
+                    x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
+                    y += ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
+                    break;
+                }
+                if (get_panel(y, x, true)) {
+                    prt_map();
+                    break;
+                }
+            }
+        }
+
+        // Move to a new panel - but only if really necessary.
+        if (get_panel(player_row(), player_col(), false)) {
+            prt_map();
+        }
+    }
+}
+
 // Returns whether the command took a game turn.
 static bool do_command(char com_val) {
     int dir_val;
-    bool do_pickup, do_diplay_scores;
-    int y, x, i;
-    vtype out_val, tmp_str;
+    bool do_pickup;
+    int i;
 
     bool took_turn = true;
 
@@ -1128,36 +1271,7 @@ static bool do_command(char com_val) {
         took_turn = false;
         break;
     case CTRL_KEY('P'): // (^P)revious message.
-        if (command_is_repeating()) {
-            i = take_command_count();
-            if (i > MAX_SAVE_MSG) {
-                i = MAX_SAVE_MSG;
-            }
-        } else if (!previous_command_was(CTRL_KEY('P'))) {
-            i = 1;
-        } else {
-            i = MAX_SAVE_MSG;
-        }
-
-        if (i > 1) {
-            save_screen();
-            x = i;
-
-            // Oldest at the top, newest on the bottom row of the block: the
-            // row number counts down as we walk back through the history.
-            while (i > 0) {
-                i--;
-                prt(msg_history_recent(x - 1 - i), i, 0);
-            }
-
-            erase_line(x, 0);
-            pause_line(x);
-            restore_screen();
-        } else {
-            // Distinguish real and recovered messages with a '>'. -CJS-
-            put_buffer(">", 0, 0);
-            prt(msg_history_recent(0), 0, 1);
-        }
+        show_previous_messages();
 
         took_turn = false;
         break;
@@ -1166,35 +1280,11 @@ static bool do_command(char com_val) {
         took_turn = false;
         break;
     case CTRL_KEY('W'): // (^W)izard mode
-        if (progress_wizard_mode()) {
-            progress_set_wizard_mode(false);
-            msg_print("Wizard mode off.");
-        } else if (enter_wiz_mode()) {
-            msg_print("Wizard mode on.");
-        }
-
-        prt_winner();
+        toggle_wizard_mode();
         took_turn = false;
         break;
     case CTRL_KEY('X'): // e(^X)it and save
-        if (player_has_won()) {
-            msg_print(
-                "You are a Total Winner,  your character must be retired.");
-            if (rogue_like_commands) {
-                msg_print("Use 'Q' to when you are ready to quit.");
-            } else {
-                msg_print("Use <Control>-K when you are ready to quit.");
-            }
-        } else {
-            (void)strcpy(death_cause(), "(saved)");
-            msg_print("Saving game...");
-
-            if (save_char()) {
-                exit_game();
-            }
-
-            (void)strcpy(death_cause(), "(alive and well)");
-        }
+        save_and_exit();
 
         took_turn = false;
         break;
@@ -1314,68 +1404,11 @@ static bool do_command(char com_val) {
         took_turn = gain_spells();
         break;
     case 'V': // (V)iew scores
-        if (!previous_command_was('V')) {
-            do_diplay_scores = true;
-        } else {
-            do_diplay_scores = false;
-        }
-        save_screen();
-        display_scores(do_diplay_scores);
-        restore_screen();
+        show_scores();
         took_turn = false;
         break;
     case 'W': // (W)here are we on the map  (L)ocate on map
-        if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
-            msg_print("You can't see your map.");
-        } else {
-            int cy, cx, p_y, p_x;
-
-            y = player_row();
-            x = player_col();
-            if (get_panel(y, x, true)) {
-                prt_map();
-            }
-            cy = panel_row_index();
-            cx = panel_col_index();
-            for (;;) {
-                p_y = panel_row_index();
-                p_x = panel_col_index();
-                if (p_y == cy && p_x == cx) {
-                    tmp_str[0] = '\0';
-                } else {
-                    (void)sprintf(tmp_str, "%s%s of", p_y < cy ? " North" : p_y > cy ? " South" : "", p_x < cx ? " West" : p_x > cx ? " East" : "");
-                }
-                (void)sprintf(out_val, "Map sector [%d,%d], which is%s your sector. Look which direction?", p_y, p_x, tmp_str);
-                if (!get_dir(out_val, &dir_val)) {
-                    break;
-                }
-
-                // -CJS-
-                // Should really use the move function, but what the hell. This
-                // is nicer, as it moves exactly to the same place in another
-                // section. The direction calculation is not intuitive. Sorry.
-                for (;;) {
-                    x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
-                    y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                    // NOTE: y is compared against width. May be a bug (see dungeon_state.h).
-                    if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
-                        msg_print("You've gone past the end of your map.");
-                        x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
-                        y += ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                        break;
-                    }
-                    if (get_panel(y, x, true)) {
-                        prt_map();
-                        break;
-                    }
-                }
-            }
-
-            // Move to a new panel - but only if really necessary.
-            if (get_panel(player_row(), player_col(), false)) {
-                prt_map();
-            }
-        }
+        locate_on_map();
         took_turn = false;
         break;
     case 'R': // (R)est a while
