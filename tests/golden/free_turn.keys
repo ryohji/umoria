@@ -209,6 +209,12 @@ L6\e
 i\e
 \r
 s
+# ^P twice shows the message history (a key to go on); the wizard's light
+# (^L) and map (:)
+\x10\x10 
+\x0c
+:
+s
 # run: -w83 rogue.sav
 # record: turns
 # The rogue-like keys, for a human male warrior named Ed: set the option, then
