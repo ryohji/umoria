@@ -23,7 +23,6 @@
 #include "world_internal.h"
 #include "dice.h"
 #include "distance.h"
-#include "game_settings.h"
 #include "geometry.h"
 #include "monsters.h"
 #include "rnd.h"

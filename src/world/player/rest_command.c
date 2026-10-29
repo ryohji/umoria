@@ -12,7 +12,6 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
-#include "game_settings.h"
 #include "world_view.h"
 #include "world_player.h"
 #include "ui_screen.h"

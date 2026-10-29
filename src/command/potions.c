@@ -17,7 +17,6 @@
 #include "world_player.h"
 #include "world_view.h"
 #include "dice.h"
-#include "game_settings.h"
 #include "commands.h"
 #include "rnd.h"
 #include "ui_screen.h"

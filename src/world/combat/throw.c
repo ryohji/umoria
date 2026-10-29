@@ -23,7 +23,6 @@
 #include "dice.h"
 #include "ui_input.h"
 #include "ui_screen.h"
-#include "game_settings.h"
 #include "geometry.h"
 #include "monsters.h"
 #include "player.h"

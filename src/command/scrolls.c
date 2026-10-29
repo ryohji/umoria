@@ -18,7 +18,6 @@
 #include "world_dungeon.h"
 #include "world_monster.h"
 #include "world_player.h"
-#include "game_settings.h"
 #include "rnd.h"
 #include "commands.h"
 #include "ui_screen.h"

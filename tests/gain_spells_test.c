@@ -58,7 +58,6 @@
 #include "player_stats.h"
 
 /* 検証対象（src/world/item/spellbook.c）の宣言は externs.h から受ける。 */
-#include "game_settings.h"
 #include "world_item.h"
 #include "world_internal.h"
 

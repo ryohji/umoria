@@ -15,7 +15,6 @@
 #include "dice.h"
 #include "ui_input.h"
 #include "ui_screen.h"
-#include "game_settings.h"
 #include "world_item.h"
 #include "world_player.h"
 #include "world_dungeon.h"
