@@ -736,13 +736,12 @@ void dungeon(void) {
                 free_turn_flag = false;
 
                 if (player_is_running()) {
-                    find_run();
+                    took_turn = find_run();
                     find_count--;
                     if (find_count == 0) {
                         end_find();
                     }
                     put_qio();
-                    took_turn = !free_turn_flag;
                 } else if (pending_inven_command()) {
                     inven_command(pending_inven_command());
                     took_turn = !free_turn_flag;
@@ -1206,28 +1205,28 @@ static bool do_command(char com_val) {
         free_turn_flag = !move_char(9, do_pickup);
         break;
     case 'B': // (B) run down, left  (. 1)
-        find_init(1);
+        free_turn_flag = !find_init(1);
         break;
     case 'J': // (J) run down    (. 2)
-        find_init(2);
+        free_turn_flag = !find_init(2);
         break;
     case 'N': // (N) run down, right  (. 3)
-        find_init(3);
+        free_turn_flag = !find_init(3);
         break;
     case 'H': // (H) run left    (. 4)
-        find_init(4);
+        free_turn_flag = !find_init(4);
         break;
     case 'L': // (L) run right  (. 6)
-        find_init(6);
+        free_turn_flag = !find_init(6);
         break;
     case 'Y': // (Y) run up, left  (. 7)
-        find_init(7);
+        free_turn_flag = !find_init(7);
         break;
     case 'K': // (K) run up    (. 8)
-        find_init(8);
+        free_turn_flag = !find_init(8);
         break;
     case 'U': // (U) run up, right  (. 9)
-        find_init(9);
+        free_turn_flag = !find_init(9);
         break;
     case '/': // (/) identify a symbol
         ident_char();
