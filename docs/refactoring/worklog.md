@@ -32,3 +32,4 @@
 | 2026-10-29 | #74（本体 2） | 取りけせる効果 3 つの enum `effect_outcome`（`c83e732`。ユーザーの判断）、read_scroll（`5c3a981`。場面は `8a0880e`）、cast（`f1f6ba9`）、pray（`1cd4f42`）、throw・rest・gain_spells（`acce926`。gain_spells_test を戻り値に）。B30 を見つけた | 1844（88 本） | `scripts/check.sh` ALL OK |
 | 2026-10-30 | #74（本体 3） | 店と移動（`4970b42`。場面は `0c78dc0`。B31 を見つけた）、disarm・bash（`a8f62b5`）、走り（`2c62353`）、inven_command（`f7b2576`。場面は `7930cdd`）、dungeon.c の 4 つ（`58b862e`。場面は `50b16eb`） | 1844（88 本） | `scripts/check.sh` ALL OK |
 | 2026-10-30 | #74（本体 4） | do_command を局所の took_turn に（`4abe07a`）、旗を消す（`d8c23ba`。global 40 → 39、層の依存 919 → 905 本）、旗のためだけの include を 10 ファイルから外す（`21b8588`。`cmp_all.sh` で共通の 1096 関数の違い 0） | 1844（88 本） | `scripts/check.sh` ALL OK・globals OK 39 |
+| 2026-10-30 | #74 マージ | `refactor/74-free-turn`（26 コミット。1 つずつ空から組んで、どれも `scripts/check.sh` ALL OK）を `--no-ff` で（`f3b3281`） | 1844（88 本） | `scripts/check.sh` ALL OK・globals OK 39（マージ後の develop） |
