@@ -72,6 +72,357 @@ static void refill_lamp(void);
 
 // It has had a bit more hard work. -CJS-
 
+// Heroism (must precede anything that can damage player)
+static void tick_heroism(void) {
+    if (player_timed_in_force(PLAYER_TIMED_HEROISM)) {
+        if (player_timed_beginning(PLAYER_TIMED_HEROISM)) {
+            disturb(0, 0);
+            player_gain_temporary_max_hp(10);
+            // Adjust both melee and ranged to-hit by the same amount.
+            player_base_to_hit_adjust_both(12);
+            msg_print("You feel like a HERO!");
+            prt_mhp();
+            prt_chp();
+        }
+        if (player_timed_count_down(PLAYER_TIMED_HEROISM)) {
+            disturb(0, 0);
+            if (player_lose_temporary_max_hp(10)) {
+                prt_chp();
+            }
+            player_base_to_hit_adjust_both(-12);
+            msg_print("The heroism wears off.");
+            prt_mhp();
+        }
+    }
+}
+
+// Super Heroism
+static void tick_super_heroism(void) {
+    if (player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM)) {
+        if (player_timed_beginning(PLAYER_TIMED_SUPER_HEROISM)) {
+            disturb(0, 0);
+            player_gain_temporary_max_hp(20);
+            player_base_to_hit_adjust_both(24);
+            msg_print("You feel like a SUPER HERO!");
+            prt_mhp();
+            prt_chp();
+        }
+        if (player_timed_count_down(PLAYER_TIMED_SUPER_HEROISM)) {
+            disturb(0, 0);
+            if (player_lose_temporary_max_hp(20)) {
+                prt_chp();
+            }
+            player_base_to_hit_adjust_both(-24);
+            msg_print("The super heroism wears off.");
+            prt_mhp();
+        }
+    }
+}
+
+// Blindness
+static void tick_blindness(void) {
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+        if (player_timed_beginning(PLAYER_TIMED_BLINDNESS)) {
+            prt_map();
+            prt_blind();
+            disturb(0, 1);
+
+            // unlight creatures
+            creatures(false);
+        }
+        if (player_timed_count_down(PLAYER_TIMED_BLINDNESS)) {
+            prt_blind();
+            prt_map();
+
+            // light creatures
+            disturb(0, 1);
+            creatures(false);
+            msg_print("The veil of darkness lifts.");
+        }
+    }
+}
+
+// Confusion
+static void tick_confusion(void) {
+    if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+        if (player_timed_beginning(PLAYER_TIMED_CONFUSION)) {
+            prt_confused();
+        }
+        if (player_timed_count_down(PLAYER_TIMED_CONFUSION)) {
+            prt_confused();
+            msg_print("You feel less confused now.");
+            if (player_resting()) {
+                rest_off();
+            }
+        }
+    }
+}
+
+// Afraid
+static void tick_fear(void) {
+    if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
+        // The old test was (shero + hero) > 0. Neither counter is ever
+        // negative, so the sum is above zero exactly when one of the two is.
+        bool heroic = player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM) ||
+                      player_timed_in_force(PLAYER_TIMED_HEROISM);
+
+        if (!player_effect_in_force(PLAYER_EFFECT_AFRAID)) {
+            if (heroic) {
+                // Cleared, not ended: the count-down below then takes the
+                // counter to minus one and no "bolder" message is given,
+                // which is what the original did.
+                player_timed_clear(PLAYER_TIMED_FEAR);
+            } else {
+                (void)player_timed_beginning(PLAYER_TIMED_FEAR);
+                prt_afraid();
+            }
+        } else if (heroic) {
+            // One turn left, so the count-down below ends it properly.
+            player_timed_set(PLAYER_TIMED_FEAR, 1);
+        }
+        if (player_timed_count_down(PLAYER_TIMED_FEAR)) {
+            prt_afraid();
+            msg_print("You feel bolder now.");
+            disturb(0, 0);
+        }
+    }
+}
+
+// Poisoned
+static void tick_poison(void) {
+    int i;
+
+    if (player_timed_in_force(PLAYER_TIMED_POISON)) {
+        if (player_timed_beginning(PLAYER_TIMED_POISON)) {
+            prt_poisoned();
+        }
+        if (player_timed_count_down(PLAYER_TIMED_POISON)) {
+            prt_poisoned();
+            msg_print("You feel better.");
+            disturb(0, 0);
+        } else {
+            switch (con_adj()) {
+            case -4:
+                i = 4;
+                break;
+            case -3:
+            case -2:
+                i = 3;
+                break;
+            case -1:
+                i = 2;
+                break;
+            case 0:
+                i = 1;
+                break;
+            case 1:
+            case 2:
+            case 3:
+                i = ((progress_turn() % 2) == 0);
+                break;
+            case 4:
+            case 5:
+                i = ((progress_turn() % 3) == 0);
+                break;
+            case 6:
+                i = ((progress_turn() % 4) == 0);
+                break;
+            default:
+                // An uninitialized warning if given further down,
+                // so let's fix that here -MRC-
+                i = 0;
+            }
+
+            take_hit(i, "poison");
+            disturb(1, 0);
+        }
+    }
+}
+
+// Fast
+static void tick_haste(void) {
+    if (player_timed_in_force(PLAYER_TIMED_HASTE)) {
+        if (player_timed_beginning(PLAYER_TIMED_HASTE)) {
+            change_speed(-1);
+            msg_print("You feel yourself moving faster.");
+            disturb(0, 0);
+        }
+        if (player_timed_count_down(PLAYER_TIMED_HASTE)) {
+            change_speed(1);
+            msg_print("You feel yourself slow down.");
+            disturb(0, 0);
+        }
+    }
+}
+
+// Slow
+static void tick_slowness(void) {
+    if (player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
+        if (player_timed_beginning(PLAYER_TIMED_SLOWNESS)) {
+            change_speed(1);
+            msg_print("You feel yourself moving slower.");
+            disturb(0, 0);
+        }
+        if (player_timed_count_down(PLAYER_TIMED_SLOWNESS)) {
+            change_speed(-1);
+            msg_print("You feel yourself speed up.");
+            disturb(0, 0);
+        }
+    }
+}
+
+// Hallucinating?   (Random characters appear!)
+static void tick_hallucination(void) {
+    if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION)) {
+        end_find();
+        if (player_timed_count_down(PLAYER_TIMED_HALLUCINATION)) {
+            prt_map(); // Used to draw entire screen! -CJS-
+        }
+    }
+}
+
+// Paralysis
+static void tick_paralysis(void) {
+    if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+        // when paralysis true, you can not see any movement that occurs
+        (void)player_timed_count_down(PLAYER_TIMED_PARALYSIS);
+        disturb(1, 0);
+    }
+}
+
+// Protection from evil counter
+static void tick_protection_from_evil(void) {
+    if (player_timed_in_force(PLAYER_TIMED_PROTECTION_FROM_EVIL)) {
+        if (player_timed_count_down(PLAYER_TIMED_PROTECTION_FROM_EVIL)) {
+            msg_print("You no longer feel safe from evil.");
+        }
+    }
+}
+
+// Invulnerability
+static void tick_invulnerability(void) {
+    if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
+        if (player_timed_beginning(PLAYER_TIMED_INVULNERABILITY)) {
+            disturb(0, 0);
+            player_armour_class_adjust(100);
+            player_display_add_ac(100);
+            prt_pac();
+            msg_print("Your skin turns into steel!");
+        }
+        if (player_timed_count_down(PLAYER_TIMED_INVULNERABILITY)) {
+            disturb(0, 0);
+            player_armour_class_adjust(-100);
+            player_display_add_ac(-100);
+            prt_pac();
+            msg_print("Your skin returns to normal.");
+        }
+    }
+}
+
+// Blessed
+static void tick_blessing(void) {
+    if (player_timed_in_force(PLAYER_TIMED_BLESSING)) {
+        if (player_timed_beginning(PLAYER_TIMED_BLESSING)) {
+            disturb(0, 0);
+            player_base_to_hit_adjust_both(5);
+            player_armour_class_adjust(2);
+            player_display_add_ac(2);
+            msg_print("You feel righteous!");
+            prt_pac();
+        }
+        if (player_timed_count_down(PLAYER_TIMED_BLESSING)) {
+            disturb(0, 0);
+            player_base_to_hit_adjust_both(-5);
+            player_armour_class_adjust(-2);
+            player_display_add_ac(-2);
+            msg_print("The prayer has expired.");
+            prt_pac();
+        }
+    }
+}
+
+// Resist Heat
+static void tick_heat_resistance(void) {
+    if (player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
+        if (player_timed_count_down(PLAYER_TIMED_HEAT_RESISTANCE)) {
+            msg_print("You no longer feel safe from flame.");
+        }
+    }
+}
+
+// Resist Cold
+static void tick_cold_resistance(void) {
+    if (player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
+        if (player_timed_count_down(PLAYER_TIMED_COLD_RESISTANCE)) {
+            msg_print("You no longer feel safe from cold.");
+        }
+    }
+}
+
+// Detect Invisible
+static void tick_seeing_invisible(void) {
+    if (player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
+        if (player_timed_beginning(PLAYER_TIMED_SEEING_INVISIBLE)) {
+            player_grant_see_invisible();
+
+            // light but don't move creatures
+            creatures(false);
+        }
+        if (player_timed_count_down(PLAYER_TIMED_SEEING_INVISIBLE)) {
+            // may still be able to see_inv if wearing magic item
+            calc_bonuses();
+
+            // unlight but don't move creatures
+            creatures(false);
+        }
+    }
+}
+
+// Timed infra-vision
+static void tick_infra_vision(void) {
+    if (player_timed_in_force(PLAYER_TIMED_INFRA_VISION)) {
+        if (player_timed_beginning(PLAYER_TIMED_INFRA_VISION)) {
+            // The clock counts TURNS and lives in player_timed_effects.c;
+            // the one square it is worth is this file's to add, because this
+            // is where the two ends meet (player_skills.h).
+            player_infra_range_adjust(1);
+
+            // light but don't move creatures
+            creatures(false);
+        }
+        if (player_timed_count_down(PLAYER_TIMED_INFRA_VISION)) {
+            player_infra_range_adjust(-1);
+
+            // unlight but don't move creatures
+            creatures(false);
+        }
+    }
+}
+
+// Word-of-Recall  Note: Word-of-Recall is a delayed action
+static void tick_word_of_recall(void) {
+    if (player_timed_in_force(PLAYER_TIMED_WORD_OF_RECALL)) {
+        if (player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL) == 1) {
+            player_timed_add(PLAYER_TIMED_PARALYSIS, 1);
+            player_timed_clear(PLAYER_TIMED_WORD_OF_RECALL);
+            if (!player_is_in_town()) {
+                leave_for_level(0);
+                msg_print("You feel yourself yanked upwards!");
+            } else if (player_max_depth() != 0) {
+                leave_for_level(player_max_depth());
+                msg_print("You feel yourself yanked downwards!");
+            } else {
+                // In town, and no depth recorded yet, so there is nowhere to
+                // be yanked to. The level still ends, as it always did: the
+                // town is built again.
+                end_level();
+            }
+        } else {
+            (void)player_timed_count_down(PLAYER_TIMED_WORD_OF_RECALL);
+        }
+    }
+}
+
 void dungeon(void) {
     int i;
 
@@ -169,48 +520,9 @@ void dungeon(void) {
         // Update counters and messages
         //
 
-        // Heroism (must precede anything that can damage player)
-        if (player_timed_in_force(PLAYER_TIMED_HEROISM)) {
-            if (player_timed_beginning(PLAYER_TIMED_HEROISM)) {
-                disturb(0, 0);
-                player_gain_temporary_max_hp(10);
-                // Adjust both melee and ranged to-hit by the same amount.
-                player_base_to_hit_adjust_both(12);
-                msg_print("You feel like a HERO!");
-                prt_mhp();
-                prt_chp();
-            }
-            if (player_timed_count_down(PLAYER_TIMED_HEROISM)) {
-                disturb(0, 0);
-                if (player_lose_temporary_max_hp(10)) {
-                    prt_chp();
-                }
-                player_base_to_hit_adjust_both(-12);
-                msg_print("The heroism wears off.");
-                prt_mhp();
-            }
-        }
+        tick_heroism();
 
-        // Super Heroism
-        if (player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM)) {
-            if (player_timed_beginning(PLAYER_TIMED_SUPER_HEROISM)) {
-                disturb(0, 0);
-                player_gain_temporary_max_hp(20);
-                player_base_to_hit_adjust_both(24);
-                msg_print("You feel like a SUPER HERO!");
-                prt_mhp();
-                prt_chp();
-            }
-            if (player_timed_count_down(PLAYER_TIMED_SUPER_HEROISM)) {
-                disturb(0, 0);
-                if (player_lose_temporary_max_hp(20)) {
-                    prt_chp();
-                }
-                player_base_to_hit_adjust_both(-24);
-                msg_print("The super heroism wears off.");
-                prt_mhp();
-            }
-        }
+        tick_super_heroism();
 
         // Check food status
         int regen_amount = PLAYER_REGEN_NORMAL; // Regenerate hp and mana
@@ -267,143 +579,17 @@ void dungeon(void) {
             regenmana(regen_amount);
         }
 
-        // Blindness
-        if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
-            if (player_timed_beginning(PLAYER_TIMED_BLINDNESS)) {
-                prt_map();
-                prt_blind();
-                disturb(0, 1);
+        tick_blindness();
 
-                // unlight creatures
-                creatures(false);
-            }
-            if (player_timed_count_down(PLAYER_TIMED_BLINDNESS)) {
-                prt_blind();
-                prt_map();
+        tick_confusion();
 
-                // light creatures
-                disturb(0, 1);
-                creatures(false);
-                msg_print("The veil of darkness lifts.");
-            }
-        }
+        tick_fear();
 
-        // Confusion
-        if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
-            if (player_timed_beginning(PLAYER_TIMED_CONFUSION)) {
-                prt_confused();
-            }
-            if (player_timed_count_down(PLAYER_TIMED_CONFUSION)) {
-                prt_confused();
-                msg_print("You feel less confused now.");
-                if (player_resting()) {
-                    rest_off();
-                }
-            }
-        }
+        tick_poison();
 
-        // Afraid
-        if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
-            // The old test was (shero + hero) > 0. Neither counter is ever
-            // negative, so the sum is above zero exactly when one of the two is.
-            bool heroic = player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM) ||
-                          player_timed_in_force(PLAYER_TIMED_HEROISM);
+        tick_haste();
 
-            if (!player_effect_in_force(PLAYER_EFFECT_AFRAID)) {
-                if (heroic) {
-                    // Cleared, not ended: the count-down below then takes the
-                    // counter to minus one and no "bolder" message is given,
-                    // which is what the original did.
-                    player_timed_clear(PLAYER_TIMED_FEAR);
-                } else {
-                    (void)player_timed_beginning(PLAYER_TIMED_FEAR);
-                    prt_afraid();
-                }
-            } else if (heroic) {
-                // One turn left, so the count-down below ends it properly.
-                player_timed_set(PLAYER_TIMED_FEAR, 1);
-            }
-            if (player_timed_count_down(PLAYER_TIMED_FEAR)) {
-                prt_afraid();
-                msg_print("You feel bolder now.");
-                disturb(0, 0);
-            }
-        }
-
-        // Poisoned
-        if (player_timed_in_force(PLAYER_TIMED_POISON)) {
-            if (player_timed_beginning(PLAYER_TIMED_POISON)) {
-                prt_poisoned();
-            }
-            if (player_timed_count_down(PLAYER_TIMED_POISON)) {
-                prt_poisoned();
-                msg_print("You feel better.");
-                disturb(0, 0);
-            } else {
-                switch (con_adj()) {
-                case -4:
-                    i = 4;
-                    break;
-                case -3:
-                case -2:
-                    i = 3;
-                    break;
-                case -1:
-                    i = 2;
-                    break;
-                case 0:
-                    i = 1;
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                    i = ((progress_turn() % 2) == 0);
-                    break;
-                case 4:
-                case 5:
-                    i = ((progress_turn() % 3) == 0);
-                    break;
-                case 6:
-                    i = ((progress_turn() % 4) == 0);
-                    break;
-                default:
-                    // An uninitialized warning if given further down,
-                    // so let's fix that here -MRC-
-                    i = 0;
-                }
-
-                take_hit(i, "poison");
-                disturb(1, 0);
-            }
-        }
-
-        // Fast
-        if (player_timed_in_force(PLAYER_TIMED_HASTE)) {
-            if (player_timed_beginning(PLAYER_TIMED_HASTE)) {
-                change_speed(-1);
-                msg_print("You feel yourself moving faster.");
-                disturb(0, 0);
-            }
-            if (player_timed_count_down(PLAYER_TIMED_HASTE)) {
-                change_speed(1);
-                msg_print("You feel yourself slow down.");
-                disturb(0, 0);
-            }
-        }
-
-        // Slow
-        if (player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
-            if (player_timed_beginning(PLAYER_TIMED_SLOWNESS)) {
-                change_speed(1);
-                msg_print("You feel yourself moving slower.");
-                disturb(0, 0);
-            }
-            if (player_timed_count_down(PLAYER_TIMED_SLOWNESS)) {
-                change_speed(-1);
-                msg_print("You feel yourself speed up.");
-                disturb(0, 0);
-            }
-        }
+        tick_slowness();
 
         // Resting is over?
         if (player_resting()) {
@@ -429,137 +615,25 @@ void dungeon(void) {
             disturb(0, 0);
         }
 
-        // Hallucinating?   (Random characters appear!)
-        if (player_timed_in_force(PLAYER_TIMED_HALLUCINATION)) {
-            end_find();
-            if (player_timed_count_down(PLAYER_TIMED_HALLUCINATION)) {
-                prt_map(); // Used to draw entire screen! -CJS-
-            }
-        }
+        tick_hallucination();
 
-        // Paralysis
-        if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
-            // when paralysis true, you can not see any movement that occurs
-            (void)player_timed_count_down(PLAYER_TIMED_PARALYSIS);
-            disturb(1, 0);
-        }
+        tick_paralysis();
 
-        // Protection from evil counter
-        if (player_timed_in_force(PLAYER_TIMED_PROTECTION_FROM_EVIL)) {
-            if (player_timed_count_down(PLAYER_TIMED_PROTECTION_FROM_EVIL)) {
-                msg_print("You no longer feel safe from evil.");
-            }
-        }
+        tick_protection_from_evil();
 
-        // Invulnerability
-        if (player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
-            if (player_timed_beginning(PLAYER_TIMED_INVULNERABILITY)) {
-                disturb(0, 0);
-                player_armour_class_adjust(100);
-                player_display_add_ac(100);
-                prt_pac();
-                msg_print("Your skin turns into steel!");
-            }
-            if (player_timed_count_down(PLAYER_TIMED_INVULNERABILITY)) {
-                disturb(0, 0);
-                player_armour_class_adjust(-100);
-                player_display_add_ac(-100);
-                prt_pac();
-                msg_print("Your skin returns to normal.");
-            }
-        }
+        tick_invulnerability();
 
-        // Blessed
-        if (player_timed_in_force(PLAYER_TIMED_BLESSING)) {
-            if (player_timed_beginning(PLAYER_TIMED_BLESSING)) {
-                disturb(0, 0);
-                player_base_to_hit_adjust_both(5);
-                player_armour_class_adjust(2);
-                player_display_add_ac(2);
-                msg_print("You feel righteous!");
-                prt_pac();
-            }
-            if (player_timed_count_down(PLAYER_TIMED_BLESSING)) {
-                disturb(0, 0);
-                player_base_to_hit_adjust_both(-5);
-                player_armour_class_adjust(-2);
-                player_display_add_ac(-2);
-                msg_print("The prayer has expired.");
-                prt_pac();
-            }
-        }
+        tick_blessing();
 
-        // Resist Heat
-        if (player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
-            if (player_timed_count_down(PLAYER_TIMED_HEAT_RESISTANCE)) {
-                msg_print("You no longer feel safe from flame.");
-            }
-        }
+        tick_heat_resistance();
 
-        // Resist Cold
-        if (player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
-            if (player_timed_count_down(PLAYER_TIMED_COLD_RESISTANCE)) {
-                msg_print("You no longer feel safe from cold.");
-            }
-        }
+        tick_cold_resistance();
 
-        // Detect Invisible
-        if (player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
-            if (player_timed_beginning(PLAYER_TIMED_SEEING_INVISIBLE)) {
-                player_grant_see_invisible();
+        tick_seeing_invisible();
 
-                // light but don't move creatures
-                creatures(false);
-            }
-            if (player_timed_count_down(PLAYER_TIMED_SEEING_INVISIBLE)) {
-                // may still be able to see_inv if wearing magic item
-                calc_bonuses();
+        tick_infra_vision();
 
-                // unlight but don't move creatures
-                creatures(false);
-            }
-        }
-
-        // Timed infra-vision
-        if (player_timed_in_force(PLAYER_TIMED_INFRA_VISION)) {
-            if (player_timed_beginning(PLAYER_TIMED_INFRA_VISION)) {
-                // The clock counts TURNS and lives in player_timed_effects.c;
-                // the one square it is worth is this file's to add, because this
-                // is where the two ends meet (player_skills.h).
-                player_infra_range_adjust(1);
-
-                // light but don't move creatures
-                creatures(false);
-            }
-            if (player_timed_count_down(PLAYER_TIMED_INFRA_VISION)) {
-                player_infra_range_adjust(-1);
-
-                // unlight but don't move creatures
-                creatures(false);
-            }
-        }
-
-        // Word-of-Recall  Note: Word-of-Recall is a delayed action
-        if (player_timed_in_force(PLAYER_TIMED_WORD_OF_RECALL)) {
-            if (player_timed_turns(PLAYER_TIMED_WORD_OF_RECALL) == 1) {
-                player_timed_add(PLAYER_TIMED_PARALYSIS, 1);
-                player_timed_clear(PLAYER_TIMED_WORD_OF_RECALL);
-                if (!player_is_in_town()) {
-                    leave_for_level(0);
-                    msg_print("You feel yourself yanked upwards!");
-                } else if (player_max_depth() != 0) {
-                    leave_for_level(player_max_depth());
-                    msg_print("You feel yourself yanked downwards!");
-                } else {
-                    // In town, and no depth recorded yet, so there is nowhere to
-                    // be yanked to. The level still ends, as it always did: the
-                    // town is built again.
-                    end_level();
-                }
-            } else {
-                (void)player_timed_count_down(PLAYER_TIMED_WORD_OF_RECALL);
-            }
-        }
+        tick_word_of_recall();
 
         // Random teleportation
         if (player_teleports_randomly() && (randint(100) == 1)) {

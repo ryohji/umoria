@@ -34,10 +34,9 @@
 |---|---|---|---|---|
 | 19 | 重複コード | world/item/spells.c の `light_line` `disarm_all` `hp_monster` `drain_life` `speed_monster` `confuse_monster` `sleep_monster` `wall_to_mud` `td_destroy2` `poly_monster` `build_wall` `clone_monster` `teleport_monster`、world/combat/projectiles.c:69-141 `fire_bolt`・:144-268 `fire_ball` | 「方向に飛ばして最初の対象を探す」骨格の写し。うち 5 関数はほぼ行単位で一致 | 終了条件に微妙な差がある（`fire_ball` は `fval` の判定を else 側に置く）。テストの保護なしの抽出は危険 |
 | 21 | 複雑な条件分岐 | world/monster/creature.c:471-679 `mon_cast_spell`（switch は :534） | switch 20 ケース。ケース番号がビット位置の生の数で、魔法 ID が前段の分岐に直書き | 変更頻度が低く、テストのコストが高い |
-| 22 | 長すぎるメソッド | world/item/desc.c:251-559 `objdes` | 309 行。被参照 約 51 か所で、表示文字列を全域が頼る | 影響は大きいが、分割には広いテストが要る |
 | 50 | （テストの穴） | world/player/player_bonuses.c:94-200 `calc_bonuses`、command/create.c:422-423、app/dungeon.c:466, 473, 485, 493、app/save.c:734-745 | **窓口を呼ぶ順番と条件（呼び手に残した規則）を見るテストが無い。** 窓口の中は `player_display_numbers_test` が守るが、呼び手は守られていない | もとから空いていた穴。呼び手を単体で呼べる足場が要る。経過は下の「#50 の族」 |
 | 51 | 重複コード | world/combat/monster_melee.c:592-609（モンスターの攻撃）と world/combat/player_melee.c:93-111（プレイヤーの攻撃） | 光る手が当たったときの約 18 行がほぼ写し。差は 4 つ：(1) 前者だけ `adesc != 99` を見る、(2) 大文字化の手が違う、(3) 見えているかの条件が `visible && !player_is_dead()` か `m_ptr->ml` か、(4) `msg_print("Your hands stop glowing.")` と `player_glowing_hands_spend()` の順が逆（monster_melee.c:593-594 と player_melee.c:94-95） | (1) は意図がコメントにある。(2)〜(4) は意図か分からず、畳むと決めた時点でふるまいが変わる。まず「どちらが正しいか」の判断が要る |
-| 71 | 長すぎるメソッド | app/dungeon.c:75-806 `dungeon()`（732 行）、app/dungeon.c:982-1380 `do_command`（399 行） | `dungeon()` の約 420 行は、時間で切れる効果 18 種の同じ形の並び（#50 の族もこの中）。局所の `i` を 3 つの用途に使いまわす。2026-10-10 にウィザード用の switch を ui/wizard.c へ移し、必ず真の判定を `else` にした（#71-1・#71-2） | dungeon.c には単体テストが届かない。効果ごとの塊を窓口の側へ出す足場が先 |
+| 71 | 長すぎるメソッド | app/dungeon.c:75-806 `dungeon()`（732 → 455 行。時間で切れる効果 18 種は `tick_<効果>()` に出した）、app/dungeon.c:982-1380 `do_command`（399 行） | `dungeon()` の約 420 行は、時間で切れる効果 18 種の同じ形の並び（#50 の族もこの中）。局所の `i` を 3 つの用途に使いまわす。2026-10-10 にウィザード用の switch を ui/wizard.c へ移し、必ず真の判定を `else` にした（#71-1・#71-2） | dungeon.c には単体テストが届かない。効果ごとの塊を窓口の側へ出す足場が先 |
 | 72 | 長すぎるメソッド | command/inven_menu.c:394-970 `inven_command`（577 行）、command/recall.c:163-655 `roff_recall`（493 行）、app/save.c:524-1259 `get_char`（736 行）、command/potions.c `quaff`・command/eat.c `eat` | 台帳の #22・#25〜#27 に無い長い関数。`get_char` は版の分岐と goto が入りまじる | どれも externs.h・画面・乱数に全面的に依存する。`get_char` は #49 と同じ足場が要る |
 | 74 | データの散在 | `free_turn_flag`（宣言の外で 80 か所、dungeon.c に 32） | 中身は「このコマンドで turn を使ったか」という戻り値で、それを global で伝えている | `do_command()` の戻り値をどうするかの設計判断が先（`globals_inventory.md` の見立てでは残置） |
 
@@ -144,6 +143,8 @@
 | 94 | 端末なしで本体を通す golden（`tests/headless_backend.c`・`tests/golden/`・`make -f makefile.test golden`）。8 本で本体の行の 44.5% を通る。`scripts/check.sh` | [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md) |
 | 95 | モンスター表を先頭からたどる iterator（`monster_creature_begin` ほか・`advance`・`distance`）を足し、セーブで記憶を書く走査と `summon_undead` の走査をそれに（ユーザーの依頼）。`summon_undead_test` を足した | 同上 |
 | 96 | handle と iterator を 1 つの型 `creature_iterator`（添字を持つ構造体）にまとめる。`monster_get_creature`・`make_creature_handle`・`get_creature_handle` を消す（ユーザーの依頼） | 同上 |
+| 22 | `objdes`（309 行）を `base_name` と段ごとの static 関数 6 本に（17 行）。総当たり `objdes_all` を golden に常設 | `worklog.md`（2026-10-25） |
+| 71（一部） | `dungeon()` の時間で切れる効果 18 種を `tick_<効果>()` に（行は開いたまま） | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
