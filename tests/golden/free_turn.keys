@@ -150,3 +150,36 @@ s
 we 
 x
 s
+# run: -w79 lamp.sav
+# record: turns
+# Stairs, a lamp and spikes, by a human male warrior named Ed in a quiet part
+# of the town: no staircase here (< and > take no turn)
+\n y
+am\ea
+Ed\r
+ 
+<
+>
+# a wizard lantern: pick it up and wield it
+@ 15\r~\r0\r50\r1\r1\r1\r0\r0\r0\r0\r3000\r0\r35\r1\ry
+4
+6
+i\e
+we
+# a wizard flask of oil: refilling the lantern takes a turn
+@ 77\r!\r64\r10\r1\r2\r6\r0\r0\r0\r0\r7500\r40000\r3\r1\ry
+4
+6
+F
+# wizard spikes, and a closed door left behind to the east: jamming it takes
+# a turn
+@ 13\r~\r193\r10\r5\r1\r1\r0\r0\r0\r0\r0\r0\r1\r1\ry
+4
+6
+@ 105\r+\r19\r0\r1\r1\r1\r0\r0\r0\r0\r0\r0\r0\r0\ry
+4
+j6
+# a wizard down staircase under us: going down takes a turn
+@ 108\r>\r1\r0\r1\r1\r1\r0\r0\r0\r0\r0\r0\r0\r0\ry
+>
+s
