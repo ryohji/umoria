@@ -1,0 +1,93 @@
+# run: -w61 game.sav
+# record: turns
+# Which keys take a game turn (free_turn_flag): each key line has the turn the
+# game was at when it asked for the key. Create a human male mage named Cy.
+\n y
+am\eb
+Cy\r
+  
+# a search takes a turn; the screens below do not
+s
+C\e
+i\e
+e\e
+L\e
+M\e
+\x10\e
+# prompts for an item or a direction, cancelled
+E\e
+w\e
+d\e
+b\e
+v\e
+o\e
+c\e
+D\e
+T\e
+B\e
+j\e
+R\e
+# nothing to use: the command says so and takes no turn
+q
+r
+a
+u
+t
+F
+Qn
+# learning: cancelled at the choice it still takes a turn
+G\e
+Ga
+# a spell: cancelled at the book, the spell and the direction, then cast
+ma\e
+maa\e
+maa6
+# a count on a command that takes none, and on a search (cut short by the
+# townsperson next to us)
+\x233i 
+\x233s
+# a wizard wand of magic missile: cancelled at the item and the direction,
+# then aimed
+@ 65\r-\r13\r10\r1\r1\r1\r0\r0\r0\r0\r5\r2000\r200\r2\ry
+4
+6
+a\e
+ac\e
+ac6
+s
+# wear and take off take a turn; cancelled, they do not
+wd
+t\e
+ta
+s
+# a counted search on level 1, where nothing cuts it short
+\x041\r
+\x233s
+s
+# run: -w67 priest.sav
+# record: turns
+# A human male priest named Di, raised to level 22 with the wizard's +, learns
+# his prayers; a wizard book with Blind Creature and Orb of Draining.
+\n y
+am\ec
+Di\r
+  
+\x2399+
++
++
++
++
++
++
++
++
++
+G                     
+@ 91\r?\r66\r30\r1\r1\r1\r0\r0\r0\r0\r0\r20100\r400\r40\ry
+4
+6
+# a prayer: cancelled at the book, the prayer and the direction, then said
+pb\e
+pba\e
+pba6
+s

@@ -1,0 +1,67 @@
+# run: -w71 game.sav
+# The glowing hands of a scroll of monster confusion, from both sides of a
+# fight (#51): a human male warrior named Ed goes down to 150 feet, takes five
+# wizard scrolls of monster confusion, summons a monster and hits it with
+# glowing hands (it appears confused), then reads another and waits until a
+# summoned monster touches him (it is unaffected).
+\n y
+am\ea
+Ed\r
+ 
+\x043\r
+@ 70\r?\r74\r5\r5\r0\r0\r0\r0\r0\r0\r0\r400\r30\r5\ry
+4
+6
+i\e
+\x15
+rb
+7 
+rb
+\x15
+s
+s
+s
+s 
+# run: -w9 second.sav
+# The monster's side again on 50 feet, against one that never sleeps
+# (CD_NO_SLEEP): a shrieker mushroom patch summoned next to Ed wails at the
+# glowing hands; then a few more turns.
+\n y
+am\ea
+Ed\r
+ 
+\x041\r
+@ 70\r?\r74\r5\r5\r0\r0\r0\r0\r0\r0\r0\r400\r30\r5\ry
+4
+6
+rb
+\x15
+s
+ 
+ s
+ s
+ s
+ s
+# run: -w5 third.sav
+# The player's side against one that never sleeps: a yellow mold summoned up
+# and to the right of Ed misses him while he reads, and he hits it.
+\n y
+am\ea
+Ed\r
+ 
+\x041\r
+@ 70\r?\r74\r5\r5\r0\r0\r0\r0\r0\r0\r0\r400\r30\r5\ry
+4
+6
+\x15
+rb
+9
+  
+s
+s
+s
+s
+s
+s
+s
+ 
