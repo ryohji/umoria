@@ -33,10 +33,11 @@
 #include "command_internal.h"
 
 // Pray like HELL. -RAK-
-void pray(void) {
+// Returns whether it took a game turn.
+bool pray(void) {
     int i, j, item_val, dir;
 
-    free_turn_flag = true;
+    bool took_turn = false;
 
     if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
         msg_print("You can't see to read your prayer!");
@@ -57,7 +58,7 @@ void pray(void) {
         if (result < 0) {
             msg_print("You don't know any prayers in that book.");
         } else if (result > 0) {
-            free_turn_flag = false;
+            took_turn = true;
 
             spell_type *s_ptr = &magic_spell[player_class() - 1][choice];
 
@@ -93,6 +94,8 @@ void pray(void) {
                 case 9:
                     if (get_dir(CNIL, &dir)) {
                         (void)confuse_monster(dir, player_row(), player_col());
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 10:
@@ -108,7 +111,9 @@ void pray(void) {
                     (void)sleep_monsters1(player_row(), player_col());
                     break;
                 case 14:
-                    (void)create_food();
+                    if (create_food() == EFFECT_CANCELLED) {
+                        took_turn = false;
+                    }
                     break;
                 case 15:
                     for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
@@ -132,6 +137,8 @@ void pray(void) {
                 case 18:
                     if (get_dir(CNIL, &dir)) {
                         fire_ball(GF_HOLY_ORB, dir, player_row(), player_col(), (damroll(3, 6) + player_level()), "Black Sphere");
+                    } else {
+                        took_turn = false;
                     }
                     break;
                 case 19:
@@ -191,7 +198,7 @@ void pray(void) {
                     break;
                 }
                 // End of prayers.
-                if (!free_turn_flag) {
+                if (took_turn) {
                     if (!spell_has_worked(choice)) {
                         player_gain_experience(s_ptr->sexp << 2);
                         prt_experience();
@@ -200,7 +207,7 @@ void pray(void) {
                 }
             }
 
-            if (!free_turn_flag) {
+            if (took_turn) {
                 // The same arrangement as casting a spell (magic.c): what
                 // could not be paid for is what the fatigue lasts on.
                 int spent = player_spend_mana(s_ptr->smana);
@@ -216,4 +223,5 @@ void pray(void) {
             }
         }
     }
+    return took_turn;
 }

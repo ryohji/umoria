@@ -49,7 +49,7 @@ void set_options(void);
 bool quaff(void);
 
 // --- prayer.c ---
-void pray(void);
+bool pray(void);
 
 // --- scrolls.c ---
 bool read_scroll(void);

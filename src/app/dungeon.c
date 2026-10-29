@@ -1416,7 +1416,7 @@ static bool do_command(char com_val) {
         free_turn_flag = !openobject();
         break;
     case 'p': // (p)ray
-        pray();
+        free_turn_flag = !pray();
         break;
     case 'q': // (q)uaff
         free_turn_flag = !quaff();
