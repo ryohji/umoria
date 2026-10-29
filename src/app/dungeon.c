@@ -733,7 +733,6 @@ void dungeon(void) {
                 }
 
                 ask_for_direction_again();
-                free_turn_flag = false;
 
                 if (player_is_running()) {
                     took_turn = find_run();
@@ -830,7 +829,6 @@ void dungeon(void) {
                         }
                         if (i > 0) {
                             if (!valid_countcommand(command)) {
-                                free_turn_flag = true;
                                 msg_print("Invalid command with a count.");
                                 command = ' ';
                             } else {
@@ -1061,6 +1059,8 @@ static bool do_command(char com_val) {
     int y, x, i;
     vtype out_val, tmp_str;
 
+    bool took_turn = true;
+
     // hack for move without pickup.  Map '-' to a movement command.
     if (com_val == '-') {
         do_pickup = false;
@@ -1087,7 +1087,7 @@ static bool do_command(char com_val) {
             set_player_dead(true);
             (void)strcpy(death_cause(), "Quitting");
         }
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case CTRL_KEY('P'): // (^P)revious message.
         if (command_is_repeating()) {
@@ -1121,11 +1121,11 @@ static bool do_command(char com_val) {
             prt(msg_history_recent(0), 0, 1);
         }
 
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case CTRL_KEY('V'): // (^V)iew license
         helpfile(MORIA_GPL);
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case CTRL_KEY('W'): // (^W)izard mode
         if (progress_wizard_mode()) {
@@ -1136,7 +1136,7 @@ static bool do_command(char com_val) {
         }
 
         prt_winner();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case CTRL_KEY('X'): // e(^X)it and save
         if (player_has_won()) {
@@ -1158,93 +1158,93 @@ static bool do_command(char com_val) {
             (void)strcpy(death_cause(), "(alive and well)");
         }
 
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case '=': // (=) set options
         save_screen();
         set_options();
         restore_screen();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case '{': // ({) inscribe an object
         scribe_object();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case '!': // (!) escape to the shell
     case '$':
         shell_out();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case ESCAPE: // (ESC)   do nothing.
     case ' ':    // (space) do nothing.
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'b': // (b) down, left  (1)
-        free_turn_flag = !move_char(1, do_pickup);
+        took_turn = move_char(1, do_pickup);
         break;
     case 'j': // (j) down    (2)
-        free_turn_flag = !move_char(2, do_pickup);
+        took_turn = move_char(2, do_pickup);
         break;
     case 'n': // (n) down, right  (3)
-        free_turn_flag = !move_char(3, do_pickup);
+        took_turn = move_char(3, do_pickup);
         break;
     case 'h': // (h) left    (4)
-        free_turn_flag = !move_char(4, do_pickup);
+        took_turn = move_char(4, do_pickup);
         break;
     case 'l': // (l) right    (6)
-        free_turn_flag = !move_char(6, do_pickup);
+        took_turn = move_char(6, do_pickup);
         break;
     case 'y': // (y) up, left    (7)
-        free_turn_flag = !move_char(7, do_pickup);
+        took_turn = move_char(7, do_pickup);
         break;
     case 'k': // (k) up    (8)
-        free_turn_flag = !move_char(8, do_pickup);
+        took_turn = move_char(8, do_pickup);
         break;
     case 'u': // (u) up, right  (9)
-        free_turn_flag = !move_char(9, do_pickup);
+        took_turn = move_char(9, do_pickup);
         break;
     case 'B': // (B) run down, left  (. 1)
-        free_turn_flag = !find_init(1);
+        took_turn = find_init(1);
         break;
     case 'J': // (J) run down    (. 2)
-        free_turn_flag = !find_init(2);
+        took_turn = find_init(2);
         break;
     case 'N': // (N) run down, right  (. 3)
-        free_turn_flag = !find_init(3);
+        took_turn = find_init(3);
         break;
     case 'H': // (H) run left    (. 4)
-        free_turn_flag = !find_init(4);
+        took_turn = find_init(4);
         break;
     case 'L': // (L) run right  (. 6)
-        free_turn_flag = !find_init(6);
+        took_turn = find_init(6);
         break;
     case 'Y': // (Y) run up, left  (. 7)
-        free_turn_flag = !find_init(7);
+        took_turn = find_init(7);
         break;
     case 'K': // (K) run up    (. 8)
-        free_turn_flag = !find_init(8);
+        took_turn = find_init(8);
         break;
     case 'U': // (U) run up, right  (. 9)
-        free_turn_flag = !find_init(9);
+        took_turn = find_init(9);
         break;
     case '/': // (/) identify a symbol
         ident_char();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case '.': // (.) stay in one place (5)
-        free_turn_flag = !move_char(5, do_pickup);
+        took_turn = move_char(5, do_pickup);
         if (command_count_remaining() > 1) {
             consume_command_count();
             if (!rest()) {
-                free_turn_flag = true;
+                took_turn = false;
             }
         }
         break;
     case '<': // (<) go down a staircase
-        free_turn_flag = !go_up();
+        took_turn = go_up();
         break;
     case '>': // (>) go up a staircase
-        free_turn_flag = !go_down();
+        took_turn = go_down();
         break;
     case '?': // (?) help with commands
         if (rogue_like_commands) {
@@ -1252,28 +1252,28 @@ static bool do_command(char com_val) {
         } else {
             helpfile(MORIA_ORIG_HELP);
         }
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'f': // (f)orce    (B)ash
-        free_turn_flag = !bash();
+        took_turn = bash();
         break;
     case 'C': // (C)haracter description
         save_screen();
         change_name();
         restore_screen();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'D': // (D)isarm trap
-        free_turn_flag = !disarm_trap();
+        took_turn = disarm_trap();
         break;
     case 'E': // (E)at food
-        free_turn_flag = !eat();
+        took_turn = eat();
         break;
     case 'F': // (F)ill lamp
-        free_turn_flag = !refill_lamp();
+        took_turn = refill_lamp();
         break;
     case 'G': // (G)ain magic spells
-        free_turn_flag = !gain_spells();
+        took_turn = gain_spells();
         break;
     case 'V': // (V)iew scores
         if (!previous_command_was('V')) {
@@ -1284,7 +1284,7 @@ static bool do_command(char com_val) {
         save_screen();
         display_scores(do_diplay_scores);
         restore_screen();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'W': // (W)here are we on the map  (L)ocate on map
         if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
@@ -1338,10 +1338,10 @@ static bool do_command(char com_val) {
                 prt_map();
             }
         }
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'R': // (R)est a while
-        free_turn_flag = !rest();
+        took_turn = rest();
         break;
     case '#': // (#) search toggle  (S)earch toggle
         if (player_is_searching()) {
@@ -1349,113 +1349,113 @@ static bool do_command(char com_val) {
         } else {
             search_on();
         }
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case CTRL_KEY('B'): // (^B) tunnel down left  (T 1)
-        free_turn_flag = !tunnel(1);
+        took_turn = tunnel(1);
         break;
     case CTRL_KEY('M'): // cr must be treated same as lf.
     case CTRL_KEY('J'): // (^J) tunnel down    (T 2)
-        free_turn_flag = !tunnel(2);
+        took_turn = tunnel(2);
         break;
     case CTRL_KEY('N'): // (^N) tunnel down right  (T 3)
-        free_turn_flag = !tunnel(3);
+        took_turn = tunnel(3);
         break;
     case CTRL_KEY('H'): // (^H) tunnel left    (T 4)
-        free_turn_flag = !tunnel(4);
+        took_turn = tunnel(4);
         break;
     case CTRL_KEY('L'): // (^L) tunnel right    (T 6)
-        free_turn_flag = !tunnel(6);
+        took_turn = tunnel(6);
         break;
     case CTRL_KEY('Y'): // (^Y) tunnel up left    (T 7)
-        free_turn_flag = !tunnel(7);
+        took_turn = tunnel(7);
         break;
     case CTRL_KEY('K'): // (^K) tunnel up    (T 8)
-        free_turn_flag = !tunnel(8);
+        took_turn = tunnel(8);
         break;
     case CTRL_KEY('U'): // (^U) tunnel up right    (T 9)
-        free_turn_flag = !tunnel(9);
+        took_turn = tunnel(9);
         break;
     case 'z': // (z)ap a wand    (a)im a wand
-        free_turn_flag = !aim();
+        took_turn = aim();
         break;
     case 'M':
         screen_map();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'P': // (P)eruse a book  (B)rowse in a book
         examine_book();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'c': // (c)lose an object
-        free_turn_flag = !closeobject();
+        took_turn = closeobject();
         break;
     case 'd': // (d)rop something
-        free_turn_flag = !inven_command('d');
+        took_turn = inven_command('d');
         break;
     case 'e': // (e)quipment list
-        free_turn_flag = !inven_command('e');
+        took_turn = inven_command('e');
         break;
     case 't': // (t)hrow something  (f)ire something
-        free_turn_flag = !throw_object();
+        took_turn = throw_object();
         break;
     case 'i': // (i)nventory list
-        free_turn_flag = !inven_command('i');
+        took_turn = inven_command('i');
         break;
     case 'S': // (S)pike a door  (j)am a door
-        free_turn_flag = !jamdoor();
+        took_turn = jamdoor();
         break;
     case 'x': // e(x)amine surrounds  (l)ook about
         look();
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'm': // (m)agic spells
-        free_turn_flag = !cast();
+        took_turn = cast();
         break;
     case 'o': // (o)pen something
-        free_turn_flag = !openobject();
+        took_turn = openobject();
         break;
     case 'p': // (p)ray
-        free_turn_flag = !pray();
+        took_turn = pray();
         break;
     case 'q': // (q)uaff
-        free_turn_flag = !quaff();
+        took_turn = quaff();
         break;
     case 'r': // (r)ead
-        free_turn_flag = !read_scroll();
+        took_turn = read_scroll();
         break;
     case 's': // (s)earch for a turn
         // Search once with the player's skill; frequency is irrelevant for manual search.
         search(player_row(), player_col(), player_search_chance());
         break;
     case 'T': // (T)ake off something  (t)ake off
-        free_turn_flag = !inven_command('t');
+        took_turn = inven_command('t');
         break;
     case 'Z': // (Z)ap a staff  (u)se a staff
-        free_turn_flag = !use();
+        took_turn = use();
         break;
     case 'v': // (v)ersion of game
         helpfile(MORIA_VER);
-        free_turn_flag = true;
+        took_turn = false;
         break;
     case 'w': // (w)ear or wield
-        free_turn_flag = !inven_command('w');
+        took_turn = inven_command('w');
         break;
     case 'X': // e(X)change weapons  e(x)change
-        free_turn_flag = !inven_command('x');
+        took_turn = inven_command('x');
         break;
     default:
         if (progress_wizard_mode()) {
             // Wizard commands are free moves
-            free_turn_flag = true;
+            took_turn = false;
             wizard_command(com_val);
         } else {
             prt("Type '?' for help.", 0, 0);
-            free_turn_flag = true;
+            took_turn = false;
         }
     }
     note_command(com_val);
-    return !free_turn_flag;
+    return took_turn;
 }
 
 // Check whether this command will accept a count. -CJS-
