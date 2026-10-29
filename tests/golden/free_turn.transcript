@@ -822,9 +822,14 @@ key 238 0x20 380a0c44 turn 14
 key 239 0x69 1162c907 turn 14
 key 240 0x20 efb31ddd turn 14
 key 241 0x73 c1eda3d6 turn 14
-end of script after 241 of 241 keys
+key 242 0x4c c1eda3d6 turn 15
+key 243 0x36 f6c64322 turn 15
+key 244 0x1b 63ea2c31 turn 15
+key 245 0x17 c1eda3d6 turn 15
+key 246 0x17 c2f806d0 turn 15
+end of script after 246 of 246 keys
 screen (cursor 11,33, bells 1):
-|
+|Wizard mode on.
 |
 |Human
 |Warrior
