@@ -83,10 +83,10 @@ void set_store_entrance_handler(bool (*handler)(int store_num));
 bool openobject(void);
 bool closeobject(void);
 bool tunnel(int);
-void bash(void);
+bool bash(void);
 
 // --- traps.c ---
-void disarm_trap(void);
+bool disarm_trap(void);
 void inven_drop(int, int);
 
 #endif // WORLD_DUNGEON_H

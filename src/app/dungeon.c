@@ -1257,7 +1257,7 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'f': // (f)orce    (B)ash
-        bash();
+        free_turn_flag = !bash();
         break;
     case 'C': // (C)haracter description
         save_screen();
@@ -1266,7 +1266,7 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'D': // (D)isarm trap
-        disarm_trap();
+        free_turn_flag = !disarm_trap();
         break;
     case 'E': // (E)at food
         free_turn_flag = !eat();

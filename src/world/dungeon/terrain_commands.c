@@ -407,12 +407,17 @@ bool tunnel(int dir) {
 // in the line of sight or not, such a creature may unlock or unstick a door.
 //
 // A creature with no such ability will attempt to bash a non-secret door.
-void bash(void) {
+//
+// Returns whether it took a game turn.
+bool bash(void) {
     int y = player_row();
     int x = player_col();
 
+    bool took_turn = false;
+
     int dir;
     if (get_dir(CNIL, &dir)) {
+        took_turn = true;
         if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
             msg_print("You are confused.");
             do {
@@ -445,7 +450,7 @@ void bash(void) {
                     c_ptr->fval = CORR_FLOOR;
                     if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
                         if (!move_char(dir, false)) {
-                            free_turn_flag = true;
+                            took_turn = false;
                         }
                     } else {
                         lite_spot(y, x);
@@ -482,4 +487,5 @@ void bash(void) {
             }
         }
     }
+    return took_turn;
 }

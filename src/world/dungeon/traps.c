@@ -48,12 +48,16 @@ void set_store_entrance_handler(bool (*handler)(int store_num)) {
 }
 
 // Disarms a trap -RAK-
-void disarm_trap(void) {
+// Returns whether it took a game turn.
+bool disarm_trap(void) {
     int y = player_row();
     int x = player_col();
 
+    bool took_turn = false;
+
     int dir;
     if (get_dir(CNIL, &dir)) {
+        took_turn = true;
         (void)mmove(dir, &y, &x);
 
         cave_type *c_ptr = square_at(y, x);
@@ -90,7 +94,7 @@ void disarm_trap(void) {
                     int tmp = player_timed_turns(PLAYER_TIMED_CONFUSION);
                     player_timed_clear(PLAYER_TIMED_CONFUSION);
                     if (!move_char(dir, false)) {
-                        free_turn_flag = true;
+                        took_turn = false;
                     }
                     player_timed_set(PLAYER_TIMED_CONFUSION, tmp);
                     prt_experience();
@@ -107,14 +111,14 @@ void disarm_trap(void) {
                     int tmp = player_timed_turns(PLAYER_TIMED_CONFUSION);
                     player_timed_clear(PLAYER_TIMED_CONFUSION);
                     if (!move_char(dir, false)) {
-                        free_turn_flag = true;
+                        took_turn = false;
                     }
                     player_timed_add(PLAYER_TIMED_CONFUSION, tmp);
                 }
             } else if (i == TV_CHEST) {
                 if (!known2_p(i_ptr)) {
                     msg_print("I don't see a trap.");
-                    free_turn_flag = true;
+                    took_turn = false;
                 } else if (CH_TRAPPED & i_ptr->flags) {
                     if ((tot - level) > randint(100)) {
                         i_ptr->flags &= ~CH_TRAPPED;
@@ -136,7 +140,7 @@ void disarm_trap(void) {
                     }
                 } else {
                     msg_print("The chest was not trapped.");
-                    free_turn_flag = true;
+                    took_turn = false;
                 }
             } else {
                 no_disarm = true;
@@ -147,9 +151,10 @@ void disarm_trap(void) {
 
         if (no_disarm) {
             msg_print("I do not see anything to disarm there.");
-            free_turn_flag = true;
+            took_turn = false;
         }
     }
+    return took_turn;
 }
 
 // Player hit a trap.  (Chuckle) -RAK-
