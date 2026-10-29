@@ -61,10 +61,10 @@ static void regenhp(int);
 static void regenmana(int);
 static bool enchanted(inven_type *);
 static void examine_book(void);
-static void go_up(void);
-static void go_down(void);
-static void jamdoor(void);
-static void refill_lamp(void);
+static bool go_up(void);
+static bool go_down(void);
+static bool jamdoor(void);
+static bool refill_lamp(void);
 
 // Moria game module -RAK-
 // The code in this section has gone through many revisions, and
@@ -1241,10 +1241,10 @@ static bool do_command(char com_val) {
         }
         break;
     case '<': // (<) go down a staircase
-        go_up();
+        free_turn_flag = !go_up();
         break;
     case '>': // (>) go up a staircase
-        go_down();
+        free_turn_flag = !go_down();
         break;
     case '?': // (?) help with commands
         if (rogue_like_commands) {
@@ -1270,7 +1270,7 @@ static bool do_command(char com_val) {
         free_turn_flag = !eat();
         break;
     case 'F': // (F)ill lamp
-        refill_lamp();
+        free_turn_flag = !refill_lamp();
         break;
     case 'G': // (G)ain magic spells
         free_turn_flag = !gain_spells();
@@ -1403,7 +1403,7 @@ static bool do_command(char com_val) {
         free_turn_flag = !inven_command('i');
         break;
     case 'S': // (S)pike a door  (j)am a door
-        jamdoor();
+        free_turn_flag = !jamdoor();
         break;
     case 'x': // e(x)amine surrounds  (l)ook about
         look();
@@ -1659,7 +1659,8 @@ static void examine_book(void) {
 }
 
 // Go up one level -RAK-
-static void go_up(void) {
+// Returns whether it took a game turn.
+static bool go_up(void) {
     bool no_stairs = false;
     cave_type *c_ptr = square_at(player_row(), player_col());
 
@@ -1677,27 +1678,30 @@ static void go_up(void) {
 
     if (no_stairs) {
         msg_print("I see no up staircase here.");
-        free_turn_flag = true;
+        return false;
     }
+    return true;
 }
 
 // Go down one level -RAK-
-static void go_down(void) {
+// Returns whether it took a game turn.
+static bool go_down(void) {
     const uint8_t tptr = square_at(player_row(), player_col())->tptr;
 
     if (tptr != 0 && floor_item_at(tptr)->tval == TV_DOWN_STAIR) {
         leave_for_level(dungeon_level() + 1);
         msg_print("You enter a maze of down staircases.");
         msg_print("You pass through a one-way door.");
-    } else {
-        free_turn_flag = true;
-        msg_print("I see no down staircase here.");
+        return true;
     }
+    msg_print("I see no down staircase here.");
+    return false;
 }
 
 // Jam a closed door -RAK-
-static void jamdoor(void) {
-    free_turn_flag = true;
+// Returns whether it took a game turn.
+static bool jamdoor(void) {
+    bool took_turn = false;
 
     int y = player_row();
     int x = player_col();
@@ -1714,7 +1718,7 @@ static void jamdoor(void) {
                     int i, j;
 
                     if (find_range(TV_SPIKE, TV_NEVER, &i, &j)) {
-                        free_turn_flag = false;
+                        took_turn = true;
                         count_msg_print("You jam the door with a spike.");
 
                         if (t_ptr->p1 > 0) {
@@ -1737,7 +1741,7 @@ static void jamdoor(void) {
                         msg_print("But you have no spikes.");
                     }
                 } else {
-                    free_turn_flag = false;
+                    took_turn = true;
 
                     char tmp_str[80];
                     (void)sprintf(tmp_str, "The %s is in your way!", monster_creature_get(monster_list_at(c_ptr->cptr)->creature)->name);
@@ -1752,13 +1756,15 @@ static void jamdoor(void) {
             msg_print("That isn't a door!");
         }
     }
+    return took_turn;
 }
 
 // Refill the players lamp -RAK-
-static void refill_lamp(void) {
+// Returns whether it took a game turn.
+static bool refill_lamp(void) {
     int i, j;
 
-    free_turn_flag = true;
+    bool took_turn = false;
 
     int k = equipment_at(INVEN_LIGHT)->subval;
 
@@ -1767,7 +1773,7 @@ static void refill_lamp(void) {
     } else if (!find_range(TV_FLASK, TV_NEVER, &i, &j)) {
         msg_print("You have no oil.");
     } else {
-        free_turn_flag = false;
+        took_turn = true;
 
         inven_type *i_ptr = equipment_at(INVEN_LIGHT);
         i_ptr->p1 += inventory_at(i)->p1;
@@ -1785,4 +1791,5 @@ static void refill_lamp(void) {
         desc_remain(i);
         inven_destroy(i);
     }
+    return took_turn;
 }
