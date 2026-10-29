@@ -37,7 +37,7 @@ bool file_character(char *);
 void ident_char(void);
 
 // --- inven_menu.c ---
-void inven_command(char);
+bool inven_command(char);
 
 // --- look.c ---
 void look(void);

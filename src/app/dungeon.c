@@ -743,8 +743,7 @@ void dungeon(void) {
                     }
                     put_qio();
                 } else if (pending_inven_command()) {
-                    inven_command(pending_inven_command());
-                    took_turn = !free_turn_flag;
+                    took_turn = inven_command(pending_inven_command());
                 } else {
                     // move the cursor to the players character
                     move_cursor_relative(player_row(), player_col());
@@ -1392,16 +1391,16 @@ static bool do_command(char com_val) {
         free_turn_flag = !closeobject();
         break;
     case 'd': // (d)rop something
-        inven_command('d');
+        free_turn_flag = !inven_command('d');
         break;
     case 'e': // (e)quipment list
-        inven_command('e');
+        free_turn_flag = !inven_command('e');
         break;
     case 't': // (t)hrow something  (f)ire something
         free_turn_flag = !throw_object();
         break;
     case 'i': // (i)nventory list
-        inven_command('i');
+        free_turn_flag = !inven_command('i');
         break;
     case 'S': // (S)pike a door  (j)am a door
         jamdoor();
@@ -1430,7 +1429,7 @@ static bool do_command(char com_val) {
         search(player_row(), player_col(), player_search_chance());
         break;
     case 'T': // (T)ake off something  (t)ake off
-        inven_command('t');
+        free_turn_flag = !inven_command('t');
         break;
     case 'Z': // (Z)ap a staff  (u)se a staff
         free_turn_flag = !use();
@@ -1440,10 +1439,10 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'w': // (w)ear or wield
-        inven_command('w');
+        free_turn_flag = !inven_command('w');
         break;
     case 'X': // e(X)change weapons  e(x)change
-        inven_command('x');
+        free_turn_flag = !inven_command('x');
         break;
     default:
         if (progress_wizard_mode()) {

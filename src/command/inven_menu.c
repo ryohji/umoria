@@ -113,14 +113,15 @@ static void inven_screen(int new_scr) {
 }
 
 // This does all the work.
-void inven_command(char command) {
+// Returns whether it took a game turn.
+bool inven_command(char command) {
     msgtype prt1;
     bigvtype prt2;
     int item, tmp;
     inven_type tmp_obj;
     int slot = 0;
 
-    free_turn_flag = true;
+    bool took_turn = false;
 
     save_screen();
 
@@ -133,7 +134,7 @@ void inven_command(char command) {
             if (command == ' ' ||
                 !get_check("Continuing with inventory command?")) {
                 finish_inven_command();
-                return;
+                return false;
             }
             scr_left = 50;
             scr_base = 0;
@@ -236,7 +237,7 @@ void inven_command(char command) {
                 (void)sprintf(prt2, "The %s you are wielding appears to be cursed.", prt1);
                 msg_print(prt2);
             } else {
-                free_turn_flag = false;
+                took_turn = true;
                 tmp_obj = *equipment_at(INVEN_AUX);
                 *equipment_at(INVEN_AUX) = *equipment_at(INVEN_WIELD);
                 *equipment_at(INVEN_WIELD) = tmp_obj;
@@ -277,7 +278,7 @@ void inven_command(char command) {
 
         // Keep looking for objects to drop/wear/take off/throw off
         char which = 'z';
-        while (selecting && free_turn_flag) {
+        while (selecting && !took_turn) {
             int from, to;
             const char *prompt;
             const char *swap = "";
@@ -413,7 +414,7 @@ void inven_command(char command) {
                                     takeoff(item, slot);
                                 }
                                 check_strength();
-                                free_turn_flag = false;
+                                took_turn = true;
                                 if (command == 'r') {
                                     selecting = false;
                                 }
@@ -517,7 +518,7 @@ void inven_command(char command) {
                             }
                             if (item >= 0) {
                                 // OK. Wear it.
-                                free_turn_flag = false;
+                                took_turn = true;
 
                                 // first remove new item from inventory
                                 tmp_obj = *inventory_at(item);
@@ -614,7 +615,7 @@ void inven_command(char command) {
                             }
 
                             if (item >= 0) {
-                                free_turn_flag = false; // Player turn
+                                took_turn = true; // Player turn
                                 inven_drop(item, query == 'y');
                                 check_strength();
                             }
@@ -627,7 +628,7 @@ void inven_command(char command) {
                                 inventory_set_weight(0);
                             }
                         }
-                        if (free_turn_flag == false && scr_state == BLANK_SCR) {
+                        if (took_turn && scr_state == BLANK_SCR) {
                             selecting = false;
                         }
                     }
@@ -636,7 +637,7 @@ void inven_command(char command) {
         }
         if (which == ESCAPE || scr_state == BLANK_SCR) {
             command = ESCAPE;
-        } else if (!free_turn_flag) {
+        } else if (took_turn) {
             // Save state for recovery if they want to call us again next turn.
             // A ' ' is a dummy command, just to recover the screen.
             char resume = selecting ? command : ' ';
@@ -689,4 +690,5 @@ void inven_command(char command) {
     }
 
     calc_bonuses();
+    return took_turn;
 }
