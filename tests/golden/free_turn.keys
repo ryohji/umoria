@@ -200,3 +200,11 @@ L6\e
 # wizard mode off and on again (no turn)
 \x17
 \x17
+# - and a direction steps onto an object without picking it up (a wizard
+# flask left behind in this corridor); Enter digs down like ^J (empty air)
+@ 77\r!\r64\r10\r1\r2\r6\r0\r0\r0\r0\r7500\r40000\r3\r1\ry
+8
+-2
+i\e
+\r
+s
