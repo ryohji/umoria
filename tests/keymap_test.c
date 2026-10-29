@@ -6,7 +6,8 @@
 
 // 原文の鍵の組の表（ui/keymap.c の original_key_meaning()）が、書きかえる前の
 // app/dungeon.c の original_commands() の switch と、256 通りのキーのすべてで
-// 一致することを確かめる。
+// 一致することを確かめる。rogue-like の組の表（rogue_key_command()）も、書き
+// かえる前の do_command() と wizard_command() の switch と突きあわせる。
 
 #include "constant.h"
 #include "ui_input.h"
@@ -213,8 +214,185 @@ TEST(tilde_is_not_an_original_key) {
     ASSERT_EQ_INT(original_key_meaning('~', &command), ORIGINAL_KEY_ILLEGAL);
 }
 
+
+// 書きかえる前の do_command() の switch のラベルの写し（道具で起こした）。case ごとの
+// 最初の処理を名前にした。- は switch の前で方向を訊いて歩くキーに変えていた。
+// 方向ごとの 24 キーは default で direction_keys の表を引いていた（direction_keys_test）。
+static player_command_id legacy_do_command(char com_val, int *dir) {
+    switch (com_val) {
+    case 'Q':
+        return CMD_QUIT;
+    case CTRL_KEY('P'):
+        return CMD_PREVIOUS_MESSAGE;
+    case CTRL_KEY('V'):
+        return CMD_VIEW_LICENSE;
+    case CTRL_KEY('W'):
+        return CMD_WIZARD_MODE;
+    case CTRL_KEY('X'):
+        return CMD_SAVE_AND_EXIT;
+    case '=':
+        return CMD_OPTIONS;
+    case '{':
+        return CMD_INSCRIBE;
+    case '!':
+    case '$':
+        return CMD_SHELL;
+    case ESCAPE:
+    case ' ':
+        return CMD_NONE;
+    case '/':
+        return CMD_IDENTIFY_SYMBOL;
+    case '.':
+        return CMD_STAY;
+    case '<':
+        return CMD_GO_UP;
+    case '>':
+        return CMD_GO_DOWN;
+    case '?':
+        return CMD_HELP;
+    case 'f':
+        return CMD_BASH;
+    case 'C':
+        return CMD_CHARACTER;
+    case 'D':
+        return CMD_DISARM;
+    case 'E':
+        return CMD_EAT;
+    case 'F':
+        return CMD_FILL_LAMP;
+    case 'G':
+        return CMD_GAIN_SPELLS;
+    case 'V':
+        return CMD_VIEW_SCORES;
+    case 'W':
+        return CMD_LOCATE;
+    case 'R':
+        return CMD_REST;
+    case '#':
+        return CMD_SEARCH_MODE;
+    case CTRL_KEY('M'):
+        *dir = 2;
+        return CMD_TUNNEL;
+    case 'z':
+        return CMD_AIM;
+    case 'M':
+        return CMD_MAP;
+    case 'P':
+        return CMD_BROWSE;
+    case 'c':
+        return CMD_CLOSE;
+    case 'd':
+        return CMD_DROP;
+    case 'e':
+        return CMD_EQUIPMENT;
+    case 't':
+        return CMD_THROW;
+    case 'i':
+        return CMD_INVENTORY;
+    case 'S':
+        return CMD_JAM;
+    case 'x':
+        return CMD_LOOK;
+    case 'm':
+        return CMD_CAST;
+    case 'o':
+        return CMD_OPEN;
+    case 'p':
+        return CMD_PRAY;
+    case 'q':
+        return CMD_QUAFF;
+    case 'r':
+        return CMD_READ;
+    case 's':
+        return CMD_SEARCH;
+    case 'T':
+        return CMD_TAKE_OFF;
+    case 'Z':
+        return CMD_USE;
+    case 'v':
+        return CMD_VERSION;
+    case 'w':
+        return CMD_WEAR;
+    case 'X':
+        return CMD_EXCHANGE;
+    case '-':
+        return CMD_WALK_NO_PICKUP;
+    default:
+        break;
+    }
+    direction_key_style style;
+    int d = command_key_direction(com_val, &style);
+    if (d != 0) {
+        *dir = d;
+        return style == DIR_KEY_WALK ? CMD_WALK : style == DIR_KEY_RUN ? CMD_RUN : CMD_TUNNEL;
+    }
+    return CMD_ILLEGAL;
+}
+
+// 書きかえる前の wizard_command() の switch のラベルの写し。do_command() の default
+// から呼ばれていた（do_command() の case に無いキーだけが届く）。
+static player_command_id legacy_wizard_command(char com_val) {
+    switch (com_val) {
+    case CTRL_KEY('A'):
+        return CMD_WIZ_CURE_ALL;
+    case CTRL_KEY('E'):
+        return CMD_WIZ_CHARACTER;
+    case CTRL_KEY('F'):
+        return CMD_WIZ_GENOCIDE;
+    case CTRL_KEY('G'):
+        return CMD_WIZ_TREASURE;
+    case CTRL_KEY('D'):
+        return CMD_WIZ_GO_TO_LEVEL;
+    case CTRL_KEY('O'):
+        return CMD_WIZ_OBJECTS;
+    case '\\':
+        return CMD_WIZ_HELP;
+    case CTRL_KEY('I'):
+        return CMD_WIZ_IDENTIFY;
+    case '*':
+        return CMD_WIZ_LIGHT;
+    case ':':
+        return CMD_WIZ_MAP;
+    case CTRL_KEY('T'):
+        return CMD_WIZ_TELEPORT;
+    case '+':
+        return CMD_WIZ_EXPERIENCE;
+    case '&':
+        return CMD_WIZ_SUMMON;
+    case '@':
+        return CMD_WIZ_CREATE;
+    default:
+        return CMD_ILLEGAL;
+    }
+}
+
+TEST(rogue_keys_match_the_switches) {
+    int mismatch = 0;
+    for (int k = 0; k < 256; k++) {
+        char key = (char)k;
+        int legacy_dir = 0;
+        player_command_id legacy = legacy_do_command(key, &legacy_dir);
+        if (legacy == CMD_ILLEGAL) {
+            legacy = legacy_wizard_command(key);
+        }
+
+        player_command actual = rogue_key_command(key);
+        if (actual.id != legacy || (legacy_dir != 0 && actual.dir != legacy_dir)) {
+            mismatch++;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, 0);
+}
+
+// 不正なキー（原文の組の写しが返す '~'）は、名前の無いコマンドになる。
+TEST(an_illegal_key_has_no_command) {
+    ASSERT_EQ_INT(rogue_key_command('~').id, CMD_ILLEGAL);
+}
+
 int main(void) {
     RUN_TEST(original_keys_match_the_switch);
     RUN_TEST(tilde_is_not_an_original_key);
+    RUN_TEST(rogue_keys_match_the_switches);
+    RUN_TEST(an_illegal_key_has_no_command);
     TEST_SUMMARY();
 }

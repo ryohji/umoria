@@ -139,6 +139,84 @@ typedef enum {
 
 original_key_kind original_key_meaning(char key, char *command);
 
+// The commands, by name. The keys of either key set come here through their
+// rogue-like key (rogue_key_command()).
+typedef enum {
+    CMD_ILLEGAL, // no command: "Type '?' for help."
+    CMD_NONE,    // space and ESC: does nothing
+    CMD_QUIT,
+    CMD_PREVIOUS_MESSAGE,
+    CMD_VIEW_LICENSE,
+    CMD_WIZARD_MODE,
+    CMD_SAVE_AND_EXIT,
+    CMD_OPTIONS,
+    CMD_INSCRIBE,
+    CMD_SHELL,
+    CMD_IDENTIFY_SYMBOL,
+    CMD_STAY,
+    CMD_GO_UP,
+    CMD_GO_DOWN,
+    CMD_HELP,
+    CMD_BASH,
+    CMD_CHARACTER,
+    CMD_DISARM,
+    CMD_EAT,
+    CMD_FILL_LAMP,
+    CMD_GAIN_SPELLS,
+    CMD_VIEW_SCORES,
+    CMD_LOCATE,
+    CMD_REST,
+    CMD_SEARCH_MODE,
+    CMD_AIM,
+    CMD_MAP,
+    CMD_BROWSE,
+    CMD_CLOSE,
+    CMD_DROP,
+    CMD_EQUIPMENT,
+    CMD_THROW,
+    CMD_INVENTORY,
+    CMD_JAM,
+    CMD_LOOK,
+    CMD_CAST,
+    CMD_OPEN,
+    CMD_PRAY,
+    CMD_QUAFF,
+    CMD_READ,
+    CMD_SEARCH,
+    CMD_TAKE_OFF,
+    CMD_USE,
+    CMD_VERSION,
+    CMD_WEAR,
+    CMD_EXCHANGE,
+    CMD_WALK,            // in dir
+    CMD_WALK_NO_PICKUP,  // asks for the direction itself
+    CMD_RUN,             // in dir
+    CMD_TUNNEL,          // in dir
+    // wizard mode
+    CMD_WIZ_CURE_ALL,
+    CMD_WIZ_CHARACTER,
+    CMD_WIZ_GENOCIDE,
+    CMD_WIZ_TREASURE,
+    CMD_WIZ_GO_TO_LEVEL,
+    CMD_WIZ_OBJECTS,
+    CMD_WIZ_HELP,
+    CMD_WIZ_IDENTIFY,
+    CMD_WIZ_LIGHT,
+    CMD_WIZ_MAP,
+    CMD_WIZ_TELEPORT,
+    CMD_WIZ_EXPERIENCE,
+    CMD_WIZ_SUMMON,
+    CMD_WIZ_CREATE,
+} player_command_id;
+
+typedef struct {
+    player_command_id id;
+    int dir; // the direction of CMD_WALK, CMD_RUN and CMD_TUNNEL
+} player_command;
+
+// The command of a key of the rogue-like set.
+player_command rogue_key_command(char key);
+
 // --- input.c ---
 // Input abstraction layer
 // Provides a device-independent interface for user input
