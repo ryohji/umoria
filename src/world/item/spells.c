@@ -347,13 +347,13 @@ void map_area(void) {
 }
 
 // Identify an object -RAK-
-int ident_spell(void) {
+effect_outcome ident_spell(void) {
 
-    bool ident = false;
+    effect_outcome outcome = EFFECT_CANCELLED;
 
     int item_val;
     if (get_item(&item_val, "Item you wish identified?", 0, inventory_and_equipment_slot_count(), CNIL, CNIL)) {
-        ident = true;
+        outcome = EFFECT_DONE;
         identify(&item_val);
 
         inven_type *i_ptr = inventory_and_equipment_at(item_val);
@@ -372,7 +372,7 @@ int ident_spell(void) {
         msg_print(out_val);
     }
 
-    return ident;
+    return outcome;
 }
 
 // Get all the monsters on the level pissed off. -RAK-
@@ -610,17 +610,18 @@ int disarm_all(int dir, int y, int x) {
 }
 
 // Recharge a wand, staff, or rod.  Sometimes the item breaks. -RAK-
-int recharge(int num) {
+effect_outcome recharge(int num) {
     int i, j, item_val;
 
-    bool res = false;
+    effect_outcome res = EFFECT_CANCELLED;
 
     if (!find_range(TV_STAFF, TV_WAND, &i, &j)) {
         msg_print("You have nothing to recharge.");
+        res = EFFECT_NOTHING;
     } else if (get_item(&item_val, "Recharge which item?", i, j, CNIL, CNIL)) {
         inven_type *i_ptr = inventory_at(item_val);
 
-        res = true;
+        res = EFFECT_DONE;
 
         // recharge  I = recharge(20) = 1/6  failure for empty 10th level wand
         // recharge II = recharge(60) = 1/10 failure for empty 10th level wand
@@ -1423,7 +1424,7 @@ int protect_evil(void) {
 }
 
 // Create some high quality mush for the player. -RAK-
-void create_food(void) {
+effect_outcome create_food(void) {
     cave_type *c_ptr = square_at(player_row(), player_col());
 
     if (c_ptr->tptr != 0) {
@@ -1432,10 +1433,12 @@ void create_food(void) {
 
         // set free_turn_flag so that scroll/spell points won't be used
         free_turn_flag = true;
+        return EFFECT_CANCELLED;
     } else {
         place_object(player_row(), player_col(), false);
         invcopy(floor_item_at(c_ptr->tptr), OBJ_MUSH);
     }
+    return EFFECT_DONE;
 }
 
 // Attempts to destroy a type of creature.  Success depends on

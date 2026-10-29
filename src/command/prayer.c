@@ -108,7 +108,7 @@ void pray(void) {
                     (void)sleep_monsters1(player_row(), player_col());
                     break;
                 case 14:
-                    create_food();
+                    (void)create_food();
                     break;
                 case 15:
                     for (i = 0; i < inventory_and_equipment_slot_count(); i++) {

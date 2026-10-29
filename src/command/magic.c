@@ -131,7 +131,7 @@ void cast(void) {
                     }
                     break;
                 case 17:
-                    create_food();
+                    (void)create_food();
                     break;
                 case 18:
                     (void)recharge(20);

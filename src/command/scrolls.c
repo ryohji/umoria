@@ -127,7 +127,7 @@ void read_scroll(void) {
             case 4:
                 msg_print("This is an identify scroll.");
                 ident = true;
-                used_up = ident_spell();
+                used_up = ident_spell() == EFFECT_DONE;
 
                 // The identify may merge objects, causing the identify scroll
                 // to move to a different place.  Check for that here.  It can
@@ -228,7 +228,7 @@ void read_scroll(void) {
             case 25:
                 msg_print("This is a Recharge-Item scroll.");
                 ident = true;
-                used_up = recharge(60);
+                used_up = recharge(60) == EFFECT_DONE;
                 break;
             case 26:
                 msg_print("This is a genocide scroll.");
@@ -243,7 +243,7 @@ void read_scroll(void) {
                 break;
             case 29:
                 ident = true;
-                create_food();
+                (void)create_food();
                 break;
             case 30:
                 ident = dispel_creature(CD_UNDEAD, 60);
