@@ -423,7 +423,6 @@ bool enter_store(int store_num) {
                         display_inventory(store_num, cur_top);
                     }
                     took_turn = true; // No free moves here. -CJS-
-                    free_turn_flag = false;
                     break;
                 case 'p':
                     exit_flag = store_purchase(store_num, &cur_top);

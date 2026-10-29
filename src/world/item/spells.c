@@ -1430,9 +1430,6 @@ effect_outcome create_food(void) {
     if (c_ptr->tptr != 0) {
         // take no action here, don't want to destroy object under player
         msg_print("There is already an object under you.");
-
-        // set free_turn_flag so that scroll/spell points won't be used
-        free_turn_flag = true;
         return EFFECT_CANCELLED;
     } else {
         place_object(player_row(), player_col(), false);

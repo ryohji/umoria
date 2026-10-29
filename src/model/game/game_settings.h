@@ -61,9 +61,6 @@ extern bool sound_beep_flag;   // Beep for invalid character
 
 extern bool display_counts;    // Display rest/repeat counts
 
-// global flags
-extern bool free_turn_flag; // Used in MORIA
-
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 
 extern int closing_flag; // Used for closing

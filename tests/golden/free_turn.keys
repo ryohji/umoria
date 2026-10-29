@@ -1,7 +1,8 @@
 # run: -w61 game.sav
 # record: turns
-# Which keys take a game turn (free_turn_flag): each key line has the turn the
-# game was at when it asked for the key. Create a human male mage named Cy.
+# Which keys take a game turn (what do_command answers): each key line has the
+# turn the game was at when it asked for the key. Create a human male mage
+# named Cy.
 \n y
 am\eb
 Cy\r

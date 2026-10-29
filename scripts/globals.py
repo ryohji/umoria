@@ -239,7 +239,7 @@ GROUPS = {
     # どれも「コマンドに繰りかえしの回数を付けられる」ことから出ているので
     # 1 本の module にまとめた。
     "コマンド入力・実行中のフラグ": """
-        free_turn_flag closing_flag""",
+        closing_flag""",
     # セーブ／スコア／進行メタの 14 個のうち 13 個は 3 つの module に置かれた
     # （progress.c に turn randes_seed town_seed wizard to_be_wizard、
     # game_status.c に death died_from birth_date noscore、game_status.c に
