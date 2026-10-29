@@ -52,7 +52,7 @@ TEST(nothing_is_remembered_at_the_start) {
     ASSERT_FALSE(command_is_repeating());
     ASSERT_EQ_INT(0, command_count_remaining());
     ASSERT_FALSE(direction_is_remembered());
-    ASSERT_TRUE(previous_command_was(' '));
+    ASSERT_TRUE(previous_command_was(CMD_NONE));
 }
 
 /* --- 繰りかえしの回数 ----------------------------------------------------- */
@@ -160,22 +160,22 @@ TEST(the_first_run_of_a_counted_command_still_asks) {
 /* --- 前のコマンド --------------------------------------------------------- */
 
 TEST(the_previous_command_is_remembered) {
-    note_command('V');
-    ASSERT_TRUE(previous_command_was('V'));
+    note_command(CMD_VIEW_SCORES);
+    ASSERT_TRUE(previous_command_was(CMD_VIEW_SCORES));
 }
 
 TEST(a_different_key_is_not_the_previous_command) {
-    note_command('V');
-    ASSERT_FALSE(previous_command_was('P'));
+    note_command(CMD_VIEW_SCORES);
+    ASSERT_FALSE(previous_command_was(CMD_PREVIOUS_MESSAGE));
 }
 
 /* 同じキーを 2 回続けたかどうかだけが問われる（^P の 2 回目は履歴を全部、
  * V の 2 回目は描きなおさない）。 */
 TEST(only_the_last_command_is_kept) {
-    note_command('V');
-    note_command('P');
-    ASSERT_FALSE(previous_command_was('V'));
-    ASSERT_TRUE(previous_command_was('P'));
+    note_command(CMD_VIEW_SCORES);
+    note_command(CMD_PREVIOUS_MESSAGE);
+    ASSERT_FALSE(previous_command_was(CMD_VIEW_SCORES));
+    ASSERT_TRUE(previous_command_was(CMD_PREVIOUS_MESSAGE));
 }
 
 int main(void) {

@@ -877,31 +877,37 @@ key 293 0x69 effbd2be turn 17
 key 294 0x1b 57e09efd turn 17
 key 295 0x0d effbd2be turn 17
 key 296 0x73 027d489d turn 17
-end of script after 296 of 296 keys
+key 297 0x10 027d489d turn 18
+key 298 0x10 cdd21fec turn 18
+key 299 0x20 637fc73e turn 18
+key 300 0x0c 027d489d turn 18
+key 301 0x3a 2d0f80c0 turn 18
+key 302 0x73 2d0f80c0 turn 18
+end of script after 302 of 302 keys
 screen (cursor 11,33, bells 1):
 |
 |
 |Human
-|Warrior
-|Rookie
-|
-|STR :     18
-|INT :     11
-|WIS :     10
-|DEX :     15                    # #
+|Warrior                    ############
+|Rookie                     #..!.......#
+|                           #..........#
+|STR :     18               #..........#
+|INT :     11               #..........#
+|WIS :     10               #..........#
+|DEX :     15               ######.#####
 |CON :     14                    #.#
 |CHR :     14                    #@#
-|                                #.#
-|LEV :      1
-|EXP :      1
-|MANA:      0
-|MHP :     19
-|CHP :     19
-|
-|AC  :      1
-|GOLD:    366
-|
-|Is wizard
+|                       ##########.###
+|LEV :      1           #>...........#
+|EXP :      1           #...|........#
+|MANA:      0           #............#
+|MHP :     19           #............#
+|CHP :     19           #............###########
+|                       #............'.........#
+|AC  :      1           #............#########.#
+|GOLD:    366           #............#   #####.##
+|                       ######.#####.#   #......#
+|Is wizard                   #.#   #.#   #####.##
 |                                                                 50 feet
 run: -w83 rogue.sav
 exit status 0

@@ -13,18 +13,18 @@
 
 2026-10-30、`develop` の上（push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1846 件・88 本**、failed=0、`RESULT: GREEN`。
+- 本体の警告 0（clean から）。テスト **1850 件・89 本**、failed=0、`RESULT: GREEN`。
   **golden 10 本 GREEN**（端末なしで本体を通す。本体の行の 50.3% を通る。#94・#74・#51・#71）と、
   `objdes` の総当たりのハッシュ `objdes_all`（#22）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
-  ユーザーの判断）。`scripts/layer_deps.py --check` は 905 本・110 単位で違反 0、例外の一覧
+  ユーザーの判断）。`scripts/layer_deps.py --check` は 907 本・111 単位で違反 0、例外の一覧
   （`scripts/layer_exceptions.txt`）は空。world/ の中は `WORLD_TIERS` の 4 段で守る（#92）。
 - `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 39 個**
   （#86 で数えかたを変えて 38 → 45、#89 で 5 個を static にして 40、#74 で `free_turn_flag` を消して 39）。
   `scripts/globals.py --check` は 39 個すべて分類。参照の数は数えなおしていない。
-- `.c` 110・`.h` 57（モジュール化の前は 148・88）。`constant.h` の定数は 440 → 262 個（#91・#93）。
+- `.c` 111・`.h` 57（モジュール化の前は 148・88）。`constant.h` の定数は 440 → 262 個（#91・#93）。
 - 済んだ列：
   - #18（データの散在）。残る global の見立ては `docs/refactoring/globals_inventory.md`
     の「区分ごとの見立て」。
@@ -44,7 +44,8 @@
   - **#74（`free_turn_flag` を戻り値に）と、その保護の台本 `free_turn`・`glowing_hands`（#51）**。
     コマンドの関数が「turn を使ったか」を `bool` で返す。経過は `worklog.md`（2026-10-29〜30）と所見 75・76。
   - **#71 の残り（`dungeon()` 207 行・`do_command` 227 行）**。経過は `worklog.md`（2026-10-30）と所見 77。
-- 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B31（B28 は誤りだった）。開いている列は無い。次の候補は第 6 節。
+  - **キーマップ（ユーザーの依頼）**。2 つの鍵の組を `ui/keymap.c` の表に、コマンドを名前 `player_command` に。経過は `worklog.md`（2026-10-30）。
+- 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B33（B28 は誤りだった）。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
 
@@ -225,6 +226,9 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 - **ライブラリー。** 層ごと（model は副ライブラリーごと）の静的ライブラリー 11 本を、上から
   下の順にリンクする（`sources.mk` の `LIB_LINK_ORDER`）。これで止まるのは一部だけなので、
   層の規則の正本は `layer_deps.py --check`（所見 68）。
+- **キーとコマンドの対応は `ui/keymap.c` の表**（原文の鍵の組 → rogue-like の組のキー →
+  コマンドの名前 `player_command`）。`do_command`・`wizard_command` は名前で分ける。キーの入力と
+  繰りかえし・回数を受けるか（`valid_countcommand`）は rogue-like のキーのまま（B32）。`keymap_test` が見る。
 - **モンスター表は `creature_iterator` でたどり、参照する**（handle を兼ねる。`docs/modules/model.md`）。
   中身の添字に触るのは `model/data/monsters.c` だけ（`scripts/check.sh` が見る）。
 - `open`・`fopen` を `topen`・`tfopen`（`~` を展開する）に置きかえるマクロは `ui/ui_screen.h`
@@ -255,7 +259,7 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
   見えているモンスターに当たる、100 歩走って息が切れる、店以外の罠を踏む、罠や箱を外す）は台本が無い。
 - **P3 の長い関数と重複**（#19・#21・#72）は、該当の道を golden の台本で通して
   から動かせる。#22 `objdes`（2026-10-25）と #71 `dungeon()`・`do_command`（2026-10-30）は
-  そうして済んだ。`dungeon.c` には `original_commands`（キーの写しかえの switch）が残る。
+  そうして済んだ。`original_commands` の switch も表になった（キーマップ、2026-10-30）。
 - **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
   monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
 - **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、

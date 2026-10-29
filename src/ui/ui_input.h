@@ -93,18 +93,6 @@ bool direction_is_remembered(void);
 void reuse_remembered_direction(void);
 void ask_for_direction_again(void);
 
-// --- The command before this one -------------------------------------------
-
-// Remember the command that has just run. Said by app/dungeon.c at the end of every
-// command.
-void note_command(char command);
-
-// Was the command before this one the given key? The only two readers both ask
-// it about themselves: pressing ^P twice in a row shows the whole message
-// history rather than one line, and pressing 'V' twice keeps the score screen
-// from being redrawn. **The character itself never leaves the module** -- nobody
-// needs to know what the previous command was, only whether it was this one.
-bool previous_command_was(char command);
 
 // --- direction.c ---
 bool get_dir(const char *, int *);
@@ -125,6 +113,110 @@ char direction_command_key(int dir, direction_key_style style);
 // The other way round: the direction (1-4, 6-9) of a walk, run or tunnel
 // key, with its style in *style. Returns 0 for any other key.
 int command_key_direction(char key, direction_key_style *style);
+
+// --- keymap.c ---
+// What a key of the original key set means. The commands go by their keys in
+// the rogue-like set: ORIGINAL_KEY_COMMAND puts that key in *command. . and T
+// start a run or tunnelling, in a direction that is asked for next.
+typedef enum {
+    ORIGINAL_KEY_COMMAND,
+    ORIGINAL_KEY_RUN_PREFIX,
+    ORIGINAL_KEY_TUNNEL_PREFIX,
+    ORIGINAL_KEY_ILLEGAL
+} original_key_kind;
+
+original_key_kind original_key_meaning(char key, char *command);
+
+// The commands, by name. The keys of either key set come here through their
+// rogue-like key (rogue_key_command()).
+typedef enum {
+    CMD_ILLEGAL, // no command: "Type '?' for help."
+    CMD_NONE,    // space and ESC: does nothing
+    CMD_QUIT,
+    CMD_PREVIOUS_MESSAGE,
+    CMD_VIEW_LICENSE,
+    CMD_WIZARD_MODE,
+    CMD_SAVE_AND_EXIT,
+    CMD_OPTIONS,
+    CMD_INSCRIBE,
+    CMD_SHELL,
+    CMD_IDENTIFY_SYMBOL,
+    CMD_STAY,
+    CMD_GO_UP,
+    CMD_GO_DOWN,
+    CMD_HELP,
+    CMD_BASH,
+    CMD_CHARACTER,
+    CMD_DISARM,
+    CMD_EAT,
+    CMD_FILL_LAMP,
+    CMD_GAIN_SPELLS,
+    CMD_VIEW_SCORES,
+    CMD_LOCATE,
+    CMD_REST,
+    CMD_SEARCH_MODE,
+    CMD_AIM,
+    CMD_MAP,
+    CMD_BROWSE,
+    CMD_CLOSE,
+    CMD_DROP,
+    CMD_EQUIPMENT,
+    CMD_THROW,
+    CMD_INVENTORY,
+    CMD_JAM,
+    CMD_LOOK,
+    CMD_CAST,
+    CMD_OPEN,
+    CMD_PRAY,
+    CMD_QUAFF,
+    CMD_READ,
+    CMD_SEARCH,
+    CMD_TAKE_OFF,
+    CMD_USE,
+    CMD_VERSION,
+    CMD_WEAR,
+    CMD_EXCHANGE,
+    CMD_WALK,            // in dir
+    CMD_WALK_NO_PICKUP,  // asks for the direction itself
+    CMD_RUN,             // in dir
+    CMD_TUNNEL,          // in dir
+    // wizard mode
+    CMD_WIZ_CURE_ALL,
+    CMD_WIZ_CHARACTER,
+    CMD_WIZ_GENOCIDE,
+    CMD_WIZ_TREASURE,
+    CMD_WIZ_GO_TO_LEVEL,
+    CMD_WIZ_OBJECTS,
+    CMD_WIZ_HELP,
+    CMD_WIZ_IDENTIFY,
+    CMD_WIZ_LIGHT,
+    CMD_WIZ_MAP,
+    CMD_WIZ_TELEPORT,
+    CMD_WIZ_EXPERIENCE,
+    CMD_WIZ_SUMMON,
+    CMD_WIZ_CREATE,
+} player_command_id;
+
+typedef struct {
+    player_command_id id;
+    int dir; // the direction of CMD_WALK, CMD_RUN and CMD_TUNNEL
+} player_command;
+
+// The command of a key of the rogue-like set.
+player_command rogue_key_command(char key);
+
+// --- The command before this one -------------------------------------------
+
+// Remember the command that has just run. Said by app/dungeon.c at the end of every
+// command.
+void note_command(player_command_id command);
+
+// Was the command before this one the given one? The only two readers both ask
+// it about themselves: pressing ^P twice in a row shows the whole message
+// history rather than one line, and pressing 'V' twice keeps the score screen
+// from being redrawn. **The command itself never leaves the module** -- nobody
+// needs to know what the previous command was, only whether it was this one.
+bool previous_command_was(player_command_id command);
 
 // --- input.c ---
 // Input abstraction layer

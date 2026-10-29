@@ -51,6 +51,7 @@ SRCS = app/main.c command/files.c ui/io.c \
 	world/player/rest_command.c \
 	ui/direction.c \
 	ui/direction_keys.c \
+	ui/keymap.c \
 	world/dungeon/lighting.c \
 	world/combat/player_melee.c \
 	world/combat/throw.c \

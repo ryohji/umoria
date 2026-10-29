@@ -18,7 +18,7 @@
 // All start at 0 or false.
 static int repeats_left = 0;
 static bool direction_remembered = false;
-static char previous_command = ' ';
+static player_command_id previous_command = CMD_NONE;
 
 void begin_command_count(int count) {
     repeats_left = count;
@@ -66,11 +66,11 @@ void ask_for_direction_again(void) {
     direction_remembered = false;
 }
 
-void note_command(char command) {
+void note_command(player_command_id command) {
     previous_command = command;
 }
 
-bool previous_command_was(char command) {
+bool previous_command_was(player_command_id command) {
     return previous_command == command;
 }
 

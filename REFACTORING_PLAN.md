@@ -6,7 +6,7 @@
 2026-10-23 の前の全文は [done/plan-2026-10-23.md](docs/refactoring/done/plan-2026-10-23.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1846 件・88 本と golden 10 本（と `objdes_all`）、ヘッダの global 39 個（→ `HANDOVER.md` 第 0 節）。
+- いま：テスト 1850 件・89 本と golden 10 本（と `objdes_all`）、ヘッダの global 39 個（→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
   判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
 - #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
@@ -145,6 +145,7 @@
 | 71（一部） | `dungeon()` の時間で切れる効果 18 種を `tick_<効果>()` に（行は開いたまま） | 同上 |
 | 74 | `free_turn_flag` を戻り値に（ユーザーの判断）。コマンドの関数が「turn を使ったか」を `bool` で、取りけせる効果 3 つが `effect_outcome` で返す。global 40 → 39。保護は golden の台本 `free_turn`（turn を記録）と `glowing_hands`（#51） | `worklog.md`（2026-10-29〜30）、所見 75・76 |
 | 71 | `dungeon()` 732 → 207 行（効果 18 種・明かり・空腹と回復・休息・状態行・付呪の感知・コマンドの読みとりを static 関数に）、`do_command` 404 → 227 行（長い 5 つの case を関数に、方向ごとの 24 の case を `command_key_direction()` の逆引きに）。確かめは `scripts/inline_back.py` と golden の台本 `free_turn`（5 つの run） | `worklog.md`（2026-10-25・30）、所見 77 |
+| キーマップ | `original_commands` の switch（約 150 行）を `ui/keymap.c` の原文の鍵の組の表に（15 行に）、コマンドを名前 `player_command`（遊び 48・wizard 14）にして `do_command`・`wizard_command` を名前で分ける。rogue-like の組の表 `rogue_key_command()`。`keymap_test` が書きかえる前の 3 つの switch と 256 通りのキーで突きあわせる（ユーザーの依頼。名前と方向の構造体、wizard も名前に、はユーザーの判断） | `worklog.md`（2026-10-30） |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
