@@ -1237,7 +1237,9 @@ static bool do_command(char com_val) {
         move_char(5, do_pickup);
         if (command_count_remaining() > 1) {
             consume_command_count();
-            rest();
+            if (!rest()) {
+                free_turn_flag = true;
+            }
         }
         break;
     case '<': // (<) go down a staircase
@@ -1273,7 +1275,7 @@ static bool do_command(char com_val) {
         refill_lamp();
         break;
     case 'G': // (G)ain magic spells
-        gain_spells();
+        free_turn_flag = !gain_spells();
         break;
     case 'V': // (V)iew scores
         if (!previous_command_was('V')) {
@@ -1341,7 +1343,7 @@ static bool do_command(char com_val) {
         free_turn_flag = true;
         break;
     case 'R': // (R)est a while
-        rest();
+        free_turn_flag = !rest();
         break;
     case '#': // (#) search toggle  (S)earch toggle
         if (player_is_searching()) {
@@ -1397,7 +1399,7 @@ static bool do_command(char com_val) {
         inven_command('e');
         break;
     case 't': // (t)hrow something  (f)ire something
-        throw_object();
+        free_turn_flag = !throw_object();
         break;
     case 'i': // (i)nventory list
         inven_command('i');

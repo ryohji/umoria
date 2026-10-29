@@ -33,7 +33,7 @@ void move_char(int, bool);
 void disturb(int, int);
 void search_on(void);
 void search_off(void);
-void rest(void);
+bool rest(void);
 void rest_off(void);
 
 // --- run_path.c ---

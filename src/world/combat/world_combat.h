@@ -22,6 +22,6 @@ void fire_bolt(int, int, int, int, int, const char *);
 void fire_ball(int, int, int, int, int, const char *);
 
 // --- throw.c ---
-void throw_object(void);
+bool throw_object(void);
 
 #endif // WORLD_COMBAT_H

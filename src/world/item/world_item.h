@@ -109,7 +109,7 @@ int get_item(int *com_val, const char *pmt, int i, int j, const char *mask, cons
 // --- spellbook.c ---
 void print_spells(int *, int, int, int);
 void calc_spells(int);
-void gain_spells(void);
+bool gain_spells(void);
 void calc_mana(int);
 int cast_spell(const char *, int, int *, int *);
 
