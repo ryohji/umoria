@@ -916,178 +916,34 @@ void dungeon(void) {
     } while (!level_is_over() && !input_has_ended());
 }
 
-static char original_commands(char com_val) {
+// The run or tunnel key for the direction asked for after . or T of the
+// original keys; a space when it is cancelled (or is 5).
+static char asked_direction_key(direction_key_style style) {
     int dir_val;
-
-    switch (com_val) {
-    case CTRL_KEY('K'): // ^K = exit
-        com_val = 'Q';
-        break;
-    case CTRL_KEY('J'):
-    case CTRL_KEY('M'):
-        com_val = '+';
-        break;
-    case CTRL_KEY('P'): // ^P = repeat
-    case CTRL_KEY('W'): // ^W = password
-    case CTRL_KEY('X'): // ^X = save
-    case CTRL_KEY('V'): // ^V = view license
-    case ' ':
-    case '!':
-    case '$':
-        break;
-    case '.':
-        if (get_dir(CNIL, &dir_val)) {
-            com_val = direction_command_key(dir_val, DIR_KEY_RUN);
-            if (com_val == 0) {
-                com_val = ' ';
-            }
-        } else {
+    if (get_dir(CNIL, &dir_val)) {
+        char com_val = direction_command_key(dir_val, style);
+        if (com_val == 0) {
             com_val = ' ';
         }
-        break;
-    case '/':
-    case '<':
-    case '>':
-    case '-':
-    case '=':
-    case '{':
-    case '?':
-    case 'A':
-        break;
-    case '1':
-        com_val = 'b';
-        break;
-    case '2':
-        com_val = 'j';
-        break;
-    case '3':
-        com_val = 'n';
-        break;
-    case '4':
-        com_val = 'h';
-        break;
-    case '5': // Rest one turn
-        com_val = '.';
-        break;
-    case '6':
-        com_val = 'l';
-        break;
-    case '7':
-        com_val = 'y';
-        break;
-    case '8':
-        com_val = 'k';
-        break;
-    case '9':
-        com_val = 'u';
-        break;
-    case 'B':
-        com_val = 'f';
-        break;
-    case 'C':
-    case 'D':
-    case 'E':
-    case 'F':
-    case 'G':
-        break;
-    case 'L':
-        com_val = 'W';
-        break;
-    case 'M':
-        break;
-    case 'R':
-        break;
-    case 'S':
-        com_val = '#';
-        break;
-    case 'T':
-        if (get_dir(CNIL, &dir_val)) {
-            com_val = direction_command_key(dir_val, DIR_KEY_TUNNEL);
-            if (com_val == 0) {
-                com_val = ' ';
-            }
-        } else {
-            com_val = ' ';
-        }
-        break;
-    case 'V':
-        break;
-    case 'a':
-        com_val = 'z';
-        break;
-    case 'b':
-        com_val = 'P';
-        break;
-    case 'c':
-    case 'd':
-    case 'e':
-        break;
-    case 'f':
-        com_val = 't';
-        break;
-    case 'h':
-        com_val = '?';
-        break;
-    case 'i':
-        break;
-    case 'j':
-        com_val = 'S';
-        break;
-    case 'l':
-        com_val = 'x';
-        break;
-    case 'm':
-    case 'o':
-    case 'p':
-    case 'q':
-    case 'r':
-    case 's':
-        break;
-    case 't':
-        com_val = 'T';
-        break;
-    case 'u':
-        com_val = 'Z';
-        break;
-    case 'v':
-    case 'w':
-        break;
-    case 'x':
-        com_val = 'X';
-        break;
+        return com_val;
+    }
+    return ' ';
+}
 
-    // wizard mode commands follow
-    case CTRL_KEY('A'): // ^A = cure all
-        break;
-    case CTRL_KEY('B'): // ^B = objects
-        com_val = CTRL_KEY('O');
-        break;
-    case CTRL_KEY('D'): // ^D = up/down
-        break;
-    case CTRL_KEY('H'): // ^H = wizhelp
-        com_val = '\\';
-        break;
-    case CTRL_KEY('I'): // ^I = identify
-        break;
-    case CTRL_KEY('L'): // ^L = wizlight
-        com_val = '*';
-        break;
-    case ':':
-    case CTRL_KEY('T'): // ^T = teleport
-    case CTRL_KEY('E'): // ^E = wizchar
-    case CTRL_KEY('F'): // ^F = genocide
-    case CTRL_KEY('G'): // ^G = treasure
-    case '@':
-    case '+':
-        break;
-    case CTRL_KEY('U'): // ^U = summon
-        com_val = '&';
-        break;
-    default:
-        com_val = '~'; // Anything illegal.
+static char original_commands(char com_val) {
+    char command;
+
+    switch (original_key_meaning(com_val, &command)) {
+    case ORIGINAL_KEY_COMMAND:
+        return command;
+    case ORIGINAL_KEY_RUN_PREFIX:
+        return asked_direction_key(DIR_KEY_RUN);
+    case ORIGINAL_KEY_TUNNEL_PREFIX:
+        return asked_direction_key(DIR_KEY_TUNNEL);
+    case ORIGINAL_KEY_ILLEGAL:
         break;
     }
-    return com_val;
+    return '~'; // Anything illegal.
 }
 
 // Shows the last message again, or with a count (or ^P twice) the last ones.
