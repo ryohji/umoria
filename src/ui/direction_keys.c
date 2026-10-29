@@ -32,3 +32,17 @@ char direction_command_key(int dir, direction_key_style style) {
         return 0;
     }
 }
+
+int command_key_direction(char key, direction_key_style *style) {
+    static const direction_key_style styles[] = {DIR_KEY_WALK, DIR_KEY_RUN, DIR_KEY_TUNNEL};
+
+    for (int s = 0; s < 3; s++) {
+        for (int dir = 1; dir <= 9; dir++) {
+            if (dir != 5 && direction_command_key(dir, styles[s]) == key) {
+                *style = styles[s];
+                return dir;
+            }
+        }
+    }
+    return 0;
+}

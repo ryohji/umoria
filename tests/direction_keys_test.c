@@ -6,7 +6,8 @@
 // for further details.
 
 // direction_command_key() が original_commands() と do_command() の switch と
-// 一致することを確かめる。
+// 一致することを確かめる。逆引きの command_key_direction() は do_command() の
+// 方向ごとの case と一致することを確かめる。
 
 #include "config.h"
 #include "constant.h"
@@ -168,9 +169,72 @@ TEST(walk_keys_match_legacy) {
     ASSERT_EQ_INT(mismatch, 0);
 }
 
+// 書きかえる前の do_command() の、方向ごとの 24 の case の写し（^M は ^J と同じ
+// case に並んでいるが、表には無いので do_command() に残す。下の別のテスト）。
+// 歩く・走る・掘るを 'w'・'r'・'t' で、方向を *dir で返す。それ以外のキーは 0。
+static char legacy_do_command_direction(char key, int *dir) {
+    switch (key) {
+    case 'b': *dir = 1; return 'w';
+    case 'j': *dir = 2; return 'w';
+    case 'n': *dir = 3; return 'w';
+    case 'h': *dir = 4; return 'w';
+    case 'l': *dir = 6; return 'w';
+    case 'y': *dir = 7; return 'w';
+    case 'k': *dir = 8; return 'w';
+    case 'u': *dir = 9; return 'w';
+    case 'B': *dir = 1; return 'r';
+    case 'J': *dir = 2; return 'r';
+    case 'N': *dir = 3; return 'r';
+    case 'H': *dir = 4; return 'r';
+    case 'L': *dir = 6; return 'r';
+    case 'Y': *dir = 7; return 'r';
+    case 'K': *dir = 8; return 'r';
+    case 'U': *dir = 9; return 'r';
+    case CTRL_KEY('B'): *dir = 1; return 't';
+    case CTRL_KEY('J'): *dir = 2; return 't';
+    case CTRL_KEY('N'): *dir = 3; return 't';
+    case CTRL_KEY('H'): *dir = 4; return 't';
+    case CTRL_KEY('L'): *dir = 6; return 't';
+    case CTRL_KEY('Y'): *dir = 7; return 't';
+    case CTRL_KEY('K'): *dir = 8; return 't';
+    case CTRL_KEY('U'): *dir = 9; return 't';
+    default: return 0;
+    }
+}
+
+// command_key_direction() が、256 通りのキーのすべてで do_command() の 24 の case と
+// 同じ向きと種類を返す。
+TEST(directions_of_keys_match_the_do_command_cases) {
+    int mismatch = 0;
+    for (int k = 0; k < 256; k++) {
+        char key = (char)k;
+        int legacy_dir = 0;
+        char legacy = legacy_do_command_direction(key, &legacy_dir);
+
+        direction_key_style style = DIR_KEY_WALK;
+        int dir = command_key_direction(key, &style);
+        char actual = 0;
+        if (dir != 0) {
+            actual = style == DIR_KEY_WALK ? 'w' : style == DIR_KEY_RUN ? 'r' : 't';
+        }
+        if (actual != legacy || (legacy != 0 && dir != legacy_dir)) {
+            mismatch++;
+        }
+    }
+    ASSERT_EQ_INT(mismatch, 0);
+}
+
+// ^M（復帰）は表に無い。do_command() は ^J と同じく下へ掘る case を残す。
+TEST(return_is_not_a_direction_key) {
+    direction_key_style style = DIR_KEY_WALK;
+    ASSERT_EQ_INT(command_key_direction(CTRL_KEY('M'), &style), 0);
+}
+
 int main(void) {
     RUN_TEST(run_keys_match_legacy);
     RUN_TEST(tunnel_keys_match_legacy);
     RUN_TEST(walk_keys_match_legacy);
+    RUN_TEST(directions_of_keys_match_the_do_command_cases);
+    RUN_TEST(return_is_not_a_direction_key);
     TEST_SUMMARY();
 }

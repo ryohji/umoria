@@ -423,8 +423,296 @@ static void tick_word_of_recall(void) {
     }
 }
 
-void dungeon(void) {
+// Burns the light source down by a turn, and lights or unlights the creatures.
+static void tick_light(void) {
+    // Check light status
+    inven_type *i_ptr = equipment_at(INVEN_LIGHT);
+    if (player_has_light()) {
+        if (i_ptr->p1 > 0) {
+            i_ptr->p1--;
+            if (i_ptr->p1 == 0) {
+                set_player_has_light(false);
+                msg_print("Your light has gone out!");
+                disturb(0, 1);
+
+                // unlight creatures
+                creatures(false);
+            } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+                disturb(0, 0);
+                msg_print("Your light is growing faint.");
+            }
+        } else {
+            set_player_has_light(false);
+            disturb(0, 1);
+
+            // unlight creatures
+            creatures(false);
+        }
+    } else if (i_ptr->p1 > 0) {
+        i_ptr->p1--;
+        set_player_has_light(true);
+        disturb(0, 1);
+
+        // light creatures
+        creatures(false);
+    }
+}
+
+// Hunger, digestion and the regeneration of hit points and mana for a turn.
+static void tick_food_and_regeneration(void) {
+    // Check food status
+    int regen_amount = PLAYER_REGEN_NORMAL; // Regenerate hp and mana
+    if (player_food() < PLAYER_FOOD_ALERT) {
+        if (player_food() < PLAYER_FOOD_WEAK) {
+            if (player_food() < 0) {
+                regen_amount = 0;
+            } else if (player_food() < PLAYER_FOOD_FAINT) {
+                regen_amount = PLAYER_REGEN_FAINT;
+            } else {
+                regen_amount = PLAYER_REGEN_WEAK;
+            }
+            if (player_note_effect_started(PLAYER_EFFECT_WEAK)) {
+                msg_print("You are getting weak from hunger.");
+                disturb(0, 0);
+                prt_hunger();
+            }
+            if ((player_food() < PLAYER_FOOD_FAINT) && (randint(8) == 1)) {
+                player_timed_add(PLAYER_TIMED_PARALYSIS, randint(5));
+                msg_print("You faint from the lack of food.");
+                disturb(1, 0);
+            }
+        } else if (player_note_effect_started(PLAYER_EFFECT_HUNGRY)) {
+            msg_print("You are getting hungry.");
+            disturb(0, 0);
+            prt_hunger();
+        }
+    }
+
+    // Food consumption
+    // Note: Speeded up characters really burn up the food!
+    // Speed is squared here before converting to food consumption.
+    const int speed_steps = player_speed();
+    if (speed_steps < 0) {
+        player_burn_food(speed_steps * speed_steps);
+    }
+    player_digest();
+    if (player_food() < 0) {
+        take_hit(-player_food() / 16, "starvation"); // -CJS-
+        disturb(1, 0);
+    }
+
+    // Regenerate
+    if (player_regenerates()) {
+        regen_amount = regen_amount * 3 / 2;
+    }
+    if (player_is_searching() || player_resting()) {
+        regen_amount = regen_amount * 2;
+    }
+    if (!player_timed_in_force(PLAYER_TIMED_POISON) && (player_hp() < player_max_hp())) {
+        regenhp(regen_amount);
+    }
+    if (player_mana() < player_max_mana()) {
+        regenmana(regen_amount);
+    }
+}
+
+// Counts a rest down and ends it.
+static void tick_rest(void) {
+    // Resting is over?
+    if (player_resting()) {
+        // Asked before the turn passes: a count of minus one becomes zero
+        // below, and then it is no longer a "rest until healed".
+        bool until_healed = player_rest_is_until_healed();
+
+        bool ran_out = player_rest_count_down();
+
+        // Two ways for a rest to end. The second one only applies to a rest
+        // until reaching max mana and max hit points, and it reads two other
+        // questions, so it stays here.
+        if (ran_out ||
+            (until_healed && player_hp() == player_max_hp() &&
+             player_mana() == player_max_mana())) {
+            rest_off();
+        }
+    }
+}
+
+// Checks the strength and redraws the parts of the status line that changed.
+static void redraw_changed_status(void) {
+    // See if we are too weak to handle the weapon or pack. -CJS-
+    if (player_strength_check_requested()) {
+        check_strength();
+    }
+
+    if (player_study_redraw_requested()) {
+        prt_study();
+    }
+
+    if (player_take_speed_redraw_request()) {
+        prt_speed();
+    }
+
+    if (player_status_line_shows_paralysis() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+        prt_state();
+        player_set_status_line_shows_paralysis(false);
+    } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+        prt_state();
+        player_set_status_line_shows_paralysis(true);
+    } else if (player_resting()) {
+        prt_state();
+    }
+
+    if (player_take_armor_redraw_request()) {
+        prt_pac();
+    }
+
+    if (player_any_stat_redraw_requested()) {
+        for (int n = 0; n < 6; n++) {
+            if (player_stat_redraw_requested(n)) {
+                prt_stat(n);
+            }
+        }
+
+        player_clear_stat_redraw_requests();
+    }
+
+    if (player_take_hp_redraw_request()) {
+        prt_mhp();
+        prt_chp();
+    }
+
+    if (player_take_mana_redraw_request()) {
+        prt_cmana();
+    }
+}
+
+// Now and then, notices that a carried or worn object is enchanted.
+static void sense_enchantments(void) {
+    // Allow for a slim chance of detect enchantment -CJS-
+    // for 1st level char, check once every 2160 turns
+    // for 40th level char, check once every 416 turns
+    if (((progress_turn() & 0xF) == 0) && !player_timed_in_force(PLAYER_TIMED_CONFUSION) &&
+        (randint((10 + 750 / (5 + player_level()))) == 1)) {
+
+        for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
+            if (i == inventory_count()) {
+                i = 22;
+            }
+            inven_type *i_ptr = inventory_and_equipment_at(i);
+
+            // if in inventory, succeed 1 out of 50 times,
+            // if in equipment list, success 1 out of 10 times
+            if ((i_ptr->tval != TV_NOTHING) && enchanted(i_ptr) &&
+                (randint(i < 22 ? 50 : 10) == 1)) {
+                vtype tmp_str;
+                (void)sprintf(tmp_str, "There's something about what you are %s...", describe_use(i));
+                disturb(0, 0);
+                msg_print(tmp_str);
+                add_inscribe(i_ptr, ID_MAGIK);
+            }
+        }
+    }
+}
+
+// Reads a command from the keyboard: a count before it (# and digits, or the
+// digits alone in the rogue-like keys), ^ and a letter for a control key.
+// Returns it in the rogue-like form; a count it takes starts the repeat.
+static char read_command(void) {
+    char command;
     int i;
+
+    command = inkey();
+
+    i = 0;
+
+    // Get a count for a command.
+    if ((rogue_like_commands && command >= '0' && command <= '9') || (!rogue_like_commands && command == '#')) {
+        // Buffer sized for decimal int with sign and null terminator.
+        char tmp[12];
+
+        prt("Repeat count:", 0, 0);
+        if (command == '#') {
+            command = '0';
+        }
+
+        i = 0;
+
+        while (true) {
+            if (command == DELETE || command == CTRL_KEY('H')) {
+                i = i / 10;
+                (void)sprintf(tmp, "%d", i);
+                prt(tmp, 0, 14);
+            } else if (command >= '0' && command <= '9') {
+                if (i > 99) {
+                    bell();
+                } else {
+                    i = i * 10 + command - '0';
+                    (void)sprintf(tmp, "%d", i);
+                    prt(tmp, 0, 14);
+                }
+            } else {
+                break;
+            }
+            command = inkey();
+        }
+
+        if (i == 0) {
+            i = 99;
+            (void)sprintf(tmp, "%d", i);
+            prt(tmp, 0, 14);
+        }
+
+        // a special hack to allow numbers as commands
+        if (command == ' ') {
+            prt("Command:", 0, 20);
+            command = inkey();
+        }
+    }
+
+    // Another way of typing control codes -CJS-
+    if (command == '^') {
+        if (command_is_repeating()) {
+            prt_state();
+        }
+        if (get_com("Control-", &command)) {
+            if (command >= 'A' && command <= 'Z') {
+                command -= 'A' - 1;
+            } else if (command >= 'a' && command <= 'z') {
+                command -= 'a' - 1;
+            } else {
+                msg_print(
+                    "Type ^ <letter> for a control char");
+                command = ' ';
+            }
+        } else {
+            command = ' ';
+        }
+    }
+
+    // move cursor to player char again, in case it moved
+    move_cursor_relative(player_row(), player_col());
+
+    // Commands are always converted to rogue form. -CJS-
+    if (rogue_like_commands == false) {
+        command = original_commands(command);
+    }
+    if (i > 0) {
+        if (!valid_countcommand(command)) {
+            msg_print("Invalid command with a count.");
+            command = ' ';
+        } else {
+            begin_command_count(i);
+            prt_state();
+        }
+    }
+    return command;
+}
+
+void dungeon(void) {
+    // Last command. A repeated command (a count) reads it again on the next
+    // turns, so it lives as long as the level; the count is cancelled below
+    // before the first command is read.
+    char command = ' ';
 
     // Main procedure for dungeon. -RAK-
     // Note: There is a lot of preliminary magic going on here at first
@@ -484,37 +772,7 @@ void dungeon(void) {
             alloc_monster(1, MAX_SIGHT, false);
         }
 
-        // Check light status
-        i_ptr = equipment_at(INVEN_LIGHT);
-        if (player_has_light()) {
-            if (i_ptr->p1 > 0) {
-                i_ptr->p1--;
-                if (i_ptr->p1 == 0) {
-                    set_player_has_light(false);
-                    msg_print("Your light has gone out!");
-                    disturb(0, 1);
-
-                    // unlight creatures
-                    creatures(false);
-                } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
-                    disturb(0, 0);
-                    msg_print("Your light is growing faint.");
-                }
-            } else {
-                set_player_has_light(false);
-                disturb(0, 1);
-
-                // unlight creatures
-                creatures(false);
-            }
-        } else if (i_ptr->p1 > 0) {
-            i_ptr->p1--;
-            set_player_has_light(true);
-            disturb(0, 1);
-
-            // light creatures
-            creatures(false);
-        }
+        tick_light();
 
         //
         // Update counters and messages
@@ -524,60 +782,7 @@ void dungeon(void) {
 
         tick_super_heroism();
 
-        // Check food status
-        int regen_amount = PLAYER_REGEN_NORMAL; // Regenerate hp and mana
-        if (player_food() < PLAYER_FOOD_ALERT) {
-            if (player_food() < PLAYER_FOOD_WEAK) {
-                if (player_food() < 0) {
-                    regen_amount = 0;
-                } else if (player_food() < PLAYER_FOOD_FAINT) {
-                    regen_amount = PLAYER_REGEN_FAINT;
-                } else {
-                    regen_amount = PLAYER_REGEN_WEAK;
-                }
-                if (player_note_effect_started(PLAYER_EFFECT_WEAK)) {
-                    msg_print("You are getting weak from hunger.");
-                    disturb(0, 0);
-                    prt_hunger();
-                }
-                if ((player_food() < PLAYER_FOOD_FAINT) && (randint(8) == 1)) {
-                    player_timed_add(PLAYER_TIMED_PARALYSIS, randint(5));
-                    msg_print("You faint from the lack of food.");
-                    disturb(1, 0);
-                }
-            } else if (player_note_effect_started(PLAYER_EFFECT_HUNGRY)) {
-                msg_print("You are getting hungry.");
-                disturb(0, 0);
-                prt_hunger();
-            }
-        }
-
-        // Food consumption
-        // Note: Speeded up characters really burn up the food!
-        // Speed is squared here before converting to food consumption.
-        const int speed_steps = player_speed();
-        if (speed_steps < 0) {
-            player_burn_food(speed_steps * speed_steps);
-        }
-        player_digest();
-        if (player_food() < 0) {
-            take_hit(-player_food() / 16, "starvation"); // -CJS-
-            disturb(1, 0);
-        }
-
-        // Regenerate
-        if (player_regenerates()) {
-            regen_amount = regen_amount * 3 / 2;
-        }
-        if (player_is_searching() || player_resting()) {
-            regen_amount = regen_amount * 2;
-        }
-        if (!player_timed_in_force(PLAYER_TIMED_POISON) && (player_hp() < player_max_hp())) {
-            regenhp(regen_amount);
-        }
-        if (player_mana() < player_max_mana()) {
-            regenmana(regen_amount);
-        }
+        tick_food_and_regeneration();
 
         tick_blindness();
 
@@ -591,23 +796,7 @@ void dungeon(void) {
 
         tick_slowness();
 
-        // Resting is over?
-        if (player_resting()) {
-            // Asked before the turn passes: a count of minus one becomes zero
-            // below, and then it is no longer a "rest until healed".
-            bool until_healed = player_rest_is_until_healed();
-
-            bool ran_out = player_rest_count_down();
-
-            // Two ways for a rest to end. The second one only applies to a rest
-            // until reaching max mana and max hit points, and it reads two other
-            // questions, so it stays here.
-            if (ran_out ||
-                (until_healed && player_hp() == player_max_hp() &&
-                 player_mana() == player_max_mana())) {
-                rest_off();
-            }
-        }
+        tick_rest();
 
         // Check for interrupts to find or rest.
         if ((command_is_repeating() || player_is_running() || player_resting()) &&
@@ -641,76 +830,9 @@ void dungeon(void) {
             teleport(40);
         }
 
-        // See if we are too weak to handle the weapon or pack. -CJS-
-        if (player_strength_check_requested()) {
-            check_strength();
-        }
+        redraw_changed_status();
 
-        if (player_study_redraw_requested()) {
-            prt_study();
-        }
-
-        if (player_take_speed_redraw_request()) {
-            prt_speed();
-        }
-
-        if (player_status_line_shows_paralysis() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
-            prt_state();
-            player_set_status_line_shows_paralysis(false);
-        } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
-            prt_state();
-            player_set_status_line_shows_paralysis(true);
-        } else if (player_resting()) {
-            prt_state();
-        }
-
-        if (player_take_armor_redraw_request()) {
-            prt_pac();
-        }
-
-        if (player_any_stat_redraw_requested()) {
-            for (int n = 0; n < 6; n++) {
-                if (player_stat_redraw_requested(n)) {
-                    prt_stat(n);
-                }
-            }
-
-            player_clear_stat_redraw_requests();
-        }
-
-        if (player_take_hp_redraw_request()) {
-            prt_mhp();
-            prt_chp();
-        }
-
-        if (player_take_mana_redraw_request()) {
-            prt_cmana();
-        }
-
-        // Allow for a slim chance of detect enchantment -CJS-
-        // for 1st level char, check once every 2160 turns
-        // for 40th level char, check once every 416 turns
-        if (((progress_turn() & 0xF) == 0) && !player_timed_in_force(PLAYER_TIMED_CONFUSION) &&
-            (randint((10 + 750 / (5 + player_level()))) == 1)) {
-
-            for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
-                if (i == inventory_count()) {
-                    i = 22;
-                }
-                i_ptr = inventory_and_equipment_at(i);
-
-                // if in inventory, succeed 1 out of 50 times,
-                // if in equipment list, success 1 out of 10 times
-                if ((i_ptr->tval != TV_NOTHING) && enchanted(i_ptr) &&
-                    (randint(i < 22 ? 50 : 10) == 1)) {
-                    vtype tmp_str;
-                    (void)sprintf(tmp_str, "There's something about what you are %s...", describe_use(i));
-                    disturb(0, 0);
-                    msg_print(tmp_str);
-                    add_inscribe(i_ptr, ID_MAGIK);
-                }
-            }
-        }
+        sense_enchantments();
 
         // Check the state of the monster list, and delete some monsters if
         // the monster list is nearly full.  This helps to avoid problems in
@@ -723,7 +845,6 @@ void dungeon(void) {
 
         // Accept a command?
         if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) && !player_resting() && (!player_is_dead())) {
-            char command; // Last command
             bool took_turn;
 
             // Accept a command and execute it
@@ -752,90 +873,7 @@ void dungeon(void) {
                         reuse_remembered_direction();
                     } else {
                         msg_set_pending(false);
-                        command = inkey();
-
-                        i = 0;
-
-                        // Get a count for a command.
-                        if ((rogue_like_commands && command >= '0' && command <= '9') || (!rogue_like_commands && command == '#')) {
-                            // Buffer sized for decimal int with sign and null terminator.
-                            char tmp[12];
-
-                            prt("Repeat count:", 0, 0);
-                            if (command == '#') {
-                                command = '0';
-                            }
-
-                            i = 0;
-
-                            while (true) {
-                                if (command == DELETE || command == CTRL_KEY('H')) {
-                                    i = i / 10;
-                                    (void)sprintf(tmp, "%d", i);
-                                    prt(tmp, 0, 14);
-                                } else if (command >= '0' && command <= '9') {
-                                    if (i > 99) {
-                                        bell();
-                                    } else {
-                                        i = i * 10 + command - '0';
-                                        (void)sprintf(tmp, "%d", i);
-                                        prt(tmp, 0, 14);
-                                    }
-                                } else {
-                                    break;
-                                }
-                                command = inkey();
-                            }
-
-                            if (i == 0) {
-                                i = 99;
-                                (void)sprintf(tmp, "%d", i);
-                                prt(tmp, 0, 14);
-                            }
-
-                            // a special hack to allow numbers as commands
-                            if (command == ' ') {
-                                prt("Command:", 0, 20);
-                                command = inkey();
-                            }
-                        }
-
-                        // Another way of typing control codes -CJS-
-                        if (command == '^') {
-                            if (command_is_repeating()) {
-                                prt_state();
-                            }
-                            if (get_com("Control-", &command)) {
-                                if (command >= 'A' && command <= 'Z') {
-                                    command -= 'A' - 1;
-                                } else if (command >= 'a' && command <= 'z') {
-                                    command -= 'a' - 1;
-                                } else {
-                                    msg_print(
-                                        "Type ^ <letter> for a control char");
-                                    command = ' ';
-                                }
-                            } else {
-                                command = ' ';
-                            }
-                        }
-
-                        // move cursor to player char again, in case it moved
-                        move_cursor_relative(player_row(), player_col());
-
-                        // Commands are always converted to rogue form. -CJS-
-                        if (rogue_like_commands == false) {
-                            command = original_commands(command);
-                        }
-                        if (i > 0) {
-                            if (!valid_countcommand(command)) {
-                                msg_print("Invalid command with a count.");
-                                command = ' ';
-                            } else {
-                                begin_command_count(i);
-                                prt_state();
-                            }
-                        }
+                        command = read_command();
                     }
 
                     // Flash the message line.
@@ -1052,12 +1090,170 @@ static char original_commands(char com_val) {
     return com_val;
 }
 
+// Shows the last message again, or with a count (or ^P twice) the last ones.
+static void show_previous_messages(void) {
+    int i, x;
+
+    if (command_is_repeating()) {
+        i = take_command_count();
+        if (i > MAX_SAVE_MSG) {
+            i = MAX_SAVE_MSG;
+        }
+    } else if (!previous_command_was(CTRL_KEY('P'))) {
+        i = 1;
+    } else {
+        i = MAX_SAVE_MSG;
+    }
+
+    if (i > 1) {
+        save_screen();
+        x = i;
+
+        // Oldest at the top, newest on the bottom row of the block: the
+        // row number counts down as we walk back through the history.
+        while (i > 0) {
+            i--;
+            prt(msg_history_recent(x - 1 - i), i, 0);
+        }
+
+        erase_line(x, 0);
+        pause_line(x);
+        restore_screen();
+    } else {
+        // Distinguish real and recovered messages with a '>'. -CJS-
+        put_buffer(">", 0, 0);
+        prt(msg_history_recent(0), 0, 1);
+    }
+}
+
+// Turns wizard mode off, or on if the player confirms it.
+static void toggle_wizard_mode(void) {
+    if (progress_wizard_mode()) {
+        progress_set_wizard_mode(false);
+        msg_print("Wizard mode off.");
+    } else if (enter_wiz_mode()) {
+        msg_print("Wizard mode on.");
+    }
+
+    prt_winner();
+}
+
+// Saves the game and exits, unless the character has won and must retire.
+static void save_and_exit(void) {
+    if (player_has_won()) {
+        msg_print(
+            "You are a Total Winner,  your character must be retired.");
+        if (rogue_like_commands) {
+            msg_print("Use 'Q' to when you are ready to quit.");
+        } else {
+            msg_print("Use <Control>-K when you are ready to quit.");
+        }
+    } else {
+        (void)strcpy(death_cause(), "(saved)");
+        msg_print("Saving game...");
+
+        if (save_char()) {
+            exit_game();
+        }
+
+        (void)strcpy(death_cause(), "(alive and well)");
+    }
+}
+
+// Shows the score list. Whether V came twice in a row is passed on, but
+// display_scores() does not look at it.
+static void show_scores(void) {
+    bool do_diplay_scores;
+
+    if (!previous_command_was('V')) {
+        do_diplay_scores = true;
+    } else {
+        do_diplay_scores = false;
+    }
+    save_screen();
+    display_scores(do_diplay_scores);
+    restore_screen();
+}
+
+// Shows the other sectors of the map, one panel in each direction asked for.
+static void locate_on_map(void) {
+    int y, x;
+    int dir_val;
+    vtype out_val, tmp_str;
+
+    if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
+        msg_print("You can't see your map.");
+    } else {
+        int cy, cx, p_y, p_x;
+
+        y = player_row();
+        x = player_col();
+        if (get_panel(y, x, true)) {
+            prt_map();
+        }
+        cy = panel_row_index();
+        cx = panel_col_index();
+        for (;;) {
+            p_y = panel_row_index();
+            p_x = panel_col_index();
+            if (p_y == cy && p_x == cx) {
+                tmp_str[0] = '\0';
+            } else {
+                (void)sprintf(tmp_str, "%s%s of", p_y < cy ? " North" : p_y > cy ? " South" : "", p_x < cx ? " West" : p_x > cx ? " East" : "");
+            }
+            (void)sprintf(out_val, "Map sector [%d,%d], which is%s your sector. Look which direction?", p_y, p_x, tmp_str);
+            if (!get_dir(out_val, &dir_val)) {
+                break;
+            }
+
+            // -CJS-
+            // Should really use the move function, but what the hell. This
+            // is nicer, as it moves exactly to the same place in another
+            // section. The direction calculation is not intuitive. Sorry.
+            for (;;) {
+                x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
+                y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
+                // NOTE: y is compared against width. May be a bug (see dungeon_state.h).
+                if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
+                    msg_print("You've gone past the end of your map.");
+                    x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
+                    y += ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
+                    break;
+                }
+                if (get_panel(y, x, true)) {
+                    prt_map();
+                    break;
+                }
+            }
+        }
+
+        // Move to a new panel - but only if really necessary.
+        if (get_panel(player_row(), player_col(), false)) {
+            prt_map();
+        }
+    }
+}
+
+// The walk, run and tunnel keys: a step, the start of a run, or digging, in
+// the direction of the key.
+static bool walk_run_or_tunnel(int dir, direction_key_style style, bool do_pickup) {
+    switch (style) {
+    case DIR_KEY_WALK:
+        return move_char(dir, do_pickup);
+    case DIR_KEY_RUN:
+        return find_init(dir);
+    case DIR_KEY_TUNNEL:
+        return tunnel(dir);
+    }
+    return false;
+}
+
 // Returns whether the command took a game turn.
 static bool do_command(char com_val) {
     int dir_val;
-    bool do_pickup, do_diplay_scores;
-    int y, x, i;
-    vtype out_val, tmp_str;
+    direction_key_style style;
+    bool do_pickup;
+    int i;
 
     bool took_turn = true;
 
@@ -1090,36 +1286,7 @@ static bool do_command(char com_val) {
         took_turn = false;
         break;
     case CTRL_KEY('P'): // (^P)revious message.
-        if (command_is_repeating()) {
-            i = take_command_count();
-            if (i > MAX_SAVE_MSG) {
-                i = MAX_SAVE_MSG;
-            }
-        } else if (!previous_command_was(CTRL_KEY('P'))) {
-            i = 1;
-        } else {
-            i = MAX_SAVE_MSG;
-        }
-
-        if (i > 1) {
-            save_screen();
-            x = i;
-
-            // Oldest at the top, newest on the bottom row of the block: the
-            // row number counts down as we walk back through the history.
-            while (i > 0) {
-                i--;
-                prt(msg_history_recent(x - 1 - i), i, 0);
-            }
-
-            erase_line(x, 0);
-            pause_line(x);
-            restore_screen();
-        } else {
-            // Distinguish real and recovered messages with a '>'. -CJS-
-            put_buffer(">", 0, 0);
-            prt(msg_history_recent(0), 0, 1);
-        }
+        show_previous_messages();
 
         took_turn = false;
         break;
@@ -1128,35 +1295,11 @@ static bool do_command(char com_val) {
         took_turn = false;
         break;
     case CTRL_KEY('W'): // (^W)izard mode
-        if (progress_wizard_mode()) {
-            progress_set_wizard_mode(false);
-            msg_print("Wizard mode off.");
-        } else if (enter_wiz_mode()) {
-            msg_print("Wizard mode on.");
-        }
-
-        prt_winner();
+        toggle_wizard_mode();
         took_turn = false;
         break;
     case CTRL_KEY('X'): // e(^X)it and save
-        if (player_has_won()) {
-            msg_print(
-                "You are a Total Winner,  your character must be retired.");
-            if (rogue_like_commands) {
-                msg_print("Use 'Q' to when you are ready to quit.");
-            } else {
-                msg_print("Use <Control>-K when you are ready to quit.");
-            }
-        } else {
-            (void)strcpy(death_cause(), "(saved)");
-            msg_print("Saving game...");
-
-            if (save_char()) {
-                exit_game();
-            }
-
-            (void)strcpy(death_cause(), "(alive and well)");
-        }
+        save_and_exit();
 
         took_turn = false;
         break;
@@ -1178,54 +1321,6 @@ static bool do_command(char com_val) {
     case ESCAPE: // (ESC)   do nothing.
     case ' ':    // (space) do nothing.
         took_turn = false;
-        break;
-    case 'b': // (b) down, left  (1)
-        took_turn = move_char(1, do_pickup);
-        break;
-    case 'j': // (j) down    (2)
-        took_turn = move_char(2, do_pickup);
-        break;
-    case 'n': // (n) down, right  (3)
-        took_turn = move_char(3, do_pickup);
-        break;
-    case 'h': // (h) left    (4)
-        took_turn = move_char(4, do_pickup);
-        break;
-    case 'l': // (l) right    (6)
-        took_turn = move_char(6, do_pickup);
-        break;
-    case 'y': // (y) up, left    (7)
-        took_turn = move_char(7, do_pickup);
-        break;
-    case 'k': // (k) up    (8)
-        took_turn = move_char(8, do_pickup);
-        break;
-    case 'u': // (u) up, right  (9)
-        took_turn = move_char(9, do_pickup);
-        break;
-    case 'B': // (B) run down, left  (. 1)
-        took_turn = find_init(1);
-        break;
-    case 'J': // (J) run down    (. 2)
-        took_turn = find_init(2);
-        break;
-    case 'N': // (N) run down, right  (. 3)
-        took_turn = find_init(3);
-        break;
-    case 'H': // (H) run left    (. 4)
-        took_turn = find_init(4);
-        break;
-    case 'L': // (L) run right  (. 6)
-        took_turn = find_init(6);
-        break;
-    case 'Y': // (Y) run up, left  (. 7)
-        took_turn = find_init(7);
-        break;
-    case 'K': // (K) run up    (. 8)
-        took_turn = find_init(8);
-        break;
-    case 'U': // (U) run up, right  (. 9)
-        took_turn = find_init(9);
         break;
     case '/': // (/) identify a symbol
         ident_char();
@@ -1276,68 +1371,11 @@ static bool do_command(char com_val) {
         took_turn = gain_spells();
         break;
     case 'V': // (V)iew scores
-        if (!previous_command_was('V')) {
-            do_diplay_scores = true;
-        } else {
-            do_diplay_scores = false;
-        }
-        save_screen();
-        display_scores(do_diplay_scores);
-        restore_screen();
+        show_scores();
         took_turn = false;
         break;
     case 'W': // (W)here are we on the map  (L)ocate on map
-        if (player_timed_in_force(PLAYER_TIMED_BLINDNESS) || no_light()) {
-            msg_print("You can't see your map.");
-        } else {
-            int cy, cx, p_y, p_x;
-
-            y = player_row();
-            x = player_col();
-            if (get_panel(y, x, true)) {
-                prt_map();
-            }
-            cy = panel_row_index();
-            cx = panel_col_index();
-            for (;;) {
-                p_y = panel_row_index();
-                p_x = panel_col_index();
-                if (p_y == cy && p_x == cx) {
-                    tmp_str[0] = '\0';
-                } else {
-                    (void)sprintf(tmp_str, "%s%s of", p_y < cy ? " North" : p_y > cy ? " South" : "", p_x < cx ? " West" : p_x > cx ? " East" : "");
-                }
-                (void)sprintf(out_val, "Map sector [%d,%d], which is%s your sector. Look which direction?", p_y, p_x, tmp_str);
-                if (!get_dir(out_val, &dir_val)) {
-                    break;
-                }
-
-                // -CJS-
-                // Should really use the move function, but what the hell. This
-                // is nicer, as it moves exactly to the same place in another
-                // section. The direction calculation is not intuitive. Sorry.
-                for (;;) {
-                    x += ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
-                    y -= ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                    // NOTE: y is compared against width. May be a bug (see dungeon_state.h).
-                    if (x < 0 || y < 0 || x >= dungeon_width() || y >= dungeon_width()) {
-                        msg_print("You've gone past the end of your map.");
-                        x -= ((dir_val - 1) % 3 - 1) * SCREEN_WIDTH / 2;
-                        y += ((dir_val - 1) / 3 - 1) * SCREEN_HEIGHT / 2;
-                        break;
-                    }
-                    if (get_panel(y, x, true)) {
-                        prt_map();
-                        break;
-                    }
-                }
-            }
-
-            // Move to a new panel - but only if really necessary.
-            if (get_panel(player_row(), player_col(), false)) {
-                prt_map();
-            }
-        }
+        locate_on_map();
         took_turn = false;
         break;
     case 'R': // (R)est a while
@@ -1351,30 +1389,8 @@ static bool do_command(char com_val) {
         }
         took_turn = false;
         break;
-    case CTRL_KEY('B'): // (^B) tunnel down left  (T 1)
-        took_turn = tunnel(1);
-        break;
-    case CTRL_KEY('M'): // cr must be treated same as lf.
-    case CTRL_KEY('J'): // (^J) tunnel down    (T 2)
+    case CTRL_KEY('M'): // cr must be treated same as lf (^J: tunnel down).
         took_turn = tunnel(2);
-        break;
-    case CTRL_KEY('N'): // (^N) tunnel down right  (T 3)
-        took_turn = tunnel(3);
-        break;
-    case CTRL_KEY('H'): // (^H) tunnel left    (T 4)
-        took_turn = tunnel(4);
-        break;
-    case CTRL_KEY('L'): // (^L) tunnel right    (T 6)
-        took_turn = tunnel(6);
-        break;
-    case CTRL_KEY('Y'): // (^Y) tunnel up left    (T 7)
-        took_turn = tunnel(7);
-        break;
-    case CTRL_KEY('K'): // (^K) tunnel up    (T 8)
-        took_turn = tunnel(8);
-        break;
-    case CTRL_KEY('U'): // (^U) tunnel up right    (T 9)
-        took_turn = tunnel(9);
         break;
     case 'z': // (z)ap a wand    (a)im a wand
         took_turn = aim();
@@ -1445,7 +1461,10 @@ static bool do_command(char com_val) {
         took_turn = inven_command('x');
         break;
     default:
-        if (progress_wizard_mode()) {
+        dir_val = command_key_direction(com_val, &style);
+        if (dir_val != 0) {
+            took_turn = walk_run_or_tunnel(dir_val, style, do_pickup);
+        } else if (progress_wizard_mode()) {
             // Wizard commands are free moves
             took_turn = false;
             wizard_command(com_val);

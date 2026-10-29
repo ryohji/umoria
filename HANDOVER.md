@@ -13,8 +13,8 @@
 
 2026-10-30、`develop` の上（push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1844 件・88 本**、failed=0、`RESULT: GREEN`。
-  **golden 10 本 GREEN**（端末なしで本体を通す。本体の行の 49.7% を通る。#94・#74・#51）と、
+- 本体の警告 0（clean から）。テスト **1846 件・88 本**、failed=0、`RESULT: GREEN`。
+  **golden 10 本 GREEN**（端末なしで本体を通す。本体の行の 50.3% を通る。#94・#74・#51・#71）と、
   `objdes` の総当たりのハッシュ `objdes_all`（#22）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
@@ -40,9 +40,10 @@
   - **モンスター表の iterator（#95・#96）と golden（#94）**。経過は
     [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md)。
   - **#22 `objdes` の分割と、#71 の一部（`dungeon()` の効果 18 種を `tick_<効果>()` に）**。
-    経過は `worklog.md`（2026-10-25・29）と所見 73・74。#71 の行は開いたまま。
+    経過は `worklog.md`（2026-10-25・29）と所見 73・74。
   - **#74（`free_turn_flag` を戻り値に）と、その保護の台本 `free_turn`・`glowing_hands`（#51）**。
     コマンドの関数が「turn を使ったか」を `bool` で返す。経過は `worklog.md`（2026-10-29〜30）と所見 75・76。
+  - **#71 の残り（`dungeon()` 207 行・`do_command` 227 行）**。経過は `worklog.md`（2026-10-30）と所見 77。
 - 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B31（B28 は誤りだった）。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
@@ -65,6 +66,7 @@
 | `scripts/check.sh` | 第 2 節の 1〜4 と golden を clean から走らせる |
 | `tests/headless_backend.c`・`tests/golden/` | 端末なしで本体を通す backend と、台本・記録・`run.sh`（第 4 節） |
 | `scripts/cmp_all.sh` | 基準のコミットと作業木の全関数の機械語と、データの (種類, 大きさ) を比べる |
+| `scripts/inline_back.py` | 抜きだした関数の本体を呼んだ所へ字のまま戻し、元のファイルとの違いを出す（所見 73） |
 | `scripts/check_statics.sh`・`comments_only.sh`・`merge_modules.py`・`move_constants.py` | データの数の比較・注釈だけの変更の確かめ・小さな module の連結・`constant.h` の定数を使う場所へ移す |
 | `docs/modules/` | module の設計資料（ヘッダに書かない理由・不変条件・範囲） |
 | `CHANGELOG.md` | 上流の履歴。この作業では触っていない |
@@ -165,7 +167,8 @@ rm -f scores.dat /tmp/probe.sav
 static にすると入口の `endbr64` が消える、同名の static が潰れたのはデータの数が減ることで
 分かる（所見 63）。module を合わせるときは `scripts/merge_modules.py` で字を変えずに連結する。
 関数を選んで比べるなら `scripts/dis_compare.py 変更前 変更後 関数…`。
-展開されて機械語が変わる塊の切りだしは、呼んだ所へ字のまま戻して元と比べる（所見 73）。
+展開されて機械語が変わる塊の切りだしは、呼んだ所へ字のまま戻して元と比べる（所見 73、
+`scripts/inline_back.py 元のファイル 新しいファイル 関数…`。違いが局所の宣言と足した説明だけなら読む）。
 文字列を作る関数は、入力の組の総当たりのハッシュで守る（所見 74、`objdes_all`）。
 
 **本体を通しで守るのは golden。** `tests/headless_backend.c` は `platform/backend.h` の約束どおりの
@@ -245,14 +248,14 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 理由」がある。多くは「テストが届かない」ことが理由だったが、golden（#94）で本体を通しで
 守れるようになったので、台本を足せば動かせるものがある。
 
-- **golden が通らない所。** 10 本の台本で本体の行の 49.7%（7870 / 15849。gcov。2026-10-30）を
+- **golden が通らない所。** 10 本の台本で本体の行の 50.3%（7960 / 15833。gcov。2026-10-30）を
   通る（8 本の 2026-10-25 は 44.5%）。品物は wizard の `@`（表の tval・subval・flags を打つ）で
   作れる（`free_turn`・`glowing_hands` が手本）。行を持つファイルでどの行も通らないのは
   `model/item/armor_selection.c`（呪いの装備）だけ。#74 で素通りした場面（走っている途中で壁や
   見えているモンスターに当たる、100 歩走って息が切れる、店以外の罠を踏む、罠や箱を外す）は台本が無い。
-- **P3 の長い関数と重複**（#19・#21・#71・#72）は、該当の道を golden の台本で通して
-  から動かせる。#22 `objdes` はそうして済んだ（2026-10-25）。#71 は `dungeon()` の残り 454 行と
-  `do_command`（404 行）が残る。`do_command` を止めていた #74 は 2026-10-30 に済んだ。
+- **P3 の長い関数と重複**（#19・#21・#72）は、該当の道を golden の台本で通して
+  から動かせる。#22 `objdes`（2026-10-25）と #71 `dungeon()`・`do_command`（2026-10-30）は
+  そうして済んだ。`dungeon.c` には `original_commands`（キーの写しかえの switch）が残る。
 - **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
   monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
 - **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、

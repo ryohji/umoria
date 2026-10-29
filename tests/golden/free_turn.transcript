@@ -800,8 +800,85 @@ key 216 0x0d 4ee20d0c turn 10
 key 217 0x79 6a767378 turn 10
 key 218 0x3e 093cd55d turn 10
 key 219 0x73 bf38c612 turn 11
-end of script after 219 of 219 keys
-screen (cursor 11,33, bells 0):
+key 220 0x5e c1eda3d6 turn 12
+key 221 0x70 46d95622 turn 12
+key 222 0x5e 7a179774 turn 12
+key 223 0x31 46d95622 turn 12
+key 224 0x20 3325959c turn 12
+key 225 0x23 c1eda3d6 turn 12
+key 226 0x31 380a0c44 turn 12
+key 227 0x7f 69b2adad turn 12
+key 228 0x32 380a0c44 turn 12
+key 229 0x73 41f8d146 turn 12
+key 230 0x23 c1eda3d6 turn 14
+key 231 0x31 380a0c44 turn 14
+key 232 0x32 69b2adad turn 14
+key 233 0x33 c8be977b turn 14
+key 234 0x34 5688f7b0 turn 14
+key 235 0x69 5688f7b0 turn 14
+key 236 0x20 efb31ddd turn 14
+key 237 0x23 c1eda3d6 turn 14
+key 238 0x20 380a0c44 turn 14
+key 239 0x69 1162c907 turn 14
+key 240 0x20 efb31ddd turn 14
+key 241 0x73 c1eda3d6 turn 14
+key 242 0x4c c1eda3d6 turn 15
+key 243 0x36 f6c64322 turn 15
+key 244 0x1b 63ea2c31 turn 15
+key 245 0x17 c1eda3d6 turn 15
+key 246 0x17 c2f806d0 turn 15
+key 247 0x40 fea6ad9f turn 15
+key 248 0x20 7b11d819 turn 15
+key 249 0x37 80df8fdf turn 15
+key 250 0x37 41ddf9c2 turn 15
+key 251 0x0d 07722245 turn 15
+key 252 0x21 52f5f770 turn 15
+key 253 0x0d 6a870013 turn 15
+key 254 0x36 8c50a921 turn 15
+key 255 0x34 ec611adb turn 15
+key 256 0x0d 20c00e07 turn 15
+key 257 0x31 c6d30288 turn 15
+key 258 0x30 440dabfb turn 15
+key 259 0x0d 76d4468b turn 15
+key 260 0x31 85a8287d turn 15
+key 261 0x0d 470bb0b2 turn 15
+key 262 0x32 350319bf turn 15
+key 263 0x0d 9f3b7311 turn 15
+key 264 0x36 70e562f2 turn 15
+key 265 0x0d 8afda3ac turn 15
+key 266 0x30 74a11c6b turn 15
+key 267 0x0d 6db2a21b turn 15
+key 268 0x30 37234572 turn 15
+key 269 0x0d 322ec002 turn 15
+key 270 0x30 95be9294 turn 15
+key 271 0x0d f9c2dee4 turn 15
+key 272 0x30 768827ac turn 15
+key 273 0x0d 4d3de23c turn 15
+key 274 0x37 57d88e07 turn 15
+key 275 0x35 679d44aa turn 15
+key 276 0x30 6773b1f7 turn 15
+key 277 0x30 53408167 turn 15
+key 278 0x0d 54c741d7 turn 15
+key 279 0x34 49ab656c turn 15
+key 280 0x30 5d1a6050 turn 15
+key 281 0x30 20aac800 turn 15
+key 282 0x30 5aeb3610 turn 15
+key 283 0x30 e5a8db40 turn 15
+key 284 0x0d 417e5d70 turn 15
+key 285 0x33 6ec32ad5 turn 15
+key 286 0x0d 0e4f4090 turn 15
+key 287 0x31 8cc651f6 turn 15
+key 288 0x0d fa15db47 turn 15
+key 289 0x79 536a177a turn 15
+key 290 0x38 aa1f505f turn 15
+key 291 0x2d 00534c57 turn 16
+key 292 0x32 5914c7ee turn 16
+key 293 0x69 effbd2be turn 17
+key 294 0x1b 57e09efd turn 17
+key 295 0x0d effbd2be turn 17
+key 296 0x73 027d489d turn 17
+end of script after 296 of 296 keys
+screen (cursor 11,33, bells 1):
 |
 |
 |Human
@@ -811,12 +888,12 @@ screen (cursor 11,33, bells 0):
 |STR :     18
 |INT :     11
 |WIS :     10
-|DEX :     15
+|DEX :     15                    # #
 |CON :     14                    #.#
 |CHR :     14                    #@#
 |                                #.#
 |LEV :      1
-|EXP :      0
+|EXP :      1
 |MANA:      0
 |MHP :     19
 |CHP :     19
@@ -826,3 +903,59 @@ screen (cursor 11,33, bells 0):
 |
 |Is wizard
 |                                                                 50 feet
+run: -w83 rogue.sav
+exit status 0
+key   1 0x0a 7c0428f9 turn -1
+key   2 0x20 4cdbf8db turn -1
+key   3 0x79 3a7b3867 turn -1
+key   4 0x61 999885ab turn -1
+key   5 0x6d 6255975a turn -1
+key   6 0x1b d5f4d97b turn -1
+key   7 0x61 5f6b306a turn -1
+key   8 0x45 67d9ff21 turn -1
+key   9 0x64 0d1394ae turn -1
+key  10 0x0d d10096ea turn -1
+key  11 0x20 8edd069b turn -1
+key  12 0x3d 0c5a466b turn 0
+key  13 0x0d 998e44d5 turn 0
+key  14 0x0d 998e44d5 turn 0
+key  15 0x0d 998e44d5 turn 0
+key  16 0x0d 998e44d5 turn 0
+key  17 0x0d 998e44d5 turn 0
+key  18 0x0d 998e44d5 turn 0
+key  19 0x79 998e44d5 turn 0
+key  20 0x1b 398fdd6b turn 0
+key  21 0x68 0c5a466b turn 0
+key  22 0x48 7f9dd30b turn 1
+key  23 0x08 3e3e9e91 turn 23
+key  24 0x0d 00fb5884 turn 24
+key  25 0x0a 8e28b7df turn 24
+key  26 0x33 8e28b7df turn 24
+key  27 0x73 10d42d90 turn 24
+key  28 0x73 3e3e9e91 turn 27
+end of script after 28 of 28 keys
+screen (cursor 11,14, bells 0):
+|
+|             ##################################################################
+|Human        #................................................................#
+|Warrior      #..............................................4###..............#
+|Rookie       #......p...................#######.............####..............#
+|             #...........3#####.........#######.............####..............#
+|STR :     15 #...........######.........#######.............####..............#
+|INT :     15 #...........######.........#######.............####..............#
+|WIS :     10 #...........######>........#######.............####..............#
+|DEX :     13 #...........######.........#####5#.............####..............#
+|CON :     13 #................................................................#
+|CHR :     13 #@...............................................................#
+|             #................................................................#
+|LEV :      1 #................................................................#
+|EXP :      0 #.........####6####............########........1#####............#
+|MANA:      0 #.........#########............########........######............#
+|MHP :     19 #.........#########............########........######............#
+|CHP :     19 #.........#########............#######2........######............#
+|             #..............................########........######............#
+|AC  :      0 #..............................########..........................#
+|GOLD:    455 #................................................................#
+|             #................................................................#
+|Is wizard    ##################################################################
+|                                                                 Town level
