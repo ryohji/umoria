@@ -16,7 +16,7 @@
 
 - 本体の警告 0（clean から）。テスト **1850 件・89 本**、failed=0、`RESULT: GREEN`。
   **golden 10 本 GREEN**（端末なしで本体を通す。本体の行の 50.3% を通る。#94・#74・#51・#71）と、
-  `objdes` の総当たりのハッシュ `objdes_all`（#22）。
+  総当たりのハッシュ `objdes_all`（#22）・`recall_all`（#72）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
@@ -259,6 +259,8 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 - **P3 の長い関数と重複**（#19・#21・#72）は、該当の道を golden の台本で通して
   から動かせる。#22 `objdes`（2026-10-25）と #71 `dungeon()`・`do_command`（2026-10-30）は
   そうして済んだ。`original_commands` の switch も表になった（キーマップ、2026-10-30）。
+  #72 は `roff_recall`・`eat`・`quaff` が済み、`inven_command`（485 行）・`get_char`（463 行）が残る
+  （字のまま出せる塊が残っていない。台帳の行に設計の見こみ）。
 - **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
   monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
 - **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、

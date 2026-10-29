@@ -25,6 +25,154 @@
 #include "inventory.h"
 #include "player_condition.h"
 
+// One effect of a food (j, from the bits of its flags). Returns whether the
+// food is now known: ident as it was, or what the effect made of it.
+static bool food_effect(int j, const inven_type *i_ptr, bool ident) {
+    switch (j) {
+    case 1:
+        player_timed_add(PLAYER_TIMED_POISON, randint(10) + i_ptr->level);
+        ident = true;
+        break;
+    case 2:
+        player_timed_add(PLAYER_TIMED_BLINDNESS, randint(250) + 10 * i_ptr->level + 100);
+        draw_cave();
+        msg_print("A veil of darkness surrounds you.");
+        ident = true;
+        break;
+    case 3:
+        player_timed_add(PLAYER_TIMED_FEAR, randint(10) + i_ptr->level);
+        msg_print("You feel terrified!");
+        ident = true;
+        break;
+    case 4:
+        player_timed_add(PLAYER_TIMED_CONFUSION, randint(10) + i_ptr->level);
+        msg_print("You feel drugged.");
+        ident = true;
+        break;
+    case 5:
+        player_timed_add(PLAYER_TIMED_HALLUCINATION, randint(200) + 25 * i_ptr->level + 200);
+        msg_print("You feel drugged.");
+        ident = true;
+        break;
+    case 6:
+        ident = cure_poison();
+        break;
+    case 7:
+        ident = cure_blindness();
+        break;
+    case 8:
+        if (player_timed_turns(PLAYER_TIMED_FEAR) > 1) {
+            player_timed_shorten_to(PLAYER_TIMED_FEAR, 1);
+            ident = true;
+        }
+        break;
+    case 9:
+        ident = cure_confusion();
+        break;
+    case 10:
+        ident = true;
+        lose_stat(A_STR);
+        break;
+    case 11:
+        ident = true;
+        lose_stat(A_CON);
+        break;
+#if 0 // 12 through 15 are no longer used
+    case 12:
+        ident = true;
+        lose_stat(A_INT);
+        break;
+    case 13:
+        ident = true;
+        lose_stat(A_WIS);
+        break;
+    case 14:
+        ident = true;
+        lose_stat(A_DEX);
+        break;
+    case 15:
+        ident = true;
+        lose_stat(A_CHR);
+        break;
+#endif
+    case 16:
+        if (res_stat(A_STR)) {
+            msg_print("You feel your strength returning.");
+            ident = true;
+        }
+        break;
+    case 17:
+        if (res_stat(A_CON)) {
+            msg_print("You feel your health returning.");
+            ident = true;
+        }
+        break;
+    case 18:
+        if (res_stat(A_INT)) {
+            msg_print("Your head spins a moment.");
+            ident = true;
+        }
+        break;
+    case 19:
+        if (res_stat(A_WIS)) {
+            msg_print("You feel your wisdom returning.");
+            ident = true;
+        }
+        break;
+    case 20:
+        if (res_stat(A_DEX)) {
+            msg_print("You feel more dextrous.");
+            ident = true;
+        }
+        break;
+    case 21:
+        if (res_stat(A_CHR)) {
+            msg_print("Your skin stops itching.");
+            ident = true;
+        }
+        break;
+    case 22:
+        ident = hp_player(randint(6));
+        break;
+    case 23:
+        ident = hp_player(randint(12));
+        break;
+    case 24:
+        ident = hp_player(randint(18));
+        break;
+#if 0 // 25 is no longer used
+    case 25:
+        ident = hp_player(damroll(3, 6));
+        break;
+#endif
+    case 26:
+        ident = hp_player(damroll(3, 12));
+        break;
+    case 27:
+        take_hit(randint(18), "poisonous food.");
+        ident = true;
+        break;
+#if 0 // 28 through 30 are no longer used
+    case 28:
+        take_hit(randint(8), "poisonous food.");
+        ident = true;
+        break;
+    case 29:
+        take_hit(damroll(2, 8), "poisonous food.");
+        ident = true;
+        break;
+    case 30:
+        take_hit(damroll(3, 8), "poisonous food.");
+        ident = true;
+        break;
+#endif
+    default:
+        msg_print("Internal error in eat()");
+        break;
+    }
+    return ident;
+}
+
 // Eat some food. -RAK-
 // Returns whether it took a game turn.
 bool eat(void) {
@@ -46,148 +194,7 @@ bool eat(void) {
         while (i != 0) {
             j = bit_pos(&i) + 1;
             // Foods
-            switch (j) {
-            case 1:
-                player_timed_add(PLAYER_TIMED_POISON, randint(10) + i_ptr->level);
-                ident = true;
-                break;
-            case 2:
-                player_timed_add(PLAYER_TIMED_BLINDNESS, randint(250) + 10 * i_ptr->level + 100);
-                draw_cave();
-                msg_print("A veil of darkness surrounds you.");
-                ident = true;
-                break;
-            case 3:
-                player_timed_add(PLAYER_TIMED_FEAR, randint(10) + i_ptr->level);
-                msg_print("You feel terrified!");
-                ident = true;
-                break;
-            case 4:
-                player_timed_add(PLAYER_TIMED_CONFUSION, randint(10) + i_ptr->level);
-                msg_print("You feel drugged.");
-                ident = true;
-                break;
-            case 5:
-                player_timed_add(PLAYER_TIMED_HALLUCINATION, randint(200) + 25 * i_ptr->level + 200);
-                msg_print("You feel drugged.");
-                ident = true;
-                break;
-            case 6:
-                ident = cure_poison();
-                break;
-            case 7:
-                ident = cure_blindness();
-                break;
-            case 8:
-                if (player_timed_turns(PLAYER_TIMED_FEAR) > 1) {
-                    player_timed_shorten_to(PLAYER_TIMED_FEAR, 1);
-                    ident = true;
-                }
-                break;
-            case 9:
-                ident = cure_confusion();
-                break;
-            case 10:
-                ident = true;
-                lose_stat(A_STR);
-                break;
-            case 11:
-                ident = true;
-                lose_stat(A_CON);
-                break;
-#if 0 // 12 through 15 are no longer used
-            case 12:
-                ident = true;
-                lose_stat(A_INT);
-                break;
-            case 13:
-                ident = true;
-                lose_stat(A_WIS);
-                break;
-            case 14:
-                ident = true;
-                lose_stat(A_DEX);
-                break;
-            case 15:
-                ident = true;
-                lose_stat(A_CHR);
-                break;
-#endif
-            case 16:
-                if (res_stat(A_STR)) {
-                    msg_print("You feel your strength returning.");
-                    ident = true;
-                }
-                break;
-            case 17:
-                if (res_stat(A_CON)) {
-                    msg_print("You feel your health returning.");
-                    ident = true;
-                }
-                break;
-            case 18:
-                if (res_stat(A_INT)) {
-                    msg_print("Your head spins a moment.");
-                    ident = true;
-                }
-                break;
-            case 19:
-                if (res_stat(A_WIS)) {
-                    msg_print("You feel your wisdom returning.");
-                    ident = true;
-                }
-                break;
-            case 20:
-                if (res_stat(A_DEX)) {
-                    msg_print("You feel more dextrous.");
-                    ident = true;
-                }
-                break;
-            case 21:
-                if (res_stat(A_CHR)) {
-                    msg_print("Your skin stops itching.");
-                    ident = true;
-                }
-                break;
-            case 22:
-                ident = hp_player(randint(6));
-                break;
-            case 23:
-                ident = hp_player(randint(12));
-                break;
-            case 24:
-                ident = hp_player(randint(18));
-                break;
-#if 0 // 25 is no longer used
-            case 25:
-                ident = hp_player(damroll(3, 6));
-                break;
-#endif
-            case 26:
-                ident = hp_player(damroll(3, 12));
-                break;
-            case 27:
-                take_hit(randint(18), "poisonous food.");
-                ident = true;
-                break;
-#if 0 // 28 through 30 are no longer used
-            case 28:
-                take_hit(randint(8), "poisonous food.");
-                ident = true;
-                break;
-            case 29:
-                take_hit(damroll(2, 8), "poisonous food.");
-                ident = true;
-                break;
-            case 30:
-                take_hit(damroll(3, 8), "poisonous food.");
-                ident = true;
-                break;
-#endif
-            default:
-                msg_print("Internal error in eat()");
-                break;
-            }
+            ident = food_effect(j, i_ptr, ident);
             // End of food actions.
         }
         i_ptr = learn_item_effect(ident, &item_val);

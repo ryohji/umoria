@@ -108,6 +108,15 @@ $(OBJDES_ALL): objdes_all.o $(LIBS)
 objdes_all.o: tests/objdes_all.c
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
+# Every creature of the monster table through roff_recall() (makefile.test golden
+# runs it). roff_recall() is declared in command/'s internal header.
+RECALL_ALL = recall_all
+$(RECALL_ALL): recall_all.o $(LIBS)
+	$(CC) -o $(RECALL_ALL) recall_all.o $(LIBS) $(LDFLAGS)
+
+recall_all.o: tests/recall_all.c
+	$(CC) $(CFLAGS) -I$(SRCDIR)/command/internal -MMD -MP -c -o $@ $<
+
 headless_backend.o: tests/headless_backend.c
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
@@ -153,7 +162,7 @@ clean:
 	@rm -f $(OBJS)
 	@rm -f $(OBJS:.o=.d)
 	@rm -f $(LIBS)
-	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d
+	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d $(RECALL_ALL) recall_all.o recall_all.d
 	@rm -f lintout
 	@echo "Clean complete!"
 

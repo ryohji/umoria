@@ -490,6 +490,222 @@ bool _save_char(char *fnam) {
     return true;
 }
 
+// Reads the character: everything of the player up to the turn count.
+// Player bio fields. Read into locals, then set through accessors. Order
+// is part of the file format.
+static void rd_player(void) {
+    char name[PLAYER_NAME_SIZE];
+    rd_string(name);
+    player_name_set(name);
+    // Male flag: nonzero means male. A hand-edited 2 still works.
+    uint8_t male;
+    rd_byte(&male);
+    player_set_male(male != 0);
+    uint32_t gold;
+    rd_long(&gold);
+    player_set_gold((int32_t)gold);
+    uint32_t max_exp;
+    rd_long(&max_exp);
+    player_set_max_experience((int32_t)max_exp);
+    uint32_t exp;
+    rd_long(&exp);
+    player_set_experience((int32_t)exp);
+    uint16_t exp_frac;
+    rd_short(&exp_frac);
+    player_set_experience_fraction(exp_frac);
+    // Age first, then height. Order cannot move.
+    uint16_t age;
+    rd_short(&age);
+    player_age_set(age);
+    uint16_t height;
+    rd_short(&height);
+    player_height_set(height);
+    uint16_t body_weight;
+    rd_short(&body_weight);
+    player_body_weight_set(body_weight);
+    uint16_t lev;
+    rd_short(&lev);
+    player_set_level(lev);
+    // Max depth: _set replaces the value, doesn't take the deeper of the two.
+    uint16_t max_depth;
+    rd_short(&max_depth);
+    player_max_depth_set(max_depth);
+    // Search: two setters (wizard.c only replaces chance, not both).
+    uint16_t search_chance;
+    uint16_t search_frequency;
+    rd_short(&search_chance);
+    rd_short(&search_frequency);
+    player_search_chance_set((int16_t)search_chance);
+    player_search_frequency_set((int16_t)search_frequency);
+    // Base to-hit: one setter takes both values.
+    uint16_t base_to_hit;
+    uint16_t base_to_hit_with_bows;
+    rd_short(&base_to_hit);
+    rd_short(&base_to_hit_with_bows);
+    player_base_to_hit_set((int16_t)base_to_hit, (int16_t)base_to_hit_with_bows);
+    // Mana: max here, current and fraction below (after class/race).
+    uint16_t max_mana;
+    rd_short(&max_mana);
+    player_set_max_mana((int16_t)max_mana);
+    // HP: max here, current and fraction below (after class/race).
+    uint16_t max_hp;
+    rd_short(&max_hp);
+    player_set_max_hp((int16_t)max_hp);
+    // Attack bonuses: to-hit first, then to-dam. One setter takes both.
+    uint16_t to_hit_bonus;
+    uint16_t to_damage_bonus;
+    rd_short(&to_hit_bonus);
+    rd_short(&to_damage_bonus);
+    player_attack_bonuses_set((int16_t)to_hit_bonus, (int16_t)to_damage_bonus);
+    // Armor class: _set_parts, not _reset. The file's values already include
+    // worn armor, so we can't zero out that part first.
+    uint16_t armour_class;
+    uint16_t magical_armour_class;
+    rd_short(&armour_class);
+    rd_short(&magical_armour_class);
+    player_armour_class_set_parts((int16_t)armour_class, (int16_t)magical_armour_class);
+    // Display values: four shorts, same order as written. AC total comes
+    // before modifier.
+    uint16_t dis_th;
+    rd_short(&dis_th);
+    player_display_set_to_hit((int16_t)dis_th);
+    uint16_t dis_td;
+    rd_short(&dis_td);
+    player_display_set_to_dam((int16_t)dis_td);
+    uint16_t dis_ac;
+    rd_short(&dis_ac);
+    player_display_set_ac((int16_t)dis_ac);
+    uint16_t dis_tac;
+    rd_short(&dis_tac);
+    player_display_set_to_ac((int16_t)dis_tac);
+    uint16_t disarm;
+    rd_short(&disarm);
+    player_disarm_set((int16_t)disarm);
+    uint16_t saving_throw;
+    rd_short(&saving_throw);
+    player_saving_throw_set((int16_t)saving_throw);
+    uint16_t social_class;
+    rd_short(&social_class);
+    player_social_class_set((int16_t)social_class);
+    // Stealth: signed value round-trips through uint16_t (Half-Troll Warrior
+    // can be -1).
+    uint16_t stealth;
+    rd_short(&stealth);
+    player_stealth_set((int16_t)stealth);
+    // Four bytes in a row: class, race, hit die, experience factor.
+    uint8_t pclass;
+    rd_byte(&pclass);
+    player_class_set(pclass);
+    uint8_t prace;
+    rd_byte(&prace);
+    player_race_set(prace);
+    uint8_t hit_die;
+    rd_byte(&hit_die);
+    player_hit_die_set(hit_die);
+    uint8_t expfact;
+    rd_byte(&expfact);
+    player_set_experience_factor(expfact);
+    uint16_t cur_mana;
+    rd_short(&cur_mana);
+    player_set_mana((int16_t)cur_mana);
+    uint16_t cur_mana_frac;
+    rd_short(&cur_mana_frac);
+    player_set_mana_fraction(cur_mana_frac);
+    uint16_t cur_hp;
+    rd_short(&cur_hp);
+    player_set_hp((int16_t)cur_hp);
+    uint16_t cur_hp_frac;
+    rd_short(&cur_hp_frac);
+    player_set_hp_fraction(cur_hp_frac);
+    for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
+        char line[PLAYER_HISTORY_LINE_SIZE];
+        rd_string(line);
+        player_history_line_set(i, line);
+    }
+
+    uint8_t max_val, cur_val, use_val;
+    uint16_t mod_val;
+    for (int i = 0; i < 6; i++) {
+        rd_byte(&max_val);
+        player_stat_set_max(i, max_val);
+    }
+    for (int i = 0; i < 6; i++) {
+        rd_byte(&cur_val);
+        player_stat_set_cur(i, cur_val);
+    }
+    for (int i = 0; i < 6; i++) {
+        rd_short(&mod_val);
+        player_stat_set_mod(i, (int16_t)mod_val);
+    }
+    for (int i = 0; i < 6; i++) {
+        rd_byte(&use_val);
+        player_stat_set_use(i, use_val);
+    }
+
+    // Status word: bit positions are part of the file format, so we move the
+    // whole word instead of thirty individual flags.
+    uint32_t status;
+    rd_long(&status);
+    player_set_status_word(status);
+    // Rest: signed value, so we preserve all sixteen bits.
+    uint16_t rest_turns;
+    rd_short(&rest_turns);
+    player_rest_set((int16_t)rest_turns);
+    // Eighteen timed effects: read each by name, same as when writing.
+    rd_timed(PLAYER_TIMED_BLINDNESS);
+    rd_timed(PLAYER_TIMED_PARALYSIS);
+    rd_timed(PLAYER_TIMED_CONFUSION);
+    uint16_t food;
+    rd_short(&food);
+    player_set_food((int16_t)food);
+    uint16_t food_digested;
+    rd_short(&food_digested);
+    player_set_digestion((int16_t)food_digested);
+    // Dead 2-byte hole: this one goes to a local static, so we can read
+    // directly to its address (see dead_protection_bytes above).
+    rd_short((uint16_t *)&dead_protection_bytes);
+    uint16_t speed;
+    rd_short(&speed);
+    player_speed_set((int16_t)speed);
+    rd_timed(PLAYER_TIMED_HASTE);
+    rd_timed(PLAYER_TIMED_SLOWNESS);
+    rd_timed(PLAYER_TIMED_FEAR);
+    rd_timed(PLAYER_TIMED_POISON);
+    rd_timed(PLAYER_TIMED_HALLUCINATION);
+    rd_timed(PLAYER_TIMED_PROTECTION_FROM_EVIL);
+    rd_timed(PLAYER_TIMED_INVULNERABILITY);
+    rd_timed(PLAYER_TIMED_HEROISM);
+    rd_timed(PLAYER_TIMED_SUPER_HEROISM);
+    rd_timed(PLAYER_TIMED_BLESSING);
+    rd_timed(PLAYER_TIMED_HEAT_RESISTANCE);
+    rd_timed(PLAYER_TIMED_COLD_RESISTANCE);
+    rd_timed(PLAYER_TIMED_SEEING_INVISIBLE);
+    rd_timed(PLAYER_TIMED_WORD_OF_RECALL);
+    uint16_t infra_range;
+    rd_short(&infra_range);
+    player_infra_range_set((int16_t)infra_range);
+    rd_timed(PLAYER_TIMED_INFRA_VISION);
+    // Seventeen ability bytes: read by position, same as when writing.
+    for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
+        uint8_t ability;
+        rd_byte(&ability);
+        player_abilities_restore_byte(i, ability);
+    }
+    uint8_t saved_glowing_hands;
+    rd_byte(&saved_glowing_hands);
+    player_glowing_hands_restore(saved_glowing_hands);
+    uint8_t saved_spells_to_learn;
+    rd_byte(&saved_spells_to_learn);
+    player_spells_to_learn_set(saved_spells_to_learn);
+
+    uint16_t saved_missile_serial;
+    rd_short(&saved_missile_serial);
+    set_missile_serial((int16_t)saved_missile_serial);
+    uint32_t saved_turn;
+    rd_long(&saved_turn);
+    progress_set_turn((int32_t)saved_turn);
+}
+
 // Certain checks are ommitted for the wizard. -CJS-
 bool get_char(bool *generate) {
     uint32_t time_saved;
@@ -606,218 +822,7 @@ bool get_char(bool *generate) {
         }
 
         if ((l & 0x80000000L) == 0) {
-            // Player bio fields. Read into locals, then set through accessors. Order
-            // is part of the file format.
-            char name[PLAYER_NAME_SIZE];
-            rd_string(name);
-            player_name_set(name);
-            // Male flag: nonzero means male. A hand-edited 2 still works.
-            uint8_t male;
-            rd_byte(&male);
-            player_set_male(male != 0);
-            uint32_t gold;
-            rd_long(&gold);
-            player_set_gold((int32_t)gold);
-            uint32_t max_exp;
-            rd_long(&max_exp);
-            player_set_max_experience((int32_t)max_exp);
-            uint32_t exp;
-            rd_long(&exp);
-            player_set_experience((int32_t)exp);
-            uint16_t exp_frac;
-            rd_short(&exp_frac);
-            player_set_experience_fraction(exp_frac);
-            // Age first, then height. Order cannot move.
-            uint16_t age;
-            rd_short(&age);
-            player_age_set(age);
-            uint16_t height;
-            rd_short(&height);
-            player_height_set(height);
-            uint16_t body_weight;
-            rd_short(&body_weight);
-            player_body_weight_set(body_weight);
-            uint16_t lev;
-            rd_short(&lev);
-            player_set_level(lev);
-            // Max depth: _set replaces the value, doesn't take the deeper of the two.
-            uint16_t max_depth;
-            rd_short(&max_depth);
-            player_max_depth_set(max_depth);
-            // Search: two setters (wizard.c only replaces chance, not both).
-            uint16_t search_chance;
-            uint16_t search_frequency;
-            rd_short(&search_chance);
-            rd_short(&search_frequency);
-            player_search_chance_set((int16_t)search_chance);
-            player_search_frequency_set((int16_t)search_frequency);
-            // Base to-hit: one setter takes both values.
-            uint16_t base_to_hit;
-            uint16_t base_to_hit_with_bows;
-            rd_short(&base_to_hit);
-            rd_short(&base_to_hit_with_bows);
-            player_base_to_hit_set((int16_t)base_to_hit, (int16_t)base_to_hit_with_bows);
-            // Mana: max here, current and fraction below (after class/race).
-            uint16_t max_mana;
-            rd_short(&max_mana);
-            player_set_max_mana((int16_t)max_mana);
-            // HP: max here, current and fraction below (after class/race).
-            uint16_t max_hp;
-            rd_short(&max_hp);
-            player_set_max_hp((int16_t)max_hp);
-            // Attack bonuses: to-hit first, then to-dam. One setter takes both.
-            uint16_t to_hit_bonus;
-            uint16_t to_damage_bonus;
-            rd_short(&to_hit_bonus);
-            rd_short(&to_damage_bonus);
-            player_attack_bonuses_set((int16_t)to_hit_bonus, (int16_t)to_damage_bonus);
-            // Armor class: _set_parts, not _reset. The file's values already include
-            // worn armor, so we can't zero out that part first.
-            uint16_t armour_class;
-            uint16_t magical_armour_class;
-            rd_short(&armour_class);
-            rd_short(&magical_armour_class);
-            player_armour_class_set_parts((int16_t)armour_class, (int16_t)magical_armour_class);
-            // Display values: four shorts, same order as written. AC total comes
-            // before modifier.
-            uint16_t dis_th;
-            rd_short(&dis_th);
-            player_display_set_to_hit((int16_t)dis_th);
-            uint16_t dis_td;
-            rd_short(&dis_td);
-            player_display_set_to_dam((int16_t)dis_td);
-            uint16_t dis_ac;
-            rd_short(&dis_ac);
-            player_display_set_ac((int16_t)dis_ac);
-            uint16_t dis_tac;
-            rd_short(&dis_tac);
-            player_display_set_to_ac((int16_t)dis_tac);
-            uint16_t disarm;
-            rd_short(&disarm);
-            player_disarm_set((int16_t)disarm);
-            uint16_t saving_throw;
-            rd_short(&saving_throw);
-            player_saving_throw_set((int16_t)saving_throw);
-            uint16_t social_class;
-            rd_short(&social_class);
-            player_social_class_set((int16_t)social_class);
-            // Stealth: signed value round-trips through uint16_t (Half-Troll Warrior
-            // can be -1).
-            uint16_t stealth;
-            rd_short(&stealth);
-            player_stealth_set((int16_t)stealth);
-            // Four bytes in a row: class, race, hit die, experience factor.
-            uint8_t pclass;
-            rd_byte(&pclass);
-            player_class_set(pclass);
-            uint8_t prace;
-            rd_byte(&prace);
-            player_race_set(prace);
-            uint8_t hit_die;
-            rd_byte(&hit_die);
-            player_hit_die_set(hit_die);
-            uint8_t expfact;
-            rd_byte(&expfact);
-            player_set_experience_factor(expfact);
-            uint16_t cur_mana;
-            rd_short(&cur_mana);
-            player_set_mana((int16_t)cur_mana);
-            uint16_t cur_mana_frac;
-            rd_short(&cur_mana_frac);
-            player_set_mana_fraction(cur_mana_frac);
-            uint16_t cur_hp;
-            rd_short(&cur_hp);
-            player_set_hp((int16_t)cur_hp);
-            uint16_t cur_hp_frac;
-            rd_short(&cur_hp_frac);
-            player_set_hp_fraction(cur_hp_frac);
-            for (int i = 0; i < PLAYER_HISTORY_LINES; i++) {
-                char line[PLAYER_HISTORY_LINE_SIZE];
-                rd_string(line);
-                player_history_line_set(i, line);
-            }
-
-            uint8_t max_val, cur_val, use_val;
-            uint16_t mod_val;
-            for (int i = 0; i < 6; i++) {
-                rd_byte(&max_val);
-                player_stat_set_max(i, max_val);
-            }
-            for (int i = 0; i < 6; i++) {
-                rd_byte(&cur_val);
-                player_stat_set_cur(i, cur_val);
-            }
-            for (int i = 0; i < 6; i++) {
-                rd_short(&mod_val);
-                player_stat_set_mod(i, (int16_t)mod_val);
-            }
-            for (int i = 0; i < 6; i++) {
-                rd_byte(&use_val);
-                player_stat_set_use(i, use_val);
-            }
-
-            // Status word: bit positions are part of the file format, so we move the
-            // whole word instead of thirty individual flags.
-            uint32_t status;
-            rd_long(&status);
-            player_set_status_word(status);
-            // Rest: signed value, so we preserve all sixteen bits.
-            uint16_t rest_turns;
-            rd_short(&rest_turns);
-            player_rest_set((int16_t)rest_turns);
-            // Eighteen timed effects: read each by name, same as when writing.
-            rd_timed(PLAYER_TIMED_BLINDNESS);
-            rd_timed(PLAYER_TIMED_PARALYSIS);
-            rd_timed(PLAYER_TIMED_CONFUSION);
-            uint16_t food;
-            rd_short(&food);
-            player_set_food((int16_t)food);
-            uint16_t food_digested;
-            rd_short(&food_digested);
-            player_set_digestion((int16_t)food_digested);
-            // Dead 2-byte hole: this one goes to a local static, so we can read
-            // directly to its address (see dead_protection_bytes above).
-            rd_short((uint16_t *)&dead_protection_bytes);
-            uint16_t speed;
-            rd_short(&speed);
-            player_speed_set((int16_t)speed);
-            rd_timed(PLAYER_TIMED_HASTE);
-            rd_timed(PLAYER_TIMED_SLOWNESS);
-            rd_timed(PLAYER_TIMED_FEAR);
-            rd_timed(PLAYER_TIMED_POISON);
-            rd_timed(PLAYER_TIMED_HALLUCINATION);
-            rd_timed(PLAYER_TIMED_PROTECTION_FROM_EVIL);
-            rd_timed(PLAYER_TIMED_INVULNERABILITY);
-            rd_timed(PLAYER_TIMED_HEROISM);
-            rd_timed(PLAYER_TIMED_SUPER_HEROISM);
-            rd_timed(PLAYER_TIMED_BLESSING);
-            rd_timed(PLAYER_TIMED_HEAT_RESISTANCE);
-            rd_timed(PLAYER_TIMED_COLD_RESISTANCE);
-            rd_timed(PLAYER_TIMED_SEEING_INVISIBLE);
-            rd_timed(PLAYER_TIMED_WORD_OF_RECALL);
-            uint16_t infra_range;
-            rd_short(&infra_range);
-            player_infra_range_set((int16_t)infra_range);
-            rd_timed(PLAYER_TIMED_INFRA_VISION);
-            // Seventeen ability bytes: read by position, same as when writing.
-            for (int i = 0; i < PLAYER_ABILITIES_SAVED_BYTES; i++) {
-                uint8_t ability;
-                rd_byte(&ability);
-                player_abilities_restore_byte(i, ability);
-            }
-            uint8_t saved_glowing_hands;
-            rd_byte(&saved_glowing_hands);
-            player_glowing_hands_restore(saved_glowing_hands);
-            uint8_t saved_spells_to_learn;
-            rd_byte(&saved_spells_to_learn);
-            player_spells_to_learn_set(saved_spells_to_learn);
-
-            uint16_t saved_missile_serial;
-            rd_short(&saved_missile_serial);
-            set_missile_serial((int16_t)saved_missile_serial);
-            uint32_t saved_turn;
-            rd_long(&saved_turn);
-            progress_set_turn((int32_t)saved_turn);
+            rd_player();
             uint16_t pack_count;
             rd_short(&pack_count);
             inventory_set_count((int16_t)pack_count);
