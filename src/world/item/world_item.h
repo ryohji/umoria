@@ -46,8 +46,9 @@ typedef struct {
 } device_kind;
 
 // Asks which device of the kind to use, rolls for it, then spends a charge on
-// every effect it carries, or says it is empty.
-void use_charged_device(const device_kind *kind);
+// every effect it carries, or says it is empty. Returns whether that took a
+// game turn (not when nothing was chosen or the direction was cancelled).
+bool use_charged_device(const device_kind *kind);
 
 // --- inscription.c ---
 void scribe_object(void);

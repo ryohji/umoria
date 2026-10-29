@@ -1377,7 +1377,7 @@ static bool do_command(char com_val) {
         tunnel(9);
         break;
     case 'z': // (z)ap a wand    (a)im a wand
-        aim();
+        free_turn_flag = !aim();
         break;
     case 'M':
         screen_map();
@@ -1432,7 +1432,7 @@ static bool do_command(char com_val) {
         inven_command('t');
         break;
     case 'Z': // (Z)ap a staff  (u)se a staff
-        use();
+        free_turn_flag = !use();
         break;
     case 'v': // (v)ersion of game
         helpfile(MORIA_VER);

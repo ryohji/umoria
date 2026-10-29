@@ -55,13 +55,13 @@ void pray(void);
 void read_scroll(void);
 
 // --- staffs.c ---
-void use(void);
+bool use(void);
 
 // --- store_ui.c ---
 void enter_store(int);
 
 // --- wands.c ---
-void aim(void);
+bool aim(void);
 
 // --- wizard.c ---
 bool enter_wiz_mode(void);

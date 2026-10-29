@@ -149,6 +149,6 @@ static const device_kind wand = {
 };
 
 // Wands for the aiming.
-void aim(void) {
-    use_charged_device(&wand);
+bool aim(void) {
+    return use_charged_device(&wand);
 }
