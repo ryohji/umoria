@@ -11,10 +11,11 @@
 
 ## 0. 現在地
 
-2026-10-25、`develop` の上（push はユーザーが行う）。
+2026-10-29、`develop` の上（push はユーザーが行う）。
 
 - 本体の警告 0（clean から）。テスト **1844 件・88 本**、failed=0、`RESULT: GREEN`。
-  **golden 8 本 GREEN**（端末なしで本体を通す。本体の行の 44.5% を通る。#94）。
+  **golden 8 本 GREEN**（端末なしで本体を通す。本体の行の 44.5% を通る。#94）と、
+  `objdes` の総当たりのハッシュ `objdes_all`（#22）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
@@ -38,6 +39,8 @@
     world/ の 4 段。経過は [done/section6-2026-10-15.md](docs/refactoring/done/section6-2026-10-15.md)。
   - **モンスター表の iterator（#95・#96）と golden（#94）**。経過は
     [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md)。
+  - **#22 `objdes` の分割と、#71 の一部（`dungeon()` の効果 18 種を `tick_<効果>()` に）**。
+    経過は `worklog.md`（2026-10-25・29）と所見 73・74。#71 の行は開いたまま。
 - 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B29。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担
@@ -160,6 +163,8 @@ rm -f scores.dat /tmp/probe.sav
 static にすると入口の `endbr64` が消える、同名の static が潰れたのはデータの数が減ることで
 分かる（所見 63）。module を合わせるときは `scripts/merge_modules.py` で字を変えずに連結する。
 関数を選んで比べるなら `scripts/dis_compare.py 変更前 変更後 関数…`。
+展開されて機械語が変わる塊の切りだしは、呼んだ所へ字のまま戻して元と比べる（所見 73）。
+文字列を作る関数は、入力の組の総当たりのハッシュで守る（所見 74、`objdes_all`）。
 
 **本体を通しで守るのは golden。** `tests/headless_backend.c` は `platform/backend.h` の約束どおりの
 描画（24 × 80 の配列）と入力（台本のキーを 1 つずつ返す）の backend で、`app/platform_init.c` の
@@ -242,8 +247,9 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
   7 本のほかは `command/prayer.c`・`staffs.c`・`wands.c`・`world/item/device_use.c`・
   `model/item/device.c`・`armor_selection.c`・`world/player/stat_loss.c`（祈り・杖・魔法棒・
   呪いの装備・能力値の低下）。種を選び、品物を ^O や店で用意する台本が要る。
-- **P3 の長い関数と重複**（#19・#21・#22・#71・#72）は、該当の道を golden の台本で通して
-  から動かせる。たとえば #22 `objdes` は持ち物・店・地図の台本がすでに通る。
+- **P3 の長い関数と重複**（#19・#21・#71・#72）は、該当の道を golden の台本で通して
+  から動かせる。#22 `objdes` はそうして済んだ（2026-10-25）。#71 は `dungeon()` の残り 455 行と
+  `do_command`（399 行）が残る（`do_command` は #74 の判断が先）。
 - **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
   monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
 - **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、

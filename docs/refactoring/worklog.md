@@ -22,3 +22,6 @@
 | 2026-10-25 | #96 マージ | `refactor/96-creature-iterator` を `--no-ff` で（`e87f89e`） | 1844（88 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
 | 2026-10-25 | #22 | `objdes` の switch を `base_name` に（`c6e6758`）、後半を 6 本に（`a6036e1`）、総当たり `objdes_all` を golden に（`2e32378`）。4,100 万回の出力のハッシュが develop と一致、壊し 5 通りすべて違いが出る | 1844（88 本） | `scripts/check.sh` ALL OK |
 | 2026-10-25 | #71（一部） | 効果 17 種（`7996394`）と毒（`ffc697e`）を `tick_<効果>()` に。本体を字のまま戻すと dungeon() が元と一致 | 1844（88 本） | `scripts/check.sh` ALL OK |
+| 2026-10-29 | 確かめ | `develop..refactor/71-timed-effects` の 6 コミット（#22 の 3 つ・#71 の 2 つ・記録）を一時的な worktree で 1 つずつ空から組んだ。どれも `scripts/check.sh` ALL OK | 1844（88 本） | 第 2 節の 1〜4 と golden |
+| 2026-10-29 | #22 マージ | `refactor/22-objdes` を `--no-ff` で（`562ca62`） | 1844（88 本） | `scripts/check.sh` ALL OK（2 つのマージの後の develop で測った） |
+| 2026-10-29 | #71（一部）マージ | `refactor/71-timed-effects` を `--no-ff` で（`4e941ed`）。#22 の 3 コミットを含むので、#22 を先にマージした | 1844（88 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
