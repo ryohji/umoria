@@ -40,11 +40,11 @@
   - **モンスター表の iterator（#95・#96）と golden（#94）**。経過は
     [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md)。
   - **#22 `objdes` の分割と、#71 の一部（`dungeon()` の効果 18 種を `tick_<効果>()` に）**。
-    経過は `worklog.md`（2026-10-25・29）と所見 73・74。
+    経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-25・29）と所見 73・74。
   - **#74（`free_turn_flag` を戻り値に）と、その保護の台本 `free_turn`・`glowing_hands`（#51）**。
-    コマンドの関数が「turn を使ったか」を `bool` で返す。経過は `worklog.md`（2026-10-29〜30）と所見 75・76。
-  - **#71 の残り（`dungeon()` 207 行・`do_command` 227 行）**。経過は `worklog.md`（2026-10-30）と所見 77。
-  - **キーマップ（ユーザーの依頼）**。2 つの鍵の組を `ui/keymap.c` の表に、コマンドを名前 `player_command` に。経過は `worklog.md`（2026-10-30）。
+    コマンドの関数が「turn を使ったか」を `bool` で返す。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-29〜30）と所見 75・76。
+  - **#71 の残り（`dungeon()` 207 行・`do_command` 227 行）**。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-30）と所見 77。
+  - **キーマップ（ユーザーの依頼）**。2 つの鍵の組を `ui/keymap.c` の表に、コマンドを名前 `player_command` に。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-30）。
 - 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B33（B28 は誤りだった）。開いている列は無い。次の候補は第 6 節。
 
 ## 1. 資料の役割分担

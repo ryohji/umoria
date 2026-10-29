@@ -141,11 +141,11 @@
 | 94 | 端末なしで本体を通す golden（`tests/headless_backend.c`・`tests/golden/`・`make -f makefile.test golden`）。8 本で本体の行の 44.5% を通る。`scripts/check.sh` | [done/golden-2026-10-25.md](docs/refactoring/done/golden-2026-10-25.md) |
 | 95 | モンスター表を先頭からたどる iterator（`monster_creature_begin` ほか・`advance`・`distance`）を足し、セーブで記憶を書く走査と `summon_undead` の走査をそれに（ユーザーの依頼）。`summon_undead_test` を足した | 同上 |
 | 96 | handle と iterator を 1 つの型 `creature_iterator`（添字を持つ構造体）にまとめる。`monster_get_creature`・`make_creature_handle`・`get_creature_handle` を消す（ユーザーの依頼） | 同上 |
-| 22 | `objdes`（309 行）を `base_name` と段ごとの static 関数 6 本に（17 行）。総当たり `objdes_all` を golden に常設 | `worklog.md`（2026-10-25） |
+| 22 | `objdes`（309 行）を `base_name` と段ごとの static 関数 6 本に（17 行）。総当たり `objdes_all` を golden に常設 | [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-25） |
 | 71（一部） | `dungeon()` の時間で切れる効果 18 種を `tick_<効果>()` に（行は開いたまま） | 同上 |
-| 74 | `free_turn_flag` を戻り値に（ユーザーの判断）。コマンドの関数が「turn を使ったか」を `bool` で、取りけせる効果 3 つが `effect_outcome` で返す。global 40 → 39。保護は golden の台本 `free_turn`（turn を記録）と `glowing_hands`（#51） | `worklog.md`（2026-10-29〜30）、所見 75・76 |
-| 71 | `dungeon()` 732 → 207 行（効果 18 種・明かり・空腹と回復・休息・状態行・付呪の感知・コマンドの読みとりを static 関数に）、`do_command` 404 → 227 行（長い 5 つの case を関数に、方向ごとの 24 の case を `command_key_direction()` の逆引きに）。確かめは `scripts/inline_back.py` と golden の台本 `free_turn`（5 つの run） | `worklog.md`（2026-10-25・30）、所見 77 |
-| キーマップ | `original_commands` の switch（約 150 行）を `ui/keymap.c` の原文の鍵の組の表に（15 行に）、コマンドを名前 `player_command`（遊び 48・wizard 14）にして `do_command`・`wizard_command` を名前で分ける。rogue-like の組の表 `rogue_key_command()`。`keymap_test` が書きかえる前の 3 つの switch と 256 通りのキーで突きあわせる（ユーザーの依頼。名前と方向の構造体、wizard も名前に、はユーザーの判断） | `worklog.md`（2026-10-30） |
+| 74 | `free_turn_flag` を戻り値に（ユーザーの判断）。コマンドの関数が「turn を使ったか」を `bool` で、取りけせる効果 3 つが `effect_outcome` で返す。global 40 → 39。保護は golden の台本 `free_turn`（turn を記録）と `glowing_hands`（#51） | [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-29〜30）、所見 75・76 |
+| 71 | `dungeon()` 732 → 207 行（効果 18 種・明かり・空腹と回復・休息・状態行・付呪の感知・コマンドの読みとりを static 関数に）、`do_command` 404 → 227 行（長い 5 つの case を関数に、方向ごとの 24 の case を `command_key_direction()` の逆引きに）。確かめは `scripts/inline_back.py` と golden の台本 `free_turn`（5 つの run） | [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-25・30）、所見 77 |
+| キーマップ | `original_commands` の switch（約 150 行）を `ui/keymap.c` の原文の鍵の組の表に（15 行に）、コマンドを名前 `player_command`（遊び 48・wizard 14）にして `do_command`・`wizard_command` を名前で分ける。rogue-like の組の表 `rogue_key_command()`。`keymap_test` が書きかえる前の 3 つの switch と 256 通りのキーで突きあわせる（ユーザーの依頼。名前と方向の構造体、wizard も名前に、はユーザーの判断） | [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-30） |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
