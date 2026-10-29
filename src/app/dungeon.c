@@ -55,7 +55,7 @@
 #define PLAYER_REGEN_WEAK        98   // Regen factor*2^16 when weak
 
 static char original_commands(char);
-static void do_command(char);
+static bool do_command(char);
 static bool valid_countcommand(char);
 static void regenhp(int);
 static void regenmana(int);
@@ -724,6 +724,7 @@ void dungeon(void) {
         // Accept a command?
         if (!player_timed_in_force(PLAYER_TIMED_PARALYSIS) && !player_resting() && (!player_is_dead())) {
             char command; // Last command
+            bool took_turn;
 
             // Accept a command and execute it
             do {
@@ -741,8 +742,10 @@ void dungeon(void) {
                         end_find();
                     }
                     put_qio();
+                    took_turn = !free_turn_flag;
                 } else if (pending_inven_command()) {
                     inven_command(pending_inven_command());
+                    took_turn = !free_turn_flag;
                 } else {
                     // move the cursor to the players character
                     move_cursor_relative(player_row(), player_col());
@@ -844,12 +847,12 @@ void dungeon(void) {
                     move_cursor_relative(player_row(), player_col());
                     put_qio();
 
-                    do_command(command);
+                    took_turn = do_command(command);
 
                     // Find is counted differently, as the command changes.
                     if (player_is_running()) {
                         find_count = take_command_count() - 1;
-                    } else if (free_turn_flag) {
+                    } else if (!took_turn) {
                         cancel_command_count();
                     } else if (command_is_repeating()) {
                         consume_command_count();
@@ -857,7 +860,7 @@ void dungeon(void) {
                 }
                 // End of commands
 
-            } while (free_turn_flag && !level_is_over() && !input_has_ended());
+            } while (!took_turn && !level_is_over() && !input_has_ended());
         } else {
             // if paralyzed, resting, or dead, flush output
             // but first move the cursor onto the player, for aesthetics
@@ -1053,7 +1056,8 @@ static char original_commands(char com_val) {
     return com_val;
 }
 
-static void do_command(char com_val) {
+// Returns whether the command took a game turn.
+static bool do_command(char com_val) {
     int dir_val;
     bool do_pickup, do_diplay_scores;
     int y, x, i;
@@ -1451,6 +1455,7 @@ static void do_command(char com_val) {
         }
     }
     note_command(com_val);
+    return !free_turn_flag;
 }
 
 // Check whether this command will accept a count. -CJS-
