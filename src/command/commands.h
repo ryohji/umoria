@@ -25,7 +25,7 @@ void cast(void);
 void create_character(void);
 
 // --- eat.c ---
-void eat(void);
+bool eat(void);
 
 // --- files.c ---
 void init_scorefile(void);
@@ -46,7 +46,7 @@ void look(void);
 void set_options(void);
 
 // --- potions.c ---
-void quaff(void);
+bool quaff(void);
 
 // --- prayer.c ---
 void pray(void);

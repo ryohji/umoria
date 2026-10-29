@@ -1267,7 +1267,7 @@ static bool do_command(char com_val) {
         disarm_trap();
         break;
     case 'E': // (E)at food
-        eat();
+        free_turn_flag = !eat();
         break;
     case 'F': // (F)ill lamp
         refill_lamp();
@@ -1419,7 +1419,7 @@ static bool do_command(char com_val) {
         pray();
         break;
     case 'q': // (q)uaff
-        quaff();
+        free_turn_flag = !quaff();
         break;
     case 'r': // (r)ead
         read_scroll();
