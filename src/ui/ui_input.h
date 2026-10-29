@@ -122,6 +122,10 @@ typedef enum {
 // Returns 0 for any other direction (including 5).
 char direction_command_key(int dir, direction_key_style style);
 
+// The other way round: the direction (1-4, 6-9) of a walk, run or tunnel
+// key, with its style in *style. Returns 0 for any other key.
+int command_key_direction(char key, direction_key_style *style);
+
 // --- input.c ---
 // Input abstraction layer
 // Provides a device-independent interface for user input
