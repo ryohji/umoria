@@ -423,6 +423,197 @@ static void tick_word_of_recall(void) {
     }
 }
 
+// Burns the light source down by a turn, and lights or unlights the creatures.
+static void tick_light(void) {
+    // Check light status
+    inven_type *i_ptr = equipment_at(INVEN_LIGHT);
+    if (player_has_light()) {
+        if (i_ptr->p1 > 0) {
+            i_ptr->p1--;
+            if (i_ptr->p1 == 0) {
+                set_player_has_light(false);
+                msg_print("Your light has gone out!");
+                disturb(0, 1);
+
+                // unlight creatures
+                creatures(false);
+            } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+                disturb(0, 0);
+                msg_print("Your light is growing faint.");
+            }
+        } else {
+            set_player_has_light(false);
+            disturb(0, 1);
+
+            // unlight creatures
+            creatures(false);
+        }
+    } else if (i_ptr->p1 > 0) {
+        i_ptr->p1--;
+        set_player_has_light(true);
+        disturb(0, 1);
+
+        // light creatures
+        creatures(false);
+    }
+}
+
+// Hunger, digestion and the regeneration of hit points and mana for a turn.
+static void tick_food_and_regeneration(void) {
+    // Check food status
+    int regen_amount = PLAYER_REGEN_NORMAL; // Regenerate hp and mana
+    if (player_food() < PLAYER_FOOD_ALERT) {
+        if (player_food() < PLAYER_FOOD_WEAK) {
+            if (player_food() < 0) {
+                regen_amount = 0;
+            } else if (player_food() < PLAYER_FOOD_FAINT) {
+                regen_amount = PLAYER_REGEN_FAINT;
+            } else {
+                regen_amount = PLAYER_REGEN_WEAK;
+            }
+            if (player_note_effect_started(PLAYER_EFFECT_WEAK)) {
+                msg_print("You are getting weak from hunger.");
+                disturb(0, 0);
+                prt_hunger();
+            }
+            if ((player_food() < PLAYER_FOOD_FAINT) && (randint(8) == 1)) {
+                player_timed_add(PLAYER_TIMED_PARALYSIS, randint(5));
+                msg_print("You faint from the lack of food.");
+                disturb(1, 0);
+            }
+        } else if (player_note_effect_started(PLAYER_EFFECT_HUNGRY)) {
+            msg_print("You are getting hungry.");
+            disturb(0, 0);
+            prt_hunger();
+        }
+    }
+
+    // Food consumption
+    // Note: Speeded up characters really burn up the food!
+    // Speed is squared here before converting to food consumption.
+    const int speed_steps = player_speed();
+    if (speed_steps < 0) {
+        player_burn_food(speed_steps * speed_steps);
+    }
+    player_digest();
+    if (player_food() < 0) {
+        take_hit(-player_food() / 16, "starvation"); // -CJS-
+        disturb(1, 0);
+    }
+
+    // Regenerate
+    if (player_regenerates()) {
+        regen_amount = regen_amount * 3 / 2;
+    }
+    if (player_is_searching() || player_resting()) {
+        regen_amount = regen_amount * 2;
+    }
+    if (!player_timed_in_force(PLAYER_TIMED_POISON) && (player_hp() < player_max_hp())) {
+        regenhp(regen_amount);
+    }
+    if (player_mana() < player_max_mana()) {
+        regenmana(regen_amount);
+    }
+}
+
+// Counts a rest down and ends it.
+static void tick_rest(void) {
+    // Resting is over?
+    if (player_resting()) {
+        // Asked before the turn passes: a count of minus one becomes zero
+        // below, and then it is no longer a "rest until healed".
+        bool until_healed = player_rest_is_until_healed();
+
+        bool ran_out = player_rest_count_down();
+
+        // Two ways for a rest to end. The second one only applies to a rest
+        // until reaching max mana and max hit points, and it reads two other
+        // questions, so it stays here.
+        if (ran_out ||
+            (until_healed && player_hp() == player_max_hp() &&
+             player_mana() == player_max_mana())) {
+            rest_off();
+        }
+    }
+}
+
+// Checks the strength and redraws the parts of the status line that changed.
+static void redraw_changed_status(void) {
+    // See if we are too weak to handle the weapon or pack. -CJS-
+    if (player_strength_check_requested()) {
+        check_strength();
+    }
+
+    if (player_study_redraw_requested()) {
+        prt_study();
+    }
+
+    if (player_take_speed_redraw_request()) {
+        prt_speed();
+    }
+
+    if (player_status_line_shows_paralysis() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+        prt_state();
+        player_set_status_line_shows_paralysis(false);
+    } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+        prt_state();
+        player_set_status_line_shows_paralysis(true);
+    } else if (player_resting()) {
+        prt_state();
+    }
+
+    if (player_take_armor_redraw_request()) {
+        prt_pac();
+    }
+
+    if (player_any_stat_redraw_requested()) {
+        for (int n = 0; n < 6; n++) {
+            if (player_stat_redraw_requested(n)) {
+                prt_stat(n);
+            }
+        }
+
+        player_clear_stat_redraw_requests();
+    }
+
+    if (player_take_hp_redraw_request()) {
+        prt_mhp();
+        prt_chp();
+    }
+
+    if (player_take_mana_redraw_request()) {
+        prt_cmana();
+    }
+}
+
+// Now and then, notices that a carried or worn object is enchanted.
+static void sense_enchantments(void) {
+    // Allow for a slim chance of detect enchantment -CJS-
+    // for 1st level char, check once every 2160 turns
+    // for 40th level char, check once every 416 turns
+    if (((progress_turn() & 0xF) == 0) && !player_timed_in_force(PLAYER_TIMED_CONFUSION) &&
+        (randint((10 + 750 / (5 + player_level()))) == 1)) {
+
+        for (int i = 0; i < inventory_and_equipment_slot_count(); i++) {
+            if (i == inventory_count()) {
+                i = 22;
+            }
+            inven_type *i_ptr = inventory_and_equipment_at(i);
+
+            // if in inventory, succeed 1 out of 50 times,
+            // if in equipment list, success 1 out of 10 times
+            if ((i_ptr->tval != TV_NOTHING) && enchanted(i_ptr) &&
+                (randint(i < 22 ? 50 : 10) == 1)) {
+                vtype tmp_str;
+                (void)sprintf(tmp_str, "There's something about what you are %s...", describe_use(i));
+                disturb(0, 0);
+                msg_print(tmp_str);
+                add_inscribe(i_ptr, ID_MAGIK);
+            }
+        }
+    }
+}
+
 void dungeon(void) {
     int i;
 
@@ -484,37 +675,7 @@ void dungeon(void) {
             alloc_monster(1, MAX_SIGHT, false);
         }
 
-        // Check light status
-        i_ptr = equipment_at(INVEN_LIGHT);
-        if (player_has_light()) {
-            if (i_ptr->p1 > 0) {
-                i_ptr->p1--;
-                if (i_ptr->p1 == 0) {
-                    set_player_has_light(false);
-                    msg_print("Your light has gone out!");
-                    disturb(0, 1);
-
-                    // unlight creatures
-                    creatures(false);
-                } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
-                    disturb(0, 0);
-                    msg_print("Your light is growing faint.");
-                }
-            } else {
-                set_player_has_light(false);
-                disturb(0, 1);
-
-                // unlight creatures
-                creatures(false);
-            }
-        } else if (i_ptr->p1 > 0) {
-            i_ptr->p1--;
-            set_player_has_light(true);
-            disturb(0, 1);
-
-            // light creatures
-            creatures(false);
-        }
+        tick_light();
 
         //
         // Update counters and messages
@@ -524,60 +685,7 @@ void dungeon(void) {
 
         tick_super_heroism();
 
-        // Check food status
-        int regen_amount = PLAYER_REGEN_NORMAL; // Regenerate hp and mana
-        if (player_food() < PLAYER_FOOD_ALERT) {
-            if (player_food() < PLAYER_FOOD_WEAK) {
-                if (player_food() < 0) {
-                    regen_amount = 0;
-                } else if (player_food() < PLAYER_FOOD_FAINT) {
-                    regen_amount = PLAYER_REGEN_FAINT;
-                } else {
-                    regen_amount = PLAYER_REGEN_WEAK;
-                }
-                if (player_note_effect_started(PLAYER_EFFECT_WEAK)) {
-                    msg_print("You are getting weak from hunger.");
-                    disturb(0, 0);
-                    prt_hunger();
-                }
-                if ((player_food() < PLAYER_FOOD_FAINT) && (randint(8) == 1)) {
-                    player_timed_add(PLAYER_TIMED_PARALYSIS, randint(5));
-                    msg_print("You faint from the lack of food.");
-                    disturb(1, 0);
-                }
-            } else if (player_note_effect_started(PLAYER_EFFECT_HUNGRY)) {
-                msg_print("You are getting hungry.");
-                disturb(0, 0);
-                prt_hunger();
-            }
-        }
-
-        // Food consumption
-        // Note: Speeded up characters really burn up the food!
-        // Speed is squared here before converting to food consumption.
-        const int speed_steps = player_speed();
-        if (speed_steps < 0) {
-            player_burn_food(speed_steps * speed_steps);
-        }
-        player_digest();
-        if (player_food() < 0) {
-            take_hit(-player_food() / 16, "starvation"); // -CJS-
-            disturb(1, 0);
-        }
-
-        // Regenerate
-        if (player_regenerates()) {
-            regen_amount = regen_amount * 3 / 2;
-        }
-        if (player_is_searching() || player_resting()) {
-            regen_amount = regen_amount * 2;
-        }
-        if (!player_timed_in_force(PLAYER_TIMED_POISON) && (player_hp() < player_max_hp())) {
-            regenhp(regen_amount);
-        }
-        if (player_mana() < player_max_mana()) {
-            regenmana(regen_amount);
-        }
+        tick_food_and_regeneration();
 
         tick_blindness();
 
@@ -591,23 +699,7 @@ void dungeon(void) {
 
         tick_slowness();
 
-        // Resting is over?
-        if (player_resting()) {
-            // Asked before the turn passes: a count of minus one becomes zero
-            // below, and then it is no longer a "rest until healed".
-            bool until_healed = player_rest_is_until_healed();
-
-            bool ran_out = player_rest_count_down();
-
-            // Two ways for a rest to end. The second one only applies to a rest
-            // until reaching max mana and max hit points, and it reads two other
-            // questions, so it stays here.
-            if (ran_out ||
-                (until_healed && player_hp() == player_max_hp() &&
-                 player_mana() == player_max_mana())) {
-                rest_off();
-            }
-        }
+        tick_rest();
 
         // Check for interrupts to find or rest.
         if ((command_is_repeating() || player_is_running() || player_resting()) &&
@@ -641,76 +733,9 @@ void dungeon(void) {
             teleport(40);
         }
 
-        // See if we are too weak to handle the weapon or pack. -CJS-
-        if (player_strength_check_requested()) {
-            check_strength();
-        }
+        redraw_changed_status();
 
-        if (player_study_redraw_requested()) {
-            prt_study();
-        }
-
-        if (player_take_speed_redraw_request()) {
-            prt_speed();
-        }
-
-        if (player_status_line_shows_paralysis() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
-            prt_state();
-            player_set_status_line_shows_paralysis(false);
-        } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
-            prt_state();
-            player_set_status_line_shows_paralysis(true);
-        } else if (player_resting()) {
-            prt_state();
-        }
-
-        if (player_take_armor_redraw_request()) {
-            prt_pac();
-        }
-
-        if (player_any_stat_redraw_requested()) {
-            for (int n = 0; n < 6; n++) {
-                if (player_stat_redraw_requested(n)) {
-                    prt_stat(n);
-                }
-            }
-
-            player_clear_stat_redraw_requests();
-        }
-
-        if (player_take_hp_redraw_request()) {
-            prt_mhp();
-            prt_chp();
-        }
-
-        if (player_take_mana_redraw_request()) {
-            prt_cmana();
-        }
-
-        // Allow for a slim chance of detect enchantment -CJS-
-        // for 1st level char, check once every 2160 turns
-        // for 40th level char, check once every 416 turns
-        if (((progress_turn() & 0xF) == 0) && !player_timed_in_force(PLAYER_TIMED_CONFUSION) &&
-            (randint((10 + 750 / (5 + player_level()))) == 1)) {
-
-            for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
-                if (i == inventory_count()) {
-                    i = 22;
-                }
-                i_ptr = inventory_and_equipment_at(i);
-
-                // if in inventory, succeed 1 out of 50 times,
-                // if in equipment list, success 1 out of 10 times
-                if ((i_ptr->tval != TV_NOTHING) && enchanted(i_ptr) &&
-                    (randint(i < 22 ? 50 : 10) == 1)) {
-                    vtype tmp_str;
-                    (void)sprintf(tmp_str, "There's something about what you are %s...", describe_use(i));
-                    disturb(0, 0);
-                    msg_print(tmp_str);
-                    add_inscribe(i_ptr, ID_MAGIK);
-                }
-            }
-        }
+        sense_enchantments();
 
         // Check the state of the monster list, and delete some monsters if
         // the monster list is nearly full.  This helps to avoid problems in
