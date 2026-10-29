@@ -28,6 +28,271 @@
 
 #define MAX_LONG   0x7FFFFFFFL
 
+// One effect of a potion (j, from the bits of its flags; 33 and up for the
+// second kind). Returns whether the potion is now known: ident as it was, or
+// what the effect made of it.
+static bool potion_effect(int j, bool ident) {
+    switch (j) {
+    case 1:
+        if (inc_stat(A_STR)) {
+            msg_print("Wow!  What bulging muscles!");
+            ident = true;
+        }
+        break;
+    case 2:
+        ident = true;
+        lose_stat(A_STR);
+        break;
+    case 3:
+        if (res_stat(A_STR)) {
+            msg_print("You feel warm all over.");
+            ident = true;
+        }
+        break;
+    case 4:
+        if (inc_stat(A_INT)) {
+            msg_print("Aren't you brilliant!");
+            ident = true;
+        }
+        break;
+    case 5:
+        ident = true;
+        lose_stat(A_INT);
+        break;
+    case 6:
+        if (res_stat(A_INT)) {
+            msg_print("You have have a warm feeling.");
+            ident = true;
+        }
+        break;
+    case 7:
+        if (inc_stat(A_WIS)) {
+            msg_print("You suddenly have a profound thought!");
+            ident = true;
+        }
+        break;
+    case 8:
+        ident = true;
+        lose_stat(A_WIS);
+        break;
+    case 9:
+        if (res_stat(A_WIS)) {
+            msg_print("You feel your wisdom returning.");
+            ident = true;
+        }
+        break;
+    case 10:
+        if (inc_stat(A_CHR)) {
+            msg_print("Gee, ain't you cute!");
+            ident = true;
+        }
+        break;
+    case 11:
+        ident = true;
+        lose_stat(A_CHR);
+        break;
+    case 12:
+        if (res_stat(A_CHR)) {
+            msg_print("You feel your looks returning.");
+            ident = true;
+        }
+        break;
+    case 13:
+        ident = hp_player(damroll(2, 7));
+        break;
+    case 14:
+        ident = hp_player(damroll(4, 7));
+        break;
+    case 15:
+        ident = hp_player(damroll(6, 7));
+        break;
+    case 16:
+        ident = hp_player(1000);
+        break;
+    case 17:
+        if (inc_stat(A_CON)) {
+            msg_print("You feel tingly for a moment.");
+            ident = true;
+        }
+        break;
+    case 18:
+        if (player_experience() < MAX_EXP) {
+            uint32_t l = (uint32_t)(player_experience() / 2) + 10;
+
+            if (l > 100000L) {
+                l = 100000L;
+            }
+
+            player_gain_experience((int32_t)l);
+            msg_print("You feel more experienced.");
+            prt_experience();
+            ident = true;
+        }
+        break;
+    case 19:
+        if (!player_never_paralyzed()) {
+            // paralysis must == 0, otherwise could not drink potion
+            msg_print("You fall asleep.");
+            player_timed_add(PLAYER_TIMED_PARALYSIS, randint(4) + 4);
+            ident = true;
+        }
+        break;
+    case 20:
+        if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+            msg_print("You are covered by a veil of darkness.");
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_BLINDNESS, randint(100) + 100);
+        break;
+    case 21:
+        if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+            msg_print("Hey!  This is good stuff!  * Hick! *");
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_CONFUSION, randint(20) + 12);
+        break;
+    case 22:
+        if (!player_timed_in_force(PLAYER_TIMED_POISON)) {
+            msg_print("You feel very sick.");
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_POISON, randint(15) + 10);
+        break;
+    case 23:
+        if (!player_timed_in_force(PLAYER_TIMED_HASTE)) {
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_HASTE, randint(25) + 15);
+        break;
+    case 24:
+        if (!player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_SLOWNESS, randint(25) + 15);
+        break;
+    case 26:
+        if (inc_stat(A_DEX)) {
+            msg_print("You feel more limber!");
+            ident = true;
+        }
+        break;
+    case 27:
+        if (res_stat(A_DEX)) {
+            msg_print("You feel less clumsy.");
+            ident = true;
+        }
+        break;
+    case 28:
+        if (res_stat(A_CON)) {
+            msg_print("You feel your health returning!");
+            ident = true;
+        }
+        break;
+    case 29:
+        ident = cure_blindness();
+        break;
+    case 30:
+        ident = cure_confusion();
+        break;
+    case 31:
+        ident = cure_poison();
+        break;
+    // case 33: break; // this is no longer useful, now that there is a 'G'ain magic spells command
+    case 34:
+        if (player_experience() > 0) {
+            int32_t m, scale;
+            msg_print("You feel your memories fade.");
+            // Lose between 1/5 and 2/5 of your experience
+            m = player_experience() / 5;
+            if (player_experience() > MAX_SHORT) {
+                scale = MAX_LONG / player_experience();
+                m += (randint((int)scale) * player_experience()) /
+                     (scale * 5);
+            } else {
+                m += randint((int)player_experience()) / 5;
+            }
+            lose_exp(m);
+            ident = true;
+        }
+        break;
+    case 35:
+        (void)cure_poison();
+        if (player_food() > 150) {
+            player_set_food(150);
+        }
+        player_timed_set(PLAYER_TIMED_PARALYSIS, 4);
+        msg_print("The potion makes you vomit!");
+        ident = true;
+        break;
+    case 36:
+        if (!player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_INVULNERABILITY, randint(10) + 10);
+        break;
+    case 37:
+        if (!player_timed_in_force(PLAYER_TIMED_HEROISM)) {
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_HEROISM, randint(25) + 25);
+        break;
+    case 38:
+        if (!player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM)) {
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_SUPER_HEROISM, randint(25) + 25);
+        break;
+    case 39:
+        ident = remove_fear();
+        break;
+    case 40:
+        ident = restore_level();
+        break;
+    case 41:
+        if (!player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_HEAT_RESISTANCE, randint(10) + 10);
+        break;
+    case 42:
+        if (!player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_COLD_RESISTANCE, randint(10) + 10);
+        break;
+    case 43:
+        if (!player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
+            ident = true;
+        }
+        detect_inv2(randint(12) + 12);
+        break;
+    case 44:
+        ident = slow_poison();
+        break;
+    case 45:
+        ident = cure_poison();
+        break;
+    case 46:
+        if (player_restore_mana()) {
+            ident = true;
+            msg_print("Your feel your head clear.");
+            prt_cmana();
+        }
+        break;
+    case 47:
+        if (!player_timed_in_force(PLAYER_TIMED_INFRA_VISION)) {
+            msg_print("Your eyes begin to tingle.");
+            ident = true;
+        }
+        player_timed_add(PLAYER_TIMED_INFRA_VISION, 100 + randint(100));
+        break;
+    default:
+        msg_print("Internal error in potion()");
+        break;
+    }
+    return ident;
+}
+
 // Potions for the quaffing -RAK-
 // Returns whether it took a game turn.
 bool quaff(void) {
@@ -55,264 +320,7 @@ bool quaff(void) {
                 }
 
                 // Potions
-                switch (j) {
-                case 1:
-                    if (inc_stat(A_STR)) {
-                        msg_print("Wow!  What bulging muscles!");
-                        ident = true;
-                    }
-                    break;
-                case 2:
-                    ident = true;
-                    lose_stat(A_STR);
-                    break;
-                case 3:
-                    if (res_stat(A_STR)) {
-                        msg_print("You feel warm all over.");
-                        ident = true;
-                    }
-                    break;
-                case 4:
-                    if (inc_stat(A_INT)) {
-                        msg_print("Aren't you brilliant!");
-                        ident = true;
-                    }
-                    break;
-                case 5:
-                    ident = true;
-                    lose_stat(A_INT);
-                    break;
-                case 6:
-                    if (res_stat(A_INT)) {
-                        msg_print("You have have a warm feeling.");
-                        ident = true;
-                    }
-                    break;
-                case 7:
-                    if (inc_stat(A_WIS)) {
-                        msg_print("You suddenly have a profound thought!");
-                        ident = true;
-                    }
-                    break;
-                case 8:
-                    ident = true;
-                    lose_stat(A_WIS);
-                    break;
-                case 9:
-                    if (res_stat(A_WIS)) {
-                        msg_print("You feel your wisdom returning.");
-                        ident = true;
-                    }
-                    break;
-                case 10:
-                    if (inc_stat(A_CHR)) {
-                        msg_print("Gee, ain't you cute!");
-                        ident = true;
-                    }
-                    break;
-                case 11:
-                    ident = true;
-                    lose_stat(A_CHR);
-                    break;
-                case 12:
-                    if (res_stat(A_CHR)) {
-                        msg_print("You feel your looks returning.");
-                        ident = true;
-                    }
-                    break;
-                case 13:
-                    ident = hp_player(damroll(2, 7));
-                    break;
-                case 14:
-                    ident = hp_player(damroll(4, 7));
-                    break;
-                case 15:
-                    ident = hp_player(damroll(6, 7));
-                    break;
-                case 16:
-                    ident = hp_player(1000);
-                    break;
-                case 17:
-                    if (inc_stat(A_CON)) {
-                        msg_print("You feel tingly for a moment.");
-                        ident = true;
-                    }
-                    break;
-                case 18:
-                    if (player_experience() < MAX_EXP) {
-                        uint32_t l = (uint32_t)(player_experience() / 2) + 10;
-
-                        if (l > 100000L) {
-                            l = 100000L;
-                        }
-
-                        player_gain_experience((int32_t)l);
-                        msg_print("You feel more experienced.");
-                        prt_experience();
-                        ident = true;
-                    }
-                    break;
-                case 19:
-                    if (!player_never_paralyzed()) {
-                        // paralysis must == 0, otherwise could not drink potion
-                        msg_print("You fall asleep.");
-                        player_timed_add(PLAYER_TIMED_PARALYSIS, randint(4) + 4);
-                        ident = true;
-                    }
-                    break;
-                case 20:
-                    if (!player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
-                        msg_print("You are covered by a veil of darkness.");
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_BLINDNESS, randint(100) + 100);
-                    break;
-                case 21:
-                    if (!player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
-                        msg_print("Hey!  This is good stuff!  * Hick! *");
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_CONFUSION, randint(20) + 12);
-                    break;
-                case 22:
-                    if (!player_timed_in_force(PLAYER_TIMED_POISON)) {
-                        msg_print("You feel very sick.");
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_POISON, randint(15) + 10);
-                    break;
-                case 23:
-                    if (!player_timed_in_force(PLAYER_TIMED_HASTE)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_HASTE, randint(25) + 15);
-                    break;
-                case 24:
-                    if (!player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_SLOWNESS, randint(25) + 15);
-                    break;
-                case 26:
-                    if (inc_stat(A_DEX)) {
-                        msg_print("You feel more limber!");
-                        ident = true;
-                    }
-                    break;
-                case 27:
-                    if (res_stat(A_DEX)) {
-                        msg_print("You feel less clumsy.");
-                        ident = true;
-                    }
-                    break;
-                case 28:
-                    if (res_stat(A_CON)) {
-                        msg_print("You feel your health returning!");
-                        ident = true;
-                    }
-                    break;
-                case 29:
-                    ident = cure_blindness();
-                    break;
-                case 30:
-                    ident = cure_confusion();
-                    break;
-                case 31:
-                    ident = cure_poison();
-                    break;
-                // case 33: break; // this is no longer useful, now that there is a 'G'ain magic spells command
-                case 34:
-                    if (player_experience() > 0) {
-                        int32_t m, scale;
-                        msg_print("You feel your memories fade.");
-                        // Lose between 1/5 and 2/5 of your experience
-                        m = player_experience() / 5;
-                        if (player_experience() > MAX_SHORT) {
-                            scale = MAX_LONG / player_experience();
-                            m += (randint((int)scale) * player_experience()) /
-                                 (scale * 5);
-                        } else {
-                            m += randint((int)player_experience()) / 5;
-                        }
-                        lose_exp(m);
-                        ident = true;
-                    }
-                    break;
-                case 35:
-                    (void)cure_poison();
-                    if (player_food() > 150) {
-                        player_set_food(150);
-                    }
-                    player_timed_set(PLAYER_TIMED_PARALYSIS, 4);
-                    msg_print("The potion makes you vomit!");
-                    ident = true;
-                    break;
-                case 36:
-                    if (!player_timed_in_force(PLAYER_TIMED_INVULNERABILITY)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_INVULNERABILITY, randint(10) + 10);
-                    break;
-                case 37:
-                    if (!player_timed_in_force(PLAYER_TIMED_HEROISM)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_HEROISM, randint(25) + 25);
-                    break;
-                case 38:
-                    if (!player_timed_in_force(PLAYER_TIMED_SUPER_HEROISM)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_SUPER_HEROISM, randint(25) + 25);
-                    break;
-                case 39:
-                    ident = remove_fear();
-                    break;
-                case 40:
-                    ident = restore_level();
-                    break;
-                case 41:
-                    if (!player_timed_in_force(PLAYER_TIMED_HEAT_RESISTANCE)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_HEAT_RESISTANCE, randint(10) + 10);
-                    break;
-                case 42:
-                    if (!player_timed_in_force(PLAYER_TIMED_COLD_RESISTANCE)) {
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_COLD_RESISTANCE, randint(10) + 10);
-                    break;
-                case 43:
-                    if (!player_timed_in_force(PLAYER_TIMED_SEEING_INVISIBLE)) {
-                        ident = true;
-                    }
-                    detect_inv2(randint(12) + 12);
-                    break;
-                case 44:
-                    ident = slow_poison();
-                    break;
-                case 45:
-                    ident = cure_poison();
-                    break;
-                case 46:
-                    if (player_restore_mana()) {
-                        ident = true;
-                        msg_print("Your feel your head clear.");
-                        prt_cmana();
-                    }
-                    break;
-                case 47:
-                    if (!player_timed_in_force(PLAYER_TIMED_INFRA_VISION)) {
-                        msg_print("Your eyes begin to tingle.");
-                        ident = true;
-                    }
-                    player_timed_add(PLAYER_TIMED_INFRA_VISION, 100 + randint(100));
-                    break;
-                default:
-                    msg_print("Internal error in potion()");
-                    break;
-                }
+                ident = potion_effect(j, ident);
                 // End of Potions.
             }
         }
