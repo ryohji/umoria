@@ -143,6 +143,12 @@ static bool curse_weapon(inven_type *i_ptr, bool ident) {
     return ident;
 }
 
+// Whether item is the scroll that is being read: the same kind with the same
+// flags.
+static bool is_the_scroll(const inven_type *item, uint8_t tval, uint8_t subval, uint32_t flags) {
+    return item->tval == tval && item->subval == subval && item->flags == flags;
+}
+
 // Scrolls for the reading -RAK-
 // Returns whether it took a game turn.
 bool read_scroll(void) {
@@ -168,6 +174,12 @@ bool read_scroll(void) {
         inven_type *i_ptr = inventory_at(item_val);
         uint32_t i = i_ptr->flags;
 
+        // What the scroll is, for finding it again after an identify has
+        // moved it; the cases below point i_ptr at other items.
+        const uint8_t scroll_tval = i_ptr->tval;
+        const uint8_t scroll_subval = i_ptr->subval;
+        const uint32_t scroll_flags = i_ptr->flags;
+
         bool used_up = true;
         bool ident = false;
         effect_outcome outcome;
@@ -177,7 +189,7 @@ bool read_scroll(void) {
 
         while (i != 0) {
             j = bit_pos(&i) + 1;
-            if (i_ptr->tval == TV_SCROLL2) {
+            if (scroll_tval == TV_SCROLL2) {
                 j += 32;
             }
 
@@ -225,9 +237,8 @@ bool read_scroll(void) {
                 // to move to a different place.  Check for that here.  It can
                 // move arbitrarily far if an identify scroll was used on
                 // another identify scroll, but it always moves down.
-                while (i_ptr->tval != TV_SCROLL1 || i_ptr->flags != 0x00000008) {
+                while (item_val > 0 && !is_the_scroll(inventory_at(item_val), scroll_tval, scroll_subval, scroll_flags)) {
                     item_val--;
-                    i_ptr = inventory_at(item_val);
                 }
                 break;
             case 5:
