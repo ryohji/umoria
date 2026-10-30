@@ -144,15 +144,6 @@ static void r_bell(void) {
     bells++;
 }
 
-static int r_get_char(void) {
-    return -1;
-}
-
-static bool r_check_input(int microsec) {
-    (void)microsec;
-    return false;
-}
-
 static void r_save_screen(void) {
     memcpy(saved, screen, sizeof screen);
 }
@@ -177,8 +168,6 @@ static RenderBackend render_backend = {
     .move_cursor = r_move_cursor,
     .show_cursor = r_show_cursor,
     .bell = r_bell,
-    .get_char = r_get_char,
-    .check_input = r_check_input,
     .save_screen = r_save_screen,
     .restore_screen = r_restore_screen,
 };

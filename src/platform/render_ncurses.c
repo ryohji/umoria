@@ -53,8 +53,6 @@ static void ncurses_draw_string(int row, int col, const char *str, RenderColor c
 static void ncurses_move_cursor(int row, int col);
 static void ncurses_show_cursor(bool show);
 static void ncurses_bell(void);
-static int ncurses_get_char(void);
-static bool ncurses_check_input(int microsec);
 static void ncurses_save_screen(void);
 static void ncurses_restore_screen(void);
 
@@ -80,8 +78,6 @@ static RenderBackend ncurses_backend_instance = {
     .move_cursor = ncurses_move_cursor,
     .show_cursor = ncurses_show_cursor,
     .bell = ncurses_bell,
-    .get_char = ncurses_get_char,
-    .check_input = ncurses_check_input,
     .save_screen = ncurses_save_screen,
     .restore_screen = ncurses_restore_screen,
 };
@@ -223,43 +219,6 @@ static void ncurses_show_cursor(bool show) {
 static void ncurses_bell(void) {
     // Use ncurses beep() if available, otherwise write bell character
     beep();
-}
-
-// Get a character from input
-static int ncurses_get_char(void) {
-    return getch();
-}
-
-// Check if input is available
-static bool ncurses_check_input(int microsec) {
-#ifdef TIMED_INPUT
-    timeout(8);
-    int result = getch();
-    timeout(-1);
-
-    if (result > 0) {
-        ungetch(result);
-        return true;
-    }
-    return false;
-#else
-    struct timeval tbuf;
-    int smask;
-
-    tbuf.tv_sec = 0;
-    tbuf.tv_usec = microsec;
-
-    smask = 1; // i.e. (1 << 0)
-    if (select(1, (fd_set *)&smask, (fd_set *)0, (fd_set *)0, &tbuf) == 1) {
-        int ch = getch();
-        if (ch == -1) {
-            return false;
-        }
-        ungetch(ch);
-        return true;
-    }
-    return false;
-#endif
 }
 
 // Save screen for later restore

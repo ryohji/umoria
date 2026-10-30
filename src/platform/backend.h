@@ -109,10 +109,6 @@ typedef struct RenderBackend {
     // Audio feedback
     void (*bell)(void);  // Audio or visual bell
 
-    // Input (may be moved to separate input abstraction later)
-    int (*get_char)(void);
-    bool (*check_input)(int microsec);
-
     // Screen save/restore (for menus, inventory, etc.)
     void (*save_screen)(void);
     void (*restore_screen)(void);
