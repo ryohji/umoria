@@ -11,8 +11,8 @@
 // stands next to the player and attacks once with each of eight seeds, in
 // three states of the player (as above; with plusses on what is worn,
 // paralysed and blind; with every ability), the first with protection from
-// evil on. What was drawn on the screen and the
-// state afterwards (the player's hit points, stats, timed effects, gold,
+// evil on. What was drawn on the screen and the state afterwards (the player's
+// hit points, stats, combat bonuses and armour class, timed effects, gold,
 // experience, place, death, pack and equipment, and the creature) go into one
 // hash per creature, printed with a total; make -f makefile.test golden
 // compares them with tests/golden/melee_all.hashes.
@@ -182,6 +182,10 @@ static void mix_state(void) {
     for (int s = 0; s < 6; s++) {
         mix_int(player_stat_cur(s)); mix_int(player_stat_max(s));
     }
+    mix_int(player_to_hit_bonus()); mix_int(player_to_damage_bonus());
+    mix_int(player_armour_class_armour()); mix_int(player_armour_class_magical());
+    mix_int(player_display_to_hit()); mix_int(player_display_to_dam());
+    mix_int(player_display_to_ac()); mix_int(player_display_ac());
     for (int e = 0; e < PLAYER_TIMED_COUNT; e++) {
         mix_int(player_timed_turns((player_timed_effect)e));
     }
