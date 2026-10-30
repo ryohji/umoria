@@ -18,9 +18,11 @@
 #include "game_status.h"
 
 #include "world_dungeon.h"
+#include "world_monster.h"
 #include "world_player.h"
 #include "world_view.h"
 #include "world_internal.h"
+#include "distance.h"
 #include "geometry.h"
 #include "monsters.h"
 #include "ui_screen.h"
@@ -89,5 +91,27 @@ void update_mon(int monptr) {
 
         // notify inven_command
         note_screen_flushed();
+    }
+}
+
+void update_monsters(void) {
+    for (int i = monster_list_used() - 1; i >= MIN_MONIX && !player_is_dead(); i--) {
+        monster_type *m_ptr = monster_list_at(i);
+        // Get rid of an eaten/breathed on monster.  Note: Be sure not to
+        // process this monster. This is necessary because we can't delete
+        // monsters while scanning the monster list here.
+        if (m_ptr->hp < 0) {
+            fix2_delete_monster(i);
+            continue;
+        }
+
+        m_ptr->cdis = distance(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx);
+        update_mon(i);
+
+        // Get rid of an eaten/breathed on monster. This is necessary because
+        // we can't delete monsters while scanning the monster list here.
+        if (m_ptr->hp < 0) {
+            fix2_delete_monster(i);
+        }
     }
 }

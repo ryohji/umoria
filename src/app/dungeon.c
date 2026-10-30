@@ -129,7 +129,7 @@ static void tick_blindness(void) {
             disturb(0, 1);
 
             // unlight creatures
-            creatures(false);
+            update_monsters();
         }
         if (player_timed_count_down(PLAYER_TIMED_BLINDNESS)) {
             prt_blind();
@@ -137,7 +137,7 @@ static void tick_blindness(void) {
 
             // light creatures
             disturb(0, 1);
-            creatures(false);
+            update_monsters();
             msg_print("The veil of darkness lifts.");
         }
     }
@@ -367,14 +367,14 @@ static void tick_seeing_invisible(void) {
             player_grant_see_invisible();
 
             // light but don't move creatures
-            creatures(false);
+            update_monsters();
         }
         if (player_timed_count_down(PLAYER_TIMED_SEEING_INVISIBLE)) {
             // may still be able to see_inv if wearing magic item
             calc_bonuses();
 
             // unlight but don't move creatures
-            creatures(false);
+            update_monsters();
         }
     }
 }
@@ -389,13 +389,13 @@ static void tick_infra_vision(void) {
             player_infra_range_adjust(1);
 
             // light but don't move creatures
-            creatures(false);
+            update_monsters();
         }
         if (player_timed_count_down(PLAYER_TIMED_INFRA_VISION)) {
             player_infra_range_adjust(-1);
 
             // unlight but don't move creatures
-            creatures(false);
+            update_monsters();
         }
     }
 }
@@ -437,7 +437,7 @@ static void tick_light(void) {
                 disturb(0, 1);
 
                 // unlight creatures
-                creatures(false);
+                update_monsters();
             } else if ((i_ptr->p1 < 40) && (randint(5) == 1) && !player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
                 disturb(0, 0);
                 msg_print("Your light is growing faint.");
@@ -447,7 +447,7 @@ static void tick_light(void) {
             disturb(0, 1);
 
             // unlight creatures
-            creatures(false);
+            update_monsters();
         }
     } else if (i_ptr->p1 > 0) {
         i_ptr->p1--;
@@ -455,7 +455,7 @@ static void tick_light(void) {
         disturb(0, 1);
 
         // light creatures
-        creatures(false);
+        update_monsters();
     }
 }
 
@@ -748,7 +748,7 @@ void dungeon(void) {
     }
 
     // Light,  but do not move critters
-    creatures(false);
+    update_monsters();
 
     // Print the depth
     prt_depth();
@@ -910,7 +910,7 @@ void dungeon(void) {
 
         // Move the creatures
         if (!level_is_over()) {
-            creatures(true);
+            creatures();
         }
 
         // Exit when this level is finished

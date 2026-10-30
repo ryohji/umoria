@@ -224,7 +224,7 @@ int main(void) {
                 set_rnd_seed(seed * 7919u + (uint32_t)k);
                 open_floor();
                 lay_out(layout, dir, kinds[k]);
-                creatures(false); // who can be seen, without moving them
+                update_monsters(); // who can be seen, without moving them
                 player_set_experience(0);
                 int result = spells[s].fn(dir, spells[s].strengths[st]);
                 mix_state(result);

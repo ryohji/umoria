@@ -536,7 +536,7 @@ void wizard_command(player_command_id command) {
         y = player_row();
         x = player_col();
         (void)summon_monster(&y, &x, true);
-        creatures(false);
+        update_monsters();
         break;
     case CMD_WIZ_CREATE:
         wizard_create();

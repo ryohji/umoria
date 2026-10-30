@@ -227,7 +227,7 @@ int main(void) {
                 player_timed_set(PLAYER_TIMED_PROTECTION_FROM_EVIL, 100);
             }
             (void)place_monster(PY, PX + 1, it, false);
-            creatures(false);
+            update_monsters();
             make_attack(monster_list_used() - 1);
             mix_state();
             count++;
