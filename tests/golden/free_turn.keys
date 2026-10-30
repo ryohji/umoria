@@ -131,7 +131,7 @@ rc
 4
 6
 i\e
-# create food with something under us: no turn, and the scroll is used up (B30)
+# create food with something under us: no turn, and the scroll is kept
 day
 rc 
 i\e
@@ -148,7 +148,7 @@ s\ei\e\e
 s
 # wield the dagger and exchange weapons (a turn each; the dagger goes to the
 # second slot)
-we 
+wf 
 x
 s
 # run: -w79 lamp.sav

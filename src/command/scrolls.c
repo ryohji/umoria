@@ -339,7 +339,9 @@ bool read_scroll(void) {
                 break;
             case 29:
                 ident = true;
-                if (create_food() == EFFECT_CANCELLED) {
+                outcome = create_food();
+                used_up = outcome == EFFECT_DONE;
+                if (outcome == EFFECT_CANCELLED) {
                     took_turn = false;
                 }
                 break;
