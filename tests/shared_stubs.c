@@ -195,6 +195,7 @@ void shared_stubs_reset(void)
     fixture_speed_change_last = 0;
     fixture_speed_change_calls = 0;
     fixture_bonuses_calls = 0;
+    fixture_randint_value = 1;
     fixture_randint_last_max = 0;
     fixture_randint_calls = 0;
     fixture_dark = false;

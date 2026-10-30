@@ -28,11 +28,10 @@ STD = -std=c17
 # これらを外した状態で、テストコード由来の警告は 0 件を保つ。
 WARNINGS = -Wall -Wextra -Wno-unused-parameter \
            -Wshadow -Wstrict-prototypes -Wold-style-definition \
-           -Wformat=2 -Wwrite-strings -Wno-deprecated-declarations -Wno-format-truncation
-# -Wno-deprecated-declarations と -D_DEFAULT_SOURCE（CFLAGS）は本体の makefile と同じ
-# （signals.c の sigsetmask() の宣言を見せ、非推奨の警告は受けいれる）。
-# -Wno-format-truncation：最適化なしでは、snprintf に渡す %s を配列の大きさいっぱいと見積もって
-# 「切りつめるかもしれない」と言う。切りつめは snprintf を選んだ意図どおり（本体の -O2 では出ない）。
+           -Wformat=2 -Wwrite-strings -Wno-deprecated-declarations
+# -Wno-deprecated-declarations と -D_DEFAULT_SOURCE・-O2（CFLAGS）は本体の makefile と同じ
+# （signals.c の sigsetmask() の宣言を見せ、非推奨の警告は受けいれる）。-O2 にすると、本体と
+# 型や約束のずれた代役が警告や segfault になって表に出る（所見 80）。
 # 以前はここに本体由来の既存警告（非プロトタイプ宣言・const の落ち・
 # 文字列リテラルへの書きこみ等、数千件）の抑制を並べていた。本体側の
 # 警告解消でどれも 0 件になったので、抑制ごと外した。テスト・本体とも
@@ -41,7 +40,7 @@ WARNINGS = -Wall -Wextra -Wno-unused-parameter \
 # #include "..." はヘッダの名前だけで書いてあるので、ヘッダのあるディレクトリー
 # はすべて要る。src/ の .c を丸ごと #include するテスト（下の「気をつける
 # こと」の 2）も、この -I でその .c を見つける。
-CFLAGS = $(STD) -D_DEFAULT_SOURCE $(WARNINGS) -g -Isrc $(addprefix -Isrc/,$(SRC_SUBDIRS)) $(addprefix -Isrc/,$(addsuffix /internal,$(INTERNAL_LIBS))) -Itests
+CFLAGS = $(STD) -D_DEFAULT_SOURCE $(WARNINGS) -O2 -g -Isrc $(addprefix -Isrc/,$(SRC_SUBDIRS)) $(addprefix -Isrc/,$(addsuffix /internal,$(INTERNAL_LIBS))) -Itests
 TESTDIR = tests
 BUILDDIR = $(TESTDIR)/build
 
