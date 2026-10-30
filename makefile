@@ -117,6 +117,15 @@ $(RECALL_ALL): recall_all.o $(LIBS)
 recall_all.o: tests/recall_all.c
 	$(CC) $(CFLAGS) -I$(SRCDIR)/command/internal -MMD -MP -c -o $@ $<
 
+# The bolts of spells.c and fire_bolt() on a test floor (makefile.test golden runs
+# it). place_monster() and OBJ_BOLT_RANGE are in world/'s internal header.
+BOLTS_ALL = bolts_all
+$(BOLTS_ALL): bolts_all.o $(LIBS)
+	$(CC) -o $(BOLTS_ALL) bolts_all.o $(LIBS) $(LDFLAGS)
+
+bolts_all.o: tests/bolts_all.c
+	$(CC) $(CFLAGS) -I$(SRCDIR)/world/internal -MMD -MP -c -o $@ $<
+
 headless_backend.o: tests/headless_backend.c
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
@@ -162,7 +171,7 @@ clean:
 	@rm -f $(OBJS)
 	@rm -f $(OBJS:.o=.d)
 	@rm -f $(LIBS)
-	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d $(RECALL_ALL) recall_all.o recall_all.d
+	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d $(RECALL_ALL) recall_all.o recall_all.d $(BOLTS_ALL) bolts_all.o bolts_all.d
 	@rm -f lintout
 	@echo "Clean complete!"
 
