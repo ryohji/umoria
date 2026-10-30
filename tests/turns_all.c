@@ -139,6 +139,9 @@ static void known_player(void) {
     for (int e = 0; e < PLAYER_TIMED_COUNT; e++) {
         player_timed_clear((player_timed_effect)e);
     }
+    for (int n = 0; n < INVEN_WIELD; n++) {
+        invcopy(inventory_at(n), OBJ_NOTHING);
+    }
     inventory_set_count(0);
     inventory_set_weight(0);
     for (int slot = INVEN_WIELD; slot <= INVEN_AUX; slot++) {
