@@ -143,6 +143,14 @@ $(MELEE_ALL): melee_all.o $(LIBS)
 melee_all.o: tests/melee_all.c
 	$(CC) $(CFLAGS) -I$(SRCDIR)/world/internal -MMD -MP -c -o $@ $<
 
+# Every creature taking its turns with creatures(true) (makefile.test golden runs it).
+TURNS_ALL = turns_all
+$(TURNS_ALL): turns_all.o $(LIBS)
+	$(CC) -o $(TURNS_ALL) turns_all.o $(LIBS) $(LDFLAGS)
+
+turns_all.o: tests/turns_all.c
+	$(CC) $(CFLAGS) -I$(SRCDIR)/world/internal -MMD -MP -c -o $@ $<
+
 headless_backend.o: tests/headless_backend.c
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
@@ -188,7 +196,7 @@ clean:
 	@rm -f $(OBJS)
 	@rm -f $(OBJS:.o=.d)
 	@rm -f $(LIBS)
-	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d $(RECALL_ALL) recall_all.o recall_all.d $(BOLTS_ALL) bolts_all.o bolts_all.d $(MAGIC_ALL) magic_all.o magic_all.d $(MELEE_ALL) melee_all.o melee_all.d
+	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d $(RECALL_ALL) recall_all.o recall_all.d $(BOLTS_ALL) bolts_all.o bolts_all.d $(MAGIC_ALL) magic_all.o magic_all.d $(MELEE_ALL) melee_all.o melee_all.d $(TURNS_ALL) turns_all.o turns_all.d
 	@rm -f lintout
 	@echo "Clean complete!"
 
