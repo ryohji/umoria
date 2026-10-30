@@ -17,7 +17,8 @@
 
 - 本体とテストの組みたての警告 0（clean から）。テスト **1850 件・89 本**、failed=0、`RESULT: GREEN`。
   **golden の台本 11 本 GREEN**（端末なしで本体を通す。本体の行の 51.5% を通る）と、
-  総当たりのハッシュ `objdes_all`（#22）・`recall_all`（#72）・`bolts_all`（#19）。
+  総当たりのハッシュ `objdes_all`（#22）・`recall_all`（#72）・`bolts_all`（#19）・`magic_all`（#26）・
+  `melee_all`（#25）・`turns_all`（#21）。テストは本体と同じ `-O2` で組む（#97）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
@@ -47,8 +48,10 @@
     と所見 73〜77、台帳の済んだ項目の索引。
   - **#72 の一部、テストの組みたての警告、golden の穴の一部、#19 の一部**（2026-10-30）。経過は
     `worklog.md` と所見 78〜80。
+  - **#27 の一部、#26、#25、#21、#97、#50 の数えなおし、#98 の調べ**（2026-10-30）。経過は
+    `worklog.md` と所見 81。
 - 台帳は 2026-10-30 に組みなおした（P1〜P3 と棚上げの区分をやめ、主題ごとの計画に）。`bugs.md` は
-  B1〜B34（B28 は誤りだった）。開いている列は無い。**次の候補は台帳の「計画」**（第 6 節）。
+  B1〜B35（B28 は誤りだった）。開いている列は無い。**次の候補は台帳の「計画」**（第 6 節）。
 
 ## 1. 資料の役割分担
 
@@ -69,7 +72,7 @@
 | `scripts/dis_compare.py` | 2 つの実行形式で、指定した関数の機械語を比べる |
 | `scripts/check.sh` | 第 2 節の 1〜4 と golden を clean から走らせる |
 | `tests/headless_backend.c`・`tests/golden/` | 端末なしで本体を通す backend と、台本・記録・`run.sh`（第 4 節） |
-| `tests/objdes_all.c`・`recall_all.c`・`bolts_all.c` | 1 つの関数を入力の組すべてで呼び、ハッシュを出す総当たり（golden が記録と比べる。第 4 節） |
+| `tests/objdes_all.c`・`recall_all.c`・`bolts_all.c`・`magic_all.c`・`melee_all.c`・`turns_all.c` | 1 つの関数を入力の組すべてで呼び、ハッシュを出す総当たり（golden が記録と比べる。第 4 節） |
 | `scripts/cmp_all.sh` | 基準のコミットと作業木の全関数の機械語と、データの (種類, 大きさ) を比べる |
 | `scripts/inline_back.py` | 抜きだした関数の本体を呼んだ所へ字のまま戻し、元のファイルとの違いを出す（所見 73） |
 | `scripts/check_statics.sh`・`comments_only.sh`・`merge_modules.py`・`move_constants.py` | データの数の比較・注釈だけの変更の確かめ・小さな module の連結・`constant.h` の定数を使う場所へ移す |
@@ -186,10 +189,13 @@ static にすると入口の `endbr64` が消える、同名の static が潰れ
 1 字壊して golden が赤くなることを先に見る（届かない所は台本を足す）。
 
 **1 つの関数の入力の組すべては、総当たりのハッシュで守る**（所見 74）。`tests/objdes_all.c`（品物の
-名前）・`recall_all.c`（モンスターの思い出）・`bolts_all.c`（飛ぶ呪文）が手本で、本体の makefile に
+名前）・`recall_all.c`（モンスターの思い出）・`bolts_all.c`（飛ぶ呪文）・`magic_all.c`（品物の魔法）・
+`melee_all.c`（モンスターの攻撃）・`turns_all.c`（モンスターの手番）が手本で、本体の makefile に
 規則があり、`make -f makefile.test golden` が `tests/golden/*.hashes` と比べる。画面に書く関数は、
 描画の backend が書かれた文字列をハッシュに混ぜる。階やモンスターが要るものは、床の試しの階を
 作り、起動時の表（`object_levels_init`・`monster_levels_init`）と画面の区画を先に整える（所見 79）。
+プレイヤーを置くなら経験の係数も入れる（`melee_all`）。ハッシュには呼び手が計算しなおさせる値も
+入れる（所見 81）。
 組の広さは `-O0 --coverage` で狙った関数の被覆を測って決め、壊して違いが出ることを先に見る。
 
 **テストの届かない呼び手の抽出は、種を固定した書き出しで比べる。** 機械語が変わる抽出で、
@@ -328,9 +334,10 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
   `UBSAN_OPTIONS=print_stacktrace=1`）で組んで出す。0 で割る所はこれで分かった（所見 79）。
 - **`git stash -u` で退けて戻した、追跡していない実行形式は、実行の印を失う**
   （`core.filemode` が false）。`Permission denied` になったら組みなおす。
-- **テストの組みたては最適化なし（`-O0`）。** 本体（`-O2`）では出ない `-Wformat-overflow` などが出る。
-  テストの組みたての警告は `scripts/check.sh` が数える（0 でなければ NOT OK）。テストを `-O2` で組むと
-  代役のずれが出る（所見 80、台帳 #97）。
+- **テストは本体と同じ `-O2` で組む（#97）。** 最適化なしでは黙って通る代役のずれ（型の違う代役、
+  出力を書かない代役、件をまたいで残る答え）が、警告や segfault になって出る（所見 80）。代役に
+  答えを持たせたら `shared_stubs_reset()` で戻す。テストの組みたての警告は `scripts/check.sh` が
+  数える（0 でなければ NOT OK）。被覆を測るときだけ `-O0 --coverage` で組む。
 
 **git まわり**
 

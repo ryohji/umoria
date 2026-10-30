@@ -6,8 +6,9 @@
 [done/plan-2026-10-23.md](docs/refactoring/done/plan-2026-10-23.md)・[done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1850 件・89 本、golden の台本 11 本と総当たり 3 本（`objdes_all`・`recall_all`・
-  `bolts_all`）、本体の行の 51.5%（8113 / 15743。gcov、2026-10-30）を golden が通る。本体と
+- いま：テスト 1850 件・89 本、golden の台本 11 本と総当たり 6 本（`objdes_all`・`recall_all`・
+  `bolts_all`・`magic_all`・`melee_all`・`turns_all`）、本体の行の 51.5%（8113 / 15743。gcov、2026-10-30、
+  #27 より前。台本だけの数）を golden が通る。テストは本体と同じ `-O2` で組む（#97）。本体と
   テストの組みたての警告 0、ヘッダの global 39 個、層の依存 907 本・111 単位で違反 0
   （→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。新しい候補は #97 から振る。
@@ -21,13 +22,15 @@
 | 手 | 守るもの | 置き場 |
 |---|---|---|
 | golden の台本 | 本体を通しで（画面とキーごとの turn） | `tests/golden/*.keys`、`run.sh`（第 4 節） |
-| 総当たりのハッシュ | 1 つの関数の入力の組すべて（文字列・状態） | `tests/objdes_all.c`・`recall_all.c`・`bolts_all.c` |
+| 総当たりのハッシュ | 1 つの関数の入力の組すべて（文字列・状態） | `tests/objdes_all.c`・`recall_all.c`・`bolts_all.c`・`magic_all.c`・`melee_all.c`・`turns_all.c` |
 | 字のまま戻す比較 | 塊を関数に出す移動 | `scripts/inline_back.py` |
 | 全関数の機械語の比較 | 移動・統合・ヘッダの組みかえ | `scripts/cmp_all.sh` |
 | 単体テストと写し | 窓口の中、表 | `tests/*_test.c`（`legacy_*` の写し） |
 
 総当たりの道具は、試しの階（床と壁・プレイヤー・モンスター）を作れる（`bolts_all` が手本）。
 起動時の表（`object_levels_init`・`monster_levels_init`）と画面の区画を先に整える（所見 79）。
+プレイヤーを決まった状態に置く手本は `melee_all`（経験の係数も入れる）。ハッシュには、呼び手が
+計算しなおさせる値も入れる（所見 81）。
 
 ## 計画
 
@@ -38,10 +41,7 @@
 
 | # | 場所・大きさ | golden の被覆 | 守りの手と進めかた | 前提・判断 |
 |---|---|---|---|---|
-| 27 | command/scrolls.c `read_scroll`（402 行） | 28% | 効果の switch を `scroll_effect()` に（#72 の eat・quaff と同じ形、所見 78）。#74 で turn と取りけしが戻り値になり、前の棚上げの理由（局所の使いまわし）は `used_up`・`outcome`・`ident` を引数で渡せば解ける。`inline_back.py` で守る | 判断は要らない |
-| 26 | world/item/item_enchant.c `magic_treasure`（831 行、switch 10） | 32% | 総当たり：種を固定して、品目 × 深さ × 運で生成し、できた品物をハッシュに（`objdes_all` と同じ形）。品物の種類ごとの関数に分ける | 判断は要らない。道具が先 |
-| 25 | world/combat/monster_melee.c `make_attack`（600 行、89 ケース） | 17% | 総当たり：`bolts_all` の試しの階で、モンスターの攻撃の種類 × プレイヤーの状態（装備・抵抗・体力）→ ハッシュ。攻撃の種類ごとの関数に分ける | 道具が先 |
-| 21 | world/monster/creature.c `mon_cast_spell`（209 行、switch 20） | 25% | #25 と同じ足場で、呪文の番号ごとに。番号の生の数に名前を付ける | #25 のあと |
+| 27 | command/scrolls.c `read_scroll`（328 行） | 28% | 武器の巻物 4 つは出した（#27-1）。残る鎧の 3 つ（case 3・35・36）は、i_ptr を塊の奥で条件つきで指しなおし、あとの鑑定の case がその i_ptr を読みうる（B35）。i_ptr を呼び手に返す形にするか、B35 を直して i_ptr を case の局所にするか | **形の判断が先**（B35 を直すかに絡む） |
 | 72 | command/inven_menu.c `inven_command`（485 行）、app/save.c `get_char`（463 行） | 55%・70% | 字のまま出せる塊は出しきった（#72-6・#72-7）。前者は選ぶ状態（画面・選択・再開）を構造体に、後者は読む段ごとに成否を返す形に | **設計の判断が先**。守りは golden と `savefile_layout_test` |
 
 ### B. 重複
@@ -60,7 +60,7 @@
 |---|---|---|---|
 | 31 | 19 ファイル・70 定義の `(int y, int x)` | 座標の型が無い | 置きかえが広い。golden と総当たりで守れるが、**入れるかの判断**が先 |
 | 32 | model/data/player.c（516 行・関数 0） | 職業・種族・呪文の表 | 構造の設計変更。いまの層の規則のままでも困っていない |
-| 98 | world/ の段の中のループ | 行動の段（creature・spells・projectiles・monster_melee）の相互の呼び出し | 調べてから。新しい world/ の .c は `WORLD_TIERS` に足す |
+| 98 | world/ の段の中のループ | 行動の段の 11 単位のうち 8 つ（creature・monster_melee・projectiles・spells・traps・terrain_commands・player_move・run_path）が 1 つのループ（2026-10-30 に数えた）。creature に戻る辺は、見え方の更新（`update_mon`・`creatures(false)`）と増殖（`multiply_monster`）だけ。ほかに run_path ⇄ player_move・traps ⇄ player_move | **段の置き場の判断**。案：見え方の更新を表示の段へ、`multiply_monster` を床と生死の段へ移すと creature へ戻る辺は無くなる。プレイヤーの移動の 3 つは段を分けるか、1 単位にまとめるか。新しい world/ の .c は `WORLD_TIERS` に足す |
 | 99 | `constant.h` の定数 262 個・`types.h` の型 | 2 つ以上のライブラリーかテストが使うもの、表の一部（使われない 15 個を含む） | 小さく続けられる。急がない |
 
 ### D. 未接続の基盤（消すか残すか）
@@ -75,15 +75,14 @@
 
 | # | 中身 | 前提・判断 |
 |---|---|---|
-| 50 | 窓口を呼ぶ順番と条件を見るテストが無い（`calc_bonuses` の呼び手など。旧行は [done/plan-2026-10-30.md](docs/refactoring/done/plan-2026-10-30.md)） | golden が呼び手を通すようになった（`calc_bonuses` 76%）。残る穴を数えなおすところから |
-| 97 | テストを本体と同じ `-O2` で組む | 試したら、丸ごと `#include` するテストの代役のずれで警告と segfault が出た（`haggle_comment_test` は直した）。代役を本体に合わせきってから |
+| 50 | 窓口を呼ぶ順番と条件を見るテストが無い（`calc_bonuses` の呼び手など。旧行は [done/plan-2026-10-30.md](docs/refactoring/done/plan-2026-10-30.md)） | 2026-10-30 に数えなおした：呼び手 8 か所を消して 5 か所が赤（前は 12 度で 3 度）、`melee_all` を広げて 6 か所に（#50-1）。残るのは command/scrolls.c:112（To-Dam の巻物で呪いが解けたあと）と world/item/spells.c:366（装備を鑑定したあと）。どちらも画面の数を見る場面が要る |
 | 100 | golden の穴の残り | 走っている途中で壁や見えているモンスターに当たる、100 歩走って息が切れる（町では作れない。地下の長い通路の台本が要る）、`fire_ball`・`sell_haggle`・祈りの方向の呪文 |
 
 ### F. 判断待ちのバグ候補
 
-`docs/refactoring/bugs.md` の B1〜B34。とくに、リファクタリングの途中で見つけ、ふるまいを
+`docs/refactoring/bugs.md` の B1〜B35。とくに、リファクタリングの途中で見つけ、ふるまいを
 保ったまま golden に記録しているもの：B24（光る手の空白）・B30（Create Food の巻物）・
-B31（店の 1 歩）・B32（^J と ^M の回数）・B33（Enter が +）・B34（飛ぶ呪文の止まりかた）。
+B31（店の 1 歩）・B32（^J と ^M の回数）・B33（Enter が +）・B34（飛ぶ呪文の止まりかた）・B35（鑑定の巻物が読む i_ptr。#27 の残りに絡む）。
 直すかどうかはユーザーの領分。直すと golden の記録が変わる（記録を作りなおす）。
 
 ## 済んだ項目の索引
@@ -170,6 +169,12 @@ B31（店の 1 歩）・B32（^J と ^M の回数）・B33（Enter が +）・B3
 | テストの組みたて | 警告 11 → 0（include の漏れ、旗を本体に合わせる、`snprintf`、代役のずれ）、`check.sh` がテストの組みたての警告も数える | `worklog.md`（2026-10-30） |
 | golden の穴（一部） | 台本 `rare_paths`（呪われた鎧・鎧の巻物・罠を踏む・外す・箱） | 同上 |
 | 19（一部） | 飛ぶ呪文 8 つの骨格を `bolt_to_next_creature()` に。総当たり `bolts_all` を golden に常設 | 同上 |
+| 27（一部） | `read_scroll` 402 → 328 行（武器の巻物 4 つを static 関数に）。行は開いたまま | 同上 |
+| 26 | `magic_treasure` 831 → 105 行（品物の種類ごとの static 関数 14 本）。総当たり `magic_all` を golden に常設 | 同上 |
+| 25 | `make_attack` 600 → 100 行（当たり・言いかた・効果の 3 つの switch を static 関数に。光る手の塊は #51 のために残した）。総当たり `melee_all` を golden に常設 | 同上 |
+| 21 | `mon_cast_spell` 209 → 73 行（呪文の番号に名前 `enum monster_spell`、効果の switch を `cast_monster_spell` に）。総当たり `turns_all`（モンスターの手番）を golden に常設 | 同上 |
+| 97 | テストを本体と同じ `-O2` で組む（`shared_stubs_reset` が randint の代役の答えを戻すようにしてから） | 同上 |
+| 50（一部） | 呼び手の穴を数えなおし、`melee_all` のハッシュに戦いの数と AC を足した。行は開いたまま | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
