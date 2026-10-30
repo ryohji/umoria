@@ -17,3 +17,4 @@
 | 2026-10-30 | テストの組みたての警告 | 11 → 0。テスト 2 本に dungeon_state.h（`2c9a06c`）、`makefile.test` の旗を本体に合わせて効いていない LIB_EXCLUDE を外す（`daa2442`）、品物の名前の sprintf 4 か所を snprintf に（`adae044`）、haggle_comment_test の代役を本体に合わせる（`1dad4c2`）、check.sh がテストの組みたての警告も数える（`5bfe971`） | 1850（89 本） | `scripts/check.sh` ALL OK |
 | 2026-10-30 | golden の穴 | 台本 `rare_paths`（`12203a1`。呪われた鎧・鎧の巻物・罠を踏む・外す・箱）。被覆 50.3% → 51.4% | 1850（89 本） | `scripts/check.sh` ALL OK |
 | 2026-10-30 | #19 | 総当たり `bolts_all`（`a29f552`。10,920 回、8 つが 100%）、飛ぶ呪文 8 つの骨格を bolt_to_next_creature() に（`6e7b95e`。ハッシュが 9 つすべてで一致、spells.c 1681 → 1624 行） | 1850（89 本） | `scripts/check.sh` ALL OK |
+| 2026-10-30 | 計画の組みなおし | ユーザーの依頼で、台帳の P1〜P3 と棚上げの区分をやめ、主題ごとの計画（A〜F）に組みなおした（`4d32c2a`。前の全文は `done/plan-2026-10-30.md`。本文の「13069 字」は誤りで、REFACTORING_PLAN.md 12929 → 13068 字）。B34・所見 79・80（`a17d531`）、HANDOVER を合わせる（`715d9c4`。前の全文は `done/handover-2026-10-30-replan.md`。20969 → 21263 字） | 1850（89 本） | 文書だけ |
