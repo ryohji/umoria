@@ -269,7 +269,7 @@ static bool store_purchase(int store_num, int *cur_top) {
 }
 
 // Sell an item to the store -RAK-
-static bool store_sell(int store_num, int *cur_top, bool *took_turn) {
+static bool store_sell(int store_num, int *cur_top) {
     bool sell = false;
 
     int first_item = inventory_count();
@@ -363,9 +363,6 @@ static bool store_sell(int store_num, int *cur_top, bool *took_turn) {
         } else {
             msg_print("I have not the room in my store to keep it.");
         }
-    } else {
-        // Cancelled: if nothing else is done, the walk in takes no turn.
-        *took_turn = false;
     }
     return sell;
 }
@@ -428,7 +425,7 @@ bool enter_store(int store_num) {
                     exit_flag = store_purchase(store_num, &cur_top);
                     break;
                 case 's':
-                    exit_flag = store_sell(store_num, &cur_top, &took_turn);
+                    exit_flag = store_sell(store_num, &cur_top);
                     break;
                 default:
                     bell();

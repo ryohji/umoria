@@ -540,19 +540,19 @@ key 179 0x37 9cc8d6d0 turn 22
 key 180 0x73 e85dca9d turn 22
 key 181 0x1b d582a8ee turn 22
 key 182 0x1b e85dca9d turn 22
-key 183 0x33 2e0b777c turn 22
-key 184 0x37 3403d7b4 turn 23
-key 185 0x73 e85dca9d turn 23
-key 186 0x1b d582a8ee turn 23
-key 187 0x69 e85dca9d turn 23
-key 188 0x1b 819a4a64 turn 23
-key 189 0x1b e85dca9d turn 23
-key 190 0x73 9e39377e turn 24
-key 191 0x77 b8645e72 turn 25
-key 192 0x66 adbd8141 turn 25
-key 193 0x20 8cc6e8cc turn 25
-key 194 0x78 47f632e9 turn 26
-key 195 0x73 6bc32eaa turn 27
+key 183 0x33 59e6365a turn 23
+key 184 0x37 076f62b3 turn 24
+key 185 0x73 e85dca9d turn 24
+key 186 0x1b d582a8ee turn 24
+key 187 0x69 e85dca9d turn 24
+key 188 0x1b 819a4a64 turn 24
+key 189 0x1b e85dca9d turn 24
+key 190 0x73 9e39377e turn 25
+key 191 0x77 fb822d69 turn 26
+key 192 0x66 7d031d81 turn 26
+key 193 0x20 ec2f3b28 turn 26
+key 194 0x78 fb822d69 turn 27
+key 195 0x73 5f8b03b6 turn 28
 end of script after 195 of 195 keys
 screen (cursor 20,59, bells 0):
 |The Blubbering Idiot drools on you.
@@ -576,7 +576,7 @@ screen (cursor 20,59, bells 0):
 |             #..........########............########....#######...............#
 |AC  :      0 #..............................########....#######...............#
 |GOLD:    731 #..............................########....###@###...............#
-|             #.............................................p..................#
+|             #..............................................p.................#
 |Is wizard    ##################################################################
 |                                                                 Town level
 run: -w79 lamp.sav
