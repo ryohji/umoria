@@ -938,8 +938,12 @@ key  24 0x0d 00fb5884 turn 24
 key  25 0x0a 8e28b7df turn 24
 key  26 0x33 8e28b7df turn 24
 key  27 0x73 10d42d90 turn 24
-key  28 0x73 3e3e9e91 turn 27
-end of script after 28 of 28 keys
+key  28 0x32 3e3e9e91 turn 27
+key  29 0x0d 374d1081 turn 27
+key  30 0x32 8e28b7df turn 27
+key  31 0x0a 374d1081 turn 27
+key  32 0x73 8e28b7df turn 27
+end of script after 32 of 32 keys
 screen (cursor 11,14, bells 0):
 |
 |             ##################################################################

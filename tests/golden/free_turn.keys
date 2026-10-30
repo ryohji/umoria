@@ -218,8 +218,8 @@ s
 # run: -w83 rogue.sav
 # record: turns
 # The rogue-like keys, for a human male warrior named Ed: set the option, then
-# walk (h), run (H), dig left (^H), dig down with Enter (^M) and ^J, and a
-# count typed as digits alone (3s)
+# walk (h), run (H), dig left (^H), dig down with Enter (^M) and ^J, a count
+# typed as digits alone (3s), and a count for digging down with Enter and ^J
 \n y
 am\ea
 Ed\r
@@ -231,4 +231,6 @@ H
 \r
 \n
 3s
+2\r
+2\n
 s

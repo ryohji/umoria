@@ -1393,6 +1393,7 @@ static bool valid_countcommand(char c) {
     case CTRL_KEY('L'):
     case CTRL_KEY('N'):
     case CTRL_KEY('J'):
+    case CTRL_KEY('M'):
     case CTRL_KEY('B'):
     case CTRL_KEY('H'):
     case 'S':
