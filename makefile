@@ -126,6 +126,14 @@ $(BOLTS_ALL): bolts_all.o $(LIBS)
 bolts_all.o: tests/bolts_all.c
 	$(CC) $(CFLAGS) -I$(SRCDIR)/world/internal -MMD -MP -c -o $@ $<
 
+# Every kind of the object table through magic_treasure() (makefile.test golden runs it).
+MAGIC_ALL = magic_all
+$(MAGIC_ALL): magic_all.o $(LIBS)
+	$(CC) -o $(MAGIC_ALL) magic_all.o $(LIBS) $(LDFLAGS)
+
+magic_all.o: tests/magic_all.c
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+
 headless_backend.o: tests/headless_backend.c
 	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
@@ -171,7 +179,7 @@ clean:
 	@rm -f $(OBJS)
 	@rm -f $(OBJS:.o=.d)
 	@rm -f $(LIBS)
-	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d $(RECALL_ALL) recall_all.o recall_all.d $(BOLTS_ALL) bolts_all.o bolts_all.d
+	@rm -f $(TARGET) $(HEADLESS) headless_backend.o headless_backend.d $(OBJDES_ALL) objdes_all.o objdes_all.d $(RECALL_ALL) recall_all.o recall_all.d $(BOLTS_ALL) bolts_all.o bolts_all.d $(MAGIC_ALL) magic_all.o magic_all.d
 	@rm -f lintout
 	@echo "Clean complete!"
 
