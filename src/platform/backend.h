@@ -87,13 +87,8 @@ typedef struct RenderBackend {
     bool (*init)(void);
     void (*shutdown)(void);
 
-    // Frame control
-    void (*begin_frame)(void);
-    void (*end_frame)(void);  // Present/flush the frame to screen
-
     // Screen management
     void (*clear)(void);
-    void (*get_size)(int *rows, int *cols);
     void (*erase_line)(int row, int col);  // Erase from col to end of line
     void (*clear_from)(int row);  // Clear from row to bottom of screen
     void (*refresh)(void);  // Force immediate screen update

@@ -41,10 +41,7 @@ static void set_terminal_mode(void)
 // Forward declarations
 static bool ncurses_init(void);
 static void ncurses_shutdown(void);
-static void ncurses_begin_frame(void);
-static void ncurses_end_frame(void);
 static void ncurses_clear(void);
-static void ncurses_get_size(int *rows, int *cols);
 static void ncurses_erase_line(int row, int col);
 static void ncurses_clear_from(int row);
 static void ncurses_refresh(void);
@@ -66,10 +63,7 @@ static RenderBackend ncurses_backend_instance = {
     .name = "ncurses",
     .init = ncurses_init,
     .shutdown = ncurses_shutdown,
-    .begin_frame = ncurses_begin_frame,
-    .end_frame = ncurses_end_frame,
     .clear = ncurses_clear,
-    .get_size = ncurses_get_size,
     .erase_line = ncurses_erase_line,
     .clear_from = ncurses_clear_from,
     .refresh = ncurses_refresh,
@@ -143,25 +137,9 @@ static void ncurses_shutdown(void) {
     tcsetattr(0, TCSANOW, &save_termios);
 }
 
-// Begin a new frame (currently a no-op for ncurses)
-static void ncurses_begin_frame(void) {
-    // Nothing to do for ncurses immediate mode
-}
-
-// End frame and present to screen
-static void ncurses_end_frame(void) {
-    refresh();
-}
-
 // Clear screen
 static void ncurses_clear(void) {
     clear();
-}
-
-// Get screen size
-static void ncurses_get_size(int *rows, int *cols) {
-    if (rows) *rows = LINES;
-    if (cols) *cols = COLS;
 }
 
 // Erase from specified position to end of line

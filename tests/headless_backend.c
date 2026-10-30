@@ -93,11 +93,6 @@ static void r_clear(void) {
     fill_blank(screen, 0);
 }
 
-static void r_get_size(int *rows, int *cols) {
-    *rows = ROWS;
-    *cols = COLS;
-}
-
 static void r_erase_line(int row, int col) {
     if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
         memset(&screen[row][col], ' ', (size_t)(COLS - col));
@@ -156,10 +151,7 @@ static RenderBackend render_backend = {
     .name = "headless",
     .init = r_init,
     .shutdown = r_nothing,
-    .begin_frame = r_nothing,
-    .end_frame = r_nothing,
     .clear = r_clear,
-    .get_size = r_get_size,
     .erase_line = r_erase_line,
     .clear_from = r_clear_from,
     .refresh = r_nothing,
