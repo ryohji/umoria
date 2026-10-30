@@ -343,7 +343,7 @@ bool inven_command(char command) {
                 msg_print("But you are wielding no weapons.");
             } else if (TR_CURSED & equipment_at(INVEN_WIELD)->flags) {
                 objdes(prt1, equipment_at(INVEN_WIELD), false);
-                (void)sprintf(prt2, "The %s you are wielding appears to be cursed.", prt1);
+                (void)snprintf(prt2, sizeof(prt2), "The %s you are wielding appears to be cursed.", prt1);
                 msg_print(prt2);
             } else {
                 took_turn = true;
@@ -607,7 +607,7 @@ bool inven_command(char command) {
                             if (item >= 0 && equipment_at(slot)->tval != TV_NOTHING) {
                                 if (TR_CURSED & equipment_at(slot)->flags) {
                                     objdes(prt1, equipment_at(slot), false);
-                                    (void)sprintf(prt2, "The %s you are ", prt1);
+                                    (void)snprintf(prt2, sizeof(prt2), "The %s you are ", prt1);
                                     if (slot == INVEN_HEAD) {
                                         (void)strcat(prt2, "wielding ");
                                     } else {
@@ -640,7 +640,7 @@ bool inven_command(char command) {
                             if (inventory_at(item)->number > 1) {
                                 objdes(prt1, inventory_at(item), true);
                                 prt1[strlen(prt1) - 1] = '?';
-                                (void)sprintf(prt2, "Drop all %s [y/n]", prt1);
+                                (void)snprintf(prt2, sizeof(prt2), "Drop all %s [y/n]", prt1);
                                 prt1[strlen(prt1) - 1] = '.';
                                 prt(prt2, 0, 0);
                                 query = inkey();

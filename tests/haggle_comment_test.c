@@ -59,14 +59,16 @@
  * 越しに読むようになり、#19C1 で実体もそこへ移った）。 */
 
 void move_cursor(int row, int col) { (void)row; (void)col; }
-void inven_command(char command) { (void)command; }
+bool inven_command(char command) { (void)command; return false; }
 int get_item(int *cn, const char *pmt, int i, int j, const char *m, const char *p) {
     (void)cn; (void)pmt; (void)i; (void)j; (void)m; (void)p;
     return 0;
 }
 int32_t item_value(inven_type *i_ptr) { (void)i_ptr; return 0; }
 int32_t sell_price(int n, int32_t *g, int32_t *v, inven_type *i_ptr) {
-    (void)n; (void)g; (void)v; (void)i_ptr;
+    (void)n; (void)i_ptr;
+    *g = 0;
+    *v = 0;
     return 0;
 }
 bool store_check_num(inven_type *i_ptr, int n) { (void)i_ptr; (void)n; return false; }

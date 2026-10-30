@@ -30,13 +30,13 @@
  *
  * テストは 1 プロセスで状態を共有するので、各件が最初に広さを置きなおす。
  */
-/* externs.h は要らない。窓口 3 本と、22/66/198 のための constant.h と、
+/* 窓口 3 本の dungeon_state.h と、22/66/198 のための constant.h と、
  * セーブの往復を写すための <stdint.h> だけ。 */
 #include <stdint.h>
 
 #include "config.h"
 #include "constant.h"
-
+#include "dungeon_state.h"
 
 #include "minunit.h"
 
