@@ -161,6 +161,11 @@ int randnor(int mean, int stand) {
     // tmp = (tmp - 400) * stand / 81;
     // return tmp + mean;
 
+    // No spread: randint(stand) below would take a remainder by 0.
+    if (stand <= 0) {
+        return mean;
+    }
+
     int tmp = randint(MAX_SHORT);
 
     // off scale, assign random value between 4 and 5 times SD
