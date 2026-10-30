@@ -18,9 +18,10 @@
  *   0x4 がスコアボードの重複。呼びだし側は単独のビット（prt_winner）と、
  *   語まるごとの真偽（「何か理由があるか」）の両方を見るので、窓口は語を
  *   そのまま渡す。3 ビットが互いに独立であることを固定する。
- *   なお 0x4 は本体では立たない（バグ候補 B18。save.c:914 の括弧のずれで
- *   `((!noscore) & 0x04)` が常に 0）。ここで固定するのは置き場のふるまいで、
- *   B18 は直さないので立てられること自体は変えない。
+ *   なお 0x4 は本体では立たない。もとは save.c の括弧のずれで
+ *   `((!noscore) & 0x04)` が常に 0 だった（バグ候補 B18。直した）が、いまも
+ *   重複を見る duplicate_character() がつねに false を返す。ここで固定するのは
+ *   置き場のふるまい。
  *
  *   max_score には「大きいほうを採る」判断が無い（#18-7-1 で足した 2 個）。
  *   得点は呼ばれるたびに計算しなおされるので下がりうる。下がらないように
@@ -156,7 +157,8 @@ TEST(entering_wizard_mode_disqualifies_the_score) {
     ASSERT_EQ_INT(0x2, score_disqualifications());
 }
 
-/* B18 のせいで本体ではこのビットが立たないが、置き場としては立てられる。 */
+/* 本体ではこのビットが立たない（duplicate_character() がつねに false）が、
+ * 置き場としては立てられる。 */
 TEST(being_a_duplicate_disqualifies_the_score) {
     set_score_disqualifications(0x4);
     ASSERT_EQ_INT(0x4, score_disqualifications());
