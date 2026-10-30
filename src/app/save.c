@@ -794,6 +794,12 @@ static uint32_t rd_options(uint8_t version_min, uint8_t patch_level) {
 // messages, and (from 5.1.3) the stores. False when the file is bad.
 static bool rd_character(uint8_t version_min, uint8_t patch_level, uint32_t *time_saved) {
     rd_player();
+    // A living character is of level 1 to MAX_PLAYER_LEVEL (a winner goes past
+    // it only when it retires, in a dead character's file); the experience
+    // for a new kind of item is divided by the level.
+    if (player_level() < 1 || player_level() > MAX_PLAYER_LEVEL) {
+        return false;
+    }
     uint16_t pack_count;
     rd_short(&pack_count);
     inventory_set_count((int16_t)pack_count);
