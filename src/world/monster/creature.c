@@ -509,6 +509,147 @@ enum monster_spell {
     MS_BREATHE_FIRE = 24,
 };
 
+// What a spell a monster casts at the player does.
+static void cast_monster_spell(int monptr, monster_type *m_ptr, const creature_type *r_ptr, const char *cdesc, char *ddesc, int thrown_spell) {
+    int y, x;
+
+    switch (thrown_spell) {
+    case MS_TELEPORT_SHORT: // Teleport Short
+        teleport_away(monptr, 5);
+        break;
+    case MS_TELEPORT_LONG: // Teleport Long
+        teleport_away(monptr, MAX_SIGHT);
+        break;
+    case MS_TELEPORT_TO: // Teleport To
+        teleport_to((int)m_ptr->fy, (int)m_ptr->fx);
+        break;
+    case MS_LIGHT_WOUND: // Light Wound
+        if (player_saves()) {
+            msg_print("You resist the effects of the spell.");
+        } else {
+            take_hit(damroll(3, 8), ddesc);
+        }
+        break;
+    case MS_SERIOUS_WOUND: // Serious Wound
+        if (player_saves()) {
+            msg_print("You resist the effects of the spell.");
+        } else {
+            take_hit(damroll(8, 8), ddesc);
+        }
+        break;
+    case MS_HOLD_PERSON: // Hold Person
+        if (player_never_paralyzed()) {
+            msg_print("You are unaffected.");
+        } else if (player_saves()) {
+            msg_print("You resist the effects of the spell.");
+        } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
+            player_timed_add(PLAYER_TIMED_PARALYSIS, 2);
+        } else {
+            player_timed_set(PLAYER_TIMED_PARALYSIS, randint(5) + 4);
+        }
+        break;
+    case MS_CAUSE_BLINDNESS: // Cause Blindness
+        if (player_saves()) {
+            msg_print("You resist the effects of the spell.");
+        } else if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
+            player_timed_add(PLAYER_TIMED_BLINDNESS, 6);
+        } else {
+            player_timed_add(PLAYER_TIMED_BLINDNESS, 12 + randint(3));
+        }
+        break;
+    case MS_CAUSE_CONFUSION: // Cause Confuse
+        if (player_saves()) {
+            msg_print("You resist the effects of the spell.");
+        } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
+            player_timed_add(PLAYER_TIMED_CONFUSION, 2);
+        } else {
+            player_timed_set(PLAYER_TIMED_CONFUSION, randint(5) + 3);
+        }
+        break;
+    case MS_CAUSE_FEAR: // Cause Fear
+        if (player_saves()) {
+            msg_print("You resist the effects of the spell.");
+        } else if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
+            player_timed_add(PLAYER_TIMED_FEAR, 2);
+        } else {
+            player_timed_set(PLAYER_TIMED_FEAR, randint(5) + 3);
+        }
+        break;
+    case MS_SUMMON_MONSTER: // Summon Monster
+        msg_print(CONCAT(cdesc, " magically summons a monster!"));
+        y = player_row();
+        x = player_col();
+
+        // in case compact_monster() is called,it needs monptr
+        monster_turn_begin(monptr);
+        (void)summon_monster(&y, &x, false);
+        monster_turn_end();
+        update_mon((int)square_at(y, x)->cptr);
+        break;
+    case MS_SUMMON_UNDEAD: // Summon Undead
+        msg_print(CONCAT(cdesc, " magically summons an undead!"));
+        y = player_row();
+        x = player_col();
+
+        // in case compact_monster() is called,it needs monptr
+        monster_turn_begin(monptr);
+        (void)summon_undead(&y, &x);
+        monster_turn_end();
+        update_mon((int)square_at(y, x)->cptr);
+        break;
+    case MS_SLOW_PERSON: // Slow Person
+        if (player_never_paralyzed()) {
+            msg_print("You are unaffected.");
+        } else if (player_saves()) {
+            msg_print("You resist the effects of the spell.");
+        } else if (player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
+            player_timed_add(PLAYER_TIMED_SLOWNESS, 2);
+        } else {
+            player_timed_set(PLAYER_TIMED_SLOWNESS, randint(5) + 3);
+        }
+        break;
+    case MS_DRAIN_MANA: // Drain Mana
+        if (player_mana() > 0) {
+            disturb(1, 0);
+            msg_print(CONCAT(cdesc, " draws psychic energy from you!"));
+            if (m_ptr->ml) {
+                msg_print(CONCAT(cdesc, " appears healthier."));
+            }
+
+            int r1 = (randint((int)r_ptr->level) >> 1) + 1;
+
+            // The monster is fed by what it actually got, which is less
+            // than it drew for when the store runs dry.
+            int drained = player_spend_mana(r1);
+            prt_cmana();
+            m_ptr->hp += 6 * drained;
+        }
+        break;
+    case MS_BREATHE_LIGHTNING: // Breath Light
+        msg_print(CONCAT(cdesc, " breathes lightning."));
+        breath(GF_LIGHTNING, player_row(), player_col(), (m_ptr->hp / 4), ddesc, monptr);
+        break;
+    case MS_BREATHE_GAS: // Breath Gas
+        msg_print(CONCAT(cdesc, " breathes gas."));
+        breath(GF_POISON_GAS, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
+        break;
+    case MS_BREATHE_ACID: // Breath Acid
+        msg_print(CONCAT(cdesc, " breathes acid."));
+        breath(GF_ACID, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
+        break;
+    case MS_BREATHE_FROST: // Breath Frost
+        msg_print(CONCAT(cdesc, " breathes frost."));
+        breath(GF_FROST, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
+        break;
+    case MS_BREATHE_FIRE: // Breath Fire
+        msg_print(CONCAT(cdesc, " breathes fire."));
+        breath(GF_FIRE, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
+        break;
+    default:
+        msg_print(CONCAT(cdesc, " cast unknown spell."));
+    }
+}
+
 // Creatures can cast spells too.  (Dragon Breath) -RAK-
 //   cast_spell = true if creature changes position
 //   took_turn  = true if creature casts a spell
@@ -572,144 +713,8 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             msg_print(CONCAT(cdesc, " casts a spell."));
         }
 
-        int y, x;
-
         // Cast the spell.
-        switch (thrown_spell) {
-        case MS_TELEPORT_SHORT: // Teleport Short
-            teleport_away(monptr, 5);
-            break;
-        case MS_TELEPORT_LONG: // Teleport Long
-            teleport_away(monptr, MAX_SIGHT);
-            break;
-        case MS_TELEPORT_TO: // Teleport To
-            teleport_to((int)m_ptr->fy, (int)m_ptr->fx);
-            break;
-        case MS_LIGHT_WOUND: // Light Wound
-            if (player_saves()) {
-                msg_print("You resist the effects of the spell.");
-            } else {
-                take_hit(damroll(3, 8), ddesc);
-            }
-            break;
-        case MS_SERIOUS_WOUND: // Serious Wound
-            if (player_saves()) {
-                msg_print("You resist the effects of the spell.");
-            } else {
-                take_hit(damroll(8, 8), ddesc);
-            }
-            break;
-        case MS_HOLD_PERSON: // Hold Person
-            if (player_never_paralyzed()) {
-                msg_print("You are unaffected.");
-            } else if (player_saves()) {
-                msg_print("You resist the effects of the spell.");
-            } else if (player_timed_in_force(PLAYER_TIMED_PARALYSIS)) {
-                player_timed_add(PLAYER_TIMED_PARALYSIS, 2);
-            } else {
-                player_timed_set(PLAYER_TIMED_PARALYSIS, randint(5) + 4);
-            }
-            break;
-        case MS_CAUSE_BLINDNESS: // Cause Blindness
-            if (player_saves()) {
-                msg_print("You resist the effects of the spell.");
-            } else if (player_timed_in_force(PLAYER_TIMED_BLINDNESS)) {
-                player_timed_add(PLAYER_TIMED_BLINDNESS, 6);
-            } else {
-                player_timed_add(PLAYER_TIMED_BLINDNESS, 12 + randint(3));
-            }
-            break;
-        case MS_CAUSE_CONFUSION: // Cause Confuse
-            if (player_saves()) {
-                msg_print("You resist the effects of the spell.");
-            } else if (player_timed_in_force(PLAYER_TIMED_CONFUSION)) {
-                player_timed_add(PLAYER_TIMED_CONFUSION, 2);
-            } else {
-                player_timed_set(PLAYER_TIMED_CONFUSION, randint(5) + 3);
-            }
-            break;
-        case MS_CAUSE_FEAR: // Cause Fear
-            if (player_saves()) {
-                msg_print("You resist the effects of the spell.");
-            } else if (player_timed_in_force(PLAYER_TIMED_FEAR)) {
-                player_timed_add(PLAYER_TIMED_FEAR, 2);
-            } else {
-                player_timed_set(PLAYER_TIMED_FEAR, randint(5) + 3);
-            }
-            break;
-        case MS_SUMMON_MONSTER: // Summon Monster
-            msg_print(CONCAT(cdesc, " magically summons a monster!"));
-            y = player_row();
-            x = player_col();
-
-            // in case compact_monster() is called,it needs monptr
-            monster_turn_begin(monptr);
-            (void)summon_monster(&y, &x, false);
-            monster_turn_end();
-            update_mon((int)square_at(y, x)->cptr);
-            break;
-        case MS_SUMMON_UNDEAD: // Summon Undead
-            msg_print(CONCAT(cdesc, " magically summons an undead!"));
-            y = player_row();
-            x = player_col();
-
-            // in case compact_monster() is called,it needs monptr
-            monster_turn_begin(monptr);
-            (void)summon_undead(&y, &x);
-            monster_turn_end();
-            update_mon((int)square_at(y, x)->cptr);
-            break;
-        case MS_SLOW_PERSON: // Slow Person
-            if (player_never_paralyzed()) {
-                msg_print("You are unaffected.");
-            } else if (player_saves()) {
-                msg_print("You resist the effects of the spell.");
-            } else if (player_timed_in_force(PLAYER_TIMED_SLOWNESS)) {
-                player_timed_add(PLAYER_TIMED_SLOWNESS, 2);
-            } else {
-                player_timed_set(PLAYER_TIMED_SLOWNESS, randint(5) + 3);
-            }
-            break;
-        case MS_DRAIN_MANA: // Drain Mana
-            if (player_mana() > 0) {
-                disturb(1, 0);
-                msg_print(CONCAT(cdesc, " draws psychic energy from you!"));
-                if (m_ptr->ml) {
-                    msg_print(CONCAT(cdesc, " appears healthier."));
-                }
-
-                int r1 = (randint((int)r_ptr->level) >> 1) + 1;
-
-                // The monster is fed by what it actually got, which is less
-                // than it drew for when the store runs dry.
-                int drained = player_spend_mana(r1);
-                prt_cmana();
-                m_ptr->hp += 6 * drained;
-            }
-            break;
-        case MS_BREATHE_LIGHTNING: // Breath Light
-            msg_print(CONCAT(cdesc, " breathes lightning."));
-            breath(GF_LIGHTNING, player_row(), player_col(), (m_ptr->hp / 4), ddesc, monptr);
-            break;
-        case MS_BREATHE_GAS: // Breath Gas
-            msg_print(CONCAT(cdesc, " breathes gas."));
-            breath(GF_POISON_GAS, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
-            break;
-        case MS_BREATHE_ACID: // Breath Acid
-            msg_print(CONCAT(cdesc, " breathes acid."));
-            breath(GF_ACID, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
-            break;
-        case MS_BREATHE_FROST: // Breath Frost
-            msg_print(CONCAT(cdesc, " breathes frost."));
-            breath(GF_FROST, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
-            break;
-        case MS_BREATHE_FIRE: // Breath Fire
-            msg_print(CONCAT(cdesc, " breathes fire."));
-            breath(GF_FIRE, player_row(), player_col(), (m_ptr->hp / 3), ddesc, monptr);
-            break;
-        default:
-            msg_print(CONCAT(cdesc, " cast unknown spell."));
-        }
+        cast_monster_spell(monptr, m_ptr, r_ptr, cdesc, ddesc, thrown_spell);
         // End of spells
 
         if (m_ptr->ml) {
