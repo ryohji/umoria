@@ -61,52 +61,56 @@
 #define HELP_SCR 4
 #define WRONG_SCR 5
 
-// Keep track of the state of the inventory screen.
-static int scr_state, scr_left, scr_base;
-static int wear_low, wear_high;
+// Keep track of the state of the inventory screen, between the calls of
+// inven_command() as well: it is suspended after a turn and taken up again.
+static struct {
+    int state;               // which of the screens above is shown
+    int left, bottom;        // the left column and the bottom line of what is drawn
+    int wear_low, wear_high; // the items in the pack that can be worn
+} screen;
 
 // Draw the inventory screen.
 static void inven_screen(int new_scr) {
     int line = 0;
 
-    if (new_scr != scr_state) {
-        scr_state = new_scr;
+    if (new_scr != screen.state) {
+        screen.state = new_scr;
         switch (new_scr) {
         case BLANK_SCR:
             line = 0;
             break;
         case HELP_SCR:
-            if (scr_left > 52) {
-                scr_left = 52;
+            if (screen.left > 52) {
+                screen.left = 52;
             }
-            prt("  ESC: exit", 1, scr_left);
-            prt("  w  : wear or wield object", 2, scr_left);
-            prt("  t  : take off item", 3, scr_left);
-            prt("  d  : drop object", 4, scr_left);
-            prt("  x  : exchange weapons", 5, scr_left);
-            prt("  i  : inventory of pack", 6, scr_left);
-            prt("  e  : list used equipment", 7, scr_left);
+            prt("  ESC: exit", 1, screen.left);
+            prt("  w  : wear or wield object", 2, screen.left);
+            prt("  t  : take off item", 3, screen.left);
+            prt("  d  : drop object", 4, screen.left);
+            prt("  x  : exchange weapons", 5, screen.left);
+            prt("  i  : inventory of pack", 6, screen.left);
+            prt("  e  : list used equipment", 7, screen.left);
             line = 7;
             break;
         case INVEN_SCR:
-            scr_left = show_inven(0, inventory_count() - 1, show_weight_flag, scr_left, CNIL);
+            screen.left = show_inven(0, inventory_count() - 1, show_weight_flag, screen.left, CNIL);
             line = inventory_count();
             break;
         case WEAR_SCR:
-            scr_left = show_inven(wear_low, wear_high, show_weight_flag, scr_left, CNIL);
-            line = wear_high - wear_low + 1;
+            screen.left = show_inven(screen.wear_low, screen.wear_high, show_weight_flag, screen.left, CNIL);
+            line = screen.wear_high - screen.wear_low + 1;
             break;
         case EQUIP_SCR:
-            scr_left = show_equip(show_weight_flag, scr_left);
+            screen.left = show_equip(show_weight_flag, screen.left);
             line = equipment_count();
             break;
         }
-        if (line >= scr_base) {
-            scr_base = line + 1;
-            erase_line(scr_base, scr_left);
+        if (line >= screen.bottom) {
+            screen.bottom = line + 1;
+            erase_line(screen.bottom, screen.left);
         } else {
-            while (++line <= scr_base) {
-                erase_line(line, scr_left);
+            while (++line <= screen.bottom) {
+                erase_line(line, screen.left);
             }
         }
     }
@@ -123,13 +127,13 @@ static void wear_item(int item, int slot) {
     tmp_obj = *inventory_at(item);
     inven_type *i_ptr = &tmp_obj;
 
-    wear_high--;
+    screen.wear_high--;
 
     // Fix for torches
     if (i_ptr->number > 1 &&
         i_ptr->subval <= ITEM_SINGLE_STACK_MAX) {
         i_ptr->number = 1;
-        wear_high++;
+        screen.wear_high++;
     }
     inventory_set_weight(inventory_weight() + i_ptr->weight * i_ptr->number);
 
@@ -143,9 +147,9 @@ static void wear_item(int item, int slot) {
         int tmp2 = inventory_count();
         tmp = inven_carry(i_ptr);
         // If item removed did not stack with anything
-        // in inventory, then increment wear_high.
+        // in inventory, then increment screen.wear_high.
         if (inventory_count() != tmp2) {
-            wear_high++;
+            screen.wear_high++;
         }
         takeoff(slot, tmp);
     }
@@ -192,7 +196,7 @@ static void wear_item(int item, int slot) {
 static void prt_inven_header(void) {
     msgtype prt1;
 
-    if (scr_state == INVEN_SCR) {
+    if (screen.state == INVEN_SCR) {
         if (!show_weight_flag || inventory_count() == 0) {
             (void)sprintf(prt1, "You are carrying %d.%d pounds. In your pack there is %s",
                           inventory_weight() / 10, inventory_weight() % 10,
@@ -204,13 +208,13 @@ static void prt_inven_header(void) {
                           "In your pack is -");
         }
         prt(prt1, 0, 0);
-    } else if (scr_state == WEAR_SCR) {
-        if (wear_high < wear_low) {
+    } else if (screen.state == WEAR_SCR) {
+        if (screen.wear_high < screen.wear_low) {
             prt("You have nothing you could wield.", 0, 0);
         } else {
             prt("You could wield -", 0, 0);
         }
-    } else if (scr_state == EQUIP_SCR) {
+    } else if (screen.state == EQUIP_SCR) {
         if (equipment_count() == 0) {
             prt("You are not using anything.", 0, 0);
         } else {
@@ -245,18 +249,18 @@ bool inven_command(char command) {
                 finish_inven_command();
                 return false;
             }
-            scr_left = 50;
-            scr_base = 0;
+            screen.left = 50;
+            screen.bottom = 0;
         }
-        tmp = scr_state;
-        scr_state = WRONG_SCR;
+        tmp = screen.state;
+        screen.state = WRONG_SCR;
         inven_screen(tmp);
     } else {
-        scr_left = 50;
-        scr_base = 0;
+        screen.left = 50;
+        screen.bottom = 0;
 
         // this forces exit of inven_command() if selecting is not set true
-        scr_state = BLANK_SCR;
+        screen.state = BLANK_SCR;
     }
 
     bool selecting;
@@ -292,7 +296,7 @@ bool inven_command(char command) {
                        !pending_inven_command()) {
                 msg_print("You will have to drop something first.");
             } else {
-                if (scr_state != BLANK_SCR) {
+                if (screen.state != BLANK_SCR) {
                     inven_screen(EQUIP_SCR);
                 }
                 selecting = true;
@@ -305,33 +309,33 @@ bool inven_command(char command) {
                 msg_print("There's no room to drop anything here.");
             } else {
                 selecting = true;
-                if ((scr_state == EQUIP_SCR && equipment_count() > 0) ||
+                if ((screen.state == EQUIP_SCR && equipment_count() > 0) ||
                     inventory_count() == 0) {
-                    if (scr_state != BLANK_SCR) {
+                    if (screen.state != BLANK_SCR) {
                         inven_screen(EQUIP_SCR);
                     }
                     command = 'r'; // Remove - or take off and drop.
-                } else if (scr_state != BLANK_SCR) {
+                } else if (screen.state != BLANK_SCR) {
                     inven_screen(INVEN_SCR);
                 }
             }
             break;
         case 'w': // Wear/wield
-            for (wear_low = 0;
-                 wear_low < inventory_count() && inventory_at(wear_low)->tval > TV_MAX_WEAR;
-                 wear_low++) {
+            for (screen.wear_low = 0;
+                 screen.wear_low < inventory_count() && inventory_at(screen.wear_low)->tval > TV_MAX_WEAR;
+                 screen.wear_low++) {
                 ;
             }
-            for (wear_high = wear_low; wear_high < inventory_count() &&
-                                       inventory_at(wear_high)->tval >= TV_MIN_WEAR;
-                 wear_high++) {
+            for (screen.wear_high = screen.wear_low; screen.wear_high < inventory_count() &&
+                                       inventory_at(screen.wear_high)->tval >= TV_MIN_WEAR;
+                 screen.wear_high++) {
                 ;
             }
-            wear_high--;
-            if (wear_low > wear_high) {
+            screen.wear_high--;
+            if (screen.wear_low > screen.wear_high) {
                 msg_print("You have nothing to wear or wield.");
             } else {
-                if (scr_state != BLANK_SCR && scr_state != INVEN_SCR) {
+                if (screen.state != BLANK_SCR && screen.state != INVEN_SCR) {
                     inven_screen(WEAR_SCR);
                 }
                 selecting = true;
@@ -350,8 +354,8 @@ bool inven_command(char command) {
                 tmp_obj = *equipment_at(INVEN_AUX);
                 *equipment_at(INVEN_AUX) = *equipment_at(INVEN_WIELD);
                 *equipment_at(INVEN_WIELD) = tmp_obj;
-                if (scr_state == EQUIP_SCR) {
-                    scr_left = show_equip(show_weight_flag, scr_left);
+                if (screen.state == EQUIP_SCR) {
+                    screen.left = show_equip(show_weight_flag, screen.left);
                 }
 
                 py_bonuses(equipment_at(INVEN_AUX), -1);  // Subtract bonuses
@@ -393,8 +397,8 @@ bool inven_command(char command) {
             const char *swap = "";
 
             if (command == 'w') {
-                from = wear_low;
-                to = wear_high;
+                from = screen.wear_low;
+                to = screen.wear_high;
                 prompt = "Wear/Wield";
             } else {
                 from = 0;
@@ -420,7 +424,7 @@ bool inven_command(char command) {
                 selecting = false;
             } else {
                 const char *disp;
-                if (scr_state == BLANK_SCR) {
+                if (screen.state == BLANK_SCR) {
                     disp = ", * to list";
                 } else {
                     disp = "";
@@ -441,7 +445,7 @@ bool inven_command(char command) {
 
                     if (command == 't' || command == 'r') {
                         inven_screen(EQUIP_SCR);
-                    } else if (command == 'w' && scr_state != INVEN_SCR) {
+                    } else if (command == 'w' && screen.state != INVEN_SCR) {
                         inven_screen(WEAR_SCR);
                     } else {
                         inven_screen(INVEN_SCR);
@@ -457,9 +461,9 @@ bool inven_command(char command) {
                     } else {
                         command = 'd';
                     }
-                    if (scr_state == EQUIP_SCR) {
+                    if (screen.state == EQUIP_SCR) {
                         inven_screen(INVEN_SCR);
-                    } else if (scr_state == INVEN_SCR) {
+                    } else if (screen.state == INVEN_SCR) {
                         inven_screen(EQUIP_SCR);
                     }
                 } else {
@@ -671,14 +675,14 @@ bool inven_command(char command) {
                                 inventory_set_weight(0);
                             }
                         }
-                        if (took_turn && scr_state == BLANK_SCR) {
+                        if (took_turn && screen.state == BLANK_SCR) {
                             selecting = false;
                         }
                     }
                 }
             }
         }
-        if (which == ESCAPE || scr_state == BLANK_SCR) {
+        if (which == ESCAPE || screen.state == BLANK_SCR) {
             command = ESCAPE;
         } else if (took_turn) {
             // Save state for recovery if they want to call us again next turn.
@@ -694,14 +698,14 @@ bool inven_command(char command) {
         } else {
             prt_inven_header();
 
-            erase_line(scr_base, scr_left);
-            put_buffer("e/i/t/w/x/d/?/ESC:", scr_base, 60);
+            erase_line(screen.bottom, screen.left);
+            put_buffer("e/i/t/w/x/d/?/ESC:", screen.bottom, 60);
             command = inkey();
-            erase_line(scr_base, scr_left);
+            erase_line(screen.bottom, screen.left);
         }
     } while (command != ESCAPE);
 
-    if (scr_state != BLANK_SCR) {
+    if (screen.state != BLANK_SCR) {
         restore_screen();
     }
 
