@@ -32,9 +32,6 @@ bool find_ignore_doors;
 bool sound_beep_flag;
 bool display_counts;
 
-// Used for closing.
-int closing_flag = 0;
-
 // --- From options.c: the table and accessors ---
 
 // The prompts are the ones the options screen has always shown, the bits are

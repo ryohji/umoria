@@ -29,7 +29,7 @@ SRCS = app/main.c command/files.c ui/io.c \
 	command/eat.c command/help.c command/magic.c command/potions.c command/prayer.c app/save.c command/staffs.c world/item/device_use.c command/wands.c model/item/device.c \
 	world/item/item_learn.c model/item/item_knowledge.c model/game/game_settings.c ui/messages.c \
 	command/scrolls.c world/item/spells.c command/wizard.c platform/signals.c platform/signal_flags.c app/signal_handling.c \
-	ui/render.c platform/render_ncurses.c app/game_state.c \
+	ui/render.c platform/render_ncurses.c app/seeds.c \
 	ui/input.c platform/input_ncurses.c app/platform_init.c ui/panel.c world/view/map_view.c model/store/stores.c world/store/store_price.c world/store/store_stock.c command/store_ui.c world/store/store_haggle.c model/player/player_stats.c core/str_insert.c core/bits.c core/dice.c core/distance.c \
 	model/item/inventory.c model/item/armor_selection.c model/game/game_status.c model/player/player_condition.c \
 	model/player/player_spells.c model/item/item_kinds.c world/item/inscription.c world/item/item_enchant.c \

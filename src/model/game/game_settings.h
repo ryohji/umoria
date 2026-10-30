@@ -63,6 +63,4 @@ extern bool display_counts;    // Display rest/repeat counts
 
 extern FILE *highscore_fp;          // High score file pointer (init_scorefile only)
 
-extern int closing_flag; // Used for closing
-
 #endif // GAME_SETTINGS_H
