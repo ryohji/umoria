@@ -8,10 +8,13 @@ make clean >/dev/null
 w=$(make -j8 2>&1 | grep -cE 'warning:|error:')
 echo "1. warnings: $w"; [ "$w" -eq 0 ] || bad=1
 rm -rf tests/build
-t=$(make -j8 -f makefile.test 2>&1 | grep -E "^[0-9]+ tests|RESULT|Segmentation" \
+tlog=$(make -j8 -f makefile.test 2>&1)
+t=$(printf '%s\n' "$tlog" | grep -E "^[0-9]+ tests|RESULT|Segmentation" \
     | awk '/ tests,/{s+=$1; f+=$5; n++} /RESULT/{r=$2} /Segm/{g++} END {print s" tests, "n" executables, failed="f", "r", segfaults="g+0}')
 echo "2. tests: $t"
 case "$t" in *"failed=0, GREEN, segfaults=0"*) ;; *) bad=1 ;; esac
+tw=$(printf '%s\n' "$tlog" | grep -cE 'warning:|error:')
+echo "2. test build warnings: $tw"; [ "$tw" -eq 0 ] || bad=1
 g=$(python3 scripts/globals.py --check | tail -1); echo "3. globals: $g"; case "$g" in OK*) ;; *) bad=1 ;; esac
 l=$(python3 scripts/layer_deps.py --check | tail -1); echo "3. layers: $l"; case "$l" in OK*) ;; *) bad=1 ;; esac
 h=$(make -f makefile.test headers 2>&1 | tail -2 | tr '\n' ' '); echo "3. headers: $h"; case "$h" in *"core: compiles"*) ;; *) bad=1 ;; esac
