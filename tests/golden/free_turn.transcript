@@ -876,13 +876,13 @@ key 292 0x32 5914c7ee turn 16
 key 293 0x69 effbd2be turn 17
 key 294 0x1b 57e09efd turn 17
 key 295 0x0d effbd2be turn 17
-key 296 0x73 027d489d turn 17
-key 297 0x10 027d489d turn 18
-key 298 0x10 cdd21fec turn 18
+key 296 0x73 effbd2be turn 17
+key 297 0x10 effbd2be turn 18
+key 298 0x10 47f9ffe3 turn 18
 key 299 0x20 637fc73e turn 18
-key 300 0x0c 027d489d turn 18
-key 301 0x3a 2d0f80c0 turn 18
-key 302 0x73 2d0f80c0 turn 18
+key 300 0x0c effbd2be turn 18
+key 301 0x3a dc6ef3bb turn 18
+key 302 0x73 dc6ef3bb turn 18
 end of script after 302 of 302 keys
 screen (cursor 11,33, bells 1):
 |
@@ -899,7 +899,7 @@ screen (cursor 11,33, bells 1):
 |CHR :     14                    #@#
 |                       ##########.###
 |LEV :      1           #>...........#
-|EXP :      1           #...|........#
+|EXP :      0           #...|........#
 |MANA:      0           #............#
 |MHP :     19           #............#
 |CHP :     19           #............###########

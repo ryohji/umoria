@@ -201,8 +201,8 @@ L6\e
 \x17
 \x17
 # - and a direction steps onto an object without picking it up (a wizard
-# flask left behind in this corridor). Enter is + in the original keys (the
-# wizard's experience; no turn)
+# flask left behind in this corridor). Enter does nothing in the original keys
+# (no turn)
 @ 77\r!\r64\r10\r1\r2\r6\r0\r0\r0\r0\r7500\r40000\r3\r1\ry
 8
 -2

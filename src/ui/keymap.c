@@ -19,8 +19,8 @@ static const struct {
 } original_keys[] = {
     // keys that mean another rogue-like key
     {CTRL_KEY('K'), 'Q'}, // ^K = exit
-    {CTRL_KEY('J'), '+'},
-    {CTRL_KEY('M'), '+'},
+    {CTRL_KEY('J'), ' '}, // Enter does nothing
+    {CTRL_KEY('M'), ' '},
     {'1', 'b'},
     {'2', 'j'},
     {'3', 'n'},
