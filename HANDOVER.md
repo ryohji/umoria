@@ -15,19 +15,20 @@
 
 2026-10-30、`develop` の上（push はユーザーが行う）。
 
-- 本体とテストの組みたての警告 0（clean から）。テスト **1850 件・89 本**、failed=0、`RESULT: GREEN`。
+- 本体とテストの組みたての警告 0（clean から）。テスト **1865 件・91 本**、failed=0、`RESULT: GREEN`。
   **golden の台本 11 本 GREEN**（端末なしで本体を通す。本体の行の 51.5% を通る）と、
   総当たりのハッシュ `objdes_all`（#22）・`recall_all`（#72）・`bolts_all`（#19）・`magic_all`（#26）・
   `melee_all`（#25）・`turns_all`（#21）。テストは本体と同じ `-O2` で組む（#97）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
-  ユーザーの判断）。`scripts/layer_deps.py --check` は 907 本・111 単位で違反 0、例外の一覧
+  ユーザーの判断）。`scripts/layer_deps.py --check` は 918 本・112 単位で違反 0、例外の一覧
   （`scripts/layer_exceptions.txt`）は空。world/ の中は `WORLD_TIERS` の 4 段で守る（#92）。
-- `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 39 個**
-  （#86 で数えかたを変えて 38 → 45、#89 で 5 個を static にして 40、#74 で `free_turn_flag` を消して 39）。
-  `scripts/globals.py --check` は 39 個すべて分類。参照の数は数えなおしていない。
-- `.c` 111・`.h` 57（モジュール化の前は 148・88）。`constant.h` の定数は 440 → 262 個（#91・#93）。
+- `externs.h` は無い（#86）。global は**ヘッダの extern 宣言を数えて 36 個**
+  （#86 で数えかたを変えて 38 → 45、#89 で 5 個を static にして 40、#74 で `free_turn_flag` を消して 39、
+  #35 で `g_game_state`・`closing_flag`、B19 で `highscore_fp` を消して 36）。
+  `scripts/globals.py --check` は 36 個すべて分類。参照の数は数えなおしていない。
+- `.c` 112・`.h` 57（モジュール化の前は 148・88）。`constant.h` の定数は 440 → 262 個（#91・#93）。
 - 済んだ列：
   - #18（データの散在）。残る global の見立ては `docs/refactoring/globals_inventory.md`
     の「区分ごとの見立て」。
@@ -50,8 +51,11 @@
     `worklog.md` と所見 78〜80。
   - **#27 の一部、#26、#25、#21、#97、#50 の数えなおし、#98 の調べ**（2026-10-30）。経過は
     `worklog.md` と所見 81。
+  - **バグ候補の直し（24 個を直し 8 個を閉じた）、#27、#34〜#36、#72 の get_char、#98 の 8 単位の
+    ループ、#28 の効果の切りだし**（2026-10-31、ユーザーの判断）。経過は `worklog.md` と所見 82・83、
+    判断と材料は `docs/refactoring/decisions-2026-10-30.md`。
 - 台帳は 2026-10-30 に組みなおした（P1〜P3 と棚上げの区分をやめ、主題ごとの計画に）。`bugs.md` は
-  B1〜B35（B28 は誤りだった）。開いている列は無い。**次の候補は台帳の「計画」**（第 6 節）。判断待ちの項目の材料は
+  B1〜B36。開いているのは B34（判断待ち）と B36（B28 は誤りだった）。開いている列は無い。**次の候補は台帳の「計画」**（第 6 節）。判断待ちの項目の材料は
   `docs/refactoring/decisions-2026-10-30.md`。
 
 ## 1. 資料の役割分担
