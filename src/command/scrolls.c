@@ -289,14 +289,14 @@ bool read_scroll(void) {
     } else if (get_item(&item_val, "Read which scroll?", j, k, CNIL, CNIL)) {
         took_turn = true;
 
-        inven_type *i_ptr = inventory_at(item_val);
-        uint32_t i = i_ptr->flags;
+        const inven_type *scroll = inventory_at(item_val);
+        uint32_t i = scroll->flags;
 
         // What the scroll is, for finding it again after an identify has
-        // moved it; the cases below point i_ptr at other items.
-        const uint8_t scroll_tval = i_ptr->tval;
-        const uint8_t scroll_subval = i_ptr->subval;
-        const uint32_t scroll_flags = i_ptr->flags;
+        // moved it.
+        const uint8_t scroll_tval = scroll->tval;
+        const uint8_t scroll_subval = scroll->subval;
+        const uint32_t scroll_flags = scroll->flags;
 
         bool used_up = true;
         bool ident = false;
@@ -311,12 +311,10 @@ bool read_scroll(void) {
             // Scrolls.
             switch (j) {
             case 1:
-                i_ptr = equipment_at(INVEN_WIELD);
-                ident = enchant_weapon_to_hit(i_ptr, ident);
+                ident = enchant_weapon_to_hit(equipment_at(INVEN_WIELD), ident);
                 break;
             case 2:
-                i_ptr = equipment_at(INVEN_WIELD);
-                ident = enchant_weapon_to_dam(i_ptr, ident);
+                ident = enchant_weapon_to_dam(equipment_at(INVEN_WIELD), ident);
                 break;
             case 3:
                 ident = enchant_armour(ident);
@@ -457,12 +455,10 @@ bool read_scroll(void) {
                 ident = dispel_creature(CD_UNDEAD, 60);
                 break;
             case 33:
-                i_ptr = equipment_at(INVEN_WIELD);
-                ident = enchant_weapon_greatly(i_ptr, ident);
+                ident = enchant_weapon_greatly(equipment_at(INVEN_WIELD), ident);
                 break;
             case 34:
-                i_ptr = equipment_at(INVEN_WIELD);
-                ident = curse_weapon(i_ptr, ident);
+                ident = curse_weapon(equipment_at(INVEN_WIELD), ident);
                 break;
             case 35:
                 ident = enchant_armour_greatly(ident);
