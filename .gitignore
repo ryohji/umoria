@@ -5,6 +5,8 @@ objdes_all
 recall_all
 bolts_all
 magic_all
+melee_all
+turns_all
 moria
 src/moria
 src/umoria
