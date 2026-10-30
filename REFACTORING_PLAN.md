@@ -35,7 +35,8 @@
 ## 計画
 
 並びは勧める順。どれも着手の前にユーザーと決める（HANDOVER 第 3 節）。大きさと被覆は
-2026-10-30 に測った。
+2026-10-30 に測った。判断待ちの項目を決めるのに要る事実と選べる道は
+[decisions-2026-10-30.md](docs/refactoring/decisions-2026-10-30.md)。
 
 ### A. 長い関数と switch（いまの守りの手で動かせる）
 
@@ -187,4 +188,5 @@ B31（店の 1 歩）・B32（^J と ^M の回数）・B33（Enter が +）・B3
 - 所見（わかったこと）→ [docs/refactoring/findings.md](docs/refactoring/findings.md)
 - #18 の棚おろしと区分ごとの見立て → [docs/refactoring/globals_inventory.md](docs/refactoring/globals_inventory.md)
 - 作業ログ → [docs/refactoring/worklog.md](docs/refactoring/worklog.md)
+- 判断待ちの項目の材料 → [docs/refactoring/decisions-2026-10-30.md](docs/refactoring/decisions-2026-10-30.md)
 - 済んだ列の経過（整理の前の台帳を含む）→ [docs/refactoring/done/](docs/refactoring/done/)
