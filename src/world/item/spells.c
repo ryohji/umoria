@@ -1587,13 +1587,11 @@ bool enchant(int16_t *plusses, int16_t limit) {
 }
 
 // Removes curses from equipment -RAK-
-// Only the slots up to INVEN_OUTER, so the light source and the second weapon
-// keep their curse. Note the other two spells with this effect walk different
-// ranges: magic.c reaches every equipment slot, prayer.c every slot at all.
+// Every equipment slot; the scroll, the spell and the prayer all come here.
 int remove_curse(void) {
     bool result = false;
 
-    for (int i = equipment_first_slot(); i <= INVEN_OUTER; i++) {
+    for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
         inven_type *i_ptr = equipment_at(i);
 
         if (TR_CURSED & i_ptr->flags) {

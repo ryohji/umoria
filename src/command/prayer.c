@@ -115,16 +115,7 @@ bool pray(void) {
                     }
                     break;
                 case 15:
-                    for (i = 0; i < inventory_and_equipment_slot_count(); i++) {
-                        inven_type *i_ptr = inventory_and_equipment_at(i);
-
-                        // The filter is the item type, not the slot: this walks
-                        // every slot, so wearable items still in the pack lose
-                        // the curse too.
-                        if (i_ptr->tval >= TV_MIN_WEAR && i_ptr->tval <= TV_MAX_WEAR) {
-                            i_ptr->flags &= ~TR_CURSED;
-                        }
-                    }
+                    (void)remove_curse();
                     break;
                 case 16:
                     player_timed_add(PLAYER_TIMED_HEAT_RESISTANCE, randint(10) + 10);
