@@ -245,13 +245,16 @@ $(BINS): $(BUILDDIR)/%: $(TESTDIR)/%.c $$(addprefix $(TESTDIR)/,$$(EXTRA_$$*)) \
 # After an intended change of what the screen shows: tests/golden/run.sh --update.
 .PHONY: golden
 golden:
-	@$(MAKE) --no-print-directory -f makefile umoria_headless objdes_all recall_all >/dev/null
+	@$(MAKE) --no-print-directory -f makefile umoria_headless objdes_all recall_all bolts_all >/dev/null
 	@./objdes_all | cmp -s - tests/golden/objdes_all.hashes \
 	    && echo "[ ok ] golden objdes_all" \
 	    || { echo "[FAIL] golden objdes_all (./objdes_all | diff tests/golden/objdes_all.hashes -)"; exit 1; }
 	@./recall_all | cmp -s - tests/golden/recall_all.hashes \
 	    && echo "[ ok ] golden recall_all" \
 	    || { echo "[FAIL] golden recall_all (./recall_all | diff tests/golden/recall_all.hashes -)"; exit 1; }
+	@./bolts_all | cmp -s - tests/golden/bolts_all.hashes \
+	    && echo "[ ok ] golden bolts_all" \
+	    || { echo "[FAIL] golden bolts_all (./bolts_all | diff tests/golden/bolts_all.hashes -)"; exit 1; }
 	@bash tests/golden/run.sh
 
 # Every header under src/ must compile on its own (it includes what it uses).
