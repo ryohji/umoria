@@ -4,7 +4,8 @@
 読めば、前提と作法と次の一手が揃う。済んだ列の経過は `docs/refactoring/done/` にあり、
 要るときだけ開けばよい。
 
-2026-10-30 に整理した。整理の前の全文は
+2026-10-30 に整理し、同じ日に台帳の組みなおしに合わせて第 0・1・2・4・6・7・8 節を直した。直す前の全文は
+[done/handover-2026-10-30-replan.md](docs/refactoring/done/handover-2026-10-30-replan.md)、その日の整理の前の全文は
 [docs/refactoring/done/handover-2026-10-30.md](docs/refactoring/done/handover-2026-10-30.md)、
 2026-10-23 の整理の前の全文は [done/handover-2026-10-23.md](docs/refactoring/done/handover-2026-10-23.md)、
 その前の整理（2026-10-01）の前の全文は [done/handover-2026-10-01.md](docs/refactoring/done/handover-2026-10-01.md)、
@@ -14,9 +15,9 @@
 
 2026-10-30、`develop` の上（push はユーザーが行う）。
 
-- 本体の警告 0（clean から）。テスト **1850 件・89 本**、failed=0、`RESULT: GREEN`。
-  **golden 10 本 GREEN**（端末なしで本体を通す。本体の行の 50.3% を通る。#94・#74・#51・#71）と、
-  総当たりのハッシュ `objdes_all`（#22）・`recall_all`（#72）。
+- 本体とテストの組みたての警告 0（clean から）。テスト **1850 件・89 本**、failed=0、`RESULT: GREEN`。
+  **golden の台本 11 本 GREEN**（端末なしで本体を通す。本体の行の 51.5% を通る）と、
+  総当たりのハッシュ `objdes_all`（#22）・`recall_all`（#72）・`bolts_all`（#19）。
   `make -f makefile.test headers` で src/ の全ヘッダが単体で、core/ は `-Isrc/core` だけで
   コンパイルできる。
 - **層は core < model < platform < ui < world < command < app**（2026-10-14 のモジュール化。
@@ -44,7 +45,10 @@
     保護の台本）、キーマップ（2 つの鍵の組を `ui/keymap.c` の表に、コマンドを名前に）**。
     2026-10-25〜30。経過は [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)
     と所見 73〜77、台帳の済んだ項目の索引。
-- 再検出で足した台帳の行は #58〜#96、`bugs.md` は B25〜B33（B28 は誤りだった）。開いている列は無い。次の候補は第 6 節。
+  - **#72 の一部、テストの組みたての警告、golden の穴の一部、#19 の一部**（2026-10-30）。経過は
+    `worklog.md` と所見 78〜80。
+- 台帳は 2026-10-30 に組みなおした（P1〜P3 と棚上げの区分をやめ、主題ごとの計画に）。`bugs.md` は
+  B1〜B34（B28 は誤りだった）。開いている列は無い。**次の候補は台帳の「計画」**（第 6 節）。
 
 ## 1. 資料の役割分担
 
@@ -52,8 +56,8 @@
 
 | 文書 | 何が書いてあるか |
 |---|---|
-| `HANDOVER.md`（この資料） | 現在地・作法・約束・地雷・次の候補・文書を詰める手順 |
-| `REFACTORING_PLAN.md` | 台帳。開いている項目の 1 行と、済んだ項目の索引 |
+| `HANDOVER.md`（この資料） | 現在地・作法・約束・地雷・文書を詰める手順 |
+| `REFACTORING_PLAN.md` | 台帳。いまの守りの手、主題ごとの計画（候補・守りの手・前提と判断）、済んだ項目の索引 |
 | `docs/refactoring/bugs.md` | バグ候補。**直さない** |
 | `docs/refactoring/findings.md` | 所見（わかったこと）と索引。作法の根拠はここを番号で指す |
 | `docs/refactoring/globals_inventory.md` | #18 の棚おろし。着手前の姿（凍結）＋区分ごとの見立て＋付録 |
@@ -65,6 +69,7 @@
 | `scripts/dis_compare.py` | 2 つの実行形式で、指定した関数の機械語を比べる |
 | `scripts/check.sh` | 第 2 節の 1〜4 と golden を clean から走らせる |
 | `tests/headless_backend.c`・`tests/golden/` | 端末なしで本体を通す backend と、台本・記録・`run.sh`（第 4 節） |
+| `tests/objdes_all.c`・`recall_all.c`・`bolts_all.c` | 1 つの関数を入力の組すべてで呼び、ハッシュを出す総当たり（golden が記録と比べる。第 4 節） |
 | `scripts/cmp_all.sh` | 基準のコミットと作業木の全関数の機械語と、データの (種類, 大きさ) を比べる |
 | `scripts/inline_back.py` | 抜きだした関数の本体を呼んだ所へ字のまま戻し、元のファイルとの違いを出す（所見 73） |
 | `scripts/check_statics.sh`・`comments_only.sh`・`merge_modules.py`・`move_constants.py` | データの数の比較・注釈だけの変更の確かめ・小さな module の連結・`constant.h` の定数を使う場所へ移す |
@@ -85,7 +90,7 @@
 # 1. 本体（ncurses が要る。警告は 0 でなければならない）
 make clean && make 2>&1 | grep -E "warning:|error:" | wc -l
 
-# 2. 全テスト（ncurses 非依存。末尾に RESULT: GREEN が出る）
+# 2. 全テスト（ncurses 非依存。末尾に RESULT: GREEN が出る）。テストの組みたての警告も 0
 make -f makefile.test 2>&1 | grep -E "^[0-9]+ tests" \
   | awk '{s+=$1; f+=$5} END {print s" tests, failed="f}'
 
@@ -180,6 +185,13 @@ static にすると入口の `endbr64` が消える、同名の static が潰れ
 （`--update`）のは、画面に出るものを意図して変えたときだけ。保護に使うときは、変える所を
 1 字壊して golden が赤くなることを先に見る（届かない所は台本を足す）。
 
+**1 つの関数の入力の組すべては、総当たりのハッシュで守る**（所見 74）。`tests/objdes_all.c`（品物の
+名前）・`recall_all.c`（モンスターの思い出）・`bolts_all.c`（飛ぶ呪文）が手本で、本体の makefile に
+規則があり、`make -f makefile.test golden` が `tests/golden/*.hashes` と比べる。画面に書く関数は、
+描画の backend が書かれた文字列をハッシュに混ぜる。階やモンスターが要るものは、床の試しの階を
+作り、起動時の表（`object_levels_init`・`monster_levels_init`）と画面の区画を先に整える（所見 79）。
+組の広さは `-O0 --coverage` で狙った関数の被覆を測って決め、壊して違いが出ることを先に見る。
+
 **テストの届かない呼び手の抽出は、種を固定した書き出しで比べる。** 機械語が変わる抽出で、
 呼び手にテストが届かないとき。`main.o` を除いた本体の `.o` と使い捨ての `main()` をリンクし、
 `set_rnd_seed()` のあとで本体の手順（階の生成・`creatures()`・呪文・保存）を踏ませて状態を書き出し、
@@ -247,29 +259,13 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 
 ## 6. その先の候補
 
-着手する前にユーザーと決める。台帳に残るのは P3（記録のみ）と棚上げで、どれも「着手しない
-理由」がある。多くは「テストが届かない」ことが理由だったが、golden（#94）で本体を通しで
-守れるようになったので、台本を足せば動かせるものがある。
+**候補は台帳（`REFACTORING_PLAN.md`）の「計画」にまとめた**（2026-10-30。主題ごとに、守りの手と
+前提・判断を並べ、勧める順に書いた）。ここには台帳に書かないことだけを置く。
 
-- **golden が通らない所。** 10 本の台本で本体の行の 50.3%（7960 / 15833。gcov。2026-10-30）を
-  通る（8 本の 2026-10-25 は 44.5%）。品物は wizard の `@`（表の tval・subval・flags を打つ）で
-  作れる（`free_turn`・`glowing_hands` が手本）。行を持つファイルでどの行も通らないのは
-  `model/item/armor_selection.c`（呪いの装備）だけ。#74 で素通りした場面（走っている途中で壁や
-  見えているモンスターに当たる、100 歩走って息が切れる、店以外の罠を踏む、罠や箱を外す）は台本が無い。
-- **P3 の長い関数と重複**（#19・#21・#72）は、該当の道を golden の台本で通して
-  から動かせる。#22 `objdes`（2026-10-25）と #71 `dungeon()`・`do_command`（2026-10-30）は
-  そうして済んだ。`original_commands` の switch も表になった（キーマップ、2026-10-30）。
-  #72 は `roff_recall`・`eat`・`quaff` が済み、`inven_command`（485 行）・`get_char`（463 行）が残る
-  （字のまま出せる塊が残っていない。台帳の行に設計の見こみ）。
-- **world/ の段の中のループ。** 段の中（とくに行動の段：creature・spells・projectiles・
-  monster_melee）には相互の呼び出しが残る。新しい world/ の .c は `WORLD_TIERS` に足す。
-- **テストの組みたては本体と違う旗で組む。** `makefile.test` には `-D_DEFAULT_SOURCE` が無く、
-  本体の `.c` をテスト用に組むと `sigsetmask` の暗黙の宣言や `-Wformat-overflow` の警告が出る。
-  `LIB_EXCLUDE`（`app/dungeon.c`・`inven_menu.c`・`signals.c` をテスト用に組まない）は、#87 で
-  層ごとのライブラリーにしたときから効いていない（註はまだ効く前提で書いてある）。
-- **`constant.h` に残る定数**（262 個）は、2 つ以上のライブラリーかテストが使うか、表の一部
-  （呪文のビット名など、使われない 15 個を含む）。`types.h` の型は model の形で、どの層も読む。
-- **テストの穴（#50 の族）**、**呼ばれたら止まる代役の残り**は前と同じ。
+- 着手する前に、候補の大きさと golden の被覆を測りなおす（`-O0 --coverage` で
+  `umoria_headless` を組み、`tests/golden/run.sh` を走らせて gcov。総当たりの道具も同じ旗で組む）。
+- 品物は wizard の `@`（表の tval・subval・flags を打つ）で作れる。台本の手本は `free_turn`・
+  `glowing_hands`・`rare_paths`。町人のいない種（79・83）を選ぶ。
 
 ## 7. 地雷とつまずきどころ
 
@@ -325,6 +321,16 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
   同じ。本物の表で動かし、期待値を窓口の答えで表す。
 - **同じ事実は複数の入口から押さえる。** 1 本のテストに頼ると、そのテストが
   守るはずの故障で倒されることがある。
+
+**道具と環境**
+
+- **この環境には gdb も valgrind も無い。** 落ちる場所は `-fsanitize=undefined`（と
+  `UBSAN_OPTIONS=print_stacktrace=1`）で組んで出す。0 で割る所はこれで分かった（所見 79）。
+- **`git stash -u` で退けて戻した、追跡していない実行形式は、実行の印を失う**
+  （`core.filemode` が false）。`Permission denied` になったら組みなおす。
+- **テストの組みたては最適化なし（`-O0`）。** 本体（`-O2`）では出ない `-Wformat-overflow` などが出る。
+  テストの組みたての警告は `scripts/check.sh` が数える（0 でなければ NOT OK）。テストを `-O2` で組むと
+  代役のずれが出る（所見 80、台帳 #97）。
 
 **git まわり**
 
@@ -418,7 +424,7 @@ include の数とは関係ない。移せない副作用は呼びだし側に残
 5. global を減らす作業なら `globals_inventory.md` の「区分ごとの見立て」と
    集計を更新し、`scripts/globals.py` の `GROUPS` から片づいた名前を消す。
    凍結した表（着手前の姿）と付録の一覧は**書きかえない**。
-6. `HANDOVER.md`（この資料）——第 0 節の数字と第 6 節を差しかえる。
+6. `HANDOVER.md`（この資料）——第 0 節の数字を差しかえる。候補が変わったら、台帳の「計画」の行を書きかえる。
    **入口の 2 つはそれぞれ 6 万字（`len()` で数える）を超えない。** 超えそうなら、済んだ部分を
    `done/` へ字を変えずに移す（→ 第 9 節）。
 
