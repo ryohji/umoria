@@ -127,8 +127,8 @@ static void prt_haggle_comment(const char **final_comments, int final_comment_co
         (void)strcpy(comment, normal_comments[randint(normal_comment_count) - 1]);
     }
 
-    insert_lnum(comment, "%A1", a1, false);
-    insert_lnum(comment, "%A2", a2, false);
+    insert_lnum(comment, sizeof(comment), "%A1", a1, false);
+    insert_lnum(comment, sizeof(comment), "%A2", a2, false);
     msg_print(comment);
 }
 

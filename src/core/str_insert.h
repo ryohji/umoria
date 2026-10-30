@@ -10,6 +10,7 @@
 #ifndef STR_INSERT_H
 #define STR_INSERT_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 // Both functions rewrite the string given as the first argument in place, and
@@ -28,14 +29,16 @@
 bool is_a_vowel(char ch);
 
 // Inserts a string into a string
-// Replaces the first occurrence of `mtc_str` in `object_str` with `insert`
-// (a NULL `insert` just removes the template).
-void insert_str(char *object_str, const char *mtc_str, const char *insert);
+// Replaces the first occurrence of `mtc_str` in `object_str` (a buffer of
+// `size` bytes) with `insert` (a NULL `insert` just removes the template).
+// What does not fit in the buffer is cut.
+void insert_str(char *object_str, size_t size, const char *mtc_str, const char *insert);
 
-// Replaces the first occurrence of `mtc_str` in `object_str` with `number`
-// written out in decimal, prefixed with '+' when `show_sign` is true and the
-// number is not negative.
-void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show_sign);
+// Replaces the first occurrence of `mtc_str` in `object_str` (a buffer of
+// `size` bytes) with `number` written out in decimal, prefixed with '+' when
+// `show_sign` is true and the number is not negative. What does not fit in the
+// buffer is cut.
+void insert_lnum(char *object_str, size_t size, const char *mtc_str, int32_t number, int show_sign);
 
 // Copies the strings after `buffer`, up to the first NULL, one after another
 // into `buffer` and returns `buffer`. Only NULL gives the empty string. The
