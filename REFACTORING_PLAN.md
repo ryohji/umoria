@@ -1,70 +1,90 @@
 # リファクタリング計画：umoria
 
-台帳。開いている項目は 1 項目 1 行、済んだ項目は末尾の索引に 1 行ずつ。
-2026-10-01 に整理し、2026-10-23 に詰めなおした。2026-10-01 の整理の前の全文（前提・検出結果の
-内訳・済んだ行・#50 の経過）は [done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)、
-2026-10-23 の前の全文は [done/plan-2026-10-23.md](docs/refactoring/done/plan-2026-10-23.md)。
+台帳。**いまの姿を踏まえた計画**（候補を主題ごとに並べ、守りの手と前提を書く）と、済んだ項目の
+索引。2026-10-30 に組みなおした。組みなおす前の全文（P1〜P3・棚上げの区分）は
+[done/plan-2026-10-30.md](docs/refactoring/done/plan-2026-10-30.md)、それより前は
+[done/plan-2026-10-23.md](docs/refactoring/done/plan-2026-10-23.md)・[done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1850 件・89 本と golden 10 本（と `objdes_all`）、ヘッダの global 39 個（→ `HANDOVER.md` 第 0 節）。
-- 番号は着手時の検出に振ったもので、振りなおさない。場所は 2026-10-01 の名前と行。
-  判断（着手しない理由）は整理の前と同じで、字を詰めただけ。
-- #58〜#76 は 2026-10-02 の再検出（4 つの担当がディレクトリーごとに調べた）で足した。
-  場所は 2026-10-02 の行。同じ日に、開いている行の場所と数を今のコードに合わせた。
-- #77〜#79 は 2026-10-10 の下調べ（どのテストも引かない `.o` と、使い手の少ない global）で足し、同じ日に済んだ。
-- #80〜#88 は 2026-10-14 のモジュール化の列で足し、同じ日に済んだ。#89〜#93 は 2026-10-15 に HANDOVER 第 6 節の候補から足し、同じ日に済んだ。#94・#95 は 2026-10-24〜25。開いている行の場所は、
-  このとき新しいディレクトリーの名前に書きかえた（行番号は 2026-10-01 のまま）。
+- いま：テスト 1850 件・89 本、golden の台本 11 本と総当たり 3 本（`objdes_all`・`recall_all`・
+  `bolts_all`）、本体の行の 51.5%（8113 / 15743。gcov、2026-10-30）を golden が通る。本体と
+  テストの組みたての警告 0、ヘッダの global 39 個、層の依存 907 本・111 単位で違反 0
+  （→ `HANDOVER.md` 第 0 節）。
+- 番号は着手時の検出に振ったもので、振りなおさない。新しい候補は #97 から振る。
+- **P1〜P3 と棚上げの区分はやめた。** P1・P2 は空になり、P3 と棚上げに残っていた「着手しない
+  理由」の多くは「テストが届かない」「保護のコストが高い」だった。golden（#94）、総当たりの
+  ハッシュ（所見 74）、`scripts/inline_back.py`（所見 73）、turn の記録（所見 76）で、その多くは
+  動かせるようになった。下の計画は、いまの守りの手で見なおした結果。
 
-## 開いている項目
+## いま使える守りの手
 
-### P1（次に着手する候補。効果が大きく、作業が軽い）
+| 手 | 守るもの | 置き場 |
+|---|---|---|
+| golden の台本 | 本体を通しで（画面とキーごとの turn） | `tests/golden/*.keys`、`run.sh`（第 4 節） |
+| 総当たりのハッシュ | 1 つの関数の入力の組すべて（文字列・状態） | `tests/objdes_all.c`・`recall_all.c`・`bolts_all.c` |
+| 字のまま戻す比較 | 塊を関数に出す移動 | `scripts/inline_back.py` |
+| 全関数の機械語の比較 | 移動・統合・ヘッダの組みかえ | `scripts/cmp_all.sh` |
+| 単体テストと写し | 窓口の中、表 | `tests/*_test.c`（`legacy_*` の写し） |
 
-いまは無い。2026-10-02 に足した #58〜#61 は済んだ（経過は
-[done/p1-2026-10.md](docs/refactoring/done/p1-2026-10.md)）。
+総当たりの道具は、試しの階（床と壁・プレイヤー・モンスター）を作れる（`bolts_all` が手本）。
+起動時の表（`object_levels_init`・`monster_levels_init`）と画面の区画を先に整える（所見 79）。
 
-### P2（時間・合意しだい）
+## 計画
 
-いまは無い。#13 は 2026-10-14 に #75 と一緒に済んだ。
+並びは勧める順。どれも着手の前にユーザーと決める（HANDOVER 第 3 節）。大きさと被覆は
+2026-10-30 に測った。
 
-### P3（記録のみ。着手しない）
+### A. 長い関数と switch（いまの守りの手で動かせる）
 
-将来その場所を触るときの手掛かり。
-
-| # | 分類 | 場所 | 内容 | 着手しない理由 |
+| # | 場所・大きさ | golden の被覆 | 守りの手と進めかた | 前提・判断 |
 |---|---|---|---|---|
-| 19 | 重複コード | world/item/spells.c の `light_line` `disarm_all` `hp_monster` `drain_life` `speed_monster` `confuse_monster` `sleep_monster` `wall_to_mud` `td_destroy2` `poly_monster` `build_wall` `clone_monster` `teleport_monster`、world/combat/projectiles.c:69-141 `fire_bolt`・:144-268 `fire_ball` | 「方向に飛ばして最初の対象を探す」骨格の写し。うち 5 関数はほぼ行単位で一致 | 終了条件に微妙な差がある（`fire_ball` は `fval` の判定を else 側に置く）。テストの保護なしの抽出は危険 |
-| 21 | 複雑な条件分岐 | world/monster/creature.c:471-679 `mon_cast_spell`（switch は :534） | switch 20 ケース。ケース番号がビット位置の生の数で、魔法 ID が前段の分岐に直書き | 変更頻度が低く、テストのコストが高い |
-| 50 | （テストの穴） | world/player/player_bonuses.c:94-200 `calc_bonuses`、command/create.c:422-423、app/dungeon.c:466, 473, 485, 493、app/save.c:734-745 | **窓口を呼ぶ順番と条件（呼び手に残した規則）を見るテストが無い。** 窓口の中は `player_display_numbers_test` が守るが、呼び手は守られていない | もとから空いていた穴。呼び手を単体で呼べる足場が要る。経過は下の「#50 の族」 |
-| 51 | 重複コード | world/combat/monster_melee.c:601-619（モンスターの攻撃）と world/combat/player_melee.c:96-113（プレイヤーの攻撃） | 光る手が当たったときの約 18 行がほぼ写し。差は 6 つ：(1) 前者だけ `adesc != 99` を見る、(2) 大文字化の手が違う（`monster_name()` か、`monster_name_lower()` のあとの `toupper`）、(3) 記憶を足す条件が `visible && !player_is_dead()` か `m_ptr->ml` か、(4) `msg_print("Your hands stop glowing.")` と `player_glowing_hands_spend()` の順が逆（monster_melee.c:602-603 と player_melee.c:97-98）、(5) 混乱に抵抗するかの判定で、前者は `randint(MAX_MONS_LEVEL)` を先に引き、後者は `CD_NO_SLEEP` を先に見て短絡する（眠らない相手には乱数を引かない）、(6) 前者の `"is unaffected."` は頭の空白が無い（バグ候補 B24）。(5)・(6) は 2026-10-29 に見つけた。golden は両方の `if` の行まで来るが、中身はどちらも通らない（2026-10-29、gcov） | (1) は意図がコメントにある。(2) は出る文が同じ。(4) は `spend` が充填を 0 にするだけなので見分けられないと読める（確かめていない）。(3)・(5)・(6) は意図か分からず、畳むと決めた時点でふるまいが変わる（(5) は乱数の並び）。まず「どちらが正しいか」の判断が要る |
-| 72 | 長すぎるメソッド | command/inven_menu.c `inven_command`（578 → 485 行）、app/save.c `get_char`（674 → 463 行）。2026-10-30 | `roff_recall`・`eat`・`quaff` は済んだ（索引）。`inven_command` は「着る」の後半と見出しを、`get_char` はプレイヤーの値を読む並びを関数に出した。残りは、`inven_command` では選ぶ問い・外す・落とす・着る先の決めかたが外側の `item`・`selecting`・`command` を書きかえ、`get_char` では読む手順の途中に `goto error`・`goto closefiles` が 15 か所ある | 字のまま出せる塊が残っていない。分けるなら、`inven_command` は選ぶ状態を構造体にまとめる、`get_char` は読む段ごとに成否を返す形に変える設計が先（どちらもふるまいは変えずにできるが、守りは golden と `savefile_layout_test` だけ） |
+| 27 | command/scrolls.c `read_scroll`（402 行） | 28% | 効果の switch を `scroll_effect()` に（#72 の eat・quaff と同じ形、所見 78）。#74 で turn と取りけしが戻り値になり、前の棚上げの理由（局所の使いまわし）は `used_up`・`outcome`・`ident` を引数で渡せば解ける。`inline_back.py` で守る | 判断は要らない |
+| 26 | world/item/item_enchant.c `magic_treasure`（831 行、switch 10） | 32% | 総当たり：種を固定して、品目 × 深さ × 運で生成し、できた品物をハッシュに（`objdes_all` と同じ形）。品物の種類ごとの関数に分ける | 判断は要らない。道具が先 |
+| 25 | world/combat/monster_melee.c `make_attack`（600 行、89 ケース） | 17% | 総当たり：`bolts_all` の試しの階で、モンスターの攻撃の種類 × プレイヤーの状態（装備・抵抗・体力）→ ハッシュ。攻撃の種類ごとの関数に分ける | 道具が先 |
+| 21 | world/monster/creature.c `mon_cast_spell`（209 行、switch 20） | 25% | #25 と同じ足場で、呪文の番号ごとに。番号の生の数に名前を付ける | #25 のあと |
+| 72 | command/inven_menu.c `inven_command`（485 行）、app/save.c `get_char`（463 行） | 55%・70% | 字のまま出せる塊は出しきった（#72-6・#72-7）。前者は選ぶ状態（画面・選択・再開）を構造体に、後者は読む段ごとに成否を返す形に | **設計の判断が先**。守りは golden と `savefile_layout_test` |
 
-### #50 の族（要約）
+### B. 重複
 
-#18 の単位を閉じるたびに呼び手側を壊して走らせ、12 度のうち捕まったのは 3 度・4 つだけだった（5 度め 1・9 度め 1・11 度め 2）。
-分かったことは 1 つ：**穴は「窓口の外だから届かない」のではなく、呼び手を単体で呼べる
-足場があるかどうかで決まる。** 捕まったのは足場のある呼び手（`calc_hitpoints_test`・
-`put_misc3_test`・`calc_spells_test`・`gain_spells_test`）だけで、画面に出ないもの・
-ファイルに書くもの・`dungeon.c` の中のものは素通りした。**#44・#49 も同じ族**（#49 は 2026-10-05 に埋めた）。
-窓口を 2 本に分けると順番の約束が生まれ、その約束にはテストが届かない
-（`calc_bonuses()`・`beginning` → `count_down`・休息の残りターン）。
-回ごとの壊しかたと件数は [done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)
-の P3 の節と `findings.md`。
-
-### 棚上げ（やらない）
-
-| # | 分類 | 場所 | 内容 | 棚上げの理由 |
+| # | 場所 | 中身 | 守りの手と進めかた | 前提・判断 |
 |---|---|---|---|---|
-| 25 | 長すぎるメソッド | world/combat/monster_melee.c:30-629 `make_attack` | 600 行・89 ケース。switch が 4 段 | 保護するテストのコストが極端に高い。global と乱数への依存が全面的。#57 でも中を割らずに移した |
-| 26 | 長すぎるメソッド | world/item/item_enchant.c:28-858 `magic_treasure` | 831 行・switch 10・119 ケース。品物の生成の中枢 | 同上。付呪の規則の網羅テストは現実的でない |
-| 27 | 長すぎるメソッド | command/scrolls.c:28-486 `read_scroll` | 459 行・40 ケース | 同上。局所変数を用途を変えて使いまわしており、分割の前に変数の整理が要る |
-| 28 | 重複コード | command/magic.c:26-212 と command/prayer.c:26-209 | `cast()` と `pray()` が構造ごと同型 | 分岐の本体・メッセージ・階級の判定の 3 点が違う。差 3 つ以上は抽出しない |
-| 29 | 重複コード | world/combat/projectiles.c:69-141 `fire_bolt` と world/combat/throw.c:181-285 `throw_object` | 飛ぶ道のりのループを 2 か所で書いている | 命中・終了条件・外れの 3 点が違う。描画だけ切りだせるが効果が小さい |
-| 30 | 重複コード | world/store/store_haggle.c:316-469 `purchase_haggle` と :472-674 `sell_haggle` | 値切りが買いと売りで並行して書かれている | 値段の向き・侮辱の上限・成立条件が逆。骨格が似ているだけで意味は反転している |
-| 31 | データの散在 | 19 ファイル・70 定義の `(int y, int x)` | 座標が 4 つの形で表され、Coord 型が無い | 置きかえが広すぎる。入れるならテストを揃えてから |
-| 32 | 強すぎる依存関係 | model/data/player.c | 524 行・関数 0。`py.` の直参照は、2026-10-02 には `py.stats` の 58 行・17 ファイルだけ（→ #67） | 構造の設計変更で、このリファクタリングの範囲を超える |
-| 34 | 未接続の基盤 | ui/view_observer.c（宣言は ui/internal/ui_internal.h）（296 行） | Observer の基盤。参照は宣言と定義だけ | 残骸ではなく先に用意された基盤（導入コミットによる）。消さない。接続の予定がなくなったら再評価 |
-| 35 | 未接続の基盤 | app/game_state.c（宣言は app/internal/app_internal.h）（328 行） | GameState 構造体。呼ばれていない（同じファイルの `init_seeds()` だけは main.c:117 から呼ばれる生きたコード） | 同上。ただし「写した瞬間に元と離れる」設計なので、つなぐときに見なおす（→ バグ候補 B3） |
-| 36 | 未接続の基盤 | platform/backend.h（RenderBackend の `get_char` / `check_input`）、platform/render_ncurses.c:55-56, 82-83, 228-262 | `get_char` / `check_input` が InputBackend と役割が重なる。参照 0。同じ基盤（`2cd0529c`）の `render_present`（ui/render.c:95）・`render_get_size`（:119）も参照 0 | 同上。3 つのうち唯一「重複」の性が強い。input 側への統合が確かめられれば削除の候補に戻せる |
+| 28 | command/magic.c `cast`（222 行）と command/prayer.c `pray`（191 行） | 骨格が同型（本を選ぶ・呪文を選ぶ・失敗・効果・経験とマナ）。違いは呪文の種類・言いまわし・本の扱い | #73 の `use_charged_device` と同じく、骨格 1 本と種類ごとの表に。golden の `free_turn` が両方の取りけしと実行を通す。効果の switch はそれぞれに残す | **畳むかの判断**（前は「差 3 つ以上は抽出しない」で棚上げ） |
+| 51 | world/combat の光る手（2 か所） | 違い 6 つ（台帳の旧行。[done/plan-2026-10-30.md](docs/refactoring/done/plan-2026-10-30.md)） | `glowing_hands` が両方の枝を守る | **違い 3・5・6（B24）のどちらを正とするかの判断** |
+| 19 | world/item/spells.c の壁・扉を変える 5 つ（`light_line`・`disarm_all`・`wall_to_mud`・`td_destroy2`・`build_wall`）、world/combat/projectiles.c `fire_bolt`・`fire_ball` | 前の 5 つはマスごとに働く別の骨格、後の 2 つは 1 マスごとに弾を描く | `bolts_all` を壁・扉・罠の並びに広げてから。`fire_ball`（golden 0%）は範囲の当たりの総当たりが要る | 効き目は中くらい |
+| 29 | `fire_bolt` と world/combat/throw.c `throw_object`（108 行） | 飛ぶ道のりの描画が 2 か所 | 描画だけ切りだせる | 効き目が小さい（記録のみ） |
+| 30 | world/store/store_haggle.c `purchase_haggle`（154 行）と `sell_haggle`（202 行） | 骨格が似ていて意味が反転（値段の向き・侮辱の上限・成立条件） | 売る側は golden 0%。台本が要る | 畳まない（記録のみ） |
+
+### C. 構造とデータ
+
+| # | 場所 | 中身 | 前提・判断 |
+|---|---|---|---|
+| 31 | 19 ファイル・70 定義の `(int y, int x)` | 座標の型が無い | 置きかえが広い。golden と総当たりで守れるが、**入れるかの判断**が先 |
+| 32 | model/data/player.c（516 行・関数 0） | 職業・種族・呪文の表 | 構造の設計変更。いまの層の規則のままでも困っていない |
+| 98 | world/ の段の中のループ | 行動の段（creature・spells・projectiles・monster_melee）の相互の呼び出し | 調べてから。新しい world/ の .c は `WORLD_TIERS` に足す |
+| 99 | `constant.h` の定数 262 個・`types.h` の型 | 2 つ以上のライブラリーかテストが使うもの、表の一部（使われない 15 個を含む） | 小さく続けられる。急がない |
+
+### D. 未接続の基盤（消すか残すか）
+
+| # | 場所 | 中身 | 前提・判断 |
+|---|---|---|---|
+| 34 | ui/view_observer.c（151 行） | Observer の基盤。宣言と定義だけ | **消すか残すかの判断**。消すなら呼び手が無いので `cmp_all.sh` で守れる |
+| 35 | app/game_state.c（168 行） | GameState の写し（呼ばれない）。`init_seeds()` だけが生きている | 同上（`init_seeds()` は残す）。写しは #74 でも 1 行減った（B3） |
+| 36 | platform/backend.h の RenderBackend の `get_char`・`check_input`、ui/render.c の `render_present`・`render_get_size` | 入力の backend と役割が重なる、参照 0 | 同上。golden の backend も実装している |
+
+### E. テストと守り
+
+| # | 中身 | 前提・判断 |
+|---|---|---|
+| 50 | 窓口を呼ぶ順番と条件を見るテストが無い（`calc_bonuses` の呼び手など。旧行は [done/plan-2026-10-30.md](docs/refactoring/done/plan-2026-10-30.md)） | golden が呼び手を通すようになった（`calc_bonuses` 76%）。残る穴を数えなおすところから |
+| 97 | テストを本体と同じ `-O2` で組む | 試したら、丸ごと `#include` するテストの代役のずれで警告と segfault が出た（`haggle_comment_test` は直した）。代役を本体に合わせきってから |
+| 100 | golden の穴の残り | 走っている途中で壁や見えているモンスターに当たる、100 歩走って息が切れる（町では作れない。地下の長い通路の台本が要る）、`fire_ball`・`sell_haggle`・祈りの方向の呪文 |
+
+### F. 判断待ちのバグ候補
+
+`docs/refactoring/bugs.md` の B1〜B34。とくに、リファクタリングの途中で見つけ、ふるまいを
+保ったまま golden に記録しているもの：B24（光る手の空白）・B30（Create Food の巻物）・
+B31（店の 1 歩）・B32（^J と ^M の回数）・B33（Enter が +）・B34（飛ぶ呪文の止まりかた）。
+直すかどうかはユーザーの領分。直すと golden の記録が変わる（記録を作りなおす）。
 
 ## 済んだ項目の索引
 
@@ -147,6 +167,9 @@
 | 71 | `dungeon()` 732 → 207 行（効果 18 種・明かり・空腹と回復・休息・状態行・付呪の感知・コマンドの読みとりを static 関数に）、`do_command` 404 → 227 行（長い 5 つの case を関数に、方向ごとの 24 の case を `command_key_direction()` の逆引きに）。確かめは `scripts/inline_back.py` と golden の台本 `free_turn`（5 つの run） | [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-25・30）、所見 77 |
 | キーマップ | `original_commands` の switch（約 150 行）を `ui/keymap.c` の原文の鍵の組の表に（15 行に）、コマンドを名前 `player_command`（遊び 48・wizard 14）にして `do_command`・`wizard_command` を名前で分ける。rogue-like の組の表 `rogue_key_command()`。`keymap_test` が書きかえる前の 3 つの switch と 256 通りのキーで突きあわせる（ユーザーの依頼。名前と方向の構造体、wizard も名前に、はユーザーの判断） | [done/worklog-2026-10-23-30.md](docs/refactoring/done/worklog-2026-10-23-30.md)（2026-10-30） |
 | 72（一部） | `roff_recall` 492 → 49 行（記憶の項目ごとの関数 11 本。総当たり `recall_all` を golden に常設）、`eat` 173 → 32 行・`quaff` 295 → 38 行（効果の switch を `food_effect`・`potion_effect` に）、`inven_command`・`get_char` の一部。行は開いたまま | `worklog.md`（2026-10-30） |
+| テストの組みたて | 警告 11 → 0（include の漏れ、旗を本体に合わせる、`snprintf`、代役のずれ）、`check.sh` がテストの組みたての警告も数える | `worklog.md`（2026-10-30） |
+| golden の穴（一部） | 台本 `rare_paths`（呪われた鎧・鎧の巻物・罠を踏む・外す・箱） | 同上 |
+| 19（一部） | 飛ぶ呪文 8 つの骨格を `bolt_to_next_creature()` に。総当たり `bolts_all` を golden に常設 | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
