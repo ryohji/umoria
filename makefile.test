@@ -28,9 +28,11 @@ STD = -std=c17
 # これらを外した状態で、テストコード由来の警告は 0 件を保つ。
 WARNINGS = -Wall -Wextra -Wno-unused-parameter \
            -Wshadow -Wstrict-prototypes -Wold-style-definition \
-           -Wformat=2 -Wwrite-strings -Wno-deprecated-declarations
+           -Wformat=2 -Wwrite-strings -Wno-deprecated-declarations -Wno-format-truncation
 # -Wno-deprecated-declarations と -D_DEFAULT_SOURCE（CFLAGS）は本体の makefile と同じ
 # （signals.c の sigsetmask() の宣言を見せ、非推奨の警告は受けいれる）。
+# -Wno-format-truncation：最適化なしでは、snprintf に渡す %s を配列の大きさいっぱいと見積もって
+# 「切りつめるかもしれない」と言う。切りつめは snprintf を選んだ意図どおり（本体の -O2 では出ない）。
 # 以前はここに本体由来の既存警告（非プロトタイプ宣言・const の落ち・
 # 文字列リテラルへの書きこみ等、数千件）の抑制を並べていた。本体側の
 # 警告解消でどれも 0 件になったので、抑制ごと外した。テスト・本体とも

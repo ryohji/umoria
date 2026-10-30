@@ -300,7 +300,7 @@ int confirm_item(const char *prompt, int item) {
     // change the period to a question mark
     object[strlen(object) - 1] = '?';
 
-    (void)sprintf(out_str, "%s %s", prompt, object);
+    (void)snprintf(out_str, sizeof(out_str), "%s %s", prompt, object);
 
     return get_check(out_str);
 }
