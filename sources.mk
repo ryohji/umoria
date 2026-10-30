@@ -39,7 +39,7 @@ SRCS = app/main.c command/files.c ui/io.c \
 	model/player/player_progress.c \
 	model/player/player_skills.c \
 	model/player/player_identity.c \
-	model/monster/monster_turn.c model/monster/monster_state.c world/monster/monster_breeding.c world/monster/monster_place.c \
+	model/monster/monster_turn.c model/monster/monster_state.c world/monster/monster_view.c world/monster/monster_breeding.c world/monster/monster_place.c \
 	model/dungeon/dungeon_state.c model/dungeon/geometry.c world/dungeon/object_place.c \
 	command/inven_menu.c world/player/run_path.c world/monster/monster_death.c command/look.c model/data/monsters.c model/data/treasure.c \
 	core/rnd.c command/recall.c model/data/player.c model/data/tables.c \
