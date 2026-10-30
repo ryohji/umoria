@@ -348,11 +348,6 @@ bool gain_spells(void) {
     int new_spells = player_spells_to_learn();
     int diff_spells = 0;
 
-    // THIS ADDRESS IS FORMED BEFORE THE SCHOOL IS ASKED (bug candidate B23) -- for
-    // a warrior it is `magic_spell[-1]`, but it is never read, because the if below
-    // goes into neither school. DO NOT REORDER IT in a change that keeps behaviour.
-    spell_type *msp_ptr = &magic_spell[player_class() - 1][0];
-
     int stat, offset;
     if (player_class_spell_type() == MAGE) {
         stat = A_INT;
@@ -377,6 +372,10 @@ bool gain_spells(void) {
         msg_print(tmp_str);
         return false;
     } else {
+        // Formed only here: a warrior has no spells to learn and left above,
+        // and magic_spell[player_class() - 1] would be before the table.
+        spell_type *msp_ptr = &magic_spell[player_class() - 1][0];
+
         // determine which spells player can learn
         // mages need the book to learn a spell, priests do not need the book
         if (stat == A_INT) {
