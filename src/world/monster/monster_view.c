@@ -105,7 +105,7 @@ void update_monsters(void) {
             continue;
         }
 
-        m_ptr->cdis = distance(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx);
+        m_ptr->cdis = distance(player_position(), (coordinate){(int)m_ptr->fy, (int)m_ptr->fx});
         update_mon(i);
 
         // Get rid of an eaten/breathed on monster. This is necessary because

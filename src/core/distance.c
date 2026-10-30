@@ -12,13 +12,13 @@
 // This module calls nothing outside itself.
 
 // Distance between two points -RAK-
-int distance(int y1, int x1, int y2, int x2) {
-    int dy = y1 - y2;
+int distance(coordinate from, coordinate to) {
+    int dy = from.row - to.row;
     if (dy < 0) {
         dy = -dy;
     }
 
-    int dx = x1 - x2;
+    int dx = from.column - to.column;
     if (dx < 0) {
         dx = -dx;
     }

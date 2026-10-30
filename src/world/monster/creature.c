@@ -399,7 +399,7 @@ static void make_move(int monptr, int *mm, uint32_t *rcmove) {
                 }
                 m_ptr->fy = newy;
                 m_ptr->fx = newx;
-                m_ptr->cdis = distance(player_row(), player_col(), newy, newx);
+                m_ptr->cdis = distance(player_position(), (coordinate){newy, newx});
                 do_turn = true;
             }
         }
@@ -849,7 +849,7 @@ void creatures(void) {
             continue;
         }
 
-        m_ptr->cdis = distance(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx);
+        m_ptr->cdis = distance(player_position(), (coordinate){(int)m_ptr->fy, (int)m_ptr->fx});
 
         k = moves_this_turn(m_ptr->cspeed);
         if (k <= 0) {
