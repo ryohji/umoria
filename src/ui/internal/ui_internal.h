@@ -89,22 +89,16 @@ void note_input_ended(void);
 
 // --- render.c ---
 // High-level rendering functions (used by game code)
-// These queue rendering commands to be executed at end_frame
 
 void render_clear(void);
 void render_erase_line(int row, int col);
 void render_clear_from(int row);
 void render_refresh(void);  // Force immediate screen update
 
-void render_present(void);  // Flush all queued commands and present frame
-
 void render_bell(void);  // Audio or visual bell
 
 // Screen save/restore
 void render_save_screen(void);
 void render_restore_screen(void);
-
-// Utility functions
-void render_get_size(int *rows, int *cols);
 
 #endif // UI_INTERNAL_H
