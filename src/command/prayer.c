@@ -31,10 +31,142 @@
 
 #include "command_internal.h"
 
+// The effect of the priest's prayer number choice (from 0). Returns whether it
+// took a turn: took_turn as it was, or false when a direction was asked for
+// and not given or there was nothing to do.
+static bool prayer_effect(int choice, bool took_turn) {
+    int i, dir;
+
+    // Prayers.
+    switch (choice + 1) {
+    case 1:
+        (void)detect_evil();
+        break;
+    case 2:
+        (void)hp_player(damroll(3, 3));
+        break;
+    case 3:
+        bless(randint(12) + 12);
+        break;
+    case 4:
+        (void)remove_fear();
+        break;
+    case 5:
+        (void)light_area(player_row(), player_col());
+        break;
+    case 6:
+        (void)detect_trap();
+        break;
+    case 7:
+        (void)detect_sdoor();
+        break;
+    case 8:
+        (void)slow_poison();
+        break;
+    case 9:
+        if (get_dir(CNIL, &dir)) {
+            (void)confuse_monster(dir, player_row(), player_col());
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 10:
+        teleport((player_level() * 3));
+        break;
+    case 11:
+        (void)hp_player(damroll(4, 4));
+        break;
+    case 12:
+        bless(randint(24) + 24);
+        break;
+    case 13:
+        (void)sleep_monsters1(player_row(), player_col());
+        break;
+    case 14:
+        if (create_food() == EFFECT_CANCELLED) {
+            took_turn = false;
+        }
+        break;
+    case 15:
+        (void)remove_curse();
+        break;
+    case 16:
+        player_timed_add(PLAYER_TIMED_HEAT_RESISTANCE, randint(10) + 10);
+        player_timed_add(PLAYER_TIMED_COLD_RESISTANCE, randint(10) + 10);
+        break;
+    case 17:
+        (void)cure_poison();
+        break;
+    case 18:
+        if (get_dir(CNIL, &dir)) {
+            fire_ball(GF_HOLY_ORB, dir, player_row(), player_col(), (damroll(3, 6) + player_level()), "Black Sphere");
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 19:
+        (void)hp_player(damroll(8, 4));
+        break;
+    case 20:
+        detect_inv2(randint(24) + 24);
+        break;
+    case 21:
+        (void)protect_evil();
+        break;
+    case 22:
+        earthquake();
+        break;
+    case 23:
+        map_area();
+        break;
+    case 24:
+        (void)hp_player(damroll(16, 4));
+        break;
+    case 25:
+        (void)turn_undead();
+        break;
+    case 26:
+        bless(randint(48) + 48);
+        break;
+    case 27:
+        (void)dispel_creature(CD_UNDEAD, (3 * player_level()));
+        break;
+    case 28:
+        (void)hp_player(200);
+        break;
+    case 29:
+        (void)dispel_creature(CD_EVIL, (3 * player_level()));
+        break;
+    case 30:
+        warding_glyph();
+        break;
+    case 31:
+        (void)remove_fear();
+        (void)cure_poison();
+        (void)hp_player(1000);
+        for (i = A_STR; i <= A_CHR; i++) {
+            (void)res_stat(i);
+        }
+        (void)dispel_creature(CD_EVIL, (4 * player_level()));
+        (void)turn_undead();
+        // Topped up to three, or one more turn if it is already
+        // there or beyond -- the only place a counter goes up by one.
+        if (player_timed_turns(PLAYER_TIMED_INVULNERABILITY) < 3) {
+            player_timed_set(PLAYER_TIMED_INVULNERABILITY, 3);
+        } else {
+            player_timed_add(PLAYER_TIMED_INVULNERABILITY, 1);
+        }
+        break;
+    default:
+        break;
+    }
+    return took_turn;
+}
+
 // Pray like HELL. -RAK-
 // Returns whether it took a game turn.
 bool pray(void) {
-    int i, j, item_val, dir;
+    int i, j, item_val;
 
     bool took_turn = false;
 
@@ -64,130 +196,7 @@ bool pray(void) {
             if (randint(100) < chance) {
                 msg_print("You lost your concentration!");
             } else {
-                // Prayers.
-                switch (choice + 1) {
-                case 1:
-                    (void)detect_evil();
-                    break;
-                case 2:
-                    (void)hp_player(damroll(3, 3));
-                    break;
-                case 3:
-                    bless(randint(12) + 12);
-                    break;
-                case 4:
-                    (void)remove_fear();
-                    break;
-                case 5:
-                    (void)light_area(player_row(), player_col());
-                    break;
-                case 6:
-                    (void)detect_trap();
-                    break;
-                case 7:
-                    (void)detect_sdoor();
-                    break;
-                case 8:
-                    (void)slow_poison();
-                    break;
-                case 9:
-                    if (get_dir(CNIL, &dir)) {
-                        (void)confuse_monster(dir, player_row(), player_col());
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 10:
-                    teleport((player_level() * 3));
-                    break;
-                case 11:
-                    (void)hp_player(damroll(4, 4));
-                    break;
-                case 12:
-                    bless(randint(24) + 24);
-                    break;
-                case 13:
-                    (void)sleep_monsters1(player_row(), player_col());
-                    break;
-                case 14:
-                    if (create_food() == EFFECT_CANCELLED) {
-                        took_turn = false;
-                    }
-                    break;
-                case 15:
-                    (void)remove_curse();
-                    break;
-                case 16:
-                    player_timed_add(PLAYER_TIMED_HEAT_RESISTANCE, randint(10) + 10);
-                    player_timed_add(PLAYER_TIMED_COLD_RESISTANCE, randint(10) + 10);
-                    break;
-                case 17:
-                    (void)cure_poison();
-                    break;
-                case 18:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_HOLY_ORB, dir, player_row(), player_col(), (damroll(3, 6) + player_level()), "Black Sphere");
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 19:
-                    (void)hp_player(damroll(8, 4));
-                    break;
-                case 20:
-                    detect_inv2(randint(24) + 24);
-                    break;
-                case 21:
-                    (void)protect_evil();
-                    break;
-                case 22:
-                    earthquake();
-                    break;
-                case 23:
-                    map_area();
-                    break;
-                case 24:
-                    (void)hp_player(damroll(16, 4));
-                    break;
-                case 25:
-                    (void)turn_undead();
-                    break;
-                case 26:
-                    bless(randint(48) + 48);
-                    break;
-                case 27:
-                    (void)dispel_creature(CD_UNDEAD, (3 * player_level()));
-                    break;
-                case 28:
-                    (void)hp_player(200);
-                    break;
-                case 29:
-                    (void)dispel_creature(CD_EVIL, (3 * player_level()));
-                    break;
-                case 30:
-                    warding_glyph();
-                    break;
-                case 31:
-                    (void)remove_fear();
-                    (void)cure_poison();
-                    (void)hp_player(1000);
-                    for (i = A_STR; i <= A_CHR; i++) {
-                        (void)res_stat(i);
-                    }
-                    (void)dispel_creature(CD_EVIL, (4 * player_level()));
-                    (void)turn_undead();
-                    // Topped up to three, or one more turn if it is already
-                    // there or beyond -- the only place a counter goes up by one.
-                    if (player_timed_turns(PLAYER_TIMED_INVULNERABILITY) < 3) {
-                        player_timed_set(PLAYER_TIMED_INVULNERABILITY, 3);
-                    } else {
-                        player_timed_add(PLAYER_TIMED_INVULNERABILITY, 1);
-                    }
-                    break;
-                default:
-                    break;
-                }
-                // End of prayers.
+                took_turn = prayer_effect(choice, took_turn);
                 if (took_turn) {
                     if (!spell_has_worked(choice)) {
                         player_gain_experience(s_ptr->sexp << 2);
