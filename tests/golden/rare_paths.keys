@@ -1,0 +1,44 @@
+# run: -w79 rare.sav
+# record: turns
+# Paths the other scripts do not take, for a human male warrior named Ed in a
+# quiet part of the town. A wizard soft leather armour that is cursed: wear it
+\n y
+am\ea
+Ed\r
+ 
+@ 36\r(\r2\r80\r1\r0\r0\r0\r0\r4\r0\r0\r80000000\r18\r2\ry
+4
+6
+i\e
+wc
+# a wizard scroll of enchant armour, read with the cursed armour on, then
+# one of curse armour
+@ 70\r?\r66\r5\r1\r0\r0\r0\r0\r0\r0\r0\r4\r125\r12\ry
+4
+6
+i\e
+rb
+@ 71\r?\r97\r5\r1\r0\r0\r0\r0\r0\r0\r0\r8\r0\r50\ry
+4
+6
+i\e
+rb
+# a wizard open pit under us: step off it and back onto it (it is set off)
+@ 102\r^\r1\r0\r1\r2\r6\r0\r0\r0\r0\r0\r0\r0\r50\ry
+4
+6
+s
+# step off the pit and disarm it (tries until it works)
+4
+D6
+D6
+s
+# a wizard chest, locked and with a poison needle: disarm it, then open it
+@ 2\r&\r1\r250\r1\r2\r3\r0\r0\r0\r0\r0\r21\r20\r7\ry
+4
+D6
+D6
+D6
+o6
+o6
+s

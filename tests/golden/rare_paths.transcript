@@ -1,0 +1,268 @@
+run: -w79 rare.sav
+exit status 0
+key   1 0x0a 7c0428f9 turn -1
+key   2 0x20 4cdbf8db turn -1
+key   3 0x79 3a7b3867 turn -1
+key   4 0x61 999885ab turn -1
+key   5 0x6d 6255975a turn -1
+key   6 0x1b 124ca90a turn -1
+key   7 0x61 c3cef89f turn -1
+key   8 0x45 c7c3b548 turn -1
+key   9 0x64 b4b1aa53 turn -1
+key  10 0x0d ce33932f turn -1
+key  11 0x20 f51288a2 turn -1
+key  12 0x40 5a5ee921 turn 0
+key  13 0x20 e6f86552 turn 0
+key  14 0x33 4c7aa200 turn 0
+key  15 0x36 232ae771 turn 0
+key  16 0x0d ee0fa4c3 turn 0
+key  17 0x28 ec749a3b turn 0
+key  18 0x0d 35f48603 turn 0
+key  19 0x32 39c483aa turn 0
+key  20 0x0d aa0379e0 turn 0
+key  21 0x38 e9794823 turn 0
+key  22 0x30 0d5aff4b turn 0
+key  23 0x0d bb1beb9b turn 0
+key  24 0x31 f99e7d06 turn 0
+key  25 0x0d a005f28d turn 0
+key  26 0x30 3f1ca7a0 turn 0
+key  27 0x0d 8b594fb0 turn 0
+key  28 0x30 b27136cd turn 0
+key  29 0x0d 0616f03d turn 0
+key  30 0x30 6630304c turn 0
+key  31 0x0d 470d13fc turn 0
+key  32 0x30 78af194d turn 0
+key  33 0x0d 139e67dd turn 0
+key  34 0x34 4180495f turn 0
+key  35 0x0d 9e7a47fb turn 0
+key  36 0x30 16734167 turn 0
+key  37 0x0d 4b36b677 turn 0
+key  38 0x30 fa82add8 turn 0
+key  39 0x0d cb80eae8 turn 0
+key  40 0x38 e7e7b027 turn 0
+key  41 0x30 7c6a719f turn 0
+key  42 0x30 347ce42f turn 0
+key  43 0x30 bf1c46df turn 0
+key  44 0x30 7dc2eaef turn 0
+key  45 0x30 9c42e51f turn 0
+key  46 0x30 76a16acf turn 0
+key  47 0x30 856b74df turn 0
+key  48 0x0d 0e9dcf0f turn 0
+key  49 0x31 9903b2ae turn 0
+key  50 0x38 111f37b5 turn 0
+key  51 0x0d f638932d turn 0
+key  52 0x32 7b1b5801 turn 0
+key  53 0x0d ac4f402f turn 0
+key  54 0x79 4a85ec45 turn 0
+key  55 0x34 75ba6280 turn 0
+key  56 0x36 3bec23b7 turn 1
+key  57 0x69 9c5976c1 turn 2
+key  58 0x1b 24749fc3 turn 2
+key  59 0x77 9dec721d turn 2
+key  60 0x63 00d4a85f turn 2
+key  61 0x40 33582068 turn 3
+key  62 0x20 62065416 turn 3
+key  63 0x37 9470f134 turn 3
+key  64 0x30 a73cbed5 turn 3
+key  65 0x0d 5cd37a45 turn 3
+key  66 0x3f 2751b903 turn 3
+key  67 0x0d e436bf5e turn 3
+key  68 0x36 aa8aed6e turn 3
+key  69 0x36 b0ff3708 turn 3
+key  70 0x0d 84724c42 turn 3
+key  71 0x35 9b48994b turn 3
+key  72 0x0d 621da074 turn 3
+key  73 0x31 f4d859c2 turn 3
+key  74 0x0d 8d28c985 turn 3
+key  75 0x30 99f929d4 turn 3
+key  76 0x0d a3ff79e4 turn 3
+key  77 0x30 e8da77c5 turn 3
+key  78 0x0d 986a27f5 turn 3
+key  79 0x30 2ee71f98 turn 3
+key  80 0x0d 36d9c948 turn 3
+key  81 0x30 af185a45 turn 3
+key  82 0x0d 7633f015 turn 3
+key  83 0x30 cb45c81f turn 3
+key  84 0x0d e97b24ef turn 3
+key  85 0x30 5f77f287 turn 3
+key  86 0x0d 3d5f3197 turn 3
+key  87 0x30 9eda82cc turn 3
+key  88 0x0d c1d0e41c turn 3
+key  89 0x34 b0585a47 turn 3
+key  90 0x0d 6e370b23 turn 3
+key  91 0x31 b951846a turn 3
+key  92 0x32 bf8ce46d turn 3
+key  93 0x35 1bb2440b turn 3
+key  94 0x0d c0d8151c turn 3
+key  95 0x31 dac7ba71 turn 3
+key  96 0x32 d368d40c turn 3
+key  97 0x0d 7f9acc56 turn 3
+key  98 0x79 a5ccd17d turn 3
+key  99 0x34 bdb0b1b4 turn 3
+key 100 0x36 9ceade5c turn 4
+key 101 0x69 acf3ce5c turn 5
+key 102 0x1b 160eb206 turn 5
+key 103 0x72 42d0c701 turn 5
+key 104 0x62 5261bcdf turn 5
+key 105 0x40 d9a3db4d turn 6
+key 106 0x20 adf9bd47 turn 6
+key 107 0x37 e13e8f99 turn 6
+key 108 0x31 61750228 turn 6
+key 109 0x0d 12707a45 turn 6
+key 110 0x3f 0336769a turn 6
+key 111 0x0d c4a9ddcf turn 6
+key 112 0x39 fafb631f turn 6
+key 113 0x37 83b365ec turn 6
+key 114 0x0d 9bf4d9c7 turn 6
+key 115 0x35 001ce302 turn 6
+key 116 0x0d e8933cd9 turn 6
+key 117 0x31 44aa6933 turn 6
+key 118 0x0d febcf458 turn 6
+key 119 0x30 3ac04cb9 turn 6
+key 120 0x0d 0cf426c9 turn 6
+key 121 0x30 6bf2eb98 turn 6
+key 122 0x0d 0ec6f9c8 turn 6
+key 123 0x30 14c2dc6d turn 6
+key 124 0x0d a05d2ddd turn 6
+key 125 0x30 3230ce18 turn 6
+key 126 0x0d cb27a668 turn 6
+key 127 0x30 6b4a20b6 turn 6
+key 128 0x0d ece6af46 turn 6
+key 129 0x30 0e89933e turn 6
+key 130 0x0d 78e2b28e turn 6
+key 131 0x30 b66eac71 turn 6
+key 132 0x0d 080101c1 turn 6
+key 133 0x38 057c5cfe turn 6
+key 134 0x0d 0bc989f6 turn 6
+key 135 0x30 d3c4f07b turn 6
+key 136 0x0d 5015658b turn 6
+key 137 0x35 9b747e54 turn 6
+key 138 0x30 6039542d turn 6
+key 139 0x0d cda27d1d turn 6
+key 140 0x79 a4fdb010 turn 6
+key 141 0x34 0a7e5019 turn 6
+key 142 0x36 773158a5 turn 7
+key 143 0x69 5d319225 turn 8
+key 144 0x1b 08d0780b turn 8
+key 145 0x72 e2ff64bc turn 8
+key 146 0x62 c443d11e turn 8
+key 147 0x40 9927bfb6 turn 9
+key 148 0x20 1423f48c turn 9
+key 149 0x31 df2545b2 turn 9
+key 150 0x30 7cbd1475 turn 9
+key 151 0x32 66fc0765 turn 9
+key 152 0x0d ac951eaf turn 9
+key 153 0x5e 5e0d9dd9 turn 9
+key 154 0x0d 1564d8af turn 9
+key 155 0x31 066ffd94 turn 9
+key 156 0x0d dc656e4f turn 9
+key 157 0x30 523cba51 turn 9
+key 158 0x0d e298c5c1 turn 9
+key 159 0x31 add82ea0 turn 9
+key 160 0x0d 32a7857b turn 9
+key 161 0x32 39384b52 turn 9
+key 162 0x0d 6637e084 turn 9
+key 163 0x36 ec4f4bbb turn 9
+key 164 0x0d 82fd74e5 turn 9
+key 165 0x30 ac7d4ade turn 9
+key 166 0x0d 283c7b0e turn 9
+key 167 0x30 b28d2e3b turn 9
+key 168 0x0d 53281b8b turn 9
+key 169 0x30 3409d9cd turn 9
+key 170 0x0d 61b9ca5d turn 9
+key 171 0x30 6e87f8e5 turn 9
+key 172 0x0d c7862135 turn 9
+key 173 0x30 4762903a turn 9
+key 174 0x0d 2a5cbc0a turn 9
+key 175 0x30 2c14cca5 turn 9
+key 176 0x0d 445822b5 turn 9
+key 177 0x30 b3c5dcd8 turn 9
+key 178 0x0d 3d1a5528 turn 9
+key 179 0x35 1e03478f turn 9
+key 180 0x30 b24e849e turn 9
+key 181 0x0d acc51f4e turn 9
+key 182 0x79 8cc44ce3 turn 9
+key 183 0x34 08650632 turn 9
+key 184 0x36 2e20b613 turn 10
+key 185 0x73 58961e7c turn 11
+key 186 0x34 25638b43 turn 12
+key 187 0x44 d729faab turn 13
+key 188 0x36 af1955f2 turn 13
+key 189 0x44 28c7b7fe turn 14
+key 190 0x36 aa53f992 turn 14
+key 191 0x73 58f3bfc1 turn 15
+key 192 0x40 5492d0c3 turn 16
+key 193 0x20 b426b79c turn 16
+key 194 0x32 cba31062 turn 16
+key 195 0x0d c9d76d94 turn 16
+key 196 0x26 3f306a9d turn 16
+key 197 0x0d af3e444b turn 16
+key 198 0x31 9fc32374 turn 16
+key 199 0x0d 868c7963 turn 16
+key 200 0x32 37110ec5 turn 16
+key 201 0x35 7111242f turn 16
+key 202 0x30 52a8bf22 turn 16
+key 203 0x0d fa303c32 turn 16
+key 204 0x31 874c1310 turn 16
+key 205 0x0d 05ff056f turn 16
+key 206 0x32 6af11682 turn 16
+key 207 0x0d 2ff36e64 turn 16
+key 208 0x33 964e33af turn 16
+key 209 0x0d a737ce04 turn 16
+key 210 0x30 f112729e turn 16
+key 211 0x0d b5718b4e turn 16
+key 212 0x30 5c8c162f turn 16
+key 213 0x0d 450617ff turn 16
+key 214 0x30 c8c0fcd1 turn 16
+key 215 0x0d c7c226e1 turn 16
+key 216 0x30 9f674819 turn 16
+key 217 0x0d 3aa683e9 turn 16
+key 218 0x30 96ced5ba turn 16
+key 219 0x0d bf61b30a turn 16
+key 220 0x32 32844ed9 turn 16
+key 221 0x31 89a6284b turn 16
+key 222 0x0d aa53733c turn 16
+key 223 0x32 db611118 turn 16
+key 224 0x30 63d06416 turn 16
+key 225 0x0d d7439326 turn 16
+key 226 0x37 6868d5a3 turn 16
+key 227 0x0d 6d43ee84 turn 16
+key 228 0x79 b04b3827 turn 16
+key 229 0x34 f4e2d0e2 turn 16
+key 230 0x44 fcdff983 turn 17
+key 231 0x36 7600328e turn 17
+key 232 0x44 f55ee4c0 turn 18
+key 233 0x36 920cf3db turn 18
+key 234 0x44 f5ccf682 turn 18
+key 235 0x36 920cf3db turn 18
+key 236 0x6f f5ccf682 turn 18
+key 237 0x36 920cf3db turn 18
+key 238 0x6f cdfceabc turn 19
+key 239 0x36 37d9819b turn 19
+key 240 0x73 3fa513ec turn 20
+end of script after 240 of 240 keys
+screen (cursor 13,45, bells 0):
+|
+|             ##################################################################
+|Human        #................................................................#
+|Warrior      #...........5#########.........#3#...........#4#######...........#
+|Private      #...........##########.........###...........#########...........#
+|             #...........##########.........###...........#########...........#
+|STR :     18 #...........##########.........###...........#########...........#
+|INT :     11 #...........##########.........###...........#########...........#
+|WIS :     10 #...........##########.........###...............................#
+|DEX :     15 #...........##########>........###............p..................#
+|CON :     14 #...........##########...........................................#
+|CHR :     14 #................................................................#
+|             #................................................................#
+|LEV :      2 #...............................@&................p..............#
+|EXP :     14 #.........#########2#............................................#
+|MANA:      0 #.........###########.........########.....###########...........#
+|MHP :     32 #.........###########.........########.....###########...........#
+|CHP :     19 #.........###########.........########.....###########...........#
+|             #.............................########.....###########...........#
+|AC  :     -4 #.............................#######1.....#####6#####...........#
+|GOLD:    366 #.............................########...........................#
+|             #.........................p......................................#
+|Is wizard    ##################################################################
+|                                                                 Town level
