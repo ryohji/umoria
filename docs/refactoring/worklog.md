@@ -18,3 +18,4 @@
 | 2026-10-30 | golden の穴 | 台本 `rare_paths`（`12203a1`。呪われた鎧・鎧の巻物・罠を踏む・外す・箱）。被覆 50.3% → 51.4% | 1850（89 本） | `scripts/check.sh` ALL OK |
 | 2026-10-30 | #19 | 総当たり `bolts_all`（`a29f552`。10,920 回、8 つが 100%）、飛ぶ呪文 8 つの骨格を bolt_to_next_creature() に（`6e7b95e`。ハッシュが 9 つすべてで一致、spells.c 1681 → 1624 行） | 1850（89 本） | `scripts/check.sh` ALL OK |
 | 2026-10-30 | 計画の組みなおし | ユーザーの依頼で、台帳の P1〜P3 と棚上げの区分をやめ、主題ごとの計画（A〜F）に組みなおした（`4d32c2a`。前の全文は `done/plan-2026-10-30.md`。本文の「13069 字」は誤りで、REFACTORING_PLAN.md 12929 → 13068 字）。B34・所見 79・80（`a17d531`）、HANDOVER を合わせる（`715d9c4`。前の全文は `done/handover-2026-10-30-replan.md`。20969 → 21263 字） | 1850（89 本） | 文書だけ |
+| 2026-10-30 | マージ | `fix/test-warnings`・`test/golden-gaps`・`refactor/19-bolts`・`docs/replan-2026-10-30` を順に `--no-ff` で（`e4d208d`・`c3ee80f`・`df3fb03`・`4b4c79e`）。13 コミットを 1 つずつ空から組んで確かめた（警告を減らしている途中の 2 コミットは、今の check.sh が数えるテストの組みたての警告が 5・4 件残る形。ほかは ALL OK） | 1850（89 本） | `scripts/check.sh` ALL OK（マージ後の develop） |
