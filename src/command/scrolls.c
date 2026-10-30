@@ -26,6 +26,123 @@
 #include "inventory.h"
 #include "player_condition.h"
 
+// Enchant Weapon To-Hit, on the wielded weapon if any. Returns whether the
+// scroll is known now (ident as it was, or true).
+static bool enchant_weapon_to_hit(inven_type *i_ptr, bool ident) {
+    bigvtype tmp_str;
+    msgtype out_val;
+
+    if (i_ptr->tval != TV_NOTHING) {
+        objdes(tmp_str, i_ptr, false);
+        (void)snprintf(out_val, sizeof(out_val), "Your %s glows faintly!", tmp_str);
+        msg_print(out_val);
+        if (enchant(&i_ptr->tohit, 10)) {
+            i_ptr->flags &= ~TR_CURSED;
+            calc_bonuses();
+        } else {
+            msg_print("The enchantment fails.");
+        }
+        ident = true;
+    }
+    return ident;
+}
+
+// Enchant Weapon To-Dam, on the wielded weapon if any. Returns whether the
+// scroll is known now (ident as it was, or true).
+static bool enchant_weapon_to_dam(inven_type *i_ptr, bool ident) {
+    bigvtype tmp_str;
+    msgtype out_val;
+    int j;
+
+    if (i_ptr->tval != TV_NOTHING) {
+        objdes(tmp_str, i_ptr, false);
+        (void)snprintf(out_val, sizeof(out_val), "Your %s glows faintly!", tmp_str);
+        msg_print(out_val);
+        if ((i_ptr->tval >= TV_HAFTED) &&
+            (i_ptr->tval <= TV_DIGGING)) {
+            j = i_ptr->damage[0] * i_ptr->damage[1];
+        } else {
+            // Bows' and arrows' enchantments should not be
+            // limited by their low base damages
+            j = 10;
+        }
+        if (enchant(&i_ptr->todam, j)) {
+            i_ptr->flags &= ~TR_CURSED;
+            calc_bonuses();
+        } else {
+            msg_print("The enchantment fails.");
+        }
+        ident = true;
+    }
+    return ident;
+}
+
+// *Enchant Weapon*, on the wielded weapon if any. Returns whether the
+// scroll is known now (ident as it was, or true).
+static bool enchant_weapon_greatly(inven_type *i_ptr, bool ident) {
+    bigvtype tmp_str;
+    msgtype out_val;
+    bool flag;
+    int j, k;
+
+    if (i_ptr->tval != TV_NOTHING) {
+        objdes(tmp_str, i_ptr, false);
+        (void)snprintf(out_val, sizeof(out_val), "Your %s glows brightly!", tmp_str);
+        msg_print(out_val);
+        flag = false;
+        for (k = 0; k < randint(2); k++) {
+            if (enchant(&i_ptr->tohit, 10)) {
+                flag = true;
+            }
+        }
+        if ((i_ptr->tval >= TV_HAFTED) && (i_ptr->tval <= TV_DIGGING)) {
+            j = i_ptr->damage[0] * i_ptr->damage[1];
+        } else {
+          // Bows' and arrows' enchantments should not be limited
+          // by their low base damages
+          j = 10;
+        }
+        for (k = 0; k < randint(2); k++) {
+            if (enchant(&i_ptr->todam, j)) {
+                flag = true;
+            }
+        }
+        if (flag) {
+            i_ptr->flags &= ~TR_CURSED;
+            calc_bonuses();
+        } else {
+            msg_print("The enchantment fails.");
+        }
+        ident = true;
+    }
+    return ident;
+}
+
+// Curse Weapon, on the wielded weapon if any. Returns whether the
+// scroll is known now (ident as it was, or true).
+static bool curse_weapon(inven_type *i_ptr, bool ident) {
+    bigvtype tmp_str;
+    msgtype out_val;
+
+    if (i_ptr->tval != TV_NOTHING) {
+        objdes(tmp_str, i_ptr, false);
+        (void)snprintf(out_val, sizeof(out_val), "Your %s glows black, fades.", tmp_str);
+        msg_print(out_val);
+        unmagic_name(i_ptr);
+        i_ptr->tohit = -randint(5) - randint(5);
+        i_ptr->todam = -randint(5) - randint(5);
+        i_ptr->toac = 0;
+        // Must call py_bonuses() before set (clear) flags, and
+        // must call calc_bonuses() after set (clear) flags, so that
+        // all attributes will be properly turned off.
+        py_bonuses(i_ptr, -1);
+        i_ptr->flags = TR_CURSED;
+        calc_bonuses();
+        ident = true;
+    }
+    return ident;
+}
+
 // Scrolls for the reading -RAK-
 // Returns whether it took a game turn.
 bool read_scroll(void) {
@@ -68,41 +185,11 @@ bool read_scroll(void) {
             switch (j) {
             case 1:
                 i_ptr = equipment_at(INVEN_WIELD);
-                if (i_ptr->tval != TV_NOTHING) {
-                    objdes(tmp_str, i_ptr, false);
-                    (void)snprintf(out_val, sizeof(out_val), "Your %s glows faintly!", tmp_str);
-                    msg_print(out_val);
-                    if (enchant(&i_ptr->tohit, 10)) {
-                        i_ptr->flags &= ~TR_CURSED;
-                        calc_bonuses();
-                    } else {
-                        msg_print("The enchantment fails.");
-                    }
-                    ident = true;
-                }
+                ident = enchant_weapon_to_hit(i_ptr, ident);
                 break;
             case 2:
                 i_ptr = equipment_at(INVEN_WIELD);
-                if (i_ptr->tval != TV_NOTHING) {
-                    objdes(tmp_str, i_ptr, false);
-                    (void)snprintf(out_val, sizeof(out_val), "Your %s glows faintly!", tmp_str);
-                    msg_print(out_val);
-                    if ((i_ptr->tval >= TV_HAFTED) &&
-                        (i_ptr->tval <= TV_DIGGING)) {
-                        j = i_ptr->damage[0] * i_ptr->damage[1];
-                    } else {
-                        // Bows' and arrows' enchantments should not be
-                        // limited by their low base damages
-                        j = 10;
-                    }
-                    if (enchant(&i_ptr->todam, j)) {
-                        i_ptr->flags &= ~TR_CURSED;
-                        calc_bonuses();
-                    } else {
-                        msg_print("The enchantment fails.");
-                    }
-                    ident = true;
-                }
+                ident = enchant_weapon_to_dam(i_ptr, ident);
                 break;
             case 3:
                 l = pick_random_worn_armor();
@@ -261,55 +348,11 @@ bool read_scroll(void) {
                 break;
             case 33:
                 i_ptr = equipment_at(INVEN_WIELD);
-                if (i_ptr->tval != TV_NOTHING) {
-                    objdes(tmp_str, i_ptr, false);
-                    (void)snprintf(out_val, sizeof(out_val), "Your %s glows brightly!", tmp_str);
-                    msg_print(out_val);
-                    flag = false;
-                    for (k = 0; k < randint(2); k++) {
-                        if (enchant(&i_ptr->tohit, 10)) {
-                            flag = true;
-                        }
-                    }
-                    if ((i_ptr->tval >= TV_HAFTED) && (i_ptr->tval <= TV_DIGGING)) {
-                        j = i_ptr->damage[0] * i_ptr->damage[1];
-                    } else {
-                      // Bows' and arrows' enchantments should not be limited
-                      // by their low base damages
-                      j = 10;
-                    }
-                    for (k = 0; k < randint(2); k++) {
-                        if (enchant(&i_ptr->todam, j)) {
-                            flag = true;
-                        }
-                    }
-                    if (flag) {
-                        i_ptr->flags &= ~TR_CURSED;
-                        calc_bonuses();
-                    } else {
-                        msg_print("The enchantment fails.");
-                    }
-                    ident = true;
-                }
+                ident = enchant_weapon_greatly(i_ptr, ident);
                 break;
             case 34:
                 i_ptr = equipment_at(INVEN_WIELD);
-                if (i_ptr->tval != TV_NOTHING) {
-                    objdes(tmp_str, i_ptr, false);
-                    (void)snprintf(out_val, sizeof(out_val), "Your %s glows black, fades.", tmp_str);
-                    msg_print(out_val);
-                    unmagic_name(i_ptr);
-                    i_ptr->tohit = -randint(5) - randint(5);
-                    i_ptr->todam = -randint(5) - randint(5);
-                    i_ptr->toac = 0;
-                    // Must call py_bonuses() before set (clear) flags, and
-                    // must call calc_bonuses() after set (clear) flags, so that
-                    // all attributes will be properly turned off.
-                    py_bonuses(i_ptr, -1);
-                    i_ptr->flags = TR_CURSED;
-                    calc_bonuses();
-                    ident = true;
-                }
+                ident = curse_weapon(i_ptr, ident);
                 break;
             case 35:
                 l = pick_random_worn_armor();
