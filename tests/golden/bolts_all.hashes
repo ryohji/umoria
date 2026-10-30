@@ -3,8 +3,8 @@ drain_life       ab5e2c1d
 speed_monster    1b1f9e28
 confuse_monster  6d51d65f
 sleep_monster    f8cfc5ad
-poly_monster     71681523
+poly_monster     799ce9e5
 clone_monster    c2c9cf9e
 teleport_monster 5880605d
 fire_bolt        04ea39fd
-total 0cd328d2 (10920 calls)
+total 8419d308 (10920 calls)
