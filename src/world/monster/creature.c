@@ -52,7 +52,6 @@
 #define CM_75_RANDOM    0x00000020L
 
 #define CM_OPEN_DOOR    0x00020000L
-#define CM_EATS_OTHER   0x00080000L
 #define CM_PICKS_UP     0x00100000L
 #define CM_MULTIPLY     0x00200000L
 
@@ -76,18 +75,6 @@ static int moves_this_turn(int16_t speed) {
         // Returning 1 or 0 explicitly, rather than the comparison itself,
         // says that this is a count of moves and not a truth value.
         return ((progress_turn() % (2 - speed)) == 0) ? 1 : 0;
-    }
-}
-
-// Makes sure a new creature gets lit up. -CJS-
-static bool check_mon_lite(int y, int x) {
-    int monptr = square_at(y, x)->cptr;
-
-    if (monptr <= 1) {
-        return false;
-    } else {
-        update_mon(monptr);
-        return monster_list_at(monptr)->ml;
     }
 }
 
@@ -661,72 +648,6 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
             }
         }
     }
-}
-
-// Places creature adjacent to given location -RAK-
-// Rats and Flys are fun!
-bool multiply_monster(int y, int x, creature_iterator creature, int monptr) {
-    int j, k, result;
-    cave_type *c_ptr;
-
-    int i = 0;
-    do {
-        j = y - 2 + randint(3);
-        k = x - 2 + randint(3);
-
-        // don't create a new creature on top of the old one, that
-        // causes invincible/invisible creatures to appear.
-        if (in_bounds(j, k) && (j != y || k != x)) {
-            c_ptr = square_at(j, k);
-            if ((c_ptr->fval <= MAX_OPEN_SPACE) && (c_ptr->tptr == 0) && (c_ptr->cptr != 1)) {
-                // Creature there already?
-                if (c_ptr->cptr > 1) {
-                    // Some critters are cannibalistic!
-                    if ((monster_creature_get(creature)->cmove & CM_EATS_OTHER)
-                        // Check the experience level -CJS-
-                        && monster_creature_get(creature)->mexp >= monster_creature_get(monster_list_at(c_ptr->cptr)->creature)->mexp) {
-                        // It ate an already processed monster.Handle * normally.
-                        if (monptr < c_ptr->cptr) {
-                            delete_monster((int)c_ptr->cptr);
-                        } else {
-                            // If it eats this monster, an already processed
-                            // mosnter will take its place, causing all kinds
-                            // of havoc. Delay the kill a bit.
-                            fix1_delete_monster((int)c_ptr->cptr);
-                        }
-
-                        // in case compact_monster() is called,it needs monptr
-                        monster_turn_begin(monptr);
-
-                        // Place_monster() may fail if monster list full.
-                        result = place_monster(j, k, creature, false);
-                        monster_turn_end();
-                        if (!result) {
-                            return false;
-                        }
-                        monster_breeding_note_birth();
-                        return check_mon_lite(j, k);
-                    }
-                } else {
-                    // All clear,  place a monster
-
-                    // in case compact_monster() is called,it needs monptr
-                    monster_turn_begin(monptr);
-
-                    // Place_monster() may fail if monster list full.
-                    result = place_monster(j, k, creature, false);
-                    monster_turn_end();
-                    if (!result) {
-                        return false;
-                    }
-                    monster_breeding_note_birth();
-                    return check_mon_lite(j, k);
-                }
-            }
-        }
-        i++;
-    } while (i <= 18);
-    return false;
 }
 
 // Fill movement array with five random directions (1-9)
