@@ -157,13 +157,13 @@ key  57 0x15 ac896074
 key  58 0x73 34727fde
 key  59 0x20 696e06eb
 key  60 0x20 3a4645ac
-key  61 0x73 19ebea8f
-key  62 0x20 34a006f9
-key  63 0x73 b3c3f1d4
-key  64 0x20 383f094d
-key  65 0x73 37717022
-key  66 0x20 ba254253
-key  67 0x73 9bf7daa0
+key  61 0x73 be70493d
+key  62 0x20 1169fa27
+key  63 0x73 632599b2
+key  64 0x20 b7575663
+key  65 0x73 37937d96
+key  66 0x20 454147f7
+key  67 0x73 820aa33a
 end of script after 67 of 67 keys
 screen (cursor 7,29, bells 0):
 |The Shrieker Mushroom patch makes a horrible wail.  -more-
@@ -172,8 +172,8 @@ screen (cursor 7,29, bells 0):
 |Warrior            #............#
 |Rookie             #.............
 |                   #............#
-|STR :  18/16       #....i.....,.#
-|INT :     11       #.........@...
+|STR :  18/16       #..........,.#
+|INT :     11       #.....i...@...
 |WIS :     11       #............#
 |DEX :     16       #............#
 |CON :     16       ###########.##
