@@ -650,35 +650,44 @@ effect_outcome recharge(int num) {
     return res;
 }
 
+// Moves (*y, *x) along the line of a bolt in dir, counting the squares in
+// *dist, to the next square with a creature on it, and returns the creature's
+// place in the monster list. Returns 0 when the bolt ends first: past
+// OBJ_BOLT_RANGE squares, or at a wall.
+static int bolt_to_next_creature(int dir, int *y, int *x, int *dist) {
+    for (;;) {
+        (void)mmove(dir, y, x);
+        (*dist)++;
+
+        const cave_type *c_ptr = square_at(*y, *x);
+
+        if ((*dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
+            return 0;
+        }
+        if (c_ptr->cptr > 1) {
+            return c_ptr->cptr;
+        }
+    }
+}
+
 // Increase or decrease a creatures hit points -RAK-
 int hp_monster(int dir, int y, int x, int dam) {
     bool monster = false;
-    bool flag = false;
     int dist = 0;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
+    const int cptr = bolt_to_next_creature(dir, &y, &x, &dist);
+    if (cptr != 0) {
+        monster_type *m_ptr = monster_list_at(cptr);
 
-        cave_type *c_ptr = square_at(y, x);
-
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            flag = true;
-
-            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-
-            const char *cdesc = monster_name((vtype){0}, m_ptr);
-            monster = true;
-            if (mon_take_hit(c_ptr->cptr, dam)) {
-                msg_print(CONCAT(cdesc, " dies in a fit of agony."));
-                prt_experience();
-            } else if (dam > 0) {
-                msg_print(CONCAT(cdesc, " screams in agony."));
-            }
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
+        monster = true;
+        if (mon_take_hit(cptr, dam)) {
+            msg_print(CONCAT(cdesc, " dies in a fit of agony."));
+            prt_experience();
+        } else if (dam > 0) {
+            msg_print(CONCAT(cdesc, " screams in agony."));
         }
-    } while (!flag);
+    }
 
     return monster;
 }
@@ -686,38 +695,27 @@ int hp_monster(int dir, int y, int x, int dam) {
 // Drains life; note it must be living. -RAK-
 int drain_life(int dir, int y, int x) {
     bool drain = false;
-    bool flag = false;
     int dist = 0;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
+    const int cptr = bolt_to_next_creature(dir, &y, &x, &dist);
+    if (cptr != 0) {
+        monster_type *m_ptr = monster_list_at(cptr);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
-        cave_type *c_ptr = square_at(y, x);
+        if ((r_ptr->cdefense & CD_UNDEAD) == 0) {
+            drain = true;
 
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            flag = true;
-
-            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
-
-            if ((r_ptr->cdefense & CD_UNDEAD) == 0) {
-                drain = true;
-
-                const char *cdesc = monster_name((vtype){0}, m_ptr);
-                if (mon_take_hit(c_ptr->cptr, 75)) {
-                    msg_print(CONCAT(cdesc, " dies in a fit of agony."));
-                    prt_experience();
-                } else {
-                    msg_print(CONCAT(cdesc, " screams in agony."));
-                }
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
+            if (mon_take_hit(cptr, 75)) {
+                msg_print(CONCAT(cdesc, " dies in a fit of agony."));
+                prt_experience();
             } else {
-                recall_update_characteristics(m_ptr->creature, CD_UNDEAD);
+                msg_print(CONCAT(cdesc, " screams in agony."));
             }
+        } else {
+            recall_update_characteristics(m_ptr->creature, CD_UNDEAD);
         }
-    } while (!flag);
+    }
 
     return drain;
 }
@@ -726,40 +724,29 @@ int drain_life(int dir, int y, int x) {
 // NOTE: cannot slow a winning creature (BALROG)
 int speed_monster(int dir, int y, int x, int spd) {
     bool speed = false;
-    bool flag = false;
     int dist = 0;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
+    const int cptr = bolt_to_next_creature(dir, &y, &x, &dist);
+    if (cptr != 0) {
+        monster_type *m_ptr = monster_list_at(cptr);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
-        cave_type *c_ptr = square_at(y, x);
-
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            flag = true;
-
-            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
-
-            const char *cdesc = monster_name((vtype){0}, m_ptr);
-            if (spd > 0) {
-                m_ptr->cspeed += spd;
-                m_ptr->csleep = 0;
-                msg_print(CONCAT(cdesc, " starts moving faster."));
-                speed = true;
-            } else if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
-                m_ptr->cspeed += spd;
-                m_ptr->csleep = 0;
-                msg_print(CONCAT(cdesc, " starts moving slower."));
-                speed = true;
-            } else {
-                m_ptr->csleep = 0;
-                msg_print(CONCAT(cdesc, " is unaffected."));
-            }
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
+        if (spd > 0) {
+            m_ptr->cspeed += spd;
+            m_ptr->csleep = 0;
+            msg_print(CONCAT(cdesc, " starts moving faster."));
+            speed = true;
+        } else if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
+            m_ptr->cspeed += spd;
+            m_ptr->csleep = 0;
+            msg_print(CONCAT(cdesc, " starts moving slower."));
+            speed = true;
+        } else {
+            m_ptr->csleep = 0;
+            msg_print(CONCAT(cdesc, " is unaffected."));
         }
-    } while (!flag);
+    }
 
     return speed;
 }
@@ -767,47 +754,38 @@ int speed_monster(int dir, int y, int x, int spd) {
 // Confuse a creature -RAK-
 int confuse_monster(int dir, int y, int x) {
     bool confuse = false;
-    bool flag = false;
     int dist = 0;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
-        cave_type *c_ptr = square_at(y, x);
+    const int cptr = bolt_to_next_creature(dir, &y, &x, &dist);
+    if (cptr != 0) {
+        monster_type *m_ptr = monster_list_at(cptr);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
-
-            const char *cdesc = monster_name((vtype){0}, m_ptr);
-            flag = true;
-            if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
-                if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
-                }
-
-                // Monsters which resisted the attack should wake up.
-                // Monsters with innate resistence ignore the attack.
-                if (!(CD_NO_SLEEP & r_ptr->cdefense)) {
-                    m_ptr->csleep = 0;
-                }
-
-                msg_print(CONCAT(cdesc, " is unaffected."));
-            } else {
-                if (m_ptr->confused) {
-                    m_ptr->confused += 3;
-                } else {
-                    m_ptr->confused = 2 + randint(16);
-                }
-                confuse = true;
-                m_ptr->csleep = 0;
-
-                msg_print(CONCAT(cdesc, " appears confused."));
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
+        if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
+            if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
+                recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
             }
+
+            // Monsters which resisted the attack should wake up.
+            // Monsters with innate resistence ignore the attack.
+            if (!(CD_NO_SLEEP & r_ptr->cdefense)) {
+                m_ptr->csleep = 0;
+            }
+
+            msg_print(CONCAT(cdesc, " is unaffected."));
+        } else {
+            if (m_ptr->confused) {
+                m_ptr->confused += 3;
+            } else {
+                m_ptr->confused = 2 + randint(16);
+            }
+            confuse = true;
+            m_ptr->csleep = 0;
+
+            msg_print(CONCAT(cdesc, " appears confused."));
         }
-    } while (!flag);
+    }
 
     return confuse;
 }
@@ -815,39 +793,28 @@ int confuse_monster(int dir, int y, int x) {
 // Sleep a creature. -RAK-
 int sleep_monster(int dir, int y, int x) {
     bool sleep = false;
-    bool flag = false;
     int dist = 0;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
+    const int cptr = bolt_to_next_creature(dir, &y, &x, &dist);
+    if (cptr != 0) {
+        monster_type *m_ptr = monster_list_at(cptr);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
-        cave_type *c_ptr = square_at(y, x);
+        const char *cdesc = monster_name((vtype){0}, m_ptr);
 
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            flag = true;
-
-            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
-
-            const char *cdesc = monster_name((vtype){0}, m_ptr);
-
-            if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
-                if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
-                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
-                }
-
-                msg_print(CONCAT(cdesc, " is unaffected."));
-            } else {
-                m_ptr->csleep = 500;
-                sleep = true;
-
-                msg_print(CONCAT(cdesc, " falls asleep."));
+        if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
+            if (m_ptr->ml && (r_ptr->cdefense & CD_NO_SLEEP)) {
+                recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
             }
+
+            msg_print(CONCAT(cdesc, " is unaffected."));
+        } else {
+            m_ptr->csleep = 500;
+            sleep = true;
+
+            msg_print(CONCAT(cdesc, " falls asleep."));
         }
-    } while (!flag);
+    }
 
     return sleep;
 }
@@ -967,41 +934,34 @@ int td_destroy2(int dir, int y, int x) {
 // NOTE: cannot polymorph a winning creature (BALROG)
 int poly_monster(int dir, int y, int x) {
     bool poly = false;
-    bool flag = false;
     int dist = 0;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
+    // A creature that resists lets the bolt go on to the next one.
+    int cptr;
+    while ((cptr = bolt_to_next_creature(dir, &y, &x, &dist)) != 0) {
+        monster_type *m_ptr = monster_list_at(cptr);
+        creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
-        cave_type *const c_ptr = square_at(y, x);
+        if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
+            delete_monster(cptr);
 
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            monster_type *m_ptr = monster_list_at(c_ptr->cptr);
-            creature_type *r_ptr = monster_creature_get(m_ptr->creature);
+            // Place_monster() should always return true here. Any monster
+            // but a town one, so the band starts above them.
+            const int first = first_monster_at_level(1);
+            const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
+            poly = place_monster(y, x, monster_creature_at(m), false);
 
-            if (randint(MAX_MONS_LEVEL) > r_ptr->level) {
-                flag = true;
-                delete_monster((int)c_ptr->cptr);
-
-                // Place_monster() should always return true here. Any monster
-                // but a town one, so the band starts above them.
-                const int first = first_monster_at_level(1);
-                const int16_t m = randint(monsters_up_to_level(MAX_MONS_LEVEL) - first) - 1 + first;
-                poly = place_monster(y, x, monster_creature_at(m), false);
-
-                // don't test c_ptr->fm here, only pl/tl
-                if (poly && panel_contains(y, x) && (c_ptr->tl || c_ptr->pl)) {
-                    poly = true;
-                }
-            } else {
-                const char *cdesc = monster_name((vtype){0}, m_ptr);
-                msg_print(CONCAT(cdesc, " is unaffected."));
+            // don't test c_ptr->fm here, only pl/tl
+            const cave_type *c_ptr = square_at(y, x);
+            if (poly && panel_contains(y, x) && (c_ptr->tl || c_ptr->pl)) {
+                poly = true;
             }
+            break;
+        } else {
+            const char *cdesc = monster_name((vtype){0}, m_ptr);
+            msg_print(CONCAT(cdesc, " is unaffected."));
         }
-    } while (!flag);
+    }
 
     return poly;
 }
@@ -1049,23 +1009,14 @@ int build_wall(int dir, int y, int x) {
 // Replicate a creature -RAK-
 bool clone_monster(int dir, int y, int x) {
     int dist = 0;
-    bool flag = false;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
+    const int cptr = bolt_to_next_creature(dir, &y, &x, &dist);
+    if (cptr != 0) {
+        monster_list_at(cptr)->csleep = 0;
 
-        cave_type *c_ptr = square_at(y, x);
-
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            monster_list_at(c_ptr->cptr)->csleep = 0;
-
-            // monptr of 0 is safe here, since can't reach here from creatures
-            return multiply_monster(y, x, monster_list_at(c_ptr->cptr)->creature, 0);
-        }
-    } while (!flag);
+        // monptr of 0 is safe here, since can't reach here from creatures
+        return multiply_monster(y, x, monster_list_at(cptr)->creature, 0);
+    }
 
     return false;
 }
@@ -1138,24 +1089,16 @@ void teleport_to(int ny, int nx) {
 
 // Teleport all creatures in a given direction away -RAK-
 int teleport_monster(int dir, int y, int x) {
-    bool flag = false;
     bool result = false;
     int dist = 0;
 
-    do {
-        (void)mmove(dir, &y, &x);
-        dist++;
-
-        cave_type *c_ptr = square_at(y, x);
-
-        if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE) {
-            flag = true;
-        } else if (c_ptr->cptr > 1) {
-            monster_list_at(c_ptr->cptr)->csleep = 0; // wake it up
-            teleport_away((int)c_ptr->cptr, MAX_SIGHT);
-            result = true;
-        }
-    } while (!flag);
+    // Every creature in the line goes, up to the end of the bolt.
+    int cptr;
+    while ((cptr = bolt_to_next_creature(dir, &y, &x, &dist)) != 0) {
+        monster_list_at(cptr)->csleep = 0; // wake it up
+        teleport_away(cptr, MAX_SIGHT);
+        result = true;
+    }
 
     return result;
 }
