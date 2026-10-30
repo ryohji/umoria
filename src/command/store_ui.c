@@ -277,7 +277,8 @@ static bool store_sell(int store_num, int *cur_top) {
 
     char mask[INVEN_WIELD];
 
-    for (int counter = 0; counter < inventory_count(); counter++) {
+    // inven_carry() keeps the pack at INVEN_WIELD items at most.
+    for (int counter = 0; counter < inventory_count() && counter < INVEN_WIELD; counter++) {
         int flag = (*store_buy[store_num])(inventory_at(counter)->tval);
 
         mask[counter] = flag;

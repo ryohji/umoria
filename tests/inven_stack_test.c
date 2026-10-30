@@ -472,29 +472,56 @@ TEST(inven_carry_does_not_stack_when_only_incoming_item_is_identified)
  * TV_POTION1(75) > TV_SCROLL1(70) なので else if の (typ > t_ptr->tval) が
  * locn=0 で成立し、既存アイテムを後ろへずらして先頭に割りこむ。
  * したがって inventory[0] は新規アイテム（number 3）になり、
- * 既存アイテムは inventory[1] に移る。 */
+ * 既存アイテムは inventory[1] に移る。満杯では入らないので 1 枠空けておく。 */
 TEST(inven_carry_inserts_before_existing_item_when_tval_is_greater)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
+    inventory_set_count(INVEN_WIELD - 1);
     inven_carry(incoming_item(TV_POTION1, ITEM_SINGLE_STACK_MIN, 3, 0));
-    ASSERT_EQ_INT(inventory_at(1)->number, 1);
+    ASSERT_EQ_INT(inventory_at(1)->tval, TV_SCROLL1);
 }
 
-/* 同じ場面で、スタックしていないので枠が 1 つ増える。
+/* 満杯でスタックできないなら、入れずに -1 を返す（バグ候補 B8・B9 を直した）。
  * inven_check_num() は同じ条件で false を返す（items_do_not_stack_when_
- * tval_differs）のに、inven_carry() は満杯でも挿入してしまう。
- *
- * SUSPICIOUS: inven_ctr が INVEN_WIELD(22) のときに挿入すると 23 になる。
- * inventory は INVEN_ARRAY_SIZE(34) 確保されており、22〜33 は装備欄なので
- * 配列外には出ないが、持ち物の枠が装備欄を侵食している。
- * inven_check_num() を先に呼んで false なら呼ばない、という約束が
- * 守られている前提のコードで、約束が破られたときの防御がない。
- * ここでは実装を変えないので、現在のふるまいをそのまま固定する。 */
-TEST(inven_carry_increases_inven_ctr_past_inven_wield_when_full)
+ * tval_differs）。前は満杯でも挿入して inven_ctr を 23 にし、持ち物の枠が
+ * 装備欄（22〜33）を侵食した。 */
+TEST(inven_carry_returns_minus_one_when_full_and_unstackable)
+{
+    given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
+    ASSERT_EQ_INT(inven_carry(incoming_item(TV_POTION1, ITEM_SINGLE_STACK_MIN, 3, 0)), -1);
+}
+
+/* 同じ場面で、枠は増えない。 */
+TEST(inven_carry_does_not_increase_inven_ctr_when_full_and_unstackable)
 {
     given_existing_item(ITEM_SINGLE_STACK_MIN, 1, 0);
     inven_carry(incoming_item(TV_POTION1, ITEM_SINGLE_STACK_MIN, 3, 0));
-    ASSERT_EQ_INT(inventory_count(), INVEN_WIELD + 1);
+    ASSERT_EQ_INT(inventory_count(), INVEN_WIELD);
+}
+
+/* 満杯でも、スタックできる相手が割りこみの位置より後ろにあれば、そこに
+ * 積む（inven_check_num() が true を返す場面）。前は先に割りこんで枠を
+ * 23 にしていた（B9）。先頭に割りこみを誘う品（tval が小さい巻物）を置き、
+ * 相手の薬を 2 番目に置く。 */
+TEST(inven_carry_stacks_behind_an_insertion_point_when_full)
+{
+    given_full_inventory();
+    set_item(inventory_at(0), TV_SCROLL1, 0, 1, 0);
+    set_item(inventory_at(1), TV_POTION1, ITEM_SINGLE_STACK_MIN, 1, 0);
+    inven_carry(incoming_item(TV_POTION1, ITEM_SINGLE_STACK_MIN, 3, 0));
+    ASSERT_EQ_INT(inventory_at(1)->number, 4);
+}
+
+/* どの品より後ろに並ぶ品は、最後の品のあとに入る。すべての枠の tval が
+ * 新規の品より大きいと、前のループは終わりの条件が無く、持ち物の末尾を
+ * 越えて読みつづけた（B8。AddressSanitizer で確かめてあった）。 */
+TEST(inven_carry_puts_an_item_that_sorts_last_at_the_end)
+{
+    for (int i = 0; i < INVEN_WIELD - 1; i++) {
+        set_item(inventory_at(i), 90, 0, 1, 0);
+    }
+    inventory_set_count(INVEN_WIELD - 1);
+    ASSERT_EQ_INT(inven_carry(incoming_item(10, 0, 1, 0)), INVEN_WIELD - 1);
 }
 
 /* 条件 2（subval の一致）を満たさないとスタックしない。 */
@@ -514,31 +541,7 @@ TEST(inven_carry_increases_inven_ctr_when_inserting_into_empty_inventory)
     ASSERT_EQ_INT(inventory_count(), 1);
 }
 
-/* TODO: 仕様確認 -- inven_carry() のループには終了条件がない。
- *   for (locn = 0;; locn++)     inven_ops.c:228
- * break は「スタックした」か「割りこんだ」ときだけ。どちらも起きない
- * アイテムを渡すと inventory[] の末尾を越えて読みつづける。
- *
- * 割りこみ条件は inven_ops.c:234 の
- *   (typ == t_ptr->tval && subt < t_ptr->subval && always_known1p)
- *   || (typ > t_ptr->tval)
- * なので、インベントリ全枠の tval が新規アイテムの tval より大きく、
- * かつスタックもできない状態を作ると break に到達しない。
- *
- * AddressSanitizer で確認済み（このテストには含めない。UB なので
- * 実行結果が保証されず、テストとして固定できないため）:
- *   全 34 枠を tval=90 で埋め、tval=10・subval=0 の新規アイテムを渡すと
- *   当時の src/misc3.c:1254 で global-buffer-overflow（inventory の 20 バイト先を
- *   読む）。いまその読みは inven_ops.c:231 から呼ぶ items_can_stack()
- *   （inven_ops.c:130）の中にある。読んだ先が偶然 break 条件を満たすまで
- *   走るので、何が起きるかは隣接するグローバル変数の内容次第。
- *
- * 実際の呼びだし側は inven_check_num() で先に確認する約束になっているが、
- * inven_carry() 側にその約束を守らせる仕組みがない。約束が破られた場合の
- * 防御（locn < inven_ctr などの上限）が存在しない。
- * ここでは実装を変えないので、報告だけ残す。
- *
- * 重さも更新される。number * weight が inven_weight に加算される。
+/* 重さも更新される。number * weight が inven_weight に加算される。
  * set_item() が weight = 1 を入れているので 3 * 1 = 3。 */
 TEST(inven_carry_adds_item_weight_to_inventory_weight)
 {
@@ -585,7 +588,10 @@ int main(void)
     RUN_TEST(inven_carry_stacks_with_same_p1_at_group_min);
     RUN_TEST(inven_carry_does_not_stack_when_only_incoming_item_is_identified);
     RUN_TEST(inven_carry_inserts_before_existing_item_when_tval_is_greater);
-    RUN_TEST(inven_carry_increases_inven_ctr_past_inven_wield_when_full);
+    RUN_TEST(inven_carry_returns_minus_one_when_full_and_unstackable);
+    RUN_TEST(inven_carry_does_not_increase_inven_ctr_when_full_and_unstackable);
+    RUN_TEST(inven_carry_stacks_behind_an_insertion_point_when_full);
+    RUN_TEST(inven_carry_puts_an_item_that_sorts_last_at_the_end);
     RUN_TEST(inven_carry_does_not_stack_when_subval_differs);
     RUN_TEST(inven_carry_increases_inven_ctr_when_inserting_into_empty_inventory);
     RUN_TEST(inven_carry_adds_item_weight_to_inventory_weight);
