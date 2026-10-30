@@ -187,26 +187,14 @@ TEST(staff_lucky_roll_range_is_two_when_chance_is_two)
     ASSERT_EQ_INT(mock_last_maxval, 2);
 }
 
-/* 混乱時に chance が負だと、C の整数除算は 0 方向に丸める。
- * -9 / 2 は -4（-5 ではない）。下限補正の抽選幅 randint(3-(-4)+1)=randint(8)
- * にその丸めが現れるので、ここで固定しておく。 */
-TEST(negative_chance_halving_truncates_toward_zero)
+/* B5 を直した：混乱で半分にするのは chance が正のときだけ。負の chance を
+ * 半分にすると 0 に近づき（-9 / 2 は -4）、下限補正の抽選幅 randint(USE_DEVICE -
+ * chance + 1) が狭まって、混乱しているほうが使いやすくなっていた。
+ * 混乱していても chance = -9 のまま → randint(13)（混乱していないときと同じ）。 */
+TEST(confusion_does_not_halve_a_negative_chance)
 {
     mock_returns = 2;
     device_use_chance(0, 0, 4, STAFF_PENALTY, 0, 1, 1);
-    ASSERT_EQ_INT(mock_last_maxval, 8);
-}
-
-/* TODO: 仕様確認 -- 混乱すると chance が改善する場合がある。
- * chance が負のとき chance/2 は 0 方向に丸められて負の絶対値が小さくなり、
- * 下限補正の抽選幅 randint(USE_DEVICE - chance + 1) が狭くなる。
- * 抽選幅が狭いほど 1 を引きやすい＝USE_DEVICE に引きあげられやすいので、
- * 「混乱しているほうが使いやすい」という逆転が起きる。
- * 非混乱では chance = -9 → randint(13)、混乱では -4 → randint(8)。 */
-TEST(confusion_narrows_lucky_roll_range_when_chance_is_negative)
-{
-    mock_returns = 2;
-    device_use_chance(0, 0, 4, STAFF_PENALTY, 0, 1, 0);
     ASSERT_EQ_INT(mock_last_maxval, 13);
 }
 
@@ -270,8 +258,7 @@ int main(void)
     RUN_TEST(staff_chance_of_zero_is_raised_to_one);
     RUN_TEST(staff_lucky_roll_range_widens_as_chance_falls);
     RUN_TEST(staff_lucky_roll_range_is_two_when_chance_is_two);
-    RUN_TEST(negative_chance_halving_truncates_toward_zero);
-    RUN_TEST(confusion_narrows_lucky_roll_range_when_chance_is_negative);
+    RUN_TEST(confusion_does_not_halve_a_negative_chance);
     RUN_TEST(lucky_roll_range_never_reaches_zero_even_for_very_low_chance);
     RUN_TEST(device_use_succeeds_when_roll_reaches_use_device);
     RUN_TEST(device_use_fails_when_roll_is_below_use_device);

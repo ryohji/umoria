@@ -30,7 +30,9 @@
 int device_use_chance(int save, int int_adj, int item_level, int penalty, int class_device_adj, int player_level, int confused) {
     int chance = save + int_adj - item_level - penalty + (class_device_adj * player_level / 3);
 
-    if (confused > 0) {
+    // Halving a negative chance would bring it nearer to zero, so confusion
+    // only halves a chance that is above zero.
+    if (confused > 0 && chance > 0) {
         chance = chance / 2;
     }
     if ((chance < USE_DEVICE) && (randint(USE_DEVICE - chance + 1) == 1)) {
