@@ -76,7 +76,11 @@ static void get_flags(int typ, uint32_t *weapon_type, int *harm_type, bool (**de
         *destroy = set_null;
         break;
     default:
-        msg_print("ERROR in get_flags()\n");
+        // Not a kind any caller passes; it hurts nothing and destroys nothing.
+        *weapon_type = 0;
+        *harm_type = 0;
+        *destroy = set_null;
+        break;
     }
 }
 
