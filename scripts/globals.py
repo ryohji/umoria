@@ -243,14 +243,10 @@ GROUPS = {
     # セーブ／スコア／進行メタの 14 個のうち 13 個は 3 つの module に置かれた
     # （progress.c に turn randes_seed town_seed wizard to_be_wizard、
     # game_status.c に death died_from birth_date noscore、game_status.c に
-    # savefile character_generated character_saved panic_save）。残るのは
-    # highscore_fp 1 個。得点ファイルを
-    # 読み書きする 2 関数（death.c の display_scores() と highscores()）は
-    # #19-5-1 で局所変数にしたので、書きこみは init_scorefile()（files.c）の
-    # 1 箇所だけになった。その handle は誰も読まず誰も閉じない（バグ候補
-    # B19）ので、この 1 個を片づけるにはふるまいの判断が要る。
-    "セーブ／スコア／進行メタ": """
-        highscore_fp""",
+    # savefile character_generated character_saved panic_save）。残っていた
+    # highscore_fp は、誰も読まず誰も閉じなかった（バグ候補 B19）ので、
+    # init_scorefile() が開けるか確かめたら閉じる形にして消した。この区分も
+    # 片づいた。
 }
 
 # 定義の置き場。ここでの代入は初期化なので「散らばった書きこみ」に数えない。

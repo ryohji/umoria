@@ -16,9 +16,6 @@
 
 // --- From variable.c: the global storage ---
 
-// Never read, never closed (bugs.md B19).
-FILE *highscore_fp;
-
 // The option globals. Starting values are in the table below; game_options_reset() applies them at startup.
 bool rogue_like_commands;
 bool find_cut;
