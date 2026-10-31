@@ -50,7 +50,6 @@ static void mix_string(const char *s) { for (; *s; s++) mix_byte((uint8_t)*s); m
 
 static bool r_init(void) { return true; }
 static void r_nothing(void) {}
-static void r_get_size(int *rows, int *cols) { *rows = 24; *cols = 80; }
 static void r_erase_line(int row, int col) { mix_byte('E'); mix_int(row); mix_int(col); }
 static void r_clear_from(int row) { mix_byte('C'); mix_int(row); }
 static void r_clear(void) { mix_byte('K'); }
@@ -62,15 +61,13 @@ static void r_draw_string(int row, int col, const char *str, RenderColor color) 
 }
 static void r_move_cursor(int row, int col) { (void)row; (void)col; }
 static void r_show_cursor(bool show) { (void)show; }
-static int r_get_char(void) { return ESCAPE; }
-static bool r_check_input(int microsec) { (void)microsec; return false; }
 
 static RenderBackend render_backend = {
-    .name = "melee_all", .init = r_init, .shutdown = r_nothing, .begin_frame = r_nothing,
-    .end_frame = r_nothing, .clear = r_clear, .get_size = r_get_size, .erase_line = r_erase_line,
+    .name = "melee_all", .init = r_init, .shutdown = r_nothing,
+    .clear = r_clear, .erase_line = r_erase_line,
     .clear_from = r_clear_from, .refresh = r_nothing, .draw_char = r_draw_char,
     .draw_string = r_draw_string, .move_cursor = r_move_cursor, .show_cursor = r_show_cursor,
-    .bell = r_nothing, .get_char = r_get_char, .check_input = r_check_input,
+    .bell = r_nothing,
     .save_screen = r_nothing, .restore_screen = r_nothing,
 };
 

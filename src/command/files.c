@@ -31,17 +31,17 @@
 #include "player_progress.h"
 
 //  init_scorefile
-//  Open the score file while we still have the setuid privileges.  Later
-//  when the score is being written out, you must be sure to flock the file
-//  so we don't have multiple people trying to write to it at the same time.
-//  Craig Norborg (doc)    Mon Aug 10 16:41:59 EST 1987
+//  Make sure the score file can be opened for reading and writing, before the
+//  game starts. The two functions that read and write it (death.c) open it
+//  again themselves, so the handle is not kept.
 void init_scorefile(void) {
-    highscore_fp = fopen(MORIA_TOP, "rb+");
+    FILE *score_fp = fopen(MORIA_TOP, "rb+");
 
-    if (highscore_fp == NULL) {
+    if (score_fp == NULL) {
         (void)fprintf(stderr, "Can't open score file \"%s\"\n", MORIA_TOP);
         exit(1);
     }
+    (void)fclose(score_fp);
 }
 
 // Attempt to open the intro file -RAK-

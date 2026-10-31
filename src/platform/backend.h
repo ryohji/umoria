@@ -87,13 +87,8 @@ typedef struct RenderBackend {
     bool (*init)(void);
     void (*shutdown)(void);
 
-    // Frame control
-    void (*begin_frame)(void);
-    void (*end_frame)(void);  // Present/flush the frame to screen
-
     // Screen management
     void (*clear)(void);
-    void (*get_size)(int *rows, int *cols);
     void (*erase_line)(int row, int col);  // Erase from col to end of line
     void (*clear_from)(int row);  // Clear from row to bottom of screen
     void (*refresh)(void);  // Force immediate screen update
@@ -108,10 +103,6 @@ typedef struct RenderBackend {
 
     // Audio feedback
     void (*bell)(void);  // Audio or visual bell
-
-    // Input (may be moved to separate input abstraction later)
-    int (*get_char)(void);
-    bool (*check_input)(int microsec);
 
     // Screen save/restore (for menus, inventory, etc.)
     void (*save_screen)(void);

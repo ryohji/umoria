@@ -93,11 +93,6 @@ static void r_clear(void) {
     fill_blank(screen, 0);
 }
 
-static void r_get_size(int *rows, int *cols) {
-    *rows = ROWS;
-    *cols = COLS;
-}
-
 static void r_erase_line(int row, int col) {
     if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
         memset(&screen[row][col], ' ', (size_t)(COLS - col));
@@ -144,15 +139,6 @@ static void r_bell(void) {
     bells++;
 }
 
-static int r_get_char(void) {
-    return -1;
-}
-
-static bool r_check_input(int microsec) {
-    (void)microsec;
-    return false;
-}
-
 static void r_save_screen(void) {
     memcpy(saved, screen, sizeof screen);
 }
@@ -165,10 +151,7 @@ static RenderBackend render_backend = {
     .name = "headless",
     .init = r_init,
     .shutdown = r_nothing,
-    .begin_frame = r_nothing,
-    .end_frame = r_nothing,
     .clear = r_clear,
-    .get_size = r_get_size,
     .erase_line = r_erase_line,
     .clear_from = r_clear_from,
     .refresh = r_nothing,
@@ -177,8 +160,6 @@ static RenderBackend render_backend = {
     .move_cursor = r_move_cursor,
     .show_cursor = r_show_cursor,
     .bell = r_bell,
-    .get_char = r_get_char,
-    .check_input = r_check_input,
     .save_screen = r_save_screen,
     .restore_screen = r_restore_screen,
 };

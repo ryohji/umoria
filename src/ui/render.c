@@ -93,12 +93,6 @@ void render_move_cursor(int row, int col) {
     }
 }
 
-void render_present(void) {
-    if (current_backend && current_backend->end_frame) {
-        current_backend->end_frame();
-    }
-}
-
 void render_bell(void) {
     if (current_backend && current_backend->bell) {
         current_backend->bell();
@@ -114,15 +108,5 @@ void render_save_screen(void) {
 void render_restore_screen(void) {
     if (current_backend && current_backend->restore_screen) {
         current_backend->restore_screen();
-    }
-}
-
-void render_get_size(int *rows, int *cols) {
-    if (current_backend && current_backend->get_size) {
-        current_backend->get_size(rows, cols);
-    } else {
-        // Default fallback
-        if (rows) *rows = 24;
-        if (cols) *cols = 80;
     }
 }

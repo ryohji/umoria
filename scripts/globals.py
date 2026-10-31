@@ -42,6 +42,7 @@ scripts/warnings.sh と同じ位置づけ（現状を数字で見るための道
   - 定義の置き場（variable.c, player.c, tables.c, treasure.c, monsters.c）
     にある初期値つき定義。これは散らばった書きこみではない
   - app/game_state.c の `state->x = x`。状態の写しとりで、x 自身は書かない
+    （game_state.c は #35 で消えた）
     （どちらも数えると「どこから状態が変えられるか」が見えなくなる）
 
 区分は手で与えている。機械には「これはユーザー設定」「これは定数表」の
@@ -69,10 +70,10 @@ GROUPS = {
     #                   #if で消えているが、変えると生きる
     "起動時に一度書きかえる表": """
         colors mushrooms woods metals rocks amulets object_list""",
-    # オプションの表（model/game/game_settings.h）と、つながっていない
-    # GameState（app/game_state.h。台帳 #35）。どちらも externs.h の外にあった。
-    "オプションの表・未接続の基盤": """
-        game_options g_game_state""",
+    # オプションの表（model/game/game_settings.h）。externs.h の外にあった。
+    # つながっていなかった GameState の g_game_state は #35 で消えた。
+    "オプションの表": """
+        game_options""",
     "オプション（ユーザー設定）": """
         rogue_like_commands find_cut find_examine find_prself find_bound
         prompt_carry_flag show_weight_flag highlight_seams find_ignore_doors
@@ -237,26 +238,21 @@ GROUPS = {
     # 打っているコマンドについて覚えていること 3 個（command_count default_dir
     # last_command）は #18-11-7C で src/ui/command_state.c の static になった。
     # どれも「コマンドに繰りかえしの回数を付けられる」ことから出ているので
-    # 1 本の module にまとめた。
-    "コマンド入力・実行中のフラグ": """
-        closing_flag""",
+    # 1 本の module にまとめた。誰も読まなかった closing_flag（B20）は #35 で
+    # 消え、この区分も片づいた。
     # セーブ／スコア／進行メタの 14 個のうち 13 個は 3 つの module に置かれた
     # （progress.c に turn randes_seed town_seed wizard to_be_wizard、
     # game_status.c に death died_from birth_date noscore、game_status.c に
-    # savefile character_generated character_saved panic_save）。残るのは
-    # highscore_fp 1 個。得点ファイルを
-    # 読み書きする 2 関数（death.c の display_scores() と highscores()）は
-    # #19-5-1 で局所変数にしたので、書きこみは init_scorefile()（files.c）の
-    # 1 箇所だけになった。その handle は誰も読まず誰も閉じない（バグ候補
-    # B19）ので、この 1 個を片づけるにはふるまいの判断が要る。
-    "セーブ／スコア／進行メタ": """
-        highscore_fp""",
+    # savefile character_generated character_saved panic_save）。残っていた
+    # highscore_fp は、誰も読まず誰も閉じなかった（バグ候補 B19）ので、
+    # init_scorefile() が開けるか確かめたら閉じる形にして消した。この区分も
+    # 片づいた。
 }
 
 # 定義の置き場。ここでの代入は初期化なので「散らばった書きこみ」に数えない。
 HOME_FILES = {"variable.c", "player.c", "tables.c", "treasure.c", "monsters.c"}
 # 状態の写しとり。`state->x = x` は x を書かない。
-SNAPSHOT_FILES = {"app/game_state.c"}
+SNAPSHOT_FILES = set()  # app/game_state.c が写しとっていた（#35 で消えた）
 
 TYPE_KEYWORDS = {
     "extern", "const", "char", "int", "bool", "FILE", "void", "unsigned", "signed",
