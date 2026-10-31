@@ -6,10 +6,10 @@
 [done/plan-2026-10-23.md](docs/refactoring/done/plan-2026-10-23.md)・[done/plan-2026-10-01.md](docs/refactoring/done/plan-2026-10-01.md)。
 
 - 着手時：`488db72`（2026-08-26）、テスト 0 件、62 ファイル・約 30,000 行・C17。
-- いま：テスト 1850 件・89 本、golden の台本 11 本と総当たり 6 本（`objdes_all`・`recall_all`・
+- いま：テスト 1865 件・91 本、golden の台本 11 本と総当たり 6 本（`objdes_all`・`recall_all`・
   `bolts_all`・`magic_all`・`melee_all`・`turns_all`）、本体の行の 51.5%（8113 / 15743。gcov、2026-10-30、
   #27 より前。台本だけの数）を golden が通る。テストは本体と同じ `-O2` で組む（#97）。本体と
-  テストの組みたての警告 0、ヘッダの global 39 個、層の依存 907 本・111 単位で違反 0
+  テストの組みたての警告 0、ヘッダの global 36 個、層の依存 918 本・112 単位で違反 0
   （→ `HANDOVER.md` 第 0 節）。
 - 番号は着手時の検出に振ったもので、振りなおさない。新しい候補は #97 から振る。
 - **P1〜P3 と棚上げの区分はやめた。** P1・P2 は空になり、P3 と棚上げに残っていた「着手しない
@@ -42,15 +42,14 @@
 
 | # | 場所・大きさ | golden の被覆 | 守りの手と進めかた | 前提・判断 |
 |---|---|---|---|---|
-| 27 | command/scrolls.c `read_scroll`（328 行） | 28% | 武器の巻物 4 つは出した（#27-1）。残る鎧の 3 つ（case 3・35・36）は、i_ptr を塊の奥で条件つきで指しなおし、あとの鑑定の case がその i_ptr を読みうる（B35）。i_ptr を呼び手に返す形にするか、B35 を直して i_ptr を case の局所にするか | **形の判断が先**（B35 を直すかに絡む） |
-| 72 | command/inven_menu.c `inven_command`（485 行）、app/save.c `get_char`（463 行） | 55%・70% | 字のまま出せる塊は出しきった（#72-6・#72-7）。前者は選ぶ状態（画面・選択・再開）を構造体に、後者は読む段ごとに成否を返す形に | **設計の判断が先**。守りは golden と `savefile_layout_test` |
+| 72 | command/inven_menu.c `inven_command`（485 行） | 55% | 字のまま出せる塊は出しきった（#72-6・#72-7）。選ぶ状態を構造体にまとめる案と、持ちなおす状態の一覧は [decisions-2026-10-30.md](docs/refactoring/decisions-2026-10-30.md) の「#72 の残り」。get_char は済んだ（#72-8）が、**`get_char(bool *generate)` の出力の引数はわかりにくいので、あとで直す**（ユーザーの指摘、2026-10-31。戻り値と合わせて「読めたか・階を作るか」を返す形に） | **設計の判断が先**（構造体を 2 つにするか、段の分けかた）。守りは golden |
 
 ### B. 重複
 
 | # | 場所 | 中身 | 守りの手と進めかた | 前提・判断 |
 |---|---|---|---|---|
-| 28 | command/magic.c `cast`（222 行）と command/prayer.c `pray`（191 行） | 骨格が同型（本を選ぶ・呪文を選ぶ・失敗・効果・経験とマナ）。違いは呪文の種類・言いまわし・本の扱い | #73 の `use_charged_device` と同じく、骨格 1 本と種類ごとの表に。golden の `free_turn` が両方の取りけしと実行を通す。効果の switch はそれぞれに残す | **畳むかの判断**（前は「差 3 つ以上は抽出しない」で棚上げ） |
-| 51 | world/combat の光る手（2 か所） | 違い 6 つ（台帳の旧行。[done/plan-2026-10-30.md](docs/refactoring/done/plan-2026-10-30.md)） | `glowing_hands` が両方の枝を守る | **違い 3・5・6（B24）のどちらを正とするかの判断** |
+| 28 | command/magic.c `cast`（58 行）と command/prayer.c `pray`（59 行） | 骨格が同型（本を選ぶ・呪文を選ぶ・失敗・効果・経験とマナ）。違いは言いまわし 8 つ、`pray` だけの「何も持っていない」、経験を足す 2 行の順 | 効果の switch は `spell_effect`・`prayer_effect` に出した（#28-1・#28-2）。残る骨格を、#73 の `use_charged_device` と同じく 1 本と種類ごとの表に | 畳む方向（ユーザーの判断）。まとめるかは切りだしたあとの差を見て |
+| 51 | world/combat の光る手（2 か所） | 違い 6 つ（台帳の旧行。[done/plan-2026-10-30.md](docs/refactoring/done/plan-2026-10-30.md)）。6（B24）は直した | `glowing_hands` が両方の枝を守る | 畳む（ユーザーの判断）。**違い 3・5 のどちらを正とするかを訊いている** |
 | 19 | world/item/spells.c の壁・扉を変える 5 つ（`light_line`・`disarm_all`・`wall_to_mud`・`td_destroy2`・`build_wall`）、world/combat/projectiles.c `fire_bolt`・`fire_ball` | 前の 5 つはマスごとに働く別の骨格、後の 2 つは 1 マスごとに弾を描く | `bolts_all` を壁・扉・罠の並びに広げてから。`fire_ball`（golden 0%）は範囲の当たりの総当たりが要る | 効き目は中くらい |
 | 29 | `fire_bolt` と world/combat/throw.c `throw_object`（108 行） | 飛ぶ道のりの描画が 2 か所 | 描画だけ切りだせる | 効き目が小さい（記録のみ） |
 | 30 | world/store/store_haggle.c `purchase_haggle`（154 行）と `sell_haggle`（202 行） | 骨格が似ていて意味が反転（値段の向き・侮辱の上限・成立条件） | 売る側は golden 0%。台本が要る | 畳まない（記録のみ） |
@@ -59,18 +58,17 @@
 
 | # | 場所 | 中身 | 前提・判断 |
 |---|---|---|---|
-| 31 | 19 ファイル・70 定義の `(int y, int x)` | 座標の型が無い | 置きかえが広い。golden と総当たりで守れるが、**入れるかの判断**が先 |
+| 31 | 19 ファイル・70 定義の `(int y, int x)` | 座標の型が無い | 入れる（ユーザーの判断）：名前は `coordinate`、欄は `row`・`column`（省略しない）、欄の型は `int`。向きとモンスターの位置も、順に同じ型へ。**着手の順を訊いている**（decisions-2026-10-30.md） |
 | 32 | model/data/player.c（516 行・関数 0） | 職業・種族・呪文の表 | 構造の設計変更。いまの層の規則のままでも困っていない |
-| 98 | world/ の段の中のループ | 行動の段の 11 単位のうち 8 つ（creature・monster_melee・projectiles・spells・traps・terrain_commands・player_move・run_path）が 1 つのループ（2026-10-30 に数えた）。creature に戻る辺は、見え方の更新（`update_mon`・`creatures(false)`）と増殖（`multiply_monster`）だけ。ほかに run_path ⇄ player_move・traps ⇄ player_move | **段の置き場の判断**。案：見え方の更新を表示の段へ、`multiply_monster` を床と生死の段へ移すと creature へ戻る辺は無くなる。プレイヤーの移動の 3 つは段を分けるか、1 単位にまとめるか。新しい world/ の .c は `WORLD_TIERS` に足す |
+| 98 | world/ の段の中のループ | 行動の段の 8 単位のループは解いた（#98-1〜3：見え方の更新を monster_view.c、増殖を monster_multiply.c、どちらも床と生死の段）。残るのは player_move・run_path・traps の 3 単位（run_path ⇄ player_move、traps ⇄ player_move） | プレイヤーの移動の 3 つを、段を分けるか 1 単位にまとめるか |
 | 99 | `constant.h` の定数 262 個・`types.h` の型 | 2 つ以上のライブラリーかテストが使うもの、表の一部（使われない 15 個を含む） | 小さく続けられる。急がない |
 
 ### D. 未接続の基盤（消すか残すか）
 
+済んだ（#34〜#36 は消した。索引）。
+
 | # | 場所 | 中身 | 前提・判断 |
 |---|---|---|---|
-| 34 | ui/view_observer.c（151 行） | Observer の基盤。宣言と定義だけ | **消すか残すかの判断**。消すなら呼び手が無いので `cmp_all.sh` で守れる |
-| 35 | app/game_state.c（168 行） | GameState の写し（呼ばれない）。`init_seeds()` だけが生きている | 同上（`init_seeds()` は残す）。写しは #74 でも 1 行減った（B3） |
-| 36 | platform/backend.h の RenderBackend の `get_char`・`check_input`、ui/render.c の `render_present`・`render_get_size` | 入力の backend と役割が重なる、参照 0 | 同上。golden の backend も実装している |
 
 ### E. テストと守り
 
@@ -81,10 +79,10 @@
 
 ### F. 判断待ちのバグ候補
 
-`docs/refactoring/bugs.md` の B1〜B35。とくに、リファクタリングの途中で見つけ、ふるまいを
-保ったまま golden に記録しているもの：B24（光る手の空白）・B30（Create Food の巻物）・
-B31（店の 1 歩）・B32（^J と ^M の回数）・B33（Enter が +）・B34（飛ぶ呪文の止まりかた）・B35（鑑定の巻物が読む i_ptr。#27 の残りに絡む）。
-直すかどうかはユーザーの領分。直すと golden の記録が変わる（記録を作りなおす）。
+2026-10-31 に、ユーザーの判断で開いていた候補を直すか閉じた（`docs/refactoring/bugs.md`。案は
+[bugfix-proposals-2026-10-31.md](docs/refactoring/bugfix-proposals-2026-10-31.md)）。開いているのは
+B34（飛ぶ呪文の止まりかた。teleport は上流の注釈が「全部飛ばす」と言うので訊いている）と B36
+（壊れたセーブファイルで止まらない読みこみと 0 で割る道。#72-8 の確かめで見つけた）。
 
 ## 済んだ項目の索引
 
@@ -176,6 +174,12 @@ B31（店の 1 歩）・B32（^J と ^M の回数）・B33（Enter が +）・B3
 | 21 | `mon_cast_spell` 209 → 73 行（呪文の番号に名前 `enum monster_spell`、効果の switch を `cast_monster_spell` に）。総当たり `turns_all`（モンスターの手番）を golden に常設 | 同上 |
 | 97 | テストを本体と同じ `-O2` で組む（`shared_stubs_reset` が randint の代役の答えを戻すようにしてから） | 同上 |
 | 50（一部） | 呼び手の穴を数えなおし、`melee_all` のハッシュに戦いの数と AC を足した。行は開いたまま | 同上 |
+| バグ候補 | B2・B3・B5・B7〜B9・B15〜B20・B22〜B27・B29〜B33・B35 を直し、B4・B6・B10〜B14・B21 を閉じた（ユーザーの判断） | `worklog.md`（2026-10-31）、`bugs.md` |
+| 27 | `read_scroll` 402 → 249 行（武器の 4 つ・鎧の 3 つを static 関数に。B35 を直して i_ptr を読んだ巻物だけに） | 同上 |
+| 34・35・36 | 未接続の基盤を消した：ui/view_observer.c、app/game_state.c（init_seeds() は app/seeds.c に）、RenderBackend の使われない欄 5 つと render_present・render_get_size（ユーザーの判断） | 同上 |
+| 72（一部） | `get_char` 463 → 159 行（読む段ごとに成否を返す static 関数 6 本） | 同上 |
+| 98（一部） | 行動の段の 8 単位のループを解いた（update_mon・update_monsters を monster_view.c、multiply_monster を monster_multiply.c に） | 同上 |
+| 28（一部） | 効果の switch を `spell_effect`・`prayer_effect` に | 同上 |
 
 **ほかの作業で消えた項目：** #23（描画と計算の同居。#42 の分割で `ui/status_line.c` に分かれた）、
 #33（misc3.c。#42 で無くなった）、#43（番号つきファイル。#54・#56 で無くなった）、
