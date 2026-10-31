@@ -53,7 +53,7 @@ SRCS = app/main.c command/files.c ui/io.c \
 	ui/direction_keys.c \
 	ui/keymap.c \
 	world/dungeon/lighting.c \
-	world/combat/player_melee.c \
+	world/combat/player_melee.c world/combat/glowing_hands.c \
 	world/combat/throw.c \
 	world/dungeon/traps.c \
 	world/dungeon/terrain_commands.c \

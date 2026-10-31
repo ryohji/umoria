@@ -936,9 +936,9 @@ int poly_monster(int dir, int y, int x) {
     bool poly = false;
     int dist = 0;
 
-    // A creature that resists lets the bolt go on to the next one.
+    // Only the first creature in the line, as the other bolts.
     int cptr;
-    while ((cptr = bolt_to_next_creature(dir, &y, &x, &dist)) != 0) {
+    if ((cptr = bolt_to_next_creature(dir, &y, &x, &dist)) != 0) {
         monster_type *m_ptr = monster_list_at(cptr);
         creature_type *r_ptr = monster_creature_get(m_ptr->creature);
 
@@ -956,7 +956,6 @@ int poly_monster(int dir, int y, int x) {
             if (poly && panel_contains(y, x) && (c_ptr->tl || c_ptr->pl)) {
                 poly = true;
             }
-            break;
         } else {
             const char *cdesc = monster_name((vtype){0}, m_ptr);
             msg_print(CONCAT(cdesc, " is unaffected."));

@@ -65,7 +65,7 @@ MODEL_RULES = {
 WORLD_TIERS = [
     ('view', 'map_view status_line lighting'),
     ('rules', 'desc inscription item_picker inven_ops player_bonuses stat_ops level_ops '
-              'spellbook rest_command stat_loss food_ops item_learn device_use store_price'),
+              'spellbook rest_command stat_loss food_ops item_learn device_use store_price glowing_hands'),
     ('floor and life', 'object_place object_alloc monster_death monster_place monster_damage '
                        'hit_rolls player_damage item_enchant monster_breeding monster_multiply monster_view store_stock '
                        'store_haggle level_exit generate'),

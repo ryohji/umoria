@@ -35,6 +35,11 @@ void cold_dam(int, char *);
 void light_dam(int, char *);
 void acid_dam(int, const char *);
 
+// --- combat/glowing_hands.c ---
+// The glowing hands confuse the monster they touch (the player's attack and the
+// monster's both come here).
+void glowing_hands_touch(monster_type *m_ptr, bool visible);
+
 // --- combat/player_melee.c ---
 void py_attack(int, int);
 void py_bash(int, int);

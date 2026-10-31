@@ -621,23 +621,7 @@ void make_attack(int monptr) {
             // actually hits. A monster that has been repelled has not hit
             // the player, so it should not be confused.
             if (player_glowing_hands() && adesc != 99) {
-                msg_print("Your hands stop glowing.");
-                player_glowing_hands_spend();
-                const char *verb;
-                if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
-                    verb = " is unaffected.";
-                } else {
-                    if (m_ptr->confused) {
-                        m_ptr->confused += 3;
-                    } else {
-                        m_ptr->confused = 2 + randint(16);
-                    }
-                    verb = " appears confused.";
-                }
-                msg_print(CONCAT(cdesc, verb));
-                if (visible && !player_is_dead() && randint(4) == 1) {
-                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
-                }
+                glowing_hands_touch(m_ptr, visible);
             }
 
             // increase number of attacks if notice true, or if visible and

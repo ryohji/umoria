@@ -94,24 +94,7 @@ void py_attack(int y, int x) {
             }
 
             if (player_glowing_hands()) {
-                player_glowing_hands_spend();
-                msg_print("Your hands stop glowing.");
-                char *out_val;
-                if ((r_ptr->cdefense & CD_NO_SLEEP) || (randint(MAX_MONS_LEVEL) < r_ptr->level)) {
-                    out_val = CONCAT(cdesc, " is unaffected.");
-                } else {
-                    out_val = CONCAT(cdesc, " appears confused.");
-                    if (m_ptr->confused) {
-                        m_ptr->confused += 3;
-                    } else {
-                        m_ptr->confused = 2 + randint(16);
-                    }
-                }
-                out_val[0] = toupper(out_val[0]); // Capitalize
-                msg_print(out_val);
-                if (m_ptr->ml && randint(4) == 1) {
-                    recall_update_characteristics(m_ptr->creature, CD_NO_SLEEP);
-                }
+                glowing_hands_touch(m_ptr, m_ptr->ml);
             }
 
             // See if we done it in.
