@@ -1,280 +1,280 @@
-  0 1e3e194c Filthy Street Urchin
-  1 b020c120 Blubbering Idiot
-  2 26e656fe Pitiful-Looking Beggar
-  3 52b8aede Mangy-Looking Leper
-  4 c412b9a7 Squint-Eyed Rogue
-  5 084ed3c9 Singing, Happy Drunk
-  6 3ae6513c Mean-Looking Mercenary
-  7 df32a84c Battle-Scarred Veteran
-  8 747922fb Grey Mushroom patch
-  9 23e13a2e Giant Yellow Centipede
- 10 3bda9a38 Giant White Centipede
- 11 21f85668 White Icky-Thing
- 12 3c5e0d11 Clear Icky-Thing
- 13 eadc1c8f Giant White Mouse
- 14 806c7cb3 Large Brown Snake
- 15 249027c5 Large White Snake
- 16 b0953183 Kobold
- 17 8317ba82 White Worm mass
- 18 c29916f6 Floating Eye
- 19 e1732cd3 Shrieker Mushroom patch
- 20 dbbc7e05 Blubbering Icky-Thing
- 21 db94714e Metallic Green Centipede
- 22 4ed514ee Novice Warrior
- 23 67334e94 Novice Rogue
- 24 96bbb3db Novice Priest
- 25 1bcc15c9 Novice Mage
- 26 2c4bc068 Yellow Mushroom patch
- 27 c5409a17 White Jelly
- 28 e7e76695 Giant Green Frog
- 29 232d411b Giant Black Ant
- 30 0c3905c9 White Harpy
- 31 9417bb54 Blue Yeek
- 32 75f2c12d Green Worm mass
- 33 dae5f824 Large Black Snake
- 34 f85e83f1 Poltergeist
- 35 f852224d Metallic Blue Centipede
- 36 76cc72af Giant White Louse
- 37 f285f26d Black Naga
- 38 e458cd44 Spotted Mushroom patch
- 39 47c19a51 Yellow Jelly
- 40 b463781a Scruffy-Looking Hobbit
- 41 523eac4f Huge Brown Bat
- 42 6199932b Giant White Ant
- 43 ac99e0f1 Yellow Mold
- 44 95424ebb Metallic Red Centipede
- 45 435b77fb Yellow Worm mass
- 46 d50ef63e Large Green Snake
- 47 18b707cb Radiation Eye
- 48 e727f693 Drooling Harpy
- 49 80ffea68 Silver Mouse
- 50 b6a2a784 Black Mushroom patch
- 51 347d248f Blue Jelly
- 52 f4c77b5b Creeping Copper Coins
- 53 f6e807c6 Giant White Rat
- 54 aac84ba8 Giant Black Centipede
- 55 2e86ced9 Giant Blue Centipede
- 56 f9520d8e Blue Worm mass
- 57 1a21d92f Large Grey Snake
- 58 1816bc6d Jackal
- 59 a7faa8ea Green Naga
- 60 8351ba62 Green Glutton Ghost
- 61 e04e76d7 White Mushroom patch
- 62 a4412a68 Green Jelly
- 63 7c471b50 Skeleton Kobold
- 64 2bfb06f4 Silver Jelly
- 65 3ba640fd Giant Black Frog
- 66 c9498410 Grey Icky-Thing
- 67 ee18c51a Disenchanter Eye
- 68 aa099770 Black Yeek
- 69 37ae8832 Red Worm mass
- 70 c5c3f261 Giant House Fly
- 71 349d48d9 Copperhead Snake
- 72 741be12c Rot Jelly
- 73 f207c0dd Purple Mushroom patch
- 74 d65fce5c Brown Mold
- 75 713fb3ef Giant Brown Bat
- 76 7c68906a Creeping Silver Coins
- 77 52b42979 Orc
- 78 d8c4fcb7 Grey Harpy
- 79 a6e41cd5 Blue Icky-Thing
- 80 5e4feb6a Rattlesnake
- 81 72b25091 Bloodshot Eye
- 82 ded38d70 Red Naga
- 83 ae44c7a6 Red Jelly
- 84 45045afa Giant Red Frog
- 85 4a107fb6 Green Icky-Thing
- 86 c15e3b13 Zombie Kobold
- 87 dc8bf157 Lost Soul
- 88 acc46343 Greedy Little Gnome
- 89 e25f2a01 Giant Green Fly
- 90 c23f4dcc Brown Yeek
- 91 43f429cb Green Mold
- 92 ad224e07 Skeleton Orc
- 93 09df1718 Seedy Looking Human
- 94 124926cd Red Icky-Thing
- 95 37df28e6 Bandit
- 96 f4aa644c Yeti
- 97 219d507d Bloodshot Icky-Thing
- 98 a83fcdc0 Giant Grey Rat
- 99 fe4471ba Black Harpy
-100 5b72b6e8 Giant Black Bat
-101 7b88cd93 Clear Yeek
-102 97190b0f Orc Shaman
-103 f5aa6a16 Giant Red Ant
-104 6e0f1ef7 King Cobra
-105 2d3ff27b Clear Mushroom patch
-106 e8b070e7 Giant White Tick
-107 8fa144a6 Hairy Mold
-108 708e38e6 Disenchanter Mold
-109 c5122368 Giant Red Centipede
-110 3c21ca96 Creeping Gold Coins
-111 dbb9b9d0 Giant Fruit Fly
-112 d2f2e393 Brigand
-113 b1b3b81e Orc Zombie
-114 0037d7a6 Orc Warrior
-115 ba8148a3 Vorpal Bunny
-116 8901d256 Nasty Little Gnome
-117 9df45b7d Hobgoblin
-118 b1bd718b Black Mamba
-119 96fe94af Grape Jelly
-120 7ef64b1e Master Yeek
-121 d53bd474 Priest
-122 b17776c4 Giant Clear Ant
-123 54826f83 Air Spirit
-124 b94380f1 Skeleton Human
-125 8afa0d03 Human Zombie
-126 896a8c70 Moaning Spirit
-127 a09b9581 Swordsman
-128 a357f203 Killer Brown Beetle
-129 06e59013 Ogre
-130 b7fb06f1 Giant Red Speckled Frog
-131 0ad5bbec Magic User
-132 7fee2867 Black Orc
-133 29533e74 Giant Long-Eared Bat
-134 db32f9ec Giant Gnat
-135 252eac49 Killer Green Beetle
-136 49157736 Giant Flea
-137 093ee69e Giant White Dragon Fly
-138 7e5a6d40 Hill Giant
-139 77caa228 Skeleton Hobgoblin
-140 198b466e Flesh Golem
-141 649b7531 White Dragon Bat
-142 2caf8014 Giant Black Louse
-143 768952e5 Guardian Naga
-144 f581cc31 Giant Grey Bat
-145 2f9c20c9 Giant Clear Centipede
-146 8b035d8e Giant Yellow Tick
-147 61568fc6 Giant Ebony Ant
-148 58bba652 Frost Giant
-149 4501f739 Clay Golem
-150 0d7c815f Huge White Bat
-151 d06ce55b Giant Tan Bat
-152 fce8236d Violet Mold
-153 a04c2c0c Umber Hulk
-154 4b205d25 Gelatinous Cube
-155 d4233c96 Giant Black Rat
-156 a1df3847 Giant Green Dragon Fly
-157 1f1322fe Fire Giant
-158 d44b8e2c Green Dragon Bat
-159 324e54e9 Quasit
-160 a8110942 Troll
-161 4ad7eb1d Water Spirit
-162 d30a79fd Giant Brown Scorpion
-163 7178f192 Earth Spirit
-164 774f7dc8 Fire Spirit
-165 6ddb7ef3 Uruk-Hai Orc
-166 a01543f3 Stone Giant
-167 7dba49da Stone Golem
-168 6b036e62 Grey Ooze
-169 7981eaec Disenchanter Ooze
-170 7c4535c0 Giant Spotted Rat
-171 e40a870c Mummified Kobold
-172 8d87174e Killer Black Beetle
-173 0d726938 Red Mold
-174 09194fa1 Quylthulg
-175 cb033c7b Giant Red Bat
-176 5e1d1e22 Giant Black Dragon Fly
-177 d8e80897 Cloud Giant
-178 842d5277 Black Dragon Bat
-179 4e10bfae Blue Dragon Bat
-180 a4a88285 Mummified Orc
-181 1cd2a737 Killer Boring Beetle
-182 e57dacbd Killer Stag Beetle
-183 8bd88362 Black Mold
-184 91315775 Iron Golem
-185 307dbecf Giant Yellow Scorpion
-186 d918aa55 Green Ooze
-187 2bb73d8f Black Ooze
-188 2d3be2bd Warrior
-189 0578f9cc Red Dragon Bat
-190 9b2596b3 Killer Blue Beetle
-191 5d081e56 Giant Silver Ant
-192 62dda9f0 Crimson Mold
-193 b7d8900f Forest Wight
-194 8bdb46b0 Berzerker
-195 f3dada9c Mummified Human
-196 bb598c7e Banshee
-197 3a44038b Giant Troll
-198 2bd6e719 Giant Brown Tick
-199 f7b2d139 Killer Red Beetle
-200 4b38ff40 Wooden Mold
-201 78b03be1 Giant Blue Dragon Fly
-202 f5b4886a Giant Grey Ant Lion
-203 7c3a9ba6 Disenchanter Bat
-204 90dc78d9 Giant Fire Tick
-205 9eeab3a3 White Wraith
-206 04abe9e2 Giant Black Scorpion
-207 772600a6 Clear Ooze
-208 78037906 Killer Fire Beetle
-209 635dc4ff Vampire
-210 9b8063a0 Giant Red Dragon Fly
-211 273053c1 Shimmering Mold
-212 64aa9b2d Black Knight
-213 016bdd4c Mage
-214 910cdd7f Ice Troll
-215 af273e76 Giant Purple Worm
-216 2db300c2 Young Blue Dragon
-217 770f2e38 Young White Dragon
-218 b15d1c38 Young Green Dragon
-219 6366b77e Giant Fire Bat
-220 c28614ce Giant Glowing Rat
-221 2e268533 Skeleton Troll
-222 d09bbb7c Giant Lightning Bat
-223 2effd476 Giant Static Ant
-224 b9450558 Grave Wight
-225 ac23f91a Killer Slicer Beetle
-226 9199ee9b Giant White Ant Lion
-227 ea13fad2 Ghost
-228 79929bef Giant Black Ant Lion
-229 a0294234 Death Watch Beetle
-230 9c82edfd Ogre Mage
-231 f239e036 Two-Headed Troll
-232 c086c9f1 Invisible Stalker
-233 088b6acc Giant Hunter Ant
-234 55db4ebe Ninja
-235 956ff9a8 Barrow Wight
-236 fe9da60a Skeleton 2-Headed Troll
-237 a285ec97 Water Elemental
-238 2e4df867 Fire Elemental
-239 4ad6dd6a Lich
-240 979c3f81 Master Vampire
-241 8a33c47a Spirit Troll
-242 11d07e5a Giant Red Scorpion
-243 ca351e5a Earth Elemental
-244 ca2c5fb1 Young Black Dragon
-245 d94a4f0e Young Red Dragon
-246 7cec7e57 Necromancer
-247 f36fa9b9 Mummified Troll
-248 d1b37929 Giant Red Ant Lion
-249 64c6217b Mature White Dragon
-250 1145bf37 Xorn
-251 6055eb41 Giant Mottled Ant Lion
-252 af0b2a5b Grey Wraith
-253 88a5c8d3 Young Multi-Hued Dragon
-254 5e83afaf Mature Blue Dragon
-255 a5d13c95 Mature Green Dragon
-256 ac4e9e98 Iridescent Beetle
-257 3280ab11 King Vampire
-258 01a07e36 King Lich
-259 b5882cc7 Mature Red Dragon
-260 1ad5a46b Mature Black Dragon
-261 4cf4fd6a Mature Multi-Hued Dragon
-262 ab019b9a Ancient White Dragon
-263 55028e7d Emperor Wight
-264 9d70b5dc Black Wraith
-265 2f1f492d Nether Wraith
-266 beeca479 Sorcerer
-267 9055b093 Ancient Blue Dragon
-268 28b82549 Ancient Green Dragon
-269 2b108645 Ancient Black Dragon
-270 9122ba4b Crystal Ooze
-271 d55f9b78 Disenchanter Worm
-272 7a16b9f9 Rotting Quylthulg
-273 c104a0ca Ancient Red Dragon
-274 ccad5dc8 Death Quasit
-275 5cd43809 Emperor Lich
-276 0e2f0ac1 Ancient Multi-Hued Dragon
-277 077d1055 Evil Iggy
-278 e2398830 Balrog
-total bb87a542 (6696 calls)
+  0 864a96e2 Filthy Street Urchin
+  1 6c8f20c4 Blubbering Idiot
+  2 426d6aeb Pitiful-Looking Beggar
+  3 4b33ea6e Mangy-Looking Leper
+  4 b9534ae7 Squint-Eyed Rogue
+  5 a8dc3c69 Singing, Happy Drunk
+  6 35fdefce Mean-Looking Mercenary
+  7 2222de50 Battle-Scarred Veteran
+  8 12b9c7c9 Grey Mushroom patch
+  9 11210512 Giant Yellow Centipede
+ 10 3270faba Giant White Centipede
+ 11 dd1fb594 White Icky-Thing
+ 12 d6d70b97 Clear Icky-Thing
+ 13 5c262f8f Giant White Mouse
+ 14 1bcf39f5 Large Brown Snake
+ 15 b765b149 Large White Snake
+ 16 ad1b41f3 Kobold
+ 17 6ba667f4 White Worm mass
+ 18 6e950fd6 Floating Eye
+ 19 39de4589 Shrieker Mushroom patch
+ 20 acc56250 Blubbering Icky-Thing
+ 21 48f5f1e0 Metallic Green Centipede
+ 22 5d120dbe Novice Warrior
+ 23 40e2a80c Novice Rogue
+ 24 83489f0b Novice Priest
+ 25 e6da16bf Novice Mage
+ 26 e00deb34 Yellow Mushroom patch
+ 27 7032f153 White Jelly
+ 28 ad62f0c7 Giant Green Frog
+ 29 81cbc327 Giant Black Ant
+ 30 a85a2593 White Harpy
+ 31 8db4f29c Blue Yeek
+ 32 6fcd0d83 Green Worm mass
+ 33 5bc83bae Large Black Snake
+ 34 641b5fcf Poltergeist
+ 35 e74ded5d Metallic Blue Centipede
+ 36 9b4fa6cd Giant White Louse
+ 37 e9d0e431 Black Naga
+ 38 41009b8e Spotted Mushroom patch
+ 39 d5e319af Yellow Jelly
+ 40 0d8e953c Scruffy-Looking Hobbit
+ 41 ea9ba193 Huge Brown Bat
+ 42 27a07a57 Giant White Ant
+ 43 e977290d Yellow Mold
+ 44 e2e9539f Metallic Red Centipede
+ 45 3c5481ab Yellow Worm mass
+ 46 9b9d942b Large Green Snake
+ 47 cfabda8b Radiation Eye
+ 48 63e7fecb Drooling Harpy
+ 49 8d5a9a78 Silver Mouse
+ 50 c9259cd6 Black Mushroom patch
+ 51 01769c53 Blue Jelly
+ 52 673a7d0e Creeping Copper Coins
+ 53 e9f36780 Giant White Rat
+ 54 1bed7c1a Giant Black Centipede
+ 55 75061d3d Giant Blue Centipede
+ 56 0fa08bfe Blue Worm mass
+ 57 dcc768e1 Large Grey Snake
+ 58 0c547b3d Jackal
+ 59 9f3f5bda Green Naga
+ 60 3da9780e Green Glutton Ghost
+ 61 017f55e8 White Mushroom patch
+ 62 66277e3e Green Jelly
+ 63 a2ce29fa Skeleton Kobold
+ 64 fb0b8088 Silver Jelly
+ 65 32a82071 Giant Black Frog
+ 66 c8f1b514 Grey Icky-Thing
+ 67 b5667cee Disenchanter Eye
+ 68 2a5c0064 Black Yeek
+ 69 09902032 Red Worm mass
+ 70 1b7ec989 Giant House Fly
+ 71 b6386021 Copperhead Snake
+ 72 199978ca Rot Jelly
+ 73 ee0f14fc Purple Mushroom patch
+ 74 2d66ab68 Brown Mold
+ 75 2f0fd43b Giant Brown Bat
+ 76 4c1212ba Creeping Silver Coins
+ 77 5e70f31d Orc
+ 78 b2cdf297 Grey Harpy
+ 79 4ee2aaf5 Blue Icky-Thing
+ 80 16448c06 Rattlesnake
+ 81 261732f5 Bloodshot Eye
+ 82 0bcae348 Red Naga
+ 83 c6364f1e Red Jelly
+ 84 4507164a Giant Red Frog
+ 85 58ec8a7d Green Icky-Thing
+ 86 8e5ad1eb Zombie Kobold
+ 87 316733c3 Lost Soul
+ 88 01236364 Greedy Little Gnome
+ 89 bb3fbaef Giant Green Fly
+ 90 ae8b4058 Brown Yeek
+ 91 8e121657 Green Mold
+ 92 3a2911bb Skeleton Orc
+ 93 fcd9bed0 Seedy Looking Human
+ 94 4df377f5 Red Icky-Thing
+ 95 4b4fb484 Bandit
+ 96 7f39930e Yeti
+ 97 cb8082d0 Bloodshot Icky-Thing
+ 98 9ffb1da8 Giant Grey Rat
+ 99 551841a6 Black Harpy
+100 65b85954 Giant Black Bat
+101 919958a7 Clear Yeek
+102 b257b0c7 Orc Shaman
+103 6abfb36a Giant Red Ant
+104 1c94d1df King Cobra
+105 285e09f1 Clear Mushroom patch
+106 0575992f Giant White Tick
+107 10e1651a Hairy Mold
+108 2c0aa0f6 Disenchanter Mold
+109 fe1f5710 Giant Red Centipede
+110 caadfa9e Creeping Gold Coins
+111 98d4e376 Giant Fruit Fly
+112 7fa31f26 Brigand
+113 b4cf84cd Orc Zombie
+114 99094b32 Orc Warrior
+115 b42690f9 Vorpal Bunny
+116 1ddc9d82 Nasty Little Gnome
+117 067db925 Hobgoblin
+118 6837ddf1 Black Mamba
+119 f6301663 Grape Jelly
+120 d7cf1ec2 Master Yeek
+121 3f4e9e34 Priest
+122 bf59dfd8 Giant Clear Ant
+123 3daf4027 Air Spirit
+124 4071e349 Skeleton Human
+125 503cef03 Human Zombie
+126 36a31a24 Moaning Spirit
+127 48e57245 Swordsman
+128 0ac29a05 Killer Brown Beetle
+129 9994b30b Ogre
+130 b0e3141f Giant Red Speckled Frog
+131 625fb0d8 Magic User
+132 8df98003 Black Orc
+133 3686d734 Giant Long-Eared Bat
+134 c368bb5e Giant Gnat
+135 9eaa3cd5 Killer Green Beetle
+136 3f98f09a Giant Flea
+137 b60ea02a Giant White Dragon Fly
+138 420290ac Hill Giant
+139 2882e5b8 Skeleton Hobgoblin
+140 08a212fa Flesh Golem
+141 073141c9 White Dragon Bat
+142 a2c01ae4 Giant Black Louse
+143 1708197d Guardian Naga
+144 c31a69af Giant Grey Bat
+145 f4f86579 Giant Clear Centipede
+146 8953ce9e Giant Yellow Tick
+147 fdd767b4 Giant Ebony Ant
+148 393f84a8 Frost Giant
+149 ed5afce1 Clay Golem
+150 e9777dc7 Huge White Bat
+151 7c349abf Giant Tan Bat
+152 d592d40d Violet Mold
+153 84c26d3c Umber Hulk
+154 a11d339d Gelatinous Cube
+155 fae95a71 Giant Black Rat
+156 69468c37 Giant Green Dragon Fly
+157 c6c807aa Fire Giant
+158 4558021e Green Dragon Bat
+159 e2cfae9b Quasit
+160 559be866 Troll
+161 913afe6d Water Spirit
+162 70a38449 Giant Brown Scorpion
+163 00daca06 Earth Spirit
+164 f0f4848c Fire Spirit
+165 c230119f Uruk-Hai Orc
+166 bfc07e8f Stone Giant
+167 a6cc16b2 Stone Golem
+168 bb90ea1a Grey Ooze
+169 fa63aaa6 Disenchanter Ooze
+170 f530d55a Giant Spotted Rat
+171 8081f280 Mummified Kobold
+172 0df2b54a Killer Black Beetle
+173 09484a20 Red Mold
+174 7de5c4e9 Quylthulg
+175 a742b871 Giant Red Bat
+176 8d6723b8 Giant Black Dragon Fly
+177 a92c8569 Cloud Giant
+178 9795912e Black Dragon Bat
+179 d7e5272c Blue Dragon Bat
+180 d5e82689 Mummified Orc
+181 53bb0a8f Killer Boring Beetle
+182 74696d6b Killer Stag Beetle
+183 1d2a4aee Black Mold
+184 53aac02d Iron Golem
+185 ba1f0005 Giant Yellow Scorpion
+186 7fe963c5 Green Ooze
+187 33e89f9d Black Ooze
+188 1d3ebc27 Warrior
+189 ffd7e6a0 Red Dragon Bat
+190 8287252f Killer Blue Beetle
+191 0ef7fe96 Giant Silver Ant
+192 74fdc5a3 Crimson Mold
+193 87a3c9fa Forest Wight
+194 8265ae70 Berzerker
+195 b21e42c0 Mummified Human
+196 d4bbd2c8 Banshee
+197 fc4952ab Giant Troll
+198 fb422419 Giant Brown Tick
+199 2516c899 Killer Red Beetle
+200 7c820aac Wooden Mold
+201 025fcd13 Giant Blue Dragon Fly
+202 7a04259a Giant Grey Ant Lion
+203 74c37a30 Disenchanter Bat
+204 e42b22e9 Giant Fire Tick
+205 6352762b White Wraith
+206 17126296 Giant Black Scorpion
+207 6ba883e6 Clear Ooze
+208 9ebda8b0 Killer Fire Beetle
+209 39f35f27 Vampire
+210 850a856c Giant Red Dragon Fly
+211 a4533989 Shimmering Mold
+212 75a3f189 Black Knight
+213 59aab5d4 Mage
+214 8c508423 Ice Troll
+215 9d5a9072 Giant Purple Worm
+216 5ca19c5b Young Blue Dragon
+217 c8f060c1 Young White Dragon
+218 ec1b3631 Young Green Dragon
+219 397b388c Giant Fire Bat
+220 092e1ef0 Giant Glowing Rat
+221 19e10243 Skeleton Troll
+222 7e40012e Giant Lightning Bat
+223 c68c53c7 Giant Static Ant
+224 5eae4e20 Grave Wight
+225 0a6539ee Killer Slicer Beetle
+226 b77b1787 Giant White Ant Lion
+227 e5ac991e Ghost
+228 f9b33c15 Giant Black Ant Lion
+229 e9168f59 Death Watch Beetle
+230 2e011cb5 Ogre Mage
+231 f9523d70 Two-Headed Troll
+232 4c871cef Invisible Stalker
+233 77e88ce2 Giant Hunter Ant
+234 6490ea7c Ninja
+235 68bc6940 Barrow Wight
+236 1321dfe6 Skeleton 2-Headed Troll
+237 788ba4d7 Water Elemental
+238 aa901da3 Fire Elemental
+239 1744e269 Lich
+240 b51864af Master Vampire
+241 c3252dbc Spirit Troll
+242 4da5f9b6 Giant Red Scorpion
+243 96e88b4e Earth Elemental
+244 10ffff31 Young Black Dragon
+245 3269578e Young Red Dragon
+246 c3d0ebff Necromancer
+247 23b4d97d Mummified Troll
+248 c7bb9b19 Giant Red Ant Lion
+249 37c4e401 Mature White Dragon
+250 8d737b83 Xorn
+251 8407cc23 Giant Mottled Ant Lion
+252 c6dbf933 Grey Wraith
+253 332ccab7 Young Multi-Hued Dragon
+254 405a0927 Mature Blue Dragon
+255 43dcb985 Mature Green Dragon
+256 61e71528 Iridescent Beetle
+257 539227fd King Vampire
+258 26237723 King Lich
+259 a7e8dc85 Mature Red Dragon
+260 96f76883 Mature Black Dragon
+261 0b4989c8 Mature Multi-Hued Dragon
+262 6b2b38ea Ancient White Dragon
+263 c6fe4105 Emperor Wight
+264 779b7622 Black Wraith
+265 f1abf255 Nether Wraith
+266 e23f365d Sorcerer
+267 cf79dc4f Ancient Blue Dragon
+268 8a7cccef Ancient Green Dragon
+269 61afe1af Ancient Black Dragon
+270 db1cd7e5 Crystal Ooze
+271 7e01425e Disenchanter Worm
+272 a162ed81 Rotting Quylthulg
+273 291eb028 Ancient Red Dragon
+274 2a6f7724 Death Quasit
+275 0a9b3091 Emperor Lich
+276 5a88caa5 Ancient Multi-Hued Dragon
+277 64fd6019 Evil Iggy
+278 eafb9456 Balrog
+total d364f55a (6696 calls)

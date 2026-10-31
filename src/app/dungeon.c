@@ -32,6 +32,7 @@
 #include "monsters.h"
 #include "player.h"
 #include "rnd.h"
+#include "str_insert.h"
 #include "inventory.h"
 #include "item_knowledge.h"
 #include "player_condition.h"
@@ -1393,6 +1394,7 @@ static bool valid_countcommand(char c) {
     case CTRL_KEY('L'):
     case CTRL_KEY('N'):
     case CTRL_KEY('J'):
+    case CTRL_KEY('M'):
     case CTRL_KEY('B'):
     case CTRL_KEY('H'):
     case 'S':
@@ -1601,9 +1603,8 @@ static bool jamdoor(void) {
                 } else {
                     took_turn = true;
 
-                    char tmp_str[80];
-                    (void)sprintf(tmp_str, "The %s is in your way!", monster_creature_get(monster_list_at(c_ptr->cptr)->creature)->name);
-                    msg_print(tmp_str);
+                    const char *m_name = monster_name_or_something((vtype){0}, monster_list_at(c_ptr->cptr));
+                    msg_print(CONCAT(m_name, " is in your way!"));
                 }
             } else if (t_ptr->tval == TV_OPEN_DOOR) {
                 msg_print("The door must be closed first.");

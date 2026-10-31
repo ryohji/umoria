@@ -42,3 +42,11 @@ D6
 o6
 o6
 s
+# a wizard scroll with two effects, enchant to-hit and identify: the identify
+# finds the scroll again after the to-hit pointed at the weapon (B35)
+@ 70\r?\r66\r5\r1\r0\r0\r0\r0\r0\r0\r0\r9\r125\r12\ry
+4
+6
+i\e
+rb e
+i\e

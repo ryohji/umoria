@@ -75,7 +75,8 @@ TESTS = distance_test geometry_test los_test device_chance_test item_ident_test 
         player_bio_test player_stealth_test player_class_test \
         monster_turn_test monster_levels_test monster_breeding_test \
         monster_list_test monster_recall_test dungeon_size_test dungeon_level_test \
-        floor_items_test dungeon_map_test rnd_test hit_rolls_test store_price_test stat_loss_test
+        floor_items_test dungeon_map_test rnd_test hit_rolls_test store_price_test stat_loss_test \
+        signals_test store_carry_test
 
 BINS = $(addprefix $(BUILDDIR)/,$(TESTS))
 

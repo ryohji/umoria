@@ -29,10 +29,33 @@ bool is_a_vowel(char ch) {
     }
 }
 
+// Replaces the len bytes at `at` in `str` (a buffer of `size` bytes) with
+// `insert`, cutting what does not fit.
+static void replace_at(char *str, size_t size, char *at, size_t len, const char *insert) {
+    size_t prefix = (size_t)(at - str);
+    size_t ins_len = insert ? strlen(insert) : 0;
+    size_t tail_len = strlen(at + len);
+
+    if (prefix + ins_len >= size) {
+        ins_len = size - 1 - prefix;
+    }
+    if (prefix + ins_len + tail_len >= size) {
+        tail_len = size - 1 - prefix - ins_len;
+    }
+    (void)memmove(at + ins_len, at + len, tail_len);
+    if (ins_len > 0) {
+        (void)memcpy(at, insert, ins_len);
+    }
+    at[ins_len + tail_len] = '\0';
+}
+
 // Inserts a string into a string
-void insert_str(char *object_str, const char *mtc_str, const char *insert) {
-    int mtc_len = (int)strlen(mtc_str);
-    int obj_len = (int)strlen(object_str);
+void insert_str(char *object_str, size_t size, const char *mtc_str, const char *insert) {
+    size_t mtc_len = strlen(mtc_str);
+    size_t obj_len = strlen(object_str);
+    if (mtc_len > obj_len) {
+        return; // too long to be found
+    }
     char *bound = object_str + obj_len - mtc_len;
 
     char *found = NULL;
@@ -40,7 +63,7 @@ void insert_str(char *object_str, const char *mtc_str, const char *insert) {
         char *temp_obj = pc;
         const char *temp_mtc = mtc_str;
 
-        int i;
+        size_t i;
         for (i = 0; i < mtc_len; i++) {
             if (*temp_obj++ != *temp_mtc++) {
                 break;
@@ -53,20 +76,11 @@ void insert_str(char *object_str, const char *mtc_str, const char *insert) {
     }
 
     if (found) {
-        char out_val[80];
-
-        (void)strncpy(out_val, object_str, (found - object_str));
-        // Turbo C needs int for array index.
-        out_val[(int)(found - object_str)] = '\0';
-        if (insert) {
-            (void)strcat(out_val, insert);
-        }
-        (void)strcat(out_val, (found + mtc_len));
-        (void)strcpy(object_str, out_val);
+        replace_at(object_str, size, found, mtc_len, insert);
     }
 }
 
-void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show_sign) {
+void insert_lnum(char *object_str, size_t size, const char *mtc_str, int32_t number, int show_sign) {
     size_t mlen = strlen(mtc_str);
     char *tmp_str = object_str;
 
@@ -85,17 +99,14 @@ void insert_lnum(char *object_str, const char *mtc_str, int32_t number, int show
     } while (flag);
 
     if (string) {
-        vtype str1, str2;
-
-        (void)strncpy(str1, object_str, string - object_str);
-        str1[string - object_str] = '\0';
-        (void)strcpy(str2, string + mlen);
+        char number_str[16];
 
         if ((number >= 0) && (show_sign)) {
-            (void)sprintf(object_str, "%s+%d%s", str1, number, str2);
+            (void)snprintf(number_str, sizeof(number_str), "+%d", number);
         } else {
-            (void)sprintf(object_str, "%s%d%s", str1, number, str2);
+            (void)snprintf(number_str, sizeof(number_str), "%d", number);
         }
+        replace_at(object_str, size, string, mlen, number_str);
     }
 }
 

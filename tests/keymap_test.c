@@ -183,6 +183,11 @@ TEST(original_keys_match_the_switch) {
     for (int k = 0; k < 256; k++) {
         char key = (char)k;
         int legacy = legacy_original_commands(key);
+        // B33 を直した：Enter と ^J は + （wizard の経験値）だったのを、
+        // 空白と同じ「何もしない」にした。写しはもとのまま残す。
+        if (key == CTRL_KEY('J') || key == CTRL_KEY('M')) {
+            legacy = ' ';
+        }
 
         char command = 0;
         int actual;

@@ -84,7 +84,11 @@ static void signal_handler(int sig) {
 }
 
 #ifdef SIGTSTP
+// Kept so that signals() can put it back after nosignals() ignored SIGTSTP.
+static void (*suspend_handler)(int) = SIG_DFL;
+
 void signals_set_suspend_handler(void (*handler)(int)) {
+    suspend_handler = handler;
     (void)signal(SIGTSTP, handler);
 }
 #endif
@@ -99,7 +103,9 @@ void nosignals(void) {
 }
 
 void signals(void) {
-    // SIGTSTP is not restored here: it stays ignored after nosignals().
+#ifdef SIGTSTP
+    (void)signal(SIGTSTP, suspend_handler);
+#endif
     (void)sigsetmask(mask);
 
     if (error_sig == 0) {

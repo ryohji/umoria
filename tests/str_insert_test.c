@@ -23,10 +23,10 @@
  * 差しこむ雛形の形は実際の呼びだしから採った（desc.c:463-464 の "ch~"→"ches"
  * と "~"→"s"、store_haggle.c:132-133 の "%A1" / "%A2"）。
  *
- * 溢れは試さない。insert_str の作業領域は char out_val[80] 固定で、strcat が
- * 長さを見ないので、差しこんだ結果が 80 バイトを超えると壊れる（バグ候補として
- * 報告する）。ここで溢れさせても固定できるのは未定義動作なので、入力はすべて
- * vtype（80 バイト）に収まる範囲にしている。
+ * 2 つは書きこむ先の大きさを引数で受け、収まらない分を切る（バグ候補 B16 を
+ * 直した。前は作業領域が char out_val[80] 固定で、長さを見ずに strcat した）。
+ * 雛形のほうが文字列より長いときは何もしない（B27。前は配列の先頭より前を指す
+ * ポインターを作った）。
  *
  * 期待値はすべて現在の実装が返した実際の値。仕様書はないので、いま
  * どう振るまうかを固定することが目的。
@@ -51,7 +51,7 @@ static const char *str_inserted(const char *template_str, const char *mtc_str, c
     static vtype work;
 
     (void)strcpy(work, template_str);
-    insert_str(work, mtc_str, insert);
+    insert_str(work, sizeof(work), mtc_str, insert);
     return work;
 }
 
@@ -61,7 +61,7 @@ static const char *lnum_inserted(const char *template_str, const char *mtc_str, 
     static vtype work;
 
     (void)strcpy(work, template_str);
-    insert_lnum(work, mtc_str, number, show_sign);
+    insert_lnum(work, sizeof(work), mtc_str, number, show_sign);
     return work;
 }
 
@@ -131,6 +131,39 @@ TEST(the_earlier_of_two_similar_markers_is_replaced_alone) { ASSERT_EQ_STR(lnum_
 /* 末尾での一致（str2 が空になる）。 */
 TEST(lnum_match_at_the_tail_is_replaced) { ASSERT_EQ_STR(lnum_inserted("asking %A2", "%A2", 300, 1), "asking +300"); }
 
+/* 収まらない分は切る。12 バイトの器に "ab~cd" の ~ を "XXXXXXXX" にすると
+ * "abXXXXXXXXcd"（12 字）は入らず、11 字で切れる。 */
+TEST(insert_str_cuts_what_does_not_fit)
+{
+    char small[12] = "ab~cd";
+    insert_str(small, sizeof(small), "~", "XXXXXXXX");
+    ASSERT_EQ_STR(small, "abXXXXXXXXc");
+}
+
+/* 差しこむ文字列だけで器があふれるときは、差しこむ文字列の途中で切る。 */
+TEST(insert_str_cuts_the_insert_itself)
+{
+    char small[6] = "ab~cd";
+    insert_str(small, sizeof(small), "~", "XXXXXXXX");
+    ASSERT_EQ_STR(small, "abXXX");
+}
+
+/* 雛形のほうが長ければ、何も変えない。 */
+TEST(insert_str_leaves_a_string_shorter_than_the_template)
+{
+    char work[8] = "ab";
+    insert_str(work, sizeof(work), "abc", "X");
+    ASSERT_EQ_STR(work, "ab");
+}
+
+/* insert_lnum も切る。 */
+TEST(insert_lnum_cuts_what_does_not_fit)
+{
+    char small[8] = "a %A1 b";
+    insert_lnum(small, sizeof(small), "%A1", 123456, false);
+    ASSERT_EQ_STR(small, "a 12345");
+}
+
 int main(void)
 {
     RUN_TEST(ch_tilde_becomes_ches);
@@ -155,5 +188,9 @@ int main(void)
     RUN_TEST(a_marker_differing_in_the_last_char_is_not_matched);
     RUN_TEST(the_earlier_of_two_similar_markers_is_replaced_alone);
     RUN_TEST(lnum_match_at_the_tail_is_replaced);
+    RUN_TEST(insert_str_cuts_what_does_not_fit);
+    RUN_TEST(insert_str_cuts_the_insert_itself);
+    RUN_TEST(insert_str_leaves_a_string_shorter_than_the_template);
+    RUN_TEST(insert_lnum_cuts_what_does_not_fit);
     return TEST_SUMMARY();
 }

@@ -1106,7 +1106,7 @@ bool get_char(bool *generate) {
                 (void)sprintf(temp, "This game is from a panic save.  Score "
                                     "will not be added to scoreboard.");
                 msg_print(temp);
-            } else if (((!score_disqualifications()) & SCORE_DISQUALIFY_DUPLICATE) && duplicate_character()) {
+            } else if (!(score_disqualifications() & SCORE_DISQUALIFY_DUPLICATE) && duplicate_character()) {
                 (void)sprintf(temp, "This character is already on the "
                                     "scoreboard; it will not be scored again.");
                 msg_print(temp);

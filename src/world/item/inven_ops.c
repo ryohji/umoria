@@ -189,14 +189,33 @@ int inven_carry(inven_type *i_ptr) {
 
     int locn;
 
-    // Now, check to see if player can carry object
+    if (inventory_count() >= inventory_slot_count()) {
+        // A full pack takes the item only onto a stack, the same as
+        // inven_check_num() says; -1 when there is none (the callers ask
+        // inven_check_num() first).
+        for (locn = 0; locn < inventory_count(); locn++) {
+            if (items_can_stack(inventory_at(locn), i_ptr)) {
+                break;
+            }
+        }
+        if (locn == inventory_count()) {
+            return -1;
+        }
+        inventory_at(locn)->number += i_ptr->number;
+        inventory_set_weight(inventory_weight() + i_ptr->number * i_ptr->weight);
+        player_request_strength_check();
+        return locn;
+    }
+
+    // Now, check to see if player can carry object; after the last item it
+    // goes at the end.
     for (locn = 0;; locn++) {
         inven_type *t_ptr = inventory_at(locn);
 
-        if (items_can_stack(t_ptr, i_ptr)) {
+        if (locn < inventory_count() && items_can_stack(t_ptr, i_ptr)) {
             t_ptr->number += i_ptr->number;
             break;
-        } else if ((typ == t_ptr->tval && subt < t_ptr->subval && always_known1p) || (typ > t_ptr->tval)) {
+        } else if (locn == inventory_count() || (typ == t_ptr->tval && subt < t_ptr->subval && always_known1p) || (typ > t_ptr->tval)) {
             // For items which are always known1p, i.e. never have a 'color',
             // insert them into the inventory in sorted order.
 

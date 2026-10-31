@@ -131,7 +131,7 @@ rc
 4
 6
 i\e
-# create food with something under us: no turn, and the scroll is used up (B30)
+# create food with something under us: no turn, and the scroll is kept
 day
 rc 
 i\e
@@ -148,7 +148,7 @@ s\ei\e\e
 s
 # wield the dagger and exchange weapons (a turn each; the dagger goes to the
 # second slot)
-we 
+wf 
 x
 s
 # run: -w79 lamp.sav
@@ -201,8 +201,8 @@ L6\e
 \x17
 \x17
 # - and a direction steps onto an object without picking it up (a wizard
-# flask left behind in this corridor). Enter is + in the original keys (the
-# wizard's experience; no turn)
+# flask left behind in this corridor). Enter does nothing in the original keys
+# (no turn)
 @ 77\r!\r64\r10\r1\r2\r6\r0\r0\r0\r0\r7500\r40000\r3\r1\ry
 8
 -2
@@ -218,8 +218,8 @@ s
 # run: -w83 rogue.sav
 # record: turns
 # The rogue-like keys, for a human male warrior named Ed: set the option, then
-# walk (h), run (H), dig left (^H), dig down with Enter (^M) and ^J, and a
-# count typed as digits alone (3s)
+# walk (h), run (H), dig left (^H), dig down with Enter (^M) and ^J, a count
+# typed as digits alone (3s), and a count for digging down with Enter and ^J
 \n y
 am\ea
 Ed\r
@@ -231,4 +231,6 @@ H
 \r
 \n
 3s
+2\r
+2\n
 s

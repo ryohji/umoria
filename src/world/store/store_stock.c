@@ -96,6 +96,7 @@ void store_carry(int store_num, int *ipos, inven_type *t_ptr) {
             if (typ == i_ptr->tval) {
                 if (subt == i_ptr->subval && // Adds to other item
                     subt >= ITEM_SINGLE_STACK_MIN &&
+                    (int)i_ptr->number + item_num < 256 &&
                     (subt < ITEM_GROUP_MIN || i_ptr->p1 == t_ptr->p1)) {
                     *ipos = item_val;
                     i_ptr->number += item_num;

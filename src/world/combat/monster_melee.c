@@ -625,7 +625,7 @@ void make_attack(int monptr) {
                 player_glowing_hands_spend();
                 const char *verb;
                 if ((randint(MAX_MONS_LEVEL) < r_ptr->level) || (CD_NO_SLEEP & r_ptr->cdefense)) {
-                    verb = "is unaffected.";
+                    verb = " is unaffected.";
                 } else {
                     if (m_ptr->confused) {
                         m_ptr->confused += 3;

@@ -125,10 +125,7 @@ bool cast(void) {
                     teleport((player_level() * 5));
                     break;
                 case 14:
-                    for (int id = 22; id < equipment_end_slot(); id++) {
-                        inven_type *i_ptr = equipment_at(id);
-                        i_ptr->flags = (i_ptr->flags & ~TR_CURSED);
-                    }
+                    (void)remove_curse();
                     break;
                 case 15:
                     if (get_dir(CNIL, &dir)) {

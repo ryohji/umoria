@@ -71,7 +71,7 @@ key  68 0x73 1b6cd4fe
 key  69 0x20 d424f0e4
 end of script after 69 of 69 keys
 screen (cursor 8,60, bells 0):
-|The Grey Icky-Thingis unaffected.
+|The Grey Icky-Thing is unaffected.
 |
 |Human                                                  ###############
 |Warrior                                                #.............#
@@ -157,7 +157,7 @@ key  57 0x15 ac896074
 key  58 0x73 34727fde
 key  59 0x20 696e06eb
 key  60 0x20 3a4645ac
-key  61 0x73 ff8780b1
+key  61 0x73 19ebea8f
 key  62 0x20 34a006f9
 key  63 0x73 b3c3f1d4
 key  64 0x20 383f094d

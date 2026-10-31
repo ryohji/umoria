@@ -386,7 +386,7 @@ static bool base_name(name_parts *parts, char *out_val, inven_type *i_ptr) {
 }
 
 // Puts the parts together: the base name with its flavour, " of <kind>", and
-// the plural (~ marks where an s goes).
+// the plural (~ marks where an s goes). tmp_val is a bigvtype.
 static void compose_name(char *tmp_val, const name_parts *parts, const inven_type *i_ptr) {
     if (parts->modstr != CNIL) {
         fill_in_modstr(tmp_val, parts->basenm, parts->modstr);
@@ -398,10 +398,10 @@ static void compose_name(char *tmp_val, const name_parts *parts, const inven_typ
         (void)strcat(tmp_val, object_list[i_ptr->index].name);
     }
     if (i_ptr->number != 1) {
-        insert_str(tmp_val, "ch~", "ches");
-        insert_str(tmp_val, "~", "s");
+        insert_str(tmp_val, sizeof(bigvtype), "ch~", "ches");
+        insert_str(tmp_val, sizeof(bigvtype), "~", "s");
     } else {
-        insert_str(tmp_val, "~", CNIL);
+        insert_str(tmp_val, sizeof(bigvtype), "~", CNIL);
     }
 }
 

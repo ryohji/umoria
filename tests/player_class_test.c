@@ -275,10 +275,10 @@ TEST(the_spell_tables_row_is_one_less_than_the_class) {
     ASSERT_EQ_INT(which_row_of_the_spell_table, 1);
 }
 
-/* **戦士には行が無い。** だから 10 か所の呼び手はどれも先に系を訊く ——
- * 訊かずに引くと `magic_spell[-1]` になる（バグ候補 B23 は
- * `spellbook.c:349` がまさにその番地を**確かめる前に**作っているところで、
- * 読まないので届かない）。 */
+/* **戦士には行が無い。** だから呼び手はどれも先に系を訊く ——
+ * 訊かずに引くと `magic_spell[-1]` になる（バグ候補 B23 は、spellbook.c の
+ * gain_spells がその番地を確かめる前に作っていたところ。読まないので届かな
+ * かったが、番地を作るのを確かめたあとへ移した）。 */
 TEST(a_warrior_would_index_before_the_start_of_the_spell_table) {
     given_the_table_has_the_six_schools();
     given_the_menu_answered(0); /* Warrior */

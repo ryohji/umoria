@@ -14,7 +14,8 @@
  *   - randint・randnor・magik が rnd() の値をどう使うか。
  *
  * 期待値はどれも、いまの実装が返した値か、rnd() の列から手で導いた値。
- * randnor(mean, 0) は試さない。表の外の枝で randint(0) が 0 で割る。
+ * randnor(mean, 0) は平均をそのまま返す（バグ候補 B29 を直した。前は表の外の
+ * 枝で randint(0) が 0 で割った）。
  * 呼び手はどれも 0 を渡さない。
  */
 #include "rnd.h"
@@ -156,6 +157,22 @@ TEST(randnor_first_values_from_seed_42)
     ASSERT_EQ_INT(mismatch, 0);
 }
 
+/* 偏差 0 なら、乱数を引かずに平均を返す。 */
+TEST(randnor_with_no_spread_returns_the_mean)
+{
+    set_rnd_seed(42);
+    int mean = randnor(100, 0);
+    ASSERT_EQ_INT(mean, 100);
+}
+
+/* 偏差 0 は乱数を引かない：次の randnor(100, 10) は種 42 の最初の値。 */
+TEST(randnor_with_no_spread_draws_nothing)
+{
+    set_rnd_seed(42);
+    (void)randnor(100, 0);
+    ASSERT_EQ_INT(randnor(100, 10), 99);
+}
+
 /* 10 万個の和と両端（種 42、平均 0、偏差 64＝表の偏差）。表の 1 つの値や
  * 二分探索の 1 歩が変われば、どこかで変わる */
 TEST(randnor_sum_and_extremes_over_100000_draws)
@@ -216,6 +233,8 @@ int main(void)
     RUN_TEST(randint_is_rnd_modulo_maxval_plus_one);
     RUN_TEST(randint_of_six_covers_one_to_six_only);
     RUN_TEST(randnor_first_values_from_seed_42);
+    RUN_TEST(randnor_with_no_spread_returns_the_mean);
+    RUN_TEST(randnor_with_no_spread_draws_nothing);
     RUN_TEST(randnor_sum_and_extremes_over_100000_draws);
     RUN_TEST(randnor_off_the_table_adds_four_to_five_deviations);
     RUN_TEST(magik_is_randint_100_at_most_chance);

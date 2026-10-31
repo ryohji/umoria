@@ -240,9 +240,57 @@ key 237 0x36 920cf3db turn 18
 key 238 0x6f cdfceabc turn 19
 key 239 0x36 37d9819b turn 19
 key 240 0x73 3fa513ec turn 20
-end of script after 240 of 240 keys
+key 241 0x40 2c917b2e turn 21
+key 242 0x20 d0372175 turn 21
+key 243 0x37 d2f82a07 turn 21
+key 244 0x30 9e8f70c2 turn 21
+key 245 0x0d 6768e9f2 turn 21
+key 246 0x3f c8c27434 turn 21
+key 247 0x0d 668ad65d turn 21
+key 248 0x36 b0c8b5ad turn 21
+key 249 0x36 fbaaf21b turn 21
+key 250 0x0d 4806cce1 turn 21
+key 251 0x35 4a4f18bc turn 21
+key 252 0x0d a216f2c7 turn 21
+key 253 0x31 b86cda61 turn 21
+key 254 0x0d 90401bb2 turn 21
+key 255 0x30 c8739327 turn 21
+key 256 0x0d cb35db77 turn 21
+key 257 0x30 f36fe772 turn 21
+key 258 0x0d f35da9e2 turn 21
+key 259 0x30 bb3e1aab turn 21
+key 260 0x0d 0a2652db turn 21
+key 261 0x30 b9adc9f2 turn 21
+key 262 0x0d 9ded1682 turn 21
+key 263 0x30 ec205560 turn 21
+key 264 0x0d 072db8f0 turn 21
+key 265 0x30 f10a10c8 turn 21
+key 266 0x0d c3161d18 turn 21
+key 267 0x30 21fa8fff turn 21
+key 268 0x0d b3d42fcf turn 21
+key 269 0x39 ec76ee08 turn 21
+key 270 0x0d deda2939 turn 21
+key 271 0x31 22103769 turn 21
+key 272 0x32 3e6933fa turn 21
+key 273 0x35 106cf5fc turn 21
+key 274 0x0d b2db60cf turn 21
+key 275 0x31 63beca8e turn 21
+key 276 0x32 113adabf turn 21
+key 277 0x0d 926af035 turn 21
+key 278 0x79 0a72470a turn 21
+key 279 0x34 fc37ea87 turn 21
+key 280 0x36 7eb9d8f5 turn 22
+key 281 0x69 80920d9b turn 23
+key 282 0x1b 69b4d941 turn 23
+key 283 0x72 8e63e23e turn 23
+key 284 0x62 e1ea75b4 turn 23
+key 285 0x20 d908c395 turn 23
+key 286 0x65 d37d26ae turn 23
+key 287 0x69 1a682f35 turn 23
+key 288 0x1b 1a682f35 turn 23
+end of script after 288 of 288 keys
 screen (cursor 13,45, bells 0):
-|
+|You have no more Scrolls of  {wizard item}.
 |             ##################################################################
 |Human        #................................................................#
 |Warrior      #...........5#########.........#3#...........#4#######...........#
@@ -259,7 +307,7 @@ screen (cursor 13,45, bells 0):
 |EXP :     14 #.........#########2#............................................#
 |MANA:      0 #.........###########.........########.....###########...........#
 |MHP :     32 #.........###########.........########.....###########...........#
-|CHP :     19 #.........###########.........########.....###########...........#
+|CHP :     20 #.........###########.........########.....###########...........#
 |             #.............................########.....###########...........#
 |AC  :     -4 #.............................#######1.....#####6#####...........#
 |GOLD:    366 #.............................########...........................#

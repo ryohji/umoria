@@ -520,9 +520,9 @@ key 159 0x61 9ca0aac5 turn 8
 key 160 0x79 857dc86b turn 8
 key 161 0x72 32de4eca turn 9
 key 162 0x63 5b3adcb6 turn 9
-key 163 0x20 9ac0b58a turn 9
-key 164 0x69 0b964f76 turn 9
-key 165 0x1b 6f4f8f49 turn 9
+key 163 0x20 a4cd9ccd turn 9
+key 164 0x69 28c4d992 turn 9
+key 165 0x1b 0e797545 turn 9
 key 166 0x73 28c4d992 turn 9
 key 167 0x31 28c4d992 turn 10
 key 168 0x31 28ce3130 turn 11
@@ -538,21 +538,21 @@ key 177 0x34 73b0dcf4 turn 20
 key 178 0x34 2f9f7cfc turn 21
 key 179 0x37 9cc8d6d0 turn 22
 key 180 0x73 e85dca9d turn 22
-key 181 0x1b 04d43ac6 turn 22
+key 181 0x1b d582a8ee turn 22
 key 182 0x1b e85dca9d turn 22
-key 183 0x33 2e0b777c turn 22
-key 184 0x37 3403d7b4 turn 23
-key 185 0x73 e85dca9d turn 23
-key 186 0x1b 04d43ac6 turn 23
-key 187 0x69 e85dca9d turn 23
-key 188 0x1b ffa0074c turn 23
-key 189 0x1b e85dca9d turn 23
-key 190 0x73 9e39377e turn 24
-key 191 0x77 b8645e72 turn 25
-key 192 0x65 3bd02ee3 turn 25
-key 193 0x20 8cc6e8cc turn 25
-key 194 0x78 47f632e9 turn 26
-key 195 0x73 6bc32eaa turn 27
+key 183 0x33 59e6365a turn 23
+key 184 0x37 076f62b3 turn 24
+key 185 0x73 e85dca9d turn 24
+key 186 0x1b d582a8ee turn 24
+key 187 0x69 e85dca9d turn 24
+key 188 0x1b 819a4a64 turn 24
+key 189 0x1b e85dca9d turn 24
+key 190 0x73 9e39377e turn 25
+key 191 0x77 fb822d69 turn 26
+key 192 0x66 7d031d81 turn 26
+key 193 0x20 ec2f3b28 turn 26
+key 194 0x78 fb822d69 turn 27
+key 195 0x73 5f8b03b6 turn 28
 end of script after 195 of 195 keys
 screen (cursor 20,59, bells 0):
 |The Blubbering Idiot drools on you.
@@ -576,7 +576,7 @@ screen (cursor 20,59, bells 0):
 |             #..........########............########....#######...............#
 |AC  :      0 #..............................########....#######...............#
 |GOLD:    731 #..............................########....###@###...............#
-|             #.............................................p..................#
+|             #..............................................p.................#
 |Is wizard    ##################################################################
 |                                                                 Town level
 run: -w79 lamp.sav
@@ -876,13 +876,13 @@ key 292 0x32 5914c7ee turn 16
 key 293 0x69 effbd2be turn 17
 key 294 0x1b 57e09efd turn 17
 key 295 0x0d effbd2be turn 17
-key 296 0x73 027d489d turn 17
-key 297 0x10 027d489d turn 18
-key 298 0x10 cdd21fec turn 18
+key 296 0x73 effbd2be turn 17
+key 297 0x10 effbd2be turn 18
+key 298 0x10 47f9ffe3 turn 18
 key 299 0x20 637fc73e turn 18
-key 300 0x0c 027d489d turn 18
-key 301 0x3a 2d0f80c0 turn 18
-key 302 0x73 2d0f80c0 turn 18
+key 300 0x0c effbd2be turn 18
+key 301 0x3a dc6ef3bb turn 18
+key 302 0x73 dc6ef3bb turn 18
 end of script after 302 of 302 keys
 screen (cursor 11,33, bells 1):
 |
@@ -899,7 +899,7 @@ screen (cursor 11,33, bells 1):
 |CHR :     14                    #@#
 |                       ##########.###
 |LEV :      1           #>...........#
-|EXP :      1           #...|........#
+|EXP :      0           #...|........#
 |MANA:      0           #............#
 |MHP :     19           #............#
 |CHP :     19           #............###########
@@ -938,8 +938,12 @@ key  24 0x0d 00fb5884 turn 24
 key  25 0x0a 8e28b7df turn 24
 key  26 0x33 8e28b7df turn 24
 key  27 0x73 10d42d90 turn 24
-key  28 0x73 3e3e9e91 turn 27
-end of script after 28 of 28 keys
+key  28 0x32 3e3e9e91 turn 27
+key  29 0x0d 374d1081 turn 27
+key  30 0x32 8e28b7df turn 27
+key  31 0x0a 374d1081 turn 27
+key  32 0x73 8e28b7df turn 27
+end of script after 32 of 32 keys
 screen (cursor 11,14, bells 0):
 |
 |             ##################################################################

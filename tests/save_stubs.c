@@ -48,6 +48,8 @@ _Noreturn void exit_game(void) { (void)fflush(NULL); abort(); }
 static int32_t stub_total_points;
 int32_t total_points(void) { return stub_total_points; }
 void save_stubs_set_total_points(int32_t points) { stub_total_points = points; }
+/* 重複のキャラクターか（death.c）。本体と同じく、つねに false。 */
+bool duplicate_character(void) { return false; }
 
 /* プレイヤーの状態更新（inven_ops.c / player_bonuses.c / rest_command.c） */
 void check_strength(void) {}
