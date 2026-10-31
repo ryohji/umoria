@@ -67,7 +67,7 @@ WORLD_TIERS = [
     ('rules', 'desc inscription item_picker inven_ops player_bonuses stat_ops level_ops '
               'spellbook rest_command stat_loss food_ops item_learn device_use store_price'),
     ('floor and life', 'object_place object_alloc monster_death monster_place monster_damage '
-                       'hit_rolls player_damage item_enchant monster_breeding store_stock '
+                       'hit_rolls player_damage item_enchant monster_breeding monster_multiply monster_view store_stock '
                        'store_haggle level_exit generate'),
     ('actions', 'creature monster_melee player_melee projectiles spells traps search '
                 'terrain_commands player_move run_path throw'),

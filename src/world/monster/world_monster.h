@@ -15,7 +15,13 @@
 #include "types.h"
 
 // --- creature.c ---
-void creatures(int);
+// The monsters' turns.
+void creatures(void);
+
+// --- monster_view.c ---
+// Which monsters the player can see, without moving any of them; the dead ones
+// are taken off the list.
+void update_monsters(void);
 
 // --- monster_breeding.c ---
 // How many monsters have been bred on this level, and what that forbids

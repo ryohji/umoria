@@ -4,7 +4,7 @@
 // ABSOLUTELY NO WARRANTY. See https://www.gnu.org/licenses/gpl-2.0.html
 // for further details.
 
-// Every creature of the monster table takes four turns with creatures(true),
+// Every creature of the monster table takes four turns with creatures(),
 // awake and three squares from the player, on a test floor: it casts spells
 // (mon_cast_spell), moves (mon_move) and attacks. From a known state of the
 // player: a human warrior of level
@@ -226,9 +226,9 @@ int main(void) {
             }
             (void)place_monster(PY, PX + 3, it, false);
             monster_list_at(monster_list_used() - 1)->csleep = 0;
-            creatures(false);
+            update_monsters();
             for (int turn = 0; turn < 4 && !player_is_dead(); turn++) {
-                creatures(true);
+                creatures();
             }
             mix_state();
             count++;

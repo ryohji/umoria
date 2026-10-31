@@ -57,7 +57,7 @@ void teleport(int dis) {
     lite_spot(player_row(), player_col());
     player_place(y, x);
     check_view();
-    creatures(false);
+    update_monsters();
     teleport_done();
 }
 

@@ -86,8 +86,13 @@ bool inven_check_weight(inven_type *);
 void teleport_away(int, int);
 void teleport_to(int, int);
 
-// --- monster/creature.c ---
+// --- monster/monster_view.c ---
 void update_mon(int);
+
+// --- monster/monster_multiply.c ---
+// A monster that eats others to make room for its young (creature.c's moves and
+// multiply_monster() both look at it).
+#define CM_EATS_OTHER   0x00080000L
 bool multiply_monster(int, int, creature_iterator, int);
 
 // --- monster/monster_breeding.c ---
@@ -98,7 +103,7 @@ bool multiply_monster(int, int, creature_iterator, int);
 // mon_move() (creature.c), before any square is looked at.
 bool monster_breeding_allowed(void);
 
-// One has been bred. Two calls, both in multiply_monster() (creature.c), one for
+// One has been bred. Two calls, both in multiply_monster() (monster_multiply.c), one for
 // each way the new monster gets its square: the plain empty square, and the
 // square freed by a cannibal eating what stood there. Both are counted only
 // after place_monster() has actually succeeded -- a birth that fails because the

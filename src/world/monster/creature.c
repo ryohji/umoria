@@ -52,73 +52,8 @@
 #define CM_75_RANDOM    0x00000020L
 
 #define CM_OPEN_DOOR    0x00020000L
-#define CM_EATS_OTHER   0x00080000L
 #define CM_PICKS_UP     0x00100000L
 #define CM_MULTIPLY     0x00200000L
-
-// Updates screen when monsters move about -RAK-
-void update_mon(int monptr) {
-    cave_type *c_ptr;
-    creature_type *r_ptr;
-
-    bool flag = false;
-    monster_type *m_ptr = monster_list_at(monptr);
-
-    // Asked once and held in one place: the condition below read the same
-    // number twice.
-    const int infra_range = player_infra_range();
-
-    if ((m_ptr->cdis <= MAX_SIGHT) && !player_effect_in_force(PLAYER_EFFECT_BLIND) &&
-        (panel_contains((int)m_ptr->fy, (int)m_ptr->fx))) {
-        if (progress_wizard_mode()) {
-            // Wizard sight.
-            flag = true;
-        } else if (los(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx)) {
-            // Normal sight.
-            c_ptr = square_at(m_ptr->fy, m_ptr->fx);
-            r_ptr = monster_creature_get(m_ptr->creature);
-            if (c_ptr->pl || c_ptr->tl || (player_is_running() && m_ptr->cdis < 2 && player_has_light())) {
-                if ((CM_INVISIBLE & r_ptr->cmove) == 0) {
-                    flag = true;
-                } else if (player_can_see_invisible()) {
-                    flag = true;
-                    recall_update_move(m_ptr->creature, CM_INVISIBLE);
-                }
-            } else if (infra_range > 0 && m_ptr->cdis <= infra_range && (CD_INFRA & r_ptr->cdefense)) {
-                // Infra vision. Two halves, and only the first one is about the
-                // character: how far the warm blood carries (this module) and
-                // whether THIS monster has any (CD_INFRA, which belongs to the
-                // monster). The `> 0` guard is redundant in practice -- a
-                // monster is never on the player's own square, so cdis is at
-                // least one -- but removing it would change behaviour.
-
-                flag = true;
-                recall_update_characteristics(m_ptr->creature, CD_INFRA);
-            }
-        }
-    }
-
-    if (flag) {
-        // Light it up.
-
-        if (!m_ptr->ml) {
-            disturb(1, 0);
-            m_ptr->ml = true;
-            lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
-
-            // notify inven_command
-            note_screen_flushed();
-        }
-    } else if (m_ptr->ml) {
-        // Turn it off.
-
-        m_ptr->ml = false;
-        lite_spot((int)m_ptr->fy, (int)m_ptr->fx);
-
-        // notify inven_command
-        note_screen_flushed();
-    }
-}
 
 // How many times this creature acts on this turn. 0 means it does not act. -RAK-
 //
@@ -140,18 +75,6 @@ static int moves_this_turn(int16_t speed) {
         // Returning 1 or 0 explicitly, rather than the comparison itself,
         // says that this is a count of moves and not a truth value.
         return ((progress_turn() % (2 - speed)) == 0) ? 1 : 0;
-    }
-}
-
-// Makes sure a new creature gets lit up. -CJS-
-static bool check_mon_lite(int y, int x) {
-    int monptr = square_at(y, x)->cptr;
-
-    if (monptr <= 1) {
-        return false;
-    } else {
-        update_mon(monptr);
-        return monster_list_at(monptr)->ml;
     }
 }
 
@@ -727,72 +650,6 @@ static void mon_cast_spell(int monptr, bool *took_turn) {
     }
 }
 
-// Places creature adjacent to given location -RAK-
-// Rats and Flys are fun!
-bool multiply_monster(int y, int x, creature_iterator creature, int monptr) {
-    int j, k, result;
-    cave_type *c_ptr;
-
-    int i = 0;
-    do {
-        j = y - 2 + randint(3);
-        k = x - 2 + randint(3);
-
-        // don't create a new creature on top of the old one, that
-        // causes invincible/invisible creatures to appear.
-        if (in_bounds(j, k) && (j != y || k != x)) {
-            c_ptr = square_at(j, k);
-            if ((c_ptr->fval <= MAX_OPEN_SPACE) && (c_ptr->tptr == 0) && (c_ptr->cptr != 1)) {
-                // Creature there already?
-                if (c_ptr->cptr > 1) {
-                    // Some critters are cannibalistic!
-                    if ((monster_creature_get(creature)->cmove & CM_EATS_OTHER)
-                        // Check the experience level -CJS-
-                        && monster_creature_get(creature)->mexp >= monster_creature_get(monster_list_at(c_ptr->cptr)->creature)->mexp) {
-                        // It ate an already processed monster.Handle * normally.
-                        if (monptr < c_ptr->cptr) {
-                            delete_monster((int)c_ptr->cptr);
-                        } else {
-                            // If it eats this monster, an already processed
-                            // mosnter will take its place, causing all kinds
-                            // of havoc. Delay the kill a bit.
-                            fix1_delete_monster((int)c_ptr->cptr);
-                        }
-
-                        // in case compact_monster() is called,it needs monptr
-                        monster_turn_begin(monptr);
-
-                        // Place_monster() may fail if monster list full.
-                        result = place_monster(j, k, creature, false);
-                        monster_turn_end();
-                        if (!result) {
-                            return false;
-                        }
-                        monster_breeding_note_birth();
-                        return check_mon_lite(j, k);
-                    }
-                } else {
-                    // All clear,  place a monster
-
-                    // in case compact_monster() is called,it needs monptr
-                    monster_turn_begin(monptr);
-
-                    // Place_monster() may fail if monster list full.
-                    result = place_monster(j, k, creature, false);
-                    monster_turn_end();
-                    if (!result) {
-                        return false;
-                    }
-                    monster_breeding_note_birth();
-                    return check_mon_lite(j, k);
-                }
-            }
-        }
-        i++;
-    } while (i <= 18);
-    return false;
-}
-
 // Fill movement array with five random directions (1-9)
 static void random_moves(int *mm) {
     mm[0] = randint(9);
@@ -972,7 +829,7 @@ static void mon_move(int monptr, uint32_t *rcmove) {
 }
 
 // Creatures movement and attacking are done from here -RAK-
-void creatures(int attack) {
+void creatures(void) {
     int k;
     int notice;
     uint32_t rcmove;
@@ -994,81 +851,76 @@ void creatures(int attack) {
 
         m_ptr->cdis = distance(player_row(), player_col(), (int)m_ptr->fy, (int)m_ptr->fx);
 
-        // Attack is argument passed to CREATURE
-        if (attack) {
-            k = moves_this_turn(m_ptr->cspeed);
-            if (k <= 0) {
-                update_mon(i);
-            } else {
-                while (k > 0) {
-                    k--;
-                    wake = false;
-                    ignore = false;
-                    rcmove = 0;
+        k = moves_this_turn(m_ptr->cspeed);
+        if (k <= 0) {
+            update_mon(i);
+        } else {
+            while (k > 0) {
+                k--;
+                wake = false;
+                ignore = false;
+                rcmove = 0;
 
-                    // Monsters trapped in rock must be given a turn also,
-                    // so that they will die/dig out immediately.
-                    if (m_ptr->ml || (m_ptr->cdis <= monster_creature_get(m_ptr->creature)->aaf) || ((!(monster_creature_get(m_ptr->creature)->cmove & CM_PHASE)) && square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
-                        if (m_ptr->csleep > 0) {
-                            if (player_aggravates_monsters()) {
-                                m_ptr->csleep = 0;
-                            } else if ((!player_resting() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) || (randint(50) == 1)) {
-                                notice = randint(1024);
-                                // Stealth ranges from -1 to 18, giving 20 steps. Each point halves
-                                // the right-hand side. At stl = -1, the threshold 1L << 30 exactly
-                                // equals the maximum of randint(1024) cubed, so the monster always
-                                // wakes.
-                                if (notice * notice * notice <= (1L << (29 - player_stealth()))) {
-                                    m_ptr->csleep -= (100 / m_ptr->cdis);
-                                    if (m_ptr->csleep > 0) {
-                                        ignore = true;
-                                    } else {
-                                        wake = true;
+                // Monsters trapped in rock must be given a turn also,
+                // so that they will die/dig out immediately.
+                if (m_ptr->ml || (m_ptr->cdis <= monster_creature_get(m_ptr->creature)->aaf) || ((!(monster_creature_get(m_ptr->creature)->cmove & CM_PHASE)) && square_at(m_ptr->fy, m_ptr->fx)->fval >= MIN_CAVE_WALL)) {
+                    if (m_ptr->csleep > 0) {
+                        if (player_aggravates_monsters()) {
+                            m_ptr->csleep = 0;
+                        } else if ((!player_resting() && !player_timed_in_force(PLAYER_TIMED_PARALYSIS)) || (randint(50) == 1)) {
+                            notice = randint(1024);
+                            // Stealth ranges from -1 to 18, giving 20 steps. Each point halves
+                            // the right-hand side. At stl = -1, the threshold 1L << 30 exactly
+                            // equals the maximum of randint(1024) cubed, so the monster always
+                            // wakes.
+                            if (notice * notice * notice <= (1L << (29 - player_stealth()))) {
+                                m_ptr->csleep -= (100 / m_ptr->cdis);
+                                if (m_ptr->csleep > 0) {
+                                    ignore = true;
+                                } else {
+                                    wake = true;
 
-                                        // force it to be exactly zero
-                                        m_ptr->csleep = 0;
-                                    }
+                                    // force it to be exactly zero
+                                    m_ptr->csleep = 0;
                                 }
                             }
-                        }
-
-                        if (m_ptr->stunned != 0) {
-                            // NOTE: Balrog = 100*100 = 10000, it always recovers instantly
-                            if (randint(5000) < monster_creature_get(m_ptr->creature)->level * monster_creature_get(m_ptr->creature)->level) {
-                                m_ptr->stunned = 0;
-                            } else {
-                                m_ptr->stunned--;
-                            }
-                            if (m_ptr->stunned == 0) {
-                                if (m_ptr->ml) {
-                                    (void)sprintf(cdesc, "The %s ", monster_creature_get(m_ptr->creature)->name);
-                                    msg_print(strcat(cdesc, "recovers and glares at you."));
-                                }
-                            }
-                        }
-                        if ((m_ptr->csleep == 0) && (m_ptr->stunned == 0)) {
-                            mon_move(i, &rcmove);
                         }
                     }
 
-                    update_mon(i);
-                    if (m_ptr->ml) {
-                        r_ptr = recall_get(m_ptr->creature);
-                        if (wake) {
-                            if (r_ptr->r_wake < MAX_UCHAR) {
-                                r_ptr->r_wake++;
-                            }
-                        } else if (ignore) {
-                            if (r_ptr->r_ignore < MAX_UCHAR) {
-                                r_ptr->r_ignore++;
+                    if (m_ptr->stunned != 0) {
+                        // NOTE: Balrog = 100*100 = 10000, it always recovers instantly
+                        if (randint(5000) < monster_creature_get(m_ptr->creature)->level * monster_creature_get(m_ptr->creature)->level) {
+                            m_ptr->stunned = 0;
+                        } else {
+                            m_ptr->stunned--;
+                        }
+                        if (m_ptr->stunned == 0) {
+                            if (m_ptr->ml) {
+                                (void)sprintf(cdesc, "The %s ", monster_creature_get(m_ptr->creature)->name);
+                                msg_print(strcat(cdesc, "recovers and glares at you."));
                             }
                         }
-                        recall_update_move(m_ptr->creature, rcmove);
+                    }
+                    if ((m_ptr->csleep == 0) && (m_ptr->stunned == 0)) {
+                        mon_move(i, &rcmove);
                     }
                 }
+
+                update_mon(i);
+                if (m_ptr->ml) {
+                    r_ptr = recall_get(m_ptr->creature);
+                    if (wake) {
+                        if (r_ptr->r_wake < MAX_UCHAR) {
+                            r_ptr->r_wake++;
+                        }
+                    } else if (ignore) {
+                        if (r_ptr->r_ignore < MAX_UCHAR) {
+                            r_ptr->r_ignore++;
+                        }
+                    }
+                    recall_update_move(m_ptr->creature, rcmove);
+                }
             }
-        } else {
-            update_mon(i);
         }
 
         // Get rid of an eaten/breathed on monster. This is necessary because

@@ -223,7 +223,7 @@ static bool detect_monsters_by_predicate(bool (*predicate)(const creature_type *
         msg_print(CNIL);
 
         // must unlight every monster just lighted
-        creatures(false);
+        update_monsters();
     }
 
     return flag;
@@ -1084,7 +1084,7 @@ void teleport_to(int ny, int nx) {
     check_view();
 
     // light creatures
-    creatures(false);
+    update_monsters();
 }
 
 // Teleport all creatures in a given direction away -RAK-
