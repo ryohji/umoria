@@ -588,6 +588,10 @@ int16_t player_col(void) {
     return char_col;
 }
 
+coordinate player_position(void) {
+    return (coordinate){char_row, char_col};
+}
+
 void player_place(int row, int col) {
     char_row = (int16_t)row;
     char_col = (int16_t)col;

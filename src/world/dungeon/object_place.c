@@ -40,7 +40,7 @@ static void compact_objects(void) {
 
                 cave_type *cave_ptr = square_at(i, j);
                 if ((cave_ptr->tptr != 0) &&
-                    (distance(i, j, player_row(), player_col()) > cur_dis)) {
+                    (distance((coordinate){i, j}, player_position()) > cur_dis)) {
                     switch (floor_item_at(cave_ptr->tptr)->tval) {
                     case TV_VIS_TRAP:
                         chance = 15;

@@ -13,6 +13,7 @@
 #include "config.h"
 #include "constant.h"
 #include "types.h"
+#include "coordinate.h"
 
 // === Status Flags ===
 
@@ -255,6 +256,9 @@ void forget_pending_teleport(void);
 // Player's row and column in cave[][].
 int16_t player_row(void);
 int16_t player_col(void);
+
+// The same two, as one square.
+coordinate player_position(void);
 
 // Put player somewhere (both coordinates always set together).
 void player_place(int row, int col);

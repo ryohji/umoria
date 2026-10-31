@@ -104,7 +104,7 @@ bool place_monster(int y, int x, creature_iterator h, int slp) {
         // the creature speed value is 10 greater, so that it can be a uint8_t
         mon_ptr->cspeed = r_ptr->speed - 10 + player_speed();
         mon_ptr->stunned = 0;
-        mon_ptr->cdis = distance(player_row(), player_col(), y, x);
+        mon_ptr->cdis = distance(player_position(), (coordinate){y, x});
         mon_ptr->ml = false;
         mon_ptr->csleep = (slp = slp ? r_ptr->sleep : 0) ? slp * 2 + randint(slp * 10) : 0;
         square_at(y, x)->cptr = cur_pos;
@@ -122,7 +122,7 @@ void place_win_monster(void) {
             x = randint(dungeon_width() - 2);
         } while ((square_at(y, x)->fval >= MIN_CLOSED_SPACE) ||
                  (square_at(y, x)->cptr != 0) || (square_at(y, x)->tptr != 0) ||
-                 (distance(y, x, player_row(), player_col()) <= MAX_SIGHT));
+                 (distance((coordinate){y, x}, player_position()) <= MAX_SIGHT));
 
         // Check for case where could not allocate space for
         // the win monster, this should never happen.
@@ -176,7 +176,7 @@ void alloc_monster(int num, int dis, int slp) {
         do {
             y = randint(dungeon_height() - 2);
             x = randint(dungeon_width() - 2);
-        } while (square_at(y, x)->fval >= MIN_CLOSED_SPACE || (square_at(y, x)->cptr != 0) || (distance(y, x, player_row(), player_col()) <= dis));
+        } while (square_at(y, x)->fval >= MIN_CLOSED_SPACE || (square_at(y, x)->cptr != 0) || (distance((coordinate){y, x}, player_position()) <= dis));
 
         creature_iterator h = get_mons_num(dungeon_level());
         const uint8_t cchar = monster_creature_get(h)->cchar;

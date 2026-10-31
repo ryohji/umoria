@@ -119,6 +119,18 @@ TEST(the_window_does_not_widen_the_record) {
     ASSERT_EQ_INT(-32768, player_row());
 }
 
+/* --- 1 つのマスとして --------------------------------------------------- */
+
+TEST(the_position_has_the_row) {
+    player_place(10, 20);
+    ASSERT_EQ_INT(10, player_position().row);
+}
+
+TEST(the_position_has_the_column) {
+    player_place(10, 20);
+    ASSERT_EQ_INT(20, player_position().column);
+}
+
 /* --- 置きなおし --------------------------------------------------------- */
 
 TEST(forgetting_puts_the_row_off_the_level) {
@@ -162,6 +174,8 @@ int main(void) {
     RUN_TEST(forgetting_puts_the_row_off_the_level);
     RUN_TEST(forgetting_puts_the_column_off_the_level);
     RUN_TEST(the_player_can_be_placed_after_being_forgotten);
+    RUN_TEST(the_position_has_the_row);
+    RUN_TEST(the_position_has_the_column);
 
     TEST_SUMMARY();
 }

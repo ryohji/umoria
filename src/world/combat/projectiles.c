@@ -195,7 +195,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                 // The explosion.
                 for (int i = y - max_dis; i <= y + max_dis; i++) {
                     for (int j = x - max_dis; j <= x + max_dis; j++) {
-                        if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
+                        if (in_bounds(i, j) && (distance((coordinate){y, x}, (coordinate){i, j}) <= max_dis) && los(y, x, i, j)) {
                             c_ptr = square_at(i, j);
 
                             if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
@@ -227,7 +227,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
                                         }
                                     }
 
-                                    dam = (dam / (distance(i, j, y, x) + 1));
+                                    dam = (dam / (distance((coordinate){i, j}, (coordinate){y, x}) + 1));
                                     int k = mon_take_hit((int)c_ptr->cptr, dam);
 
                                     if (k) {
@@ -247,7 +247,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, const char *descrip) 
 
                 for (int i = (y - 2); i <= (y + 2); i++) {
                     for (int j = (x - 2); j <= (x + 2); j++) {
-                        if (in_bounds(i, j) && panel_contains(i, j) && (distance(y, x, i, j) <= max_dis)) {
+                        if (in_bounds(i, j) && panel_contains(i, j) && (distance((coordinate){y, x}, (coordinate){i, j}) <= max_dis)) {
                             lite_spot(i, j);
                         }
                     }
@@ -300,7 +300,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
 
     for (int i = y - 2; i <= y + 2; i++) {
         for (int j = x - 2; j <= x + 2; j++) {
-            if (in_bounds(i, j) && (distance(y, x, i, j) <= max_dis) && los(y, x, i, j)) {
+            if (in_bounds(i, j) && (distance((coordinate){y, x}, (coordinate){i, j}) <= max_dis) && los(y, x, i, j)) {
                 cave_type *c_ptr = square_at(i, j);
 
                 if ((c_ptr->tptr != 0) && (*destroy)(floor_item_at(c_ptr->tptr))) {
@@ -328,7 +328,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                             dam = (dam / 4);
                         }
 
-                        dam = (dam / (distance(i, j, y, x) + 1));
+                        dam = (dam / (distance((coordinate){i, j}, (coordinate){y, x}) + 1));
 
                         // can not call mon_take_hit here, since player does not
                         // get experience for kill
@@ -354,7 +354,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
                             }
                         }
                     } else if (c_ptr->cptr == 1) {
-                        dam = (dam_hp / (distance(i, j, y, x) + 1));
+                        dam = (dam_hp / (distance((coordinate){i, j}, (coordinate){y, x}) + 1));
 
                         // let's do at least one point of damage
                         // prevents randint(0) problem with poison_gas, also
@@ -390,7 +390,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc, int monptr) {
 
     for (int i = (y - 2); i <= (y + 2); i++) {
         for (int j = (x - 2); j <= (x + 2); j++) {
-            if (in_bounds(i, j) && panel_contains(i, j) && (distance(y, x, i, j) <= max_dis)) {
+            if (in_bounds(i, j) && panel_contains(i, j) && (distance((coordinate){y, x}, (coordinate){i, j}) <= max_dis)) {
                 lite_spot(i, j);
             }
         }

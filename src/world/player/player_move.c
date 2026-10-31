@@ -39,7 +39,7 @@ void teleport(int dis) {
     do {
         y = randint(dungeon_height()) - 1;
         x = randint(dungeon_width()) - 1;
-        while (distance(y, x, player_row(), player_col()) > dis) {
+        while (distance((coordinate){y, x}, player_position()) > dis) {
             y += ((player_row() - y) / 2);
             x += ((player_col() - x) / 2);
         }

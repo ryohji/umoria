@@ -1048,7 +1048,7 @@ void teleport_away(int monptr, int dis) {
     // this is necessary, because the creature is
     // not currently visible in its new position.
     m_ptr->ml = false;
-    m_ptr->cdis = distance(player_row(), player_col(), yn, xn);
+    m_ptr->cdis = distance(player_position(), (coordinate){yn, xn});
     update_mon(monptr);
 }
 
@@ -1538,7 +1538,7 @@ void destroy_area(int y, int x) {
         for (int i = (y - 15); i <= (y + 15); i++) {
             for (int j = (x - 15); j <= (x + 15); j++) {
                 if (in_bounds(i, j) && (square_at(i, j)->fval != BOUNDARY_WALL)) {
-                    int k = distance(i, j, y, x);
+                    int k = distance((coordinate){i, j}, (coordinate){y, x});
 
                     // clear player's spot, but don't put wall there
                     if (k == 0) {
