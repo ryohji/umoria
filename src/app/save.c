@@ -706,6 +706,347 @@ static void rd_player(void) {
     progress_set_turn((int32_t)saved_turn);
 }
 
+// The version of the savefile and the key of its bytes. False when the file is
+// from a version this game cannot read.
+static bool rd_version(uint8_t *version_maj, uint8_t *version_min, uint8_t *patch_level) {
+    xor_byte = 0;
+    rd_byte(version_maj);
+    xor_byte = 0;
+    rd_byte(version_min);
+    xor_byte = 0;
+    rd_byte(patch_level);
+    xor_byte = 0;
+    rd_byte(&xor_byte);
+
+    // COMPAT support savefiles from 5.0.14 to 5.0.17.
+    // Support savefiles from 5.1.0 to present.
+    // As of version 5.4, accept savefiles even if they have higher version numbers.
+    // The savefile format was frozen as of version 5.2.2.
+    if ((*version_maj != CUR_VERSION_MAJ) || savefile_before(*version_min, *patch_level, 0, 14)) {
+        prt("Sorry. This savefile is from a different version of umoria.", 2, 0);
+        return false;
+    }
+
+    return true;
+}
+
+// What the player has learnt about each kind of monster. False when the file
+// names a kind that is not in the table.
+static bool rd_monster_memory(void) {
+    uint16_t uint16_t_tmp;
+    rd_short(&uint16_t_tmp);
+    while (uint16_t_tmp != 0xFFFF) {
+        if (uint16_t_tmp >= MAX_CREATURES) {
+            return false;
+        }
+        recall_type *r_ptr = recall_get(monster_creature_at(uint16_t_tmp));
+        rd_long(&r_ptr->r_cmove);
+        rd_long(&r_ptr->r_spells);
+        rd_short(&r_ptr->r_kills);
+        rd_short(&r_ptr->r_deaths);
+        rd_short(&r_ptr->r_cdefense);
+        rd_byte(&r_ptr->r_wake);
+        rd_byte(&r_ptr->r_ignore);
+        rd_bytes(r_ptr->r_attacks, MAX_MON_NATTACK);
+        rd_short(&uint16_t_tmp);
+    }
+
+    return true;
+}
+
+// The options, and the word they are packed in: its top bit says the character
+// is dead (cleared here when the wizard resurrects it).
+static uint32_t rd_options(uint8_t version_min, uint8_t patch_level) {
+    // for save files before 5.2.2, read and ignore log_index (sic)
+    if (savefile_before(version_min, patch_level, 2, 2)) {
+        uint16_t uint16_t_tmp;
+        rd_short(&uint16_t_tmp);
+    }
+
+    uint32_t l;
+    rd_long(&l);
+
+    // The same eleven bits sv_write() packed; the bit assignment lives in
+    // options.c, so this side cannot drift from that one.
+    game_options_unpack(l);
+
+    // save files before 5.2.2 have no bit for sound_beep_flag nor for
+    // display_counts, so the bits just read are meaningless. Set them on
+    // for compatibility.
+    if (savefile_before(version_min, patch_level, 2, 2)) {
+        sound_beep_flag = true;
+        display_counts = true;
+    }
+
+    // Don't allow resurrection of characters that have won.  It causes
+    // problems because the character level is out of the allowed range.
+    if (progress_wizard_requested() && (l & 0x40000000L)) {
+        msg_print("Sorry, this character is retired from moria.");
+        msg_print("You can not resurrect a retired character.");
+    } else if (progress_wizard_requested() && (l & 0x80000000L) && get_check("Resurrect a dead character?")) {
+        l &= ~0x80000000L;
+    }
+
+    return l;
+}
+
+// The living character: the player, the pack and equipment, the spells, the
+// messages, and (from 5.1.3) the stores. False when the file is bad.
+static bool rd_character(uint8_t version_min, uint8_t patch_level, uint32_t *time_saved) {
+    rd_player();
+    // A living character is of level 1 to MAX_PLAYER_LEVEL (a winner goes past
+    // it only when it retires, in a dead character's file); the experience
+    // for a new kind of item is divided by the level.
+    if (player_level() < 1 || player_level() > MAX_PLAYER_LEVEL) {
+        return false;
+    }
+    uint16_t pack_count;
+    rd_short(&pack_count);
+    inventory_set_count((int16_t)pack_count);
+    if (inventory_count() > inventory_slot_count()) {
+        return false;
+    }
+    for (int i = 0; i < inventory_count(); i++) {
+        rd_item(inventory_at(i));
+    }
+    for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
+        rd_item(equipment_at(i));
+    }
+    uint16_t pack_weight;
+    rd_short(&pack_weight);
+    inventory_set_weight((int16_t)pack_weight);
+    uint16_t equip_count;
+    rd_short(&equip_count);
+    equipment_set_count((int16_t)equip_count);
+    uint32_t saved_spells_learned;
+    rd_long(&saved_spells_learned);
+    spells_set_learned_bits(saved_spells_learned);
+    uint32_t saved_spells_worked;
+    rd_long(&saved_spells_worked);
+    spells_set_worked_bits(saved_spells_worked);
+    uint32_t saved_spells_forgotten;
+    rd_long(&saved_spells_forgotten);
+    spells_set_forgotten_bits(saved_spells_forgotten);
+    rd_bytes(spell_order_bytes(), 32);
+    rd_bytes(item_kind_record_bytes(), item_kind_record_count());
+    uint32_t saved_color_seed;
+    rd_long(&saved_color_seed);
+    progress_set_color_seed(saved_color_seed);
+    uint32_t saved_town_seed;
+    rd_long(&saved_town_seed);
+    progress_set_town_seed(saved_town_seed);
+    uint16_t newest_msg_slot;
+    rd_short(&newest_msg_slot);
+    msg_history_set_newest_slot(newest_msg_slot);
+    for (int i = 0; i < msg_history_slot_count(); i++) {
+        rd_string(msg_history_slot(i));
+    }
+
+    bool saved_panic;
+    rd_bool(&saved_panic);
+    set_panic_save(saved_panic);
+    bool saved_has_won;
+    rd_bool(&saved_has_won);
+    set_player_has_won(saved_has_won);
+    uint16_t saved_disqualifications;
+    rd_short(&saved_disqualifications);
+    set_score_disqualifications((int16_t)saved_disqualifications);
+    rd_shorts(hp_table_slots(), MAX_PLAYER_LEVEL);
+
+    if (!savefile_before(version_min, patch_level, 1, 3)) {
+        for (int i = 0; i < store_count(); i++) {
+            if (!rd_store(store_at(i))) {
+                return false;
+            }
+        }
+    }
+
+    if (!savefile_before(version_min, patch_level, 1, 3)) {
+        rd_long(time_saved);
+    }
+
+    if (version_min >= 2) {
+        rd_string(death_cause());
+    }
+
+    if (!savefile_before(version_min, patch_level, 2, 2)) {
+        // Read into a local first: max_score is int32_t and rd_long
+        // takes a uint32_t *, so the old cast lied about the pointer's
+        // type (the same fix as panel and the player's position).
+        uint32_t saved_best_score;
+        rd_long(&saved_best_score);
+        set_best_score_so_far((int32_t)saved_best_score);
+    } else {
+        set_best_score_so_far(0);
+    }
+
+    if (!savefile_before(version_min, patch_level, 2, 2)) {
+        uint32_t saved_birth_date;
+        rd_long(&saved_birth_date);
+        set_character_birth_date((int32_t)saved_birth_date);
+    } else {
+        set_character_birth_date((int32_t)time((time_t *)0));
+    }
+    return true;
+}
+
+// A file without a level: the memories of a dead character, or one the wizard
+// resurrects. False when a living character's file ends before its level.
+static bool restore_without_level(uint32_t l) {
+    if ((l & 0x80000000L) == 0) {
+        if (!progress_wizard_requested() || !save_state_character_is_in_play()) {
+            return false;
+        }
+        prt("Attempting a resurrection!", 0, 0);
+        (void)player_resurrect_hp();
+
+        // don't let him starve to death immediately
+        if (player_food() < 0) {
+            player_set_food(0);
+        }
+
+        // don't let him die of poison again immediately
+        player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
+
+        set_dungeon_level(0); // Resurrect on the town level.
+        set_character_generated(true);
+
+        // set noscore to indicate a resurrection, and don't enter
+        // wizard mode
+        progress_set_wizard_requested(false);
+        set_score_disqualifications((int16_t)(score_disqualifications() | SCORE_DISQUALIFY_RESURRECTED));
+    } else {
+        // Make sure that this message is seen, since it is a bit
+        // more interesting than the other messages.
+        msg_print("Restoring Memory of a departed spirit...");
+        progress_set_turn(-1);
+    }
+    put_qio();
+    return true;
+}
+
+// The level the character is on: the map, the floor items and the monsters, and
+// (before 5.1.3) the stores. False when the file is bad.
+static bool rd_level(uint8_t version_min, uint8_t patch_level, bool *generate, uint32_t *time_saved) {
+    prt("Restoring Character...", 0, 0);
+    put_qio();
+
+    // only level specific info should follow,
+    // not present for dead characters
+
+    // Read into a local uint16_t, then set through the window.
+    uint16_t dungeon_level_read;
+    rd_short(&dungeon_level_read);
+    set_dungeon_level((int16_t)dungeon_level_read);
+    uint16_t char_row_read, char_col_read;
+    rd_short(&char_row_read);
+    rd_short(&char_col_read);
+    player_place((int16_t)char_row_read, (int16_t)char_col_read);
+    uint16_t mon_tot_mult_read;
+    rd_short(&mon_tot_mult_read);
+    set_monster_breeding_count((int16_t)mon_tot_mult_read);
+    // Dungeon size: one setter takes both height and width.
+    uint16_t level_height_read, level_width_read;
+    rd_short(&level_height_read);
+    rd_short(&level_width_read);
+    set_dungeon_size((int16_t)level_height_read, (int16_t)level_width_read);
+    uint16_t max_panel_rows_read, max_panel_cols_read;
+    rd_short(&max_panel_rows_read);
+    rd_short(&max_panel_cols_read);
+    panel_set_max_indexes((int16_t)max_panel_rows_read, (int16_t)max_panel_cols_read);
+
+    uint8_t char_tmp, ychar, xchar, count;
+
+    // read in the creature ptr info
+    rd_byte(&char_tmp);
+    while (char_tmp != 0xFF) {
+        ychar = char_tmp;
+        rd_byte(&xchar);
+        rd_byte(&char_tmp);
+        if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
+            return false;
+        }
+        square_at(ychar, xchar)->cptr = char_tmp;
+        rd_byte(&char_tmp);
+    }
+
+    // read in the treasure ptr info
+    rd_byte(&char_tmp);
+    while (char_tmp != 0xFF) {
+        ychar = char_tmp;
+        rd_byte(&xchar);
+        rd_byte(&char_tmp);
+        if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
+            return false;
+        }
+        square_at(ychar, xchar)->tptr = char_tmp;
+        rd_byte(&char_tmp);
+    }
+
+    // Run-length encoded fval and light bits. The file stores squares in
+    // row-major order, so total_count directly indexes the grid: square n is
+    // (n / MAX_WIDTH, n % MAX_WIDTH).
+    int total_count = 0;
+    while (total_count != MAX_HEIGHT * MAX_WIDTH) {
+        rd_byte(&count);
+        rd_byte(&char_tmp);
+        for (int i = count; i > 0; i--) {
+            if (total_count >= MAX_HEIGHT * MAX_WIDTH) {
+                return false;
+            }
+            cave_type *c_ptr =
+                square_at(total_count / MAX_WIDTH, total_count % MAX_WIDTH);
+            c_ptr->fval = char_tmp & 0xF;
+            c_ptr->lr = (char_tmp >> 4) & 0x1;
+            c_ptr->fm = (char_tmp >> 5) & 0x1;
+            c_ptr->pl = (char_tmp >> 6) & 0x1;
+            c_ptr->tl = (char_tmp >> 7) & 0x1;
+            total_count++;
+        }
+    }
+
+    // The two marks below are put back before they are checked, exactly
+    // as the old `rd_short((uint16_t *)&tcptr)` and `&mfptr` did -- a file
+    // claiming more rows than the table holds leaves the mark bogus and
+    // then fails the load.
+    uint16_t floor_used;
+    rd_short(&floor_used);
+    set_floor_items_used((int16_t)floor_used);
+    if (floor_items_used() > MAX_TALLOC) {
+        return false;
+    }
+    for (int i = MIN_TRIX; i < floor_items_used(); i++) {
+        rd_item(floor_item_at(i));
+    }
+    uint16_t monsters_used;
+    rd_short(&monsters_used);
+    set_monster_list_used((int16_t)monsters_used);
+    if (monster_list_used() > MAX_MALLOC) {
+        return false;
+    }
+    for (int i = MIN_MONIX; i < monster_list_used(); i++) {
+        rd_monster(monster_list_at(i));
+    }
+
+    *generate = false; // We have restored a cave - no need to generate.
+
+    if (savefile_before(version_min, patch_level, 1, 3)) {
+        for (int i = 0; i < store_count(); i++) {
+            if (!rd_store(store_at(i))) {
+                return false;
+            }
+        }
+    }
+
+    // read the time that the file was saved
+    if (savefile_before(version_min, patch_level, 0, 16)) {
+        *time_saved = 0; // no time in file, clear to zero
+    } else if (version_min == 1 && patch_level < 3) {
+        rd_long(time_saved);
+    }
+    return true;
+}
+
 // Certain checks are ommitted for the wizard. -CJS-
 bool get_char(bool *generate) {
     uint32_t time_saved;
@@ -738,350 +1079,47 @@ bool get_char(bool *generate) {
         msg_print("Can't open file for reading.");
     } else {
         progress_set_turn(-1);
-        bool ok = true;
 
         (void)close(fd);
         fd = -1; // Make sure it isn't closed again
         fileptr = fopen(save_file_path(), "rb");
 
-        if (fileptr == NULL) {
-            goto error;
-        }
-
-        prt("Restoring Memory...", 0, 0);
-        put_qio();
-
-        SAVE_LOG(logfile = fopen("IO_LOG", "a"));
-        SAVE_LOG(fprintf(logfile, "Reading data from %s\n", save_file_path()));
-
-        uint8_t version_maj, version_min, patch_level;
-
-        xor_byte = 0;
-        rd_byte(&version_maj);
-        xor_byte = 0;
-        rd_byte(&version_min);
-        xor_byte = 0;
-        rd_byte(&patch_level);
-        xor_byte = 0;
-        rd_byte(&xor_byte);
-
-        // COMPAT support savefiles from 5.0.14 to 5.0.17.
-        // Support savefiles from 5.1.0 to present.
-        // As of version 5.4, accept savefiles even if they have higher version numbers.
-        // The savefile format was frozen as of version 5.2.2.
-        if ((version_maj != CUR_VERSION_MAJ) || savefile_before(version_min, patch_level, 0, 14)) {
-            prt("Sorry. This savefile is from a different version of umoria.", 2, 0);
-            goto error;
-        }
-
-        uint16_t uint16_t_tmp;
-        rd_short(&uint16_t_tmp);
-        while (uint16_t_tmp != 0xFFFF) {
-            if (uint16_t_tmp >= MAX_CREATURES) {
-                goto error;
-            }
-            recall_type *r_ptr = recall_get(monster_creature_at(uint16_t_tmp));
-            rd_long(&r_ptr->r_cmove);
-            rd_long(&r_ptr->r_spells);
-            rd_short(&r_ptr->r_kills);
-            rd_short(&r_ptr->r_deaths);
-            rd_short(&r_ptr->r_cdefense);
-            rd_byte(&r_ptr->r_wake);
-            rd_byte(&r_ptr->r_ignore);
-            rd_bytes(r_ptr->r_attacks, MAX_MON_NATTACK);
-            rd_short(&uint16_t_tmp);
-        }
-
-        // for save files before 5.2.2, read and ignore log_index (sic)
-        if (savefile_before(version_min, patch_level, 2, 2)) {
-            rd_short(&uint16_t_tmp);
-        }
-
-        uint32_t l;
-        rd_long(&l);
-
-        // The same eleven bits sv_write() packed; the bit assignment lives in
-        // options.c, so this side cannot drift from that one.
-        game_options_unpack(l);
-
-        // save files before 5.2.2 have no bit for sound_beep_flag nor for
-        // display_counts, so the bits just read are meaningless. Set them on
-        // for compatibility.
-        if (savefile_before(version_min, patch_level, 2, 2)) {
-            sound_beep_flag = true;
-            display_counts = true;
-        }
-
-        // Don't allow resurrection of characters that have won.  It causes
-        // problems because the character level is out of the allowed range.
-        if (progress_wizard_requested() && (l & 0x40000000L)) {
-            msg_print("Sorry, this character is retired from moria.");
-            msg_print("You can not resurrect a retired character.");
-        } else if (progress_wizard_requested() && (l & 0x80000000L) && get_check("Resurrect a dead character?")) {
-            l &= ~0x80000000L;
-        }
-
-        if ((l & 0x80000000L) == 0) {
-            rd_player();
-            uint16_t pack_count;
-            rd_short(&pack_count);
-            inventory_set_count((int16_t)pack_count);
-            if (inventory_count() > inventory_slot_count()) {
-                goto error;
-            }
-            for (int i = 0; i < inventory_count(); i++) {
-                rd_item(inventory_at(i));
-            }
-            for (int i = equipment_first_slot(); i < equipment_end_slot(); i++) {
-                rd_item(equipment_at(i));
-            }
-            uint16_t pack_weight;
-            rd_short(&pack_weight);
-            inventory_set_weight((int16_t)pack_weight);
-            uint16_t equip_count;
-            rd_short(&equip_count);
-            equipment_set_count((int16_t)equip_count);
-            uint32_t saved_spells_learned;
-            rd_long(&saved_spells_learned);
-            spells_set_learned_bits(saved_spells_learned);
-            uint32_t saved_spells_worked;
-            rd_long(&saved_spells_worked);
-            spells_set_worked_bits(saved_spells_worked);
-            uint32_t saved_spells_forgotten;
-            rd_long(&saved_spells_forgotten);
-            spells_set_forgotten_bits(saved_spells_forgotten);
-            rd_bytes(spell_order_bytes(), 32);
-            rd_bytes(item_kind_record_bytes(), item_kind_record_count());
-            uint32_t saved_color_seed;
-            rd_long(&saved_color_seed);
-            progress_set_color_seed(saved_color_seed);
-            uint32_t saved_town_seed;
-            rd_long(&saved_town_seed);
-            progress_set_town_seed(saved_town_seed);
-            uint16_t newest_msg_slot;
-            rd_short(&newest_msg_slot);
-            msg_history_set_newest_slot(newest_msg_slot);
-            for (int i = 0; i < msg_history_slot_count(); i++) {
-                rd_string(msg_history_slot(i));
-            }
-
-            bool saved_panic;
-            rd_bool(&saved_panic);
-            set_panic_save(saved_panic);
-            bool saved_has_won;
-            rd_bool(&saved_has_won);
-            set_player_has_won(saved_has_won);
-            uint16_t saved_disqualifications;
-            rd_short(&saved_disqualifications);
-            set_score_disqualifications((int16_t)saved_disqualifications);
-            rd_shorts(hp_table_slots(), MAX_PLAYER_LEVEL);
-
-            if (!savefile_before(version_min, patch_level, 1, 3)) {
-                for (int i = 0; i < store_count(); i++) {
-                    if (!rd_store(store_at(i))) {
-                        goto error;
-                    }
-                }
-            }
-
-            if (!savefile_before(version_min, patch_level, 1, 3)) {
-                rd_long(&time_saved);
-            }
-
-            if (version_min >= 2) {
-                rd_string(death_cause());
-            }
-
-            if (!savefile_before(version_min, patch_level, 2, 2)) {
-                // Read into a local first: max_score is int32_t and rd_long
-                // takes a uint32_t *, so the old cast lied about the pointer's
-                // type (the same fix as panel and the player's position).
-                uint32_t saved_best_score;
-                rd_long(&saved_best_score);
-                set_best_score_so_far((int32_t)saved_best_score);
-            } else {
-                set_best_score_so_far(0);
-            }
-
-            if (!savefile_before(version_min, patch_level, 2, 2)) {
-                uint32_t saved_birth_date;
-                rd_long(&saved_birth_date);
-                set_character_birth_date((int32_t)saved_birth_date);
-            } else {
-                set_character_birth_date((int32_t)time((time_t *)0));
-            }
-        }
-
-        int c = getc(fileptr);
-        if (c == EOF || (l & 0x80000000L)) {
-            if ((l & 0x80000000L) == 0) {
-                if (!progress_wizard_requested() || !save_state_character_is_in_play()) {
-                    goto error;
-                }
-                prt("Attempting a resurrection!", 0, 0);
-                (void)player_resurrect_hp();
-
-                // don't let him starve to death immediately
-                if (player_food() < 0) {
-                    player_set_food(0);
-                }
-
-                // don't let him die of poison again immediately
-                player_timed_shorten_to(PLAYER_TIMED_POISON, 1);
-
-                set_dungeon_level(0); // Resurrect on the town level.
-                set_character_generated(true);
-
-                // set noscore to indicate a resurrection, and don't enter
-                // wizard mode
-                progress_set_wizard_requested(false);
-                set_score_disqualifications((int16_t)(score_disqualifications() | SCORE_DISQUALIFY_RESURRECTED));
-            } else {
-                // Make sure that this message is seen, since it is a bit
-                // more interesting than the other messages.
-                msg_print("Restoring Memory of a departed spirit...");
-                progress_set_turn(-1);
-            }
+        uint8_t version_maj = 0, version_min = 0, patch_level = 0;
+        bool ok = fileptr != NULL;
+        if (ok) {
+            prt("Restoring Memory...", 0, 0);
             put_qio();
-            goto closefiles;
-        }
-        if (ungetc(c, fileptr) == EOF) {
-            goto error;
-        }
 
-        prt("Restoring Character...", 0, 0);
-        put_qio();
+            SAVE_LOG(logfile = fopen("IO_LOG", "a"));
+            SAVE_LOG(fprintf(logfile, "Reading data from %s\n", save_file_path()));
 
-        // only level specific info should follow,
-        // not present for dead characters
-
-        // Read into a local uint16_t, then set through the window.
-        uint16_t dungeon_level_read;
-        rd_short(&dungeon_level_read);
-        set_dungeon_level((int16_t)dungeon_level_read);
-        uint16_t char_row_read, char_col_read;
-        rd_short(&char_row_read);
-        rd_short(&char_col_read);
-        player_place((int16_t)char_row_read, (int16_t)char_col_read);
-        uint16_t mon_tot_mult_read;
-        rd_short(&mon_tot_mult_read);
-        set_monster_breeding_count((int16_t)mon_tot_mult_read);
-        // Dungeon size: one setter takes both height and width.
-        uint16_t level_height_read, level_width_read;
-        rd_short(&level_height_read);
-        rd_short(&level_width_read);
-        set_dungeon_size((int16_t)level_height_read, (int16_t)level_width_read);
-        uint16_t max_panel_rows_read, max_panel_cols_read;
-        rd_short(&max_panel_rows_read);
-        rd_short(&max_panel_cols_read);
-        panel_set_max_indexes((int16_t)max_panel_rows_read, (int16_t)max_panel_cols_read);
-
-        uint8_t char_tmp, ychar, xchar, count;
-
-        // read in the creature ptr info
-        rd_byte(&char_tmp);
-        while (char_tmp != 0xFF) {
-            ychar = char_tmp;
-            rd_byte(&xchar);
-            rd_byte(&char_tmp);
-            if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
-                goto error;
-            }
-            square_at(ychar, xchar)->cptr = char_tmp;
-            rd_byte(&char_tmp);
+            ok = rd_version(&version_maj, &version_min, &patch_level) && rd_monster_memory();
         }
 
-        // read in the treasure ptr info
-        rd_byte(&char_tmp);
-        while (char_tmp != 0xFF) {
-            ychar = char_tmp;
-            rd_byte(&xchar);
-            rd_byte(&char_tmp);
-            if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT) {
-                goto error;
-            }
-            square_at(ychar, xchar)->tptr = char_tmp;
-            rd_byte(&char_tmp);
-        }
-
-        // Run-length encoded fval and light bits. The file stores squares in
-        // row-major order, so total_count directly indexes the grid: square n is
-        // (n / MAX_WIDTH, n % MAX_WIDTH).
-        int total_count = 0;
-        while (total_count != MAX_HEIGHT * MAX_WIDTH) {
-            rd_byte(&count);
-            rd_byte(&char_tmp);
-            for (int i = count; i > 0; i--) {
-                if (total_count >= MAX_HEIGHT * MAX_WIDTH) {
-                    goto error;
-                }
-                cave_type *c_ptr =
-                    square_at(total_count / MAX_WIDTH, total_count % MAX_WIDTH);
-                c_ptr->fval = char_tmp & 0xF;
-                c_ptr->lr = (char_tmp >> 4) & 0x1;
-                c_ptr->fm = (char_tmp >> 5) & 0x1;
-                c_ptr->pl = (char_tmp >> 6) & 0x1;
-                c_ptr->tl = (char_tmp >> 7) & 0x1;
-                total_count++;
+        uint32_t l = 0;
+        if (ok) {
+            l = rd_options(version_min, patch_level);
+            if ((l & 0x80000000L) == 0) {
+                ok = rd_character(version_min, patch_level, &time_saved);
             }
         }
 
-        // The two marks below are put back before they are checked, exactly
-        // as the old `rd_short((uint16_t *)&tcptr)` and `&mfptr` did -- a file
-        // claiming more rows than the table holds leaves the mark bogus and
-        // then fails the load.
-        uint16_t floor_used;
-        rd_short(&floor_used);
-        set_floor_items_used((int16_t)floor_used);
-        if (floor_items_used() > MAX_TALLOC) {
-            goto error;
-        }
-        for (int i = MIN_TRIX; i < floor_items_used(); i++) {
-            rd_item(floor_item_at(i));
-        }
-        uint16_t monsters_used;
-        rd_short(&monsters_used);
-        set_monster_list_used((int16_t)monsters_used);
-        if (monster_list_used() > MAX_MALLOC) {
-            goto error;
-        }
-        for (int i = MIN_MONIX; i < monster_list_used(); i++) {
-            rd_monster(monster_list_at(i));
-        }
-
-        *generate = false; // We have restored a cave - no need to generate.
-
-        if (savefile_before(version_min, patch_level, 1, 3)) {
-            for (int i = 0; i < store_count(); i++) {
-                if (!rd_store(store_at(i))) {
-                    goto error;
+        if (ok) {
+            int c = getc(fileptr);
+            if (c == EOF || (l & 0x80000000L)) {
+                ok = restore_without_level(l);
+            } else {
+                ok = ungetc(c, fileptr) != EOF && rd_level(version_min, patch_level, generate, &time_saved) &&
+                     !ferror(fileptr) && save_state_character_is_in_play();
+                if (ok) {
+                    // don't overwrite the killed by string if character is dead
+                    if (!player_hp_marks_death()) {
+                        (void)strcpy(death_cause(), "(alive and well)");
+                    }
+                    set_character_generated(true);
                 }
             }
         }
-
-        // read the time that the file was saved
-        if (savefile_before(version_min, patch_level, 0, 16)) {
-            time_saved = 0; // no time in file, clear to zero
-        } else if (version_min == 1 && patch_level < 3) {
-            rd_long(&time_saved);
-        }
-
-        if (ferror(fileptr)) {
-            goto error;
-        }
-
-        if (!save_state_character_is_in_play()) {
-        error:
-            ok = false; // Assume bad data.
-        } else {
-            // don't overwrite the killed by string if character is dead
-            if (!player_hp_marks_death()) {
-                (void)strcpy(death_cause(), "(alive and well)");
-            }
-            set_character_generated(true);
-        }
-
-    closefiles:
 
         SAVE_LOG(fclose(logfile));
 

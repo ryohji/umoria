@@ -127,6 +127,9 @@ static int shift;
 #define B(i) ((uint8_t)(0x40 + (i) + shift))
 #define W(i) ((uint16_t)(0x2000 + (i) + shift))
 #define L(i) ((uint32_t)(0x30000000u + (i) + shift))
+/* レベルだけは 1〜MAX_PLAYER_LEVEL に収める（get_char() は外のレベルのファイルを
+ * 壊れたものとして断る。バグ候補 B7 を直した）。shift でずれるのは同じ。 */
+#define LEVEL() ((uint16_t)(10 + shift))
 
 /* 品物は 19 項目。seed は 20 ずつ離して使う。 */
 static void fill_item(inven_type *t, int seed)
@@ -246,7 +249,7 @@ static void fill_player(void)
     player_age_set(W(104));
     player_height_set(W(105));
     player_body_weight_set(W(106));
-    player_set_level(W(107));
+    player_set_level(LEVEL());
     player_max_depth_set(W(108));
     player_search_chance_set(W(109));
     player_search_frequency_set(W(110));
@@ -317,7 +320,7 @@ static void expect_player(void)
     expect_short("age", W(104));
     expect_short("height", W(105));
     expect_short("body_weight", W(106));
-    expect_short("level", W(107));
+    expect_short("level", LEVEL());
     expect_short("max_depth", W(108));
     expect_short("search_chance", W(109));
     expect_short("search_frequency", W(110));
