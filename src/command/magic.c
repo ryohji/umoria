@@ -30,6 +30,174 @@
 #include "player_condition.h"
 #include "player_spells.h"
 
+// The effect of the mage's spell number choice (from 0). Returns whether it
+// took a turn: took_turn as it was, or false when a direction was asked for
+// and not given.
+static bool spell_effect(int choice, bool took_turn) {
+    int dir;
+
+    // Spells.
+    switch (choice + 1) {
+    case 1:
+        if (get_dir(CNIL, &dir)) {
+            fire_bolt(GF_MAGIC_MISSILE, dir, player_row(), player_col(), damroll(2, 6), spell_names[0]);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 2:
+        (void)detect_monsters();
+        break;
+    case 3:
+        teleport(10);
+        break;
+    case 4:
+        (void)light_area(player_row(), player_col());
+        break;
+    case 5:
+        (void)hp_player(damroll(4, 4));
+        break;
+    case 6:
+        (void)detect_sdoor();
+        (void)detect_trap();
+        break;
+    case 7:
+        if (get_dir(CNIL, &dir)) {
+            fire_ball(GF_POISON_GAS, dir, player_row(), player_col(), 12, spell_names[6]);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 8:
+        if (get_dir(CNIL, &dir)) {
+            (void)confuse_monster(dir, player_row(), player_col());
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 9:
+        if (get_dir(CNIL, &dir)) {
+            fire_bolt(GF_LIGHTNING, dir, player_row(), player_col(), damroll(4, 8), spell_names[8]);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 10:
+        (void)td_destroy();
+        break;
+    case 11:
+        if (get_dir(CNIL, &dir)) {
+            (void)sleep_monster(dir, player_row(), player_col());
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 12:
+        (void)cure_poison();
+        break;
+    case 13:
+        teleport((player_level() * 5));
+        break;
+    case 14:
+        (void)remove_curse();
+        break;
+    case 15:
+        if (get_dir(CNIL, &dir)) {
+            fire_bolt(GF_FROST, dir, player_row(), player_col(), damroll(6, 8), spell_names[14]);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 16:
+        if (get_dir(CNIL, &dir)) {
+            (void)wall_to_mud(dir, player_row(), player_col());
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 17:
+        if (create_food() == EFFECT_CANCELLED) {
+            took_turn = false;
+        }
+        break;
+    case 18:
+        if (recharge(20) == EFFECT_CANCELLED) {
+            took_turn = false;
+        }
+        break;
+    case 19:
+        (void)sleep_monsters1(player_row(), player_col());
+        break;
+    case 20:
+        if (get_dir(CNIL, &dir)) {
+            (void)poly_monster(dir, player_row(), player_col());
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 21:
+        if (ident_spell() == EFFECT_CANCELLED) {
+            took_turn = false;
+        }
+        break;
+    case 22:
+        (void)sleep_monsters2();
+        break;
+    case 23:
+        if (get_dir(CNIL, &dir)) {
+            fire_bolt(GF_FIRE, dir, player_row(), player_col(), damroll(9, 8), spell_names[22]);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 24:
+        if (get_dir(CNIL, &dir)) {
+            (void)speed_monster(dir, player_row(), player_col(), -1);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 25:
+        if (get_dir(CNIL, &dir)) {
+            fire_ball(GF_FROST, dir, player_row(), player_col(), 48, spell_names[24]);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 26:
+        if (recharge(60) == EFFECT_CANCELLED) {
+            took_turn = false;
+        }
+        break;
+    case 27:
+        if (get_dir(CNIL, &dir)) {
+            (void)teleport_monster(dir, player_row(), player_col());
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 28:
+        player_timed_add(PLAYER_TIMED_HASTE, randint(20) + player_level());
+        break;
+    case 29:
+        if (get_dir(CNIL, &dir)) {
+            fire_ball(GF_FIRE, dir, player_row(), player_col(), 72, spell_names[28]);
+        } else {
+            took_turn = false;
+        }
+        break;
+    case 30:
+        destroy_area(player_row(), player_col());
+        break;
+    case 31:
+        (void)genocide();
+        break;
+    default:
+        break;
+    }
+    return took_turn;
+}
+
 // Throw a magic spell -RAK-
 // Returns whether it took a game turn.
 bool cast(void) {
@@ -60,168 +228,7 @@ bool cast(void) {
             if (randint(100) < chance) {
                 msg_print("You failed to get the spell off!");
             } else {
-                int dir;
-
-                // Spells.
-                switch (choice + 1) {
-                case 1:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_MAGIC_MISSILE, dir, player_row(), player_col(), damroll(2, 6), spell_names[0]);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 2:
-                    (void)detect_monsters();
-                    break;
-                case 3:
-                    teleport(10);
-                    break;
-                case 4:
-                    (void)light_area(player_row(), player_col());
-                    break;
-                case 5:
-                    (void)hp_player(damroll(4, 4));
-                    break;
-                case 6:
-                    (void)detect_sdoor();
-                    (void)detect_trap();
-                    break;
-                case 7:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_POISON_GAS, dir, player_row(), player_col(), 12, spell_names[6]);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 8:
-                    if (get_dir(CNIL, &dir)) {
-                        (void)confuse_monster(dir, player_row(), player_col());
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 9:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_LIGHTNING, dir, player_row(), player_col(), damroll(4, 8), spell_names[8]);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 10:
-                    (void)td_destroy();
-                    break;
-                case 11:
-                    if (get_dir(CNIL, &dir)) {
-                        (void)sleep_monster(dir, player_row(), player_col());
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 12:
-                    (void)cure_poison();
-                    break;
-                case 13:
-                    teleport((player_level() * 5));
-                    break;
-                case 14:
-                    (void)remove_curse();
-                    break;
-                case 15:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_FROST, dir, player_row(), player_col(), damroll(6, 8), spell_names[14]);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 16:
-                    if (get_dir(CNIL, &dir)) {
-                        (void)wall_to_mud(dir, player_row(), player_col());
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 17:
-                    if (create_food() == EFFECT_CANCELLED) {
-                        took_turn = false;
-                    }
-                    break;
-                case 18:
-                    if (recharge(20) == EFFECT_CANCELLED) {
-                        took_turn = false;
-                    }
-                    break;
-                case 19:
-                    (void)sleep_monsters1(player_row(), player_col());
-                    break;
-                case 20:
-                    if (get_dir(CNIL, &dir)) {
-                        (void)poly_monster(dir, player_row(), player_col());
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 21:
-                    if (ident_spell() == EFFECT_CANCELLED) {
-                        took_turn = false;
-                    }
-                    break;
-                case 22:
-                    (void)sleep_monsters2();
-                    break;
-                case 23:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_bolt(GF_FIRE, dir, player_row(), player_col(), damroll(9, 8), spell_names[22]);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 24:
-                    if (get_dir(CNIL, &dir)) {
-                        (void)speed_monster(dir, player_row(), player_col(), -1);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 25:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_FROST, dir, player_row(), player_col(), 48, spell_names[24]);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 26:
-                    if (recharge(60) == EFFECT_CANCELLED) {
-                        took_turn = false;
-                    }
-                    break;
-                case 27:
-                    if (get_dir(CNIL, &dir)) {
-                        (void)teleport_monster(dir, player_row(), player_col());
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 28:
-                    player_timed_add(PLAYER_TIMED_HASTE, randint(20) + player_level());
-                    break;
-                case 29:
-                    if (get_dir(CNIL, &dir)) {
-                        fire_ball(GF_FIRE, dir, player_row(), player_col(), 72, spell_names[28]);
-                    } else {
-                        took_turn = false;
-                    }
-                    break;
-                case 30:
-                    destroy_area(player_row(), player_col());
-                    break;
-                case 31:
-                    (void)genocide();
-                    break;
-                default:
-                    break;
-                }
-                // End of spells.
+                took_turn = spell_effect(choice, took_turn);
 
                 if (took_turn) {
                     if (!spell_has_worked(choice)) {
